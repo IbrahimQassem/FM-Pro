@@ -58,7 +58,6 @@ android {
 
             buildConfigField "String", "BASE_FB_DB" , '"InterNews"'
 
-//            rCbMQp9J4wuspTu
         }
 
         hudhud {
