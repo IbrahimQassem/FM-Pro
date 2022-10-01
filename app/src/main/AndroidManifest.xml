@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.sana.dev.fm">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<!--    <uses-permission android:name="android.permission.READ_PHONE_STATE" />-->
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
+    <application
+        android:name=".FmApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.HudHudFM"
+        tools:replace="android:supportsRtl"
+        tools:targetApi="31">
+        <activity
+            android:name=".ui.activity.SplashActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.HudHudFM.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.activity.ProgramDetailsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.ListMultiSelection"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.ImagePickerActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.FormAddPrgram"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.EpisodeAddStepperVertical"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.CommentsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.CardWizardLight"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.AboutAppActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.appuser.PhoneLoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.appuser.UserProfileActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.appuser.VerificationPhone"
+            android:screenOrientation="portrait" /> <!--  -->
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.activity.BaseActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".ui.activity.player.MusicServiceActivity" />
+        <activity android:name=".ui.activity.player.PlayerActivity" />
+        <activity android:name=".ui.activity.player.PermitActivity" />
+
+        <service
+            android:name=".utils.radio_player.PlaybackService"
+            android:exported="true" />
+        <service android:name=".utils.radio_player.RadioService" /> <!-- <service android:name=".attachmentviewer.MusicService" /> -->
+        <!-- <service android:name="com.sana.dev.fm.ui.activity.test.MusicService" /> -->
+        <receiver
+            android:name="androidx.media.session.MediaButtonReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver> <!-- Facebook Configuration -->
+        <!--
+        <meta-data
+                    android:name="com.facebook.sdk.ApplicationId"
+                    android:value="@string/facebook_app_id" />
+        -->
+        <!--
+        <meta-data
+                    android:name="com.facebook.sdk.AutoLogAppEventsEnabled"
+                    android:value="false" />
+        -->
+        <!--
+        <meta-data
+                    android:name="com.facebook.sdk.AdvertiserIDCollectionEnabled"
+                    android:value="false" /> &lt;!&ndash; for google service &ndash;&gt;
+        -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" /> <!-- cache directory file provider paths -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <service
+            android:name=".utils.my_firebase.notification.FcmMessagingService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service android:name=".ui.activity.player.MusicService" />
+    </application>
+
+</manifest>

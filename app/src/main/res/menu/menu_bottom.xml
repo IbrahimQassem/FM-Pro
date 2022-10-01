@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/nav_more"
+        android:title="@string/more"
+        android:icon="@drawable/ic_more_grey"
+        />
+
+    <item
+        android:id="@+id/nav_radio_map"
+        android:title="@string/radio_map"
+        android:icon="@drawable/ic_ballot"
+        />
+
+    <item
+        android:id="@+id/nav_daily_epi"
+        android:title="@string/nav_episode_daily"
+        android:icon="@drawable/ic_av_timer"
+        />
+
+
+    <item
+        android:id="@+id/navigation_home"
+        android:title="@string/nav_home"
+        android:icon="@drawable/ic_home"
+        />
+
+    <item
+        android:title=""
+        android:enabled="false"/>
+
+
+</menu>

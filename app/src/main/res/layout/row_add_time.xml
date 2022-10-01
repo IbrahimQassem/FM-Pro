@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="@dimen/spacing_large"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_margin="@dimen/spacing_small"
+        android:background="@color/grey_500" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_mlarge"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="@dimen/spacing_middle">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+
+
+            <TextView
+                android:id="@+id/tv_ep_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:hint="تحديد وقت البدء"
+                android:text=""
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                android:textColorHint="@color/red_200"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                android:drawableTint="@color/red_500"
+                android:drawablePadding="@dimen/spacing_small"
+                app:drawableStartCompat="@drawable/ic_access_time"
+                app:drawableLeftCompat="@drawable/ic_access_time"
+                android:layout_marginBottom="@dimen/spacing_medium"/>
+
+            <TextView
+                android:id="@+id/tv_ep_end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:hint="تحديد وقت الإنتهاء"
+                android:text=""
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                android:textColorHint="@color/red_200"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                android:drawableTint="@color/red_500"
+                android:drawablePadding="@dimen/spacing_small"
+                app:drawableStartCompat="@drawable/ic_access_time"
+                app:drawableLeftCompat="@drawable/ic_access_time"
+                android:layout_marginBottom="@dimen/spacing_medium"/>
+
+
+            <TextView
+                android:id="@+id/tv_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:hint="تحديد اليوم"
+                android:text=""
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                android:textColorHint="@color/red_200"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                android:drawableTint="@color/red_500"
+                android:drawablePadding="@dimen/spacing_small"
+                app:drawableStartCompat="@drawable/ic_date_range"
+                app:drawableLeftCompat="@drawable/ic_date_range"
+                android:layout_marginBottom="@dimen/spacing_medium"/>
+
+            <RadioGroup
+                android:id="@+id/rg_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layoutDirection="rtl"
+                android:orientation="vertical"
+                android:layout_gravity="center"               >
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="فرعي"
+                    android:textColor="@color/colorPrimary"
+                    android:buttonTint="@color/colorPrimary"
+                    android:layout_marginRight="@dimen/spacing_medium"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColorHint="@color/grey_40"/>
+
+                <View
+                    android:layout_width="@dimen/spacing_mlarge"
+                    android:layout_height="0dp" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="رئيسي"
+                    android:textColor="@color/colorPrimary"
+                    android:buttonTint="@color/colorPrimary"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColorHint="@color/grey_40" />
+
+            </RadioGroup>
+
+
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/spacing_middle"
+            android:background="@color/grey_500" />
+
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="end">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="وقت البدء"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
+                android:textColor="@color/grey_40"
+                android:layout_marginBottom="@dimen/spacing_medium"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="وقت الإنتهاء"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
+                android:textColor="@color/grey_40"
+                android:layout_marginBottom="@dimen/spacing_medium"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="يوم"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
+                android:textColor="@color/grey_40"
+                android:layout_marginBottom="@dimen/spacing_medium"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="وقت البث البرنامج ؟"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
+                android:textColor="@color/grey_40"
+                android:layout_marginBottom="@dimen/spacing_medium"/>
+        </LinearLayout>
+
+
+
+
+
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_middle"
+        app:backgroundTint="@color/red_500"
+        app:elevation="0dp"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_close" />
+
+</LinearLayout>
+
+
+    <!--<?xml version="1.0" encoding="utf-8"?>-->
+    <!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+    <!--    android:orientation="vertical"-->
+    <!--    android:layout_width="match_parent"-->
+    <!--    android:layout_height="wrap_content">-->
+
+    <!--    <LinearLayout-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:orientation="horizontal"-->
+    <!--        android:paddingTop="@dimen/spacing_medium"-->
+    <!--        android:paddingBottom="@dimen/spacing_xmedium">-->
+
+    <!--        <ImageView-->
+    <!--            android:id="@+id/image_remove"-->
+    <!--            android:layout_width="25dp"-->
+    <!--            android:layout_height="25dp"-->
+    <!--            app:tint="@color/red_700"-->
+    <!--            android:layout_marginRight="@dimen/spacing_medium"-->
+    <!--            android:layout_marginLeft="@dimen/spacing_medium"-->
+    <!--            android:layout_gravity="center_vertical"-->
+    <!--            app:srcCompat="@drawable/ic_delete" />-->
+
+    <!--        <EditText-->
+    <!--            android:id="@+id/et_ep_end"-->
+    <!--            style="@style/EditText_Flat_Grey"-->
+    <!--            android:layout_width="0dp"-->
+    <!--            android:layout_height="45dp"-->
+    <!--            android:layout_weight="1"-->
+    <!--            android:background="@drawable/edit_text_round_bg_outline"-->
+    <!--            android:editable="false"-->
+    <!--            android:focusable="false"-->
+    <!--            android:hint="ينتهي"-->
+    <!--            android:textSize="12sp"-->
+    <!--            android:layout_marginEnd="@dimen/spacing_middle"-->
+    <!--            android:paddingLeft="@dimen/spacing_middle"-->
+    <!--            android:textColorHint="@color/grey_20"-->
+    <!--            android:drawableTint="@color/grey_40"-->
+    <!--            android:drawablePadding="@dimen/spacing_small"-->
+    <!--            app:drawableEndCompat="@drawable/ic_access_time"-->
+    <!--            app:drawableRightCompat="@drawable/ic_access_time" />-->
+
+    <!--    <EditText-->
+    <!--        android:id="@+id/et_ep_start"-->
+    <!--        style="@style/EditText_Flat_Grey"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="45dp"-->
+    <!--        android:layout_weight="1"-->
+    <!--        android:background="@drawable/edit_text_round_bg_outline"-->
+    <!--        android:editable="false"-->
+    <!--        android:focusable="false"-->
+    <!--        android:hint="يبدأ"-->
+    <!--        android:textSize="12sp"-->
+    <!--        android:layout_marginEnd="@dimen/spacing_middle"-->
+    <!--        android:paddingLeft="@dimen/spacing_middle"-->
+    <!--        android:textColorHint="@color/grey_20"-->
+    <!--        android:drawableTint="@color/grey_40"-->
+    <!--        android:drawablePadding="@dimen/spacing_small"-->
+    <!--        app:drawableEndCompat="@drawable/ic_access_time"-->
+    <!--        app:drawableRightCompat="@drawable/ic_access_time" />-->
+
+
+    <!--&lt;!&ndash;    <RadioGroup&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:id="@+id/rg_group"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:layout_width="wrap_content"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:layout_height="wrap_content"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:layout_marginTop="@dimen/spacing_medium"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:layoutDirection="rtl"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:orientation="horizontal">&ndash;&gt;-->
+    <!--&lt;!&ndash;    </RadioGroup>&ndash;&gt;-->
+    <!--    <RadioButton-->
+    <!--        android:id="@+id/radio_main"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="رئيسي"-->
+    <!--        android:textColor="@color/green_500"-->
+    <!--        android:buttonTint="@color/green_500"-->
+    <!--        android:layout_marginRight="@dimen/spacing_medium"-->
+    <!--        android:paddingRight="@dimen/spacing_medium"-->
+    <!--        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"-->
+    <!--       android:textColorHint="@color/grey_40" />-->
+
+
+    <!--    &lt;!&ndash;    <EditText&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:id="@+id/edit_cricketer_name"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:layout_marginLeft="10dp"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:layout_marginRight="5dp"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:background="@drawable/round_edges"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:layout_weight="1"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:hint="Cricketer Name"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:textSize="14sp"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:paddingLeft="10dp"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:textColor="@color/colorAccent"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:layout_width="match_parent"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:layout_height="40dp" />&ndash;&gt;-->
+
+    <!--&lt;!&ndash;    <FrameLayout&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:layout_width="wrap_content"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:layout_height="wrap_content"&ndash;&gt;-->
+    <!--&lt;!&ndash;        android:background="@drawable/round_edges">&ndash;&gt;-->
+
+    <!--&lt;!&ndash;        <androidx.appcompat.widget.AppCompatSpinner&ndash;&gt;-->
+    <!--&lt;!&ndash;            android:id="@+id/spinner_team"&ndash;&gt;-->
+    <!--&lt;!&ndash;            android:layout_width="150dp"&ndash;&gt;-->
+    <!--&lt;!&ndash;            android:layout_height="40dp" />&ndash;&gt;-->
+    <!--&lt;!&ndash;    </FrameLayout>&ndash;&gt;-->
+
+
+    <!--    </LinearLayout>-->
+
+
+    <!--    <View-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="1dp"-->
+    <!--        android:background="@color/grey_10"/>-->
+
+    <!--</LinearLayout>-->

@@ -1,0 +1,42 @@
+[
+  {
+    "name": "mp3",
+    "stream": "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3"
+  },
+  {
+    "name": "Yemen Fm - Radio ",
+    "stream": "http://93.190.141.15:7183/live"
+  },
+  {
+    "name": "BBC - Radio 1",
+    "stream": "https://www.bbc.co.uk/sounds/play/live:bbc_radio_five_live"
+  },
+  {
+    "name": "BBC - Radio 2",
+    "stream": "https://podcastsmanager.google.com/episode?show=show%3At3r9XVjAR3bfJbdi1bGiyA&episode=aHR0cHM6Ly9tZWRpYS5yc3MuY29tL3llLXJhZGlvLzIwMjEwMTE1XzIzNDIzNV9hMDhhZjlmY2RiYjgxMDBkOGZiMGZiNWExNDY2MGZlZi5tcDM&daterange=LAST_28D&hl=en"
+  },
+  {
+    "name": "BBC - Radio 3",
+    "stream": "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio3_mf_p"
+  },
+  {
+    "name": "BBC - Radio 4",
+    "stream": "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio4fm_mf_p"
+  },
+  {
+    "name": "BBC - Radio 5 live",
+    "stream": "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio5live_mf_p"
+  },
+  {
+    "name": "BBC - Radio 6",
+    "stream": "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_6music_mf_p"
+  },
+  {
+    "name": "BBC Radio Asian Network",
+    "stream": "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_asianet_mf_p"
+  },
+  {
+    "name": "BBC World Service",
+    "stream": "http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk"
+  }
+]

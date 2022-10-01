@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?><!--colors.xml-->
+<resources>
+
+    <color name="colorPrimary">#e91e63</color>
+    <color name="colorPrimaryDark">#c2185b</color>
+    <color name="colorPrimaryLight">#f8bbd0</color>
+
+    <color name="colorAccent">#ff4081</color>
+    <color name="colorAccentDark">#f50057</color>
+    <color name="colorAccentLight">#f8bbd0</color>
+
+
+    <color name="fab_color_pressed">#f8bbd0</color>
+    <color name="fab_color_shadow">#f48fb1</color>
+    <color name="text_like_counter">#c51162</color>
+
+    <color name="mask_color">#66C2185B</color>
+
+
+</resources>

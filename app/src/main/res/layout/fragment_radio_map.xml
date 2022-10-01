@@ -1,0 +1,60 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/spacing_large" />
+
+
+        <TextView
+            android:id="@+id/tvTittle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_middle"
+            android:layout_marginEnd="@dimen/spacing_middle"
+            android:gravity="center_vertical"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColor="@color/grey_90" />
+<!--        <TextView-->
+<!--            android:id="@+id/tvTittle"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text=""-->
+<!--            android:layout_marginStart="@dimen/spacing_middle"-->
+<!--            android:layout_marginEnd="@dimen/spacing_middle"-->
+<!--            android:textAppearance="@style/TextAppearance.AppCompat.Body1"-->
+<!--            android:textColor="@color/grey_80" />-->
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/spacing_large" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/grey_100"
+            android:padding="@dimen/spacing_middle"
+            android:clipToPadding="false"
+            tools:listitem="@layout/item_timeline" />
+
+
+        <FrameLayout
+            android:visibility="gone"
+            android:id="@+id/child_fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </FrameLayout>
+
+    </LinearLayout>
+
+
+</FrameLayout>

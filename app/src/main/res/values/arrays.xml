@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <string-array name="program_category">
+        <item>إجتماعي</item>
+        <item>شبابي</item>
+        <item>كوميدي</item>
+        <item>سياسي</item>
+        <item>ديني</item>
+        <item>مسابقاتي</item>
+        <item>صحي</item>
+        <item>طبخ</item>
+        <item>مسلسلات</item>
+        <item>منوع</item>
+        <item>رياضي</item>
+        <item>ثقافي</item>
+        <item>ترفيهي</item>
+        <item>موسيقي</item>
+
+    </string-array>
+    <integer-array name="people_images">
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+
+
+    </integer-array>
+    <string-array name="people_names">
+        <item>حورية وخبيرتها</item>
+        <item>ودافة</item>
+        <item>يا لاقي الجايزة</item>
+        <item>روح</item>
+        <item>برنامج شكراً</item>
+
+        <item>كوكتيل بلدي</item>
+        <item>ممكن نتعرف !</item>
+        <item>الكلمة الراقية</item>
+        <item>برنامج قفشة</item>
+        <item>صنعاء لايف</item>
+
+        <item>إستدعاء طالب</item>
+        <item>هدار و داوية</item>
+        <item>الأغلبية الصامته</item>
+        <item>هوانا FM</item>
+        <item>مسابقات</item>
+    </string-array>
+
+
+    <!--<string-array name="month">-->
+    <!--<item>January</item>-->
+    <!--<item>February</item>-->
+    <!--<item>March</item>-->
+    <!--<item>April</item>-->
+    <!--<item>May</item>-->
+    <!--<item>June</item>-->
+    <!--<item>July</item>-->
+    <!--<item>August</item>-->
+    <!--<item>September</item>-->
+    <!--<item>October</item>-->
+    <!--<item>November</item>-->
+    <!--<item>December</item>-->
+    <!--</string-array>-->
+
+    <string-array name="month">
+        <item>سبتمبر</item>
+        <item>فبراير</item>
+        <item>مارس</item>
+        <item>ابريل</item>
+        <item>مايو</item>
+        <item>يونيو</item>
+        <item>يوليو</item>
+        <item>اغسطس</item>
+        <item>سبتمبر</item>
+        <item>أكتوبر</item>
+        <item>نوفمبر</item>
+        <item>ديسمبر</item>
+    </string-array>
+
+
+    <string-array name="sample_images_name">
+        <item>حورية وخبيرتها</item>
+        <item>ودافة</item>
+        <item>يا لاقي الجايزة</item>
+        <item>روح</item>
+        <item>برنامج شكراً</item>
+
+        <item>كوكتيل بلدي</item>
+        <item>ممكن نتعرف !</item>
+        <item>الكلمة الراقية</item>
+        <item>برنامج قفشة</item>
+        <item>صنعاء لايف</item>
+
+        <item>إستدعاء طالب</item>
+        <item>هدار و داوية</item>
+        <item>الأغلبية الصامته</item>
+        <item>هوانا FM</item>
+        <item>مسابقات</item>
+    </string-array>
+
+    <integer-array name="sample_images">
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+        <item>@drawable/iram_fm</item>
+    </integer-array>
+
+    <string-array name="general_date">
+        <item>05 ديسمبر 2019</item>
+        <item>22 ابريل 2019</item>
+        <item>14 سبتمبر 2019</item>
+        <item>11 فبراير 2019</item>
+        <item>29 اغسطس 2019</item>
+        <item>10 نوفمبر 2019</item>
+        <item>23 يونيو 2019</item>
+        <item>20 يوليو 2019</item>
+        <item>09 مارس 2019</item>
+        <item>01 Jan 2019</item>
+    </string-array>
+
+    <array name="category">
+        <item>إجتماعي</item>
+        <item>كوميدي</item>
+        <item>ثفافي</item>
+        <item>شبابي</item>
+        <item>ديني</item>
+    </array>
+
+    <!-- Toolbar titles when navigation menu item is selected -->
+
+</resources>

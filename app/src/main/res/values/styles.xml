@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?><!-- styles.xml-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+
+
+    <!--    <style name="MyActionBarTheme" parent="ThemeOverlay.AppCompat.Light">-->
+    <!--        <item name="android:textColorPrimary">@color/colorPrimary</item>-->
+    <!--    </style>-->
+
+    <style name="Theme.HudHudFM.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="ContextMenuButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/btn_context_menu</item>
+        <item name="android:gravity">center|center_vertical</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="ProgressBar_White" parent="@style/Theme.HudHudFM">
+        <item name="colorPrimary">@android:color/white</item>
+        <item name="colorAccent">@android:color/white</item>
+    </style>
+
+    <style name="EditText_White" parent="@style/Theme.HudHudFM">
+        <item name="colorControlActivated">@android:color/white</item>
+        <item name="colorControlHighlight">@android:color/white</item>
+        <item name="colorControlNormal">@color/grey_10</item>
+    </style>
+
+    <style name="EditText_White_Hint" parent="@style/EditText_White">
+        <item name="colorAccent">@android:color/white</item>
+        <item name="android:textColorHint">@color/grey_10</item>
+    </style>
+
+    <!--style for ripple library-->
+    <style name="RippleStyleWhite">
+        <item name="mrl_rippleOverlay">true</item>
+        <item name="mrl_rippleColor">#80FFFFFF</item>
+        <item name="mrl_rippleHover">true</item>
+        <item name="mrl_rippleAlpha">0.2</item>
+    </style>
+
+
+
+
+    <style name="RippleStyleBlack" parent="RippleStyleWhite">
+        <item name="mrl_rippleColor">#8096989A</item>
+    </style>
+
+
+<!--    ////////// Firebase-->
+    <!-- Activity with no Title -->
+
+    <!-- Dark Buttons -->
+    <style name="ThemeOverlay.MyDarkButton" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="colorButtonNormal">@color/grey_500</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:layout_marginRight">4dp</item>
+        <item name="android:layout_marginLeft">4dp</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <!-- Light EditTexts -->
+
+    <style name="ThemeOverlay.MyTextDetail" parent="Theme.HudHudFM">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fadeScrollbars">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:maxLines">5</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:scrollbars">vertical</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="ThemeOverlay.FirebaseIcon" parent="Theme.HudHudFM">
+        <item name="android:layout_marginTop">@dimen/spacing_medium</item>
+        <item name="android:layout_marginBottom">@dimen/spacing_medium</item>
+    </style>
+
+    <style name="ThemeOverlay.MyTitleText" parent="Theme.HudHudFM">
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">36sp</item>
+    </style>
+
+    <style name="EditText_Flat_Grey">
+        <item name="android:textAppearance">@style/Base.TextAppearance.AppCompat.Subhead</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textColorHint">@color/grey_40</item>
+    </style>
+
+    <style name="Button_Primary">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="colorButtonNormal">@color/colorPrimary</item>
+    </style>
+
+    <style name="Button.Accent" parent="@style/Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@color/colorAccent</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="Button.White.Primary" parent="@style/Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@android:color/white</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="Yellow.AppCompatRatingBar" parent="Base.Widget.AppCompat.RatingBar.Indicator">
+        <item name="colorControlNormal">@color/grey_60</item>
+        <item name="colorControlActivated">@color/yellow_600</item>
+    </style>
+
+    <!--    <style name="Button.Accent" parent="@style/Widget.AppCompat.Button.Colored">-->
+    <!--        <item name="colorButtonNormal">@color/colorAccent</item>-->
+    <!--        <item name="android:textColor">@android:color/white</item>-->
+    <!--    </style>-->
+
+    <style name="Button.Primary.Borderless" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="Button.Accent.Borderless" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
+    <style name="ProgressD" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.HudHudFM.AppBarOverlay">
+        <!--        <item name="android:textColorPrimary">@color/pink_500</item>-->
+        <!--        <item name="android:textColorSecondary">@color/pink_700</item>-->
+    </style>
+
+    <!--    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">-->
+    <!--        <item name="android:textColorPrimary">@color/pink_500</item>-->
+    <!--        <item name="android:textColorSecondary">@color/pink_700</item>-->
+    <!--    </style>-->
+
+    <style name="Toolbar_Light">
+        <item name="android:textColorPrimary">@color/grey_60</item>
+        <item name="colorControlNormal">@color/grey_60</item>
+    </style>
+
+
+    <!-- Green App Theme -->
+    <style name="AppTheme.Main" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <!-- AppCompat Attributes -->
+        <item name="colorPrimary">@color/pink_500</item>
+        <item name="colorPrimaryDark">@color/pink_700</item>
+        <item name="colorAccent">@color/pink_A200</item>
+
+        <!-- AppCompat Control Attributes -->
+        <!--        &lt;!&ndash; Other control states (not in this example)-->
+        <item name="colorButtonNormal">@color/pink_500</item>
+        <item name="colorControlNormal">@color/pink_500</item>
+        <item name="colorControlActivated">@color/pink_500</item>
+        <item name="colorControlHighlight">@color/fab_color_pressed</item>
+        -
+
+        <!-- AppCompat Dialog Attributes -->
+        <item name="dialogTheme">@style/AppTheme.Dialog.Main</item>
+        <item name="alertDialogTheme">@style/AppTheme.Dialog.Alert.Main</item>
+
+
+    </style>
+
+    <!-- Green Dialog Theme -->
+    <style name="AppTheme.Dialog.Main" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorPrimary">@color/pink_500</item>
+        <item name="colorPrimaryDark">@color/pink_700</item>
+        <item name="colorAccent">@color/pink_A200</item>
+    </style>
+
+    <!-- Green Alert Dialog Theme -->
+    <style name="AppTheme.Dialog.Alert.Main" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/pink_500</item>
+        <item name="colorPrimaryDark">@color/pink_700</item>
+        <item name="colorAccent">@color/pink_A200</item>
+    </style>
+
+
+</resources>

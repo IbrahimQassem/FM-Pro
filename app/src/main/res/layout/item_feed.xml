@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?><!-- item_feed.xml -->
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="@dimen/spacing_medium"
+                android:layout_marginEnd="@dimen/spacing_medium"
+                android:fontFamily="@font/tajwal_regular"
+                android:gravity="end"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="20sp"
+                tools:text="@string/app_name" />
+
+            <com.mikhaellopez.circularimageview.CircularImageView
+                android:id="@+id/ivUserProfile"
+                android:layout_width="@dimen/global_card_avatar_size"
+                android:layout_height="@dimen/global_card_avatar_size"
+                android:layout_margin="@dimen/spacing_medium"
+                android:padding="@dimen/spacing_small"
+                app:civ_border="true"
+                app:civ_border_color="@color/fab_color_shadow"
+                app:civ_border_width="0.5dp"
+                app:elevation="@dimen/spacing_medium"
+                app:srcCompat="@drawable/logo_app" />
+
+        </LinearLayout>
+
+
+        <com.sana.dev.fm.ui.view.SquaredFrameLayout
+            android:id="@+id/vImageRoot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/ivFeedCenter"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/logo_app" />
+
+
+            <View
+                android:id="@+id/vBgLike"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_like_circle_background"
+                android:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/ivLike"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:scaleType="center"
+                android:visibility="visible"
+                app:srcCompat="@drawable/ic_heart_outline_white" />
+
+        </com.sana.dev.fm.ui.view.SquaredFrameLayout>
+
+
+        <TextView
+            android:id="@+id/tvSubTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/tajwal_medium"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:padding="4dp"
+            android:textAlignment="center"
+            tools:text="@string/label_announcer_name" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="2dp" />
+
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="2"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColor="@color/colorPrimaryDark"
+            tools:text="@string/label_desc" />
+
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="2dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/spacing_large"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:layout_marginRight="@dimen/spacing_large"
+            android:layout_marginBottom="@dimen/spacing_large"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textColor="@color/colorPrimaryDark"
+                tools:text="@string/label_date" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tvTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="@color/colorPrimaryDark" />
+        </LinearLayout>
+
+        <!--        <LinearLayout-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginLeft="@dimen/spacing_large"-->
+        <!--            android:layout_marginTop="@dimen/spacing_medium"-->
+        <!--            android:layout_marginRight="@dimen/spacing_large"-->
+        <!--            android:layout_marginBottom="@dimen/spacing_large"-->
+        <!--            android:orientation="vertical">-->
+
+        <!--            <LinearLayout-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:orientation="horizontal">-->
+
+        <!--                <TextView-->
+        <!--                    android:layout_width="wrap_content"-->
+        <!--                    android:layout_height="wrap_content"-->
+        <!--                    android:text="مقدم البرنامج"-->
+        <!--                    android:textAllCaps="true"-->
+        <!--                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"-->
+        <!--                    android:textColor="@color/grey_40"-->
+        <!--                    app:fontFamily="@font/tajawal_light"/>-->
+
+        <!--                <View-->
+        <!--                    android:layout_width="0dp"-->
+        <!--                    android:layout_height="0dp"-->
+        <!--                    android:layout_weight="1" />-->
+
+        <!--                <TextView-->
+        <!--                    android:id="@+id/tvAnnouncer"-->
+        <!--                    android:layout_width="wrap_content"-->
+        <!--                    android:layout_height="wrap_content"-->
+        <!--                    android:text=""-->
+        <!--                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"-->
+        <!--                    android:textColor="@color/colorPrimaryDark" />-->
+
+
+        <!--            </LinearLayout>-->
+
+
+        <!--        </LinearLayout>-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp">
+
+            <ImageButton
+                android:id="@+id/btnLike"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:srcCompat="@drawable/ic_heart_outline_grey" />
+
+
+            <ImageButton
+                android:id="@+id/btnComments"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/btn_feed_action"
+                app:srcCompat="@drawable/ic_comment_outline_grey" />
+
+            <ImageButton
+                android:id="@+id/btnMore"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/btn_feed_action"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_more_grey" />
+
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="@color/grey_40"
+                app:srcCompat="@drawable/ic_share" />
+
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical|right">
+
+                <!--                <ImageView-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                     app:srcCompat="@drawable/ic_heart_small_blue" />-->
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:tint="@color/colorPrimaryDark"
+                    app:srcCompat="@drawable/ic_favorites" />
+
+                <TextSwitcher
+                    android:id="@+id/tsLikesCounter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:inAnimation="@anim/slide_in_likes_counter"
+                    android:outAnimation="@anim/slide_out_likes_counter">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="إعجاب 1 "
+                        android:textColor="@color/text_like_counter" />
+
+
+                </TextSwitcher>
+            </LinearLayout>
+
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_bookmark_outline_grey" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
