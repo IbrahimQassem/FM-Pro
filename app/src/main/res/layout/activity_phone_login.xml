@@ -7,15 +7,25 @@
     android:fitsSystemWindows="true">
 
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical">
 
-        <RelativeLayout
+
+        <ImageView
             android:layout_width="match_parent"
+            android:layout_height="220dp"
+            app:srcCompat="@drawable/img_number_verification" />
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center">
+            android:layout_centerInParent="true"
+            android:scrollbars="none"
+            android:scrollingCache="true">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -24,11 +34,6 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-
-                <ImageView
-                    android:layout_width="220dp"
-                    android:layout_height="220dp"
-                     app:srcCompat="@drawable/img_number_verification" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -85,24 +90,23 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/phone_number"
-                        android:inputType="phone"
                         android:imeOptions="actionGo"
+                        android:inputType="phone"
                         android:maxLines="1"
                         android:singleLine="true"
                         android:text=""
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-                        android:textColor="@color/grey_90"
-                        >
-<!--                    <com.google.android.material.textfield.TextInputEditText-->
-<!--                        android:id="@+id/editTextPhone"-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:hint="@string/phone_number"-->
-<!--                        android:inputType="phone"-->
-<!--                        android:maxLines="1"-->
-<!--                        android:singleLine="true"-->
-<!--                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"-->
-<!--                        android:textColor="@color/grey_90">-->
+                        android:textColor="@color/grey_90">
+                        <!--                    <com.google.android.material.textfield.TextInputEditText-->
+                        <!--                        android:id="@+id/editTextPhone"-->
+                        <!--                        android:layout_width="match_parent"-->
+                        <!--                        android:layout_height="wrap_content"-->
+                        <!--                        android:hint="@string/phone_number"-->
+                        <!--                        android:inputType="phone"-->
+                        <!--                        android:maxLines="1"-->
+                        <!--                        android:singleLine="true"-->
+                        <!--                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"-->
+                        <!--                        android:textColor="@color/grey_90">-->
 
                         <requestFocus />
 
@@ -116,12 +120,17 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/btn_rounded_red"
                     android:fontFamily="@font/tajawal_bold"
+                    android:imeOptions="actionDone"
                     android:text="@string/send"
                     android:textColor="@android:color/white" />
 
 
             </LinearLayout>
 
-        </RelativeLayout>
-    </ScrollView>
+        </androidx.core.widget.NestedScrollView>
+
+
+    </LinearLayout>
+
+
 </RelativeLayout>

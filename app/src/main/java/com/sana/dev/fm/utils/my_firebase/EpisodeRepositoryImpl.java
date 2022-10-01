@@ -78,7 +78,7 @@ public class EpisodeRepositoryImpl extends FirebaseRepository implements Episode
     public void createEpi(String riId, String rpId, Episode episode, CallBack callBack) {
         String pushKey = riId + "__" + colRef.document().getId();
         if (episode != null && !isEmptyOrNull(pushKey)) {
-            ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
 
             episode.setEpId(pushKey);
             DocumentReference documentReference = colRef.document(riId).collection(EPISODE_TABLE).document(pushKey);
@@ -261,7 +261,7 @@ public class EpisodeRepositoryImpl extends FirebaseRepository implements Episode
     @Override
     public void deleteEpi(Episode episode, final CallBack callBack) {
         if (!isEmptyOrNull(episode.getEpId()) && !isEmptyOrNull(episode.getRadioId())) {
-            ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
 
             DocumentReference documentReference = colRef.document(episode.getRadioId()).collection(EPISODE_TABLE).document(episode.getEpId());
 

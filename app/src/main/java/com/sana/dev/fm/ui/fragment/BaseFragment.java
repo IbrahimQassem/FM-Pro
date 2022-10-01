@@ -19,6 +19,7 @@ package com.sana.dev.fm.ui.fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
@@ -45,6 +46,11 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentView 
     protected FragmentActivity mActivity;
     protected UserGuide userGuide;
     protected PreferencesManager prefMng;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     public void showProgress() {
         ((BaseActivity) mActivity).showProgress();
@@ -171,13 +177,13 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentView 
 
 
     @Override
-    public boolean isUserSignedIn() {
-        return prefMng.getUsers() != null && prefMng.getUsers().getUserId() != null && FirebaseAuth.getInstance().getCurrentUser() != null;
+    public boolean isAccountSignedIn() {
+        return prefMng.getUsers() != null && prefMng.getUsers().getUserId() != null /*&& FirebaseAuth.getInstance().getCurrentUser() != null*/;
     }
 
     @Override
     public boolean isRadioSelected() {
-            return  prefMng.radioInfo() != null && prefMng.radioInfo().getRadioId() != null;
+            return  prefMng.selectedRadio() != null && prefMng.selectedRadio().getRadioId() != null;
     }
 
 

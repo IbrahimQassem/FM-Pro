@@ -57,7 +57,6 @@ public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.ViewHolder
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
 
         RadioInfo model = list.get(position);
-//        RadioInfo d = RadioInfo.getSelectedRadio(context);
 
         holder.title.setText(model.getName());
         holder.tvFreq.setText(model.getChannelFreq());

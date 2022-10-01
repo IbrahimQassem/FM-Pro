@@ -39,7 +39,7 @@ public class FmRepositoryImpl extends FirebaseRepository implements EmployeeRepo
     public void createEmployee(RadioProgram employee, final CallBack callBack) {
         String pushKey = colRef.document().getId();
         if (employee != null && !isEmptyOrNull(pushKey)) {
-            ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
 
 
             employee.setProgramId(pushKey);
@@ -66,7 +66,7 @@ public class FmRepositoryImpl extends FirebaseRepository implements EmployeeRepo
     public void create(String rdid, Object o, CallBack callBack) {
         String pushKey = colRef.document().getId();
         if (o != null && !isEmptyOrNull(pushKey)) {
-            ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
 
 //            employee.setpId(pushKey);
 //            DocumentReference documentReference = employeeCollectionReference.document(pushKey);
@@ -103,7 +103,7 @@ public class FmRepositoryImpl extends FirebaseRepository implements EmployeeRepo
     public void updateArray(String pushKey, Map<String, Object> map, final CallBack callBack) {
 
         if (!isEmptyOrNull(pushKey)) {
-            ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
 
             DocumentReference documentReference = colRef.document(pushKey);
             arrayUpdate(documentReference, pushKey, map, new CallBack() {
@@ -128,7 +128,7 @@ public class FmRepositoryImpl extends FirebaseRepository implements EmployeeRepo
     @Override
     public void updateEmployee(String pushKey, HashMap map, final CallBack callBack) {
         if (!isEmptyOrNull(pushKey)) {
-            ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
 
             DocumentReference documentReference = colRef.document(pushKey);
             fireStoreUpdate(documentReference, map, new CallBack() {
@@ -152,7 +152,7 @@ public class FmRepositoryImpl extends FirebaseRepository implements EmployeeRepo
     @Override
     public void deleteEmployee(String employeeKey, final CallBack callBack) {
         if (!isEmptyOrNull(employeeKey)) {
-            ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
 
             DocumentReference documentReference = colRef.document(employeeKey);
             fireStoreDelete(documentReference, new CallBack() {
@@ -176,7 +176,7 @@ public class FmRepositoryImpl extends FirebaseRepository implements EmployeeRepo
     @Override
     public void readWhere(String employeeKey, final CallBack callBack) {
         if (!isEmptyOrNull(employeeKey)) {
-            ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
 
             DocumentReference documentReference = colRef.document(employeeKey);
             readDocument(documentReference, new CallBack() {
@@ -237,7 +237,7 @@ public class FmRepositoryImpl extends FirebaseRepository implements EmployeeRepo
     @Override
     public void updatePG(String riId, String rpId, HashMap map, CallBack callBack) {
         if (!isEmptyOrNull(riId) && !isEmptyOrNull(rpId)) {
-            ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
 
             DocumentReference documentReference = colRef.document(riId).collection(RADIO_PROGRAM_TABLE).document(rpId);
 
@@ -264,7 +264,7 @@ public class FmRepositoryImpl extends FirebaseRepository implements EmployeeRepo
     public void readProgramByRadioIdAndProgramId(RadioProgram program, CallBack callBack) {
         if (!isEmptyOrNull(program.getProgramId())) {
 
-            ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
 
 //             Timestamp timestamp = new Timestamp(new Date());
             Query query = colRef.document(program.getRadioId()).collection(RADIO_PROGRAM_TABLE).whereEqualTo("radioId", program.getRadioId()).whereEqualTo("programId", program.getProgramId());
@@ -295,7 +295,7 @@ public class FmRepositoryImpl extends FirebaseRepository implements EmployeeRepo
     @Override
     public void deleteProgram(RadioProgram program, CallBack callBack) {
         if (!isEmptyOrNull(program.getRadioId()) && !isEmptyOrNull(program.getProgramId())) {
-            ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
 
             DocumentReference documentReference = colRef.document(program.getRadioId()).collection(RADIO_PROGRAM_TABLE).document(program.getProgramId());
 
@@ -320,7 +320,7 @@ public class FmRepositoryImpl extends FirebaseRepository implements EmployeeRepo
 
     @Override
     public ListenerRegistration readAllEmployeesByDataChangeEvent(final CallBack callBack) {
-        ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
+        ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
 
         //get all employees order by employee name
         Query query = colRef.orderBy("empName");
@@ -344,7 +344,7 @@ public class FmRepositoryImpl extends FirebaseRepository implements EmployeeRepo
 
     @Override
     public ListenerRegistration readAllEmployeesByChildEvent(final FirebaseChildCallBack firebaseChildCallBack) {
-        ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
+        ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
 
         //get all employees order by created date time
         Query query = colRef.orderBy("createdDateTime");
@@ -405,7 +405,7 @@ public class FmRepositoryImpl extends FirebaseRepository implements EmployeeRepo
 
     @Override
     public void readEmployeesSalaryGraterThanLimit(long limit, final CallBack callBack) {
-        ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
+        ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
 
         //get all employees order by employee name
         Query query = colRef.whereGreaterThan("salary", limit).orderBy("salary");
@@ -431,7 +431,7 @@ public class FmRepositoryImpl extends FirebaseRepository implements EmployeeRepo
     public void createPG(String rdId, RadioProgram program, CallBack callBack) {
         String pushKey = colRef.document().getId();
         if (program != null && !isEmptyOrNull(pushKey)) {
-            ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
 
 //            employee.setpId(pushKey);
             program.setRadioId(rdId);

@@ -20,7 +20,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.BaseView;
@@ -41,9 +40,9 @@ import butterknife.ButterKnife;
  */
 public class BaseActivity extends AppCompatActivity implements BaseView {
 
-
     private static final String TAG = BaseActivity.class.getSimpleName();
-    public ProgressHUD mProgressHUD;
+
+    private ProgressHUD mProgressHUD;
     public PreferencesManager prefMgr;
     @Nullable
     @BindView(R.id.toolbar)
@@ -63,7 +62,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
 //        String uniqueID = UUID.randomUUID().toString();
-        mProgressHUD =  ProgressHUD.getInstance(this);
+        mProgressHUD = new ProgressHUD(this);
         bindViews();
     }
 
@@ -209,8 +208,11 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     @Override
     public void startMainActivity() {
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        startActivity(intent);
+//        finish();
+        Intent intent = BaseActivity.mainPage(getApplicationContext(), true);
         startActivity(intent);
         finish();
     }
@@ -248,15 +250,15 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     @Override
     public void showProgress(@StringRes int message) {
         hideProgress();
-        mProgressHUD = ProgressHUD.show(this, getString(R.string.please_wait), true, false, null);
+        mProgressHUD.showDialogPrivate( /*(Activity) this.getApplicationContext(), */getString(R.string.please_wait), true, false, null);
     }
 
     @Override
     public void hideProgress() {
-//        if (mProgressHUD != null && mProgressHUD.isShowing()) {
-//            mProgressHUD.dismiss();
-//        }
-        mProgressHUD.dismissWithFailure("");
+        if (mProgressHUD != null && mProgressHUD.isShowing()) {
+            mProgressHUD.dismiss();
+        }
+//        ProgressHUD.getInstance(this).dismissWithFailure("");
     }
 
 //    @Override
@@ -481,15 +483,12 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 //    }
 
 
-    boolean multiCheck() {
+    boolean checkPrivilege() {
 
-        //            showToast(getString(R.string.not_allowd));
         if (prefMgr.getUsers() == null) {
-//            showToast(getString(R.string.moust_login));
             return false;
         } else
             return prefMgr.getUsers().getUserType() == UserType.ADMIN || prefMgr.getUsers().getUserType() == UserType.SuperADMIN;
-
 
     }
 
@@ -498,12 +497,12 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     }
 
     @Override
-    public boolean isUserSignedIn() {
-        return prefMgr.getUsers() != null && prefMgr.getUsers().getUserId() != null && FirebaseAuth.getInstance().getCurrentUser() != null;
+    public boolean isAccountSignedIn() {
+        return prefMgr.getUsers() != null && prefMgr.getUsers().getUserId() != null /*&& FirebaseAuth.getInstance().getCurrentUser() != null*/;
     }
 
     @Override
     public boolean isRadioSelected() {
-        return prefMgr.radioInfo() != null && prefMgr.radioInfo().getRadioId() != null;
+        return prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null;
     }
 }

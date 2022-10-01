@@ -75,7 +75,7 @@ public class ListMultiSelection extends BaseActivity {
 
         }
 
-        RadioInfo radioInfo = RadioInfo.getSelectedRadio(this);
+        RadioInfo radioInfo = prefMgr.selectedRadio();
         if (radioInfo != null && radioInfo.getRadioId() != null) {
             initComponent(radioInfo.getRadioId());
         }

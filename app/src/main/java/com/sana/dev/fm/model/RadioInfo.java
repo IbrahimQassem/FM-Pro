@@ -1,7 +1,6 @@
 package com.sana.dev.fm.model;
 
 
-
 import android.content.Context;
 import android.widget.Toast;
 
@@ -12,6 +11,7 @@ import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.ServerTimestamp;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
+import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference;
 
 import java.io.Serializable;
@@ -32,19 +32,10 @@ public class RadioInfo implements Serializable {
     private Date createdDate;
     private boolean isOnline, disabled;
 
-//    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
-//    private byte[] image;
-
-
-
-    /**
-     * @ Constructor
-     */
 
     public RadioInfo() {
 
     }
-
 
     public RadioInfo(String radioId, String name, String desc, String streamUrl, String logo, String tag, int programs, int followers, int subscribers, int rating, int priority, Date createdDate, boolean isOnline, boolean disabled, String city, String channelFreq, String enName, String createBy, String timestamp) {
         this.radioId = radioId;
@@ -68,27 +59,11 @@ public class RadioInfo implements Serializable {
         this.timestamp = timestamp;
     }
 
-    //        RadioInfo info = new  RadioInfo(radioInfo.getRadioId(), radioInfo.getName(), radioInfo.getDesc(),  radioInfo.getStreamUrl(), radioInfo.getLogo(),  radioInfo.getTag(), radioInfo.getPrograms(), radioInfo.getFollowers(), radioInfo.getSubscribers(), radioInfo.getRating(), radioInfo.getPriority(),radioInfo.getCreatedDate(), radioInfo.isOnline(), radioInfo.isDisabled()) ;
     public static RadioInfo newInstance(String radioId, String name, String desc, String streamUrl, String logo, String tag, String city, String channelFreq, String enName, String createBy, boolean disabled) {
         return new RadioInfo(radioId, name, desc, streamUrl, logo, tag, 1, 1, 1, 1, 1, new Date(), false, disabled, city, channelFreq, enName, createBy, Tools.getFormattedDateSimple(new Date().getTime()));
     }
 
-    public static void setSelectedRadio(RadioInfo info, Context context) {
-        PreferencesManager prefMgr = new PreferencesManager(context);
-        prefMgr.write("RadioInfo", info);
-    }
 
-    public static RadioInfo getSelectedRadio(Context context) {
-        PreferencesManager prefMgr = new PreferencesManager(context);
-        return prefMgr.radioInfo();
-    }
-
-    /**
-     * Pay attention here, you have to override the toString method as the
-     * ArrayAdapter will reads the toString of the given object for the name
-     *
-     * @return contact_name
-     */
     @Exclude
     @Override
     public String toString() {
@@ -105,11 +80,13 @@ public class RadioInfo implements Serializable {
         return null;
     }
 
-    public interface IPredicate<T> { boolean apply(T type); }
+    public interface IPredicate<T> {
+        boolean apply(T type);
+    }
 
     public static <T> Collection<T> filter(Collection<T> target, IPredicate<T> predicate) {
         Collection<T> result = new ArrayList<T>();
-        for (T element: target) {
+        for (T element : target) {
             if (predicate.apply(element)) {
                 result.add(element);
             }
@@ -184,10 +161,10 @@ public class RadioInfo implements Serializable {
 //        infos.add(radio27);
 
 
-        if(!infos.isEmpty()){
+        if (!infos.isEmpty()) {
             for (int i = 0; i < infos.size(); i++) {
                 RadioInfo info = infos.get(i);
-                DocumentReference mFirestoreProfiles1 = FirebaseDatabaseReference.DATABASE.collection("RadioInfo").document(info.getRadioId());
+                DocumentReference mFirestoreProfiles1 = FirebaseDatabaseReference.DATABASE.collection(FirebaseConstants.RADIO_INFO_TABLE).document(info.getRadioId());
 
                 mFirestoreProfiles1.set(info).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -197,10 +174,9 @@ public class RadioInfo implements Serializable {
                 });
 
             }
-        }else {
+        } else {
             Toast.makeText(context, " No Radio Info !", Toast.LENGTH_SHORT).show();
         }
-
 
 
     }

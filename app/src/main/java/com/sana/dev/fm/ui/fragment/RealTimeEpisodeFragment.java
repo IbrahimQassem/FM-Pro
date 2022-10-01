@@ -1,7 +1,6 @@
 package com.sana.dev.fm.ui.fragment;
 
 import static com.sana.dev.fm.ui.fragment.EmptyViewFragment.ARG_NOTE_DETAILS;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.EPISODE_TABLE;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -34,9 +33,9 @@ import com.sana.dev.fm.ui.activity.EpisodeAddStepperVertical;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
 import com.sana.dev.fm.utils.LogUtility;
-import com.sana.dev.fm.utils.SignInResultNotifier;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.EpisodeRepositoryImpl;
+import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,10 +46,10 @@ import butterknife.ButterKnife;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link FirestoreChatFragment#newInstance} factory method to
+ * Use the {@link RealTimeEpisodeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FirestoreChatFragment extends BaseFragment implements FirebaseAuth.AuthStateListener {
+public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAuth.AuthStateListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -77,7 +76,6 @@ public class FirestoreChatFragment extends BaseFragment implements FirebaseAuth.
     View view;
     Context context;
     EpisodeRepositoryImpl ePiRepo;
-//    PreferencesManager prefMng;
 
     @BindView(R.id.rvFeed)
     RecyclerView recyclerView;
@@ -86,7 +84,7 @@ public class FirestoreChatFragment extends BaseFragment implements FirebaseAuth.
 
     RecyclerView.Adapter adapter;
 
-    public FirestoreChatFragment() {
+    public RealTimeEpisodeFragment() {
         // Required empty public constructor
     }
 
@@ -99,8 +97,8 @@ public class FirestoreChatFragment extends BaseFragment implements FirebaseAuth.
      * @return A new instance of fragment FirestoreChatFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static FirestoreChatFragment newInstance(String param1, String param2) {
-        FirestoreChatFragment fragment = new FirestoreChatFragment();
+    public static RealTimeEpisodeFragment newInstance(String param1, String param2) {
+        RealTimeEpisodeFragment fragment = new RealTimeEpisodeFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -122,10 +120,10 @@ public class FirestoreChatFragment extends BaseFragment implements FirebaseAuth.
                              Bundle savedInstanceState) {
         context = getActivity();
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_firestore_chat, container, false);
+        view = inflater.inflate(R.layout.fragment_real_time_episode, container, false);
         // Inflate the layout for this fragment
         ButterKnife.bind(this, view);
-        ePiRepo = new EpisodeRepositoryImpl((MainActivity) context, EPISODE_TABLE);
+        ePiRepo = new EpisodeRepositoryImpl((MainActivity) context, FirebaseConstants.EPISODE_TABLE);
 
         init();
         return view;
@@ -133,7 +131,7 @@ public class FirestoreChatFragment extends BaseFragment implements FirebaseAuth.
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        String primary = prefMng.radioInfo() != null ? prefMng.radioInfo().getName() : "";
+        String primary = prefMng.selectedRadio() != null ? prefMng.selectedRadio().getName() : "";
         Fragment childFragment = new EmptyViewFragment();
         Bundle args = new Bundle();
 //        args.putString(ARG_NOTE_TITLE, context.getString(R.string.no_data_available));
@@ -168,19 +166,6 @@ public class FirestoreChatFragment extends BaseFragment implements FirebaseAuth.
             }
         });
 
-//        ImeHelper.setImeOnDoneListener(mBinding.messageEdit, new ImeHelper.DonePressedListener() {
-//            @Override
-//            public void onDonePressed() {
-//                onSendClick();
-//            }
-//        });
-
-//        mBinding.sendButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                onSendClick();
-//            }
-//        });
 
     }
 
@@ -197,31 +182,19 @@ public class FirestoreChatFragment extends BaseFragment implements FirebaseAuth.
     public void onStop() {
         super.onStop();
         FirebaseAuth.getInstance().removeAuthStateListener(this);
-
-//        if (newAdapter() instanceof  FirestoreRecyclerAdapter)
-//        {
-////            FirestoreRecyclerAdapter mAdapter = (FirestoreRecyclerAdapter)newAdapter();
-//            ((FirestoreRecyclerAdapter<?, ?>) newAdapter()).stopListening();
-//            Toast.makeText(context, "onStop mAdapter", Toast.LENGTH_SHORT).show();
-//        }
     }
 
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth auth) {
-//        mBinding.sendButton.setEnabled(isSignedIn());
-//        mBinding.messageEdit.setEnabled(isSignedIn());
 
-        if (isRadioSelected()) {
-            attachRecyclerViewAdapter();
-        } else {
-//            Toast.makeText(context, R.string.not_allowd, Toast.LENGTH_SHORT).show();
-            auth.signInAnonymously().addOnCompleteListener(new SignInResultNotifier(context));
-        }
+//        if (isRadioSelected()) {
+//            attachRecyclerViewAdapter();
+//        } else {
+////            Toast.makeText(context, R.string.not_allowd, Toast.LENGTH_SHORT).show();
+//            auth.signInAnonymously().addOnCompleteListener(new SignInResultNotifier(context));
+//        }
     }
 
-//    private boolean isSignedIn() {
-//        return FirebaseAuth.getInstance().getCurrentUser() != null;
-//    }
 
     private void attachRecyclerViewAdapter() {
 //        final RecyclerView.Adapter adapter = newAdapter();
@@ -241,19 +214,9 @@ public class FirestoreChatFragment extends BaseFragment implements FirebaseAuth.
         //Add your adapter to the sectionAdapter
         SimpleSectionedRecyclerViewAdapter.Section[] dummy = new SimpleSectionedRecyclerViewAdapter.Section[sections.size()];
         SimpleSectionedRecyclerViewAdapter mSectionedAdapter = new
-                SimpleSectionedRecyclerViewAdapter(context, R.layout.section, R.id.section_text, adapter);
+                SimpleSectionedRecyclerViewAdapter(context, R.layout.layout_section, R.id.section_text, adapter);
         mSectionedAdapter.setSections(sections.toArray(dummy));
 
-
-//        // Scroll to bottom on new messages
-//        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-//            @Override
-//            public void onItemRangeInserted(int positionStart, int itemCount) {
-//                recyclerView.smoothScrollToPosition(0);
-//            }
-//        });
-
-        //Apply this adapter to the RecyclerView
         recyclerView.setAdapter(mSectionedAdapter);
     }
 
@@ -262,7 +225,7 @@ public class FirestoreChatFragment extends BaseFragment implements FirebaseAuth.
     private RecyclerView.Adapter newAdapter() {
         FirestoreRecyclerOptions<Episode> options =
                 new FirestoreRecyclerOptions.Builder<Episode>()
-                        .setQuery(ePiRepo.mainQuery(prefMng.radioInfo().getRadioId()), Episode.class)
+                        .setQuery(ePiRepo.mainQuery(prefMng.selectedRadio().getRadioId()), Episode.class)
                         .setLifecycleOwner(this)
                         .build();
 
@@ -276,16 +239,16 @@ public class FirestoreChatFragment extends BaseFragment implements FirebaseAuth.
 
             @Override
             protected void onBindViewHolder(@NonNull ChatHolder holder, int position, @NonNull Episode model) {
-//                holder.bind(model);
-                if (isUserSignedIn())
+                if (RealTimeEpisodeFragment.this.isAccountSignedIn()){
                     model.userId = prefMng.getUsers().getUserId();
+                }
                 ChatHolder viewHolder = (ChatHolder) holder;
                 viewHolder.bind(model, position);
 
                 viewHolder.setOnLongItemClickListener(new ChatHolder.OnLongItemClickListener() {
                     @Override
                     public void onLongItemClick(View view, Episode obj, int position) {
-                        if (isUserSignedIn() && prefMng.getUsers().getUserType() == UserType.SuperADMIN)
+                        if (RealTimeEpisodeFragment.this.isAccountSignedIn() && prefMng.getUsers().getUserType() == UserType.SuperADMIN)
                             showBottomSheetDialog(obj, position);
                     }
                 });
@@ -307,7 +270,7 @@ public class FirestoreChatFragment extends BaseFragment implements FirebaseAuth.
                                 getActivity().overridePendingTransition(0, 0);
                                 break;
                             case R.id.imv_like:
-                                if (!isUserSignedIn()) {
+                                if (!RealTimeEpisodeFragment.this.isAccountSignedIn()) {
                                     if (context instanceof MainActivity) {
                                         ((MainActivity) context).showNotCancelableWarningDialog(context.getString(R.string.attecntion), context.getString(R.string.goto_login), new View.OnClickListener() {
                                             @Override
@@ -350,22 +313,6 @@ public class FirestoreChatFragment extends BaseFragment implements FirebaseAuth.
                 cf_container.setVisibility(getItemCount() == 0 ? View.VISIBLE : View.GONE);
             }
         };
-    }
-
-    public void onSendClick() {
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        String name = "User " + uid.substring(0, 6);
-        onAddMessage(new Episode(name));
-//        mBinding.messageEdit.setText("");
-    }
-
-    private void onAddMessage(@NonNull Episode chat) {
-//        sChatCollection.add(chat).addOnFailureListener((Activity) context, new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception e) {
-//                Log.e(TAG, "Failed to write message", e);
-//            }
-//        });
     }
 
     private BottomSheetDialog mBottomSheetDialog;

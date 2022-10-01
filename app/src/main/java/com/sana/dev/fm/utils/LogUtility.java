@@ -1,6 +1,5 @@
 package com.sana.dev.fm.utils;
 
-import com.sana.dev.fm.ui.fragment.EpisodeFragment;
 
 public class LogUtility {
     public static final String TAG = "main_log";

@@ -17,32 +17,28 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.auth.User;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.adapter.RadiosAdapter;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.ShardDate;
-import com.sana.dev.fm.ui.activity.player.PlayerActivity;
+import com.sana.dev.fm.ui.activity.appuser.PhoneLoginActivity;
+import com.sana.dev.fm.ui.activity.appuser.VerificationPhone;
 import com.sana.dev.fm.utils.Constants;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
-import com.sana.dev.fm.utils.SignInResultNotifier;
-import com.sana.dev.fm.utils.UserGuide;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.RadioInfoRepositoryImpl;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
@@ -52,18 +48,21 @@ public class SplashActivity extends AppCompatActivity {
     private RadioInfoRepositoryImpl rIRepo;
     public PreferencesManager prefMgr;
 
+    private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
         prefMgr = new PreferencesManager(this);
 
         startAnimation();
         setFullScreen();
-//        chekFirstTime();
-        initRadios();
+        chekFirstTime();
 
     }
+
 
     private void initRadios() {
         rIRepo = new RadioInfoRepositoryImpl(this, FirebaseConstants.RADIO_INFO_TABLE);
@@ -84,16 +83,23 @@ public class SplashActivity extends AppCompatActivity {
                     ShardDate.getInstance().setInfoList((ArrayList<RadioInfo>) object);
                     prefMgr.setRadioInfo((ArrayList<RadioInfo>) object);
                 }
-                chekFirstTime();
+                goToMain();
             }
 
             @Override
             public void onError(Object object) {
                 LogUtility.d(LogUtility.TAG, "readAllRadioByEvent error: " + new Gson().toJson(object));
-                chekFirstTime();
+                goToMain();
             }
         });
 
+    }
+
+    private void goToMain() {
+        Intent intent = BaseActivity.mainPage(SplashActivity.this, true);
+//                        Intent intent = new Intent(SplashActivity.this, PlayerActivity.class);
+        startActivity(intent);
+        finish();
     }
 
 
@@ -109,31 +115,61 @@ public class SplashActivity extends AppCompatActivity {
         logo.startAnimation(animation);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.setLanguageCode("ar");
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            //            Toast.makeText(this, "currentUser null", Toast.LENGTH_SHORT).show();
+            checkIfFirebaseAuth();
+        } else {
+//            Toast.makeText(this, "currentUser ok is : "+currentUser.getDisplayName(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void checkIfFirebaseAuth() {
+        //                        FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(new SignInResultNotifier(SplashActivity.this));
+        mAuth.getInstance().signInAnonymously()
+                .addOnCompleteListener(SplashActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(LogUtility.TAG, "signInAnonymously:success");
+//                                            FirebaseUser user = mAuth.getCurrentUser();
+//                                            updateUI(user);
+                            Intent intent2 = BaseActivity.introPage(SplashActivity.this, true);
+                            startActivity(intent2);
+                            finish();
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(LogUtility.TAG, "signInAnonymously:failure", task.getException());
+//                                            Toast.makeText(SplashActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+//                                            updateUI(null);
+                            Intent intent = new Intent(SplashActivity.this, PhoneLoginActivity.class);
+                            startActivity(intent);
+                        }
+                    }
+                });
+    }
+
     private void chekFirstTime() {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 switch (checkAppStart()) {
                     case NORMAL:
-                        // We don't want to get on the user's nerves
-//                EpisodeFragment fragment = (EpisodeFragment) fm.findFragmentByTag(EpisodeFragment.class.getSimpleName());
-//                assert fragment != null;
-//                fragment.startMeEvent();
-                        // Todo redirect to the main activity
-                        Intent intent = BaseActivity.mainPage(SplashActivity.this, true);
-//                        Intent intent = new Intent(SplashActivity.this, PlayerActivity.class);
-                        startActivity(intent);
-                        finish();
+                        initRadios();
                         break;
                     case FIRST_TIME_VERSION:
                         // TODO show what's new
                         break;
                     case FIRST_TIME:
                         // TODO show a tutorial
-                        Intent intent2 = BaseActivity.introPage(SplashActivity.this, true);
-                        startActivity(intent2);
-                        finish();
-                        FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(new SignInResultNotifier(SplashActivity.this));
+                        checkIfFirebaseAuth();
                         break;
                     default:
                         break;

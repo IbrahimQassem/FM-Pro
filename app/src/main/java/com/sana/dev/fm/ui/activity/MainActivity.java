@@ -3,17 +3,13 @@ package com.sana.dev.fm.ui.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -172,7 +168,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 //                v.clearAnimation();
 //                fab_radio.clearAnimation();
                 if (hasInternetConnection()) {
-                    RadioInfo info = prefMgr.radioInfo();
+                    RadioInfo info = prefMgr.selectedRadio();
                     Metadata metadata = new Metadata(info.getName(), info.getName(), info.getChannelFreq(), info.getName(), info.getStreamUrl());
 //                    Metadata metadata = new Metadata("artist", "song", "channel", "station", "url");
                     startPlay(metadata);
@@ -206,7 +202,6 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         });
 //        }
     }
-
 
 
     BottomNavigationView navigation;
@@ -314,7 +309,9 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         String isOnlineTxt = isOnline ? getString(R.string.online) : getString(R.string.offline);
         int colorState = isOnline ? R.color.green_500 : R.color.yellow_500;
 
-        if (isUserSignedIn()) {
+        if (isAccountSignedIn()) {
+            PreferencesManager prefMgr = new PreferencesManager(this);
+
             Users user = prefMgr.getUsers();
             tv_user_name.setText(user.getName());
             tv_user_state.setText(isOnlineTxt);
@@ -339,7 +336,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         LinearLayout lyt_add_program = inflate.findViewById(R.id.lyt_add_program);
         LinearLayout lyt_add_episode = inflate.findViewById(R.id.lyt_add_episode);
         LinearLayout lyt_update_episode = inflate.findViewById(R.id.lyt_update_episode);
-        if (multiCheck()) {
+        if (checkPrivilege()) {
             lyt_add_program.setVisibility(View.VISIBLE);
             lyt_add_episode.setVisibility(View.VISIBLE);
 //            lyt_update_episode.setVisibility(View.VISIBLE);
@@ -382,7 +379,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         inflate.findViewById(R.id.lyt_add_program).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
 
-                if (multiCheck())
+                if (checkPrivilege())
                     startActivity(new Intent(MainActivity.this, FormAddPrgram.class));
                 mBottomSheetDialog.dismiss();
             }
@@ -439,7 +436,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
 
     private void checkUserLogin() {
-        if (!isUserSignedIn()) {
+        if (!isAccountSignedIn()) {
             startLoginActivity();
         } else {
             UserProfileActivity.startActivity(MainActivity.this);
@@ -497,7 +494,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
                 break;
             case PlaybackStatus.ERROR:
-                showToast(String.format(" %s", getResources().getString(R.string.no_stream, prefMgr.radioInfo().getName())));
+                showToast(String.format(" %s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
                 radioManager.stopPlay();
                 fab_radio.setImageResource(R.drawable.ic_radio);
                 break;

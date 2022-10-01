@@ -5,8 +5,6 @@ import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +20,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.RadiosAdapter;
 import com.sana.dev.fm.model.RadioInfo;
@@ -30,17 +27,11 @@ import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.ItemAnimation;
-import com.sana.dev.fm.utils.LogUtility;
-import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.SnackBarUtility;
 import com.sana.dev.fm.utils.UserGuide;
-import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
-import com.sana.dev.fm.utils.my_firebase.RadioInfoRepositoryImpl;
-
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -55,7 +46,6 @@ import co.mobiwise.materialintro.view.MaterialIntroView;
  */
 public class EpisodeFragment extends BaseFragment {
 
-    public static final String EPISODE_FRAG = "EpisodeFrag";
     private static final String TAG = EpisodeFragment.class.getSimpleName();
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -68,7 +58,6 @@ public class EpisodeFragment extends BaseFragment {
 
     View view;
     Context ctx;
-    PreferencesManager prefMng;
     String _userId;
     ArrayList<RadioInfo> stationList;
     boolean isSearchBarHide = false;
@@ -85,48 +74,15 @@ public class EpisodeFragment extends BaseFragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment EpisodeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-//    public static EpisodeFragment newInstance(String param1, List<Episode> list) {
-//        EpisodeFragment fragment = new EpisodeFragment();
-//        // Don't include arguments unless uuid != null
-//
-//        if (list != null ) {
-//            Bundle args = new Bundle();
-//            args.putString(ARG_PARAM1, param1);
-//            args.putSerializable(ARG_PARAM2, (Serializable) list);
-//            fragment.setArguments(args);
-//        }
-//        return fragment;
-//    }
 
-//    @Override
-//    public void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        if (getArguments() != null) {
-//            mParam1 = getArguments().getString(ARG_PARAM1);
-//            episodeList = (List<Episode>) getArguments().getSerializable(ARG_PARAM2);
-//        }
-//    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_episode, container, false);
 
-//        if (getArguments() != null) {
-//            episodeList = (List<Episode>) getArguments().getSerializable(ARG_PARAM2);
-//        }
-
-//        setRetainInstance(true);
         ButterKnife.bind(this, view);
         sbHelp = new SnackBarUtility(getActivity());
-        prefMng = new PreferencesManager(ctx);
         materialIntroView = new MaterialIntroView(ctx);
         if (prefMng.getUsers() != null && prefMng.getUsers().getUserId() != null)
             _userId = prefMng.getUsers().getUserId();
@@ -181,7 +137,7 @@ public class EpisodeFragment extends BaseFragment {
             RadiosAdapter adapter = new RadiosAdapter(ctx, stationList, recyclerView, prefMng.read("ScrollToPosition", 0));
 
             if (!isRadioSelected()) {
-                prefMng.write("RadioInfo", stationList.get(0));
+                prefMng.write(FirebaseConstants.RADIO_INFO_TABLE, stationList.get(0));
             }
 
             recyclerView.setAdapter(adapter);
@@ -190,7 +146,7 @@ public class EpisodeFragment extends BaseFragment {
                 @Override
                 public void onItemClick(View view, RadioInfo radioInfo, int i) {
                     prefMng.write("ScrollToPosition", i);
-                    prefMng.write("RadioInfo", radioInfo);
+                    prefMng.write(FirebaseConstants.RADIO_INFO_TABLE, radioInfo);
                     adapter.selectTaskListItem(i);
                     updateRecycle();
                     if (callBackListener != null)
@@ -236,6 +192,8 @@ public class EpisodeFragment extends BaseFragment {
                 }
             });
 
+        }else {
+            // Todo check radio is empty call it again
         }
 
 
@@ -243,7 +201,7 @@ public class EpisodeFragment extends BaseFragment {
 
     private void updateRecycle() {
 //        Fragment childFragment = new EpChildFragment();
-        Fragment childFragment = new FirestoreChatFragment();
+        Fragment childFragment = new RealTimeEpisodeFragment();
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.replace(R.id.child_fragment_container, childFragment).commit();
     }

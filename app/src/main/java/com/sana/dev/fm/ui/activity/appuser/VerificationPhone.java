@@ -1,11 +1,10 @@
 package com.sana.dev.fm.ui.activity.appuser;
 
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.USERS_TABLE;
 import static com.sana.dev.fm.model.Users.getToken;
+import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.USERS_TABLE;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -23,19 +22,18 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.model.Gender;
 import com.sana.dev.fm.model.UserType;
+import com.sana.dev.fm.model.Users;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.UsersRepositoryImpl;
 import com.sana.dev.fm.utils.my_firebase.notification.FMCConstants;
-import com.sana.dev.fm.model.Gender;
-import com.sana.dev.fm.model.Users;
 
-
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class VerificationPhone extends BaseActivity {
@@ -117,7 +115,7 @@ public class VerificationPhone extends BaseActivity {
 
 //
                         } else {
-                            Toast.makeText(VerificationPhone.this, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                            showToast(task.getException().getLocalizedMessage());
                         }
                     }
                 });
@@ -131,18 +129,17 @@ public class VerificationPhone extends BaseActivity {
         fmRepo.isUserExists(phoneNumber, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                Log.e("TAG", "onSuccess : " + object);
+                LogUtility.d(LogUtility.TAG, "onSuccess : " + object);
 
                 Users _userModel = (Users) object;
                 prefMgr.write(FMCConstants.USER_INFO, _userModel);
                 showToast("تم تسجيل الدخول بنجاح");
                 startActivity(intent);
-
             }
 
             @Override
             public void onError(Object object) {
-                Log.e("TAG", "onError : " + object);
+                LogUtility.d(LogUtility.TAG, "onError : " + object);
 //                SuperADMIN
                 if (object == null) {
                     // create new user
@@ -160,21 +157,17 @@ public class VerificationPhone extends BaseActivity {
                             prefMgr.write(FMCConstants.USER_INFO, _userModel);
                             showToast("تم تسجيل الدخول بنجاح");
                             startActivity(intent);
-
                         }
 
                         @Override
                         public void onError(Object object) {
-                            Log.e("TAG", "onError : " + object);
+                            LogUtility.d(LogUtility.TAG, "onError : " + object);
                             showToast(object.toString());
-
                         }
                     });
-
                 }
             }
         });
-
 
     }
 

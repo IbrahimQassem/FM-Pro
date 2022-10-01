@@ -6,7 +6,7 @@ import static com.sana.dev.fm.ui.activity.ImagePickerActivity.REQUEST_IMAGE;
 import static com.sana.dev.fm.utils.FmUtilize.getWeekDayNames;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysEn;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.FM_FOLDER_IMAGES;
+import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.FB_FM_FOLDER_PATH;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.RADIO_PROGRAM_TABLE;
 
 import android.Manifest;
@@ -289,7 +289,7 @@ public class FormAddPrgram extends BaseActivity {
 
 
         if (imageUri != null) {
-            ProgressHUD mProgressHUD = ProgressHUD.show(this, "تحميل الصورة", true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog( "تحميل الصورة", true, false, null);
             mProgressHUD.setMessage("جاري الحفظ ...");
             mProgressHUD.show();
 
@@ -297,7 +297,7 @@ public class FormAddPrgram extends BaseActivity {
             StorageMetadata metadata = new StorageMetadata.Builder()
                     .setContentType("image/jpg")
                     .build();
-            StorageReference ref = FirebaseStorage.getInstance().getReference().child(FM_FOLDER_IMAGES).child(radioId).child(programId + ".jpg");
+            StorageReference ref = FirebaseStorage.getInstance().getReference().child(FB_FM_FOLDER_PATH).child(radioId).child(programId + ".jpg");
             // Upload file and metadata to the path 'images/mountains.jpg'
             UploadTask uploadTask = ref.putFile(imageUri, metadata);
 

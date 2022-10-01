@@ -8,7 +8,7 @@ public class FirebaseConstants {
     public static String COMMENT_TABLE = "Comment";
 //    public static String LIKED_USERS = "Liked_Users";
 //    public static String FAVORITE_USERS = "Favorite_Users";
-    public static String FM_FOLDER_IMAGES = "Fm_Folder_Images";
+    public static String FB_FM_FOLDER_PATH = "FM_Folder";
 //    public static String CREATED_DATE_TIME = "createdDateTime";
 
 }

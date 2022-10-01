@@ -148,7 +148,7 @@ public class ProgramsFragment extends BaseFragment {
 
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
-        String primary = prefMng.radioInfo() != null ? prefMng.radioInfo().getName() : "";
+        String primary = prefMng.selectedRadio() != null ? prefMng.selectedRadio().getName() : "";
         SpannableString blueSpannable = new SpannableString(primary);
         blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
         builder.append(blueSpannable);
@@ -162,7 +162,7 @@ public class ProgramsFragment extends BaseFragment {
         tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
 
         if (isRadioSelected())
-            fmRepo.readAllProgramByRadioId(prefMng.radioInfo().getRadioId(), new CallBack() {
+            fmRepo.readAllProgramByRadioId(prefMng.selectedRadio().getRadioId(), new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     LogUtility.d(LogUtility.TAG, "readAllProgramByRadioId response: " + new Gson().toJson(object));
@@ -192,7 +192,7 @@ public class ProgramsFragment extends BaseFragment {
                         mAdapter.setOnLongItemClickListener(new AdapterListProgram.OnLongItemClickListener() {
                             @Override
                             public void onLongItemClick(View view, RadioProgram obj, int position) {
-                                if (isUserSignedIn() && prefMng.getUsers().getUserType() == UserType.SuperADMIN)
+                                if (ProgramsFragment.this.isAccountSignedIn() && prefMng.getUsers().getUserType() == UserType.SuperADMIN)
                                     showNotCancelableWarningDialog("هل تريد حذف " + obj.getPrName() + " ؟ ", "سيتم حذف بيانات البرنامج نهائياَ", new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
@@ -278,7 +278,7 @@ public class ProgramsFragment extends BaseFragment {
         //Add your adapter to the sectionAdapter
         SimpleSectionedRecyclerViewAdapter.Section[] dummy = new SimpleSectionedRecyclerViewAdapter.Section[sections.size()];
         SimpleSectionedRecyclerViewAdapter mSectionedAdapter = new
-                SimpleSectionedRecyclerViewAdapter(ctx, R.layout.section, R.id.section_text,mAdapter);
+                SimpleSectionedRecyclerViewAdapter(ctx, R.layout.layout_section, R.id.section_text,mAdapter);
         mSectionedAdapter.setSections(sections.toArray(dummy));
 
        recyclerView.setAdapter(mSectionedAdapter);

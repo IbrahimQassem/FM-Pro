@@ -1,7 +1,7 @@
 package com.sana.dev.fm.ui.activity.appuser;
 
 
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.FM_FOLDER_IMAGES;
+import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.FB_FM_FOLDER_PATH;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.USERS_TABLE;
 import static com.sana.dev.fm.model.Users.getToken;
 
@@ -45,8 +45,8 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.ui.activity.BaseActivity;
+import com.sana.dev.fm.ui.activity.SplashActivity;
 import com.sana.dev.fm.utils.AESCrypt;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.PreferencesManager;
@@ -372,7 +372,6 @@ public class UserProfileActivity extends BaseActivity {
         Intent intent = splashPage(this, true);
         startActivity(intent);
         finish();
-//        startMainActivity();
         showToast("تم تسجيل الخروج");
         updateUI(STATE_INITIALIZED);
     }
@@ -499,7 +498,6 @@ public class UserProfileActivity extends BaseActivity {
         String _imgUrl = prefMgr.read(FMCConstants.USER_IMAGE_Profile, "empty");
         if (_oPhoto.equals(_imgUrl) && _oName.equals(name) && oldUser.getGender().equals(gender)) {
             startMainActivity();
-            finish();
             return;
         } else {
             Users user = prefMgr.getUsers();
@@ -507,8 +505,22 @@ public class UserProfileActivity extends BaseActivity {
             user.setPhotoUrl(_imgUrl);
             user.setGender(gender);
             user.setDeviceToken(getToken(this));
-            updateUser(user);
+//            updateUser(user);
 //            updateUser(new Users(name, _imgUrl, gender, getToken(this)));
+            fmRepo.createUpdateUser(_userModel.getUserId(), user, new CallBack() {
+                @Override
+                public void onSuccess(Object object) {
+                    prefMgr.write(FMCConstants.USER_INFO, (Users) object);
+                    showToast(R.string.save_succefully);
+                    startMainActivity();
+                }
+
+                @Override
+                public void onError(Object object) {
+                    Log.d(TAG, "onError : " + object);
+                    showToast("حدث خطأ, يرجى المحاولة لاحقا");
+                }
+            });
         }
 
     }
@@ -562,7 +574,7 @@ public class UserProfileActivity extends BaseActivity {
 
     private void uploadUserProfile(Uri uriImage) {
 //        if (imageUri != null) {
-        ProgressHUD mProgressHUD = ProgressHUD.show(this, "حفظ صورة البروفايل", true, false, null);
+        ProgressHUD mProgressHUD = ProgressHUD.showDialog( "حفظ صورة البروفايل", true, false, null);
         mProgressHUD.setMessage("جاري حفظ صورة البروفايل ...");
         mProgressHUD.show();
 
@@ -570,7 +582,7 @@ public class UserProfileActivity extends BaseActivity {
         StorageMetadata metadata = new StorageMetadata.Builder()
                 .setContentType("image/jpg")
                 .build();
-        final StorageReference ref = FirebaseStorage.getInstance().getReference().child(FM_FOLDER_IMAGES).child(USERS_TABLE).child(mAuth.getUid() + ".jpg");
+        final StorageReference ref = FirebaseStorage.getInstance().getReference().child(FB_FM_FOLDER_PATH).child(USERS_TABLE).child(mAuth.getUid() + ".jpg");
 
         // Upload file and metadata to the path 'images/mountains.jpg'
         UploadTask uploadTask = ref.putFile(uriImage, metadata);
@@ -610,6 +622,11 @@ public class UserProfileActivity extends BaseActivity {
                                 String downloadUri = uri.toString();
 //                                    showSnackBar(downloadUri);
                                 prefMgr.write(FMCConstants.USER_IMAGE_Profile, downloadUri);
+
+//                                ------------------------------------
+                                Users user = prefMgr.getUsers();
+                                user.setPhotoUrl(downloadUri);
+                                updateUser(user);
                             }
                         });
                     }
@@ -638,9 +655,6 @@ public class UserProfileActivity extends BaseActivity {
             @Override
             public void onSuccess(Object object) {
                 prefMgr.write(FMCConstants.USER_INFO, (Users) object);
-                showToast(R.string.save_succefully);
-                startMainActivity();
-                finish();
             }
 
             @Override
@@ -654,7 +668,12 @@ public class UserProfileActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        startMainActivity();
+        goToMain();
+    }
+
+    private void goToMain() {
+        Intent intent = BaseActivity.mainPage(UserProfileActivity.this, true);
+        startActivity(intent);
         finish();
     }
 

@@ -49,7 +49,9 @@ public interface BaseFragmentView extends BaseView {
 
     void startLoginActivity();
 
-    boolean isUserSignedIn();
+//    boolean isFirebaseAuthenticated();
+
+    boolean isAccountSignedIn();
 
     boolean isRadioSelected();
 

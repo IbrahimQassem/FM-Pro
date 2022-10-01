@@ -10,7 +10,7 @@ import static com.sana.dev.fm.utils.FmUtilize.stringTimeToMillis;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysEn;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.EPISODE_TABLE;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.FM_FOLDER_IMAGES;
+import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.FB_FM_FOLDER_PATH;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.RADIO_PROGRAM_TABLE;
 
 import android.Manifest;
@@ -318,7 +318,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
             timestamp = _episode.getTimestamp();
             createBy = _episode.getCreateBy();
             stopNote = _episode.getStopNote();
-            radioInfo = RadioInfo.getSelectedRadio(this);
+            radioInfo = prefMgr.selectedRadio() ;
             radioId = radioInfo.getRadioId();
             dateTimeModel = _episode.getDateTimeModel();
             showTimeList = _episode.getShowTimeList() != null ? _episode.getShowTimeList() : new ArrayList<>();
@@ -361,7 +361,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
 
 
         if (imageUri != null) {
-            ProgressHUD mProgressHUD = ProgressHUD.show(this, "تحميل الصورة", true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog( "تحميل الصورة", true, false, null);
             mProgressHUD.setMessage("جاري تحميل البيانات ...");
             mProgressHUD.show();
 
@@ -369,7 +369,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
             StorageMetadata metadata = new StorageMetadata.Builder()
                     .setContentType("image/jpg")
                     .build();
-            StorageReference ref = FirebaseStorage.getInstance().getReference().child(FM_FOLDER_IMAGES).child(radioId).child(random() + ".jpg");
+            StorageReference ref = FirebaseStorage.getInstance().getReference().child(FB_FM_FOLDER_PATH).child(radioId).child(random() + ".jpg");
             // Upload file and metadata to the path 'images/mountains.jpg'
             UploadTask uploadTask = ref.putFile(imageUri, metadata);
 
@@ -760,13 +760,6 @@ public class EpisodeAddStepperVertical extends BaseActivity {
 
     private void loadProfile(Uri imageUri) {
 
-//        if (imageUri == null){
-//            radioInfo = RadioInfo.getSelectedRadio(this);
-//            programId = radioInfo.getRadioId();
-//            RadioProgram program = RadioProgram.findRadioProgram(programId, ShardDate.getInstance().getProgramList());
-//            if (program != null)
-//            imageUri = Uri.parse(program.getPrProfile());
-//        }
 
         Log.d(TAG, "Image cache path: " + imageUri.toString());
 

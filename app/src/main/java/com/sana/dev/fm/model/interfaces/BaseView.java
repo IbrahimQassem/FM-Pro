@@ -73,7 +73,7 @@ public interface BaseView {
 
     void finish();
 
-    boolean isUserSignedIn();
+    boolean isAccountSignedIn();
     boolean isRadioSelected();
 
 }
