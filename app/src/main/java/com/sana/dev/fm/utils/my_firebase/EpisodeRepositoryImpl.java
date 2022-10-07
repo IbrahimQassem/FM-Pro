@@ -20,19 +20,20 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.sana.dev.fm.utils.FmUtilize.isEmptyOrNull;
 import static com.sana.dev.fm.utils.my_firebase.AppConstant.FAIL;
 import static com.sana.dev.fm.utils.my_firebase.AppConstant.SUCCESS;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.EPISODE_TABLE;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.RADIO_PROGRAM_TABLE;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABASE;
 
 
 interface EpisodeRepository {
     void createEpi(String riId, String rpId, Episode episode, CallBack callBack);
-//    void readAllEpisodeByRadioId(String rdId, CallBack callBack);
+
+    //    void readAllEpisodeByRadioId(String rdId, CallBack callBack);
     void reaDailyEpisodeByRadioId(String rdId, CallBack callBack);
+
     void readAllEpisodeByRadioIdAndPgId(Episode episode, CallBack callBack);
 
 
-   void updateEpi( String valueKey, Episode episode, CallBack callBack);
+    void updateEpi(String valueKey, Episode episode, CallBack callBack);
+
     void deleteEpi(Episode episode, CallBack callBack);
 
 }
@@ -47,25 +48,40 @@ public class EpisodeRepositoryImpl extends FirebaseRepository implements Episode
 
     public static EpisodeRepositoryImpl getInstance(Activity activity, String TableName) {
         if (instance == null) {
-            instance = new EpisodeRepositoryImpl(activity,TableName);
+            instance = new EpisodeRepositoryImpl(activity, TableName);
         }
         return instance;
     }
 
-    public  Query mainQuery(String rdId){
-        return colRef.document(rdId).collection(EPISODE_TABLE)
+    public Query createSimpleQueries(String rdId) {
+        CollectionReference cities = colRef.document(rdId).collection(FirebaseConstants.EPISODE_TABLE);
+
+//        // [START fs_simple_queries]
+//        // [START firestore_query_filter_single_examples]
+//        Query stateQuery = cities.whereEqualTo("state", "CA");
+//        Query populationQuery = cities.whereLessThan("dateTimeModel.dateEnd", System.currentTimeMillis());
+        Query populationQuery = cities.whereGreaterThanOrEqualTo("dateTimeModel.dateEnd", /*"1662054250043"*/System.currentTimeMillis());
+//        // [END firestore_query_filter_single_examples]
+//        // [END fs_simple_queries]
+
+//        querys.add(stateQuery);
+//        querys.add(populationQuery);
+//        querys.add(nameQuery);
+        return populationQuery.orderBy("dateTimeModel.dateEnd", Query.Direction.DESCENDING);
+    }
+
+    public Query mainQuery(String rdId) {
+        return colRef.document(rdId).collection(FirebaseConstants.EPISODE_TABLE)
                 .whereGreaterThanOrEqualTo("dateTimeModel.dateEnd", System.currentTimeMillis())
 //                .whereEqualTo("dateTimeModel.dateEnd", System.currentTimeMillis())
 //                .whereEqualTo("dateTimeModel.dateEnd", System.currentTimeMillis())
                 .orderBy("dateTimeModel.dateEnd", Query.Direction.DESCENDING)
-        ;
+                ;
 //        citiesRef.whereGreaterThanOrEqualTo("state", "CA")
 //                .whereLessThanOrEqualTo("state", "IN");
 //        citiesRef.whereEqualTo("state", "CA")
 //                .whereGreaterThan("population", 1000000);
     }
-
-
 
 
     public EpisodeRepositoryImpl(Activity activity, String TableName) {
@@ -78,16 +94,16 @@ public class EpisodeRepositoryImpl extends FirebaseRepository implements Episode
     public void createEpi(String riId, String rpId, Episode episode, CallBack callBack) {
         String pushKey = riId + "__" + colRef.document().getId();
         if (episode != null && !isEmptyOrNull(pushKey)) {
-            ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog(getString(R.string.please_wait), true, false, null);
 
             episode.setEpId(pushKey);
-            DocumentReference documentReference = colRef.document(riId).collection(EPISODE_TABLE).document(pushKey);
+            DocumentReference documentReference = colRef.document(riId).collection(FirebaseConstants.EPISODE_TABLE).document(pushKey);
 
             fireStoreCreateOrMerge(documentReference, episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     mProgressHUD.dismiss();
-                    DocumentReference pRef = DATABASE.collection(RADIO_PROGRAM_TABLE).document(episode.getRadioId()).collection(RADIO_PROGRAM_TABLE).document(episode.getProgramId());
+                    DocumentReference pRef = DATABASE.collection(FirebaseConstants.RADIO_PROGRAM_TABLE).document(episode.getRadioId()).collection(FirebaseConstants.RADIO_PROGRAM_TABLE).document(episode.getProgramId());
                     incrementCounter("episodeCount", pRef);
 
                     callBack.onSuccess(SUCCESS);
@@ -106,8 +122,8 @@ public class EpisodeRepositoryImpl extends FirebaseRepository implements Episode
 
 
     public Query getQuery(String radioId) {
-        Query query = colRef.document(radioId).collection(EPISODE_TABLE).whereEqualTo("radioId", radioId).orderBy("epStreamUrl", Query.Direction.DESCENDING).orderBy("epStartAt", Query.Direction.DESCENDING).limit(100);
-        return  query;
+        Query query = colRef.document(radioId).collection(FirebaseConstants.EPISODE_TABLE).whereEqualTo("radioId", radioId).orderBy("epStreamUrl", Query.Direction.DESCENDING).orderBy("epStartAt", Query.Direction.DESCENDING).limit(100);
+        return query;
     }
 
 
@@ -150,7 +166,6 @@ public class EpisodeRepositoryImpl extends FirebaseRepository implements Episode
 //            Date start = Tools.getDateFromString(System.currentTimeMillis() % 1000); // ٠١/٠١/١٩٧٠
 //            Date end = Tools.getDateFromString(System.currentTimeMillis()); // today : ٠٦/١٦/٢٠٢١
 //            ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);//             Timestamp timestamp = new Timestamp(new Date());
-
 
 
 //            colRef.document(rdId).collection(EPISODE_TABLE)
@@ -211,7 +226,7 @@ public class EpisodeRepositoryImpl extends FirebaseRepository implements Episode
         if (!isNullOrEmpty(episode.getRadioId()) || !isNullOrEmpty(episode.getProgramId())) {
 //            ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
 //            Query query = colRef.document(episode.getRadioId()).collection(EPISODE_TABLE).whereEqualTo("radioId", episode.getRadioId()).whereEqualTo("programId", episode.getProgramId()).orderBy("epStartAt", Query.Direction.DESCENDING);
-            Query query = colRef.document(episode.getRadioId()).collection(EPISODE_TABLE).whereEqualTo("radioId", episode.getRadioId()).whereEqualTo("programId", episode.getProgramId());
+            Query query = colRef.document(episode.getRadioId()).collection(FirebaseConstants.EPISODE_TABLE).whereEqualTo("radioId", episode.getRadioId()).whereEqualTo("programId", episode.getProgramId());
             readQueryDocuments(query, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
@@ -234,15 +249,13 @@ public class EpisodeRepositoryImpl extends FirebaseRepository implements Episode
     }
 
 
-
-
     @Override
-    public void updateEpi( String valueKey, Episode episode, CallBack callBack) {
+    public void updateEpi(String valueKey, Episode episode, CallBack callBack) {
 
         Map<String, Object> docData = new HashMap<>();
         docData.put(valueKey, episode.getEpisodeLikes());
 
-        DocumentReference documentReference = colRef.document(episode.getRadioId()).collection(EPISODE_TABLE).document(episode.getEpId());
+        DocumentReference documentReference = colRef.document(episode.getRadioId()).collection(FirebaseConstants.EPISODE_TABLE).document(episode.getEpId());
 
         fireStoreCreateOrMerge(documentReference, docData, new CallBack() {
             @Override
@@ -261,9 +274,9 @@ public class EpisodeRepositoryImpl extends FirebaseRepository implements Episode
     @Override
     public void deleteEpi(Episode episode, final CallBack callBack) {
         if (!isEmptyOrNull(episode.getEpId()) && !isEmptyOrNull(episode.getRadioId())) {
-            ProgressHUD mProgressHUD = ProgressHUD.showDialog( getString(R.string.please_wait), true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog(getString(R.string.please_wait), true, false, null);
 
-            DocumentReference documentReference = colRef.document(episode.getRadioId()).collection(EPISODE_TABLE).document(episode.getEpId());
+            DocumentReference documentReference = colRef.document(episode.getRadioId()).collection(FirebaseConstants.EPISODE_TABLE).document(episode.getEpId());
 
             fireStoreDelete(documentReference, new CallBack() {
                 @Override

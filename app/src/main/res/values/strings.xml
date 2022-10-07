@@ -179,6 +179,9 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="label_radio_intro1">يمكنك تحديد القناة الإذاعية التي ترغب في متابعتها من خلال اختيار الكارد الخاص بالإذاعة</string>
     <string name="label_play_intro2">من خلال هذا الزر يمكنك تشغيل البث المباشر للقناة الإذاعية التي قمت بتحديدها</string>
+    <string name="label_replay">إعادة</string>
+    <string name="label_from">من</string>
+    <string name="label_to">إلى</string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

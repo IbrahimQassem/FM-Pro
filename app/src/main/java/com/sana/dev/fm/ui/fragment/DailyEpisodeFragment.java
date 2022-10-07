@@ -4,10 +4,10 @@ package com.sana.dev.fm.ui.fragment;
 
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 import static com.sana.dev.fm.utils.FmUtilize.safeList;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.EPISODE_TABLE;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
@@ -34,6 +34,7 @@ import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.EpisodeRepositoryImpl;
+import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 
 import java.io.Serializable;
@@ -114,7 +115,7 @@ public class DailyEpisodeFragment extends BaseFragment {
         view = inflater.inflate(R.layout.fragment_radio_map, container, false);
         ButterKnife.bind(this, view);
 
-        ePiRepo = new EpisodeRepositoryImpl((MainActivity) ctx, EPISODE_TABLE);
+        ePiRepo = new EpisodeRepositoryImpl((MainActivity) ctx, FirebaseConstants.EPISODE_TABLE);
 
 //        if (getArguments() != null) {
 //            episodeList = (List<Episode>) getArguments().getSerializable(ARG_PARAM2);
@@ -145,8 +146,8 @@ public class DailyEpisodeFragment extends BaseFragment {
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
         String primary = prefMng.selectedRadio() != null ? prefMng.selectedRadio().getName() : "";
-         SpannableString primarySpannable = new SpannableString(primary);
-        primarySpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.text_like_counter)), 0, primary.length(), 0);
+         SpannableString primarySpannable = new SpannableString(Html.fromHtml("<b>" + primary + "</b>"));
+        primarySpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
         builder.append(primarySpannable);
 
         String black = ctx.getResources().getString(R.string.episode_daily, "");

@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/background_transparent.xml" value="0.1965" />
+        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/btn_rounded_accent.xml" value="0.1" />
+        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/btn_rounded_red.xml" value="0.1135" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/fade_image_background.xml" value="0.2115" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/gradient_4.xml" value="0.1" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/ic_action_next.xml" value="0.2115" />
@@ -10,10 +13,14 @@
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/ic_action_play.xml" value="0.2105" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/ic_action_prev.xml" value="0.2105" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/ic_ballot.xml" value="0.2115" />
+        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/ic_baseline_adjust_24.xml" value="0.2115" />
+        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/ic_baseline_check_circle_24.xml" value="0.2115" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/ic_media_pause.xml" value="0.2105" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/ic_media_play.xml" value="0.2105" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/ic_photo.xml" value="0.2115" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/ic_radio.xml" value="0.1975" />
+        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/ic_send.xml" value="0.2115" />
+        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/drawable/tv_border.xml" value="0.1485" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/activity_about_app.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/activity_card_wizard_light.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/activity_comments.xml" value="0.36051899907321594" />
@@ -21,7 +28,7 @@
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/activity_form_add_program.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/activity_image_picker.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/activity_list_multi_selection.xml" value="0.20416666666666666" />
-        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/activity_main.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/activity_phone_login.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/activity_player.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/activity_profile_edit.xml" value="0.1" />
@@ -39,7 +46,7 @@
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/fragment_noiternet_view.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/fragment_programs.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/fragment_radio_map.xml" value="0.20416666666666666" />
-        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/fragment_song_list.xml" value="0.4875" />
+        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/fragment_song_list.xml" value="0.4284153005464481" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/fragment_song_player.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/item_big.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/item_card_wizard_light.xml" value="0.20416666666666666" />
@@ -54,8 +61,8 @@
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/item_photo.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/item_programs.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/item_small.xml" value="0.20416666666666666" />
-        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/item_song.xml" value="0.45901639344262296" />
-        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/item_timeline.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/item_song.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/item_timeline.xml" value="0.33" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/main_activity.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/notification.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/panel_player_interface.xml" value="0.153125" />
@@ -65,7 +72,7 @@
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/row_add_time.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/screen_now_playing.xml" value="0.3408203125" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/section.xml" value="0.20416666666666666" />
-        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/sheet_ep_options.xml" value="0.32344763670064874" />
+        <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/sheet_ep_options.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/sheet_list.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/snackbar_icon_text.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/MC/AndroidStudioProjects/Tasks/HudHudFM/app/src/main/res/layout/view_context_menu.xml" value="0.20416666666666666" />

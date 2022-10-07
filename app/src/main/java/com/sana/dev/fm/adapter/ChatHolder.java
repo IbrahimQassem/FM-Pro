@@ -12,11 +12,13 @@ import android.widget.TextView;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.Gson;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.ViewAnimation;
 
@@ -94,6 +96,10 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         tv_subtitle.setText(episode.getEpAnnouncer());
 //        String st = "" +  getFormattedTimeEvent(episode.getDateTimeModel().getTimeStart());
 //        tv_time.setText(st);
+        if (episode.getDateTimeModel() != null){
+            LogUtility.e(LogUtility.TAG, "date  getDateStart : " + new Gson().toJson(FmUtilize.modifyDateLayout(episode.getDateTimeModel().getDateStart())));
+            LogUtility.e(LogUtility.TAG, "date  getDateEnd : " + new Gson().toJson(FmUtilize.modifyDateLayout(episode.getDateTimeModel().getDateEnd())));
+        }
 //        tv_time.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
         tvDate.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
         Tools.displayImageRound(ctx, image, episode.getEpProfile());

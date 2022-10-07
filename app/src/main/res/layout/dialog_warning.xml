@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="260dp"
     android:layout_height="wrap_content"
     android:background="@android:color/white"
@@ -9,7 +10,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/red_300"
+        android:background="@color/colorAccentLight"
         android:gravity="center"
         android:minHeight="120dp"
         android:orientation="vertical"
@@ -27,10 +28,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_middle"
-            android:text=""
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@android:color/white"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="@string/label_title" />
     </LinearLayout>
 
     <LinearLayout
@@ -45,11 +46,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_small"
-            android:text=""
             android:gravity="center"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:textColor="@color/grey_60" />
+            android:textColor="@color/colorAccent"
+            tools:text="@string/lorem_ipsum" />
     </LinearLayout>
 
     <LinearLayout
@@ -64,10 +65,10 @@
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/btn_rounded_red"
+            android:background="@drawable/btn_rounded_accent"
             android:paddingLeft="@dimen/spacing_mlarge"
             android:paddingRight="@dimen/spacing_mlarge"
-            android:text="حسناً"
+            android:text="@string/OK"
             android:textColor="@android:color/white" />
     </LinearLayout>
 </LinearLayout>

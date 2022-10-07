@@ -23,6 +23,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.ChatHolder;
 import com.sana.dev.fm.adapter.SimpleSectionedRecyclerViewAdapter;
@@ -60,7 +61,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
     private String mParam1;
     private String mParam2;
 
-    private static final String TAG = "FirestoreChatActivity";
+    private static final String TAG = RealTimeEpisodeFragment.class.getSimpleName();
 
 //    private static final CollectionReference sChatCollection =
 //            FirebaseFirestore.getInstance().collection("chats");
@@ -223,9 +224,13 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
     @NonNull
     private RecyclerView.Adapter newAdapter() {
+
+        String radioId = prefMng.selectedRadio().getRadioId();
+        LogUtility.e(LogUtility.TAG, " radioId : " +radioId +" time is  : "+ String.valueOf(System.currentTimeMillis()));
+
         FirestoreRecyclerOptions<Episode> options =
                 new FirestoreRecyclerOptions.Builder<Episode>()
-                        .setQuery(ePiRepo.mainQuery(prefMng.selectedRadio().getRadioId()), Episode.class)
+                        .setQuery(ePiRepo.createSimpleQueries(radioId), Episode.class)
                         .setLifecycleOwner(this)
                         .build();
 
@@ -239,6 +244,8 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
             @Override
             protected void onBindViewHolder(@NonNull ChatHolder holder, int position, @NonNull Episode model) {
+                LogUtility.e(LogUtility.TAG, "res newAdapter : " + new Gson().toJson(model));
+
                 if (RealTimeEpisodeFragment.this.isAccountSignedIn()){
                     model.userId = prefMng.getUsers().getUserId();
                 }

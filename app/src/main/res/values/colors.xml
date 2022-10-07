@@ -16,6 +16,10 @@
 
     <color name="mask_color">#66C2185B</color>
 
+    <color name="primaryTextColor">#4a148c</color>
+    <color name="secondaryTextColor">#880e4f</color>
+
+
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
 

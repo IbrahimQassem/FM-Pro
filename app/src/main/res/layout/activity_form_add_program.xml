@@ -69,7 +69,7 @@
                     android:layout_height="@dimen/spacing_middle"
                     android:layout_margin="@dimen/spacing_medium"
                      app:srcCompat="@drawable/shape_circle"
-                    android:tint="@color/red_400" />
+                    android:tint="@color/colorPrimary" />
 
                 <View
                     android:layout_width="@dimen/spacing_middle"
@@ -114,7 +114,7 @@
                     android:layout_height="@dimen/spacing_middle"
                     android:layout_margin="@dimen/spacing_medium"
                      app:srcCompat="@drawable/shape_circle"
-                    android:tint="@color/red_400" />
+                    android:tint="@color/colorPrimary" />
 
                 <View
                     android:layout_width="@dimen/spacing_middle"
@@ -249,7 +249,7 @@
                         android:layout_height="@dimen/spacing_middle"
                         android:layout_margin="@dimen/spacing_medium"
                          app:srcCompat="@drawable/shape_circle"
-                        android:tint="@color/red_400" />
+                        android:tint="@color/colorPrimary" />
 
                     <View
                         android:layout_width="@dimen/spacing_middle"
@@ -356,7 +356,7 @@
                     android:layout_height="@dimen/spacing_middle"
                     android:layout_margin="@dimen/spacing_medium"
                      app:srcCompat="@drawable/shape_circle"
-                    android:tint="@color/red_400" />
+                    android:tint="@color/colorPrimary" />
 
                 <View
                     android:layout_width="@dimen/spacing_middle"
@@ -386,45 +386,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/spacing_medium"
-                        android:text="من"
-                        android:layout_gravity="center"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                        android:textColor="@color/grey_60" />
-
-                    <EditText
-                        android:id="@+id/et_start"
-                        style="@style/EditText_Flat_Grey"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/spacing_xmlarge"
-                        android:gravity="center"
-                        android:background="@drawable/edit_text_round_bg_outline"
-                        android:drawableTint="@color/colorAccent"
-                        android:drawablePadding="@dimen/spacing_small"
-                        app:drawableEndCompat="@drawable/ic_date_range"
-                        app:drawableRightCompat="@drawable/ic_date_range"
-                        android:editable="false"
-                        android:focusable="false"
-                        android:minHeight="@dimen/spacing_xmlarge"
-                        android:paddingLeft="@dimen/spacing_middle"
-                        android:paddingRight="@dimen/spacing_middle"
-                        android:hint="----/--/--" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="@dimen/spacing_large"
-                    android:layout_height="0dp" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/spacing_medium"
-                        android:text="إلى"
+                        android:text="@string/label_to"
                         android:layout_gravity="center"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                         android:textColor="@color/grey_60" />
@@ -448,6 +410,46 @@
                         android:paddingRight="@dimen/spacing_middle"
                         android:hint="----/--/--" />
                 </LinearLayout>
+
+                <View
+                    android:layout_width="@dimen/spacing_large"
+                    android:layout_height="0dp" />
+
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/spacing_medium"
+                        android:text="@string/label_from"
+                        android:layout_gravity="center"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textColor="@color/grey_60" />
+
+                    <EditText
+                        android:id="@+id/et_start"
+                        style="@style/EditText_Flat_Grey"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/spacing_xmlarge"
+                        android:gravity="center"
+                        android:background="@drawable/edit_text_round_bg_outline"
+                        android:drawableTint="@color/colorAccent"
+                        android:drawablePadding="@dimen/spacing_small"
+                        app:drawableEndCompat="@drawable/ic_date_range"
+                        app:drawableRightCompat="@drawable/ic_date_range"
+                        android:editable="false"
+                        android:focusable="false"
+                        android:minHeight="@dimen/spacing_xmlarge"
+                        android:paddingLeft="@dimen/spacing_middle"
+                        android:paddingRight="@dimen/spacing_middle"
+                        android:hint="----/--/--" />
+                </LinearLayout>
+
             </LinearLayout>
 
 
@@ -469,7 +471,7 @@
                         android:layout_height="@dimen/spacing_middle"
                         android:layout_margin="@dimen/spacing_medium"
                          app:srcCompat="@drawable/shape_circle"
-                        app:tint="@color/red_400" />
+                        app:tint="@color/colorPrimary" />
 
                     <View
                         android:layout_width="@dimen/spacing_middle"

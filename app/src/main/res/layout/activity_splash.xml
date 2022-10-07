@@ -38,7 +38,7 @@
       android:layout_marginTop="30dp"
       android:fontFamily="@font/tajwal_regular"
       android:text="@string/app_slogan"
-      android:textColor="@color/colorPrimaryDark"
+      android:textColor="@color/colorAccent"
       android:textSize="14sp"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"

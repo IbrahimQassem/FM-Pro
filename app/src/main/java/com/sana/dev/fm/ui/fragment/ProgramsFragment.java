@@ -8,10 +8,14 @@ import static com.sana.dev.fm.utils.FmUtilize.month_date;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.RADIO_PROGRAM_TABLE;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -149,7 +153,9 @@ public class ProgramsFragment extends BaseFragment {
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
         String primary = prefMng.selectedRadio() != null ? prefMng.selectedRadio().getName() : "";
-        SpannableString blueSpannable = new SpannableString(primary);
+        SpannableString blueSpannable = new SpannableString(Html.fromHtml("<b>" + primary + "</b>"));
+//        StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
+//        blueSpannable.setSpan(boldSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
         builder.append(blueSpannable);
 
@@ -177,14 +183,14 @@ public class ProgramsFragment extends BaseFragment {
                         initAdapter();
                         mAdapter.setOnItemClickListener(new AdapterListProgram.OnItemClickListener() {
                             public void onItemClick(View v, RadioProgram radioProgram, int i) {
-                            Episode episode = new Episode();
-                            episode.setRadioId(radioProgram.getRadioId());
-                            episode.setProgramId(radioProgram.getProgramId());
-                            int[] startingLocation = new int[2];
-                            v.getLocationOnScreen(startingLocation);
-                            startingLocation[0] += v.getWidth() / 2;
-                            ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, getActivity(), episode);
-                            getActivity().overridePendingTransition(0, 0);
+                                Episode episode = new Episode();
+                                episode.setRadioId(radioProgram.getRadioId());
+                                episode.setProgramId(radioProgram.getProgramId());
+                                int[] startingLocation = new int[2];
+                                v.getLocationOnScreen(startingLocation);
+                                startingLocation[0] += v.getWidth() / 2;
+                                ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, getActivity(), episode);
+                                getActivity().overridePendingTransition(0, 0);
 //                                showToast("is : "+radioProgram.getPrName());
                             }
                         });
@@ -233,7 +239,7 @@ public class ProgramsFragment extends BaseFragment {
             });
     }
 
-   void initAdapter(){
+    void initAdapter() {
         //This is the code to provide a sectioned list
         List<SimpleSectionedRecyclerViewAdapter.Section> sections =
                 new ArrayList<SimpleSectionedRecyclerViewAdapter.Section>();
@@ -256,34 +262,33 @@ public class ProgramsFragment extends BaseFragment {
 
 //       Arrays.fill(itemList, Arrays.asList(new RadioProgram()));
 //       List<RadioProgram> x = new ArrayList<RadioProgram>(Arrays.asList(new RadioProgram()));
-       HashMap<String, ArrayList<RadioProgram>> myProgram = new  HashMap<String, ArrayList<RadioProgram>>() ;
-       for(int i=0; i < itemList.size(); i++)
-       {
-           if (itemList.get(i).getDateTimeModel() != null ){
-               String month_name = month_date.format(Tools.getDateFormat(itemList.get(i).getDateTimeModel().getDateStart()));
-               ArrayList<RadioProgram> programList = myProgram.get(month_name);
-               if (programList == null) {
-                   programList = new ArrayList<RadioProgram>();
-                   myProgram.put(month_name, programList);
-                   sections.add(new SimpleSectionedRecyclerViewAdapter.Section(i,month_name));
-               }
-               RadioProgram p= itemList.get(i);
-               programList.add(p);
-           }
-       }
+        HashMap<String, ArrayList<RadioProgram>> myProgram = new HashMap<String, ArrayList<RadioProgram>>();
+        for (int i = 0; i < itemList.size(); i++) {
+            if (itemList.get(i).getDateTimeModel() != null) {
+                String month_name = month_date.format(Tools.getDateFormat(itemList.get(i).getDateTimeModel().getDateStart()));
+                ArrayList<RadioProgram> programList = myProgram.get(month_name);
+                if (programList == null) {
+                    programList = new ArrayList<RadioProgram>();
+                    myProgram.put(month_name, programList);
+                    sections.add(new SimpleSectionedRecyclerViewAdapter.Section(i, month_name));
+                }
+                RadioProgram p = itemList.get(i);
+                programList.add(p);
+            }
+        }
 
 
-       mAdapter = new AdapterListProgram(ctx, itemList, R.layout.item_programs);
+        mAdapter = new AdapterListProgram(ctx, itemList, R.layout.item_programs);
 
         //Add your adapter to the sectionAdapter
         SimpleSectionedRecyclerViewAdapter.Section[] dummy = new SimpleSectionedRecyclerViewAdapter.Section[sections.size()];
         SimpleSectionedRecyclerViewAdapter mSectionedAdapter = new
-                SimpleSectionedRecyclerViewAdapter(ctx, R.layout.layout_section, R.id.section_text,mAdapter);
+                SimpleSectionedRecyclerViewAdapter(ctx, R.layout.layout_section, R.id.section_text, mAdapter);
         mSectionedAdapter.setSections(sections.toArray(dummy));
 
-       recyclerView.setAdapter(mSectionedAdapter);
+        recyclerView.setAdapter(mSectionedAdapter);
 
-   }
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -302,9 +307,9 @@ public class ProgramsFragment extends BaseFragment {
 
 
     private ArrayList<Map<String, String>> keyList;
-    private Map<String,List<RadioProgram>> map;
+    private Map<String, List<RadioProgram>> map;
 
-    private void initList(){
+    private void initList() {
         map = new HashMap<>();
         keyList = new ArrayList<>();
     }
@@ -312,7 +317,7 @@ public class ProgramsFragment extends BaseFragment {
 //    SimpleDateFormat month_date = new SimpleDateFormat("MMMM",_arabicFormat);
 //    String month_name = month_date.format(cal.getTime());
 
-    private void getPhotoList(ArrayList<RadioProgram> arrayList){
+    private void getPhotoList(ArrayList<RadioProgram> arrayList) {
 
 //        for (Episode string : photoList) {
 //            String month_name = month_date.format(Tools.getDateFormat(string.getDateTimeModel().getDateStart()));
@@ -324,31 +329,30 @@ public class ProgramsFragment extends BaseFragment {
 //             else;
 //        }
 
-        HashMap<String, ArrayList<RadioProgram>> myProgram = new  HashMap<String, ArrayList<RadioProgram>>() ;
-        for(int i=0; i < arrayList.size(); i++)
-        {
+        HashMap<String, ArrayList<RadioProgram>> myProgram = new HashMap<String, ArrayList<RadioProgram>>();
+        for (int i = 0; i < arrayList.size(); i++) {
             String month_name = month_date.format(Tools.getDateFormat(arrayList.get(i).getDateTimeModel().getDateStart()));
             ArrayList<RadioProgram> programList = myProgram.get(month_name);
             if (programList == null) {
                 programList = new ArrayList<RadioProgram>();
                 myProgram.put(month_name, programList);
             }
-            RadioProgram p= arrayList.get(i);
+            RadioProgram p = arrayList.get(i);
             programList.add(p);
         }
 
 
-        for (Map<String, String> s : keyList){
+        for (Map<String, String> s : keyList) {
             ArrayList<RadioProgram> photos = new ArrayList<>();
             long count = s.containsKey("key") ? Long.parseLong(s.get("key")) : 0;
             for (RadioProgram s1 : arrayList) {
                 if (s1.getDateTimeModel().getDateStart() == count)
                     photos.add(s1);
-                else;
+                else ;
             }
             map.put(s.get("value"), photos);
         }
-        Log.d(TAG,"map "+ map.toString());
+        Log.d(TAG, "map " + map.toString());
 
     }
 }

@@ -319,13 +319,12 @@ public class UserProfileActivity extends BaseActivity {
         getSupportActionBar().setTitle(null);
         ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(R.drawable.ic_arrow_back);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        Tools.setSystemBarColor(this, R.color.colorPrimary);
+        Tools.setSystemBarColor(this, R.color.colorAccent);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_notif_setting, menu);
-        Tools.changeMenuIconColor(menu, getResources().getColor(R.color.colorPrimary));
-
+        Tools.changeMenuIconColor(menu, getResources().getColor(R.color.colorAccent));
         return true;
     }
 

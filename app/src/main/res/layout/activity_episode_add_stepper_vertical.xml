@@ -123,7 +123,7 @@
                                 android:layout_height="@dimen/spacing_middle"
                                 android:layout_margin="@dimen/spacing_medium"
                                  app:srcCompat="@drawable/shape_circle"
-                                app:tint="@color/red_400" />
+                                app:tint="@color/colorPrimary" />
 
                             <View
                                 android:layout_width="@dimen/spacing_middle"
@@ -328,7 +328,7 @@
                                 android:layout_height="@dimen/spacing_middle"
                                 android:layout_margin="@dimen/spacing_medium"
                                  app:srcCompat="@drawable/shape_circle"
-                                app:tint="@color/red_400" />
+                                app:tint="@color/colorPrimary" />
 
                             <View
                                 android:layout_width="@dimen/spacing_middle"
@@ -381,7 +381,7 @@
                                 android:layout_height="@dimen/spacing_middle"
                                 android:layout_margin="@dimen/spacing_medium"
                                  app:srcCompat="@drawable/shape_circle"
-                                app:tint="@color/red_400" />
+                                app:tint="@color/colorPrimary" />
 
                             <View
                                 android:layout_width="@dimen/spacing_middle"
@@ -515,7 +515,7 @@
                                 android:layout_height="@dimen/spacing_middle"
                                 android:layout_margin="@dimen/spacing_medium"
                                  app:srcCompat="@drawable/shape_circle"
-                                app:tint="@color/red_400" />
+                                app:tint="@color/colorPrimary" />
 
                             <View
                                 android:layout_width="@dimen/spacing_middle"
@@ -574,7 +574,7 @@
 <!--                                    android:layout_height="@dimen/spacing_middle"-->
 <!--                                    android:layout_margin="@dimen/spacing_medium"-->
 <!--                                     app:srcCompat="@drawable/shape_circle"-->
-<!--                                    app:tint="@color/red_400" />-->
+<!--                                    app:tint="@color/colorPrimary" />-->
 
 <!--                                <View-->
 <!--                                    android:layout_width="@dimen/spacing_middle"-->
@@ -732,7 +732,7 @@
 <!--                                android:layout_height="@dimen/spacing_middle"-->
 <!--                                android:layout_margin="@dimen/spacing_medium"-->
 <!--                                 app:srcCompat="@drawable/shape_circle"-->
-<!--                                android:tint="@color/red_400" />-->
+<!--                                android:tint="@color/colorPrimary" />-->
 
 <!--                            <View-->
 <!--                                android:layout_width="@dimen/spacing_middle"-->

@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?><!-- styles.xml-->
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-
-
-    <!--    <style name="MyActionBarTheme" parent="ThemeOverlay.AppCompat.Light">-->
-    <!--        <item name="android:textColorPrimary">@color/colorPrimary</item>-->
-    <!--    </style>-->
-
     <style name="Theme.HudHudFM.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -139,15 +133,7 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.HudHudFM.AppBarOverlay">
-        <!--        <item name="android:textColorPrimary">@color/pink_500</item>-->
-        <!--        <item name="android:textColorSecondary">@color/pink_700</item>-->
-    </style>
 
-    <!--    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">-->
-    <!--        <item name="android:textColorPrimary">@color/pink_500</item>-->
-    <!--        <item name="android:textColorSecondary">@color/pink_700</item>-->
-    <!--    </style>-->
 
     <style name="Toolbar_Light">
         <item name="android:textColorPrimary">@color/grey_60</item>
@@ -161,15 +147,15 @@
         <item name="windowNoTitle">true</item>
 
         <!-- AppCompat Attributes -->
-        <item name="colorPrimary">@color/pink_500</item>
-        <item name="colorPrimaryDark">@color/pink_700</item>
-        <item name="colorAccent">@color/pink_A200</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorPrimaryLight</item>
 
         <!-- AppCompat Control Attributes -->
         <!--        &lt;!&ndash; Other control states (not in this example)-->
-        <item name="colorButtonNormal">@color/pink_500</item>
-        <item name="colorControlNormal">@color/pink_500</item>
-        <item name="colorControlActivated">@color/pink_500</item>
+        <item name="colorButtonNormal">@color/colorPrimary</item>
+        <item name="colorControlNormal">@color/colorPrimary</item>
+        <item name="colorControlActivated">@color/colorPrimary</item>
         <item name="colorControlHighlight">@color/fab_color_pressed</item>
         -
 
@@ -182,16 +168,16 @@
 
     <!-- Green Dialog Theme -->
     <style name="AppTheme.Dialog.Main" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorPrimary">@color/pink_500</item>
-        <item name="colorPrimaryDark">@color/pink_700</item>
-        <item name="colorAccent">@color/pink_A200</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorPrimaryLight</item>
     </style>
 
     <!-- Green Alert Dialog Theme -->
     <style name="AppTheme.Dialog.Alert.Main" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="colorPrimary">@color/pink_500</item>
-        <item name="colorPrimaryDark">@color/pink_700</item>
-        <item name="colorAccent">@color/pink_A200</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorPrimaryLight</item>
     </style>
 
 

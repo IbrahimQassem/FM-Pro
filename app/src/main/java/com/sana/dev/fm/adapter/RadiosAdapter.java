@@ -73,13 +73,13 @@ public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.ViewHolder
         });
 
         if (selectedItem == position) {
-            holder.cardView.setCardBackgroundColor(context.getResources().getColor(R.color.pink_100));
+            holder.cardView.setCardBackgroundColor(context.getResources().getColor(R.color.colorAccentLight));
         } else {
             holder.cardView.setCardBackgroundColor(context.getResources().getColor(R.color.white));
         }
 
 //        if ( d.getRadioId().equals(model.getRadioId())) {
-//            holder.cardView.setCardBackgroundColor(context.getResources().getColor(R.color.pink_100));
+//            holder.cardView.setCardBackgroundColor(context.getResources().getColor(R.color.colorAccentLight));
 //        }else {
 //            holder.cardView.setCardBackgroundColor(context.getResources().getColor(R.color.white));
 //        }

@@ -4,32 +4,28 @@
 
     <item
         android:id="@+id/nav_more"
-        android:title="@string/more"
         android:icon="@drawable/ic_more_grey"
-        />
+        android:title="@string/more" />
 
     <item
         android:id="@+id/nav_radio_map"
-        android:title="@string/radio_map"
         android:icon="@drawable/ic_ballot"
-        />
+        android:title="@string/radio_map" />
 
     <item
         android:id="@+id/nav_daily_epi"
-        android:title="@string/nav_episode_daily"
         android:icon="@drawable/ic_av_timer"
-        />
+        android:title="@string/nav_episode_daily" />
 
 
     <item
         android:id="@+id/navigation_home"
-        android:title="@string/nav_home"
         android:icon="@drawable/ic_home"
-        />
+        android:title="@string/nav_home" />
 
     <item
-        android:title=""
-        android:enabled="false"/>
+        android:enabled="false"
+        android:title="" />
 
 
 </menu>

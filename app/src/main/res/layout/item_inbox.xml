@@ -34,7 +34,7 @@
                     android:layout_width="@dimen/spacing_xmlarge"
                     android:layout_height="@dimen/spacing_xmlarge"
                      app:srcCompat="@drawable/shape_circle"
-                    android:tint="@color/blue_grey_600" />
+                    android:tint="@color/colorAccentLight" />
 
                 <ImageView
                     android:layout_width="25dp"

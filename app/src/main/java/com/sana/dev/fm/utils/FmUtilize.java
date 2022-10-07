@@ -67,6 +67,7 @@ public class FmUtilize {
 
     public static final Locale _arabicFormat = new Locale("ar", "SA");  // Arabic language. Saudi Arabia cultural norms.
     public static final SimpleDateFormat month_date = new SimpleDateFormat("MMMM", _arabicFormat);
+    public static final String DATE_TIME_FORMAT = "MM/dd/yyyy HH:mm:ss a";
 
 //    public static final Locale _arabicFormat = new Locale("en", "US");  // Arabic language. Saudi Arabia cultural norms.
 
@@ -629,9 +630,28 @@ public class FmUtilize {
         }
     }
 
-    private String modifyDateLayout(String inputDate) throws ParseException {
-        Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(inputDate);
-        return new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(date);
+    public static String modifyDateLayout(String inputDate)  {
+        String res = "null";
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.US);
+            Date date = sdf.parse(inputDate);
+            res =new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    public static String modifyDateLayout(long val)  {
+        String res = "";
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.US);
+            System.out.format("%30s %s\n", "yyyy-MM-dd'T'HH:mm:ss.SSSZ", sdf.format(new Date(val))); // 0 - your "LongValue"
+            res= sdf.format(new Date(val));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return res;
     }
 
 

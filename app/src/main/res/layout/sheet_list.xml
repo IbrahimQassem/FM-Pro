@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
@@ -28,8 +29,9 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/pink_500"
-                app:srcCompat="@drawable/ic_person_pin" />
+                android:tint="@color/colorAccent"
+                app:srcCompat="@drawable/ic_person_pin"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -61,8 +63,9 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/pink_500"
-                app:srcCompat="@drawable/ic_share" />
+                android:tint="@color/colorAccent"
+                app:srcCompat="@drawable/ic_share"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -94,8 +97,9 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/pink_500"
-                app:srcCompat="@drawable/ic_star" />
+                android:tint="@color/colorAccent"
+                app:srcCompat="@drawable/ic_star"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -127,8 +131,9 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/pink_500"
-                app:srcCompat="@drawable/ic_emoji_objects" />
+                android:tint="@color/colorAccent"
+                app:srcCompat="@drawable/ic_emoji_objects"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -150,20 +155,21 @@
         android:paddingRight="@dimen/spacing_middle">
 
         <LinearLayout
-            android:visibility="gone"
             android:id="@+id/lyt_add_program"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="true"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <ImageView
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/pink_500"
-                app:srcCompat="@drawable/ic_collections_white_24dp" />
+                android:tint="@color/colorAccent"
+                app:srcCompat="@drawable/ic_collections_white_24dp"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -185,20 +191,21 @@
         android:paddingRight="@dimen/spacing_middle">
 
         <LinearLayout
-            android:visibility="gone"
             android:id="@+id/lyt_add_episode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="true"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <ImageView
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/pink_500"
-                app:srcCompat="@drawable/ic_collections_white_24dp" />
+                android:tint="@color/colorAccent"
+                app:srcCompat="@drawable/ic_collections_white_24dp"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -221,20 +228,21 @@
         android:paddingRight="@dimen/spacing_middle">
 
         <LinearLayout
-            android:visibility="gone"
             android:id="@+id/lyt_update_episode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="true"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <ImageView
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/pink_500"
-                app:srcCompat="@drawable/ic_settings" />
+                android:tint="@color/colorAccent"
+                app:srcCompat="@drawable/ic_settings"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -267,7 +275,8 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/pink_500"
+                android:tint="@color/colorAccent"
+                tools:ignore="UseAppTint"
                 app:srcCompat="@drawable/ic_close" />
 
             <TextView

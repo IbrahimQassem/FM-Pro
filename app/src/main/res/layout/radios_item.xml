@@ -48,7 +48,7 @@
             android:layout_marginBottom="@dimen/spacing_small"
             android:lineSpacingExtra="1.8sp"
             android:fontFamily="@font/tajawal_bold"
-            tools:text="99."
+            tools:text="99.9"
             android:maxLines="1"
             android:textAlignment="center"
             android:textColor="@color/colorAccent"

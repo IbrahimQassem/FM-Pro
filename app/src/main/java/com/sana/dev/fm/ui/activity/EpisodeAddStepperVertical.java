@@ -9,9 +9,6 @@ import static com.sana.dev.fm.utils.FmUtilize.setTimeFormat;
 import static com.sana.dev.fm.utils.FmUtilize.stringTimeToMillis;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysEn;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.EPISODE_TABLE;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.FB_FM_FOLDER_PATH;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.RADIO_PROGRAM_TABLE;
 
 import android.Manifest;
 import android.app.Activity;
@@ -78,6 +75,7 @@ import com.sana.dev.fm.utils.ViewAnimation;
 import com.sana.dev.fm.utils.my_firebase.AppConstant;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.EpisodeRepositoryImpl;
+import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmRepositoryImpl;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
@@ -183,7 +181,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
         parent_view = findViewById(android.R.id.content);
 
         ButterKnife.bind(this);
-        ePoRepo = new EpisodeRepositoryImpl(this, EPISODE_TABLE);
+        ePoRepo = new EpisodeRepositoryImpl(this, FirebaseConstants.EPISODE_TABLE);
         prefMgr = new PreferencesManager(this);
 
         initToolbar();
@@ -369,7 +367,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
             StorageMetadata metadata = new StorageMetadata.Builder()
                     .setContentType("image/jpg")
                     .build();
-            StorageReference ref = FirebaseStorage.getInstance().getReference().child(FB_FM_FOLDER_PATH).child(radioId).child(random() + ".jpg");
+            StorageReference ref = FirebaseStorage.getInstance().getReference().child(FirebaseConstants.FB_FM_FOLDER_PATH).child(radioId).child(random() + ".jpg");
             // Upload file and metadata to the path 'images/mountains.jpg'
             UploadTask uploadTask = ref.putFile(imageUri, metadata);
 
@@ -720,7 +718,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
 
     private void loadRadioProgram(String RadioId) {
 
-        FmRepositoryImpl rpRepo = new FmRepositoryImpl(this, RADIO_PROGRAM_TABLE);
+        FmRepositoryImpl rpRepo = new FmRepositoryImpl(this, FirebaseConstants.RADIO_PROGRAM_TABLE);
         rpRepo.readAllProgramByRadioId(RadioId, new CallBack() {
             @Override
             public void onSuccess(Object object) {

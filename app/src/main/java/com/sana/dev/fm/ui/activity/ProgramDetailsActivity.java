@@ -5,8 +5,6 @@ import static com.sana.dev.fm.adapter.UserProfileAdapter.SPAN_COUNT_ONE;
 import static com.sana.dev.fm.adapter.UserProfileAdapter.SPAN_COUNT_THREE;
 import static com.sana.dev.fm.ui.activity.player.PermitActivity.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE;
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.EPISODE_TABLE;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.RADIO_PROGRAM_TABLE;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -49,6 +47,7 @@ import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.EpisodeRepositoryImpl;
+import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmRepositoryImpl;
 
 
@@ -216,7 +215,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
         String s = getIntent().getStringExtra("episode");
         if (s != null) {
             Episode episode = new Gson().fromJson(s, Episode.class);
-            FmRepositoryImpl rpRepo = new FmRepositoryImpl(this, RADIO_PROGRAM_TABLE);
+            FmRepositoryImpl rpRepo = new FmRepositoryImpl(this, FirebaseConstants.RADIO_PROGRAM_TABLE);
             RadioProgram program = new RadioProgram();
             program.setRadioId(episode.getRadioId());
             program.setProgramId(episode.getProgramId());
@@ -252,7 +251,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                 }
             });
 
-            EpisodeRepositoryImpl ePiRepo = new EpisodeRepositoryImpl(this, EPISODE_TABLE);
+            EpisodeRepositoryImpl ePiRepo = new EpisodeRepositoryImpl(this, FirebaseConstants.EPISODE_TABLE);
             ePiRepo.readAllEpisodeByRadioIdAndPgId(episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {

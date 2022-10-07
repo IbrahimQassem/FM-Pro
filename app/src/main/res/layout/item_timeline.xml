@@ -12,16 +12,17 @@
         android:id="@+id/timeline"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        app:endLineColor="@color/pink_200"
+        app:endLineColor="@color/colorAccentLight"
         app:lineStyle="dash"
         app:lineWidth="3dp"
-        app:marker="@color/pink_700"
+        app:marker="@color/colorAccent"
         app:markerSize="20dp"
-        app:startLineColor="@color/pink_200" />
+        app:startLineColor="@color/colorAccentLight" />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -147,7 +148,6 @@
 
         </FrameLayout>
 
-
         <TextView
             android:id="@+id/tevEpState"
             android:layout_width="wrap_content"
@@ -160,7 +160,7 @@
             android:paddingBottom="@dimen/spacing_medium"
             android:textColor="@color/white"
             android:visibility="visible"
-            tools:text="إعادة" />
+            tools:text="@string/label_replay" />
     </FrameLayout>
 
 

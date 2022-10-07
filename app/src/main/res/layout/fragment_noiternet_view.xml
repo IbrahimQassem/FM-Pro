@@ -67,7 +67,7 @@
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_xlarge"
-                android:background="@drawable/btn_rounded_primary"
+                android:background="@drawable/btn_rounded_accent"
                 android:visibility="visible"
                 android:textColor="@android:color/white" />
 
