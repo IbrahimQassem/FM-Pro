@@ -25,9 +25,6 @@ import com.sana.dev.fm.utils.Tools;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-//import de.hdodenhof.circleimageview.CircleImageView;
-//import jp.wasabeef.blurry.Blurry;
-
 
 
 public class SongPlayerFragment extends MusicServiceFragment {

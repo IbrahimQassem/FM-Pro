@@ -9,14 +9,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.MediaStore;
 
-//import com.blacpythoz.musik.database.SongCursorWrapper;
-//import com.blacpythoz.musik.database.SongDbHelper;
-//import com.blacpythoz.musik.models.AlbumModel;
-//import com.blacpythoz.musik.models.ArtistModel;
-//import com.blacpythoz.musik.models.SongModel;
 
+import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
 import com.sana.dev.fm.ui.activity.player.database.SongCursorWrapper;
 import com.sana.dev.fm.ui.activity.player.database.SongDbHelper;
+import com.sana.dev.fm.utils.DataGenerator;
+import com.sana.dev.fm.utils.FmUtilize;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,16 +46,22 @@ public class SongDataLab {
     }
 
     public SongModel getSong(long id) {
-        SongCursorWrapper cursorWrapper = querySong("_id=" + id, null);
-        try {
-            if (cursorWrapper.getCount() != 0) {
-                cursorWrapper.moveToFirst();
-                return cursorWrapper.getSong();
+//        SongCursorWrapper cursorWrapper = querySong("_id=" + id, null);
+//        try {
+//            if (cursorWrapper.getCount() != 0) {
+//                cursorWrapper.moveToFirst();
+//                return cursorWrapper.getSong();
+//            }
+//            return SongModel.EMPTY();
+//        } finally {
+//            cursorWrapper.close();
+//        }
+        for (SongModel songModel : songs) {
+            if (songModel.getId() == id) {
+                return songModel;
             }
-            return SongModel.EMPTY();
-        } finally {
-            cursorWrapper.close();
         }
+        return SongModel.EMPTY();
     }
 
     public SongModel getRandomSong() {
@@ -87,18 +92,30 @@ public class SongDataLab {
 
     public List<SongModel> querySongs() {
         List<SongModel> songs = new ArrayList();
-        SongCursorWrapper cursor = querySong(null, null);
-        try {
-            cursor.moveToFirst();
-            do {
-                SongModel song = cursor.getSong();
-                song = cursor.getSong();
-                song.setAlbumArt(getAlbumUri(song.getAlbumId()).toString());
-                songs.add(song);
-            } while (cursor.moveToNext());
-        } finally {
-            cursor.close();
+        List<Episode> detailsList = DataGenerator.getEpisodeData(mContext);
+
+
+        for (int i = 0; i < detailsList.size(); i++) {
+            Episode ep = detailsList.get(i);
+//            SongModel song = SongModel.EMPTY();
+            SongModel song = new SongModel(i, ep.getEpName(), ep.getEpAnnouncer(), "", ep.getProgramName(), "zzz", /*FmUtilize.modifyDateLayout(ep.getDateTimeModel().getDateStart())*/"http://www.dev2qa.com/demo/media/test.mp3", 0, 0, 0, 0, 0, 0, 0, 0);
+            songs.add(song);
         }
+
+//        SongCursorWrapper cursor = querySong(null, null);
+//        try {
+//            cursor.moveToFirst();
+//            do {
+//                SongModel song = cursor.getSong();
+//                song = cursor.getSong();
+//                song.setAlbumArt(getAlbumUri(song.getAlbumId()).toString());
+//                songs.add(song);
+//            } while (cursor.moveToNext());
+//        } finally {
+//            cursor.close();
+//        }
+
+
         return songs;
     }
 
@@ -170,27 +187,27 @@ public class SongDataLab {
         return allArtists;
     }
 
-    private SongCursorWrapper querySong(String whereClause, String[] whereArgs) {
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String selection;
-        if (whereClause != null) {
-            selection = MediaStore.Audio.Media.IS_MUSIC + "!=0 AND " + whereClause;
-        } else {
-            selection = MediaStore.Audio.Media.IS_MUSIC + "!=0";
-        }
-        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
-        Cursor cursor = mContext.getContentResolver().query(
-                uri,
-                null,
-                selection, // where clause
-                whereArgs,       //whereargs
-                sortOrder);
-        return new SongCursorWrapper(cursor);
-    }
+//    private SongCursorWrapper querySong(String whereClause, String[] whereArgs) {
+//        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+//        String selection;
+//        if (whereClause != null) {
+//            selection = MediaStore.Audio.Media.IS_MUSIC + "!=0 AND " + whereClause;
+//        } else {
+//            selection = MediaStore.Audio.Media.IS_MUSIC + "!=0";
+//        }
+//        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
+//        Cursor cursor = mContext.getContentResolver().query(
+//                uri,
+//                null,
+//                selection, // where clause
+//                whereArgs,       //whereargs
+//                sortOrder);
+//        return new SongCursorWrapper(cursor);
+//    }
 
     // returns the albumart uri
-    private Uri getAlbumUri(int albumId) {
-        Uri albumArtUri = Uri.parse("content://media/external/audio/albumart");
-        return ContentUris.withAppendedId(albumArtUri, albumId);
-    }
+//    private Uri getAlbumUri(int albumId) {
+//        Uri albumArtUri = Uri.parse("content://media/external/audio/albumart");
+//        return ContentUris.withAppendedId(albumArtUri, albumId);
+//    }
 }

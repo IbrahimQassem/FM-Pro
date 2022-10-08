@@ -54,9 +54,9 @@ import okhttp3.OkHttpClient;
 
 public class RadioService extends Service implements Player.EventListener, AudioManager.OnAudioFocusChangeListener, ShoutcastMetadataListener {
 
-    public static final String ACTION_PLAY = "com.sana.dev.fm.sheard.radio_player.ACTION_PLAY";
-    public static final String ACTION_PAUSE = "com.sana.dev.fm.sheard.radio_player.ACTION_PAUSE";
-    public static final String ACTION_STOP = "com.sana.dev.fm.sheard.radio_player.ACTION_STOP";
+    public static final String ACTION_PLAY = "com.sana.dev.fm.utils.radio_player.ACTION_PLAY";
+    public static final String ACTION_PAUSE = "com.sana.dev.fm.utils.radio_player.ACTION_PAUSE";
+    public static final String ACTION_STOP = "com.sana.dev.fm.utils.radio_player.ACTION_STOP";
 
     private final IBinder iBinder = new LocalBinder();
 

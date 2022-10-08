@@ -16,6 +16,9 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.google.gson.Gson;
+import com.sana.dev.fm.utils.LogUtility;
+
 import java.util.List;
 
 
@@ -93,6 +96,7 @@ public class MusicService extends Service implements
     }
 
     public void initMusicService() {
+        if (player == null) return;
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
         player.setOnErrorListener(this);
@@ -359,14 +363,15 @@ public class MusicService extends Service implements
                     if (player != null) {
                         player.reset();
                         try {
-//                            player.setDataSource(song.getData());
-                            player.setDataSource("http://www.dev2qa.com/demo/media/test.mp3");
-                            Log.i(TAG, song.getBookmark() + "");
+                            player.setDataSource(song.getData());
+//                            player.setDataSource("http://www.dev2qa.com/demo/media/test.mp3");
+                            LogUtility.e(LogUtility.TAG, " song : " + new Gson().toJson(song));
+
                             player.prepareAsync();
                             MusicService.this.callback.onTrackChange(song);
 
                         } catch (Exception e) {
-                            Log.e(TAG, "Error playing from data source", e);
+                            LogUtility.e(LogUtility.TAG, "Error playing from data source", e);
                         }
                     }
                 }

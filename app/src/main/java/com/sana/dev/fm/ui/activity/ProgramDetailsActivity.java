@@ -3,7 +3,6 @@ package com.sana.dev.fm.ui.activity;
 
 import static com.sana.dev.fm.adapter.UserProfileAdapter.SPAN_COUNT_ONE;
 import static com.sana.dev.fm.adapter.UserProfileAdapter.SPAN_COUNT_THREE;
-import static com.sana.dev.fm.ui.activity.player.PermitActivity.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE;
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 
 import android.Manifest;
@@ -60,6 +59,7 @@ import butterknife.BindView;
  * Created by  Ibrahim on 25.03.21.
  */
 public class ProgramDetailsActivity extends BaseActivity implements RevealBackgroundView.OnStateChangeListener {
+    public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
 
     public static final String ARG_REVEAL_START_LOCATION = "reveal_start_location";
     private static final int USER_OPTIONS_ANIMATION_DELAY = 300;
@@ -251,7 +251,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                 }
             });
 
-            EpisodeRepositoryImpl ePiRepo = new EpisodeRepositoryImpl(this, FirebaseConstants.EPISODE_TABLE);
+            /*EpisodeRepositoryImpl ePiRepo = new EpisodeRepositoryImpl(this, FirebaseConstants.EPISODE_TABLE);
             ePiRepo.readAllEpisodeByRadioIdAndPgId(episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
@@ -272,7 +272,8 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                 public void onError(Object object) {
                     LogUtility.e(TAG, "readAllEpisodeByRadioIdAndPgId: " + object);
                 }
-            });
+            });*/
+
 
 
         } else {
@@ -281,7 +282,8 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
             // Todo show empty view
         }
 
-
+        detailsList = DataGenerator.getEpisodeData(this);
+        setupUserProfileGrid();
     }
 
     private void setupTabs() {

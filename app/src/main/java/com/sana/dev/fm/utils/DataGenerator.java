@@ -69,7 +69,7 @@ public class DataGenerator {
             index = i + 1;
             // Todo : Fix me
 //            Episode obj = new Episode("1000", "1000_" + index, "Name :" + index, "1000_" + index + "_" + index, name_arr[i], _desc, name_arr[i], Tools.getFormattedDateSimple(new Date().getTime()), setTimeFormat((i + 1), (i * 3), 33), setTimeFormat((i + 1), (i * 3), 33), "59", _img, "", 100 * i, 1, String.valueOf(System.currentTimeMillis()), "temp", "", false,new DateTimeModel(System.currentTimeMillis(),System.currentTimeMillis(),shortWeekDays));
-            Episode episode = new Episode(""+i, "1000_" + index, "Name :" + index, "1000_" + index, name_arr[i], _desc, name_arr[i], new DateTimeModel(System.currentTimeMillis(),System.currentTimeMillis(),shortWeekDays), "epProfile", "", 1, 1, String.valueOf(System.currentTimeMillis()), "createBy", "", false, new ArrayList<DateTimeModel>(Collections.singleton(new DateTimeModel(System.currentTimeMillis(), System.currentTimeMillis(), shortWeekDays))));
+            Episode episode = new Episode(""+i, "1000_" + index, "Name :" + index, "1000_" + index, name_arr[i], _desc, name_arr[i], new DateTimeModel(System.currentTimeMillis(),System.currentTimeMillis(),shortWeekDays), "epProfile", "http://www.dev2qa.com/demo/media/test.mp3", 1, 1, String.valueOf(System.currentTimeMillis()), "createBy", "", false, new ArrayList<DateTimeModel>(Collections.singleton(new DateTimeModel(System.currentTimeMillis(), System.currentTimeMillis(), shortWeekDays))));
             items.add(episode);
         }
         Collections.shuffle(items);

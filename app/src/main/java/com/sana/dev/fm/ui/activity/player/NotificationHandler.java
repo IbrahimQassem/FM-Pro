@@ -12,18 +12,14 @@ import android.os.Build;
 import android.provider.MediaStore;
 
 import com.sana.dev.fm.R;
-
-//import com.blacpythoz.musik.R;
-//import com.blacpythoz.musik.activities.PlayerActivity;
-//import com.blacpythoz.musik.models.SongModel;
-//import com.blacpythoz.musik.services.MusicService;
+import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
 
 
 public class NotificationHandler {
 
     public static Notification createNotification(Context context, SongModel currentSong, boolean playStatus) {
         Notification.Builder nbuilder = null;
-        Intent openAppIntent = new Intent(context, PlayerActivity.class);
+        Intent openAppIntent = new Intent(context, ProgramDetailsActivity.class);
         PendingIntent pendingOpenAppIntent = PendingIntent.getActivity(context, 0, openAppIntent, 0);
 
         Intent previousIntent = new Intent(context, MusicService.class);
