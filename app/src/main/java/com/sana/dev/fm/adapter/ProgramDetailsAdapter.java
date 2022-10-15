@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.utils.Tools;
 
 import java.util.List;
@@ -25,7 +26,7 @@ import butterknife.ButterKnife;
 /**
  * Created by admin on 20.01.15.
  */
-public class UserProfileAdapter extends RecyclerView.Adapter<UserProfileAdapter.PhotoViewHolder> {
+public class ProgramDetailsAdapter extends RecyclerView.Adapter<ProgramDetailsAdapter.PhotoViewHolder> {
 
     private static final int PHOTO_ANIMATION_DELAY = 600;
     private static final Interpolator INTERPOLATOR = new DecelerateInterpolator();
@@ -44,7 +45,12 @@ public class UserProfileAdapter extends RecyclerView.Adapter<UserProfileAdapter.
 
     private GridLayoutManager mLayoutManager;
 
-    public UserProfileAdapter(Context context, List<Episode> items, GridLayoutManager layoutManager) {
+    private OnClickListener onClickListener = null;
+    public void setOnClickListener(OnClickListener onClickListener) {
+        this.onClickListener = onClickListener;
+    }
+
+    public ProgramDetailsAdapter(Context context, List<Episode> items, GridLayoutManager layoutManager) {
         this.context = context;
         this.detailsList = items;
         mLayoutManager = layoutManager;
@@ -94,6 +100,15 @@ public class UserProfileAdapter extends RecyclerView.Adapter<UserProfileAdapter.
 
         animatePhoto(holder);
         if (lastAnimatedItem < position) lastAnimatedItem = position;
+
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                if (onClickListener != null) {
+                   onClickListener.onItemClick(view, (Episode) item , position);
+                }
+            }
+        });
     }
 
     private void animatePhoto(PhotoViewHolder viewHolder) {

@@ -61,6 +61,7 @@ public class MusicService extends Service implements
     public int onStartCommand(Intent intent, int flags, int startId) {
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 //        mNotificationManager.notify();
+        if (intent != null)
         switch (intent.getAction()) {
 //            case "":
 //                mNotificationManager.notify(NOTIFICATION_ID,NotificationHandler.createNotification(this, currentSong));

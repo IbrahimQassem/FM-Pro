@@ -40,6 +40,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    dataBinding{
+        enabled true
+    }
+
     def BASE_FB_DB = "BASE_FB_DB"
 
     flavorDimensions 'fm_flavor'
@@ -63,16 +67,14 @@ android {
 
         hudhud {
             dimension 'fm_flavor'
-            applicationId 'com.sanaadev.fm'
-            applicationIdSuffix 'hudhud'
+            applicationId 'com.sana.dev.fm'
+//            applicationId 'com.sanaadev.fm'
+//            applicationIdSuffix 'hudhud'
             versionCode 1
             versionName '0.0.1'
             versionNameSuffix 'dev'
             signingConfig signingConfigs.debug
-
             buildConfigField "String", "BASE_FB_DB" , '"HudHud"'
-
-
         }
     }
 

@@ -52,6 +52,8 @@ import java.io.IOException;
 
 import okhttp3.OkHttpClient;
 
+
+/*https://github.com/tutsplus/background-audio-in-android-with-mediasessioncompat/blob/master/app/src/main/java/com/tutsplus/backgroundaudio/BackgroundAudioService.java*/
 public class RadioService extends Service implements Player.EventListener, AudioManager.OnAudioFocusChangeListener, ShoutcastMetadataListener {
 
     public static final String ACTION_PLAY = "com.sana.dev.fm.utils.radio_player.ACTION_PLAY";
@@ -466,32 +468,31 @@ public class RadioService extends Service implements Player.EventListener, Audio
         notificationManager.cancelNotify();
     }
 
-        String previousUrl;
+    String previousUrl;
+
     public void playOrPause(Metadata newMetadata) {
 
         this.metadata = newMetadata;
 
-        if (previousUrl == null ) {
+        if (previousUrl == null) {
             previousUrl = this.metadata.getUrl();
 
             if (!isPlaying()) {
-                play( this.metadata.getUrl());
+                play(this.metadata.getUrl());
             } else {
                 pause();
             }
         } else {
             if (isPlaying() && this.metadata.getUrl().equals(previousUrl)) {
                 pause();
-            }else {
-                play( this.metadata.getUrl());
+            } else {
+                play(this.metadata.getUrl());
             }
         }
 
         previousUrl = this.metadata.getUrl();
 
     }
-
-
 
 
     public String getStatus() {

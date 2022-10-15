@@ -1,8 +1,8 @@
 package com.sana.dev.fm.ui.activity;
 
 
-import static com.sana.dev.fm.adapter.UserProfileAdapter.SPAN_COUNT_ONE;
-import static com.sana.dev.fm.adapter.UserProfileAdapter.SPAN_COUNT_THREE;
+import static com.sana.dev.fm.adapter.ProgramDetailsAdapter.SPAN_COUNT_ONE;
+import static com.sana.dev.fm.adapter.ProgramDetailsAdapter.SPAN_COUNT_THREE;
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 
 import android.Manifest;
@@ -16,6 +16,7 @@ import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,21 +26,31 @@ import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.adapter.UserProfileAdapter;
+import com.sana.dev.fm.adapter.ProgramDetailsAdapter;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioProgram;
+import com.sana.dev.fm.model.ShardDate;
+import com.sana.dev.fm.model.interfaces.CallBackListener;
+import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.ui.activity.player.SongPlayerFragment;
+import com.sana.dev.fm.ui.dialog.BottomSheet;
+import com.sana.dev.fm.ui.dialog.FullScreenBottomSheetDialogFragment;
 import com.sana.dev.fm.ui.view.RevealBackgroundView;
 import com.sana.dev.fm.utils.DataGenerator;
 import com.sana.dev.fm.utils.LogUtility;
@@ -103,7 +114,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
     private GridLayoutManager gridLayoutManager;
 
 
-    private UserProfileAdapter itemAdapter;
+    private ProgramDetailsAdapter itemAdapter;
     private List<Episode> detailsList = new ArrayList<>();
 
 
@@ -132,60 +143,12 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 
         gridLayoutManager = new GridLayoutManager(this, SPAN_COUNT_ONE);
 
+
         initToolbar();
         setupTabs();
         setupUserProfileGrid();
 //        setupRevealBackground(savedInstanceState);
         setupUserProfile();
-        initPlayer();
-
-    }
-
-    private void initPlayer() {
-        if (!checkStoragePermission(this)) {
-            Fragment songPlayerFragment = getSupportFragmentManager().findFragmentById(R.id.content);
-            if (songPlayerFragment == null) {
-                getSupportFragmentManager().beginTransaction().add(R.id.content, new SongPlayerFragment(), "SongPlayer").commit();
-                Log.d(TAG, "songPlayerFragment Fragment new created");
-            } else {
-                Log.d(TAG, "songPlayerFragment Fragment reused ");
-            }
-        } else {
-            showWarningDialog("External storage", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    ActivityCompat.requestPermissions(ProgramDetailsActivity.this,
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-                }
-            });
-        }
-
-    }
-
-    public boolean checkStoragePermission(final Context context) {
-        int currentAPIVersion = Build.VERSION.SDK_INT;
-        if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(context,
-                    Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(
-                        (Activity) context,
-                        Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                } else {
-                    ActivityCompat
-                            .requestPermissions(
-                                    (Activity) context,
-                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-                }
-                return true;
-            } else {
-                return false;
-            }
-
-        } else {
-            return false;
-        }
     }
 
 
@@ -251,15 +214,16 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                 }
             });
 
-            /*EpisodeRepositoryImpl ePiRepo = new EpisodeRepositoryImpl(this, FirebaseConstants.EPISODE_TABLE);
+            EpisodeRepositoryImpl ePiRepo = new EpisodeRepositoryImpl(this, FirebaseConstants.EPISODE_TABLE);
             ePiRepo.readAllEpisodeByRadioIdAndPgId(episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     if (isCollection(object)) {
                         detailsList = (List<Episode>) object;
-                    } else {
+                        ShardDate.getInstance().setEpisodeList(detailsList);
+                    } /*else {
                         detailsList = DataGenerator.getEpisodeData(ProgramDetailsActivity.this);
-                    }
+                    }*/
 
 //                    itemAdapter.notifyDataSetChanged();
 //                    itemAdapter.notifyItemRangeChanged(0,detailsList.size());
@@ -272,8 +236,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                 public void onError(Object object) {
                     LogUtility.e(TAG, "readAllEpisodeByRadioIdAndPgId: " + object);
                 }
-            });*/
-
+            });
 
 
         } else {
@@ -282,8 +245,8 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
             // Todo show empty view
         }
 
-        detailsList = DataGenerator.getEpisodeData(this);
-        setupUserProfileGrid();
+//        detailsList = DataGenerator.getEpisodeData(this);
+//        setupUserProfileGrid();
     }
 
     private void setupTabs() {
@@ -351,7 +314,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 //        detailsList = DataGenerator.getEpisodeData(ProgramProfileActivity.this);
 
         gridLayoutManager = new GridLayoutManager(this, SPAN_COUNT_THREE);
-        itemAdapter = new UserProfileAdapter(this, detailsList, gridLayoutManager);
+        itemAdapter = new ProgramDetailsAdapter(this, detailsList, gridLayoutManager);
         recyclerView.setAdapter(itemAdapter);
         recyclerView.setLayoutManager(gridLayoutManager);
 
@@ -372,9 +335,19 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
             }
         });
 
-//        switchIcon(1);
+
+        itemAdapter.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onItemClick(View view, Object model, int position) {
+//                showNotCancelableWarningDialog(String.valueOf((Episode) model));
+                showFragment();
+//                BottomSheet bottomSheet = new BottomSheet();
+//                bottomSheet.show(getSupportFragmentManager(), bottomSheet.getTag());
+            }
+        });
 
     }
+
 
     private void setupRevealBackground(Bundle savedInstanceState) {
         vRevealBackground.setOnStateChangeListener(this);
@@ -400,7 +373,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
             recyclerView.setVisibility(View.VISIBLE);
             tlUserProfileTabs.setVisibility(View.VISIBLE);
             vUserProfileRoot.setVisibility(View.VISIBLE);
-            itemAdapter = new UserProfileAdapter(this, detailsList, gridLayoutManager);
+            itemAdapter = new ProgramDetailsAdapter(this, detailsList, gridLayoutManager);
             recyclerView.setAdapter(itemAdapter);
             animateUserProfileOptions();
             animateUserProfileHeader();
@@ -446,6 +419,16 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
             this.subScribeCount = subScribeCount;
             this.postCount = postCount;
         }
+    }
+
+    private final static String TAG_FRAGMENT = SongPlayerFragment.class.getSimpleName();
+
+    private void showFragment() {
+        final SongPlayerFragment fragment = new SongPlayerFragment();
+        final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.content, fragment, TAG_FRAGMENT);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
 

@@ -182,6 +182,7 @@
     <string name="label_replay">إعادة</string>
     <string name="label_from">من</string>
     <string name="label_to">إلى</string>
+    <string name="error_please_select_radio_station">يجب تحديد القناة الإذاعية</string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

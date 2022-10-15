@@ -1,14 +1,17 @@
 package com.sana.dev.fm.ui.activity.player;
 
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -17,32 +20,37 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 
-
 public class SongPlayerFragment extends MusicServiceFragment {
 
     public static final String TAG = "SongPlayerFragment";
 
+    private View parentView;
     private SeekBar seekBar;
     private TextView currentSong;
     private TextView currentArtist;
     private TextView totalTime;
     private TextView remainingTime;
 
+    private AppBarLayout appBarLayout;
     private CircularImageView currentCoverArt;
     private ImageView currentCoverArtShadow;
     private ImageView actionBtn;
     private ImageView panelPlayBtn;
     private ImageView panelNextBtn;
     private ImageView panelPrevBtn;
+
+    private ImageButton cancelBtn;
 
     private BottomSheetBehavior bottomSheetBehavior;
     private ConstraintLayout panelLayout;
@@ -52,6 +60,7 @@ public class SongPlayerFragment extends MusicServiceFragment {
     private boolean musicServiceStatus = false;
     private SongSeekBarThread seekBarThread;
 
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,30 +69,36 @@ public class SongPlayerFragment extends MusicServiceFragment {
         setRetainInstance(true);
     }
 
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.panel_player_interface, container, false);
+        parentView = inflater.inflate(R.layout.panel_player_interface, container, false);
 
-        panelLayout = view.findViewById(R.id.cl_player_interface);
+        panelLayout = parentView.findViewById(R.id.cl_player_interface);
         bottomSheetBehavior = BottomSheetBehavior.from(panelLayout);
 
 //        // dp to pixel
 //        int heightInPixel = Helper.dpToPx(getActivity(), 70);
 //        bottomSheetBehavior.setPeekHeight(heightInPixel);
 
-        currentSong = view.findViewById(R.id.tv_panel_song_name);
-        currentArtist = view.findViewById(R.id.tv_panel_artist_name);
-        currentCoverArt = view.findViewById(R.id.iv_pn_cover_art);
-        currentCoverArtShadow = view.findViewById(R.id.iv_pn_cover_art_shadow);
-        actionBtn = view.findViewById(R.id.iv_pn_action_btn);
-        seekBar = view.findViewById(R.id.sb_pn_player);
-        totalTime = view.findViewById(R.id.tv_pn_total_time);
-        remainingTime = view.findViewById(R.id.tv_pn_remain_time);
+        appBarLayout = parentView.findViewById(R.id.appBarLayout);
+        currentSong = parentView.findViewById(R.id.tv_panel_song_name);
+        currentArtist = parentView.findViewById(R.id.tv_panel_artist_name);
+        currentCoverArt = parentView.findViewById(R.id.iv_pn_cover_art);
+        currentCoverArtShadow = parentView.findViewById(R.id.iv_pn_cover_art_shadow);
+        actionBtn = parentView.findViewById(R.id.iv_pn_action_btn);
+        seekBar = parentView.findViewById(R.id.sb_pn_player);
+        totalTime = parentView.findViewById(R.id.tv_pn_total_time);
+        remainingTime = parentView.findViewById(R.id.tv_pn_remain_time);
 
-        panelPlayBtn = view.findViewById(R.id.iv_pn_play_btn);
-        panelNextBtn = view.findViewById(R.id.iv_pn_next_btn);
-        panelPrevBtn = view.findViewById(R.id.iv_pn_prev_btn);
+        panelPlayBtn = parentView.findViewById(R.id.iv_pn_play_btn);
+        panelNextBtn = parentView.findViewById(R.id.iv_pn_next_btn);
+        panelPrevBtn = parentView.findViewById(R.id.iv_pn_prev_btn);
+
+        cancelBtn = parentView.findViewById(R.id.cancelBtn);
+
+        appBarLayout.setVisibility(View.GONE);
 
         params = (ConstraintLayout.LayoutParams) currentSong.getLayoutParams();
 
@@ -92,8 +107,31 @@ public class SongPlayerFragment extends MusicServiceFragment {
             handleAllAction();
         }
 
-        return view;
+        eventBackClick();
+
+        return parentView;
     }
+
+    private void eventBackClick() {
+        parentView.setFocusableInTouchMode(true);
+        parentView.requestFocus();
+        parentView.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                Log.i(LogUtility.TAG, "keyCode: " + keyCode);
+                if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+                    Log.i(LogUtility.TAG, "onKey Back listener is working!!!");
+//                    getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
 
     @Override
     public void onServiceConnected(MusicService musicService) {
@@ -118,6 +156,15 @@ public class SongPlayerFragment extends MusicServiceFragment {
             actionBtn.setBackgroundResource(R.drawable.ic_media_play);
 
         }
+
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
+            }
+        });
 
         //for the action button
         actionBtn.setOnClickListener(new View.OnClickListener() {
@@ -204,8 +251,29 @@ public class SongPlayerFragment extends MusicServiceFragment {
         bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    panelPlayBtn.animate().rotation(360).setDuration(1000);
+                switch (newState) {
+                    case BottomSheetBehavior.STATE_HIDDEN:
+//                    dismiss();
+                        break;
+                    case BottomSheetBehavior.STATE_EXPANDED:
+                        panelPlayBtn.animate().rotation(360).setDuration(1000);
+                        //make toolbar visible
+                        appBarLayout.setVisibility(View.VISIBLE);
+//                        showView(appBarLayout, getActionBarSize());
+//                        hideAppBar(bi.profileLayout);
+                        break;
+                    case BottomSheetBehavior.STATE_COLLAPSED:
+                        //hide toolbar here
+                        appBarLayout.setVisibility(View.GONE);
+//                        hideAppBar(appBarLayout);
+//                        showView(bi.profileLayout, getActionBarSize());
+                        break;
+                    case BottomSheetBehavior.STATE_DRAGGING:
+                        break;
+                    case BottomSheetBehavior.STATE_SETTLING:
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -236,10 +304,11 @@ public class SongPlayerFragment extends MusicServiceFragment {
 
             @Override
             public void onPause() {
-                //actionBtn.setBackgroundResource(R.drawable.ic_media_play);
+//                actionBtn.setBackgroundResource(R.drawable.ic_media_play);
             }
         });
     }
+
 
     // progress bar thread on the bottom of the action bar
     private class SongSeekBarThread extends Thread {
@@ -298,7 +367,12 @@ public class SongPlayerFragment extends MusicServiceFragment {
                         actionBtn.setBackgroundResource(R.drawable.ic_media_pause);
                         panelPlayBtn.setBackgroundResource(R.drawable.ic_action_pause);
                         currentArtist.setText(song.getArtistName());
-                        currentCoverArt.setImageBitmap(bitmap);
+                        if (song.getImgUrl() != null) {
+                            Tools.displayImageRound(requireContext(), currentCoverArt, song.getImgUrl());
+                            Tools.displayImageOriginal(requireContext(), currentCoverArtShadow, song.getImgUrl());
+                        } else {
+                            currentCoverArt.setImageBitmap(bitmap);
+                        }
 //                        Blurry.with(getActivity()).radius(20).sampling(2).from(bitmap).into(currentCoverArtShadow);
                     }
                 });
@@ -333,4 +407,22 @@ public class SongPlayerFragment extends MusicServiceFragment {
         }
     }
 
+    private void hideAppBar(View view) {
+        ViewGroup.LayoutParams params = view.getLayoutParams();
+        params.height = 0;
+        view.setLayoutParams(params);
+
+    }
+
+    private void showView(View view, int size) {
+        ViewGroup.LayoutParams params = view.getLayoutParams();
+        params.height = size;
+        view.setLayoutParams(params);
+    }
+
+    private int getActionBarSize() {
+        final TypedArray array = getContext().getTheme().obtainStyledAttributes(new int[]{android.R.attr.actionBarSize});
+        int size = (int) array.getDimension(0, 0);
+        return size;
+    }
 }

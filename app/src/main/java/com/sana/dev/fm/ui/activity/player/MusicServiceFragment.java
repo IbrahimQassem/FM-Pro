@@ -66,6 +66,5 @@ public abstract class MusicServiceFragment extends Fragment {
         MusicServiceFragment.this.onServiceDisconnected();
         getActivity().stopService(playIntent);
         getActivity().unbindService(serviceConnection);
-
     }
 }

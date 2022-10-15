@@ -468,7 +468,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
                 if (et_station.getText().toString().trim().isEmpty()) {
                     et_station.setError(getString(R.string.empty_not_allowd));
                     et_station.requestFocus();
-                    showSnackBar("يجب تحديد القناة الإذاعية");
+                    showSnackBar(R.string.error_please_select_radio_station);
                     return;
                 } else if (et_program.getText().toString().trim().isEmpty()) {
                     et_program.setError(getString(R.string.empty_not_allowd));

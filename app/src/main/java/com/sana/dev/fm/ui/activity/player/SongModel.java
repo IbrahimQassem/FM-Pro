@@ -19,10 +19,11 @@ public class SongModel {
     private String albumName;
     private String albumArt;
     private String data;
+    private String imgUrl;
 
 
     public static SongModel EMPTY() {
-        return new SongModel(0,"","","","","","",0,0,0,0,0,0,0,0);
+        return new SongModel(0,"","","","","","","",0,0,0,0,0,0,0,0);
     }
 
     public void setAlbumArt(String albumArt) {
@@ -30,7 +31,7 @@ public class SongModel {
     }
 
     public SongModel(int id, String title, String artistName,
-                     String composer, String albumName, String albumArt,
+                     String composer, String albumName, String albumArt, String imgUrl,
                      String data, int trackNumber, int year, long duration,
                      long dateModified, long dateAdded, int albumId, int artistId,
                      long bookmark) {
@@ -40,6 +41,7 @@ public class SongModel {
         this.composer = composer;
         this.albumName = albumName;
         this.albumArt = albumArt;
+        this.imgUrl = imgUrl;
         this.data = data;
         this.trackNumber = trackNumber;
         this.year = year;
@@ -73,6 +75,10 @@ public class SongModel {
 
     public String getAlbumArt() {
         return albumArt;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
     }
 
     public String getData() {

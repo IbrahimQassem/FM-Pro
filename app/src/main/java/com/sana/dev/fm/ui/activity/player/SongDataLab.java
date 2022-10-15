@@ -11,6 +11,7 @@ import android.provider.MediaStore;
 
 
 import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
 import com.sana.dev.fm.ui.activity.player.database.SongCursorWrapper;
 import com.sana.dev.fm.ui.activity.player.database.SongDbHelper;
@@ -66,7 +67,8 @@ public class SongDataLab {
 
     public SongModel getRandomSong() {
         Random r = new Random();
-        return songs.get(r.nextInt(songs.size() - 1));
+//        return songs.get(r.nextInt(songs.size() - 1));
+        return songs.get(r.nextInt(songs.size()));
     }
 
     public SongModel getNextSong(SongModel currentSong) {
@@ -92,30 +94,27 @@ public class SongDataLab {
 
     public List<SongModel> querySongs() {
         List<SongModel> songs = new ArrayList();
-        List<Episode> detailsList = DataGenerator.getEpisodeData(mContext);
-
+//        List<Episode> detailsList = DataGenerator.getEpisodeData(mContext);
+        List<Episode> detailsList = ShardDate.getInstance().getEpisodeList();
 
         for (int i = 0; i < detailsList.size(); i++) {
             Episode ep = detailsList.get(i);
 //            SongModel song = SongModel.EMPTY();
-            SongModel song = new SongModel(i, ep.getEpName(), ep.getEpAnnouncer(), "", ep.getProgramName(), "zzz", /*FmUtilize.modifyDateLayout(ep.getDateTimeModel().getDateStart())*/"http://www.dev2qa.com/demo/media/test.mp3", 0, 0, 0, 0, 0, 0, 0, 0);
+            SongModel song = new SongModel(i, ep.getEpName(), ep.getEpAnnouncer(), "", ep.getProgramName(), "zzz",ep.getEpProfile(), /*FmUtilize.modifyDateLayout(ep.getDateTimeModel().getDateStart())*/"http://www.dev2qa.com/demo/media/test.mp3", 0, 0, 0, 0, 0, 0, 0, 0);
             songs.add(song);
         }
-
-//        SongCursorWrapper cursor = querySong(null, null);
-//        try {
-//            cursor.moveToFirst();
-//            do {
-//                SongModel song = cursor.getSong();
-//                song = cursor.getSong();
-//                song.setAlbumArt(getAlbumUri(song.getAlbumId()).toString());
-//                songs.add(song);
-//            } while (cursor.moveToNext());
-//        } finally {
-//            cursor.close();
-//        }
-
-
+/*        SongCursorWrapper cursor = querySong(null, null);
+        try {
+            cursor.moveToFirst();
+            do {
+                SongModel song = cursor.getSong();
+                song = cursor.getSong();
+                song.setAlbumArt(getAlbumUri(song.getAlbumId()).toString());
+                songs.add(song);
+            } while (cursor.moveToNext());
+        } finally {
+            cursor.close();
+        }*/
         return songs;
     }
 

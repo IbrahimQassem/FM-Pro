@@ -14,12 +14,70 @@
     app:layout_insetEdge="none">
 
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimaryDark"
+        android:visibility="visible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/spacing_medium"
+            android:paddingEnd="@dimen/spacing_middle">
+
+
+            <ImageButton
+                android:id="@+id/cancelBtn"
+                android:layout_width="?attr/actionBarSize"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_close"
+                android:tint="@android:color/white" />
+
+            <TextView
+                android:id="@+id/nameToolbar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="15dp"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:textColor="@android:color/white"
+                tools:text="@string/label_program_name" />
+
+            <ImageButton
+                android:id="@+id/editBtn"
+                android:layout_width="?attr/actionBarSize"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_edit_white_24dp"
+                android:tint="@android:color/white"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/moreBtn"
+                android:layout_width="?attr/actionBarSize"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_more_grey"
+                android:tint="@android:color/white"
+                android:visibility="gone" />
+        </LinearLayout>
+
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+
     <ImageView
         android:id="@+id/iv_pn_play_btn"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:background="@drawable/ic_action_pause"
-
         android:elevation="100dp"
         app:layout_constraintBottom_toBottomOf="@+id/iv_pn_next_btn"
         app:layout_constraintEnd_toStartOf="@+id/iv_pn_next_btn"
@@ -32,7 +90,6 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:elevation="100dp"
-
         app:layout_constraintBottom_toBottomOf="@+id/iv_pn_play_btn"
         app:layout_constraintEnd_toStartOf="@+id/iv_pn_play_btn"
         app:layout_constraintHorizontal_bias="0.5"
@@ -56,30 +113,31 @@
         android:id="@+id/tv_panel_artist_name"
         android:layout_width="0dp"
         android:layout_height="20dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"
         android:ellipsize="end"
         android:lines="1"
+        android:paddingStart="@dimen/spacing_medium"
+        android:paddingEnd="@dimen/spacing_medium"
         android:textColor="@color/colorPrimary"
         app:layout_constraintHorizontal_bias="0.505"
         app:layout_constraintLeft_toLeftOf="@+id/tv_panel_song_name"
         app:layout_constraintRight_toRightOf="@+id/tv_panel_song_name"
         app:layout_constraintTop_toBottomOf="@+id/tv_panel_song_name"
-        tools:hint="Jeniffer Lopez" />
+        tools:text="@string/label_desc" />
 
     <TextView
         android:id="@+id/tv_panel_song_name"
         android:layout_width="0dp"
         android:layout_height="30dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
+        android:paddingStart="@dimen/spacing_medium"
+        android:paddingEnd="@dimen/spacing_medium"
         android:ellipsize="end"
         android:lines="1"
         android:textColor="@color/colorPrimary"
         android:textSize="18sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/iv_pn_action_btn"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:hint="On the fllor" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+        tools:text="اسم البرنامج" />
 
     <com.mikhaellopez.circularimageview.CircularImageView
         android:id="@+id/iv_pn_cover_art"
@@ -155,15 +213,19 @@
         android:id="@+id/iv_pn_action_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
         android:layout_marginTop="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginRight="360dp"
         android:layout_marginBottom="8dp"
         android:elevation="100dp"
         android:scaleType="fitCenter"
+        android:tint="@color/colorAccent"
+        android:backgroundTint="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="@+id/tv_panel_artist_name"
         app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_panel_song_name"
-        app:layout_constraintVertical_bias="0.571" />
+        app:layout_constraintVertical_bias="1.0" />
 
     <TextView
         android:id="@+id/tv_pn_total_time"
@@ -171,9 +233,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:elevation="100dp"
-        tools:text="5:20"
         app:layout_constraintBottom_toTopOf="@+id/sb_pn_player"
-        app:layout_constraintStart_toStartOf="@+id/sb_pn_player" />
+        app:layout_constraintStart_toStartOf="@+id/sb_pn_player"
+        tools:text="5:20" />
 
     <TextView
         android:id="@+id/tv_pn_remain_time"

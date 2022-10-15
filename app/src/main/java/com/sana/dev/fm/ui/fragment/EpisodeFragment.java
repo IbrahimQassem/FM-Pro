@@ -136,7 +136,7 @@ public class EpisodeFragment extends BaseFragment {
             ShardDate.getInstance().setInfoList(stationList);
             RadiosAdapter adapter = new RadiosAdapter(ctx, stationList, recyclerView, prefMng.read("ScrollToPosition", 0));
 
-            if (!isRadioSelected()) {
+            if (!isRadioSelected() && !stationList.isEmpty()) {
                 prefMng.write(FirebaseConstants.RADIO_INFO_TABLE, stationList.get(0));
             }
 

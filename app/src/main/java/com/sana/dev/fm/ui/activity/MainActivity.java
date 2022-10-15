@@ -168,10 +168,14 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 //                v.clearAnimation();
 //                fab_radio.clearAnimation();
                 if (hasInternetConnection()) {
-                    RadioInfo info = prefMgr.selectedRadio();
-                    Metadata metadata = new Metadata(info.getName(), info.getName(), info.getChannelFreq(), info.getName(), info.getStreamUrl());
-//                    Metadata metadata = new Metadata("artist", "song", "channel", "station", "url");
-                    startPlay(metadata);
+                    if (prefMgr.selectedRadio() != null){
+                        RadioInfo info = prefMgr.selectedRadio();
+                        Metadata metadata = new Metadata(info.getName(), info.getName(), info.getChannelFreq(), info.getName(), info.getStreamUrl());
+                        startPlay(metadata);
+                    }else {
+                        showToast(getString(R.string.error_please_select_radio_station));
+                    }
+
                 } else {
                     showToast(getString(R.string.check_internet_connection));
                 }

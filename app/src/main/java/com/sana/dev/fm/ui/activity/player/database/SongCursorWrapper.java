@@ -28,6 +28,6 @@ public class SongCursorWrapper extends CursorWrapper {
         int albumId = getInt(getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
         int artistId = getInt(getColumnIndex(MediaStore.Audio.Media.ARTIST_ID));
         long bookmark = getLong(getColumnIndex(MediaStore.Audio.Media.BOOKMARK));
-        return new SongModel(id,title,artistName,composer,albumName,"",data,trackNumber,year,duration, dateModified,dateAdded,albumId,artistId,bookmark);
+        return new SongModel(id,title,artistName,composer,albumName,"","",data,trackNumber,year,duration, dateModified,dateAdded,albumId,artistId,bookmark);
     };
 }
