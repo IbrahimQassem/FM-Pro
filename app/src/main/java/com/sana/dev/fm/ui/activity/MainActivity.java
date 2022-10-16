@@ -299,7 +299,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     }
 
     public void initToolbarProfile() {
-        CircularImageView civ = (CircularImageView) findViewById(R.id.image);
+        CircularImageView civ = (CircularImageView) findViewById(R.id.civ_logo);
 //        int color = getResources().getColor(R.color.fab_color_shadow);
 //        ColorFilter cf = new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY);
 //        civ.setColorFilter(cf);

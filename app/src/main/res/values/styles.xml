@@ -181,4 +181,20 @@
     </style>
 
 
+    <style name="TextBold" >
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/tajawal_bold</item>
+    </style>
+
+    <style name="TextNormal" >
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">@font/tajwal_regular</item>
+    </style>
+
+
+
 </resources>

@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -244,7 +245,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     @Override
     public void showProgress() {
-        showProgress(R.string.loading);
+        showProgress(R.string.please_wait);
     }
 
     @Override
@@ -314,14 +315,14 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     public void showWarningDialog(int messageId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(messageId);
-        builder.setPositiveButton(R.string.OK, null);
+        builder.setPositiveButton(R.string.label_ok, null);
         builder.show();
     }
 
     public void showWarningDialog(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message);
-        builder.setPositiveButton(R.string.OK, null);
+        builder.setPositiveButton(R.string.label_ok, null);
         builder.show();
     }
 
@@ -329,7 +330,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     public void showNotCancelableWarningDialog(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message);
-        builder.setPositiveButton(R.string.OK, null);
+        builder.setPositiveButton(R.string.label_ok, null);
         builder.setCancelable(false);
         builder.show();
     }
@@ -338,7 +339,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     public void showWarningDialog(int message, DialogInterface.OnClickListener listener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message);
-        builder.setPositiveButton(R.string.OK, listener);
+        builder.setPositiveButton(R.string.label_ok, listener);
         builder.show();
     }
 
@@ -346,8 +347,8 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     public void showWarningDialog(String message, DialogInterface.OnClickListener listener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message);
-        builder.setPositiveButton(R.string.OK, listener);
-        builder.setNegativeButton(R.string.CANCEL, (dialog, which) -> dialog.cancel());
+        builder.setPositiveButton(R.string.label_ok, listener);
+        builder.setNegativeButton(R.string.label_cancel, (dialog, which) -> dialog.cancel());
         builder.show();
     }
 
@@ -382,8 +383,10 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
         dialog.setContentView(R.layout.dialog_header_polygon);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
         dialog.setCancelable(true);
+        ImageView iv_image = dialog.findViewById(R.id.iv_image);
         TextView tvTitle = dialog.findViewById(R.id.tvTitle);
         TextView tvDesc = dialog.findViewById(R.id.tvSubTitle);
+        iv_image.setVisibility(View.GONE);
         tvTitle.setText(message);
         tvDesc.setText(_desc);
         dialog.findViewById(R.id.bt_positive).setOnClickListener(new View.OnClickListener() {
@@ -408,8 +411,10 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
         dialog.setContentView(R.layout.dialog_header_polygon);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
         dialog.setCancelable(true);
+        ImageView iv_image = dialog.findViewById(R.id.iv_image);
         TextView tvTitle = dialog.findViewById(R.id.tvTitle);
         TextView tvDesc = dialog.findViewById(R.id.tvSubTitle);
+        iv_image.setVisibility(View.GONE);
         tvTitle.setText(message);
         tvDesc.setText(_desc);
         dialog.findViewById(R.id.bt_positive).setOnClickListener(new View.OnClickListener() {

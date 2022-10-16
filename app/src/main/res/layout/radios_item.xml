@@ -19,7 +19,7 @@
 
 
         <com.mikhaellopez.circularimageview.CircularImageView
-            android:id="@+id/image"
+            android:id="@+id/civ_logo"
             android:layout_width="60dp"
             android:layout_height="60dp"
             app:srcCompat="@drawable/logo_app"

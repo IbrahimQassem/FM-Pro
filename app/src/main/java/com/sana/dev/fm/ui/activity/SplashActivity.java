@@ -2,14 +2,19 @@ package com.sana.dev.fm.ui.activity;
 
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyCallback;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -18,7 +23,10 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -34,6 +42,7 @@ import com.sana.dev.fm.ui.activity.appuser.VerificationPhone;
 import com.sana.dev.fm.utils.Constants;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
+import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.RadioInfoRepositoryImpl;
@@ -53,16 +62,54 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Tools.setLocale(this,"ar");
         setContentView(R.layout.activity_splash);
+
 
         prefMgr = new PreferencesManager(this);
 
+//        int MyVersion = Build.VERSION.SDK_INT;
+//        if (MyVersion > Build.VERSION_CODES.M) {
+//            if (!checkIfAlreadyhavePermission()) {
+//                requestForSpecificPermission();
+//            }
+//        }
         startAnimation();
         setFullScreen();
         chekFirstTime();
 
     }
 
+
+    private void requestForSpecificPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 101);
+    }
+
+
+    private boolean checkIfAlreadyhavePermission() {
+        int result = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
+        if (result == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case 101:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //granted
+                } else {
+                    //not granted
+                    finish();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
 
     private void initRadios() {
         rIRepo = new RadioInfoRepositoryImpl(this, FirebaseConstants.RADIO_INFO_TABLE);

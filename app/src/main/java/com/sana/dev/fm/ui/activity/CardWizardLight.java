@@ -58,7 +58,7 @@ public class CardWizardLight extends BaseActivity {
             View inflate = layoutInflater.inflate(R.layout.item_card_wizard_light, viewGroup, false);
             ((TextView) inflate.findViewById(R.id.title)).setText(about_title_array[i]);
             ((TextView) inflate.findViewById(R.id.description)).setText(about_description_array[i]);
-            ((ImageView) inflate.findViewById(R.id.image)).setImageResource(about_images_array[i]);
+            ((ImageView) inflate.findViewById(R.id.civ_logo)).setImageResource(about_images_array[i]);
             this.btnNext = (Button) inflate.findViewById(R.id.btn_next);
             if (i == about_title_array.length - 1) {
                 this.btnNext.setText("ابدأ الآن");

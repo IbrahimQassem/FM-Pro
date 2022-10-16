@@ -473,7 +473,6 @@ public class FmRepositoryImpl extends FirebaseRepository implements EmployeeRepo
         QuerySnapshot queryDocumentSnapshots = (QuerySnapshot) object;
         for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
             RadioProgram program = snapshot.toObject(RadioProgram.class);
-            assert program != null;
             if (!program.isStopped())
             programList.add(program);
         }

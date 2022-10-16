@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/spacing_middle"
     android:visibility="visible"
+    android:layoutDirection="ltr"
     app:cardCornerRadius="0dp"
     app:cardElevation="4dp">
 
@@ -110,7 +111,7 @@
             android:background="@color/grey_5" />
 
         <ImageView
-            android:id="@+id/image"
+            android:id="@+id/civ_logo"
             android:layout_width="match_parent"
             android:layout_height="320dp"
             android:adjustViewBounds="true"
@@ -235,7 +236,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:text="@string/label_commints"
+                    android:text="@string/label_comments"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                     android:textColor="@color/grey_40"
                     android:visibility="visible"
@@ -283,7 +284,7 @@
                 android:background="@color/grey_50"
                 android:orientation="vertical"
                 android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@+id/image">
+                app:layout_constraintTop_toBottomOf="@+id/civ_logo">
 
 
                 <View

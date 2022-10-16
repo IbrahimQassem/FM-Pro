@@ -14,17 +14,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.RadioInfo;
-import com.sana.dev.fm.ui.activity.BaseActivity;
-import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
 
 
 import java.util.ArrayList;
-
-import co.mobiwise.materialintro.animation.MaterialIntroListener;
-import co.mobiwise.materialintro.shape.Focus;
-import co.mobiwise.materialintro.shape.ShapeType;
 
 public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.ViewHolder> {
 
@@ -141,7 +135,7 @@ public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.ViewHolder
 
             title = itemView.findViewById(R.id.tvTitle);
             tvFreq = itemView.findViewById(R.id.tvFreq);
-            image = itemView.findViewById(R.id.image);
+            image = itemView.findViewById(R.id.civ_logo);
             cardView = itemView.findViewById(R.id.cardView);
 
         }

@@ -110,8 +110,8 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         (toolbar).setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Tools.setSystemBarColor(this, R.color.colorPrimary);
-        getSupportActionBar().setTitle(R.string.label_commints);
-        getIvLogo().setText(R.string.label_commints);
+        getSupportActionBar().setTitle(R.string.label_comments);
+        getIvLogo().setText(R.string.label_comments);
     }
 
     private void getComments() {
@@ -318,7 +318,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
             showToast("لايوجد نص");
             return false;
         } else if (currentUser == null) {
-            showNotCancelableWarningDialog(getString(R.string.attecntion), getString(R.string.goto_login), new View.OnClickListener() {
+            showNotCancelableWarningDialog(getString(R.string.label_note), getString(R.string.goto_login), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     startLoginActivity();
@@ -326,7 +326,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
             });
             return false;
         } else if (!hasInternetConnection()) {
-            showWarningDialog(getString(R.string.no_entrnet), getString(R.string.check_internet_connection));
+            showWarningDialog(getString(R.string.label_no_internet), getString(R.string.check_internet_connection));
             return false;
         }
         return true;

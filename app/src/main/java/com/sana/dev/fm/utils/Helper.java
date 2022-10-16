@@ -40,11 +40,11 @@ public class Helper {
             }
 
             ab.setMessage(context.getResources().getString(R.string.dialog_connection_description) + messageText);
-            ab.setPositiveButton(context.getResources().getString(R.string.OK), null);
+            ab.setPositiveButton(context.getResources().getString(R.string.label_ok), null);
             ab.setTitle(context.getResources().getString(R.string.dialog_connection_title));
         } else {
             ab.setMessage(context.getResources().getString(R.string.dialog_internet_description));
-            ab.setPositiveButton(context.getResources().getString(R.string.OK), null);
+            ab.setPositiveButton(context.getResources().getString(R.string.label_ok), null);
             ab.setTitle(context.getResources().getString(R.string.dialog_internet_title));
         }
 

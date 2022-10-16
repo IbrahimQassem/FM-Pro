@@ -178,7 +178,7 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
     }
 
     public static class CommentViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.image)
+        @BindView(R.id.civ_logo)
         CircularImageView image;
         @BindView(R.id.tvFrom)
         TextView tvFrom;

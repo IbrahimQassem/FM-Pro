@@ -117,7 +117,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textColor="@color/red_500"
-            android:text="@string/CANCEL" />
+            android:text="@string/label_cancel" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/bt_submit"

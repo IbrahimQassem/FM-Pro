@@ -25,7 +25,6 @@ public class FmApplication extends Application {
     public void onCreate() {
         super.onCreate();
 //        Timber.plant(new Timber.DebugTree());
-
         mInstance = this;
 
         // This flag should be set to true to enable VectorDrawable support for API < 21.

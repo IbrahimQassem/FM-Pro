@@ -1,16 +1,42 @@
 package com.sana.dev.fm.utils.radio_player;
 
+//import android.app.Service;
+//import android.content.BroadcastReceiver;
+//import android.content.ComponentName;
+//import android.content.Context;
+//import android.content.Intent;
+//import android.content.IntentFilter;
+//import android.graphics.Bitmap;
+//import android.media.AudioManager;
+//import android.net.Uri;
+//import android.net.wifi.WifiManager;
+//import android.os.Binder;
+//import android.os.Handler;
+//import android.os.IBinder;
+//import android.support.v4.media.MediaMetadataCompat;
+//import android.support.v4.media.session.MediaControllerCompat;
+//import android.support.v4.media.session.MediaSessionCompat;
+//import android.telephony.PhoneStateListener;
+//import android.telephony.TelephonyManager;
+//import android.text.TextUtils;
+
+
+
+import android.Manifest;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.media.MediaMetadataCompat;
@@ -21,6 +47,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.media.session.MediaButtonReceiver;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -179,7 +206,18 @@ public class RadioService extends Service implements Player.EventListener, Audio
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "mcScPAmpLock");
 
         ComponentName name = new ComponentName(getApplicationContext(), MediaButtonReceiver.class);
-        mediaSession = new MediaSessionCompat(this, getClass().getSimpleName(), name, null);
+//        mediaSession = new MediaSessionCompat(this, getClass().getSimpleName(), name, null);
+
+        Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        PendingIntent pendingItent = PendingIntent.getBroadcast(
+                this,
+                0, mediaButtonIntent,
+                PendingIntent.FLAG_IMMUTABLE
+        );
+        mediaSession = new MediaSessionCompat(this, getClass().getSimpleName(), null, pendingItent);
+        mediaSession.setActive(true);
+
+
         transportControls = mediaSession.getController().getTransportControls();
         mediaSession.setActive(true);
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
@@ -191,7 +229,16 @@ public class RadioService extends Service implements Player.EventListener, Audio
         mediaSession.setCallback(mediasSessionCallback);
 
         telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+//        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+
+        // for API 31+: you need to first check for READ_PHONE_STATE permission to be able to listen to LISTEN_CALL_STATE
+        if (Build.VERSION.SDK_INT >= 31)
+        {
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED)
+                telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+        }
+        else // no permission needed
+            telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
         handler = new Handler();
         DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
@@ -454,9 +501,7 @@ public class RadioService extends Service implements Player.EventListener, Audio
     }
 
     public void pause() {
-
         exoPlayer.setPlayWhenReady(false);
-
         audioManager.abandonAudioFocus(this);
         wifiLockRelease();
     }

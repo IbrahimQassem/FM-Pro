@@ -57,8 +57,7 @@ public class RadioInfoRepositoryImpl extends FirebaseRepository implements Radio
         QuerySnapshot queryDocumentSnapshots = (QuerySnapshot) object;
         for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
             RadioInfo program = snapshot.toObject(RadioInfo.class);
-            assert program != null;
-            if (program.isOnline())
+            if (!program.isDisabled())
                 programList.add(program);
         }
         return programList;

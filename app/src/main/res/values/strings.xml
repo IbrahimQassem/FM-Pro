@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="TypographyDashes">
     <string name="app_name">هدهد اف ام</string>
-    <string name="app_slogan">تطبيق اليمن الأول للقنوات الإذاعية</string>
+    <string name="app_slogan">Yemen\'s first application for radio channels</string>
     <string name="app_version">Version</string>
     <string name="version_unknown">Unknown</string>
     <string name="hudhudfm_gmail">hudhudfm.ye@gmail.com</string>
@@ -10,9 +10,9 @@
     <string name="hudhudfm_facebook">https://www.facebook.com/HudhudFm</string>
 
     <plurals name="likes_count">
-        <item quantity="one">%d إعجاب</item>
+        <item quantity="one">%d like</item>
         <!--        like-->
-        <item quantity="other">%d إعجاب</item>
+        <item quantity="other">%d likes</item>
         <!--        likes-->
     </plurals>
 
@@ -23,13 +23,12 @@
 
 
     <!--    <string name="no_stream">نعتذر , البث الإذاعي ل %s غير متوفر بعد</string>-->
-    <string name="no_stream">المعذرة , البث الإذاعي ل %s غير متوفر حالياً</string>
+    <string name="no_stream">Sorry, %s radio broadcasts are currently unavailable</string>
 
-    <string name="select_email_app">مشاركة</string>
+    <string name="select_email_app">Share</string>
 
-    <string name="login">تسجيل الدخول</string>
-    <string name="loading">يرجى الإنتظار ..</string>
-    <string name="btn_continue">التالي</string>
+    <string name="login">Login</string>
+    <string name="btn_continue">Next</string>
     <string name="firebase_status_fmt">%d firebase status  </string>
 
     <!--Firebase Notification-->
@@ -40,7 +39,7 @@
      -->
     <!-- [START fcm_default_icon_string] -->
     <!-- [END fcm_default_icon_string] -->
-    <string name="audio_notification">التشغيل في الخلفية</string>
+    <string name="audio_notification">Play in background</string>
 
 
     <!-- Connection dialogs -->
@@ -49,91 +48,92 @@
     <string name="dialog_internet_title">No internet</string>
     <string name="dialog_internet_description">You seem to have no internet connection, this app requires internet to get the latest content.\n\nYou can continue to see your favorite/offline items!</string>
     <!-- media viewer and radio-->
-    <string name="volume_low">يجب رفع مستوى الصوت!</string>
-    <string name="CANCEL">إلغاء</string>
-    <string name="OK">موافق</string>
-    <string name="nav_home">الرئيسية</string>
-    <string name="nav_about_us">عن التطبيق</string>
-    <string name="nav_episode_daily">برامج اليوم</string>
-    <string name="episode_daily">%s برامج البث الإذاعي لهذا اليوم </string>
+    <string name="volume_low">You must raise the volume!</string>
+    <string name="label_cancel">Cancel</string>
+    <string name="label_confirm">Confirm</string>
+    <string name="label_ok">Yes</string>
+    <string name="label_no">No</string>
+    <string name="nav_home">Main</string>
+    <string name="nav_about_us">About Us</string>
+    <string name="nav_episode_daily">Today\'s Episode</string>
+    <string name="episode_daily">%s Radio broadcasts for today</string>
 
-    <string name="please_wait">يرجى الإنتظار</string>
+    <string name="please_wait">Please wait ..</string>
 
-    <string name="field_is_required">يرجى إضافة %s </string>
+    <string name="field_is_required">Please add %s </string>
 
-    <string name="delete_messages">هل تريد حذف  %1$s ؟</string>
-    <string name="user_account">حساب المستخدم</string>
+    <string name="delete_messages">Do you want to delete %1$s?</string>
+    <string name="user_account">User Profile</string>
     <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</string>
-    <string name="attecntion">ملاحظة !</string>
-    <string name="most_login">يجب تسجيل الدخول !</string>
-    <string name="add_comment">إضافة تعليق ..</string>
-    <string name="click_to_change_image">إختيار صورة</string>
-    <string name="send">إرسال</string>
-    <string name="empty_not_allowd">لايجب أن لا يكون الحقل فارغاً</string>
-    <string name="following">متابعة</string>
-    <string name="post">برنامج يومي</string>
-    <string name="subscribers">متابع</string>
-    <string name="likes">إعجاب</string>
-    <string name="check_internet_connection">يرجى التأكد من توفر الإنترنت !</string>
-    <string name="radio_map">البرامج الرئيسية</string>
-    <string name="press_once_again_to_exit">إضفط مرة أخرى لتسجيل الخروج</string>
-    <string name="password">كلمة المرور</string>
-    <string name="new_account">إنشاء حساب جديد ؟</string>
-    <string name="CLOSE">غلق</string>
-    <string name="user_name">إسم المستخدم</string>
-    <string name="user_profile">صورة البروفايل</string>
-    <string name="mobile">الموبايل</string>
-    <string name="email">الإيميل</string>
-    <string name="country">الدولة</string>
-    <string name="city">المدينة</string>
-    <string name="gender">الجنس</string>
-    <string name="female">أنثى</string>
-    <string name="male">ذكر</string>
-    <string name="phone_number">رقم الموبايل</string>
+    <string name="label_note">Note !</string>
+    <string name="most_login">You must be logged in!</string>
+    <string name="add_comment">Add comment ..</string>
+    <string name="click_to_change_image">Choose a picture</string>
+    <string name="send">Send</string>
+    <string name="error_empty_field_not_allowed">The field must not be empty</string>
+    <string name="following">Follow</string>
+    <string name="post">Daily Episode</string>
+    <string name="subscribers">Subscribe</string>
+    <string name="likes">Like</string>
+    <string name="check_internet_connection">Please make sure the internet is available!</string>
+    <string name="radio_map">Main Programs</string>
+    <string name="press_once_again_to_exit">Click again to log out</string>
+    <string name="password">Password</string>
+    <string name="new_account">Create new account ?</string>
+    <string name="user_name">User name</string>
+    <string name="user_profile">User profile</string>
+    <string name="mobile">Mobile</string>
+    <string name="email">Email</string>
+    <string name="country">Country</string>
+    <string name="city">City</string>
+    <string name="gender">Gender</string>
+    <string name="female">Female</string>
+    <string name="male">Male</string>
+    <string name="phone_number">Mobile nomber</string>
     <string name="image_desc">fm_radio_post_%s.png</string>
-    <string name="logout">تسجيل الخروج</string>
-    <string name="save_succefully">تم الحفظ بنجاح</string>
-    <string name="no_data_available">البيانات غير متوفرة</string>
-    <string name="pause">إستئناف</string>
-    <string name="stop">إيقاف</string>
-    <string name="notification_playing">البث المباشر</string>
-    <string name="pick_profile_image">تغيير صورة المستخدم</string>
+    <string name="logout">Logout</string>
+    <string name="saved_successfully">Saved successfully</string>
+    <string name="no_data_available">No available data</string>
+    <string name="pause">Pause</string>
+    <string name="stop">Stop</string>
+    <string name="notification_playing">Live broadcast</string>
+    <string name="pick_profile_image">Change user picture</string>
 
 
-    <string name="lbl_take_camera_picture">إلقاط صورة</string>
-    <string name="lbl_choose_from_gallery">الإختيار من الاستوديو</string>
+    <string name="lbl_take_camera_picture">Take picture</string>
+    <string name="lbl_choose_from_gallery">Choose from gallery</string>
     <string name="toast_image_intent_null">Image picker option is missing!</string>
 
     <!-- font families -->
-    <string name="dialog_permission_title">منح الصلاحية</string>
-    <string name="dialog_permission_message">يحتاج هذا التطبيق إلى منح الصلاحية لاستخدام هذه الميزة. يمكنك منحهم في إعدادات التطبيق.</string>
-    <string name="go_to_settings">الذهاب الى الإعدادات</string>
-    <string name="add_station">إضافة قناة</string>
-    <string name="add_program">إضافة برنامج</string>
-    <string name="no_entrnet">لايوجد إنترنت</string>
-    <string name="more">المزيد</string>
-    <string name="share_app">مشاركة التطبيق</string>
-    <string name="rate_app">تقييم التطبيق</string>
-    <string name="not_registerd_yet">لم يتم التسجيل بعد</string>
-    <string name="hide">إخفاء</string>
-    <string name="online">متصل</string>
-    <string name="offline">غير متصل</string>
-    <string name="brows_more_station">يمكنك تصفح المزيد من القنوات الإذاعية \n  من خلال النافذة الرئيسية</string>
-    <string name="add_episode">إضافة حلقة</string>
-    <string name="goto_login">لكي تتمكن من إستخدام خدمات التطبيق يجب عليك تسجيل الدخول \n  \n هل تريد الإنتقال الى نافذة تسجيل الدخول؟</string>
+    <string name="dialog_permission_title">Authorization</string>
+    <string name="dialog_permission_message">This app needs to be granted permission to use this feature. You can give them in the application settings.</string>
+    <string name="go_to_settings">Go to setting</string>
+    <string name="add_station">Add radio station</string>
+    <string name="add_program">Add program</string>
+    <string name="label_no_internet">No internet</string>
+    <string name="more">More</string>
+    <string name="share_app">Share the App</string>
+    <string name="rate_app">Rate the App</string>
+    <string name="error_not_registered_yet">Not Registered yes=t</string>
+    <string name="hide">Hide</string>
+    <string name="online">Online</string>
+    <string name="offline">Not Online</string>
+    <string name="brows_more_station">You can browse more radio channels\n through the main window</string>
+    <string name="add_episode">Add Episode</string>
+    <string name="goto_login">In order to use the application services you must log in \n \nDo you want to go to the login window?</string>
     <!--
     <string name="goto_login">لكي تتمكن من إستخدام خدمات التطبيق يجب عليك تسجيل الدخول \n
         <b>هل تريد الإنتقال الى نافذة تسجيل الدخول؟</b>
     </string>
     -->
-    <string name="main_program_for">" البرامج الرئيسية"</string>
-    <string name="app_message">هدهد اف ام : هو تطبيق أندرويد يُمكَن المستخدمين من الوصول للقنوات الإذاعية اليمنية من أي مكان وفي أي وقت بضغطة زر .</string>
+    <string name="main_program_for">Main programs</string>
+    <string name="app_message">Hodhud FM: is an Android application that enables users to access Yemeni radio channels from anywhere and at any time with the click of a button.</string>
     <string name="hudhudfm_instagram">http://instagram.com/hudhudfm</string>
-    <string name="update_episode">تحديث بيانات البرامج</string>
+    <string name="update_episode">Update episode data</string>
     <!--    <string name="powered_by">Powered By &#x2665; Sana&apos;a Dev</string>-->
     <string name="powered_by">Powered By &#x2665; Sana\'a Dev</string>
-    <string name="empty_ep">المعذرة , بيانات البرامج لإذاعة  %s غير متوفره حالياً</string>
-    <string name="whatsapp_not_installed">تطبيق واتس آب غير مثبت لديك</string>
+    <string name="empty_ep">Sorry, program data for %s radio is currently unavailableً</string>
+    <string name="whatsapp_not_installed">You do not have WhatsApp installed</string>
 
 
     <!--RegistrationActivity-->
@@ -141,48 +141,51 @@
     <string name="RegistrationActivity_you_must_specify_your_country_code">يرجى إدخال رمز دولتك</string>
     <string name="RegistrationActivity_you_must_specify_your_phone_number">يرجى إدخال رقم الهاتف الخاص بك</string>
 
-    <string name="RegistrationActivity_next">التالي</string>
+    <string name="RegistrationActivity_next">Next</string>
     <string name="RegistrationActivity_enter_your_phone_number_to_get_started">أدخل رقم هاتفك للبدء</string>
     <string name="RegistrationActivity_you_will_receive_a_verification_code">ستستلم رمز تحقّق. قد تنطبّق تكلفة من مزوّد الخدمة.</string>
-    <string name="RegistrationActivity_country_code_description">رمز البلد</string>
+    <string name="RegistrationActivity_country_code_description">country code</string>
 
     <!--country_selection_fragment-->
-    <string name="country_selection_fragment__loading_countries">تحميل البلدان جارٍ …</string>
-    <string name="country_selection_fragment__search">بحث</string>
+    <string name="country_selection_fragment__loading_countries">Loading countries in progress..</string>
+    <string name="country_selection_fragment__search">Search</string>
     <string name="country_selection_fragment__no_matching_countries">لا توجد دولة مطابقة</string>
 
     <string name="RegistrationActivity_invalid_number">الرقم غير صحيح</string>
     <string name="RegistrationActivity_the_number_you_specified_s_is_invalid">الرقم الذي حددته (%s) غير صحيح.</string>
     <string name="RegistrationActivity_missing_google_play_services">خدمات Google Play غير متوفرة</string>
-    <string name="RegistrationActivity_update_google_play_services">هل تريد تحديث خدمات Google Play ؟</string>
+    <string name="RegistrationActivity_update_google_play_services">Do you want to update Google Play Services?</string>
 
     <string name="RegistrationActivity_this_device_is_missing_google_play_services">خدمات Google Play غير موجودة في هذا الجهاز. لا زال بإمكانك استخدام التطبيق، ولكن هذا الضبط قد يؤدي إلى ضعف في موثوقية  أو أداء البرنامج</string>
 
-    <string name="RegistrationActivity_i_understand">فهمت</string>
-    <string name="save">حفظ</string>
-    <string name="verify_your_number">تحقق من رقمك</string>
+    <string name="RegistrationActivity_i_understand">Understood</string>
+    <string name="save">Save</string>
+    <string name="verify_your_number">Verify your number</string>
     <string name="please_enter_your_mobile_number_to_receive_a_verification_code_carrier_rates_may_apply">يرجى إدخال رقم هاتفك المحمول لتلقي رمز التحقق.</string>
-    <string name="label_program_name">البرنامج</string>
+    <string name="label_program_name">Program Name</string>
     <string name="label_tag">\@program_fm</string>
-    <string name="label_category">التصنيف</string>
-    <string name="label_desc">الوصف</string>
+    <string name="label_category">Category</string>
+    <string name="label_desc">Description</string>
     <string name="ex_no">123</string>
-    <string name="label_announcer_name">اسم المذيع</string>
-    <string name="label_grid">عرض شبكي</string>
-    <string name="label_list">عرض قائمة</string>
-    <string name="label_commints">التعليقات</string>
-    <string name="label_title">العنوان</string>
-    <string name="label_date">22/سبتمبر/2022</string>
+    <string name="label_announcer_name">Announcer Name</string>
+    <string name="label_grid">Grade</string>
+    <string name="label_list">List</string>
+    <string name="label_comments">Comments</string>
+    <string name="label_title">Title</string>
+    <string name="label_date">22/Sep/2022</string>
 
     <string name="styled_welcome_message">We are <b><i>so</i></b> glad to see you.</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="label_radio_intro1">يمكنك تحديد القناة الإذاعية التي ترغب في متابعتها من خلال اختيار الكارد الخاص بالإذاعة</string>
     <string name="label_play_intro2">من خلال هذا الزر يمكنك تشغيل البث المباشر للقناة الإذاعية التي قمت بتحديدها</string>
-    <string name="label_replay">إعادة</string>
-    <string name="label_from">من</string>
-    <string name="label_to">إلى</string>
-    <string name="error_please_select_radio_station">يجب تحديد القناة الإذاعية</string>
+    <string name="label_replay">Replay</string>
+    <string name="label_from">From</string>
+    <string name="label_to">To</string>
+    <string name="error_please_select_radio_station">Please select the radio channel</string>
+    <string name="label_program_category">Program Category</string>
+    <string name="label_show_date">Date Show</string>
+    <string name="label_show_days">Day\'s Show</string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

@@ -21,5 +21,8 @@
         <!-- Customize your theme here. -->
         <item name="colorControlHighlight">@color/fab_color_pressed</item>
         <item name="android:actionMenuTextColor">@color/colorPrimary</item>
+
+        <item name="android:includeFontPadding">false</item>
+<!--        <item name="android:layoutDirection">rtl</item>-->
     </style>
 </resources>

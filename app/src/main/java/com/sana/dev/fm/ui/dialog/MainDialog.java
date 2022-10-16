@@ -84,13 +84,13 @@ public class MainDialog {
     public void showAlertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("مشاركة التطبيق ؟");
-        builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.label_ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 //                Snackbar.make(parent_view, "Discard clicked", Snackbar.LENGTH_SHORT).show();
             }
         });
-        builder.setNegativeButton(R.string.CANCEL, null);
+        builder.setNegativeButton(R.string.label_cancel, null);
         builder.show();
     }
 

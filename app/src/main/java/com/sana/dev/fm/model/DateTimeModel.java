@@ -1,17 +1,11 @@
 package com.sana.dev.fm.model;
 
 
-import androidx.core.util.Predicate;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class DateTimeModel {
     long dateStart, dateEnd, timeStart, timeEnd;

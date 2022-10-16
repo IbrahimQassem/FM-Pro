@@ -46,7 +46,6 @@ import com.google.firebase.storage.UploadTask;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.ui.activity.BaseActivity;
-import com.sana.dev.fm.ui.activity.SplashActivity;
 import com.sana.dev.fm.utils.AESCrypt;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.PreferencesManager;
@@ -510,7 +509,7 @@ public class UserProfileActivity extends BaseActivity {
                 @Override
                 public void onSuccess(Object object) {
                     prefMgr.write(FMCConstants.USER_INFO, (Users) object);
-                    showToast(R.string.save_succefully);
+                    showToast(R.string.saved_successfully);
                     startMainActivity();
                 }
 

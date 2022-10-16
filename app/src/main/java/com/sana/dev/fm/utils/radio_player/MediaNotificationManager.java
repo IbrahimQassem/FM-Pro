@@ -38,8 +38,12 @@ public class MediaNotificationManager {
 
     private Resources resources;
 
-    public MediaNotificationManager(RadioService service) {
+    public Metadata getMetaData() {
+        return meta;
+    }
 
+
+    public MediaNotificationManager(RadioService service) {
         this.service = service;
         this.resources = service.getResources();
     }
@@ -47,13 +51,11 @@ public class MediaNotificationManager {
     public void startNotify(String playbackStatus) {
         this.playbackStatus = playbackStatus;
         this.notifyIcon = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_round);
-
         startNotify();
-//        notificationActions();
     }
 
-    public void startNotify(Bitmap notifyIcon, Metadata meta) {
 
+    public void startNotify(Bitmap notifyIcon, Metadata meta) {
         this.notifyIcon = notifyIcon;
         this.meta = meta;
         startNotify();
@@ -83,17 +85,34 @@ public class MediaNotificationManager {
         int icon = R.drawable.ic_pause;
         Intent playbackAction = new Intent(service, RadioService.class);
         playbackAction.setAction(RadioService.ACTION_PAUSE);
-        PendingIntent action = PendingIntent.getService(service, 1, playbackAction, 0);
+//        PendingIntent action = PendingIntent.getService(service, 1, playbackAction, 0);
+        PendingIntent action;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            action = PendingIntent.getService(service, 1, playbackAction, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        } else {
+            action = PendingIntent.getActivity(service, 1, playbackAction, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
 
         if (playbackStatus.equals(PlaybackStatus.PAUSED)) {
             icon = R.drawable.ic_play;
             playbackAction.setAction(RadioService.ACTION_PLAY);
-            action = PendingIntent.getService(service, 2, playbackAction, 0);
+//            action = PendingIntent.getService(service, 2, playbackAction, 0);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                action = PendingIntent.getService(service, 2, playbackAction, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            } else {
+                action = PendingIntent.getActivity(service, 2, playbackAction, PendingIntent.FLAG_UPDATE_CURRENT);
+            }
         }
 
         Intent stopIntent = new Intent(service, RadioService.class);
         stopIntent.setAction(RadioService.ACTION_STOP);
-        PendingIntent stopAction = PendingIntent.getService(service, 3, stopIntent, 0);
+//        PendingIntent stopAction = PendingIntent.getService(service, 3, stopIntent, 0);
+        PendingIntent stopAction;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            stopAction = PendingIntent.getService(service, 3, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        } else {
+            stopAction = PendingIntent.getActivity(service, 3, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
 
         Intent intent = new Intent(service, MainActivity.class);
         Bundle bundle = new Bundle();
@@ -103,10 +122,15 @@ public class MediaNotificationManager {
         intent.putExtras(bundle);
 
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(service, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(service, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pendingIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            pendingIntent = PendingIntent.getActivity(service, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        } else {
+            pendingIntent = PendingIntent.getActivity(service, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        }
 
-        NotificationManagerCompat.from(service)
-                .cancel(NOTIFICATION_ID);
+        NotificationManagerCompat.from(service).cancel(NOTIFICATION_ID);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(service, NOTIFICATION_CHANNEL_ID);
 
@@ -126,6 +150,8 @@ public class MediaNotificationManager {
                 .addAction(icon, resources.getString(R.string.pause), action)
                 .addAction(R.drawable.ic_stop, resources.getString(R.string.stop), stopAction)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(false)
+                .setOngoing(true) // Cant cancel your notification (except NotificationManger.cancel(); )
                 .setWhen(System.currentTimeMillis())
                 .setColor(ContextCompat.getColor(service, R.color.colorPrimaryDark))
                 .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
@@ -134,20 +160,25 @@ public class MediaNotificationManager {
                         .setShowCancelButton(true)
                         .setCancelButtonIntent(stopAction));
 
+
         Notification notification = builder.build();
+
+
         service.startForeground(NOTIFICATION_ID, notification);
 
     }
 
-    public Metadata getMetaData() {
-        return meta;
-    }
 
     public void cancelNotify() {
+        Intent buttonIntent = new Intent(service, MainActivity.class);
+        int notificationId = buttonIntent.getIntExtra("notificationId", NOTIFICATION_ID);
+        NotificationManager manager = (NotificationManager) service. getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancel(notificationId);
         service.stopForeground(true);
     }
 
 
+/*
     private void notificationActions() {
 
         int NOTIFICATION_ID = 1;
@@ -181,19 +212,21 @@ public class MediaNotificationManager {
 
 
     public PendingIntent getLaunchIntent(int notificationId, Context context) {
-
         Intent intent = new Intent(context, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra("notificationId", notificationId);
         return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
+*/
 
 
-//    private void clearNotification() {
-//        int notificationId = getIntent().getIntExtra("notificationId", 0);
-//        NotificationManager manager = (NotificationManager) service. getSystemService(Context.NOTIFICATION_SERVICE);
-//        manager.cancel(notificationId);
-//    }
+/*
+    private void clearNotification() {
+        int notificationId = getIntent().getIntExtra("notificationId", 0);
+        NotificationManager manager = (NotificationManager) service. getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancel(notificationId);
+    }
+*/
 
 
 }

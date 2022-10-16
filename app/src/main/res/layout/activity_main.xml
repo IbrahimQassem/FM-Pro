@@ -33,7 +33,7 @@
 
             <LinearLayout
                 android:id="@+id/lyt_profile"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:gravity="center_vertical"
                 android:layout_gravity="end"
@@ -43,12 +43,23 @@
                 android:paddingEnd="@dimen/spacing_medium">
 
 
+                <com.mikhaellopez.circularimageview.CircularImageView
+                    android:id="@+id/civ_logo"
+                    android:layout_width="@dimen/spacing_xmlarge"
+                    android:layout_height="@dimen/spacing_xmlarge"
+                    app:civ_border_color="@color/colorAccentLight"
+                    app:civ_border="true"
+                    app:civ_border_width="1px"
+                    app:civ_background_color="@color/colorPrimaryLight"
+                    app:tint="@color/white"
+                    app:srcCompat="@drawable/ic_baseline_person" />
+
+
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1"
-                    android:gravity="end"
+                    android:paddingStart="@dimen/spacing_middle"
+                    android:paddingEnd="@dimen/spacing_middle"
                     android:orientation="vertical">
 
                     <TextView
@@ -77,7 +88,7 @@
                             android:id="@+id/tv_user_state"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/not_registerd_yet"
+                            android:text="@string/error_not_registered_yet"
                             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                             android:textColor="@color/white" />
 
@@ -95,20 +106,8 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <View
-                    android:layout_width="@dimen/spacing_middle"
-                    android:layout_height="0dp" />
 
-                <com.mikhaellopez.circularimageview.CircularImageView
-                    android:id="@+id/image"
-                    android:layout_width="@dimen/spacing_xmlarge"
-                    android:layout_height="@dimen/spacing_xmlarge"
-                    app:civ_border_color="@color/colorAccentLight"
-                    app:civ_border="true"
-                    app:civ_border_width="1px"
-                    app:civ_background_color="@color/colorPrimaryLight"
-                    app:tint="@color/white"
-                    app:srcCompat="@drawable/ic_baseline_person" />
+
 
 
             </LinearLayout>
@@ -162,6 +161,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layoutDirection="ltr"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <com.google.android.material.bottomappbar.BottomAppBar
@@ -171,8 +171,6 @@
             android:layout_gravity="bottom"
             android:paddingBottom="0dp"
             android:theme="@style/Theme.MaterialComponents.Light"
-            app:contentInsetStart="0dp"
-            app:contentInsetStartWithNavigation="0dp"
             app:fabAlignmentMode="end"
             app:fabCradleMargin="10dp"
             app:fabCradleRoundedCornerRadius="25dp"

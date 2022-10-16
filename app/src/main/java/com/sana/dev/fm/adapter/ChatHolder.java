@@ -12,13 +12,11 @@ import android.widget.TextView;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.gson.Gson;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.utils.FmUtilize;
-import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.ViewAnimation;
 
@@ -35,6 +33,8 @@ import java.util.Map;
 
 
 public class ChatHolder extends RecyclerView.ViewHolder {
+    public static final String TAG = ChatHolder.class.getSimpleName();
+
     private final CircularImageView profile;
     private final  ImageView image, imv_like, imv_comment, bt_toggle;
     private final TextView tvTitle;
@@ -57,7 +57,7 @@ public class ChatHolder extends RecyclerView.ViewHolder {
     public ChatHolder(@NonNull View itemView) {
         super(itemView);
         profile = itemView.findViewById(R.id.profile);
-        image = itemView.findViewById(R.id.image);
+        image = itemView.findViewById(R.id.civ_logo);
         tvTitle = itemView.findViewById(R.id.tvTitle);
         tvDesc = itemView.findViewById(R.id.tvSubTitle);
         tvDate = itemView.findViewById(R.id.tvDate);
@@ -96,10 +96,10 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         tv_subtitle.setText(episode.getEpAnnouncer());
 //        String st = "" +  getFormattedTimeEvent(episode.getDateTimeModel().getTimeStart());
 //        tv_time.setText(st);
-        if (episode.getDateTimeModel() != null){
-            LogUtility.e(LogUtility.TAG, "date  getDateStart : " + new Gson().toJson(FmUtilize.modifyDateLayout(episode.getDateTimeModel().getDateStart())));
-            LogUtility.e(LogUtility.TAG, "date  getDateEnd : " + new Gson().toJson(FmUtilize.modifyDateLayout(episode.getDateTimeModel().getDateEnd())));
-        }
+//        if (episode.getDateTimeModel() != null){
+//            LogUtility.e(TAG, "date  getDateStart : " + new Gson().toJson(FmUtilize.modifyDateLayout(episode.getDateTimeModel().getDateStart())));
+//            LogUtility.e(TAG, "date  getDateEnd : " + new Gson().toJson(FmUtilize.modifyDateLayout(episode.getDateTimeModel().getDateEnd())));
+//        }
 //        tv_time.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
         tvDate.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
         Tools.displayImageRound(ctx, image, episode.getEpProfile());

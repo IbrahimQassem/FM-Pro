@@ -44,7 +44,7 @@
             android:padding="@dimen/spacing_mlarge">
 
             <com.mikhaellopez.circularimageview.CircularImageView
-                android:id="@+id/image"
+                android:id="@+id/civ_logo"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 app:civ_border="true"

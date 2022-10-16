@@ -456,7 +456,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
 
 
                 if (tit_ep_name.getText().toString().trim().isEmpty()) {
-                    tit_ep_name.setError(getString(R.string.empty_not_allowd));
+                    tit_ep_name.setError(getString(R.string.error_empty_field_not_allowed));
                     tit_ep_name.requestFocus();
                     return;
                 }
@@ -466,12 +466,12 @@ public class EpisodeAddStepperVertical extends BaseActivity {
             case R.id.bt_continue_tow:
                 // validate input user here
                 if (et_station.getText().toString().trim().isEmpty()) {
-                    et_station.setError(getString(R.string.empty_not_allowd));
+                    et_station.setError(getString(R.string.error_empty_field_not_allowed));
                     et_station.requestFocus();
                     showSnackBar(R.string.error_please_select_radio_station);
                     return;
                 } else if (et_program.getText().toString().trim().isEmpty()) {
-                    et_program.setError(getString(R.string.empty_not_allowd));
+                    et_program.setError(getString(R.string.error_empty_field_not_allowed));
                     et_program.requestFocus();
                     showSnackBar("يجب تحديد برنامج");
                     return;

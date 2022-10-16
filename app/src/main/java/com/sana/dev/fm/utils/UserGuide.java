@@ -35,7 +35,7 @@ public class UserGuide implements MaterialIntroListener {
                 .performClick(true) //Trigger click operation when user click focused area.
                 .setFocusGravity(FocusGravity.CENTER)
                 .setFocusType(focusType)
-                .setDelayMillis(5000) // delay the view
+                .setDelayMillis(1500) // delay the view
                 .enableFadeAnimation(true)
                 .setListener(introListener)
 //                .setListener(new MaterialIntroListener() {

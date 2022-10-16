@@ -45,7 +45,7 @@
                 android:layout_height="wrap_content">
 
                 <com.mikhaellopez.circularimageview.CircularImageView
-                    android:id="@+id/image"
+                    android:id="@+id/civ_logo"
                     android:layout_width="@dimen/spacing_xmlarge"
                     android:layout_height="@dimen/spacing_xmlarge"
                     app:civ_border="true"

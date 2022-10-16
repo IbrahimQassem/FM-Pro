@@ -68,7 +68,7 @@
             android:background="@drawable/btn_rounded_accent"
             android:paddingLeft="@dimen/spacing_mlarge"
             android:paddingRight="@dimen/spacing_mlarge"
-            android:text="@string/OK"
+            android:text="@string/label_ok"
             android:textColor="@android:color/white" />
     </LinearLayout>
 </LinearLayout>

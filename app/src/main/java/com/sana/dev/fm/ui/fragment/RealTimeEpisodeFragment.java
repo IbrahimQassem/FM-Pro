@@ -279,7 +279,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                             case R.id.imv_like:
                                 if (!RealTimeEpisodeFragment.this.isAccountSignedIn()) {
                                     if (context instanceof MainActivity) {
-                                        ((MainActivity) context).showNotCancelableWarningDialog(context.getString(R.string.attecntion), context.getString(R.string.goto_login), new View.OnClickListener() {
+                                        ((MainActivity) context).showNotCancelableWarningDialog(context.getString(R.string.label_note), context.getString(R.string.goto_login), new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
                                                 ((MainActivity) context).startLoginActivity();

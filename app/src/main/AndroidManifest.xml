@@ -5,10 +5,12 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-<!--    <uses-permission android:name="android.permission.READ_PHONE_STATE" />-->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
 
     <application
         android:name=".FmApplication"
@@ -17,9 +19,11 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.HudHudFM"
+        android:usesCleartextTraffic="true"
         tools:replace="android:supportsRtl"
         tools:targetApi="31">
         <activity
@@ -76,22 +80,25 @@
         <activity
             android:name=".ui.activity.BaseActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".ui.activity.player.MusicServiceActivity" />
-        <activity android:name=".ui.activity.player.PlayerActivity" />
-        <activity android:name=".ui.activity.player.PermitActivity" />
+        <!--        <activity android:name=".ui.activity.player.MusicServiceActivity" />-->
+        <!--        <activity android:name=".ui.activity.player.PlayerActivity" />-->
+        <!--        <activity android:name=".ui.activity.player.PermitActivity" />-->
 
         <service
             android:name=".utils.radio_player.PlaybackService"
             android:exported="true" />
-        <service android:name=".utils.radio_player.RadioService" /> <!-- <service android:name=".attachmentviewer.MusicService" /> -->
+        <service
+            android:name=".utils.radio_player.RadioService"
+            android:exported="true" /> <!-- <service android:name=".attachmentviewer.MusicService" /> -->
         <!-- <service android:name="com.sana.dev.fm.ui.activity.test.MusicService" /> -->
         <receiver
             android:name="androidx.media.session.MediaButtonReceiver"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
-        </receiver> <!-- Facebook Configuration -->
+        </receiver>
+        <!-- Facebook Configuration -->
         <!--
         <meta-data
                     android:name="com.facebook.sdk.ApplicationId"
@@ -127,7 +134,9 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <service android:name=".ui.activity.player.MusicService" />
+        <service
+            android:name=".ui.activity.player.MusicService"
+            android:exported="true" />
     </application>
 
 </manifest>

@@ -260,23 +260,23 @@ public class FormAddPrgram extends BaseActivity {
             showToast("يجب تحديد إسم القناة الإذاعية");
             return;
         } else if (tit_pr_name.getText().toString().trim().isEmpty()) {
-            tit_pr_name.setError(getString(R.string.empty_not_allowd));
+            tit_pr_name.setError(getString(R.string.error_empty_field_not_allowed));
             tit_pr_name.requestFocus();
             return;
         } else if (tie_category.getText().toString().trim().isEmpty()) {
-            tie_category.setError(getString(R.string.empty_not_allowd));
+            tie_category.setError(getString(R.string.error_empty_field_not_allowed));
             tie_category.requestFocus();
             return;
         } else if (dateStart == 0L) {
-            et_start.setError(getString(R.string.empty_not_allowd));
+            et_start.setError(getString(R.string.error_empty_field_not_allowed));
             et_start.requestFocus();
             return;
         } else if (dateEnd == 0L) {
-            et_end.setError(getString(R.string.empty_not_allowd));
+            et_end.setError(getString(R.string.error_empty_field_not_allowed));
             et_end.requestFocus();
             return;
         } else if (tie_display_day.getText().toString().trim().isEmpty()) {
-            tie_display_day.setError(getString(R.string.empty_not_allowd));
+            tie_display_day.setError(getString(R.string.error_empty_field_not_allowed));
             tie_display_day.requestFocus();
             return;
         }

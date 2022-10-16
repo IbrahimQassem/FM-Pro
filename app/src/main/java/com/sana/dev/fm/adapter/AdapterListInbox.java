@@ -49,9 +49,9 @@ public class AdapterListInbox extends Adapter<AdapterListInbox.ViewHolder> {
             this.from = (TextView) view.findViewById(R.id.from);
             this.email = (TextView) view.findViewById(R.id.email);
             this.message = (TextView) view.findViewById(R.id.message);
-            this.date = (TextView) view.findViewById(R.id.date);
+            this.date = (TextView) view.findViewById(R.id.tv_day_period);
             this.image_letter = (TextView) view.findViewById(R.id.image_letter);
-            this.image = (ImageView) view.findViewById(R.id.image);
+            this.image = (ImageView) view.findViewById(R.id.civ_logo);
             this.lyt_checked = (RelativeLayout) view.findViewById(R.id.lyt_checked);
             this.lyt_image = (RelativeLayout) view.findViewById(R.id.lyt_image);
             this.lyt_parent = view.findViewById(R.id.lyt_parent);
