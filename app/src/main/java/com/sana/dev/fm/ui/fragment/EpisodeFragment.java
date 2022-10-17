@@ -5,6 +5,8 @@ import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -161,17 +163,11 @@ public class EpisodeFragment extends BaseFragment {
                 }
             });
 
-//                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            recyclerView.smoothScrollToPosition(prefMng.read("ScrollToPosition", 0));
-//                            startMeEvent();
-//                        }
-//                    }, 3000);
 
+//
 //                    if (recyclerView.getAdapter().getItemCount() - 1 == 0) {
 //                        recyclerView.smoothScrollToPosition(prefMng.read("ScrollToPosition", 0));
-//                        startMeEvent();
+////                        startMeEvent();
 //                    }
 
 
@@ -185,14 +181,21 @@ public class EpisodeFragment extends BaseFragment {
 //                                showToast("1");
                     } else {
                         Log.d("SCROLLINGUP", "SCROLL");
-                        recyclerView.smoothScrollToPosition(0);
+
+                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                recyclerView.smoothScrollToPosition(prefMng.read("ScrollToPosition", 0));
+                            }
+                        }, 3000);
+
                         showIntro(recyclerView.getChildAt(0), UserGuide.INTRO_FOCUS_1, ctx.getString(R.string.label_radio_intro1));
 //                                showToast("2");
                     }
                 }
             });
 
-        }else {
+        } else {
             // Todo check radio is empty call it again
         }
 

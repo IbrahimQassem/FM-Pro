@@ -57,12 +57,13 @@
                  app:srcCompat="@drawable/img_code_verification" />
 
             <TextView
-                android:layout_width="280dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:gravity="center"
+                android:textAlignment="center"
                 android:elegantTextHeight="true"
-                android:text="تم إرسال رمز التحقق إلى هاتفك المحمول\n الرجاء إدخال رمز التحقق في الأسفل"
+                android:text="@string/label_enter_received_smtp"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/grey_60" />
 

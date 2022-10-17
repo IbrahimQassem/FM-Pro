@@ -159,7 +159,7 @@
     <string name="RegistrationActivity_this_device_is_missing_google_play_services">خدمات Google Play غير موجودة في هذا الجهاز. لا زال بإمكانك استخدام التطبيق، ولكن هذا الضبط قد يؤدي إلى ضعف في موثوقية  أو أداء البرنامج</string>
 
     <string name="RegistrationActivity_i_understand">فهمت</string>
-    <string name="save">حفظ</string>
+    <string name="label_save">حفظ</string>
     <string name="verify_your_number">تحقق من رقمك</string>
     <string name="please_enter_your_mobile_number_to_receive_a_verification_code_carrier_rates_may_apply">يرجى إدخال رقم هاتفك المحمول لتلقي رمز التحقق.</string>
     <string name="label_program_name">البرنامج</string>
@@ -186,5 +186,10 @@
     <string name="label_program_category">فئة البرنامج</string>
     <string name="label_show_date">فترة العرض</string>
     <string name="label_show_days">أيام العرض</string>
+    <string name="label_enter_received_smtp">تم إرسال رمز التحقق إلى هاتفك المحمول\n الرجاء إدخال رمز التحقق في الأسفل</string>
+    <string name="mobile_cant_edited">لا يمكن تعديل رقم الموبايل</string>
+    <string name="login_successfully">تم تسجيل الدخول بنجاح</string>
+    <string name="user_loged_out">تم تسجيل الخروج</string>
+    <string name="unkon_error_please_try_again_later">حدث خطأ, يرجى المحاولة لاحقا</string>
 
 </resources>

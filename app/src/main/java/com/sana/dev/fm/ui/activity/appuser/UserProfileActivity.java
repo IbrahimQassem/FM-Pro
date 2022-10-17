@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -67,7 +68,7 @@ import butterknife.OnClick;
 
 
 public class UserProfileActivity extends BaseActivity {
-    private static final int PICK_IMAGE =100 ;
+    private static final int PICK_IMAGE = 100;
 
     private final String TAG = UserProfileActivity.class.getSimpleName();
 
@@ -189,7 +190,7 @@ public class UserProfileActivity extends BaseActivity {
         et_mobile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showToast("لا يمكن تعديل رقم الموبايل");
+                showToast(getString(R.string.mobile_cant_edited));
             }
         });
 
@@ -330,7 +331,7 @@ public class UserProfileActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case android.R.id.home:
-                finish();
+                goToMain();
                 break;
             case R.id.action_pick_image:
                 onImageSelect(img_profile);
@@ -370,7 +371,7 @@ public class UserProfileActivity extends BaseActivity {
         Intent intent = splashPage(this, true);
         startActivity(intent);
         finish();
-        showToast("تم تسجيل الخروج");
+        showToast(getString(R.string.user_loged_out));
         updateUI(STATE_INITIALIZED);
     }
 
@@ -474,7 +475,8 @@ public class UserProfileActivity extends BaseActivity {
 //            rg_gender.check(radio_male.getId());
 
 
-            Tools.displayUserProfile(this, img_profile, _userModel.getPhotoUrl());
+            if (URLUtil.isValidUrl(_userModel.getPhotoUrl()))
+                Tools.displayUserProfile(this, img_profile, _userModel.getPhotoUrl());
 //            photoUrl = _userModel.getPhotoUrl();
 //            imageUri=Uri.parse(photoUrl);
         }
@@ -489,18 +491,24 @@ public class UserProfileActivity extends BaseActivity {
         valedateInput();
 
 
-        Users oldUser = prefMgr.getUsers();
+//        String userImage  = "empty" ;
+//        if (user.getPhotoUrl() != null && !user.getPhotoUrl().equals("empty")){
+//            userImage = user.getPhotoUrl();
+//        }else {
+//            userImage =
+//        }
 
-        String _oName = oldUser.getName() != null ? oldUser.getName() : "";
-        String _oPhoto = oldUser.getPhotoUrl() != null ? oldUser.getPhotoUrl() : "";
-        String _imgUrl = prefMgr.read(FMCConstants.USER_IMAGE_Profile, "empty");
-        if (_oPhoto.equals(_imgUrl) && _oName.equals(name) && oldUser.getGender().equals(gender)) {
+        Users user = prefMgr.getUsers();
+
+//        Users oldUser = prefMgr.getUsers();
+
+//        String _oName = oldUser.getName() != null ? oldUser.getName() : "";
+//        String _oPhoto = oldUser.getPhotoUrl() != null ? oldUser.getPhotoUrl() : "";
+//        String _imgUrl = prefMgr.read(FMCConstants.USER_IMAGE_Profile, "empty");
+        if (user.equals(name) && user.getGender().equals(gender)) {
             startMainActivity();
-            return;
         } else {
-            Users user = prefMgr.getUsers();
             user.setName(name);
-            user.setPhotoUrl(_imgUrl);
             user.setGender(gender);
             user.setDeviceToken(getToken(this));
 //            updateUser(user);
@@ -516,7 +524,7 @@ public class UserProfileActivity extends BaseActivity {
                 @Override
                 public void onError(Object object) {
                     Log.d(TAG, "onError : " + object);
-                    showToast("حدث خطأ, يرجى المحاولة لاحقا");
+                    showToast(getString(R.string.unkon_error_please_try_again_later));
                 }
             });
         }
@@ -572,7 +580,7 @@ public class UserProfileActivity extends BaseActivity {
 
     private void uploadUserProfile(Uri uriImage) {
 //        if (imageUri != null) {
-        ProgressHUD mProgressHUD = ProgressHUD.showDialog( "حفظ صورة البروفايل", true, false, null);
+        ProgressHUD mProgressHUD = ProgressHUD.showDialog("حفظ صورة البروفايل", true, false, null);
         mProgressHUD.setMessage("جاري حفظ صورة البروفايل ...");
         mProgressHUD.show();
 
@@ -619,7 +627,7 @@ public class UserProfileActivity extends BaseActivity {
                             public void onSuccess(Uri uri) {
                                 String downloadUri = uri.toString();
 //                                    showSnackBar(downloadUri);
-                                prefMgr.write(FMCConstants.USER_IMAGE_Profile, downloadUri);
+//                                prefMgr.write(FMCConstants.USER_IMAGE_Profile, downloadUri);
 
 //                                ------------------------------------
                                 Users user = prefMgr.getUsers();

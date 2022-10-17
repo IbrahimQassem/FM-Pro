@@ -133,7 +133,7 @@ public class VerificationPhone extends BaseActivity {
 
                 Users _userModel = (Users) object;
                 prefMgr.write(FMCConstants.USER_INFO, _userModel);
-                showToast("تم تسجيل الدخول بنجاح");
+                showToast(getString(R.string.login_successfully));
                 startActivity(intent);
             }
 
@@ -155,7 +155,7 @@ public class VerificationPhone extends BaseActivity {
                         public void onSuccess(Object object) {
                             Users _userModel = (Users) object;
                             prefMgr.write(FMCConstants.USER_INFO, _userModel);
-                            showToast("تم تسجيل الدخول بنجاح");
+                            showToast(getString(R.string.login_successfully));
                             startActivity(intent);
                         }
 

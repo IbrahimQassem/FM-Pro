@@ -51,6 +51,7 @@
                         android:orientation="horizontal"
                         android:scrollbarStyle="insideOverlay"
                         android:clipToPadding="false"
+                        android:layoutDirection="ltr"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                         tools:listitem="@layout/radios_item" />
 

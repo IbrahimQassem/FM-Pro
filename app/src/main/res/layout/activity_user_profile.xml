@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
+    android:layoutDirection="ltr"
     tools:context="com.sana.dev.fm.ui.activity.appuser.UserProfileActivity">
 
     <ImageView
@@ -424,7 +425,7 @@
                 android:padding="@dimen/spacing_xmedium"
                 android:textColor="@color/white"
                 android:background="@drawable/btn_rounded_accent"
-                android:text="@string/save"
+                android:text="@string/label_save"
                 android:fontFamily="@font/tajawal_bold"/>
 
 <!--            <com.google.android.material.floatingactionbutton.FloatingActionButton-->

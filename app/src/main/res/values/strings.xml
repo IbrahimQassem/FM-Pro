@@ -137,13 +137,13 @@
 
 
     <!--RegistrationActivity-->
-    <string name="RegistrationActivity_select_your_country">يجب عليك اختيار بلدك</string>
-    <string name="RegistrationActivity_you_must_specify_your_country_code">يرجى إدخال رمز دولتك</string>
-    <string name="RegistrationActivity_you_must_specify_your_phone_number">يرجى إدخال رقم الهاتف الخاص بك</string>
+    <string name="RegistrationActivity_select_your_country">You must choose your country</string>
+    <string name="RegistrationActivity_you_must_specify_your_country_code">Please enter your country code</string>
+    <string name="RegistrationActivity_you_must_specify_your_phone_number">Please enter your phone number</string>
 
     <string name="RegistrationActivity_next">Next</string>
-    <string name="RegistrationActivity_enter_your_phone_number_to_get_started">أدخل رقم هاتفك للبدء</string>
-    <string name="RegistrationActivity_you_will_receive_a_verification_code">ستستلم رمز تحقّق. قد تنطبّق تكلفة من مزوّد الخدمة.</string>
+    <string name="RegistrationActivity_enter_your_phone_number_to_get_started">Enter your phone number to get started</string>
+    <string name="RegistrationActivity_you_will_receive_a_verification_code">You will receive a verification code. Service provider charges may apply.</string>
     <string name="RegistrationActivity_country_code_description">country code</string>
 
     <!--country_selection_fragment-->
@@ -151,17 +151,17 @@
     <string name="country_selection_fragment__search">Search</string>
     <string name="country_selection_fragment__no_matching_countries">لا توجد دولة مطابقة</string>
 
-    <string name="RegistrationActivity_invalid_number">الرقم غير صحيح</string>
+    <string name="RegistrationActivity_invalid_number">The number is incorrect</string>
     <string name="RegistrationActivity_the_number_you_specified_s_is_invalid">الرقم الذي حددته (%s) غير صحيح.</string>
     <string name="RegistrationActivity_missing_google_play_services">خدمات Google Play غير متوفرة</string>
     <string name="RegistrationActivity_update_google_play_services">Do you want to update Google Play Services?</string>
 
-    <string name="RegistrationActivity_this_device_is_missing_google_play_services">خدمات Google Play غير موجودة في هذا الجهاز. لا زال بإمكانك استخدام التطبيق، ولكن هذا الضبط قد يؤدي إلى ضعف في موثوقية  أو أداء البرنامج</string>
+    <string name="RegistrationActivity_this_device_is_missing_google_play_services">Google Play Services is not present on this device. You can still use the app, but this setting may result in poor reliability or performance of the software</string>
 
     <string name="RegistrationActivity_i_understand">Understood</string>
-    <string name="save">Save</string>
+    <string name="label_save">Save</string>
     <string name="verify_your_number">Verify your number</string>
-    <string name="please_enter_your_mobile_number_to_receive_a_verification_code_carrier_rates_may_apply">يرجى إدخال رقم هاتفك المحمول لتلقي رمز التحقق.</string>
+    <string name="please_enter_your_mobile_number_to_receive_a_verification_code_carrier_rates_may_apply">Please enter your mobile phone number to receive the verification code.</string>
     <string name="label_program_name">Program Name</string>
     <string name="label_tag">\@program_fm</string>
     <string name="label_category">Category</string>
@@ -177,8 +177,8 @@
     <string name="styled_welcome_message">We are <b><i>so</i></b> glad to see you.</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="label_radio_intro1">يمكنك تحديد القناة الإذاعية التي ترغب في متابعتها من خلال اختيار الكارد الخاص بالإذاعة</string>
-    <string name="label_play_intro2">من خلال هذا الزر يمكنك تشغيل البث المباشر للقناة الإذاعية التي قمت بتحديدها</string>
+    <string name="label_radio_intro1">You can select the radio channel you want to follow by choosing the radio card</string>
+    <string name="label_play_intro2">Through this button you can play the live broadcast of the radio channel you selected</string>
     <string name="label_replay">Replay</string>
     <string name="label_from">From</string>
     <string name="label_to">To</string>
@@ -186,6 +186,11 @@
     <string name="label_program_category">Program Category</string>
     <string name="label_show_date">Date Show</string>
     <string name="label_show_days">Day\'s Show</string>
+    <string name="label_enter_received_smtp">A verification code has been sent to your mobile phone\nPlease enter the verification code below</string>
+    <string name="mobile_cant_edited">The mobile number cannot be modified</string>
+    <string name="login_successfully">You are logged in successfully</string>
+    <string name="user_loged_out">Signed out</string>
+    <string name="unkon_error_please_try_again_later">An error occurred, please try again later</string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 
