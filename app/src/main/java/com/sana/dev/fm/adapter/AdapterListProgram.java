@@ -14,25 +14,19 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.core.widget.NestedScrollView;
-import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.google.android.flexbox.FlexboxLayout;
-import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemProgramsBinding;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.WakeTranslate;
+import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.ViewAnimation;
 
@@ -73,6 +67,7 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         private final ItemProgramsBinding binding;
+
         public MyViewHolder(ItemProgramsBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
@@ -118,11 +113,17 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
 
 
-            holder.binding.title.setText(program.getPrName());
+            FmUtilize.hideEmptyElement(program.getPrName(), holder.binding.title);
 
-            if (!TextUtils.isEmpty(program.getPrDesc())){
+            // Todo
+//            originalViewHolder.tvCategory.setText(android.text.TextUtils.join(" , ", program.getPrCategoryList()));
+//            originalViewHolder.tag.setText(String.format("@%s", program.getPrTag()));
+//            holder.binding.tvTag.setText(program.getPrTag());
+            FmUtilize.hideEmptyElement(null, holder.binding.tvTag);
+
+            if (!TextUtils.isEmpty(program.getPrDesc())) {
                 holder.binding.tvDec.setText(program.getPrDesc());
-            }else {
+            } else {
                 holder.binding.lytParentDesc.setVisibility(View.GONE);
             }
 
@@ -130,14 +131,10 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
             if (program.getDateTimeModel() != null) {
                 String dt = getFormattedDateOnly(program.getDateTimeModel().getDateStart()) + " - " + getFormattedDateOnly(program.getDateTimeModel().getDateEnd());
                 holder.binding.tvDayPeriod.setText(dt);
-            }else {
+            } else {
                 holder.binding.lytParentDayPeriod.setVisibility(View.GONE);
             }
 
-            // Todo
-//            originalViewHolder.tvCategory.setText(android.text.TextUtils.join(" , ", program.getPrCategoryList()));
-//            originalViewHolder.tag.setText(String.format("@%s", program.getPrTag()));
-//            holder.binding.tvTag.setText(program.getPrTag());
 
             Tools.displayImageOriginal(this.ctx, holder.binding.ivBanner, program.getPrProfile());
 
@@ -237,15 +234,15 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
                     btn.setBackground(ContextCompat.getDrawable(ctx, R.drawable.btn_rounded_darker));
                 }
                 btn.setTextColor(ctx.getResources().getColor(R.color.grey_60));
-                Typeface typeface = ResourcesCompat.getFont(ctx, R.font.tajwal_regular);
+                Typeface typeface = ResourcesCompat.getFont(ctx, R.font.tj_regular);
                 btn.setTypeface(typeface);
                 holder.binding.flexDayShow.addView(btn, params);
             }
-        }else {
+        } else {
             holder.binding.lytParentShowDays.setVisibility(View.GONE);
         }
 
-        if (program.getPrCategoryList() != null){
+        if (program.getPrCategoryList() != null) {
             int index = 0;
             for (Object o : safeList(program.getPrCategoryList())) {
                 // do whatever
@@ -266,14 +263,13 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
                     btn.setBackground(ContextCompat.getDrawable(ctx, R.drawable.btn_rounded_darker));
                 }
                 btn.setTextColor(ctx.getResources().getColor(R.color.grey_60));
-                Typeface typeface = ResourcesCompat.getFont(ctx, R.font.tajwal_regular);
+                Typeface typeface = ResourcesCompat.getFont(ctx, R.font.tj_regular);
                 btn.setTypeface(typeface);
                 holder.binding.flexCategory.addView(btn, params);
             }
-        }else {
+        } else {
             holder.binding.lytParentCategory.setVisibility(View.GONE);
         }
-
 
 
     }
@@ -308,7 +304,7 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
     public interface OnLongItemClickListener {
         void onLongItemClick(View view, RadioProgram obj, int position);
     }
-    
+
 
     public void removeAt(int position) {
         items.remove(position);

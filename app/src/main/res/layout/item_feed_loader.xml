@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_gravity="center"
-                android:fontFamily="@font/tajwal_regular"
+                android:fontFamily="@font/tj_regular"
                 android:textColor="@color/colorPrimary"
                 android:textSize="20sp" />
 
@@ -90,7 +90,7 @@
             android:id="@+id/tvSubTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/tajwal_medium"
+            android:fontFamily="@font/tj_medium"
             android:gravity="center"
             android:lineSpacingExtra="4dp"
             android:padding="4dp"

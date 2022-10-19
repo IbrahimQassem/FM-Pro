@@ -27,7 +27,7 @@
             android:text="إضافة برنامج جديد"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:textColor="@color/grey_80"
-            app:fontFamily="@font/tajawal_light" />
+            app:fontFamily="@font/tj_light" />
 
         <ImageButton
             android:id="@+id/ib_send"
@@ -61,7 +61,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_large"
                 android:gravity="center_vertical"
-                android:layoutDirection="rtl"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -106,7 +105,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_large"
                 android:gravity="center_vertical"
-                android:layoutDirection="rtl"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -241,7 +239,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_large"
                     android:gravity="center_vertical"
-                    android:layoutDirection="rtl"
                     android:orientation="horizontal">
 
                     <ImageView
@@ -348,7 +345,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_large"
                 android:gravity="center_vertical"
-                android:layoutDirection="rtl"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -463,7 +459,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_large"
                     android:gravity="center_vertical"
-                    android:layoutDirection="rtl"
                     android:orientation="horizontal">
 
                     <ImageView

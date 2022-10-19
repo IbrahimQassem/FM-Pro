@@ -201,7 +201,7 @@
                     android:textSize="10sp"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                     android:textColor="@android:color/white"
-                    app:fontFamily="@font/tajwal_medium" />
+                    app:fontFamily="@font/tj_medium" />
                 <!--                    app:fontFamily="sans-serif-medium" />-->
 
 <!--                <Button-->

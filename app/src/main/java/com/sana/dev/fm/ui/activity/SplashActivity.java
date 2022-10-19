@@ -76,7 +76,6 @@ public class SplashActivity extends AppCompatActivity {
 //        }
         startAnimation();
         setFullScreen();
-        chekFirstTime();
 
     }
 
@@ -130,23 +129,25 @@ public class SplashActivity extends AppCompatActivity {
                     ShardDate.getInstance().setInfoList((ArrayList<RadioInfo>) object);
                     prefMgr.setRadioInfo((ArrayList<RadioInfo>) object);
                 }
-                goToMain();
+//                goToMain();
             }
 
             @Override
             public void onError(Object object) {
                 LogUtility.d(LogUtility.TAG, "readAllRadioByEvent error: " + new Gson().toJson(object));
-                goToMain();
+//                goToMain();
             }
         });
+
+        goToMain();
 
     }
 
     private void goToMain() {
         Intent intent = BaseActivity.mainPage(SplashActivity.this, true);
-//                        Intent intent = new Intent(SplashActivity.this, PlayerActivity.class);
+//      Intent intent = new Intent(SplashActivity.this, PlayerActivity.class);
         startActivity(intent);
-        finish();
+//        finish();
     }
 
 
@@ -154,6 +155,7 @@ public class SplashActivity extends AppCompatActivity {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
+        chekFirstTime();
     }
 
     private void startAnimation() {

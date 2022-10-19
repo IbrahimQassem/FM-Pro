@@ -6,7 +6,6 @@
     android:layout_height="wrap_content"
     android:layout_marginLeft="10dp"
     android:layout_marginRight="10dp"
-    android:layoutDirection="ltr"
     android:orientation="horizontal">
 
     <com.github.vipulasri.timelineview.TimelineView
@@ -115,7 +114,7 @@
                                     android:gravity="end"
                                     android:textColor="@color/grey_400"
                                     android:textSize="@dimen/spacing_middle"
-                                    tools:text="@string/label_date" />
+                                    tools:text="@string/ex_date" />
 
                                 <!--                            <TextView-->
                                 <!--                                android:layout_width="0dp"-->
@@ -134,7 +133,7 @@
                                     android:textColor="@color/grey_500"
                                     android:textSize="@dimen/spacing_middle"
                                     android:textStyle="bold"
-                                    tools:text="@string/label_date" />
+                                    tools:text="@string/ex_date" />
 
                             </LinearLayout>
 

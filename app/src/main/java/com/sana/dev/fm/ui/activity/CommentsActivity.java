@@ -104,14 +104,14 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     }
 
     private void initToolbar() {
-        Toolbar toolbar = getToolbar();
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(null);
-        (toolbar).setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        Tools.setSystemBarColor(this, R.color.colorPrimary);
-        getSupportActionBar().setTitle(R.string.label_comments);
-        getIvLogo().setText(R.string.label_comments);
+//        Toolbar toolbar = getToolbar();
+//        setSupportActionBar(toolbar);
+//        getSupportActionBar().setTitle(null);
+//        (toolbar).setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        Tools.setSystemBarColor(this, R.color.colorPrimary);
+//        getSupportActionBar().setTitle(R.string.label_comments);
+//        getIvLogo().setText(R.string.label_comments);
     }
 
     private void getComments() {
@@ -230,7 +230,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     }
 
     private void startIntroAnimation() {
-        ViewCompat.setElevation(getToolbar(), 0);
+//        ViewCompat.setElevation(getToolbar(), 0);
         contentRoot.setScaleY(0.1f);
         contentRoot.setPivotY(drawingStartLocation);
         llAddComment.setTranslationY(200);
@@ -242,7 +242,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                 .setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        ViewCompat.setElevation(getToolbar(), FmUtilize.dpToPx(8));
+//                        ViewCompat.setElevation(getToolbar(), FmUtilize.dpToPx(8));
                         animateContent();
                     }
                 })
@@ -259,7 +259,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 
     @Override
     public void onBackPressed() {
-        ViewCompat.setElevation(getToolbar(), 0);
+//        ViewCompat.setElevation(getToolbar(), 0);
         contentRoot.animate()
                 .translationY(FmUtilize.getScreenHeight(this))
                 .setDuration(200)

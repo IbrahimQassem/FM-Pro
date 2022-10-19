@@ -34,7 +34,7 @@
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/tajawal_bold"
+            android:fontFamily="@font/tj_bold"
             android:textColor="@color/colorPrimaryDark"
             tools:text="@string/label_title" />
 
@@ -43,7 +43,7 @@
             android:id="@+id/message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/tajwal_regular"
+            android:fontFamily="@font/tj_regular"
             android:textColor="@color/colorPrimary"
             android:textSize="15sp"
             tools:text="@string/label_desc" />

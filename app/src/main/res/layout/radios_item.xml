@@ -36,7 +36,7 @@
             android:lineSpacingExtra="2.8sp"
             android:maxLines="2"
             tools:text="القناة الإذاعية"
-            android:fontFamily="@font/tajawal_light"
+            android:fontFamily="@font/tj_light"
             android:textAlignment="center"
             android:textColor="@color/colorPrimaryDark"
             android:textSize="16.2sp" />
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/spacing_small"
             android:lineSpacingExtra="1.8sp"
-            android:fontFamily="@font/tajawal_bold"
+            android:fontFamily="@font/tj_bold"
             tools:text="99.9"
             android:maxLines="1"
             android:textAlignment="center"

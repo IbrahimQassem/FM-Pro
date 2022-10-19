@@ -42,14 +42,12 @@
     </style>
 
 
-
-
     <style name="RippleStyleBlack" parent="RippleStyleWhite">
         <item name="mrl_rippleColor">#8096989A</item>
     </style>
 
 
-<!--    ////////// Firebase-->
+    <!--    ////////// Firebase-->
     <!-- Activity with no Title -->
 
     <!-- Dark Buttons -->
@@ -134,7 +132,6 @@
     </style>
 
 
-
     <style name="Toolbar_Light">
         <item name="android:textColorPrimary">@color/grey_60</item>
         <item name="colorControlNormal">@color/grey_60</item>
@@ -180,21 +177,32 @@
         <item name="colorAccent">@color/colorPrimaryLight</item>
     </style>
 
-
-    <style name="TextBold" >
+    <style name="main_text">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <!--        <item name="android:textColor">@color/red_200</item>-->
+    </style>
+
+
+    <style name="TextBold" parent="@style/main_text">
         <item name="android:textStyle">bold</item>
-        <item name="android:fontFamily">@font/tajawal_bold</item>
+        <item name="android:fontFamily">@font/tj_bold</item>
     </style>
 
-    <style name="TextNormal" >
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+    <style name="TextMedium" parent="@style/main_text">
         <item name="android:textStyle">normal</item>
-        <item name="android:fontFamily">@font/tajwal_regular</item>
+        <item name="android:fontFamily">@font/tj_medium</item>
     </style>
 
+    <style name="TextRegular" parent="@style/main_text">
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">@font/tj_regular</item>
+    </style>
 
+    <style name="TextLight" parent="@style/main_text">
+        <item name="android:fontFamily">@font/tj_light</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Caption</item>
+
+    </style>
 
 </resources>

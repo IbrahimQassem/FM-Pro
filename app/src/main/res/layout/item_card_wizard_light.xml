@@ -29,7 +29,7 @@
                 android:layout_marginTop="@dimen/spacing_xlarge"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="@color/grey_90"
-                android:fontFamily="@font/tajawal_bold"
+                android:fontFamily="@font/tj_bold"
                 android:textStyle="bold" />
 
             <TextView
@@ -45,7 +45,7 @@
                 android:textAlignment="center"
                 android:gravity="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-               android:fontFamily="@font/tajawal_light"
+               android:fontFamily="@font/tj_light"
                 android:textColor="@color/grey_90" />
 
             <ImageView

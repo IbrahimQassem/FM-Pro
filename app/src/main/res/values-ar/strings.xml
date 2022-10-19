@@ -172,7 +172,7 @@
     <string name="label_list">عرض قائمة</string>
     <string name="label_comments">التعليقات</string>
     <string name="label_title">العنوان</string>
-    <string name="label_date">22/سبتمبر/2022</string>
+    <string name="ex_date">22/سبتمبر/2022</string>
 
     <string name="styled_welcome_message">We are <b><i>so</i></b> glad to see you.</string>
     <!-- TODO: Remove or change this placeholder text -->
@@ -191,5 +191,10 @@
     <string name="login_successfully">تم تسجيل الدخول بنجاح</string>
     <string name="user_loged_out">تم تسجيل الخروج</string>
     <string name="unkon_error_please_try_again_later">حدث خطأ, يرجى المحاولة لاحقا</string>
+    <string name="ex_comment">مرحبا, ممكن نشارك</string>
+    <string name="ex_time">12:01 ص</string>
+    <string name="ex_comment_count">تعليق 12</string>
+    <string name="label_display_now">يعرض الآن</string>
+    <string name="ex_likes">إعجاب 22</string>
 
 </resources>

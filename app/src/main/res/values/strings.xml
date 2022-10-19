@@ -172,7 +172,7 @@
     <string name="label_list">List</string>
     <string name="label_comments">Comments</string>
     <string name="label_title">Title</string>
-    <string name="label_date">22/Sep/2022</string>
+    <string name="ex_date">22/Sep/2022</string>
 
     <string name="styled_welcome_message">We are <b><i>so</i></b> glad to see you.</string>
     <!-- TODO: Remove or change this placeholder text -->
@@ -191,6 +191,11 @@
     <string name="login_successfully">You are logged in successfully</string>
     <string name="user_loged_out">Signed out</string>
     <string name="unkon_error_please_try_again_later">An error occurred, please try again later</string>
+    <string name="ex_comment">Hi there</string>
+    <string name="ex_time">12:01 AM</string>
+    <string name="ex_comment_count">Comments 12</string>
+    <string name="label_display_now">Display Now</string>
+    <string name="ex_likes">20 Likes</string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

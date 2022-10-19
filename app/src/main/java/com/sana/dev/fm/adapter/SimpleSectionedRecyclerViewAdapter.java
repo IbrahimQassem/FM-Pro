@@ -73,7 +73,7 @@ public class SimpleSectionedRecyclerViewAdapter extends RecyclerView.Adapter<Rec
         public SectionViewHolder(View view,int mTextResourceid) {
             super(view);
             title = (TextView) view.findViewById(mTextResourceid);
-            Typeface typeface = ResourcesCompat.getFont(title.getContext(), R.font.tajwal_medium);
+            Typeface typeface = ResourcesCompat.getFont(title.getContext(), R.font.tj_medium);
             title.setTypeface(typeface);
         }
     }

@@ -237,9 +237,9 @@
     <color name="primary_text_disabled_material_dark">#4dffffff</color>
     <color name="primary_text_disabled_material_light">#39000000</color>
 
-    <color name="quantum_bluegrey100">#cfd8dc</color>
+    <color name="quantum_blue_grey100">#cfd8dc</color>
 
-    <color name="quantum_lightblue700">#0288d1</color>
+    <color name="quantum_light_blue700">#0288d1</color>
     <color name="quantum_white_100">#ffffff</color>
     <color name="red_200">#ef9a9a</color>
     <color name="red_300">#e57373</color>

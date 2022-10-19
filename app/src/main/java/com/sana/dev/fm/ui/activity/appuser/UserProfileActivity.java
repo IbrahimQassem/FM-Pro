@@ -370,9 +370,9 @@ public class UserProfileActivity extends BaseActivity {
         prefMgr.remove(FMCConstants.USER_IMAGE_Profile);
         Intent intent = splashPage(this, true);
         startActivity(intent);
-        finish();
+//        finish();
         showToast(getString(R.string.user_loged_out));
-        updateUI(STATE_INITIALIZED);
+//        updateUI(STATE_INITIALIZED);
     }
 
     private void updateUI(int uiState) {

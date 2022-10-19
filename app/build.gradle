@@ -49,21 +49,7 @@ android {
     flavorDimensions 'fm_flavor'
     productFlavors {
 
-        internews {
-            manifestPlaceholders app_name: 'Inter News'
-            dimension 'fm_flavor'
-            applicationId 'com.sanaadev.fm'
-            applicationIdSuffix '.internews'
-            versionCode 1
-            versionName '0.0.1'
-            versionNameSuffix 'dev'
-            signingConfig signingConfigs.debug
-            proguardFiles
-            resourceConfigurations += []
 
-            buildConfigField "String", "BASE_FB_DB" , '"InterNews"'
-
-        }
 
         hudhud {
             dimension 'fm_flavor'
@@ -85,6 +71,21 @@ android {
             buildConfigField "String", "BASE_FB_DB" , '"HudHudFmGooglePlay"'
         }
 
+        internews {
+            manifestPlaceholders app_name: 'Inter News'
+            dimension 'fm_flavor'
+            applicationId 'com.sanaadev.fm'
+            applicationIdSuffix '.internews'
+            versionCode 1
+            versionName '0.0.1'
+            versionNameSuffix 'dev'
+            signingConfig signingConfigs.debug
+            proguardFiles
+            resourceConfigurations += []
+
+            buildConfigField "String", "BASE_FB_DB" , '"InterNews"'
+
+        }
 
     }
 

@@ -97,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="تأكيد"
-                android:fontFamily="@font/tajawal_bold"
+                android:fontFamily="@font/tj_bold"
                 android:textColor="@color/colorPrimaryDark" />
 
             <ProgressBar

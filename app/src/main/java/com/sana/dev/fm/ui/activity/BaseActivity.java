@@ -1,5 +1,6 @@
 package com.sana.dev.fm.ui.activity;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -45,11 +46,11 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     private ProgressHUD mProgressHUD;
     public PreferencesManager prefMgr;
+//    @Nullable
+//    @BindView(R.id.toolbar)
+//    Toolbar toolbar;
     @Nullable
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @Nullable
-    @BindView(R.id.txvLogo)
+    @BindView(R.id.tv_title)
     TextView txvLogo;
     protected CheckInternetConnection connectionChecker;
     UserGuide userGuide;
@@ -63,7 +64,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
 //        String uniqueID = UUID.randomUUID().toString();
-        mProgressHUD = new ProgressHUD(this);
+        mProgressHUD = new ProgressHUD((Activity) this);
         bindViews();
     }
 
@@ -72,10 +73,10 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     }
 
     protected void setupToolbar() {
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-            toolbar.setNavigationIcon(R.drawable.ic_menu_white);
-        }
+//        if (toolbar != null) {
+//            setSupportActionBar(toolbar);
+//            toolbar.setNavigationIcon(R.drawable.ic_menu_white);
+//        }
     }
 
     @Override
@@ -132,9 +133,9 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
         });
     }
 
-    public Toolbar getToolbar() {
-        return toolbar;
-    }
+//    public Toolbar getToolbar() {
+//        return toolbar;
+//    }
 
     public MenuItem getInboxMenuItem() {
         return inboxMenuItem;

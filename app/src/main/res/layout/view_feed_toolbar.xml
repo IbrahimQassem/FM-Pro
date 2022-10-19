@@ -1,40 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/toolbar"
-    android:layout_width="match_parent"
-    android:layout_height="?attr/actionBarSize"
-    android:background="?attr/colorPrimary"
-    android:gravity="center"
-    app:elevation="@dimen/default_elevation"
-    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!--app:layout_scrollFlags="scroll|enterAlways"-->
-
-<!--    <ImageView
-        android:visibility="gone"
+    <com.google.android.material.appbar.AppBarLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:scaleType="center"
-         app:srcCompat="@drawable/img_toolbar_logo" />-->
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:elevation="0dp">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center|center_vertical"
+            android:orientation="horizontal">
 
-    <TextView
-        android:visibility="visible"
-        android:id="@+id/txvLogo"
-        android:fontFamily="@font/tajawal_light"
-        android:textAlignment="center"
-        android:gravity="center"
-        android:layout_gravity="center"
-        android:padding="@dimen/spacing_middle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="25sp"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        android:text=""
-        tools:text="@string/label_title" />
+            <ImageButton
+                android:id="@+id/imb_event"
+                android:layout_width="?attr/actionBarSize"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="@android:color/white"
+                android:visibility="visible"
+                app:srcCompat="@drawable/ic_arrow_back" />
 
-</androidx.appcompat.widget.Toolbar>
+            <TextView
+                android:id="@+id/tv_title"
+                style="@style/TextMedium"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                tools:text="@string/label_title"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <ImageButton
+                android:id="@+id/imb_help"
+                android:layout_width="?attr/actionBarSize"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="@color/white"
+                app:srcCompat="@drawable/ic_info"
+                android:visibility="invisible"/>
+
+        </LinearLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+</layout>

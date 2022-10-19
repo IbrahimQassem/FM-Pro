@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import com.google.gson.Gson;
+import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListProgram;
 import com.sana.dev.fm.adapter.SimpleSectionedRecyclerViewAdapter;
@@ -183,15 +184,17 @@ public class ProgramsFragment extends BaseFragment {
                         initAdapter();
                         mAdapter.setOnItemClickListener(new AdapterListProgram.OnItemClickListener() {
                             public void onItemClick(View v, RadioProgram radioProgram, int i) {
-                                Episode episode = new Episode();
-                                episode.setRadioId(radioProgram.getRadioId());
-                                episode.setProgramId(radioProgram.getProgramId());
-                                int[] startingLocation = new int[2];
-                                v.getLocationOnScreen(startingLocation);
-                                startingLocation[0] += v.getWidth() / 2;
-                                ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, getActivity(), episode);
-                                getActivity().overridePendingTransition(0, 0);
+                                if (BuildConfig.FLAVOR.equals("internews")) {
+                                    Episode episode = new Episode();
+                                    episode.setRadioId(radioProgram.getRadioId());
+                                    episode.setProgramId(radioProgram.getProgramId());
+                                    int[] startingLocation = new int[2];
+                                    v.getLocationOnScreen(startingLocation);
+                                    startingLocation[0] += v.getWidth() / 2;
+                                    ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, getActivity(), episode);
+                                    getActivity().overridePendingTransition(0, 0);
 //                                showToast("is : "+radioProgram.getPrName());
+                                }
                             }
                         });
 

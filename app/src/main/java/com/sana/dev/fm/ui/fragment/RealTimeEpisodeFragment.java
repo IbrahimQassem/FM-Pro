@@ -24,9 +24,13 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
+import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.adapter.AdapterListProgram;
 import com.sana.dev.fm.adapter.ChatHolder;
 import com.sana.dev.fm.adapter.SimpleSectionedRecyclerViewAdapter;
+import com.sana.dev.fm.databinding.ItemGridBinding;
+import com.sana.dev.fm.databinding.ItemProgramsBinding;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.ui.activity.CommentsActivity;
@@ -226,7 +230,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
     private RecyclerView.Adapter newAdapter() {
 
         String radioId = prefMng.selectedRadio().getRadioId();
-        LogUtility.e(LogUtility.TAG, " radioId : " +radioId +" time is  : "+ String.valueOf(System.currentTimeMillis()));
+        LogUtility.d(LogUtility.TAG, " radioId : " + radioId + " time is  : " + String.valueOf(System.currentTimeMillis()));
 
         FirestoreRecyclerOptions<Episode> options =
                 new FirestoreRecyclerOptions.Builder<Episode>()
@@ -238,18 +242,20 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
             @NonNull
             @Override
             public ChatHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                return new ChatHolder(LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.item_grid, parent, false));
+                ItemGridBinding inflate = ItemGridBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+                return new ChatHolder(inflate);
             }
 
             @Override
             protected void onBindViewHolder(@NonNull ChatHolder holder, int position, @NonNull Episode model) {
-                LogUtility.e(LogUtility.TAG, "res newAdapter : " + new Gson().toJson(model));
+                LogUtility.d(LogUtility.TAG, "res newAdapter : " + new Gson().toJson(model));
 
-                if (RealTimeEpisodeFragment.this.isAccountSignedIn()){
+                if (RealTimeEpisodeFragment.this.isAccountSignedIn()) {
                     model.userId = prefMng.getUsers().getUserId();
                 }
                 ChatHolder viewHolder = (ChatHolder) holder;
+
+                if (!model.isStopped())
                 viewHolder.bind(model, position);
 
                 viewHolder.setOnLongItemClickListener(new ChatHolder.OnLongItemClickListener() {
@@ -265,10 +271,13 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                     public void onItemClick(View view, Episode obj, int position) {
                         int[] startingLocation = new int[2];
                         switch (view.getId()) {
-                            case R.id.profile:
-                                view.getLocationOnScreen(startingLocation);
-                                ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, context, obj);
-                                getActivity().overridePendingTransition(0, 0);
+                            case R.id.civ_logo:
+                                if (BuildConfig.FLAVOR.equals("internews")) {
+                                    view.getLocationOnScreen(startingLocation);
+                                    ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, context, obj);
+                                    getActivity().overridePendingTransition(0, 0);
+                                }
+
                                 break;
                             case R.id.lyt_comment_parent:
                             case R.id.imv_comment:

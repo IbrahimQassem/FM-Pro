@@ -1,337 +1,250 @@
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="@dimen/spacing_middle"
-    android:visibility="visible"
-    android:layoutDirection="ltr"
-    app:cardCornerRadius="0dp"
-    app:cardElevation="4dp">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
-        android:id="@+id/lyt_parent"
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
+        android:layout_margin="@dimen/spacing_middle"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="4dp">
 
         <LinearLayout
+            android:id="@+id/lyt_parent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/spacing_large"
-            android:layout_marginTop="@dimen/spacing_middle"
-            android:layout_marginRight="@dimen/spacing_large"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tv_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:fontFamily="@font/tajawal_extrabold"
-                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                android:textColor="@color/grey_60"
-                android:textSize="14sp"
-                android:textStyle="normal"
-                tools:text="12:01 م" />
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:orientation="vertical">
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="@dimen/spacing_middle">
+
+                <com.mikhaellopez.circularimageview.CircularImageView
+                    android:id="@+id/civ_logo"
+                    android:layout_width="@dimen/spacing_xxlarge"
+                    android:layout_height="@dimen/spacing_xxlarge"
+                    android:layout_marginStart="@dimen/spacing_medium"
+                    android:layout_marginEnd="@dimen/spacing_medium"
+                    android:paddingBottom="@dimen/spacing_small"
+                    app:civ_border="true"
+                    app:civ_border_color="@color/quantum_blue_grey100"
+                    app:civ_border_width="0.5dp"
+                    app:civ_shadow="true"
+                    app:civ_shadow_radius="1"
+                    app:elevation="@dimen/spacing_medium"
+                    app:srcCompat="@drawable/logo_app" />
+
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvTitle"
+                        style="@style/TextLight"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        android:textColor="@color/grey_80"
+                        tools:text="@string/label_program_name" />
+
+                    <TextView
+                        android:id="@+id/tv_announcer"
+                        style="@style/TextLight"
+                        android:textColor="@color/quantum_light_blue700"
+                        android:textStyle="bold"
+                        android:visibility="visible"
+                        tools:text="@string/label_announcer_name" />
+
+
+                </LinearLayout>
+
 
                 <TextView
-                    android:id="@+id/tvTitle"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tv_time"
+                    style="@style/TextBold"
+                    android:layout_gravity="center|start"
+                    android:fontFamily="@font/tj_regular"
+                    android:textColor="@color/grey_60"
+                    android:textSize="14sp"
+                    android:textStyle="normal"
+                    tools:text="@string/ex_time" />
+
+            </LinearLayout>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:background="@color/grey_5" />
+
+            <ImageView
+                android:id="@+id/iv_banner"
+                android:layout_width="match_parent"
+                android:layout_height="320dp"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/logo_app" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/grey_5" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/spacing_middle">
+
+                <TextView
+                    android:id="@+id/tv_dec"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:fontFamily="@font/tajawal_light"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                    android:textColor="@color/grey_80"
-                    tools:text="@string/label_program_name" />
+                    android:gravity="start"
+                    android:lineSpacingExtra="4dp"
+                    android:paddingTop="@dimen/spacing_middle"
+                    android:paddingBottom="@dimen/spacing_middle"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                    android:textColor="@color/grey_40"
+                    android:visibility="gone"
+                    tools:text="@string/label_desc" />
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="visible">
+
+                    <TextView
+                        android:id="@+id/tv_sub_desc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:textColor="@color/grey_40"
+                        tools:text="@string/label_announcer_name" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/tvTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textColor="@color/grey_40"
+                        tools:text="@string/ex_date" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_xxlarge"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingLeft="@dimen/spacing_middle"
+                android:paddingRight="@dimen/spacing_middle">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end"
+                    android:gravity="center"
                     android:orientation="horizontal">
 
+                    <ImageView
+                        android:id="@+id/imv_like"
+                        android:layout_width="@dimen/spacing_mlarge"
+                        android:layout_height="@dimen/spacing_mlarge"
+                        android:layout_marginStart="@dimen/spacing_middle"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:srcCompat="@drawable/ic_thumb_up"
+                        app:tint="@color/grey_400" />
+
                     <TextView
-                        android:layout_width="match_parent"
+                        android:id="@+id/txt_likes"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="start"
+                        android:layout_marginStart="@dimen/spacing_medium"
+                        android:layout_marginEnd="@dimen/spacing_medium"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                        android:textColor="@color/grey_40"
+                        tools:text="@string/ex_likes" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/lyt_comment_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_large"
+                    android:layout_marginEnd="@dimen/spacing_large"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="visible">
+
+                    <ImageView
+                        android:id="@+id/imv_comment"
+                        android:layout_width="@dimen/spacing_mlarge"
+                        android:layout_height="@dimen/spacing_mlarge"
+                        android:layout_marginStart="@dimen/spacing_middle"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:srcCompat="@drawable/ic_textsms"
+                        app:tint="@color/grey_400" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_medium"
+                        android:layout_marginEnd="@dimen/spacing_medium"
+                        android:text="@string/label_comments"
                         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                         android:textColor="@color/grey_40"
                         android:visibility="visible"
-                        tools:text="\@" />
-
-                    <TextView
-                        android:id="@+id/tv_subtitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:fontFamily="@font/tajawal_light"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                        android:textColor="@color/quantum_lightblue700"
-                        android:textStyle="bold"
-                        tools:text="@string/label_desc" />
+                        tools:text="@string/ex_comment_count" />
                 </LinearLayout>
 
-
-            </LinearLayout>
-
-
-            <View
-                android:layout_width="@dimen/spacing_large"
-                android:layout_height="0dp" />
-
-            <com.mikhaellopez.circularimageview.CircularImageView
-                android:id="@+id/profile"
-                android:layout_width="@dimen/spacing_xxlarge"
-                android:layout_height="@dimen/spacing_xxlarge"
-                android:paddingBottom="@dimen/spacing_small"
-                 app:srcCompat="@drawable/logo_app"
-                app:civ_border="true"
-                app:civ_border_color="@color/quantum_bluegrey100"
-                app:civ_border_width="0.5dp"
-                app:civ_shadow="true"
-                app:civ_shadow_radius="1"
-                app:elevation="@dimen/spacing_medium" />
-
-        </LinearLayout>
-
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="@dimen/spacing_medium"
-            android:background="@color/grey_5" />
-
-        <ImageView
-            android:id="@+id/civ_logo"
-            android:layout_width="match_parent"
-            android:layout_height="320dp"
-            android:adjustViewBounds="true"
-            android:scaleType="centerCrop"
-             app:srcCompat="@drawable/logo_app" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/grey_5" />
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/spacing_large"
-        android:layout_marginEnd="@dimen/spacing_large"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="start"
-            android:lineSpacingExtra="4dp"
-            tools:text="@string/label_desc"
-            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-            android:textColor="@color/grey_40"
-            android:visibility="visible" />
-
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:visibility="visible">
-
-            <TextView
-                android:id="@+id/tvSubTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="@string/label_announcer_name"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                android:textColor="@color/grey_40" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/tvTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="@string/label_date"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textColor="@color/grey_40" />
-        </LinearLayout>
-
-    </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/spacing_xxlarge"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingLeft="@dimen/spacing_large"
-            android:paddingRight="@dimen/spacing_large">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/tv_state"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textColor="@color/colorPrimary"
+                    tools:text="@string/label_display_now" />
 
                 <ImageView
-                    android:id="@+id/imv_like"
-                    android:layout_width="@dimen/spacing_mlarge"
-                    android:layout_height="@dimen/spacing_mlarge"
-                    android:layout_marginRight="@dimen/spacing_middle"
+                    android:id="@+id/bt_toggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
-                    app:srcCompat="@drawable/ic_thumb_up"
-                    app:tint="@color/grey_400" />
+                    android:focusable="true"
+                    android:padding="@dimen/spacing_medium"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_more_dot"
+                    app:tint="@color/grey_500" />
 
-                <TextView
-                    android:id="@+id/txt_likes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:gravity="center_vertical"
-                    tools:text="إعجاب  1"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                    android:textColor="@color/grey_40" />
             </LinearLayout>
-
-            <View
-                android:layout_width="@dimen/spacing_large"
-                android:layout_height="0dp" />
-
-            <LinearLayout
-                android:id="@+id/lyt_comment_parent"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:visibility="visible">
-
-                <ImageView
-                    android:id="@+id/imv_comment"
-                    android:layout_width="@dimen/spacing_mlarge"
-                    android:layout_height="@dimen/spacing_mlarge"
-                    android:layout_marginRight="@dimen/spacing_middle"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    app:srcCompat="@drawable/ic_textsms"
-                    app:tint="@color/grey_400" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:text="@string/label_comments"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                    android:textColor="@color/grey_40"
-                    android:visibility="visible"
-                    tools:text="تعليق 12" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvDate"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="start"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textColor="@color/colorPrimary"
-                tools:text="يعرض الآن" />
-
-            <ImageView
-                android:id="@+id/bt_toggle"
-                android:layout_width="?attr/actionBarSize"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:padding="@dimen/spacing_large"
-                android:visibility="gone"
-                app:srcCompat="@drawable/ic_expand_arrow"
-                app:tint="@color/grey_500" />
 
         </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
-        <!--        &#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
-
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/nested_scroll_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="none"
-            android:scrollingCache="true">
-
-
-            <LinearLayout
-                android:id="@+id/lyt_more"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_large"
-                android:background="@color/grey_50"
-                android:orientation="vertical"
-                android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@+id/civ_logo">
-
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="@dimen/spacing_large"
-                    android:layout_marginLeft="@dimen/spacing_large"
-                    android:layout_marginRight="@dimen/spacing_large"
-                    android:background="@color/grey_10" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:layout_marginHorizontal="@dimen/spacing_large"
-                    android:layout_marginLeft="@dimen/spacing_large"
-                    android:layout_marginTop="@dimen/spacing_large"
-                    android:layout_marginRight="@dimen/spacing_large"
-                    android:layout_marginBottom="@dimen/spacing_middle"
-                    android:fontFamily="@font/tajawal_light"
-                    android:text="أوقات العرض"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/grey_80" />
-
-                <com.google.android.flexbox.FlexboxLayout
-                    android:id="@+id/flex_show_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="@dimen/spacing_middle"
-                    android:paddingEnd="@dimen/spacing_middle"
-                    app:flexWrap="wrap"
-                    app:justifyContent="flex_end">
-                    <!--                <Button-->
-                    <!--                    android:layout_width="wrap_content"-->
-                    <!--                    android:layout_height="40dp"-->
-                    <!--                    android:background="@drawable/btn_rounded_darker"-->
-                    <!--                    android:text="5:30PM"-->
-                    <!--                    android:fontFamily="@font/tajwal_regular"-->
-                    <!--                    android:textAllCaps="false"-->
-                    <!--                    android:textColor="@color/grey_60" />-->
-
-                </com.google.android.flexbox.FlexboxLayout>
-
-
-            </LinearLayout>
-
-        </androidx.core.widget.NestedScrollView>
-
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
+</layout>

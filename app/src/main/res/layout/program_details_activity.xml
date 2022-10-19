@@ -66,10 +66,16 @@
                         android:layout_height="wrap_content"
                         android:clipChildren="false">
 
+                        <ImageView
+                            android:id="@+id/ivUserProfilePhoto"
+                            android:layout_width="@dimen/user_profile_avatar_size"
+                            android:layout_height="@dimen/user_profile_avatar_size"
+                            android:layout_margin="@dimen/spacing_large"
+                            app:srcCompat="@drawable/img_circle_placeholder" />
 
                         <LinearLayout
                             android:id="@+id/vUserDetails"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical">
@@ -86,7 +92,7 @@
                                 android:id="@+id/tvTag"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="end"
+                                android:layout_gravity="start"
                                 android:textColor="@color/white"
                                 android:textSize="12sp"
                                 tools:text="@string/label_tag" />
@@ -113,7 +119,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="24dp"
                                 android:layout_marginTop="8dp"
-                                android:layout_marginRight="24dp"
+                                android:layout_marginStart="@dimen/spacing_mxlarge"
+                                android:layout_marginEnd="@dimen/spacing_mxlarge"
                                 android:background="@drawable/btn_following"
                                 android:text="@string/following"
                                 android:textColor="#ffffff"
@@ -122,12 +129,6 @@
 
                         </LinearLayout>
 
-                        <ImageView
-                            android:id="@+id/ivUserProfilePhoto"
-                            android:layout_width="@dimen/user_profile_avatar_size"
-                            android:layout_height="@dimen/user_profile_avatar_size"
-                            android:layout_marginLeft="16dp"
-                            app:srcCompat="@drawable/img_circle_placeholder" />
 
                     </LinearLayout>
 

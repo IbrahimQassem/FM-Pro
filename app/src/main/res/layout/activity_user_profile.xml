@@ -5,14 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
-    android:layoutDirection="ltr"
     tools:context="com.sana.dev.fm.ui.activity.appuser.UserProfileActivity">
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:scaleType="centerCrop"
-         app:srcCompat="@drawable/world_map"
+        app:srcCompat="@drawable/world_map"
         app:tint="@color/colorPrimary" />
 
     <androidx.core.widget.NestedScrollView
@@ -43,47 +42,13 @@
                 android:padding="@dimen/spacing_mxlarge">
 
 
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tv_label_user_name"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/user_name"
-                        android:text=""
-                         android:gravity="right"
-                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                        android:textColor="@color/grey_80"
-                        app:fontFamily="@font/tajawal_light" />
-
-                    <TextView
-                        android:id="@+id/tv_label_user_desc"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_medium"
-                        android:text=""
-                        android:gravity="right"
-                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
-                        android:textColor="@color/colorAccent" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="@dimen/spacing_large"
-                    android:layout_height="0dp" />
-
-
                 <RelativeLayout
                     android:id="@+id/rtl_img_parent"
-                    android:clickable="true"
-                    android:onClick="onImageSelect"
                     android:layout_width="90dp"
                     android:layout_height="90dp"
-                    android:focusable="true">
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:onClick="onImageSelect">
 
                     <com.mikhaellopez.circularimageview.CircularImageView
                         android:id="@+id/img_profile"
@@ -109,6 +74,32 @@
 
                 </RelativeLayout>
 
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_middle">
+
+                    <TextView
+                        android:id="@+id/tv_label_user_name"
+                        style="@style/TextRegular"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/grey_80"
+                        android:textStyle="bold"
+                        app:fontFamily="@font/tj_light"
+                        tools:text="@string/user_name" />
+
+                    <TextView
+                        android:id="@+id/tv_label_user_desc"
+                        style="@style/TextLight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_medium"
+                        android:textColor="@color/colorAccent"
+                        tools:text="@string/label_desc" />
+                </LinearLayout>
 
 
             </LinearLayout>
@@ -142,12 +133,12 @@
                     <EditText
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/spacing_large"
-                        android:layout_marginRight="@dimen/spacing_large"
+                        android:layout_marginStart="@dimen/spacing_large"
+                        android:layout_marginEnd="@dimen/spacing_large"
                         android:text="@string/email"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                         android:textColor="@color/grey_80"
-                        app:fontFamily="@font/tajawal_light" />
+                        app:fontFamily="@font/tj_light" />
 
                     <View
                         android:layout_width="0dp"
@@ -176,39 +167,43 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/spacing_xxlarge"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_middle"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingLeft="@dimen/spacing_large"
-                    android:paddingRight="@dimen/spacing_large">
-
+                    android:paddingStart="@dimen/spacing_large"
+                    android:paddingTop="@dimen/spacing_large"
+                    android:paddingEnd="@dimen/spacing_large">
 
                     <EditText
                         android:id="@+id/et_full_name"
+                        style="@style/TextRegular"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/spacing_large"
-                        android:layout_marginRight="@dimen/spacing_large"
                         android:layout_weight="1"
+                        android:textDirection="rtl"
+                        android:padding="@dimen/spacing_middle"
+                        android:inputType="text"
                         android:hint="@string/user_name"
-                        android:gravity="right"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                        android:textColor="@color/grey_80"
-                        app:fontFamily="@font/tajawal_light" />
+                        tools:text="@string/user_name"
+                        android:textColor="@color/grey_80"/>
 
                     <ImageButton
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
+                        android:padding="@dimen/spacing_middle"
                         android:background="@color/transparent"
                         android:tint="@color/colorAccent"
                         app:srcCompat="@drawable/ic_person" />
                 </LinearLayout>
 
 
+
+
                 <LinearLayout
-                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/spacing_xxlarge"
                     android:background="?attr/selectableItemBackground"
@@ -216,22 +211,23 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingLeft="@dimen/spacing_large"
-                    android:paddingRight="@dimen/spacing_large">
+                    android:paddingRight="@dimen/spacing_large"
+                    android:visibility="gone">
 
 
                     <EditText
                         android:id="@+id/et_email"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/spacing_large"
-                        android:layout_marginRight="@dimen/spacing_large"
+                        android:layout_marginStart="@dimen/spacing_large"
+                        android:layout_marginEnd="@dimen/spacing_large"
                         android:layout_weight="1"
-                        android:inputType="textEmailAddress"
-                        android:hint="@string/email"
                         android:gravity="right"
+                        android:hint="@string/email"
+                        android:inputType="textEmailAddress"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                         android:textColor="@color/grey_80"
-                        app:fontFamily="@font/tajawal_light" />
+                        app:fontFamily="@font/tj_light" />
 
                     <ImageButton
                         android:layout_width="wrap_content"
@@ -242,42 +238,45 @@
                 </LinearLayout>
 
 
+
+
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/spacing_xxlarge"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_middle"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingLeft="@dimen/spacing_large"
-                    android:paddingRight="@dimen/spacing_large">
+                    android:paddingStart="@dimen/spacing_large"
+                    android:paddingTop="@dimen/spacing_large"
+                    android:paddingEnd="@dimen/spacing_large">
 
                     <EditText
                         android:id="@+id/et_mobile"
+                        style="@style/TextRegular"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/spacing_large"
-                        android:layout_marginRight="@dimen/spacing_large"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/spacing_middle"
                         android:layout_weight="1"
                         android:digits="0123456789+"
-                        android:gravity="right"
+                        android:gravity="end"
                         android:hint="@string/mobile"
                         android:inputType="phone"
-                        android:text=""
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                        android:textColor="@color/grey_80"
-                        app:fontFamily="@font/tajawal_light" />
+                        tools:text="@string/mobile"
+                        android:textColor="@color/grey_80"/>
 
                     <ImageButton
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
+                        android:padding="@dimen/spacing_middle"
                         android:background="@color/transparent"
                         android:tint="@color/colorAccent"
                         app:srcCompat="@drawable/ic_smart_phone" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/spacing_xxlarge"
                     android:background="?attr/selectableItemBackground"
@@ -285,14 +284,15 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingLeft="@dimen/spacing_large"
-                    android:paddingRight="@dimen/spacing_large">
+                    android:paddingRight="@dimen/spacing_large"
+                    android:visibility="gone">
 
                     <EditText
                         android:id="@+id/et_password"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/spacing_large"
-                        android:layout_marginRight="@dimen/spacing_large"
+                        android:layout_marginStart="@dimen/spacing_large"
+                        android:layout_marginEnd="@dimen/spacing_large"
                         android:layout_weight="1"
                         android:gravity="right"
                         android:hint="@string/password"
@@ -300,7 +300,7 @@
                         android:text=""
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                         android:textColor="@color/grey_80"
-                        app:fontFamily="@font/tajawal_light" />
+                        app:fontFamily="@font/tj_light" />
 
                     <ImageButton
                         android:id="@+id/ib_pass"
@@ -314,53 +314,46 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_middle"
-                    android:layout_marginBottom="@dimen/spacing_middle"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_large">
 
                     <TextView
+                        style="@style/TextBold"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="@dimen/spacing_medium"
-                        android:paddingRight="@dimen/spacing_medium"
+                        android:padding="@dimen/spacing_middle"
                         android:text="@string/gender"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        android:textColor="@color/grey_90" />
+                        android:textColor="@color/grey_90"
+                        android:textSize="20sp" />
 
                     <RadioGroup
                         android:id="@+id/rg_gender"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_medium"
-                        android:layoutDirection="rtl"
                         android:orientation="horizontal"
-                        android:layout_gravity="end"
-                        android:paddingLeft="@dimen/spacing_large"
-                        android:paddingRight="@dimen/spacing_large">
-
-                        <androidx.appcompat.widget.AppCompatRadioButton
-                            android:id="@+id/radio_female"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/female"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                            android:textColor="@color/grey_90" />
+                        android:padding="@dimen/spacing_middle">
 
 
-                        <View
-                            android:layout_width="@dimen/spacing_mlarge"
-                            android:layout_height="0dp" />
+
 
                         <androidx.appcompat.widget.AppCompatRadioButton
                             android:id="@+id/radio_male"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/TextMedium"
+                            android:layout_marginStart="@dimen/spacing_middle"
+                            android:layout_marginEnd="@dimen/spacing_middle"
                             android:text="@string/male"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                            android:textColor="@color/grey_90" />
+                            android:textColor="@color/grey_90"
+                            android:textSize="15sp" />
 
 
-
+                        <androidx.appcompat.widget.AppCompatRadioButton
+                            android:id="@+id/radio_female"
+                            style="@style/TextMedium"
+                            android:layout_marginStart="@dimen/spacing_middle"
+                            android:layout_marginEnd="@dimen/spacing_middle"
+                            android:text="@string/female"
+                            android:textColor="@color/grey_90"
+                            android:textSize="15sp" />
 
                     </RadioGroup>
                 </LinearLayout>
@@ -409,8 +402,6 @@
                 </LinearLayout>
 
 
-
-
             </LinearLayout>
 
             <View
@@ -422,25 +413,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:padding="@dimen/spacing_xmedium"
-                android:textColor="@color/white"
                 android:background="@drawable/btn_rounded_accent"
+                android:fontFamily="@font/tj_bold"
+                android:minWidth="200dp"
+                android:padding="@dimen/spacing_middle"
                 android:text="@string/label_save"
-                android:fontFamily="@font/tajawal_bold"/>
+                android:textColor="@color/white" />
 
-<!--            <com.google.android.material.floatingactionbutton.FloatingActionButton-->
-<!--                android:id="@+id/fab"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_margin="@dimen/spacing_mlarge"-->
-<!--                android:clickable="true"-->
-<!--                android:tint="@android:color/white"-->
-<!--                app:backgroundTint="@color/colorAccent"-->
-<!--                app:fabSize="auto"-->
-<!--                app:layout_anchor="@+id/nested_scroll_view"-->
-<!--                app:layout_anchorGravity="bottom|left"-->
-<!--                app:srcCompat="@drawable/ic_save"-->
-<!--                android:contentDescription="TODO" />-->
+            <!--            <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+            <!--                android:id="@+id/fab"-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:layout_margin="@dimen/spacing_mlarge"-->
+            <!--                android:clickable="true"-->
+            <!--                android:tint="@android:color/white"-->
+            <!--                app:backgroundTint="@color/colorAccent"-->
+            <!--                app:fabSize="auto"-->
+            <!--                app:layout_anchor="@+id/nested_scroll_view"-->
+            <!--                app:layout_anchorGravity="bottom|left"-->
+            <!--                app:srcCompat="@drawable/ic_save"-->
+            <!--                android:contentDescription="TODO" />-->
         </LinearLayout>
 
 

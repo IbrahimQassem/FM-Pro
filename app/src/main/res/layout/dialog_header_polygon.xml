@@ -38,7 +38,7 @@
                 android:elegantTextHeight="true"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title"
                 android:textColor="@color/grey_95"
-                app:fontFamily="@font/tajawal_bold"
+                app:fontFamily="@font/tj_bold"
                 tools:text="@string/label_title"/>
 
             <View
@@ -52,7 +52,7 @@
                 android:textAlignment="center"
                 android:layout_marginTop="@dimen/spacing_medium"
                 android:elegantTextHeight="true"
-                android:fontFamily="@font/tajwal_regular"
+                android:fontFamily="@font/tj_regular"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/grey_60"
                 tools:text="@string/lorem_ipsum"/>

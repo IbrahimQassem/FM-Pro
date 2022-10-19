@@ -89,6 +89,7 @@ public class ProgressHUD extends Dialog {
                                          OnCancelListener cancelListener) {
 //        ProgressHUD dialog = new ProgressHUD(context, R.style.ProgressD);
         ProgressHUD dialog = ProgressHUD.getInstance(FmApplication.getInstance()/*nstance.context*/);
+        if (!dialog.isShowing())
         dialog.showDialogPrivate(message, indeterminate, cancelable, cancelListener);
         return dialog;
     }

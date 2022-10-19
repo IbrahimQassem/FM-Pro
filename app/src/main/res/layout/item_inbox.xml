@@ -117,7 +117,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                tools:text="@string/label_date"
+                tools:text="@string/ex_date"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textColor="@color/blue_300"
                 android:textStyle="bold" />

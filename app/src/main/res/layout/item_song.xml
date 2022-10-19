@@ -65,7 +65,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:ellipsize="end"
-                android:fontFamily="@font/tajawal_bold"
+                android:fontFamily="@font/tj_bold"
                 android:lines="1"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"

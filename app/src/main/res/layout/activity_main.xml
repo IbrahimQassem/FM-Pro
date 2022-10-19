@@ -34,13 +34,13 @@
             <LinearLayout
                 android:id="@+id/lyt_profile"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:layout_gravity="end"
                 android:orientation="horizontal"
                 android:clickable="true"
-                android:paddingStart="@dimen/spacing_medium"
-                android:paddingEnd="@dimen/spacing_medium">
+                android:padding="@dimen/spacing_middle"
+                android:focusable="true">
 
 
                 <com.mikhaellopez.circularimageview.CircularImageView
@@ -161,11 +161,11 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layoutDirection="ltr"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <com.google.android.material.bottomappbar.BottomAppBar
             android:id="@+id/bottom_bar"
+            android:layoutDirection="ltr"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"

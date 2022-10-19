@@ -20,6 +20,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.OpenableColumns;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -27,6 +28,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.DatePicker;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -858,6 +860,15 @@ public class FmUtilize {
         }
         if (write != size) {
             list.subList(write, size).clear();
+        }
+    }
+
+    public static void hideEmptyElement(String s, View view){
+        if (!TextUtils.isEmpty(s)){
+            if (view instanceof TextView)
+                ((TextView) view).setText(s);
+        }else {
+            view.setVisibility(View.GONE);
         }
     }
 

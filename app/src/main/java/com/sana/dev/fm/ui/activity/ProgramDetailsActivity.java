@@ -5,18 +5,13 @@ import static com.sana.dev.fm.adapter.ProgramDetailsAdapter.SPAN_COUNT_ONE;
 import static com.sana.dev.fm.adapter.ProgramDetailsAdapter.SPAN_COUNT_THREE;
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.KeyEvent;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,19 +21,11 @@ import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
@@ -46,11 +33,8 @@ import com.sana.dev.fm.adapter.ProgramDetailsAdapter;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
-import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.ui.activity.player.SongPlayerFragment;
-import com.sana.dev.fm.ui.dialog.BottomSheet;
-import com.sana.dev.fm.ui.dialog.FullScreenBottomSheetDialogFragment;
 import com.sana.dev.fm.ui.view.RevealBackgroundView;
 import com.sana.dev.fm.utils.DataGenerator;
 import com.sana.dev.fm.utils.LogUtility;
@@ -118,20 +102,12 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
     private List<Episode> detailsList = new ArrayList<>();
 
 
-    public static void startUserProfileFromLocation(int[] startingLocation, Activity startingActivity) {
-        Intent intent = new Intent(startingActivity, ProgramDetailsActivity.class);
-        intent.putExtra(ARG_REVEAL_START_LOCATION, startingLocation);
-        startingActivity.startActivity(intent);
-    }
-
     public static void startUserProfileFromLocation(int[] startingLocation, Context context, Episode episode) {
         Intent intent = new Intent(context, ProgramDetailsActivity.class);
         intent.putExtra(ARG_REVEAL_START_LOCATION, startingLocation);
-//        intent.putExtra("name", tempClass.name);
 
         String obj = (new Gson().toJson(episode));
         intent.putExtra("episode", obj);
-
         context.startActivity(intent);
     }
 
@@ -148,15 +124,13 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
         setupTabs();
         setupUserProfileGrid();
 //        setupRevealBackground(savedInstanceState);
-        setupUserProfile();
+        setupProgramProfile();
     }
 
 
     private void initToolbar() {
-        Toolbar toolbar = getToolbar();
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+//        Toolbar toolbar = getToolbar();
+
     }
 
     @Override
@@ -173,11 +147,16 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
         return super.onOptionsItemSelected(item);
     }
 
-    private void setupUserProfile() {
+    private void setupProgramProfile() {
 
         String s = getIntent().getStringExtra("episode");
         if (s != null) {
             Episode episode = new Gson().fromJson(s, Episode.class);
+
+
+            TempModel tempModel = new TempModel(episode.getProgramName(), "", "", "", episode.getEpProfile(), episode.getLikesCount(), 1, 0);
+            updateInfoUI(tempModel);
+
             FmRepositoryImpl rpRepo = new FmRepositoryImpl(this, FirebaseConstants.RADIO_PROGRAM_TABLE);
             RadioProgram program = new RadioProgram();
             program.setRadioId(episode.getRadioId());
@@ -187,21 +166,13 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                 @Override
                 public void onSuccess(Object object) {
                     try {
+                        LogUtility.d(LogUtility.TAG, "program info : " + new Gson().toJson(object));
+
                         if (isCollection(object)) {
                             List<RadioProgram> programList = (List<RadioProgram>) object;
                             RadioProgram radioProgram = programList.get(0);
-                            TempModel _temp = new TempModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), radioProgram.getPrCategoryList().toString(), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
-                            Tools.displayImageRound(ProgramDetailsActivity.this, ivUserProfilePhoto, _temp.imgProfile);
-                            tvName.setText(_temp.name);
-                            tvDesc.setText(_temp.desc);
-                            tvCategory.setText(_temp.category);
-//                          tvTag.setText(getResources().getString(R.string.tag_format, _temp.tag));
-                            tvTag.setText(String.format("@%s", _temp.tag));
-                            tvLikesCount.setText(Integer.toString(_temp.likesCount));
-                            tvSubscribers.setText(Integer.toString(_temp.subScribeCount));
-                            tvPostCount.setText(Integer.toString(_temp.postCount));
-                            vUserStats.setVisibility(View.VISIBLE);
-//                        LogUtility.e(TAG, " readProgramByRadioIdAndProgramId: " + new Gson().toJson(object) );
+                            TempModel tempModel = new TempModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), radioProgram.getPrCategoryList().toString(), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
+                            updateInfoUI(tempModel);
                         }
                     } catch (Exception e) {
                         LogUtility.e(TAG, " readProgramByRadioIdAndProgramId: " + object, e);
@@ -218,6 +189,8 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
             ePiRepo.readAllEpisodeByRadioIdAndPgId(episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
+                    LogUtility.d(LogUtility.TAG, "program details : " + new Gson().toJson(object));
+
                     if (isCollection(object)) {
                         detailsList = (List<Episode>) object;
                         ShardDate.getInstance().setEpisodeList(detailsList);
@@ -229,7 +202,6 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 //                    itemAdapter.notifyItemRangeChanged(0,detailsList.size());
                     setupUserProfileGrid();
 
-                    LogUtility.e(TAG, "readAllEpisodeByRadioIdAndPgId: " + new Gson().toJson(object));
                 }
 
                 @Override
@@ -247,6 +219,27 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 
 //        detailsList = DataGenerator.getEpisodeData(this);
 //        setupUserProfileGrid();
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void updateInfoUI(TempModel model) {
+//        TempModel _temp = new TempModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), radioProgram.getPrCategoryList().toString(), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
+        Tools.displayImageRound(ProgramDetailsActivity.this, ivUserProfilePhoto, model.imgProfile);
+        tvName.setText(model.name);
+        tvDesc.setText(model.desc);
+        tvCategory.setText(model.category);
+//      tvTag.setText(getResources().getString(R.string.tag_format, _temp.tag));
+        if (!TextUtils.isEmpty(model.tag))
+            tvTag.setText(String.format("@%s", model.tag));
+        if (model.likesCount >= 1)
+            tvLikesCount.setText(Integer.toString(model.likesCount));
+        if (model.subScribeCount >= 1)
+            tvSubscribers.setText(Integer.toString(model.subScribeCount));
+        if (model.postCount >= 1)
+            tvPostCount.setText(Integer.toString(model.postCount));
+        vUserStats.setVisibility(View.VISIBLE);
+
+        btnFollow.setVisibility(View.GONE);
     }
 
     private void setupTabs() {
