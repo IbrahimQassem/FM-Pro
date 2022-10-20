@@ -172,13 +172,13 @@ public class Users extends UserId {
 
     public static void getUserInfo(Activity activity, String phone, CallBack callBack) {
 
-//        PreferencesManager prefMng = new PreferencesManager(activity);
+//        PreferencesManager prefMgr = new PreferencesManager(activity);
         UsersRepositoryImpl fmRepo = new UsersRepositoryImpl(activity, USERS_TABLE);
         fmRepo.isUserExists(phone, new CallBack() {
             @Override
             public void onSuccess(Object object) {
 //                Users _userModel = (Users) object;
-//                prefMng.write(FMCConstants.USER_INFO, _userModel);
+//                prefMgr.write(FMCConstants.USER_INFO, _userModel);
 //                String jsob = new Gson().toJson(object);
 //                Log.d(TAG, "isUserExists : onSuccess " + jsob);
                 callBack.onSuccess(object);
@@ -196,12 +196,12 @@ public class Users extends UserId {
     public static void initNewUser(FirebaseUser user, Activity activity) {
 
         if (user != null) {
-            PreferencesManager prefMng = new PreferencesManager(activity);
+            PreferencesManager prefMgr = PreferencesManager.getInstance();
             // Name, email address, and profile photo Url
             String uid = user.getUid();
             String name = user.getDisplayName();
             String email = user.getEmail();
-            String mobile = TextUtils.isEmpty(user.getPhoneNumber()) ? user.getPhoneNumber() : prefMng.read(FMCConstants.USER_MOBILE, "");
+            String mobile = TextUtils.isEmpty(user.getPhoneNumber()) ? user.getPhoneNumber() : prefMgr.read(FMCConstants.USER_MOBILE, "");
             final String[] photoUrl = {""};
 
 //            final String[] photoUrl = {user.getPhotoUrl().toString()};
@@ -239,8 +239,8 @@ public class Users extends UserId {
                     fmRepo.createUpdateUser(_users.getUserId(), _users, new CallBack() {
                         @Override
                         public void onSuccess(Object object) {
-                            prefMng.write(FMCConstants.USER_INFO, _users);
-//                            Toast.makeText(activity, "تم التسجيل بنجاح" + prefMng.getUsers().getName(), Toast.LENGTH_SHORT).show();
+                            prefMgr.write(FMCConstants.USER_INFO, _users);
+//                            Toast.makeText(activity, "تم التسجيل بنجاح" + prefMgr.getUsers().getName(), Toast.LENGTH_SHORT).show();
                         }
 
                         @Override

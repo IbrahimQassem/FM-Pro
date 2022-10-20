@@ -86,8 +86,8 @@ public class EpisodeFragment extends BaseFragment {
         ButterKnife.bind(this, view);
         sbHelp = new SnackBarUtility(getActivity());
         materialIntroView = new MaterialIntroView(ctx);
-        if (prefMng.getUsers() != null && prefMng.getUsers().getUserId() != null)
-            _userId = prefMng.getUsers().getUserId();
+        if (prefMgr.getUsers() != null && prefMgr.getUsers().getUserId() != null)
+            _userId = prefMgr.getUsers().getUserId();
 
         initRadios();
 
@@ -131,15 +131,15 @@ public class EpisodeFragment extends BaseFragment {
         recyclerView.setLayoutManager(layoutManager);
 
 
-        if (isCollection(prefMng.getRadioList())) {
+        if (isCollection(prefMgr.getRadioList())) {
 //        if (isCollection(ShardDate.getInstance().getInfoList())) {
 //            stationList = (ArrayList<RadioInfo>) ShardDate.getInstance().getInfoList();
-            stationList = prefMng.getRadioList();
+            stationList = prefMgr.getRadioList();
             ShardDate.getInstance().setInfoList(stationList);
-            RadiosAdapter adapter = new RadiosAdapter(ctx, stationList, recyclerView, prefMng.read("ScrollToPosition", 0));
+            RadiosAdapter adapter = new RadiosAdapter(ctx, stationList, recyclerView, prefMgr.read("ScrollToPosition", 0));
 
             if (!isRadioSelected() && !stationList.isEmpty()) {
-                prefMng.write(FirebaseConstants.RADIO_INFO_TABLE, stationList.get(0));
+                prefMgr.write(FirebaseConstants.RADIO_INFO_TABLE, stationList.get(0));
             }
 
             recyclerView.setAdapter(adapter);
@@ -147,8 +147,8 @@ public class EpisodeFragment extends BaseFragment {
             adapter.setOnClickListener(new RadiosAdapter.OnClickListener() {
                 @Override
                 public void onItemClick(View view, RadioInfo radioInfo, int i) {
-                    prefMng.write("ScrollToPosition", i);
-                    prefMng.write(FirebaseConstants.RADIO_INFO_TABLE, radioInfo);
+                    prefMgr.write("ScrollToPosition", i);
+                    prefMgr.write(FirebaseConstants.RADIO_INFO_TABLE, radioInfo);
                     adapter.selectTaskListItem(i);
                     updateRecycle();
                     if (callBackListener != null)
@@ -163,34 +163,21 @@ public class EpisodeFragment extends BaseFragment {
                 }
             });
 
-
-//
-//                    if (recyclerView.getAdapter().getItemCount() - 1 == 0) {
-//                        recyclerView.smoothScrollToPosition(prefMng.read("ScrollToPosition", 0));
-////                        startMeEvent();
-//                    }
-
-
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     if (layoutManager.findFirstVisibleItemPosition() > 0) {
-//                                startMeEvent();
                         Log.d("SCROLLINGDOWN", "SCROLL");
-//                                showToast("1");
                     } else {
                         Log.d("SCROLLINGUP", "SCROLL");
-
                         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                recyclerView.smoothScrollToPosition(prefMng.read("ScrollToPosition", 0));
+                                recyclerView.smoothScrollToPosition(prefMgr.read("ScrollToPosition", 0));
+                                showIntro(recyclerView.getChildAt(0), UserGuide.INTRO_FOCUS_1, ctx.getString(R.string.label_radio_intro1));
                             }
                         }, 3000);
-
-                        showIntro(recyclerView.getChildAt(0), UserGuide.INTRO_FOCUS_1, ctx.getString(R.string.label_radio_intro1));
-//                                showToast("2");
                     }
                 }
             });
@@ -243,7 +230,7 @@ public class EpisodeFragment extends BaseFragment {
         userGuide.showIntro(view, id, text, Focus.ALL, ShapeType.RECTANGLE, new MaterialIntroListener() {
             @Override
             public void onUserClicked(String materialIntroViewId) {
-                prefMng.write(UserGuide.INTRO_FOCUS_1, "");
+                prefMgr.write(UserGuide.INTRO_FOCUS_1, "");
                 ((MainActivity) requireActivity()).showPlayIntro();
             }
         });

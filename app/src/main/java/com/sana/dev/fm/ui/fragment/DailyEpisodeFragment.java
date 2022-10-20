@@ -122,7 +122,7 @@ public class DailyEpisodeFragment extends BaseFragment {
 //        }
 
         if (isRadioSelected())
-            loadDailyEpisode(prefMng.selectedRadio().getRadioId());
+            loadDailyEpisode(prefMgr.selectedRadio().getRadioId());
 
 
         return view;
@@ -145,7 +145,7 @@ public class DailyEpisodeFragment extends BaseFragment {
     private void loadDailyEpisode(String radioId) {
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
-        String primary = prefMng.selectedRadio() != null ? prefMng.selectedRadio().getName() : "";
+        String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : "";
          SpannableString primarySpannable = new SpannableString(Html.fromHtml("<b>" + primary + "</b>"));
         primarySpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
         builder.append(primarySpannable);
@@ -223,7 +223,7 @@ public class DailyEpisodeFragment extends BaseFragment {
 
     public void refresh() {
         if (isRadioSelected())
-            loadDailyEpisode(prefMng.selectedRadio().getRadioId());
+            loadDailyEpisode(prefMgr.selectedRadio().getRadioId());
     }
 
 

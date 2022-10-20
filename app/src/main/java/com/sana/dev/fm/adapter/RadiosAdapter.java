@@ -5,14 +5,11 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.databinding.RadiosItemBinding;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
@@ -20,7 +17,7 @@ import com.sana.dev.fm.utils.UserGuide;
 
 import java.util.ArrayList;
 
-public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.ViewHolder> {
+public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.MyViewHolder> {
 
 
     Context context;
@@ -40,22 +37,30 @@ public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.ViewHolder
 
     }
 
-    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.radios_item, parent, false);
-        return new ViewHolder(view);
+    public MyViewHolder onCreateViewHolder(ViewGroup parent, int type) {
+        RadiosItemBinding inflate = RadiosItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new RadiosAdapter.MyViewHolder(inflate);
+    }
+
+    public static class MyViewHolder extends RecyclerView.ViewHolder {
+        private final RadiosItemBinding binding;
+
+        public MyViewHolder(RadiosItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
+    public void onBindViewHolder(MyViewHolder holder, @SuppressLint("RecyclerView") final int position) {
 
         RadioInfo model = list.get(position);
 
-        holder.title.setText(model.getName());
-        holder.tvFreq.setText(model.getChannelFreq());
+        holder.binding.tvTitle.setText(model.getName());
+        holder.binding.tvFreq.setText(model.getChannelFreq());
 //        holder.title.setText(model.getName() +" : "+ (model.isActive() ? "active" : "inactive"));
-        Tools.displayImageOriginal(context, holder.image, model.getLogo());
+        Tools.displayImageOriginal(context, holder.binding.civLogo, model.getLogo());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,9 +72,9 @@ public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.ViewHolder
         });
 
         if (selectedItem == position) {
-            holder.cardView.setCardBackgroundColor(context.getResources().getColor(R.color.colorAccentLight));
+            holder.binding.cvParent.setCardBackgroundColor(context.getResources().getColor(R.color.colorAccentLight));
         } else {
-            holder.cardView.setCardBackgroundColor(context.getResources().getColor(R.color.white));
+            holder.binding.cvParent.setCardBackgroundColor(context.getResources().getColor(R.color.white));
         }
 
 //        if ( d.getRadioId().equals(model.getRadioId())) {
@@ -92,20 +97,18 @@ public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.ViewHolder
     }
 
     public void selectTaskListItem(int pos) {
-
         int previousItem = selectedItem;
         selectedItem = pos;
-
-//        notifyDataSetChanged();
         notifyItemChanged(previousItem);
         notifyItemChanged(pos);
+        recyclerView.smoothScrollToPosition(pos);
 
 
 //        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
 //            @Override
 //            public void run() {
 //                // Your Code
-        recyclerView.smoothScrollToPosition(pos);
+//        recyclerView.smoothScrollToPosition(pos);
 //            }
 //        }, 200);
 
@@ -121,24 +124,6 @@ public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.ViewHolder
         void onItemClick(View view, RadioInfo radioInfo, int i);
 
         void onItemLongClick(View view, RadioInfo radioInfo, int i);
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder {
-
-        //        ImageView image;
-        CircularImageView image;
-        TextView title, tvFreq;
-        CardView cardView;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            title = itemView.findViewById(R.id.tvTitle);
-            tvFreq = itemView.findViewById(R.id.tvFreq);
-            image = itemView.findViewById(R.id.civ_logo);
-            cardView = itemView.findViewById(R.id.cardView);
-
-        }
     }
 
 

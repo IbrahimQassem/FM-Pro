@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     app:cardBackgroundColor="@color/quantum_white_100"
@@ -28,17 +29,16 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                app:tint="@color/colorAccent"
-                app:srcCompat="@drawable/ic_close" />
+                app:srcCompat="@drawable/ic_close"
+                app:tint="@color/colorAccent" />
         </LinearLayout>
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="20dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_middle"
+            android:layout_marginBottom="@dimen/spacing_middle"
             android:gravity="center"
             android:orientation="vertical"
             android:padding="@dimen/spacing_mlarge">
@@ -52,36 +52,34 @@
                 app:civ_border_width="1dp"
                 app:civ_shadow="true"
                 app:civ_shadow_radius="0"
-                app:srcCompat="@mipmap/ic_launcher_foreground" />
+                app:srcCompat="@drawable/logo_app" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_large"
+                style="@style/TextBold"
+                android:layout_marginTop="@dimen/spacing_middle"
+                android:padding="@dimen/spacing_middle"
                 android:text="@string/app_name"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                android:textColor="@android:color/white"
-                android:textStyle="bold" />
+                android:textColor="@color/colorAccent"
+                android:textSize="18sp"
+                tools:text="@string/app_name" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/TextRegular"
+                android:padding="@dimen/spacing_middle"
                 android:text="@string/app_slogan"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textColor="@color/grey_40" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_xlarge"
+                style="@style/TextRegular"
+                android:layout_marginTop="@dimen/spacing_mlarge"
                 android:gravity="center"
+                android:justificationMode="inter_word"
+                android:lineSpacingExtra="3dp"
                 android:text="@string/app_message"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/grey_40" />
+                android:textColor="@color/grey_40"
+                android:textSize="16sp" />
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="@dimen/spacing_large" />
+
         </LinearLayout>
 
         <View
@@ -98,9 +96,8 @@
             android:padding="@dimen/spacing_middle">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="تواصل معنا عبر"
+                style="@style/TextMedium"
+                android:text="@string/label_contact_us"
                 android:textColor="@color/quantum_white_100" />
 
             <LinearLayout
@@ -115,8 +112,8 @@
                     android:id="@+id/iv_email"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    app:tint="@color/white"
-                    app:srcCompat="@drawable/ic_email_black" />
+                    app:srcCompat="@drawable/ic_email_black"
+                    app:tint="@color/white" />
 
                 <View
                     android:layout_width="30dp"
@@ -126,8 +123,8 @@
                     android:id="@+id/iv_instagram"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    app:tint="@color/white"
-                    app:srcCompat="@drawable/ic_social_instagram" />
+                    app:srcCompat="@drawable/ic_social_instagram"
+                    app:tint="@color/white" />
 
 
                 <View
@@ -139,8 +136,8 @@
                     android:id="@+id/iv_twitter"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    app:tint="@color/white"
-                    app:srcCompat="@drawable/ic_social_twitter" />
+                    app:srcCompat="@drawable/ic_social_twitter"
+                    app:tint="@color/white" />
 
                 <View
                     android:layout_width="30dp"
@@ -150,9 +147,9 @@
                     android:id="@+id/iv_facebook"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:tooltipText="فيسبوك"
-                    app:tint="@color/white"
-                    app:srcCompat="@drawable/ic_social_facebook" />
+                    android:tooltipText="@string/label_favebook"
+                    app:srcCompat="@drawable/ic_social_facebook"
+                    app:tint="@color/white" />
 
                 <View
                     android:layout_width="30dp"
@@ -162,9 +159,9 @@
                     android:id="@+id/iv_mobile"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    app:tint="@color/white"
-                    android:tooltipText="موبايل"
-                    app:srcCompat="@drawable/ic_smart_phone" />
+                    android:tooltipText="@string/label_mobile"
+                    app:srcCompat="@drawable/ic_smart_phone"
+                    app:tint="@color/white" />
 
                 <View
                     android:layout_width="30dp"
@@ -174,17 +171,17 @@
                     android:id="@+id/iv_whats"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    app:tint="@color/white"
-                    android:tooltipText="واتس آب"
-                    app:srcCompat="@drawable/ic_whatsapp" />
+                    android:tooltipText="@string/label_whatssup"
+                    app:srcCompat="@drawable/ic_whatsapp"
+                    app:tint="@color/white" />
 
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/white"
-                android:layout_marginBottom="@dimen/spacing_medium"/>
+                android:layout_marginBottom="@dimen/spacing_medium"
+                android:background="@color/white" />
 
             <com.balysv.materialripple.MaterialRippleLayout
                 android:id="@+id/bt_portfolio"
@@ -194,25 +191,26 @@
                 android:background="@color/transparent">
 
                 <TextView
+                    style="@style/TextLight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:paddingTop="@dimen/spacing_medium"
                     android:text="@string/powered_by"
-                    android:textSize="10sp"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                     android:textColor="@android:color/white"
+                    android:textSize="10sp"
                     app:fontFamily="@font/tj_medium" />
                 <!--                    app:fontFamily="sans-serif-medium" />-->
 
-<!--                <Button-->
-<!--                    android:id="@+id/bt_portfolio"-->
-<!--                    style="@style/Widget.AppCompat.Button.Borderless"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="@dimen/spacing_xlarge"-->
-<!--                    android:gravity="center"-->
-<!--                    android:text="@string/powered_by"-->
-<!--                    android:textColor="@color/white"-->
-<!--                    app:fontFamily="@font/tajawal_light" />-->
+                <!--                <Button-->
+                <!--                    android:id="@+id/bt_portfolio"-->
+                <!--                    style="@style/Widget.AppCompat.Button.Borderless"-->
+                <!--                    android:layout_width="match_parent"-->
+                <!--                    android:layout_height="@dimen/spacing_xlarge"-->
+                <!--                    android:gravity="center"-->
+                <!--                    android:text="@string/powered_by"-->
+                <!--                    android:textColor="@color/white"-->
+                <!--                    app:fontFamily="@font/tajawal_light" />-->
             </com.balysv.materialripple.MaterialRippleLayout>
 
         </LinearLayout>

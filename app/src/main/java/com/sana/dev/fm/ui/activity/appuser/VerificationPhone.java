@@ -66,7 +66,7 @@ public class VerificationPhone extends BaseActivity {
         // save phone number
 //        prefs = getApplicationContext().getSharedPreferences("USER_PREF",
 //                Context.MODE_PRIVATE);
-        prefMgr = new PreferencesManager(this);
+        prefMgr = PreferencesManager.getInstance();
 
 //        SharedPreferences.Editor editor = prefs.edit();
         prefMgr.write("mobile", phoneNumber);
@@ -146,7 +146,7 @@ public class VerificationPhone extends BaseActivity {
                     String uid = user.getUid();
                     String name = user.getDisplayName();
 //                String email = user.getEmail();
-//                   String mobile = TextUtils.isEmpty(user.getPhoneNumber()) ? user.getPhoneNumber() : prefMng.read(FMCConstants.USER_MOBILE,"");
+//                   String mobile = TextUtils.isEmpty(user.getPhoneNumber()) ? user.getPhoneNumber() : prefMgr.read(FMCConstants.USER_MOBILE,"");
 //                    Users obUser =  new Users(uid, name, phoneNumber,prefMgr.read(FMCConstants.USER_IMAGE_Profile,"empty"), getToken(VerificationPhone.this), Gender.UNKNOWN, new Date(),null,null,null,null);
                     Users obUser = new Users(uid, name, null, phoneNumber, null, prefMgr.read(FMCConstants.USER_IMAGE_Profile, "empty"), getToken(VerificationPhone.this), null, null, null, false, false, false, FmUtilize.deviceId(VerificationPhone.this), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER);
 

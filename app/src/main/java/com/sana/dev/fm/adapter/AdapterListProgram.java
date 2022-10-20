@@ -61,8 +61,8 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public AdapterListProgram.MyViewHolder onCreateViewHolder(ViewGroup parent, int type) {
-        ItemProgramsBinding programsBinding = ItemProgramsBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        return new MyViewHolder(programsBinding);
+        ItemProgramsBinding inflate = ItemProgramsBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new MyViewHolder(inflate);
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {

@@ -196,5 +196,20 @@
     <string name="ex_comment_count">تعليق 12</string>
     <string name="label_display_now">يعرض الآن</string>
     <string name="ex_likes">إعجاب 22</string>
+    <string name="label_radio_station">القناة الإذاعية</string>
+    <string name="label_start_now">ابدأ الآن</string>
+    <string name="label_your_favorite_station">إذاعتك المفضلة</string>
+    <string name="label_intro_1">مرحبا بك عزيزي المستخدم في تطبيق اليمن الأول للقنوات الإذاعية هدهد اف ام</string>
+    <string name="label_intro_2">حدد إذاعتك المفضلة وتابع أحدث البرامج اليومية</string>
+    <string name="label_intro_3">إستمتع بتصفح العديد من البرامج الإذاعية المختلفة على مدار اليوم</string>
+    <string name="label_enjoi">إستمتع بالتجربة</string>
+    <string name="label_whatssup">واتس آب</string>
+    <string name="label_mobile">موبايل</string>
+    <string name="label_favebook">فيسبوك</string>
+    <string name="label_contact_us">تواصل معنا عبر</string>
+    <string name="label_like_the_app">هل أعجبك التطبيق</string>
+    <string name="label_rate_us_now">قيم التطبيق بخمسة نجوم الآن</string>
+    <string name="label_later">لاحقاَ</string>
+    <string name="label_sound_good">حسناً</string>
 
 </resources>

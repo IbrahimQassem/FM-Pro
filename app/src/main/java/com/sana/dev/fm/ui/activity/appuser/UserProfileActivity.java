@@ -135,9 +135,9 @@ public class UserProfileActivity extends BaseActivity {
         fmRepo = new UsersRepositoryImpl(UserProfileActivity.this, USERS_TABLE);
 
         mAuth = FirebaseAuth.getInstance();
-        mAuth.setLanguageCode("ar");
+        mAuth.setLanguageCode(PreferencesManager.getInstance().getPrefLange());
         // [END initialize_auth]
-        prefMgr = new PreferencesManager(this);
+        prefMgr = PreferencesManager.getInstance();
 
         initToolbar();
         init();

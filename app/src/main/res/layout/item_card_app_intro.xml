@@ -34,18 +34,20 @@
 
             <TextView
                 android:id="@+id/description"
+                style="@style/TextLight"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:minHeight="100dp"
                 android:justificationMode="inter_word"
                 android:text="@string/app_message"
-                android:layout_marginLeft="@dimen/spacing_mxlarge"
+                android:layout_marginStart="@dimen/spacing_mxlarge"
                 android:layout_marginTop="@dimen/spacing_middle"
-                android:layout_marginRight="@dimen/spacing_mxlarge"
+                android:layout_marginEnd="@dimen/spacing_mxlarge"
                 android:lineSpacingExtra="5dp"
                 android:textAlignment="center"
+                android:maxLines="4"
                 android:gravity="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-               android:fontFamily="@font/tj_light"
+                android:textSize="18sp"
                 android:textColor="@color/grey_90" />
 
             <ImageView

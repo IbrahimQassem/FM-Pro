@@ -136,7 +136,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        String primary = prefMng.selectedRadio() != null ? prefMng.selectedRadio().getName() : "";
+        String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : "";
         Fragment childFragment = new EmptyViewFragment();
         Bundle args = new Bundle();
 //        args.putString(ARG_NOTE_TITLE, context.getString(R.string.no_data_available));
@@ -229,7 +229,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
     @NonNull
     private RecyclerView.Adapter newAdapter() {
 
-        String radioId = prefMng.selectedRadio().getRadioId();
+        String radioId = prefMgr.selectedRadio().getRadioId();
         LogUtility.d(LogUtility.TAG, " radioId : " + radioId + " time is  : " + String.valueOf(System.currentTimeMillis()));
 
         FirestoreRecyclerOptions<Episode> options =
@@ -251,7 +251,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 LogUtility.d(LogUtility.TAG, "res newAdapter : " + new Gson().toJson(model));
 
                 if (RealTimeEpisodeFragment.this.isAccountSignedIn()) {
-                    model.userId = prefMng.getUsers().getUserId();
+                    model.userId = prefMgr.getUsers().getUserId();
                 }
                 ChatHolder viewHolder = (ChatHolder) holder;
 
@@ -261,7 +261,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 viewHolder.setOnLongItemClickListener(new ChatHolder.OnLongItemClickListener() {
                     @Override
                     public void onLongItemClick(View view, Episode obj, int position) {
-                        if (RealTimeEpisodeFragment.this.isAccountSignedIn() && prefMng.getUsers().getUserType() == UserType.SuperADMIN)
+                        if (RealTimeEpisodeFragment.this.isAccountSignedIn() && prefMgr.getUsers().getUserType() == UserType.SuperADMIN)
                             showBottomSheetDialog(obj, position);
                     }
                 });
@@ -298,7 +298,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                                 } else {
                                     boolean isLik = !model.isLiked;
                                     HashMap<String, Boolean> likeMap = new HashMap<>();
-                                    likeMap.put(prefMng.getUsers().getUserId(), isLik);
+                                    likeMap.put(prefMgr.getUsers().getUserId(), isLik);
                                     model.setEpisodeLikes(likeMap);
                                     ePiRepo.updateEpi("episodeLikes", model, new CallBack() {
                                         @Override

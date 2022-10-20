@@ -23,11 +23,11 @@ import androidx.viewpager.widget.ViewPager.OnPageChangeListener;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.utils.Tools;
 
-public class CardWizardLight extends BaseActivity {
+public class AppIntroLight extends BaseActivity {
     private static final int MAX_STEP = 3;
-    private String[] about_description_array = new String[]{"مرحبا بك عزيزي المستخدم في تطبيق اليمن الأول للقنوات الإذاعية هدهد اف ام", "حدد إذاعتك المفضلة وتابع أحدث البرامج اليومية", /*"Safe and Comfort flight is our priority. Professional crew and services.",*/ "إستمتع بتصفح العديد من البرامج الإذاعية المختلفة على مدار اليوم"};
-    private int[] about_images_array = new int[]{R.drawable.img_wizard_1, R.drawable.img_wizard_2, /*R.drawable.img_wizard_3,*/ R.drawable.img_wizard_4};
-    private String[] about_title_array = new String[]{"هد هد اف ام", "إذاعتك المفضلة", /*"Flight to Destination",*/ "إستمتع بالتجربة"};
+    private String[] about_description_array;
+    private int[] about_images_array;
+    private String[] about_title_array;
     private MyViewPagerAdapter myViewPagerAdapter;
     private ViewPager viewPager;
     OnPageChangeListener viewPagerPageChangeListener = new OnPageChangeListener() {
@@ -43,7 +43,6 @@ public class CardWizardLight extends BaseActivity {
     };
 
 
-
     public class MyViewPagerAdapter extends PagerAdapter {
         private Button btnNext;
         private LayoutInflater layoutInflater;
@@ -53,16 +52,18 @@ public class CardWizardLight extends BaseActivity {
         }
 
         public Object instantiateItem(ViewGroup viewGroup, int i) {
+
+
             @SuppressLint("WrongConstant") LayoutInflater layoutInflater = (LayoutInflater) getSystemService("layout_inflater");
             this.layoutInflater = layoutInflater;
-            View inflate = layoutInflater.inflate(R.layout.item_card_wizard_light, viewGroup, false);
+            View inflate = layoutInflater.inflate(R.layout.item_card_app_intro, viewGroup, false);
             ((TextView) inflate.findViewById(R.id.title)).setText(about_title_array[i]);
             ((TextView) inflate.findViewById(R.id.description)).setText(about_description_array[i]);
             ((ImageView) inflate.findViewById(R.id.civ_logo)).setImageResource(about_images_array[i]);
             this.btnNext = (Button) inflate.findViewById(R.id.btn_next);
             if (i == about_title_array.length - 1) {
-                this.btnNext.setText("ابدأ الآن");
-            }  else {
+                this.btnNext.setText(R.string.label_start_now);
+            } else {
                 this.btnNext.setText(getResources().getString(R.string.btn_continue));
             }
             this.btnNext.setOnClickListener(new OnClickListener() {
@@ -71,7 +72,7 @@ public class CardWizardLight extends BaseActivity {
                     if (currentItem < MAX_STEP) {
                         viewPager.setCurrentItem(currentItem);
                     } else {
-                        Intent intent2 =  BaseActivity.splashPage(CardWizardLight.this, true);
+                        Intent intent2 = BaseActivity.splashPage(AppIntroLight.this, true);
                         startActivity(intent2);
                         finish();
                     }
@@ -93,7 +94,13 @@ public class CardWizardLight extends BaseActivity {
     /* Access modifiers changed, original: protected */
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        setContentView((int) R.layout.activity_card_wizard_light);
+        setContentView((int) R.layout.activity_app_intro);
+
+        about_description_array = new String[]{getResources().getString(R.string.label_intro_1), getString(R.string.label_intro_2), getString(R.string.label_intro_3)};
+        about_images_array = new int[]{R.drawable.img_wizard_1, R.drawable.img_wizard_2, /*R.drawable.img_wizard_3,*/ R.drawable.img_wizard_4};
+        about_title_array = new String[]{getString(R.string.app_name), getString(R.string.label_your_favorite_station), getString(R.string.label_enjoi)};
+
+
         this.viewPager = (ViewPager) findViewById(R.id.view_pager);
         bottomProgressDots(0);
         MyViewPagerAdapter myViewPagerAdapter = new MyViewPagerAdapter();

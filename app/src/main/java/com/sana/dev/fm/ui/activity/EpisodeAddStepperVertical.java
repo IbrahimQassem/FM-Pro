@@ -182,7 +182,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
 
         ButterKnife.bind(this);
         ePoRepo = new EpisodeRepositoryImpl(this, FirebaseConstants.EPISODE_TABLE);
-        prefMgr = new PreferencesManager(this);
+        prefMgr = PreferencesManager.getInstance();
 
         initToolbar();
         initComponent();

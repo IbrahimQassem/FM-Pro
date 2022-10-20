@@ -59,7 +59,7 @@
             android:name=".ui.activity.CommentsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.activity.CardWizardLight"
+            android:name=".ui.activity.AppIntroLight"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.AboutAppActivity"

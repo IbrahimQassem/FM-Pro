@@ -25,6 +25,7 @@
 
         <LinearLayout
             android:id="@+id/layoutDots"
+            android:layoutDirection="ltr"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:gravity="top|center_vertical|center_horizontal|center"

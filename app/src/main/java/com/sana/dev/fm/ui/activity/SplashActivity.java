@@ -4,6 +4,7 @@ import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -33,6 +34,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.RadioInfo;
@@ -41,11 +43,13 @@ import com.sana.dev.fm.ui.activity.appuser.PhoneLoginActivity;
 import com.sana.dev.fm.ui.activity.appuser.VerificationPhone;
 import com.sana.dev.fm.utils.Constants;
 import com.sana.dev.fm.utils.LogUtility;
+import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.RadioInfoRepositoryImpl;
+import com.sana.dev.fm.utils.radio_player.metadata.Metadata;
 
 import java.util.ArrayList;
 
@@ -59,14 +63,15 @@ public class SplashActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
+    private boolean isIntentChecked = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Tools.setLocale(this,"ar");
         setContentView(R.layout.activity_splash);
 
 
-        prefMgr = new PreferencesManager(this);
+        prefMgr = PreferencesManager.getInstance();
 
 //        int MyVersion = Build.VERSION.SDK_INT;
 //        if (MyVersion > Build.VERSION_CODES.M) {
@@ -118,28 +123,36 @@ public class SplashActivity extends AppCompatActivity {
             public void onSuccess(Object object) {
                 LogUtility.d(LogUtility.TAG, "readAllRadioByEvent response: " + new Gson().toJson(object));
                 if (isCollection(object)) {
-//                    ArrayList<RadioInfo> stationList = new ArrayList<>();
-//                    stationList = (ArrayList<RadioInfo>) object;
-//                    for (RadioInfo a : (ArrayList<RadioInfo>) object) {
-//                        if (a.isOnline()) {
-//                            stationList.add(a);
-//                        }
-//                    }
-//                    ShardDate.getInstance().setInfoList((ArrayList<RadioInfo>) object);
-                    ShardDate.getInstance().setInfoList((ArrayList<RadioInfo>) object);
-                    prefMgr.setRadioInfo((ArrayList<RadioInfo>) object);
+                    ArrayList<RadioInfo> stationList = (ArrayList<RadioInfo>) object;
+                    ShardDate.getInstance().setInfoList(stationList);
+                    prefMgr.setRadioInfo(stationList);
+
+                    if (prefMgr.selectedRadio() == null) {
+                        prefMgr.write(FirebaseConstants.RADIO_INFO_TABLE,stationList.get(0));
+                    }
+
+                    if (!isIntentChecked) {
+                        goToMain();
+                        isIntentChecked = true;
+                    }
+
+
+
                 }
-//                goToMain();
             }
 
             @Override
             public void onError(Object object) {
                 LogUtility.d(LogUtility.TAG, "readAllRadioByEvent error: " + new Gson().toJson(object));
 //                goToMain();
+                initRadios();
             }
         });
 
-        goToMain();
+        if (isCollection(prefMgr.getRadioList()) && !isIntentChecked) {
+            goToMain();
+            isIntentChecked = true;
+        }
 
     }
 
@@ -165,11 +178,23 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(MyContextWrapper.wrap(newBase, PreferencesManager.getInstance().getPrefLange()));
+    }
+
+
+    @Override
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         mAuth = FirebaseAuth.getInstance();
-        mAuth.setLanguageCode("ar");
+        mAuth.setLanguageCode(PreferencesManager.getInstance().getPrefLange());
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             //            Toast.makeText(this, "currentUser null", Toast.LENGTH_SHORT).show();

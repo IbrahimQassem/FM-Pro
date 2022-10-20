@@ -68,7 +68,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     String radioId, epId;
     Query query;
     Users currentUser;
-    PreferencesManager prefMng;
+    PreferencesManager prefMgr;
     private CommentsAdapter commentsAdapter;
     private int drawingStartLocation;
 
@@ -84,7 +84,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comments);
 
-        prefMng = new PreferencesManager(this);
+        prefMgr = PreferencesManager.getInstance();
 
         initToolbar();
         setupComments();
@@ -112,6 +112,13 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 //        Tools.setSystemBarColor(this, R.color.colorPrimary);
 //        getSupportActionBar().setTitle(R.string.label_comments);
 //        getIvLogo().setText(R.string.label_comments);
+
+        getToolbarArrow().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     private void getComments() {
@@ -167,10 +174,10 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         radioId = episode.getRadioId();
         epId = episode.getEpId();
 
-        if (prefMng.getUsers() == null) {
+        if (prefMgr.getUsers() == null) {
             etComment.setHint(getString(R.string.add_comment));
         } else {
-            currentUser = prefMng.getUsers();
+            currentUser = prefMgr.getUsers();
             etComment.setHint(String.format("تعليق كـ %s ..", currentUser.getName()));
         }
 

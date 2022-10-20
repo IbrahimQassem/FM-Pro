@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,7 +20,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.sana.dev.fm.R;
@@ -27,8 +27,10 @@ import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.BaseView;
 import com.sana.dev.fm.ui.activity.appuser.PhoneLoginActivity;
 import com.sana.dev.fm.utils.Constants;
+import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.ProgressHUD;
+import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
 import com.sana.dev.fm.utils.network.CheckInternetConnection;
 import com.sana.dev.fm.utils.network.ConnectionChangeListener;
@@ -52,10 +54,14 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     @Nullable
     @BindView(R.id.tv_title)
     TextView txvLogo;
+
+    @Nullable
+    @BindView(R.id.imb_event)
+    ImageButton imb_event;
+
     protected CheckInternetConnection connectionChecker;
     UserGuide userGuide;
     NetworkCallback networkCallback;
-    Dialog errorDialog;
     private MenuItem inboxMenuItem;
     private boolean connectionAvailable = true;
     private long backPressedTime;
@@ -63,6 +69,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
+
 //        String uniqueID = UUID.randomUUID().toString();
         mProgressHUD = new ProgressHUD((Activity) this);
         bindViews();
@@ -101,10 +108,10 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     protected void bindViews() {
         ButterKnife.bind(this);
-        connectionChecker = new CheckInternetConnection();
-        prefMgr = new PreferencesManager(this);
-        userGuide = new UserGuide(this);
         PreferencesManager.initializeInstance(this);
+        connectionChecker = new CheckInternetConnection();
+        prefMgr = PreferencesManager.getInstance();
+        userGuide = new UserGuide(this);
         setupToolbar();
     }
 
@@ -143,6 +150,10 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     public TextView getIvLogo() {
         return txvLogo;
+    }
+
+    public ImageButton getToolbarArrow() {
+        return imb_event;
     }
 
 
@@ -236,7 +247,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     }
 
     public static Intent introPage(Context context, boolean isNewTask) {
-        Intent intent = new Intent(context, com.sana.dev.fm.ui.activity.CardWizardLight.class);
+        Intent intent = new Intent(context, AppIntroLight.class);
         if (isNewTask) {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         }
@@ -510,5 +521,16 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     @Override
     public boolean isRadioSelected() {
         return prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null;
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(MyContextWrapper.wrap(newBase,PreferencesManager.getInstance().getPrefLange()));
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
     }
 }

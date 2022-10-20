@@ -32,6 +32,7 @@ import com.dd.CircularProgressButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.sana.dev.fm.model.interfaces.BaseFragmentView;
 import com.sana.dev.fm.ui.activity.BaseActivity;
+import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.UserGuide;
 
@@ -45,11 +46,13 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentView 
 
     protected FragmentActivity mActivity;
     protected UserGuide userGuide;
-    protected PreferencesManager prefMng;
+    protected PreferencesManager prefMgr;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Context context = MyContextWrapper.wrap(mActivity/*in fragment use getContext() instead of this*/, PreferencesManager.getInstance().getPrefLange());
+        getResources().updateConfiguration(context.getResources().getConfiguration(), context.getResources().getDisplayMetrics());
     }
 
     public void showProgress() {
@@ -171,19 +174,19 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentView 
         if (context instanceof Activity) {
             mActivity = (FragmentActivity) context;
             userGuide = new UserGuide((BaseActivity) mActivity);
-            prefMng = new PreferencesManager(context);
+            prefMgr = PreferencesManager.getInstance();
         }
     }
 
 
     @Override
     public boolean isAccountSignedIn() {
-        return prefMng.getUsers() != null && prefMng.getUsers().getUserId() != null /*&& FirebaseAuth.getInstance().getCurrentUser() != null*/;
+        return prefMgr.getUsers() != null && prefMgr.getUsers().getUserId() != null /*&& FirebaseAuth.getInstance().getCurrentUser() != null*/;
     }
 
     @Override
     public boolean isRadioSelected() {
-            return  prefMng.selectedRadio() != null && prefMng.selectedRadio().getRadioId() != null;
+            return  prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null;
     }
 
 

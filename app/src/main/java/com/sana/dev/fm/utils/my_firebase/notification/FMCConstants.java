@@ -10,6 +10,7 @@ public class FMCConstants {
     public static final String RADIO_INFO_LIST = "radioInfoList";
     public static final String USER_IMAGE_Profile = "userImageProfile";
     public static final String USER_MOBILE = "userMobile";
+    public static final String PREF_LANGUAGE = "prefLanguage";
 
 
 

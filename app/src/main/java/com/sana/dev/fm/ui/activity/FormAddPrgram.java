@@ -131,7 +131,7 @@ public class FormAddPrgram extends BaseActivity {
         setContentView((int) R.layout.activity_form_add_program);
         ButterKnife.bind(this);
         fmRepo = new FmRepositoryImpl(this, RADIO_PROGRAM_TABLE);
-        prefMgr = new PreferencesManager(this);
+        prefMgr = PreferencesManager.getInstance();
 
         Tools.setSystemBarColor(this, R.color.white);
         Tools.setSystemBarLight(this);

@@ -30,6 +30,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 //import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.gson.Gson;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
@@ -70,6 +72,9 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
     public static final String ACTION_SHOW_LOADING_ITEM = "action_show_loading_item";
 
+    FirebaseCrashlytics firebaseCrashlytics;
+    FirebaseAnalytics firebaseAnalytics;
+
 
     //    ---------- Radio Player -----------
     RadioManager radioManager;
@@ -82,6 +87,9 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        firebaseCrashlytics = FirebaseCrashlytics.getInstance();
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
 //        String sessionId = getIntent().getStringExtra("EXTRA_SESSION_ID");
 
@@ -344,13 +352,16 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         int colorState = isOnline ? R.color.green_500 : R.color.yellow_500;
 
         if (isAccountSignedIn()) {
-            PreferencesManager prefMgr = new PreferencesManager(this);
+            PreferencesManager prefMgr = PreferencesManager.getInstance();
 
             Users user = prefMgr.getUsers();
             tv_user_name.setText(user.getName());
             tv_user_state.setText(isOnlineTxt);
             Tools.displayUserProfile(this, civ, user.getPhotoUrl());
             iv_internet.setColorFilter(ContextCompat.getColor(this, colorState), android.graphics.PorterDuff.Mode.MULTIPLY);
+
+            firebaseCrashlytics.setUserId(user.getMobile());
+            firebaseAnalytics.setUserId(user.getMobile());
         }
 
 
@@ -390,7 +401,9 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         });
         inflate.findViewById(R.id.lyt_get_rate).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                Tools.rateAction(MainActivity.this);
+                MainDialog mainDialog = new MainDialog(MainActivity.this);
+                mainDialog.showDialogRateUs();
+
                 mBottomSheetDialog.dismiss();
             }
         });
@@ -515,7 +528,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     protected void onResume() {
         super.onResume();
         radioManager.bind(getApplicationContext());
-        prefMgr = new PreferencesManager(this);
+        prefMgr = PreferencesManager.getInstance();
         initToolbarProfile();
     }
 

@@ -96,7 +96,7 @@ public class RadioInfo implements Serializable {
 
     public void createRadio(Context context) {
 
-        PreferencesManager prefMgr = new PreferencesManager(context);
+        PreferencesManager prefMgr = PreferencesManager.getInstance();
 
         if (prefMgr.getUsers() == null)
             return;

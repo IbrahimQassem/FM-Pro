@@ -1,5 +1,6 @@
 package com.sana.dev.fm.ui.dialog;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -11,14 +12,18 @@ import android.net.Uri;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatRatingBar;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.Tools;
 
 
 public class MainDialog {
@@ -78,6 +83,24 @@ public class MainDialog {
         dialog.setContentView(R.layout.dialog_rate_us);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.setCancelable(true);
+
+        Button btn_cancel = (Button) dialog.findViewById(R.id.btn_cancel);
+        Button btn_confirm = (Button) dialog.findViewById(R.id.btn_confirm);
+
+        btn_confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                Tools.rateAction((Activity) context);
+            }
+        });
+
+        btn_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
         dialog.show();
     }
 

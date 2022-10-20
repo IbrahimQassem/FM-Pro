@@ -153,7 +153,7 @@ public class ProgramsFragment extends BaseFragment {
 
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
-        String primary = prefMng.selectedRadio() != null ? prefMng.selectedRadio().getName() : "";
+        String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : "";
         SpannableString blueSpannable = new SpannableString(Html.fromHtml("<b>" + primary + "</b>"));
 //        StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
 //        blueSpannable.setSpan(boldSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -169,7 +169,7 @@ public class ProgramsFragment extends BaseFragment {
         tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
 
         if (isRadioSelected())
-            fmRepo.readAllProgramByRadioId(prefMng.selectedRadio().getRadioId(), new CallBack() {
+            fmRepo.readAllProgramByRadioId(prefMgr.selectedRadio().getRadioId(), new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     LogUtility.d(LogUtility.TAG, "readAllProgramByRadioId response: " + new Gson().toJson(object));
@@ -201,7 +201,7 @@ public class ProgramsFragment extends BaseFragment {
                         mAdapter.setOnLongItemClickListener(new AdapterListProgram.OnLongItemClickListener() {
                             @Override
                             public void onLongItemClick(View view, RadioProgram obj, int position) {
-                                if (ProgramsFragment.this.isAccountSignedIn() && prefMng.getUsers().getUserType() == UserType.SuperADMIN)
+                                if (ProgramsFragment.this.isAccountSignedIn() && prefMgr.getUsers().getUserType() == UserType.SuperADMIN)
                                     showNotCancelableWarningDialog("هل تريد حذف " + obj.getPrName() + " ؟ ", "سيتم حذف بيانات البرنامج نهائياَ", new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {

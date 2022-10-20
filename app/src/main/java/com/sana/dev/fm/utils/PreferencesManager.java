@@ -15,6 +15,7 @@ import com.sana.dev.fm.model.Users;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,8 +26,12 @@ public class PreferencesManager {
     private static PreferencesManager sInstance;
     private final SharedPreferences mPref;
 
-    public PreferencesManager(Context context) {
-        mPref = context.getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+    public static synchronized PreferencesManager getInstance() {
+        if (sInstance == null) {
+            throw new IllegalStateException(PreferencesManager.class.getSimpleName() +
+                    " is not initialized, call initializeInstance(..) method first.");
+        }
+        return sInstance;
     }
 
     public static synchronized void initializeInstance(Context context) {
@@ -35,12 +40,8 @@ public class PreferencesManager {
         }
     }
 
-    public static synchronized PreferencesManager getInstance() {
-        if (sInstance == null) {
-            throw new IllegalStateException(PreferencesManager.class.getSimpleName() +
-                    " is not initialized, call initializeInstance(..) method first.");
-        }
-        return sInstance;
+    private PreferencesManager(Context context) {
+        mPref = context.getSharedPreferences(PREF_NAME, MODE_PRIVATE);
     }
 
     public long getValue() {
@@ -105,6 +106,10 @@ public class PreferencesManager {
         prefsEditor.apply();
     }
 
+    public String getPrefLange() {
+        String lang = read(FMCConstants.PREF_LANGUAGE, "ar");
+        return lang;
+    }
 
     public Users getUsers() {
         Gson gson = new Gson();
@@ -122,9 +127,15 @@ public class PreferencesManager {
 
     public ArrayList<RadioInfo> getRadioList(){
         Gson gson = new Gson();
-        String json = read(FMCConstants.RADIO_INFO_LIST, null);
+        String jstring = read(FMCConstants.RADIO_INFO_LIST, null);
         Type type = new TypeToken<ArrayList<RadioInfo>>() {}.getType();
-        return gson.fromJson(json, type);
+
+//        Type collectionType = new TypeToken<Collection<RadioInfo>>(){}.getType();
+//        Collection<RadioInfo> enums = gson.fromJson(jstring, collectionType);
+//        List<RadioInfo> lcs = (List<RadioInfo>) new Gson()
+//                .fromJson( jstring , collectionType);
+
+        return gson.fromJson(jstring, type);
     }
 
     public RadioInfo selectedRadio() {

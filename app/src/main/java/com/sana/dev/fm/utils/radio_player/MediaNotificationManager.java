@@ -21,6 +21,8 @@ import androidx.core.content.ContextCompat;
 
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.ui.activity.MainActivity;
+import com.sana.dev.fm.utils.MyContextWrapper;
+import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.radio_player.metadata.Metadata;
 
 
@@ -36,21 +38,24 @@ public class MediaNotificationManager {
     private Bitmap notifyIcon;
     private String playbackStatus;
 
-    private Resources resources;
+//    private Resources resources;
 
     public Metadata getMetaData() {
         return meta;
     }
 
+    public Context getMyContext(){
+        return MyContextWrapper.wrap(service, PreferencesManager.getInstance().getPrefLange());
+    }
 
     public MediaNotificationManager(RadioService service) {
         this.service = service;
-        this.resources = service.getResources();
+//        this.resources = service.getResources();
     }
 
     public void startNotify(String playbackStatus) {
         this.playbackStatus = playbackStatus;
-        this.notifyIcon = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_round);
+        this.notifyIcon = BitmapFactory.decodeResource(getMyContext().getResources(), R.mipmap.ic_launcher_round);
         startNotify();
     }
 
@@ -66,7 +71,7 @@ public class MediaNotificationManager {
         if (playbackStatus == null) return;
 
         if (notifyIcon == null)
-            notifyIcon = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_round);
+            notifyIcon = BitmapFactory.decodeResource(getMyContext().getResources(), R.mipmap.ic_launcher_round);
 
         NotificationManager notificationManager =
                 (NotificationManager) service.getSystemService(NOTIFICATION_SERVICE);
@@ -90,7 +95,7 @@ public class MediaNotificationManager {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             action = PendingIntent.getService(service, 1, playbackAction, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         } else {
-            action = PendingIntent.getActivity(service, 1, playbackAction, PendingIntent.FLAG_UPDATE_CURRENT);
+            action = PendingIntent.getService(service, 1, playbackAction, PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
         if (playbackStatus.equals(PlaybackStatus.PAUSED)) {
@@ -100,7 +105,7 @@ public class MediaNotificationManager {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 action = PendingIntent.getService(service, 2, playbackAction, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             } else {
-                action = PendingIntent.getActivity(service, 2, playbackAction, PendingIntent.FLAG_UPDATE_CURRENT);
+                action = PendingIntent.getService(service, 2, playbackAction, PendingIntent.FLAG_UPDATE_CURRENT);
             }
         }
 
@@ -111,7 +116,7 @@ public class MediaNotificationManager {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             stopAction = PendingIntent.getService(service, 3, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         } else {
-            stopAction = PendingIntent.getActivity(service, 3, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            stopAction = PendingIntent.getService(service, 3, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
         Intent intent = new Intent(service, MainActivity.class);
@@ -136,19 +141,19 @@ public class MediaNotificationManager {
 
 
 //        String title = meta != null && meta.getArtist() != null ?
-//                meta.getArtist() : resources.getString(R.string.notification_playing);
+//                meta.getArtist() : getMyContext().getResources().getString(R.string.notification_playing);
 //        String subTitle = meta != null && meta.getSong() != null ?
-//                meta.getSong() : resources.getString(R.string.app_name);
+//                meta.getSong() : getMyContext().getResources().getString(R.string.app_name);
 
         builder.
                 setContentTitle(meta.getStation() + " " + meta.getChannels())
-                .setContentText(resources.getString(R.string.notification_playing))
+                .setContentText(getMyContext().getResources().getString(R.string.notification_playing))
                 .setLargeIcon(notifyIcon)
                 .setContentIntent(pendingIntent)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setSmallIcon(R.mipmap.ic_launcher_round)
-                .addAction(icon, resources.getString(R.string.pause), action)
-                .addAction(R.drawable.ic_stop, resources.getString(R.string.stop), stopAction)
+                .addAction(icon, getMyContext().getResources().getString(R.string.pause), action)
+                .addAction(R.drawable.ic_stop, getMyContext().getResources().getString(R.string.stop), stopAction)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(false)
                 .setOngoing(true) // Cant cancel your notification (except NotificationManger.cancel(); )
