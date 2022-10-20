@@ -73,6 +73,7 @@
                 style="@style/TextRegular"
                 android:layout_marginTop="@dimen/spacing_mlarge"
                 android:gravity="center"
+                android:layout_width="match_parent"
                 android:justificationMode="inter_word"
                 android:lineSpacingExtra="3dp"
                 android:text="@string/app_message"
