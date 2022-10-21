@@ -65,8 +65,8 @@ android {
         hudhudfm_google_play {
             dimension 'fm_flavor'
             applicationId "com.sana.dev.fm"
-            versionCode 14
-            versionName "1.0.4"
+            versionCode 15
+            versionName "1.0.5"
             signingConfig signingConfigs.debug
             buildConfigField "String", "BASE_FB_DB" , '"HudHudFmGooglePlay"'
         }
