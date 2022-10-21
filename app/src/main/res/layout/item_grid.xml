@@ -105,7 +105,7 @@
                 android:padding="@dimen/spacing_middle">
 
                 <TextView
-                    android:id="@+id/tv_dec"
+                    android:id="@+id/tv_desc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="start"

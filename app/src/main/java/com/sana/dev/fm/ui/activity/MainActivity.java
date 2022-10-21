@@ -43,6 +43,7 @@ import com.sana.dev.fm.ui.fragment.DailyEpisodeFragment;
 import com.sana.dev.fm.ui.fragment.EpisodeFragment;
 import com.sana.dev.fm.ui.fragment.ProgramsFragment;
 import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
@@ -484,10 +485,10 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
     private void checkUserLogin() {
         if (!isAccountSignedIn()) {
-            startLoginActivity();
+            Intent intent = IntentHelper.phoneLoginActivity(MainActivity.this, false);
+            startActivity(intent);
         } else {
-            UserProfileActivity.startActivity(MainActivity.this);
-            finish();
+            startActivity(new Intent(IntentHelper.userProfileActivity(MainActivity.this, false)));
         }
 //        Fragment fragment = new EnterPhoneNumberFragment();
 //        getSupportFragmentManager().beginTransaction()
@@ -503,7 +504,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
             int volume_level = am.getStreamVolume(AudioManager.STREAM_MUSIC);
             if (volume_level < 2) {
-                showSnackBar(R.string.volume_low);
+                showSnackBar(getString(R.string.volume_low));
             } else {
                 radioManager.playOrPause(metadata);
 //        radioManager.playOrStop(streamURL);

@@ -93,13 +93,13 @@ public class VerificationPhone extends BaseActivity {
             PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
             signInWithCredential(credential);
         } catch (Exception e) {
+            LogUtility.e(LogUtility.tag(VerificationPhone.class), e.toString());
 //            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-
     }
 
     private void signInWithCredential(PhoneAuthCredential credential) {
-        showProgress();
+        showProgress(getString(R.string.please_wait));
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override

@@ -20,39 +20,11 @@ import android.view.View;
 
 import androidx.annotation.StringRes;
 
+import com.sana.dev.fm.ui.activity.BaseActivity;
+
 /**
  * Created by Admin on 08.05.18.
  */
 public interface BaseFragmentView extends BaseView {
-
-    void showProgress();
-
-    void showProgress(int message);
-
-    void hideProgress();
-
-    void showSnackBar(String message);
-
-    void showSnackBar(int message);
-
-    void showSnackBar(View view, int messageId);
-
-    void showToast(@StringRes int messageId);
-
-    void showToast(String message);
-
-    void showWarningDialog(int messageId);
-
-    void showWarningDialog(String message);
-
-    boolean hasInternetConnection();
-
-    void startLoginActivity();
-
-//    boolean isFirebaseAuthenticated();
-
-    boolean isAccountSignedIn();
-
-    boolean isRadioSelected();
 
 }

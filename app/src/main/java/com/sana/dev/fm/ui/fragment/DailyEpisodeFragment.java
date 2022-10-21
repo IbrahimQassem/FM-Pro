@@ -29,6 +29,7 @@ import com.sana.dev.fm.adapter.TimeLineAdapter;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.TempEpisodeModel;
+import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
@@ -54,7 +55,6 @@ public class DailyEpisodeFragment extends BaseFragment {
 
     private static final String TAG = DailyEpisodeFragment.class.getSimpleName();
 
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -66,11 +66,7 @@ public class DailyEpisodeFragment extends BaseFragment {
     RecyclerView recyclerView;
     @BindView(R.id.tvTittle)
     TextView tvTittle;
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
     private TimeLineAdapter mAdapter;
-    //    private List<Episode> episodeList = new ArrayList<>();
     private EpisodeRepositoryImpl ePiRepo;
 
 
@@ -86,7 +82,6 @@ public class DailyEpisodeFragment extends BaseFragment {
      * @param list   Parameter 2.
      * @return A new instance of fragment RadioMapFragment.
      */
-//     TODO: Rename and change types and number of parameters
     public static DailyEpisodeFragment newInstance(String param1, List<Episode> list) {
         DailyEpisodeFragment fragment = new DailyEpisodeFragment();
         // Don't include arguments unless uuid != null
@@ -130,13 +125,16 @@ public class DailyEpisodeFragment extends BaseFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        Fragment childFragment = new EmptyViewFragment();
-        Bundle args = new Bundle();
-        args.putString(EmptyViewFragment.ARG_NOTE_TITLE, ctx.getString(R.string.no_data_available));
-        args.putString(EmptyViewFragment.ARG_NOTE_DETAILS, getString(R.string.brows_more_station));
-        childFragment.setArguments(args);
+        EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(ctx.getString(R.string.no_data_available), getString(R.string.brows_more_station), getString(R.string.label_main_screen));
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
-        transaction.replace(R.id.child_fragment_container, childFragment).commit();
+        transaction.replace(R.id.child_fragment_container, emptyViewFragment).commit();
+        emptyViewFragment.setOnItemClickListener(new CallBackListener() {
+            @Override
+            public void onCallBack() {
+                if ((MainActivity) getActivity() != null)
+                    ((MainActivity) getActivity()).selectTab(R.id.navigation_home);
+            }
+        });
         recyclerView.setVisibility(View.GONE);
         cf_container.setVisibility(View.VISIBLE);
     }

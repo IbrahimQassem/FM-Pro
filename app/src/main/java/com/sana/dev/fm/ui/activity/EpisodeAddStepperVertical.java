@@ -66,6 +66,7 @@ import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.WakeTranslate;
 import com.sana.dev.fm.model.interfaces.OnCallbackDate;
+import com.sana.dev.fm.ui.activity.appuser.VerificationPhone;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
@@ -291,14 +292,14 @@ public class EpisodeAddStepperVertical extends BaseActivity {
             et_station.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showWarningDialog("لا يمكنك تغيير القناة الإاعية في حالة تحديث بيانات البرنامج");
+                    showWarningDialog(R.drawable.ic_cloud_off,getString(R.string.label_warinig),"لا يمكنك تغيير القناة الإاعية في حالة تحديث بيانات البرنامج",null,null);
                 }
             });
 
             et_program.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showWarningDialog("لا يمكنك تغيير إسم البرنامج في حالة تحديث بيانات البرنامج");
+                    showWarningDialog(R.drawable.ic_cloud_off,getString(R.string.label_warinig),"لا يمكنك تغيير إسم البرنامج في حالة تحديث بيانات البرنامج",null,null);
                 }
             });
 
@@ -388,9 +389,10 @@ public class EpisodeAddStepperVertical extends BaseActivity {
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
-                public void onFailure(@NonNull Exception exception) {
+                public void onFailure(@NonNull Exception e) {
+                    LogUtility.e(LogUtility.tag(EpisodeAddStepperVertical.class), e.toString());
                     // Handle unsuccessful uploads
-                    showSnackBar("لم يتم حفظ الصورة !" + exception.toString());
+                    showSnackBar("لم يتم حفظ الصورة !" + e.toString());
                     mProgressHUD.dismiss();
                 }
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -468,7 +470,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
                 if (et_station.getText().toString().trim().isEmpty()) {
                     et_station.setError(getString(R.string.error_empty_field_not_allowed));
                     et_station.requestFocus();
-                    showSnackBar(R.string.error_please_select_radio_station);
+                    showSnackBar(getString(R.string.error_please_select_radio_station));
                     return;
                 } else if (et_program.getText().toString().trim().isEmpty()) {
                     et_program.setError(getString(R.string.error_empty_field_not_allowed));
@@ -521,7 +523,6 @@ public class EpisodeAddStepperVertical extends BaseActivity {
             case R.id.bt_add_event:
                 // confirm and validate input user here
                 send();
-
                 //                finish();
                 break;
         }

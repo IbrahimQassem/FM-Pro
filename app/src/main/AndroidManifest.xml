@@ -6,11 +6,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-
-
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
 
     <application
         android:name=".FmApplication"
@@ -26,6 +23,7 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:supportsRtl"
         tools:targetApi="31">
+
         <activity
             android:name=".ui.activity.SplashActivity"
             android:exported="true"
@@ -80,10 +78,14 @@
         <activity
             android:name=".ui.activity.BaseActivity"
             android:screenOrientation="portrait" />
-        <!--        <activity android:name=".ui.activity.player.MusicServiceActivity" />-->
-        <!--        <activity android:name=".ui.activity.player.PlayerActivity" />-->
-        <!--        <activity android:name=".ui.activity.player.PermitActivity" />-->
+        <activity
+            android:name=".ui.activity.NoInternetActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
+        <!-- <activity android:name=".ui.activity.player.MusicServiceActivity" /> -->
+        <!-- <activity android:name=".ui.activity.player.PlayerActivity" /> -->
+        <!-- <activity android:name=".ui.activity.player.PermitActivity" /> -->
         <service
             android:name=".utils.radio_player.PlaybackService"
             android:exported="true" />
@@ -97,8 +99,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
-        </receiver>
-        <!-- Facebook Configuration -->
+        </receiver> <!-- Facebook Configuration -->
         <!--
         <meta-data
                     android:name="com.facebook.sdk.ApplicationId"

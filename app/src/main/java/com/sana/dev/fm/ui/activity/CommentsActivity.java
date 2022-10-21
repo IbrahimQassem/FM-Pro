@@ -40,8 +40,11 @@ import com.sana.dev.fm.adapter.CommentsAdapter;
 import com.sana.dev.fm.model.Comment;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.Users;
+import com.sana.dev.fm.ui.activity.appuser.VerificationPhone;
 import com.sana.dev.fm.ui.view.SendCommentButton;
 import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.IntentHelper;
+import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
@@ -154,7 +157,8 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                String s = String.valueOf(e.getMessage());
+                LogUtility.e(LogUtility.tag(CommentsActivity.class), e.toString());
+//                String s = String.valueOf(e.getMessage());
             }
         });
 
@@ -166,7 +170,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 
         String s = getIntent().getStringExtra("episode");
         if (s == null) {
-            showWarningDialog("بيانات البرنامج غير متوفرة", "");
+            showSnackBar("بيانات البرنامج غير متوفرة");
             return;
         }
 
@@ -322,18 +326,20 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         if (TextUtils.isEmpty(etComment.getText())) {
 //            AnimationUtil.shakeView(etComment, CommentsActivity.this);
 //            btnSendComment.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake_error));
-            showToast("لايوجد نص");
+            showToast(getString(R.string.error_no_comment));
             return false;
         } else if (currentUser == null) {
-            showNotCancelableWarningDialog(getString(R.string.label_note), getString(R.string.goto_login), new View.OnClickListener() {
+            showNotCancelableWarningDialog(-1, getString(R.string.label_note), getString(R.string.goto_login), v -> {}, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startLoginActivity();
+                    Intent intent = IntentHelper.phoneLoginActivity(getApplicationContext(), false);
+                    startActivity(intent);
                 }
             });
             return false;
         } else if (!hasInternetConnection()) {
-            showWarningDialog(getString(R.string.label_no_internet), getString(R.string.check_internet_connection));
+//            showWarningDialog(-1,getString(R.string.label_no_internet), getString(R.string.check_internet_connection));
+            showSnackBar(getString(R.string.check_internet_connection));
             return false;
         }
         return true;

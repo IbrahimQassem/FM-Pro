@@ -18,7 +18,6 @@ package com.sana.dev.fm.ui.fragment;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -29,7 +28,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.dd.CircularProgressButton;
-import com.google.firebase.auth.FirebaseAuth;
 import com.sana.dev.fm.model.interfaces.BaseFragmentView;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.utils.MyContextWrapper;
@@ -55,20 +53,13 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentView 
         getResources().updateConfiguration(context.getResources().getConfiguration(), context.getResources().getDisplayMetrics());
     }
 
-    public void showProgress() {
-        ((BaseActivity) mActivity).showProgress();
-    }
-
     @Override
-    public void showProgress(int message) {
+    public void showProgress(String message) {
         ((BaseActivity) mActivity).showProgress(message);
     }
 
     public void hideProgress() {
         ((BaseActivity) mActivity).hideProgress();
-//                        if (mContext instanceof BaseActivity) {
-//                    ((BaseActivity) mContext).showLikedSnackbar(feedItems.get(adapterPosition));
-//                }
     }
 
     @Override
@@ -76,10 +67,6 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentView 
         ((BaseActivity) Objects.requireNonNull(mActivity)).showSnackBar(message);
     }
 
-    @Override
-    public void showSnackBar(int message) {
-        ((BaseActivity) mActivity).showSnackBar(message);
-    }
 
     @Override
     public void showSnackBar(View view, int messageId) {
@@ -87,64 +74,24 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentView 
     }
 
     @Override
-    public void showToast(int messageId) {
-        ((BaseActivity) mActivity).showToast(messageId);
-    }
-
-    @Override
     public void showToast(String message) {
         ((BaseActivity) mActivity).showToast(message);
     }
 
+
     @Override
-    public void showWarningDialog(int messageId) {
-        ((BaseActivity) mActivity).showWarningDialog(messageId);
+    public void showWarningDialog(@Nullable int icon, @Nullable String title, @Nullable String desc, @Nullable View.OnClickListener cancelCallback, @Nullable View.OnClickListener confirmListener) {
+        ((BaseActivity) getActivity()).showNotCancelableWarningDialog(icon,title, desc, cancelCallback,confirmListener);
     }
 
     @Override
-    public void showWarningDialog(String message) {
-        ((BaseActivity) getActivity()).showWarningDialog(message);
-    }
-
-    @Override
-    public void showNotCancelableWarningDialog(String message) {
-        ((BaseActivity) getActivity()).showNotCancelableWarningDialog(message);
-    }
-
-    @Override
-    public void showWarningDialog(int messageId, DialogInterface.OnClickListener listener) {
-        ((BaseActivity) getActivity()).showWarningDialog(messageId, listener);
-    }
-
-    @Override
-    public void showWarningDialog(String message, DialogInterface.OnClickListener listener) {
-        ((BaseActivity) getActivity()).showWarningDialog(message, listener);
-    }
-
-    @Override
-    public void showWarningDialog(String message, String desc) {
-        ((BaseActivity) getActivity()).showWarningDialog(message, desc);
-    }
-
-
-    @Override
-    public void showNotCancelableWarningDialog(String message, String desc, View.OnClickListener listener) {
-        ((BaseActivity) getActivity()).showNotCancelableWarningDialog(message, desc, listener);
-    }
-
-    @Override
-    public void showNotCancelableWarningDialog(String message, String desc, View.OnClickListener cancelListener, View.OnClickListener okListener) {
-        ((BaseActivity) getActivity()).showNotCancelableWarningDialog(message, desc, cancelListener,okListener);
+    public void showNotCancelableWarningDialog(@Nullable int icon, @Nullable String title, @Nullable String desc, @Nullable View.OnClickListener cancelCallback, @Nullable View.OnClickListener confirmListener) {
+        ((BaseActivity) getActivity()).showNotCancelableWarningDialog(icon,title, desc, cancelCallback,confirmListener);
     }
 
     @Override
     public boolean hasInternetConnection() {
         return ((BaseActivity) getActivity()).hasInternetConnection();
-    }
-
-    @Override
-    public void startLoginActivity() {
-        ((BaseActivity) getActivity()).startLoginActivity();
     }
 
     @Override
@@ -186,7 +133,7 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentView 
 
     @Override
     public boolean isRadioSelected() {
-            return  prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null;
+        return prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null;
     }
 
 

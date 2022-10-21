@@ -1,9 +1,9 @@
 package com.sana.dev.fm.ui.fragment;
 
-import static com.sana.dev.fm.ui.fragment.EmptyViewFragment.ARG_NOTE_DETAILS;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -33,10 +33,13 @@ import com.sana.dev.fm.databinding.ItemGridBinding;
 import com.sana.dev.fm.databinding.ItemProgramsBinding;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.UserType;
+import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.CommentsActivity;
 import com.sana.dev.fm.ui.activity.EpisodeAddStepperVertical;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
+import com.sana.dev.fm.ui.activity.SplashActivity;
+import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.EpisodeRepositoryImpl;
@@ -137,14 +140,16 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : "";
-        Fragment childFragment = new EmptyViewFragment();
-        Bundle args = new Bundle();
-//        args.putString(ARG_NOTE_TITLE, context.getString(R.string.no_data_available));
-        args.putString(ARG_NOTE_DETAILS, String.format(" %s", getResources().getString(R.string.empty_ep, primary)));
-//        args.putString(ARG_NOTE_DETAILS, getString(R.string.brows_more_station));
-        childFragment.setArguments(args);
+        EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(context.getString(R.string.no_data_available),  String.format(" %s", getResources().getString(R.string.empty_ep, primary)),getString(R.string.brows_more_station));
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
-        transaction.replace(R.id.child_fragment_container, childFragment).commit();
+        transaction.replace(R.id.child_fragment_container, emptyViewFragment).commit();
+        emptyViewFragment.setOnItemClickListener(new CallBackListener() {
+            @Override
+            public void onCallBack() {
+                if ((MainActivity) getActivity() != null)
+                    ((MainActivity) getActivity()).selectTab(R.id.navigation_home);
+            }
+        });
     }
 
     void init() {
@@ -288,12 +293,12 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                             case R.id.imv_like:
                                 if (!RealTimeEpisodeFragment.this.isAccountSignedIn()) {
                                     if (context instanceof MainActivity) {
-                                        ((MainActivity) context).showNotCancelableWarningDialog(context.getString(R.string.label_note), context.getString(R.string.goto_login), new View.OnClickListener() {
+                                        ((MainActivity) context).showNotCancelableWarningDialog(-1,context.getString(R.string.label_note), context.getString(R.string.goto_login), new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                ((MainActivity) context).startLoginActivity();
+                                                startActivity(new Intent(IntentHelper.phoneLoginActivity(context, false)));
                                             }
-                                        });
+                                        },null);
                                     }
                                 } else {
                                     boolean isLik = !model.isLiked;
@@ -358,7 +363,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
         inflate.findViewById(R.id.lyt_delete).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                showNotCancelableWarningDialog("هل تريد حذف " + obj.getEpName() + " ؟ ", "سيتم حذف بيانات البرنامج نهائياَ", new View.OnClickListener() {
+                showNotCancelableWarningDialog(-1, "هل تريد حذف " + obj.getEpName() + " ؟ ", "سيتم حذف بيانات البرنامج نهائياَ", v -> {}, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         ePiRepo.deleteEpi(obj, new CallBack() {

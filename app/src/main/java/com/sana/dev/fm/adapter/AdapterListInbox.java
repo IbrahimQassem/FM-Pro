@@ -1,6 +1,7 @@
 package com.sana.dev.fm.adapter;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -72,7 +73,7 @@ public class AdapterListInbox extends Adapter<AdapterListInbox.ViewHolder> {
         return new ViewHolder(LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_inbox, viewGroup, false));
     }
 
-    public void onBindViewHolder(ViewHolder viewHolder, final int i) {
+    public void onBindViewHolder(ViewHolder viewHolder, @SuppressLint("RecyclerView") final int i) {
         final Episode inbox = (Episode) this.items.get(i);
         viewHolder.from.setText(inbox.getEpName());
         viewHolder.email.setText(inbox.getEpDesc());

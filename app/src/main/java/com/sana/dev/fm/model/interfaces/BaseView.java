@@ -19,7 +19,10 @@ package com.sana.dev.fm.model.interfaces;
 import android.content.DialogInterface;
 import android.view.View;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+
+import com.sana.dev.fm.model.ButtonConfig;
 
 
 /**
@@ -28,52 +31,32 @@ import androidx.annotation.StringRes;
 
 public interface BaseView {
 
-    void showProgress();
-
-    void showProgress(int message);
+    void showProgress(String message);
 
     void hideProgress();
 
     void showSnackBar(String message);
 
-    void showSnackBar(int message);
-
     void showSnackBar(View view, int messageId);
-
-    void showToast(@StringRes int messageId);
 
     void showToast(String message);
 
-    void showWarningDialog(int messageId);
+    void showWarningDialog(@Nullable int icon, @Nullable String title, @Nullable String desc, @Nullable View.OnClickListener cancelCallback, @Nullable View.OnClickListener confirmListener);
 
-    void showWarningDialog(String message);
+    void showNotCancelableWarningDialog(@Nullable int icon, @Nullable String title, @Nullable String desc, @Nullable View.OnClickListener cancelCallback, @Nullable View.OnClickListener confirmListener);
 
-    void showNotCancelableWarningDialog(String message);
-
-    void showWarningDialog(String message, String desc);
-
-    void showNotCancelableWarningDialog(String message, String desc, View.OnClickListener okCallback);
-
-    void showNotCancelableWarningDialog(String message, String desc, View.OnClickListener cancelCallback, View.OnClickListener okCallback);
-
-    void showWarningDialog(@StringRes int messageId, DialogInterface.OnClickListener listener);
-
-    void showWarningDialog(String message, DialogInterface.OnClickListener listener);
-
-
-//    void onUserClickedTarget(String materialIntroViewId,View viewId, View.OnClickListener listener);
-
-
-    void startLoginActivity();
+//    void showNotCancelableWarningDialog(@Nullable int icon, @Nullable String title, @Nullable String desc, @Nullable ButtonConfig cancelCallback, @Nullable ButtonConfig confirmListener);
 
     void startMainActivity();
-
 
     void hideKeyboard();
 
     void finish();
 
     boolean isAccountSignedIn();
+
     boolean isRadioSelected();
+
+    boolean hasInternetConnection();
 
 }

@@ -42,6 +42,7 @@ import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.ui.activity.appuser.PhoneLoginActivity;
 import com.sana.dev.fm.ui.activity.appuser.VerificationPhone;
 import com.sana.dev.fm.utils.Constants;
+import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
@@ -157,10 +158,9 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void goToMain() {
-        Intent intent = BaseActivity.mainPage(SplashActivity.this, true);
+        Intent intent = IntentHelper.userProfileActivity(SplashActivity.this, true);
 //      Intent intent = new Intent(SplashActivity.this, PlayerActivity.class);
         startActivity(intent);
-//        finish();
     }
 
 
@@ -215,15 +215,13 @@ public class SplashActivity extends AppCompatActivity {
                             Log.d(LogUtility.TAG, "signInAnonymously:success");
 //                                            FirebaseUser user = mAuth.getCurrentUser();
 //                                            updateUI(user);
-                            Intent intent2 = BaseActivity.introPage(SplashActivity.this, true);
-                            startActivity(intent2);
-                            finish();
+                            startActivity(new Intent(IntentHelper.introActivity(SplashActivity.this, true)));
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(LogUtility.TAG, "signInAnonymously:failure", task.getException());
 //                                            Toast.makeText(SplashActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
 //                                            updateUI(null);
-                            Intent intent = new Intent(SplashActivity.this, PhoneLoginActivity.class);
+                            Intent intent = new Intent(SplashActivity.this, NoInternetActivity.class);
                             startActivity(intent);
                         }
                     }

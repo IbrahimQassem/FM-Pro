@@ -2,21 +2,19 @@ package com.sana.dev.fm.ui.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 
-import com.sana.dev.fm.R;
-import com.sana.dev.fm.ui.activity.MainActivity;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import com.sana.dev.fm.databinding.FragmentNoiternetViewBinding;
+import com.sana.dev.fm.model.interfaces.CallBackListener;
+import com.sana.dev.fm.utils.FmUtilize;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,47 +23,26 @@ import butterknife.ButterKnife;
  */
 public class EmptyViewFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    public static final String ARG_NOTE_TITLE = "Note_Title";
-    public static final String ARG_NOTE_DETAILS = "NOTE_Details";
-    View view;
-    private String _details;
+    public static final String ARG_TITLE = "ARG_TITLE";
+    public static final String ARG_DETAILS = "ARG_DETAILS";
+    public static final String ARG_BTN_LABEL = "ARG_BTN_LABEL";
+
+    private FragmentNoiternetViewBinding binding;
     Context ctx;
-    @BindView(R.id.linearlayout)
-    LinearLayout linearlayout;
+    private String title_label, details_label, btn_label;
+    private CallBackListener callBackListener;
 
-    //    private CallBackListener callBackListener;
-    @BindView(R.id.tv_note_title)
-    TextView tv_note_title;
-    @BindView(R.id.tv_note_details)
-    TextView tv_note_details;
-    //    ProgressBar progress_bar;
-//    AppCompatButton bt_action;
-//    @BindView(R.id.btn_click)
-//    AppCompatButton btn_click;
-    // TODO: Rename and change types of parameters
-    private String _title;
-
-
-    public EmptyViewFragment() {
-        // Required empty public constructor
+    public void setOnItemClickListener(CallBackListener callBackListener) {
+        this.callBackListener = callBackListener;
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment EmpyViewFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static EmptyViewFragment newInstance(String param1, String param2) {
+
+    public static EmptyViewFragment newInstance(String title, String desc, String btnLAbel) {
         EmptyViewFragment fragment = new EmptyViewFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_NOTE_TITLE, param1);
-        args.putString(ARG_NOTE_DETAILS, param2);
+        args.putString(ARG_TITLE, title);
+        args.putString(ARG_DETAILS, desc);
+        args.putString(ARG_BTN_LABEL, btnLAbel);
         fragment.setArguments(args);
         return fragment;
     }
@@ -74,27 +51,66 @@ public class EmptyViewFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            _title = getArguments().getString(ARG_NOTE_TITLE);
-            _details = getArguments().getString(ARG_NOTE_DETAILS);
+            title_label = getArguments().getString(ARG_TITLE);
+            details_label = getArguments().getString(ARG_DETAILS);
+            btn_label = getArguments().getString(ARG_BTN_LABEL);
         }
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-//        return inflater.inflate(R.layout.fragment_no_item_tabs, container, false);
-        view = inflater.inflate(R.layout.fragment_noiternet_view, container, false);
-        ButterKnife.bind(this, view);
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        binding = FragmentNoiternetViewBinding.inflate(LayoutInflater.from(getContext()));
+        return binding.getRoot();
+    }
 
-        linearlayout.setVisibility(View.VISIBLE);
-        tv_note_title.setText(_title);
-        tv_note_title.setVisibility(_title != null ? View.VISIBLE : View.GONE);
-        tv_note_details.setText(_details);
-        tv_note_details.setVisibility(_details != null ? View.VISIBLE : View.GONE);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        ctx = getActivity();
 
+        binding.linearlayout.setVisibility(View.VISIBLE);
 
-        return view;
+        FmUtilize.hideEmptyElement(title_label, binding.tvNoteTitle);
+        FmUtilize.hideEmptyElement(details_label, binding.tvNoteDetails);
+
+        if (!TextUtils.isEmpty(btn_label)) {
+            binding.btnClick.setText(btn_label);
+        }
+
+        binding.progressBar.setVisibility(View.GONE);
+        binding.linearlayout.setVisibility(View.VISIBLE);
+
+    /*    binding.linearlayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                triggerEvent();
+            }
+        });*/
+
+        binding.btnClick.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                triggerEvent();
+            }
+        });
+    }
+
+    private void triggerEvent() {
+        binding.progressBar.setVisibility(View.VISIBLE);
+        binding.linearlayout.setVisibility(View.GONE);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                binding.progressBar.setVisibility(View.GONE);
+                binding.linearlayout.setVisibility(View.VISIBLE);
+                if (callBackListener != null)
+                    callBackListener.onCallBack();
+            }
+        }, 1000);
     }
 
 
@@ -106,20 +122,6 @@ public class EmptyViewFragment extends Fragment {
 //            callBackListener = (CallBackListener) getActivity();
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        AppCompatButton btn = view.findViewById(R.id.btn_click);
-        btn.setVisibility(_title != null ? View.VISIBLE : View.GONE);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                if(callBackListener != null)
-//                    callBackListener.onCallBack();
-                ((MainActivity) getActivity()).selectTab(R.id.navigation_home); // 1 for GamesFragment
-            }
-        });
-    }
 
     @Override
     public void onAttach(Context context) {
@@ -139,7 +141,4 @@ public class EmptyViewFragment extends Fragment {
 //        callBackListener = null;
     }
 
-//    public interface CallBackListener {
-//        void onCallBack();// pass any parameter in your onCallBack which you want to return
-//    }
 }

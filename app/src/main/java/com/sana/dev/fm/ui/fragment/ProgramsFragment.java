@@ -1,21 +1,16 @@
 package com.sana.dev.fm.ui.fragment;
 
 
-import static com.sana.dev.fm.ui.fragment.EmptyViewFragment.ARG_NOTE_DETAILS;
-import static com.sana.dev.fm.ui.fragment.EmptyViewFragment.ARG_NOTE_TITLE;
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 import static com.sana.dev.fm.utils.FmUtilize.month_date;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.RADIO_PROGRAM_TABLE;
 
 import android.content.Context;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Html;
-import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +33,8 @@ import com.sana.dev.fm.adapter.SimpleSectionedRecyclerViewAdapter;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.UserType;
+import com.sana.dev.fm.model.interfaces.CallBackListener;
+import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
@@ -62,36 +59,28 @@ public class ProgramsFragment extends BaseFragment {
 
     private static final String TAG = ProgramsFragment.class.getSimpleName();
 
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_RADIO_iD = "radioId";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_RADIO_ID = "radioId";
+    private static final String ARG_RADIO_LIST = "radioList";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-//    public ProgramsFragment() {
-//        // Required empty public constructor
-//    }
+    private String radioId;
 
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
+     * @param radioId Parameter 1.
      * @param list   Parameter 2.
      * @return A new instance of fragment ProgramsFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static ProgramsFragment newInstance(String param1, List<RadioProgram> list) {
+    public static ProgramsFragment newInstance(String radioId, List<RadioProgram> list) {
         ProgramsFragment fragment = new ProgramsFragment();
         // Don't include arguments unless uuid != null
 
         if (list != null) {
             Bundle args = new Bundle();
-            args.putString(ARG_RADIO_iD, param1);
-            args.putSerializable(ARG_PARAM2, (Serializable) list);
+            args.putString(ARG_RADIO_ID, radioId);
+            args.putSerializable(ARG_RADIO_LIST, (Serializable) list);
             fragment.setArguments(args);
         }
         return fragment;
@@ -116,8 +105,8 @@ public class ProgramsFragment extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_RADIO_iD);
-            itemList = (List<RadioProgram>) getArguments().getSerializable(ARG_PARAM2);
+            radioId = getArguments().getString(ARG_RADIO_ID);
+            itemList = (List<RadioProgram>) getArguments().getSerializable(ARG_RADIO_LIST);
         }
     }
 
@@ -140,13 +129,16 @@ public class ProgramsFragment extends BaseFragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        Fragment childFragment = new EmptyViewFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_NOTE_TITLE, ctx.getString(R.string.no_data_available));
-        args.putString(ARG_NOTE_DETAILS, getString(R.string.brows_more_station));
-        childFragment.setArguments(args);
+        EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(ctx.getString(R.string.no_data_available), getString(R.string.brows_more_station), getString(R.string.label_main_screen));
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
-        transaction.replace(R.id.child_fragment_container, childFragment).commit();
+        transaction.replace(R.id.child_fragment_container, emptyViewFragment).commit();
+        emptyViewFragment.setOnItemClickListener(new CallBackListener() {
+            @Override
+            public void onCallBack() {
+                if ((MainActivity) getActivity() != null)
+                    ((MainActivity) getActivity()).selectTab(R.id.navigation_home);
+            }
+        });
     }
 
     private void initComponent() {
@@ -202,7 +194,7 @@ public class ProgramsFragment extends BaseFragment {
                             @Override
                             public void onLongItemClick(View view, RadioProgram obj, int position) {
                                 if (ProgramsFragment.this.isAccountSignedIn() && prefMgr.getUsers().getUserType() == UserType.SuperADMIN)
-                                    showNotCancelableWarningDialog("هل تريد حذف " + obj.getPrName() + " ؟ ", "سيتم حذف بيانات البرنامج نهائياَ", new View.OnClickListener() {
+                                    showNotCancelableWarningDialog(-1,"هل تريد حذف " + obj.getPrName() + " ؟ ", "سيتم حذف بيانات البرنامج نهائياَ", new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
                                             fmRepo.deleteProgram(obj, new CallBack() {
@@ -218,7 +210,7 @@ public class ProgramsFragment extends BaseFragment {
                                                 }
                                             });
                                         }
-                                    });
+                                    },null);
                             }
                         });
 

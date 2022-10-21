@@ -21,6 +21,7 @@ import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener;
 
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.Tools;
 
 public class AppIntroLight extends BaseActivity {
@@ -72,9 +73,8 @@ public class AppIntroLight extends BaseActivity {
                     if (currentItem < MAX_STEP) {
                         viewPager.setCurrentItem(currentItem);
                     } else {
-                        Intent intent2 = BaseActivity.splashPage(AppIntroLight.this, true);
+                        Intent intent2 = IntentHelper.splashActivity(AppIntroLight.this, true);
                         startActivity(intent2);
-                        finish();
                     }
                 }
             });

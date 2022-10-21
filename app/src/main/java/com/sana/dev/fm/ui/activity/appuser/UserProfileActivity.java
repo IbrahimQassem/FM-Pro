@@ -49,6 +49,8 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.utils.AESCrypt;
 import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.IntentHelper;
+import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.ProgressHUD;
 import com.sana.dev.fm.utils.Tools;
@@ -210,7 +212,7 @@ public class UserProfileActivity extends BaseActivity {
 //                    String encryptedTest =
                     Toast.makeText(UserProfileActivity.this, "" + AESCrypt.decrypt(_userModel.getPassword()), Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtility.e(LogUtility.tag(UserProfileActivity.class), e.toString());
                 }
             }
         });
@@ -239,7 +241,7 @@ public class UserProfileActivity extends BaseActivity {
                         et_password.setTransformationMethod(new PasswordTransformationMethod());
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtility.e(LogUtility.tag(UserProfileActivity.class), e.toString());
                 }
 
 
@@ -331,7 +333,7 @@ public class UserProfileActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case android.R.id.home:
-                goToMain();
+                startMainActivity();
                 break;
             case R.id.action_pick_image:
                 onImageSelect(img_profile);
@@ -351,9 +353,7 @@ public class UserProfileActivity extends BaseActivity {
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
-//            showToast(getString(R.string.most_login));
-            startLoginActivity();
-            finish();
+            startMainActivity();
         } else {
 //            chekUserAuth();
             if (prefMgr.getUsers() != null)
@@ -368,7 +368,7 @@ public class UserProfileActivity extends BaseActivity {
         prefMgr.remove(FMCConstants.USER_INFO);
         prefMgr.remove(FMCConstants.USER_MOBILE);
         prefMgr.remove(FMCConstants.USER_IMAGE_Profile);
-        Intent intent = splashPage(this, true);
+        Intent intent = IntentHelper.splashActivity(this, true);
         startActivity(intent);
 //        finish();
         showToast(getString(R.string.user_loged_out));
@@ -465,7 +465,7 @@ public class UserProfileActivity extends BaseActivity {
             try {
                 et_password.setText(AESCrypt.decrypt(_userModel.getPassword()));
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtility.e(LogUtility.tag(UserProfileActivity.class), e.toString());
             }
             gender = _userModel.getGender() != null ? _userModel.getGender() : Gender.UNKNOWN;
             if (Gender.FEMALE.equalsName(gender.getText()))
@@ -517,7 +517,7 @@ public class UserProfileActivity extends BaseActivity {
                 @Override
                 public void onSuccess(Object object) {
                     prefMgr.write(FMCConstants.USER_INFO, (Users) object);
-                    showToast(R.string.saved_successfully);
+                    showToast(getString(R.string.saved_successfully));
                     startMainActivity();
                 }
 
@@ -610,9 +610,10 @@ public class UserProfileActivity extends BaseActivity {
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onFailure(@NonNull Exception exception) {
+            public void onFailure(@NonNull Exception e) {
+                LogUtility.e(LogUtility.tag(UserProfileActivity.class), e.toString());
                 // Handle unsuccessful uploads
-                showToast("نعتذر لم يتم الحفظ !" + exception.toString());
+                showToast("نعتذر لم يتم الحفظ !" + e);
                 mProgressHUD.dismiss();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -674,14 +675,9 @@ public class UserProfileActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        goToMain();
+        startMainActivity();
     }
 
-    private void goToMain() {
-        Intent intent = BaseActivity.mainPage(UserProfileActivity.this, true);
-        startActivity(intent);
-        finish();
-    }
 
     //    void chekUserAuth() {
 //        Users.getUserInfo(ProfileWhite.this, prefMgr.read(FMCConstants.USER_MOBILE,""), new CallBack() {

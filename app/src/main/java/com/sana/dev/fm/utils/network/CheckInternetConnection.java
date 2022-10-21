@@ -4,6 +4,9 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 
+import com.sana.dev.fm.ui.activity.appuser.VerificationPhone;
+import com.sana.dev.fm.utils.LogUtility;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -52,12 +55,11 @@ public class CheckInternetConnection  {
     }
 
     private void sleep(int timeInMilli) {
-
         try {
             Thread.sleep(timeInMilli);
         }
-        catch (Exception e1) {
-            e1.printStackTrace();
+        catch (Exception e) {
+            LogUtility.e(LogUtility.tag(CheckInternetConnection.class), e.toString());
         }
     }
 

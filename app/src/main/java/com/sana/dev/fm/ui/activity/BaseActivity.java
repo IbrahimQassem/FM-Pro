@@ -3,38 +3,37 @@ package com.sana.dev.fm.ui.activity;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.databinding.DialogHeaderPolygonBinding;
+import com.sana.dev.fm.databinding.DialogWarningBinding;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.BaseView;
-import com.sana.dev.fm.ui.activity.appuser.PhoneLoginActivity;
 import com.sana.dev.fm.utils.Constants;
+import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.ProgressHUD;
-import com.sana.dev.fm.utils.Tools;
+import com.sana.dev.fm.utils.SnackBarUtility;
 import com.sana.dev.fm.utils.UserGuide;
 import com.sana.dev.fm.utils.network.CheckInternetConnection;
 import com.sana.dev.fm.utils.network.ConnectionChangeListener;
-
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,9 +47,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     private ProgressHUD mProgressHUD;
     public PreferencesManager prefMgr;
-//    @Nullable
-//    @BindView(R.id.toolbar)
-//    Toolbar toolbar;
+
     @Nullable
     @BindView(R.id.tv_title)
     TextView txvLogo;
@@ -59,18 +56,19 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     @BindView(R.id.imb_event)
     ImageButton imb_event;
 
+    private MenuItem inboxMenuItem;
+
+    SnackBarUtility sbHelp;
+
     protected CheckInternetConnection connectionChecker;
     UserGuide userGuide;
-    NetworkCallback networkCallback;
-    private MenuItem inboxMenuItem;
+    protected NetworkCallback networkCallback;
     private boolean connectionAvailable = true;
     private long backPressedTime;
 
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
-
-//        String uniqueID = UUID.randomUUID().toString();
         mProgressHUD = new ProgressHUD((Activity) this);
         bindViews();
     }
@@ -116,28 +114,28 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     }
 
     void chekInternetCon() {
-
         connectionChecker.addConnectionChangeListener(new ConnectionChangeListener() {
             @Override
             public void onConnectionChanged(boolean isConnectionAvailable) {
                 if (connectionAvailable && !isConnectionAvailable) {
-//                    Toast.makeText(BaseActivity.this, "Internet connection unavailable!", Toast.LENGTH_SHORT).show();
                     connectionAvailable = false;
+//                    showSnackBar("Internet is : "+connectionAvailable);
                 } else if (!connectionAvailable && isConnectionAvailable) {
-//                    Toast.makeText(BaseActivity.this, "Internet connection is back again.", Toast.LENGTH_SHORT).show();
                     connectionAvailable = true;
+//                    showSnackBar("Internet is : "+connectionAvailable);
                 }
 
                 // Check just for MainBottomNav because the interface NetworkCallback
                 if (BaseActivity.this instanceof MainActivity) {
                     networkCallback = (NetworkCallback) BaseActivity.this;
-//                    if (networkCallback != null)
                     networkCallback.onNetworkChange(connectionAvailable);
                 }
-
-
             }
         });
+    }
+
+    public boolean hasInternetConnection() {
+        return connectionAvailable;
     }
 
 //    public Toolbar getToolbar() {
@@ -157,113 +155,48 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     }
 
 
-//    public void startTour(View view, String id, String text, Focus focusType, ShapeType shape) {
-//        userGuide.showIntro(view, id, text, focusType, shape);
-//    }
-
-//    @Override
-//    public void onUserClickedTarget(String materialIntroViewId, View viewId, View.OnClickListener listener) {
-//
-//        switch (materialIntroViewId) {
-//            case INTRO_FOCUS_1:
-//                startTour(viewId, INTRO_FOCUS_1, "من خلال هذا الزر يمكنك تشغيل البث المباشر للقناة الإذاعية التي تم تحديدها", Focus.ALL, ShapeType.CIRCLE);
-//                Toast.makeText(this, materialIntroViewId, Toast.LENGTH_SHORT).show();
-//                break;
-//            case INTRO_FOCUS_2:
-//                startTour(viewId, INTRO_FOCUS_2, "يمكنك تحديد القناة الإذاعية التي ترغب في متابعتها من خلال ضغط الكارد الخاص بالإذاعة", Focus.ALL, ShapeType.CIRCLE);
-//                Toast.makeText(this, materialIntroViewId, Toast.LENGTH_SHORT).show();
-//                break;
-////            case MENU_ABOUT_ID_TAG:
-//////                showIntro(navigation_header.findViewById(R.id.bt_account), MENU_SHARED_ID_TAG, getString(R.string.lorem_ipsum), FocusGravity.LEFT);
-////
-////                break;
-////            case MENU_SHARED_ID_TAG:
-////                Toast.makeText(MainActivity.this, "Complete!", Toast.LENGTH_SHORT).show();
-////                break;
-//            default:
-//                break;
-//        }
-//
-//    }
-
-//    @Override
-//    public void onUserClicked(String materialIntroViewId) {
-//        switch (materialIntroViewId) {
-//            case INTRO_FOCUS_1:
-////                startTour(fab_radio, INTRO_FOCUS_2, "يمكنك تحديد القناة الإذاعية التي ترغب في متابعتها من خلال ضغط الكارد الخاص بالإذاعة", Focus.ALL, ShapeType.CIRCLE);
-////                Toast.makeText(MainBottomNav.this, "INTRO_FOCUS_2", Toast.LENGTH_SHORT).show();
-//                break;
-////            case MENU_ABOUT_ID_TAG:
-//////                showIntro(navigation_header.findViewById(R.id.bt_account), MENU_SHARED_ID_TAG, getString(R.string.lorem_ipsum), FocusGravity.LEFT);
-////
-////                break;
-////            case MENU_SHARED_ID_TAG:
-////                Toast.makeText(MainActivity.this, "Complete!", Toast.LENGTH_SHORT).show();
-////                break;
-//            default:
-//                break;
-//        }
-//    }
-
-    //    public boolean isConAvailable() {
-//        return connectionAvailable;
-//    }
-
+/*
+    public void startTour(View view, String id, String text, Focus focusType, ShapeType shape) {
+        userGuide.showIntro(view, id, text, focusType, shape);
+    }
 
     @Override
-    public void startLoginActivity() {
-        Intent intent = new Intent(getApplicationContext(), PhoneLoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-//        Intent intent = new Intent(this, VerificationHeader.class);
-//        startActivityForResult(intent, VerificationHeader.LOGIN_REQUEST_CODE);
+    public void onUserClickedTarget(String materialIntroViewId, View viewId, View.OnClickListener listener) {
+
+        switch (materialIntroViewId) {
+            case INTRO_FOCUS_1:
+                startTour(viewId, INTRO_FOCUS_1, "من خلال هذا الزر يمكنك تشغيل البث المباشر للقناة الإذاعية التي تم تحديدها", Focus.ALL, ShapeType.CIRCLE);
+                Toast.makeText(this, materialIntroViewId, Toast.LENGTH_SHORT).show();
+                break;
+            case INTRO_FOCUS_2:
+                startTour(viewId, INTRO_FOCUS_2, "يمكنك تحديد القناة الإذاعية التي ترغب في متابعتها من خلال ضغط الكارد الخاص بالإذاعة", Focus.ALL, ShapeType.CIRCLE);
+                Toast.makeText(this, materialIntroViewId, Toast.LENGTH_SHORT).show();
+                break;
+//            case MENU_ABOUT_ID_TAG:
+////                showIntro(navigation_header.findViewById(R.id.bt_account), MENU_SHARED_ID_TAG, getString(R.string.lorem_ipsum), FocusGravity.LEFT);
+//
+//                break;
+//            case MENU_SHARED_ID_TAG:
+//                Toast.makeText(MainActivity.this, "Complete!", Toast.LENGTH_SHORT).show();
+//                break;
+            default:
+                break;
+        }
+
     }
+*/
 
     @Override
     public void startMainActivity() {
-//        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        startActivity(intent);
-//        finish();
-        Intent intent = BaseActivity.mainPage(getApplicationContext(), true);
+        Intent intent = IntentHelper.mainActivity(getApplicationContext(), true);
         startActivity(intent);
-        finish();
-    }
-
-    public static Intent mainPage(Context context, boolean isNewTask) {
-        Intent intent = new Intent(context, MainActivity.class);
-        if (isNewTask) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        }
-        return intent;
-    }
-
-    public static Intent splashPage(Context context, boolean isNewTask) {
-        Intent intent = new Intent(context, SplashActivity.class);
-        if (isNewTask) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        }
-        return intent;
-    }
-
-    public static Intent introPage(Context context, boolean isNewTask) {
-        Intent intent = new Intent(context, AppIntroLight.class);
-        if (isNewTask) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        }
-        return intent;
     }
 
 
     @Override
-    public void showProgress() {
-        showProgress(R.string.please_wait);
-    }
-
-    @Override
-    public void showProgress(@StringRes int message) {
+    public void showProgress(String message) {
         hideProgress();
-        mProgressHUD.showDialogPrivate( /*(Activity) this.getApplicationContext(), */getString(R.string.please_wait), true, false, null);
+        mProgressHUD.showDialogPrivate( /*(Activity) this.getApplicationContext(), */message, true, false, null);
     }
 
     @Override
@@ -296,17 +229,12 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     @Override
     public void showSnackBar(String message) {
-        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content),
-                message, Snackbar.LENGTH_LONG);
-        snackbar.show();
+//        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content),message, Snackbar.LENGTH_LONG);
+//        snackbar.show();
+        sbHelp = new SnackBarUtility(this);
+        sbHelp.showSnackBar(message, 3000);
     }
 
-    @Override
-    public void showSnackBar(@StringRes int messageId) {
-        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content),
-                messageId, Snackbar.LENGTH_LONG);
-        snackbar.show();
-    }
 
     @Override
     public void showSnackBar(View view, @StringRes int messageId) {
@@ -314,147 +242,98 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
         snackbar.show();
     }
 
-    @Override
-    public void showToast(@StringRes int messageId) {
-        Toast.makeText(this, messageId, Toast.LENGTH_LONG).show();
-    }
 
     @Override
     public void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
-    public void showWarningDialog(int messageId) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(messageId);
-        builder.setPositiveButton(R.string.label_ok, null);
-        builder.show();
-    }
-
-    public void showWarningDialog(String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(message);
-        builder.setPositiveButton(R.string.label_ok, null);
-        builder.show();
-    }
-
     @Override
-    public void showNotCancelableWarningDialog(String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(message);
-        builder.setPositiveButton(R.string.label_ok, null);
-        builder.setCancelable(false);
-        builder.show();
-    }
-
-    @Override
-    public void showWarningDialog(int message, DialogInterface.OnClickListener listener) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(message);
-        builder.setPositiveButton(R.string.label_ok, listener);
-        builder.show();
-    }
-
-    @Override
-    public void showWarningDialog(String message, DialogInterface.OnClickListener listener) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(message);
-        builder.setPositiveButton(R.string.label_ok, listener);
-        builder.setNegativeButton(R.string.label_cancel, (dialog, which) -> dialog.cancel());
-        builder.show();
-    }
-
-
-    @Override
-    public void showWarningDialog(String message, String desc) {
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(1);
-        dialog.setContentView(R.layout.dialog_warning);
-        dialog.setCancelable(true);
-        LayoutParams layoutParams = new LayoutParams();
-        layoutParams.copyFrom(dialog.getWindow().getAttributes());
-        layoutParams.width = -2;
-        layoutParams.height = -2;
-        TextView tvTitle = dialog.findViewById(R.id.tvTitle);
-        TextView tvDesc = dialog.findViewById(R.id.tvSubTitle);
-        tvTitle.setText(message);
-        tvDesc.setText(desc);
-        dialog.findViewById(R.id.bt_close).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
-        dialog.show();
-        dialog.getWindow().setAttributes(layoutParams);
-    }
-
-    @Override
-    public void showNotCancelableWarningDialog(String message, String _desc, View.OnClickListener okListener) {
+    public void showWarningDialog(@Nullable int icon, @Nullable String title, @Nullable String desc, @Nullable View.OnClickListener cancelCallback, @Nullable View.OnClickListener confirmListener) {
         Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(1);
-        dialog.setContentView(R.layout.dialog_header_polygon);
+        DialogWarningBinding binding = DialogWarningBinding.inflate(LayoutInflater.from(dialog.getContext()));
+
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
         dialog.setCancelable(true);
-        ImageView iv_image = dialog.findViewById(R.id.iv_image);
-        TextView tvTitle = dialog.findViewById(R.id.tvTitle);
-        TextView tvDesc = dialog.findViewById(R.id.tvSubTitle);
-        iv_image.setVisibility(View.GONE);
-        tvTitle.setText(message);
-        tvDesc.setText(_desc);
-        dialog.findViewById(R.id.bt_positive).setOnClickListener(new View.OnClickListener() {
+
+        if (icon < 1) {
+            binding.ivImage.setVisibility(View.GONE);
+        } else {
+            binding.ivImage.setVisibility(View.VISIBLE);
+        }
+
+        FmUtilize.hideEmptyElement(title, binding.tvTitle);
+        FmUtilize.hideEmptyElement(desc, binding.tvDesc);
+
+        if (confirmListener == null)
+            binding.btConfirm.setVisibility(View.GONE);
+
+        binding.btConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                okListener.onClick(v);
-                dialog.dismiss();
-            }
-        });
-        dialog.findViewById(R.id.bt_cancel).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 dialog.dismiss();
+                if (confirmListener != null)
+                    confirmListener.onClick(view);
+            }
+        });
+
+        if (cancelCallback == null)
+            binding.btCancel.setVisibility(View.GONE);
+
+        binding.btCancel.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                dialog.dismiss();
+                if (cancelCallback != null)
+                    cancelCallback.onClick(view);
             }
         });
         dialog.show();
     }
 
     @Override
-    public void showNotCancelableWarningDialog(String message, String _desc, View.OnClickListener cancelCallback, View.OnClickListener okListener) {
+    public void showNotCancelableWarningDialog(@Nullable int icon, @Nullable String title, @Nullable String desc, @Nullable View.OnClickListener cancelCallback, @Nullable View.OnClickListener confirmListener) {
         Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(1);
-        dialog.setContentView(R.layout.dialog_header_polygon);
+        DialogHeaderPolygonBinding binding = DialogHeaderPolygonBinding.inflate(LayoutInflater.from(dialog.getContext()));
+
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
         dialog.setCancelable(true);
-        ImageView iv_image = dialog.findViewById(R.id.iv_image);
-        TextView tvTitle = dialog.findViewById(R.id.tvTitle);
-        TextView tvDesc = dialog.findViewById(R.id.tvSubTitle);
-        iv_image.setVisibility(View.GONE);
-        tvTitle.setText(message);
-        tvDesc.setText(_desc);
-        dialog.findViewById(R.id.bt_positive).setOnClickListener(new View.OnClickListener() {
+
+        if (icon < 1) {
+            binding.ivImage.setVisibility(View.GONE);
+        } else {
+            binding.ivImage.setVisibility(View.VISIBLE);
+        }
+
+        FmUtilize.hideEmptyElement(title, binding.tvTitle);
+        FmUtilize.hideEmptyElement(desc, binding.tvDesc);
+
+        if (confirmListener == null)
+            binding.btConfirm.setVisibility(View.GONE);
+
+        binding.btConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                okListener.onClick(v);
+            public void onClick(View view) {
                 dialog.dismiss();
+                if (confirmListener != null)
+                    confirmListener.onClick(view);
             }
         });
-        dialog.findViewById(R.id.bt_cancel).setOnClickListener(new View.OnClickListener() {
+
+        if (cancelCallback == null)
+            binding.btCancel.setVisibility(View.GONE);
+
+        binding.btCancel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                cancelCallback.onClick(view);
                 dialog.dismiss();
+                if (cancelCallback != null)
+                    cancelCallback.onClick(view);
             }
         });
         dialog.show();
     }
 
-
-    public boolean hasInternetConnection() {
-        return connectionAvailable;
-//        return presenter.hasInternetConnection();
-    }
-
-    public boolean checkAuthorization() {
-        return false;
-//        return presenter.checkAuthorization();
-    }
 
     public void attemptToExitIfRoot() {
         attemptToExitIfRoot(null);
@@ -468,7 +347,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
                 if (anchorView != null) {
                     showSnackBar(anchorView, R.string.press_once_again_to_exit);
                 } else {
-                    showSnackBar(R.string.press_once_again_to_exit);
+                    showSnackBar(getString(R.string.press_once_again_to_exit));
                 }
 
                 backPressedTime = System.currentTimeMillis();
@@ -487,26 +366,12 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
         return (super.onOptionsItemSelected(menuItem));
     }
 
-//    public boolean isGooglePlayServicesAvailable(Activity activity) {
-//        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
-//        int status = googleApiAvailability.isGooglePlayServicesAvailable(activity);
-//        if(status != ConnectionResult.SUCCESS) {
-//            if(googleApiAvailability.isUserResolvableError(status)) {
-//                googleApiAvailability.getErrorDialog(activity, status, 2404).show();
-//            }
-//            return false;
-//        }
-//        return true;
-//    }
-
 
     boolean checkPrivilege() {
-
         if (prefMgr.getUsers() == null) {
             return false;
         } else
             return prefMgr.getUsers().getUserType() == UserType.ADMIN || prefMgr.getUsers().getUserType() == UserType.SuperADMIN;
-
     }
 
     public interface NetworkCallback {
@@ -525,7 +390,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     @Override
     protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(MyContextWrapper.wrap(newBase,PreferencesManager.getInstance().getPrefLange()));
+        super.attachBaseContext(MyContextWrapper.wrap(newBase, PreferencesManager.getInstance().getPrefLange()));
     }
 
     @Override

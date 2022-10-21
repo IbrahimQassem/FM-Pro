@@ -17,6 +17,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
+import com.sana.dev.fm.ui.activity.appuser.VerificationPhone;
 import com.sana.dev.fm.utils.LogUtility;
 
 import java.util.List;
@@ -148,7 +149,7 @@ public class MusicService extends Service implements
                     player.release();
                     player = null;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtility.e(LogUtility.tag(MusicService.class), e.toString());
                 }
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:

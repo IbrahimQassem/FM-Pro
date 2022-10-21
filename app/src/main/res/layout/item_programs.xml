@@ -150,7 +150,7 @@
                                     android:textColor="@color/grey_80" />
 
                                 <TextView
-                                    android:id="@+id/tv_dec"
+                                    android:id="@+id/tv_desc"
                                     style="@style/TextMedium"
                                     android:layout_width="match_parent"
                                     android:layout_weight="1"

@@ -55,7 +55,9 @@ import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.WakeTranslate;
 import com.sana.dev.fm.model.interfaces.OnCallbackDate;
+import com.sana.dev.fm.ui.activity.appuser.VerificationPhone;
 import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.ProgressHUD;
 import com.sana.dev.fm.utils.Tools;
@@ -318,9 +320,10 @@ public class FormAddPrgram extends BaseActivity {
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
-                public void onFailure(@NonNull Exception exception) {
+                public void onFailure(@NonNull Exception e) {
+                    LogUtility.e(LogUtility.tag(FormAddPrgram.class), e.toString());
                     // Handle unsuccessful uploads
-                    showSnackBar("لم يتم حفظ الصورة !" + exception.toString());
+                    showSnackBar("لم يتم حفظ الصورة !" + e.toString());
                     mProgressHUD.dismiss();
                 }
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {

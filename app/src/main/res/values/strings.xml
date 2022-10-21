@@ -211,6 +211,10 @@
     <string name="label_rate_us_now">قيم التطبيق بخمسة نجوم الآن</string>
     <string name="label_later">لاحقاَ</string>
     <string name="label_sound_good">حسناً</string>
+    <string name="label_main_screen">القائمة الرئيسية</string>
+    <string name="label_try_again">Try Again</string>
+    <string name="error_no_comment">لايوجد نص</string>
+    <string name="label_warinig">Warning</string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

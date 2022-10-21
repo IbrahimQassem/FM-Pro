@@ -122,7 +122,7 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
             FmUtilize.hideEmptyElement(null, holder.binding.tvTag);
 
             if (!TextUtils.isEmpty(program.getPrDesc())) {
-                holder.binding.tvDec.setText(program.getPrDesc());
+                holder.binding.tvDesc.setText(program.getPrDesc());
             } else {
                 holder.binding.lytParentDesc.setVisibility(View.GONE);
             }
