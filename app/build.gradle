@@ -2,6 +2,8 @@ plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
+//    id 'com.google.firebase:perf-plugin'
+
 }
 
 android {
@@ -43,6 +45,7 @@ android {
     dataBinding{
         enabled true
     }
+
 
     def BASE_FB_DB = "BASE_FB_DB"
 
@@ -148,6 +151,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage'
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.firebase:firebase-perf'
 
     // FirebaseUI for Cloud Firestore
     implementation 'com.firebaseui:firebase-ui-firestore:8.0.1'

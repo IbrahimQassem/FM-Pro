@@ -110,7 +110,7 @@ public class EmptyViewFragment extends Fragment {
                 if (callBackListener != null)
                     callBackListener.onCallBack();
             }
-        }, 1000);
+        }, 500);
     }
 
 

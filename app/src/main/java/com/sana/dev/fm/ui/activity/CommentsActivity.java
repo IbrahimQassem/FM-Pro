@@ -37,8 +37,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.CommentsAdapter;
+import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Comment;
 import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.Users;
 import com.sana.dev.fm.ui.activity.appuser.VerificationPhone;
 import com.sana.dev.fm.ui.view.SendCommentButton;
@@ -329,13 +331,14 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
             showToast(getString(R.string.error_no_comment));
             return false;
         } else if (currentUser == null) {
-            showNotCancelableWarningDialog(-1, getString(R.string.label_note), getString(R.string.goto_login), v -> {}, new View.OnClickListener() {
+            ModelConfig config = new ModelConfig(-1, getString(R.string.label_note), getString(R.string.goto_login),  null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = IntentHelper.phoneLoginActivity(getApplicationContext(), false);
                     startActivity(intent);
                 }
-            });
+            }));
+            showWarningDialog(config);
             return false;
         } else if (!hasInternetConnection()) {
 //            showWarningDialog(-1,getString(R.string.label_no_internet), getString(R.string.check_internet_connection));

@@ -212,8 +212,9 @@
     <string name="label_later">لاحقاَ</string>
     <string name="label_sound_good">حسناً</string>
     <string name="label_main_screen">القائمة الرئيسية</string>
-    <string name="label_try_again">Try Again</string>
+    <string name="label_try_again">إعادة المحاولة</string>
     <string name="error_no_comment">لايوجد نص</string>
-    <string name="label_warinig">Warning</string>
+    <string name="label_warning">تنبيه !</string>
+    <string name="confirm_delete">You\'re about to delete %s \n Are you sure ?</string>
 
 </resources>

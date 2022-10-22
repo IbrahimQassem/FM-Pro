@@ -10,7 +10,6 @@ import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -23,21 +22,18 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import com.google.android.material.bottomnavigation.BottomNavigationItemView;
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-//import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.gson.Gson;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.RadioInfo;
+import com.sana.dev.fm.model.Users;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
-import com.sana.dev.fm.ui.activity.appuser.UserProfileActivity;
 import com.sana.dev.fm.ui.dialog.MainDialog;
 import com.sana.dev.fm.ui.fragment.DailyEpisodeFragment;
 import com.sana.dev.fm.ui.fragment.EpisodeFragment;
@@ -52,13 +48,9 @@ import com.sana.dev.fm.utils.radio_player.PlaybackStatus;
 import com.sana.dev.fm.utils.radio_player.RadioManager;
 import com.sana.dev.fm.utils.radio_player.StaticEventDistributor;
 import com.sana.dev.fm.utils.radio_player.metadata.Metadata;
-import com.sana.dev.fm.model.Users;
-
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-
-import java.lang.reflect.Field;
 
 import co.mobiwise.materialintro.animation.MaterialIntroListener;
 import co.mobiwise.materialintro.shape.Focus;

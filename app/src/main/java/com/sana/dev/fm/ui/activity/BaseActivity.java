@@ -1,11 +1,9 @@
 package com.sana.dev.fm.ui.activity;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,19 +12,25 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.databinding.DialogHeaderPolygonBinding;
-import com.sana.dev.fm.databinding.DialogWarningBinding;
+import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.BaseView;
+import com.sana.dev.fm.ui.dialog.FmGeneralDialog;
 import com.sana.dev.fm.utils.Constants;
-import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
+import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.ProgressHUD;
@@ -65,6 +69,8 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     protected NetworkCallback networkCallback;
     private boolean connectionAvailable = true;
     private long backPressedTime;
+
+
 
     @Override
     public void setContentView(int layoutResID) {
@@ -248,92 +254,23 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
-    @Override
-    public void showWarningDialog(@Nullable int icon, @Nullable String title, @Nullable String desc, @Nullable View.OnClickListener cancelCallback, @Nullable View.OnClickListener confirmListener) {
-        Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(1);
-        DialogWarningBinding binding = DialogWarningBinding.inflate(LayoutInflater.from(dialog.getContext()));
-
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
-        dialog.setCancelable(true);
-
-        if (icon < 1) {
-            binding.ivImage.setVisibility(View.GONE);
-        } else {
-            binding.ivImage.setVisibility(View.VISIBLE);
-        }
-
-        FmUtilize.hideEmptyElement(title, binding.tvTitle);
-        FmUtilize.hideEmptyElement(desc, binding.tvDesc);
-
-        if (confirmListener == null)
-            binding.btConfirm.setVisibility(View.GONE);
-
-        binding.btConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-                if (confirmListener != null)
-                    confirmListener.onClick(view);
-            }
-        });
-
-        if (cancelCallback == null)
-            binding.btCancel.setVisibility(View.GONE);
-
-        binding.btCancel.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                dialog.dismiss();
-                if (cancelCallback != null)
-                    cancelCallback.onClick(view);
-            }
-        });
-        dialog.show();
-    }
 
     @Override
-    public void showNotCancelableWarningDialog(@Nullable int icon, @Nullable String title, @Nullable String desc, @Nullable View.OnClickListener cancelCallback, @Nullable View.OnClickListener confirmListener) {
-        Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(1);
-        DialogHeaderPolygonBinding binding = DialogHeaderPolygonBinding.inflate(LayoutInflater.from(dialog.getContext()));
-
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
-        dialog.setCancelable(true);
-
-        if (icon < 1) {
-            binding.ivImage.setVisibility(View.GONE);
-        } else {
-            binding.ivImage.setVisibility(View.VISIBLE);
-        }
-
-        FmUtilize.hideEmptyElement(title, binding.tvTitle);
-        FmUtilize.hideEmptyElement(desc, binding.tvDesc);
-
-        if (confirmListener == null)
-            binding.btConfirm.setVisibility(View.GONE);
-
-        binding.btConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-                if (confirmListener != null)
-                    confirmListener.onClick(view);
-            }
-        });
-
-        if (cancelCallback == null)
-            binding.btCancel.setVisibility(View.GONE);
-
-        binding.btCancel.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                dialog.dismiss();
-                if (cancelCallback != null)
-                    cancelCallback.onClick(view);
-            }
-        });
-        dialog.show();
+    public void showWarningDialog(ModelConfig config) {
+        config.setViewType(FmGeneralDialog.VIEW_WARNING);
+        config.setCancellable(true);
+        FmGeneralDialog dialogWarning = new FmGeneralDialog(this, config);
+        dialogWarning.show();
     }
 
+
+    @Override
+    public void showInfoDialog(ModelConfig config) {
+        config.setViewType(FmGeneralDialog.VIEW_INFO);
+        config.setCancellable(true);
+        FmGeneralDialog dialogWarning = new FmGeneralDialog(this, config);
+        dialogWarning.show();
+    }
 
     public void attemptToExitIfRoot() {
         attemptToExitIfRoot(null);
@@ -398,4 +335,36 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
         super.finish();
         overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        checkIfFirebaseAuth();
+    }
+
+    protected FirebaseAuth mAuth;
+    protected FirebaseUser currentUser;
+    private void checkIfFirebaseAuth() {
+
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.setLanguageCode(PreferencesManager.getInstance().getPrefLange());
+        currentUser = mAuth.getCurrentUser();
+        currentUser.reload().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    //User still exists and credentials are valid
+                    Log.d(LogUtility.TAG, "User still exists : " + task.isSuccessful());
+
+                } else {
+                    //User has been disabled, deleted or login credentials are no longer valid,
+                    //so send them to Login screen
+                    Log.d(LogUtility.TAG, "User has been disabled, deleted : " + task.getException());
+                    startActivity(new Intent(IntentHelper.introActivity(BaseActivity.this, true)));
+                }
+            }
+        });
+    }
 }
+
+//        2022-10-22 18:51:50.357 20745-20745/com.sana.dev.fm D/main_log: readAllRadioByEvent error: {"code":"PERMISSION_DENIED","cause":{"fillInStackTrace":true,"status":{"code":"PERMISSION_DENIED","description":"Missing or insufficient permissions."},"detailMessage":"PERMISSION_DENIED: Missing or insufficient permissions.","stackTrace":[]},"detailMessage":"PERMISSION_DENIED: Missing or insufficient permissions.","stackTrace":[]}

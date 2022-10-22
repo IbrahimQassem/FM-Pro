@@ -26,10 +26,10 @@ public class SignInResultNotifier implements OnCompleteListener<AuthResult> {
     public void onComplete(@NonNull Task<AuthResult> task) {
         if (task.isSuccessful()) {
             // Sign in success, update UI with the signed-in user's information
-            Log.d(TAG, "signInAnonymously:success");
+            LogUtility.d(LogUtility.TAG, "signInAnonymously:success");
          } else {
             // If sign in fails, display a message to the user.
-            Log.w(TAG, "signInAnonymously:failure", task.getException());
+            LogUtility.e(LogUtility.TAG, "signInAnonymously:failure", task.getException());
          }
     }
 

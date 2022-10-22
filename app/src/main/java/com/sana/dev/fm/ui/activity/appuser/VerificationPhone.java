@@ -27,6 +27,7 @@ import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.Users;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
@@ -122,9 +123,7 @@ public class VerificationPhone extends BaseActivity {
     }
 
     void chekUserAuth(FirebaseUser user) {
-        Intent intent = new Intent(VerificationPhone.this, UserProfileActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
+        Intent intent = IntentHelper.userProfileActivity(VerificationPhone.this, true);
         UsersRepositoryImpl fmRepo = new UsersRepositoryImpl(this, USERS_TABLE);
         fmRepo.isUserExists(phoneNumber, new CallBack() {
             @Override

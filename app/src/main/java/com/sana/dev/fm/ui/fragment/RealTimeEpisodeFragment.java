@@ -31,7 +31,9 @@ import com.sana.dev.fm.adapter.ChatHolder;
 import com.sana.dev.fm.adapter.SimpleSectionedRecyclerViewAdapter;
 import com.sana.dev.fm.databinding.ItemGridBinding;
 import com.sana.dev.fm.databinding.ItemProgramsBinding;
+import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.CommentsActivity;
@@ -253,7 +255,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
             @Override
             protected void onBindViewHolder(@NonNull ChatHolder holder, int position, @NonNull Episode model) {
-                LogUtility.d(LogUtility.TAG, "res newAdapter : " + new Gson().toJson(model));
+//                LogUtility.d(LogUtility.TAG, "res newAdapter : " + new Gson().toJson(model));
 
                 if (RealTimeEpisodeFragment.this.isAccountSignedIn()) {
                     model.userId = prefMgr.getUsers().getUserId();
@@ -293,12 +295,13 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                             case R.id.imv_like:
                                 if (!RealTimeEpisodeFragment.this.isAccountSignedIn()) {
                                     if (context instanceof MainActivity) {
-                                        ((MainActivity) context).showNotCancelableWarningDialog(-1,context.getString(R.string.label_note), context.getString(R.string.goto_login), new View.OnClickListener() {
+                                        ModelConfig config = new ModelConfig(-1, getString(R.string.label_note), getString(R.string.goto_login),  null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
                                                 startActivity(new Intent(IntentHelper.phoneLoginActivity(context, false)));
                                             }
-                                        },null);
+                                        }));
+                                        showWarningDialog(config);
                                     }
                                 } else {
                                     boolean isLik = !model.isLiked;
@@ -363,23 +366,24 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
         inflate.findViewById(R.id.lyt_delete).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                showNotCancelableWarningDialog(-1, "هل تريد حذف " + obj.getEpName() + " ؟ ", "سيتم حذف بيانات البرنامج نهائياَ", v -> {}, new View.OnClickListener() {
+                ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_delete,obj.getEpName() ),  null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         ePiRepo.deleteEpi(obj, new CallBack() {
                             @Override
                             public void onSuccess(Object object) {
-                                showToast("" + object.toString());
+                                showToast("Deleted : " + object.toString());
 //                                adapter.removeAt(position);
                             }
 
                             @Override
                             public void onError(Object object) {
-                                showToast("" + object.toString());
+                                showToast("Error : " + object.toString());
                             }
                         });
                     }
-                });
+                }));
+                showWarningDialog(config);
                 mBottomSheetDialog.dismiss();
             }
         });

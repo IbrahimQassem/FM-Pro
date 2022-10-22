@@ -1,7 +1,6 @@
 package com.sana.dev.fm.ui.activity;
 
 
-
 import static com.sana.dev.fm.ui.activity.ImagePickerActivity.REQUEST_IMAGE;
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 import static com.sana.dev.fm.utils.FmUtilize.random;
@@ -59,8 +58,10 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
@@ -292,14 +293,16 @@ public class EpisodeAddStepperVertical extends BaseActivity {
             et_station.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showWarningDialog(R.drawable.ic_cloud_off,getString(R.string.label_warinig),"لا يمكنك تغيير القناة الإاعية في حالة تحديث بيانات البرنامج",null,null);
+                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير القناة الإاعية في حالة تحديث بيانات البرنامج",  null, null);
+                    showWarningDialog(config);
                 }
             });
 
             et_program.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showWarningDialog(R.drawable.ic_cloud_off,getString(R.string.label_warinig),"لا يمكنك تغيير إسم البرنامج في حالة تحديث بيانات البرنامج",null,null);
+                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير إسم البرنامج في حالة تحديث بيانات البرنامج",  null, null);
+                    showWarningDialog(config);
                 }
             });
 
@@ -317,7 +320,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
             timestamp = _episode.getTimestamp();
             createBy = _episode.getCreateBy();
             stopNote = _episode.getStopNote();
-            radioInfo = prefMgr.selectedRadio() ;
+            radioInfo = prefMgr.selectedRadio();
             radioId = radioInfo.getRadioId();
             dateTimeModel = _episode.getDateTimeModel();
             showTimeList = _episode.getShowTimeList() != null ? _episode.getShowTimeList() : new ArrayList<>();
@@ -360,7 +363,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
 
 
         if (imageUri != null) {
-            ProgressHUD mProgressHUD = ProgressHUD.showDialog( "تحميل الصورة", true, false, null);
+            ProgressHUD mProgressHUD = ProgressHUD.showDialog("تحميل الصورة", true, false, null);
             mProgressHUD.setMessage("جاري تحميل البيانات ...");
             mProgressHUD.show();
 
@@ -769,7 +772,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
 
 //        GlideApp.with(this).load(imageUri.toString())
 //                .into(img_logo);
-        Tools.displayImageOriginal(this,img_logo,imageUri.toString());
+        Tools.displayImageOriginal(this, img_logo, imageUri.toString());
 
         img_logo.setColorFilter(ContextCompat.getColor(this, android.R.color.transparent));
     }
@@ -777,7 +780,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
     private void loadProfileDefault() {
 //        GlideApp.with(this).load(R.drawable.ic_photo)
 //                .into(img_logo);
-        Tools.displayImageOriginal(this,img_logo,R.drawable.ic_photo);
+        Tools.displayImageOriginal(this, img_logo, R.drawable.ic_photo);
 
         img_logo.setColorFilter(ContextCompat.getColor(this, R.color.grey_10));
 
@@ -934,7 +937,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
             int selectedId = rgMainTime.getCheckedRadioButtonId();
 
             // find the radiobutton by returned id
-            RadioButton  radioButton = (RadioButton) findViewById(selectedId);
+            RadioButton radioButton = (RadioButton) findViewById(selectedId);
             dateTimeModel.setItMainTime(radioButton.isChecked());
 
 //            Toast.makeText(EpisodeAddStepperVertical.this,
@@ -957,7 +960,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
     int unicode = 0x1F92C;
 //    int unicode = 0x1F60A;
 
-    public String getEmojiByUnicode(int unicode){
+    public String getEmojiByUnicode(int unicode) {
         return new String(Character.toChars(unicode));
     }
 
@@ -967,7 +970,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
     private void showWeekDialog(final View view) {
         final ArrayList<WakeTranslate> displayDayList = translateWakeDaysAr(Arrays.asList(FmUtilize.getWeekDayNames()));
         ArrayList<String> arList = new ArrayList<>();
-        for(WakeTranslate o:displayDayList){
+        for (WakeTranslate o : displayDayList) {
             arList.add(o.getDayName());
         }
         CharSequence[] charSequenceArr = arList.toArray(new CharSequence[arList.size()]);

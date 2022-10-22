@@ -122,10 +122,6 @@ public class UserProfileActivity extends BaseActivity {
     private Users _userModel;
     UsersRepositoryImpl fmRepo;
 
-    public static void startActivity(Context context) {
-        Intent intent = new Intent(context, UserProfileActivity.class);
-        context.startActivity(intent);
-    }
 
     /* Access modifiers changed, original: protected */
     public void onCreate(Bundle bundle) {
@@ -134,7 +130,7 @@ public class UserProfileActivity extends BaseActivity {
         ButterKnife.bind(this);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        fmRepo = new UsersRepositoryImpl(UserProfileActivity.this, USERS_TABLE);
+        fmRepo = new UsersRepositoryImpl(this, USERS_TABLE);
 
         mAuth = FirebaseAuth.getInstance();
         mAuth.setLanguageCode(PreferencesManager.getInstance().getPrefLange());
@@ -210,9 +206,9 @@ public class UserProfileActivity extends BaseActivity {
                 try {
 //                    String plainText = "123456";
 //                    String encryptedTest =
-                    Toast.makeText(UserProfileActivity.this, "" + AESCrypt.decrypt(_userModel.getPassword()), Toast.LENGTH_SHORT).show();
+                    showToast(AESCrypt.decrypt(_userModel.getPassword()));
                 } catch (Exception e) {
-                    LogUtility.e(LogUtility.tag(UserProfileActivity.class), e.toString());
+                    LogUtility.e(TAG, e.toString());
                 }
             }
         });
@@ -231,17 +227,17 @@ public class UserProfileActivity extends BaseActivity {
 
                     if (button.isSelected()) {
                         //Handle selected state change
-                        ib_pass.setImageDrawable(ContextCompat.getDrawable(UserProfileActivity.this, R.drawable.ic_visibility));
+                        ib_pass.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_visibility));
 //                        et_password.setText(AESCrypt.decrypt(_userModel.getPassword()));
                         et_password.setTransformationMethod(null);
                     } else {
                         //Handle de-select state change
-                        ib_pass.setImageDrawable(ContextCompat.getDrawable(UserProfileActivity.this, R.drawable.ic_visibility_off));
+                        ib_pass.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_visibility_off));
 //                        et_password.setText(AESCrypt.encrypt(_userModel.getPassword()));
                         et_password.setTransformationMethod(new PasswordTransformationMethod());
                     }
                 } catch (Exception e) {
-                    LogUtility.e(LogUtility.tag(UserProfileActivity.class), e.toString());
+                    LogUtility.e(TAG, e.toString());
                 }
 
 
@@ -263,7 +259,7 @@ public class UserProfileActivity extends BaseActivity {
     public void onClear() {
         /* Clears all selected radio buttons to default */
         RadioButton rb = (RadioButton) rg_gender.findViewById(rg_gender.getCheckedRadioButtonId());
-        Toast.makeText(UserProfileActivity.this, rb.getText(), Toast.LENGTH_SHORT).show();
+        showToast( rb.getText().toString());
 
     }
 
@@ -299,7 +295,7 @@ public class UserProfileActivity extends BaseActivity {
             if (resultCode == RESULT_OK) {
                 Uri uriImg = UCrop.getOutput(data);
 //                ivUserProfile.setImageURI(imageUri);
-                Tools.displayUserProfile(UserProfileActivity.this, img_profile, String.valueOf(uriImg));
+                Tools.displayUserProfile(getBaseContext(), img_profile, String.valueOf(uriImg));
                 // Todo upload image
                 uploadUserProfile(uriImg);
 
@@ -465,7 +461,7 @@ public class UserProfileActivity extends BaseActivity {
             try {
                 et_password.setText(AESCrypt.decrypt(_userModel.getPassword()));
             } catch (Exception e) {
-                LogUtility.e(LogUtility.tag(UserProfileActivity.class), e.toString());
+                LogUtility.e(TAG, e.toString());
             }
             gender = _userModel.getGender() != null ? _userModel.getGender() : Gender.UNKNOWN;
             if (Gender.FEMALE.equalsName(gender.getText()))
@@ -611,7 +607,7 @@ public class UserProfileActivity extends BaseActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                LogUtility.e(LogUtility.tag(UserProfileActivity.class), e.toString());
+                LogUtility.e(TAG, e.toString());
                 // Handle unsuccessful uploads
                 showToast("نعتذر لم يتم الحفظ !" + e);
                 mProgressHUD.dismiss();

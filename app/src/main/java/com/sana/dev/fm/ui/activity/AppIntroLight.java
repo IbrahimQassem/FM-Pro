@@ -131,10 +131,7 @@ public class AppIntroLight extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        SharedPreferences sharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(this);
-        sharedPreferences.edit().remove(SplashActivity.LAST_APP_VERSION).commit();
-//        sharedPreferences.edit().clear().commit();
+        prefMgr.remove(SplashActivity.LAST_APP_VERSION);
         super.onBackPressed();
     }
 }

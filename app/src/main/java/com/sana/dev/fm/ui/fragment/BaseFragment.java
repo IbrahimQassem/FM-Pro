@@ -28,6 +28,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.dd.CircularProgressButton;
+import com.sana.dev.fm.model.ButtonConfig;
+import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.interfaces.BaseFragmentView;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.utils.MyContextWrapper;
@@ -80,13 +82,13 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentView 
 
 
     @Override
-    public void showWarningDialog(@Nullable int icon, @Nullable String title, @Nullable String desc, @Nullable View.OnClickListener cancelCallback, @Nullable View.OnClickListener confirmListener) {
-        ((BaseActivity) getActivity()).showNotCancelableWarningDialog(icon,title, desc, cancelCallback,confirmListener);
+   public void showWarningDialog(ModelConfig config){
+        ((BaseActivity) getActivity()).showWarningDialog(config);
     }
 
     @Override
-    public void showNotCancelableWarningDialog(@Nullable int icon, @Nullable String title, @Nullable String desc, @Nullable View.OnClickListener cancelCallback, @Nullable View.OnClickListener confirmListener) {
-        ((BaseActivity) getActivity()).showNotCancelableWarningDialog(icon,title, desc, cancelCallback,confirmListener);
+    public void showInfoDialog(ModelConfig config){
+        ((BaseActivity) getActivity()).showInfoDialog(config);
     }
 
     @Override

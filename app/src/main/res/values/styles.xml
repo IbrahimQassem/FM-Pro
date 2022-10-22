@@ -202,7 +202,15 @@
     <style name="TextLight" parent="@style/main_text">
         <item name="android:fontFamily">@font/tj_light</item>
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Caption</item>
+    </style>
 
+    <style name="PauseDialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowAnimationStyle">@style/PauseDialogAnimation</item>
+    </style>
+
+    <style name="PauseDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_in</item>
+        <item name="android:windowExitAnimation">@anim/slide_out</item>
     </style>
 
 </resources>

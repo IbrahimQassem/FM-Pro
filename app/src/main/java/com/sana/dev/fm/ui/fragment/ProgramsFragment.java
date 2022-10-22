@@ -6,6 +6,7 @@ import static com.sana.dev.fm.utils.FmUtilize.month_date;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.RADIO_PROGRAM_TABLE;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.SpannableString;
@@ -30,12 +31,15 @@ import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListProgram;
 import com.sana.dev.fm.adapter.SimpleSectionedRecyclerViewAdapter;
+import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
+import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
@@ -193,8 +197,8 @@ public class ProgramsFragment extends BaseFragment {
                         mAdapter.setOnLongItemClickListener(new AdapterListProgram.OnLongItemClickListener() {
                             @Override
                             public void onLongItemClick(View view, RadioProgram obj, int position) {
-                                if (ProgramsFragment.this.isAccountSignedIn() && prefMgr.getUsers().getUserType() == UserType.SuperADMIN)
-                                    showNotCancelableWarningDialog(-1,"هل تريد حذف " + obj.getPrName() + " ؟ ", "سيتم حذف بيانات البرنامج نهائياَ", new View.OnClickListener() {
+                                if (ProgramsFragment.this.isAccountSignedIn() && prefMgr.getUsers().getUserType() == UserType.SuperADMIN){
+                                    ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_delete,obj.getPrName() ),  null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
                                             fmRepo.deleteProgram(obj, new CallBack() {
@@ -210,7 +214,9 @@ public class ProgramsFragment extends BaseFragment {
                                                 }
                                             });
                                         }
-                                    },null);
+                                    }));
+                                    showWarningDialog(config);
+                                }
                             }
                         });
 

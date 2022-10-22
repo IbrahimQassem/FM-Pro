@@ -13,9 +13,10 @@ import co.mobiwise.materialintro.shape.ShapeType;
 import co.mobiwise.materialintro.view.MaterialIntroView;
 
 public class UserGuide implements MaterialIntroListener {
-    public static final String INTRO_FOCUS_1 = "intro_focus_1_Z7";
-    public static final String INTRO_FOCUS_2 = "intro_focus_2_Z7";
-    public static final String INTRO_FOCUS_3 = "intro_focus_3_Z7";
+    public static final String INTRO_FOCUS_1 = "intro_focus_1";
+    public static final String INTRO_FOCUS_2 = "intro_focus_2";
+    public static final String INTRO_FOCUS_3 = "intro_focus_3";
+    private static final int DELAY_TIME = 500;
 
     Context context;
 
@@ -35,7 +36,7 @@ public class UserGuide implements MaterialIntroListener {
                 .performClick(true) //Trigger click operation when user click focused area.
                 .setFocusGravity(FocusGravity.CENTER)
                 .setFocusType(focusType)
-                .setDelayMillis(1500) // delay the view
+                .setDelayMillis(DELAY_TIME) // delay the view
                 .enableFadeAnimation(true)
                 .setListener(introListener)
 //                .setListener(new MaterialIntroListener() {

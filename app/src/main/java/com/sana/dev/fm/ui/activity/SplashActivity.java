@@ -2,55 +2,37 @@ package com.sana.dev.fm.ui.activity;
 
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyCallback;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.ShardDate;
-import com.sana.dev.fm.ui.activity.appuser.PhoneLoginActivity;
-import com.sana.dev.fm.ui.activity.appuser.VerificationPhone;
 import com.sana.dev.fm.utils.Constants;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
-import com.sana.dev.fm.utils.Tools;
+import com.sana.dev.fm.utils.SignInResultNotifier;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.RadioInfoRepositoryImpl;
-import com.sana.dev.fm.utils.radio_player.metadata.Metadata;
 
 import java.util.ArrayList;
 
@@ -62,7 +44,8 @@ public class SplashActivity extends AppCompatActivity {
     private RadioInfoRepositoryImpl rIRepo;
     public PreferencesManager prefMgr;
 
-    private FirebaseAuth mAuth;
+//    private FirebaseAuth mAuth;
+//    private FirebaseUser currentUser;
 
     private boolean isIntentChecked = false;
 
@@ -70,51 +53,11 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
-
         prefMgr = PreferencesManager.getInstance();
-
-//        int MyVersion = Build.VERSION.SDK_INT;
-//        if (MyVersion > Build.VERSION_CODES.M) {
-//            if (!checkIfAlreadyhavePermission()) {
-//                requestForSpecificPermission();
-//            }
-//        }
         startAnimation();
         setFullScreen();
-
     }
 
-
-    private void requestForSpecificPermission() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 101);
-    }
-
-
-    private boolean checkIfAlreadyhavePermission() {
-        int result = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
-        if (result == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 101:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //granted
-                } else {
-                    //not granted
-                    finish();
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
 
     private void initRadios() {
         rIRepo = new RadioInfoRepositoryImpl(this, FirebaseConstants.RADIO_INFO_TABLE);
@@ -129,14 +72,13 @@ public class SplashActivity extends AppCompatActivity {
                     prefMgr.setRadioInfo(stationList);
 
                     if (prefMgr.selectedRadio() == null) {
-                        prefMgr.write(FirebaseConstants.RADIO_INFO_TABLE,stationList.get(0));
+                        prefMgr.write(FirebaseConstants.RADIO_INFO_TABLE, stationList.get(0));
                     }
 
                     if (!isIntentChecked) {
-                        goToMain();
+                        startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
                         isIntentChecked = true;
                     }
-
 
 
                 }
@@ -151,16 +93,10 @@ public class SplashActivity extends AppCompatActivity {
         });
 
         if (isCollection(prefMgr.getRadioList()) && !isIntentChecked) {
-            goToMain();
+            startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
             isIntentChecked = true;
         }
 
-    }
-
-    private void goToMain() {
-        Intent intent = IntentHelper.userProfileActivity(SplashActivity.this, true);
-//      Intent intent = new Intent(SplashActivity.this, PlayerActivity.class);
-        startActivity(intent);
     }
 
 
@@ -193,39 +129,27 @@ public class SplashActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        mAuth = FirebaseAuth.getInstance();
-        mAuth.setLanguageCode(PreferencesManager.getInstance().getPrefLange());
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser == null) {
-            //            Toast.makeText(this, "currentUser null", Toast.LENGTH_SHORT).show();
-            checkIfFirebaseAuth();
-        } else {
-//            Toast.makeText(this, "currentUser ok is : "+currentUser.getDisplayName(), Toast.LENGTH_SHORT).show();
-        }
+        checkIfFirebaseAuth();
     }
 
     private void checkIfFirebaseAuth() {
-        //                        FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(new SignInResultNotifier(SplashActivity.this));
-        mAuth.getInstance().signInAnonymously()
-                .addOnCompleteListener(SplashActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(LogUtility.TAG, "signInAnonymously:success");
-//                                            FirebaseUser user = mAuth.getCurrentUser();
-//                                            updateUI(user);
-                            startActivity(new Intent(IntentHelper.introActivity(SplashActivity.this, true)));
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(LogUtility.TAG, "signInAnonymously:failure", task.getException());
-//                                            Toast.makeText(SplashActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
-//                                            updateUI(null);
-                            Intent intent = new Intent(SplashActivity.this, NoInternetActivity.class);
-                            startActivity(intent);
-                        }
-                    }
-                });
+        FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(new SignInResultNotifier(SplashActivity.this));
+//        mAuth.getInstance().signInAnonymously()
+//                .addOnCompleteListener(SplashActivity.this, new OnCompleteListener<AuthResult>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<AuthResult> task) {
+//                        if (task.isSuccessful()) {
+//                            // Sign in success, update UI with the signed-in user's information
+//                            Log.d(LogUtility.TAG, "signInAnonymously:success");
+////                            startActivity(new Intent(IntentHelper.introActivity(SplashActivity.this, true)));
+//                        } else {
+//                            // If sign in fails, display a message to the user.
+//                            Log.w(LogUtility.TAG, "signInAnonymously:failure", task.getException());
+////                            startActivity(new Intent(IntentHelper.noInternetActivity(SplashActivity.this,false)));
+////                            prefMgr.remove(LAST_APP_VERSION);
+//                        }
+//                    }
+//                });
     }
 
     private void chekFirstTime() {
@@ -234,14 +158,20 @@ public class SplashActivity extends AppCompatActivity {
             public void run() {
                 switch (checkAppStart()) {
                     case NORMAL:
-                        initRadios();
+                        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                            initRadios();
+                        } else {
+                            startActivity(new Intent(IntentHelper.noInternetActivity(SplashActivity.this, false)));
+                        }
                         break;
                     case FIRST_TIME_VERSION:
                         // TODO show what's new
+//                        startActivity(new Intent(IntentHelper.introActivity(SplashActivity.this, true)));
                         break;
                     case FIRST_TIME:
                         // TODO show a tutorial
-                        checkIfFirebaseAuth();
+                        Intent intent = IntentHelper.introActivity(SplashActivity.this, true);
+                        startActivity(intent);
                         break;
                     default:
                         break;
@@ -293,8 +223,7 @@ public class SplashActivity extends AppCompatActivity {
         AppStart appStart = AppStart.NORMAL;
         try {
             pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            int lastVersionCode = sharedPreferences
-                    .getInt(LAST_APP_VERSION, -1);
+            int lastVersionCode = sharedPreferences.getInt(LAST_APP_VERSION, -1);
             int currentVersionCode = pInfo.versionCode;
             appStart = checkAppStart(currentVersionCode, lastVersionCode);
             // Update version in preferences

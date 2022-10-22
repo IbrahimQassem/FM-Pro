@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
 import com.sana.dev.fm.model.ButtonConfig;
+import com.sana.dev.fm.model.ModelConfig;
 
 
 /**
@@ -41,11 +42,11 @@ public interface BaseView {
 
     void showToast(String message);
 
-    void showWarningDialog(@Nullable int icon, @Nullable String title, @Nullable String desc, @Nullable View.OnClickListener cancelCallback, @Nullable View.OnClickListener confirmListener);
 
-    void showNotCancelableWarningDialog(@Nullable int icon, @Nullable String title, @Nullable String desc, @Nullable View.OnClickListener cancelCallback, @Nullable View.OnClickListener confirmListener);
+    void showWarningDialog(ModelConfig config);
 
-//    void showNotCancelableWarningDialog(@Nullable int icon, @Nullable String title, @Nullable String desc, @Nullable ButtonConfig cancelCallback, @Nullable ButtonConfig confirmListener);
+    void showInfoDialog(ModelConfig config);
+
 
     void startMainActivity();
 
