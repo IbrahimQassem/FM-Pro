@@ -58,7 +58,6 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.ModelConfig;
@@ -67,7 +66,6 @@ import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.WakeTranslate;
 import com.sana.dev.fm.model.interfaces.OnCallbackDate;
-import com.sana.dev.fm.ui.activity.appuser.VerificationPhone;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
@@ -346,7 +344,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
     public void send() {
 
 
-        if (prefMgr.getUsers() == null || prefMgr.getUsers().getUserId() == null) {
+        if (prefMgr.getUserSession() == null || prefMgr.getUserSession().getUserId() == null) {
             showToast(getString(R.string.most_login));
             return;
         }
@@ -355,7 +353,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
         radioId = radioInfo.getRadioId();
 //        programId = program.getProgramId();
 //        programName = program.getPrName();
-        createBy = prefMgr.getUsers().getUserId();
+        createBy = prefMgr.getUserSession().getUserId();
 
         epName = tit_ep_name.getText().toString().trim();
         epAnnouncer = tit_ep_announcer.getText().toString().trim();

@@ -19,8 +19,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -41,14 +39,12 @@ import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Comment;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.ModelConfig;
-import com.sana.dev.fm.model.Users;
-import com.sana.dev.fm.ui.activity.appuser.VerificationPhone;
+import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.ui.view.SendCommentButton;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
-import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 
@@ -72,7 +68,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     SendCommentButton btnSendComment;
     String radioId, epId;
     Query query;
-    Users currentUser;
+    UserModel currentUser;
     PreferencesManager prefMgr;
     private CommentsAdapter commentsAdapter;
     private int drawingStartLocation;
@@ -180,10 +176,10 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         radioId = episode.getRadioId();
         epId = episode.getEpId();
 
-        if (prefMgr.getUsers() == null) {
+        if (prefMgr.getUserSession() == null) {
             etComment.setHint(getString(R.string.add_comment));
         } else {
-            currentUser = prefMgr.getUsers();
+            currentUser = prefMgr.getUserSession();
             etComment.setHint(String.format("تعليق كـ %s ..", currentUser.getName()));
         }
 

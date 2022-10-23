@@ -1,5 +1,6 @@
 package com.sana.dev.fm.utils;
 
+import static android.content.Context.MODE_PRIVATE;
 import static com.sana.dev.fm.FmApplication.TAG;
 import static com.sana.dev.fm.model.AppConfig.RADIO_NAME;
 
@@ -42,6 +43,7 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.WakeTranslate;
+import com.sana.dev.fm.utils.my_firebase.notification.FMCConstants;
 
 import java.io.FileNotFoundException;
 import java.security.SecureRandom;
@@ -884,6 +886,12 @@ public class FmUtilize {
             return false;
         }
         return true;
+    }
+
+
+    public static String getToken(Context context) {
+//        return PreferencesManager.getInstance().write(FMCConstants.DEVICE_TOKEN,null);
+        return context.getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(FMCConstants.DEVICE_TOKEN, null);
     }
 
 

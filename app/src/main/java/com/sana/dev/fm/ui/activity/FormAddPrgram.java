@@ -55,7 +55,6 @@ import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.WakeTranslate;
 import com.sana.dev.fm.model.interfaces.OnCallbackDate;
-import com.sana.dev.fm.ui.activity.appuser.VerificationPhone;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
@@ -255,7 +254,7 @@ public class FormAddPrgram extends BaseActivity {
 //        String localized = res.getString(res.getIdentifier(Constant.SUCCESS, "string", getPackageName()));
 //        showToast(Constant.SUCCESS);
 
-        if (prefMgr.getUsers() == null || prefMgr.getUsers().getUserId() == null) {
+        if (prefMgr.getUserSession() == null || prefMgr.getUserSession().getUserId() == null) {
             showToast(getString(R.string.most_login));
             return;
         } else if (et_program.getText().toString().trim().isEmpty()) {
@@ -287,7 +286,7 @@ public class FormAddPrgram extends BaseActivity {
         radioId = radioInfo.getRadioId();
         prName = tit_pr_name.getText().toString().trim();
         prDesc = tit_pr_desc.getText().toString().trim();
-        createBy = prefMgr.getUsers().getUserId();
+        createBy = prefMgr.getUserSession().getUserId();
 
 
         if (imageUri != null) {

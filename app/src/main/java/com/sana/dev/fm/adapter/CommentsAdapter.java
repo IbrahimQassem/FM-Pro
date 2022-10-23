@@ -23,7 +23,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.Comment;
-import com.sana.dev.fm.model.Users;
+import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.ui.activity.CommentsActivity;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference;
@@ -125,12 +125,12 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot != null) {
-                    Users users = documentSnapshot.toObject(Users.class);
-                    holder.tvFrom.setText(users.getName());
+                    UserModel userModel = documentSnapshot.toObject(UserModel.class);
+                    holder.tvFrom.setText(userModel.getName());
                     holder.image.post(new Runnable() {
                         @Override
                         public void run() {
-                            Tools.displayUserProfile(context, holder.image, users.getPhotoUrl());
+                            Tools.displayUserProfile(context, holder.image, userModel.getPhotoUrl());
                         }
                     });
                 }

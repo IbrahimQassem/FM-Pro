@@ -32,7 +32,7 @@ import com.google.gson.Gson;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.RadioInfo;
-import com.sana.dev.fm.model.Users;
+import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.dialog.MainDialog;
 import com.sana.dev.fm.ui.fragment.DailyEpisodeFragment;
@@ -347,7 +347,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         if (isAccountSignedIn()) {
             PreferencesManager prefMgr = PreferencesManager.getInstance();
 
-            Users user = prefMgr.getUsers();
+            UserModel user = prefMgr.getUserSession();
             tv_user_name.setText(user.getName());
             tv_user_state.setText(isOnlineTxt);
             Tools.displayUserProfile(this, civ, user.getPhotoUrl());
@@ -587,7 +587,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
         });
 
-        Log.d("newToken",  getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(FMCConstants.DEVICE_TOKEN, "empty"));
+        Log.d("newToken",  getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(FMCConstants.DEVICE_TOKEN, null));
 
         //If the device is having android oreo we will create a notification channel
 

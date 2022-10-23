@@ -3,7 +3,6 @@ package com.sana.dev.fm.ui.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,17 +11,11 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserType;
@@ -30,7 +23,6 @@ import com.sana.dev.fm.model.interfaces.BaseView;
 import com.sana.dev.fm.ui.dialog.FmGeneralDialog;
 import com.sana.dev.fm.utils.Constants;
 import com.sana.dev.fm.utils.IntentHelper;
-import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.ProgressHUD;
@@ -98,11 +90,8 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
         return true;
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        chekInternetCon();
-    }
+
+
 
     @Override
     protected void onStop() {
@@ -120,6 +109,9 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     }
 
     void chekInternetCon() {
+        if (connectionChecker == null)
+            connectionChecker = new CheckInternetConnection();
+
         connectionChecker.addConnectionChangeListener(new ConnectionChangeListener() {
             @Override
             public void onConnectionChanged(boolean isConnectionAvailable) {
@@ -305,10 +297,10 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
 
     boolean checkPrivilege() {
-        if (prefMgr.getUsers() == null) {
+        if (prefMgr.getUserSession() == null) {
             return false;
         } else
-            return prefMgr.getUsers().getUserType() == UserType.ADMIN || prefMgr.getUsers().getUserType() == UserType.SuperADMIN;
+            return prefMgr.getUserSession().getUserType() == UserType.ADMIN || prefMgr.getUserSession().getUserType() == UserType.SuperADMIN;
     }
 
     public interface NetworkCallback {
@@ -317,7 +309,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     @Override
     public boolean isAccountSignedIn() {
-        return prefMgr.getUsers() != null && prefMgr.getUsers().getUserId() != null /*&& FirebaseAuth.getInstance().getCurrentUser() != null*/;
+        return prefMgr.getUserSession() != null && prefMgr.getUserSession().getUserId() != null /*&& FirebaseAuth.getInstance().getCurrentUser() != null*/;
     }
 
     @Override
@@ -339,10 +331,11 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     @Override
     protected void onResume() {
         super.onResume();
-//        checkIfFirebaseAuth();
+        chekInternetCon();
     }
 
-    protected FirebaseAuth mAuth;
+
+/*    protected FirebaseAuth mAuth;
     protected FirebaseUser currentUser;
     private void checkIfFirebaseAuth() {
 
@@ -364,7 +357,8 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
                 }
             }
         });
-    }
+    }*/
+
 }
 
 //        2022-10-22 18:51:50.357 20745-20745/com.sana.dev.fm D/main_log: readAllRadioByEvent error: {"code":"PERMISSION_DENIED","cause":{"fillInStackTrace":true,"status":{"code":"PERMISSION_DENIED","description":"Missing or insufficient permissions."},"detailMessage":"PERMISSION_DENIED: Missing or insufficient permissions.","stackTrace":[]},"detailMessage":"PERMISSION_DENIED: Missing or insufficient permissions.","stackTrace":[]}

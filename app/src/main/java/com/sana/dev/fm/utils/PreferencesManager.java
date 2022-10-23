@@ -4,20 +4,17 @@ import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sana.dev.fm.model.RadioInfo;
+import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.notification.FMCConstants;
-import com.sana.dev.fm.model.Users;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 public class PreferencesManager {
 
@@ -111,10 +108,10 @@ public class PreferencesManager {
         return lang;
     }
 
-    public Users getUsers() {
+    public UserModel getUserSession() {
         Gson gson = new Gson();
         String json = read(FMCConstants.USER_INFO, null);
-        return gson.fromJson(json, Users.class);
+        return gson.fromJson(json, UserModel.class);
     }
 
     public void setRadioInfo(ArrayList<RadioInfo> arrayList) {

@@ -98,9 +98,9 @@ public class RadioInfo implements Serializable {
 
         PreferencesManager prefMgr = PreferencesManager.getInstance();
 
-        if (prefMgr.getUsers() == null)
+        if (prefMgr.getUserSession() == null)
             return;
-        String usId = prefMgr.getUsers().getUserId();
+        String usId = prefMgr.getUserSession().getUserId();
         RadioInfo radio1 = RadioInfo.newInstance("1001", "يمن", "", "http://93.190.141.15:7183/live", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1001%2F1001.jpg?alt=media&token=41d7cab7-d1cf-4d10-840a-dd576c04871a", "@yemen_fm", "صنعاء", "99,9", "Yemen Fm", usId, false);
         RadioInfo radio2 = RadioInfo.newInstance("1002", "أصالة", "", "https://streamingv2.shoutcast.com/assala-fm", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1002%2Fmicar.jpg?alt=media&token=b568c461-9563-44e2-a091-e953471e42c4", "@asalah_fm", "صنعاء", "87.9", "Asalah Fm", usId, true);
         RadioInfo radio3 = RadioInfo.newInstance("1003", "صوت اليمن", " إذاعة حرة ومستقله بقدرات وأصوات يمنية 100%", "", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1003%2F1003.jpg?alt=media&token=004920e1-edac-4b9f-9182-b670ecc3f9bc", "@yemenvoicefm", "صنعاء", "98.1", "Yemen Voice Fm", usId, false);

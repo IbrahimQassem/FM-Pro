@@ -34,7 +34,7 @@
     <!--Firebase Notification-->
 
     <!--
-        This is the name that users will see when interacting with this channel.
+        This is the name that userModel will see when interacting with this channel.
         It should describe the category of notifications that will be sent through this channel
      -->
     <!-- [START fcm_default_icon_string] -->
@@ -216,5 +216,8 @@
     <string name="error_no_comment">لايوجد نص</string>
     <string name="label_warning">تنبيه !</string>
     <string name="confirm_delete">You\'re about to delete %s \n Are you sure ?</string>
+    <string name="label_error_occurred">Error Occurred !</string>
+    <string name="error_occurred_with_value">Error occurred ! \n [%s]</string>
+    <string name="label_close">Close</string>
 
 </resources>

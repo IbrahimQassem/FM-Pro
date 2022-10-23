@@ -34,7 +34,7 @@
     <!--Firebase Notification-->
 
     <!--
-        This is the name that users will see when interacting with this channel.
+        This is the name that userModel will see when interacting with this channel.
         It should describe the category of notifications that will be sent through this channel
      -->
     <!-- [START fcm_default_icon_string] -->
@@ -127,7 +127,7 @@
     </string>
     -->
     <string name="main_program_for">Main programs</string>
-    <string name="app_message">Hodhud FM: is an Android application that enables users to access Yemeni radio channels from anywhere and at any time with the click of a button.</string>
+    <string name="app_message">Hodhud FM: is an Android application that enables userModel to access Yemeni radio channels from anywhere and at any time with the click of a button.</string>
     <string name="hudhudfm_instagram">http://instagram.com/hudhudfm</string>
     <string name="update_episode">Update episode data</string>
     <!--    <string name="powered_by">Powered By &#x2665; Sana&apos;a Dev</string>-->
@@ -216,6 +216,9 @@
     <string name="error_no_comment">لايوجد نص</string>
     <string name="label_warning">Warning</string>
     <string name="confirm_delete">You\'re about to delete %s \n Are you sure ?</string>
+    <string name="label_error_occurred">Error Occurred !</string>
+    <string name="error_occurred_with_value">Error occurred ! \n [%s]</string>
+    <string name="label_close">Close</string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

@@ -28,7 +28,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.dd.CircularProgressButton;
-import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.interfaces.BaseFragmentView;
 import com.sana.dev.fm.ui.activity.BaseActivity;
@@ -130,7 +129,7 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentView 
 
     @Override
     public boolean isAccountSignedIn() {
-        return prefMgr.getUsers() != null && prefMgr.getUsers().getUserId() != null /*&& FirebaseAuth.getInstance().getCurrentUser() != null*/;
+        return prefMgr.getUserSession() != null && prefMgr.getUserSession().getUserId() != null /*&& FirebaseAuth.getInstance().getCurrentUser() != null*/;
     }
 
     @Override

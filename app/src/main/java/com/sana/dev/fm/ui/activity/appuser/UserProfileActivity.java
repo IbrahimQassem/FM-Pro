@@ -3,10 +3,7 @@ package com.sana.dev.fm.ui.activity.appuser;
 
 import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.FB_FM_FOLDER_PATH;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.USERS_TABLE;
-import static com.sana.dev.fm.model.Users.getToken;
 
-
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -18,19 +15,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.webkit.URLUtil;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatRadioButton;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -44,8 +34,13 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.mikhaellopez.circularimageview.CircularImageView;
+import com.google.gson.Gson;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.databinding.ActivityUserProfileBinding;
+import com.sana.dev.fm.model.ButtonConfig;
+import com.sana.dev.fm.model.Gender;
+import com.sana.dev.fm.model.ModelConfig;
+import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.utils.AESCrypt;
 import com.sana.dev.fm.utils.FmUtilize;
@@ -57,16 +52,9 @@ import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.UsersRepositoryImpl;
 import com.sana.dev.fm.utils.my_firebase.notification.FMCConstants;
-import com.sana.dev.fm.model.Gender;
-import com.sana.dev.fm.model.Users;
-
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 
 public class UserProfileActivity extends BaseActivity {
@@ -81,57 +69,29 @@ public class UserProfileActivity extends BaseActivity {
     private final int STATE_SIGNIN_FAILED = 5;
     private final int STATE_SIGNIN_SUCCESS = 6;
 
-    //    @BindView(R.id.civ_profile)
-//    CircularImageView civ_profile;
-    @BindView(R.id.img_profile)
-    CircularImageView img_profile;
+    ActivityUserProfileBinding binding;
 
-    @BindView(R.id.tv_label_user_name)
-    TextView tv_label_user_name;
-    @BindView(R.id.tv_label_user_desc)
-    TextView tv_label_user_desc;
-
-    @BindView(R.id.et_full_name)
-    EditText et_full_name;
-    @BindView(R.id.et_email)
-    EditText et_email;
-    @BindView(R.id.et_mobile)
-    EditText et_mobile;
-    @BindView(R.id.et_password)
-    EditText et_password;
-
-    @BindView(R.id.ib_pass)
-    ImageButton ib_pass;
-
-    @BindView(R.id.rg_gender)
-    RadioGroup rg_gender;
-    @BindView(R.id.radio_male)
-    AppCompatRadioButton radio_male;
-    @BindView(R.id.radio_female)
-    AppCompatRadioButton radio_female;
-
-
-    @BindView(R.id.btn_save)
-    Button btn_save;
     private FirebaseAuth mAuth;
-    private String userId, name, email, mobile, password, XphotoUrl, token, nickNme, bio, tag, deviceId, stopNote, country, city;
+    private String userId, name, email, mobile, password, photoUrl, token, nickNme, bio, tag, deviceId, stopNote, country, city;
 
     private Gender gender = Gender.UNKNOWN;
 
     //    private Uri imageUri = null;
-    private Users _userModel;
-    UsersRepositoryImpl fmRepo;
+    private UserModel _userModel;
+    private UsersRepositoryImpl fmRepo;
 
 
     /* Access modifiers changed, original: protected */
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        setContentView((int) R.layout.activity_user_profile);
-        ButterKnife.bind(this);
-        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+//        setContentView((int) R.layout.activity_user_profile);
+        binding = ActivityUserProfileBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+
+        hideKeyboard();
 
         fmRepo = new UsersRepositoryImpl(this, USERS_TABLE);
-
         mAuth = FirebaseAuth.getInstance();
         mAuth.setLanguageCode(PreferencesManager.getInstance().getPrefLange());
         // [END initialize_auth]
@@ -139,32 +99,46 @@ public class UserProfileActivity extends BaseActivity {
 
         initToolbar();
         init();
-
     }
 
     private void init() {
-        hideKeyboard();
 
-//        int color = getResources().getColor(R.color.fab_color_shadow);
-//        ColorFilter cf = new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY);
-//        img_profile.setColorFilter(cf);
+        // Todo fix
+        if (prefMgr.getUserSession() != null) {
+            _userModel = prefMgr.getUserSession();
+            LogUtility.d(LogUtility.TAG," UserSession : "+new Gson().toJson(_userModel));
+            binding.tvLabelUserName.setText(_userModel.getName());
+            binding.etMobile.setText(_userModel.getMobile());
+            binding.tvLabelUserDesc.setText(_userModel.getBio());
+//            tv_label_user_desc.setText(user.getUid());
+            binding.etFullName.setText(_userModel.getName());
+            binding.etMobile.setText(_userModel.getEmail());
+            try {
+                binding.etPassword.setText(AESCrypt.decrypt(_userModel.getPassword()));
+            } catch (Exception e) {
+                LogUtility.e(TAG, e.toString());
+            }
+            gender = _userModel.getGender() != null ? _userModel.getGender() : Gender.UNKNOWN;
+            if (Gender.FEMALE.equalsName(gender.getText()))
+                binding.radioFemale.setChecked(true);
+            else
+                binding.radioMale.setChecked(true);
 
-//        userId = name = email = mobile = password = photoUrl = token = nickNme = bio = tag = deviceId = stopNote = country = city = "";
+            if (URLUtil.isValidUrl(_userModel.getPhotoUrl()))
+                Tools.displayUserProfile(this, binding.imgProfile, _userModel.getPhotoUrl());
+        }
 
-//        int color = getResources().getColor(R.color.grey_10);
-//        ColorFilter cf = new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY);
-//        civ_profile.setColorFilter(cf);
 
-        et_mobile.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
-//        disableEditText(et_mobile);
-        findViewById(R.id.rtl_img_parent).setOnClickListener(new View.OnClickListener() {
+        binding.etMobile.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
+//        disableEditText(binding.etMobile);
+        binding.rtlImgParent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onImageSelect(view);
             }
         });
 
-        rg_gender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        binding.rgGender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId) {
                     case R.id.radio_male:
@@ -179,33 +153,17 @@ public class UserProfileActivity extends BaseActivity {
             }
         });
 
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(STATE_VERIFY_SUCCESS, currentUser);
-//        disableEditText(et_mobile);
-        et_mobile.setFocusable(false);
-        et_mobile.setClickable(true);
-
-        et_mobile.setOnClickListener(new View.OnClickListener() {
+        binding.etMobile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showToast(getString(R.string.mobile_cant_edited));
             }
         });
 
-//        et_mobile.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                Toast.makeText(getApplicationContext(),"Component is disabled", Toast.LENGTH_SHORT).show();
-//                return false;
-//            }
-//        });
-
-        et_password.setOnClickListener(new View.OnClickListener() {
+        binding.etPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-//                    String plainText = "123456";
-//                    String encryptedTest =
                     showToast(AESCrypt.decrypt(_userModel.getPassword()));
                 } catch (Exception e) {
                     LogUtility.e(TAG, e.toString());
@@ -215,10 +173,10 @@ public class UserProfileActivity extends BaseActivity {
 
 
         //assign the image in code (or you can do this in your layout xml with the src attribute)
-        ib_pass.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_visibility_off));
+        binding.ibPass.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_visibility_off));
 
 //set the click listener
-        ib_pass.setOnClickListener(new View.OnClickListener() {
+        binding.ibPass.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View button) {
                 try {
@@ -227,24 +185,27 @@ public class UserProfileActivity extends BaseActivity {
 
                     if (button.isSelected()) {
                         //Handle selected state change
-                        ib_pass.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_visibility));
-//                        et_password.setText(AESCrypt.decrypt(_userModel.getPassword()));
-                        et_password.setTransformationMethod(null);
+                        binding.ibPass.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_visibility));
+//                        binding.etPassword.setText(AESCrypt.decrypt(_userModel.getPassword()));
+                        binding.etPassword.setTransformationMethod(null);
                     } else {
                         //Handle de-select state change
-                        ib_pass.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_visibility_off));
-//                        et_password.setText(AESCrypt.encrypt(_userModel.getPassword()));
-                        et_password.setTransformationMethod(new PasswordTransformationMethod());
+                        binding.ibPass.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_visibility_off));
+//                        binding.etPassword.setText(AESCrypt.encrypt(_userModel.getPassword()));
+                        binding.etPassword.setTransformationMethod(new PasswordTransformationMethod());
                     }
                 } catch (Exception e) {
-                    LogUtility.e(TAG, e.toString());
+                    LogUtility.printStackTrace(e);
                 }
-
-
             }
-
         });
 
+        binding.btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveUserData();
+            }
+        });
     }
 
     private void disableEditText(EditText editText) {
@@ -254,15 +215,6 @@ public class UserProfileActivity extends BaseActivity {
         editText.setKeyListener(null);
 //        editText.setBackgroundColor(Color.TRANSPARENT);
     }
-
-
-    public void onClear() {
-        /* Clears all selected radio buttons to default */
-        RadioButton rb = (RadioButton) rg_gender.findViewById(rg_gender.getCheckedRadioButtonId());
-        showToast( rb.getText().toString());
-
-    }
-
 
     public void onImageSelect(View view) {
         Intent intent = new Intent();
@@ -295,10 +247,9 @@ public class UserProfileActivity extends BaseActivity {
             if (resultCode == RESULT_OK) {
                 Uri uriImg = UCrop.getOutput(data);
 //                ivUserProfile.setImageURI(imageUri);
-                Tools.displayUserProfile(getBaseContext(), img_profile, String.valueOf(uriImg));
+                Tools.displayUserProfile(getBaseContext(), binding.imgProfile, String.valueOf(uriImg));
                 // Todo upload image
                 uploadUserProfile(uriImg);
-
             } else if (resultCode == UCrop.RESULT_ERROR) {
                 Log.e(TAG, "Crop error:" + UCrop.getError(data).getMessage());
             }
@@ -307,15 +258,9 @@ public class UserProfileActivity extends BaseActivity {
 
 
     private void initToolbar() {
-//        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-//        getSupportActionBar().setTitle(null);
-//        ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-//        Tools.setSystemBarColor(this, R.color.white); // red_A400
-//        Tools.setSystemBarLight(this);
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setTitle(null);
-        ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(R.drawable.ic_arrow_back);
+        (binding.toolbar).setNavigationIcon(R.drawable.ic_arrow_back);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Tools.setSystemBarColor(this, R.color.colorAccent);
     }
@@ -332,11 +277,11 @@ public class UserProfileActivity extends BaseActivity {
                 startMainActivity();
                 break;
             case R.id.action_pick_image:
-                onImageSelect(img_profile);
+                onImageSelect(binding.imgProfile);
                 break;
             case R.id.action_close:
                 signOut();
-                Toast.makeText(getApplicationContext(), menuItem.getTitle(), Toast.LENGTH_LONG).show();
+//                Toast.makeText(getApplicationContext(), menuItem.getTitle(), Toast.LENGTH_LONG).show();
                 break;
         }
         return super.onOptionsItemSelected(menuItem);
@@ -350,169 +295,46 @@ public class UserProfileActivity extends BaseActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             startMainActivity();
-        } else {
-//            chekUserAuth();
-            if (prefMgr.getUsers() != null)
-                _userModel = prefMgr.getUsers();
         }
     }
     // [END on_start_check_user]
 
 
-    private void signOut() {
-        mAuth.signOut();
-        prefMgr.remove(FMCConstants.USER_INFO);
-        prefMgr.remove(FMCConstants.USER_MOBILE);
-        prefMgr.remove(FMCConstants.USER_IMAGE_Profile);
-        Intent intent = IntentHelper.splashActivity(this, true);
-        startActivity(intent);
-//        finish();
-        showToast(getString(R.string.user_loged_out));
-//        updateUI(STATE_INITIALIZED);
-    }
-
-    private void updateUI(int uiState) {
-        updateUI(uiState, mAuth.getCurrentUser());
-    }
-
-    private void updateUI(FirebaseUser user) {
-        if (user != null) {
-            updateUI(STATE_SIGNIN_SUCCESS, user);
-        } else {
-            updateUI(STATE_INITIALIZED);
-        }
-    }
 
 
-    private void updateUI(int uiState, FirebaseUser user) {
-        switch (uiState) {
-            case STATE_INITIALIZED:
-                // Initialized state, show only the phone number field and start button
-//                enableViews(mStartButton, mPhoneNumberField);
-//                disableViews(mVerifyButton, mResendButton, mVerificationField);
-//                mDetailText.setText(null);
-                break;
-            case STATE_CODE_SENT:
-                // Code sent state, show the verification field, the
-//                enableViews(mVerifyButton, mResendButton, mPhoneNumberField, mVerificationField);
-//                disableViews(mStartButton);
-//                mDetailText.setText("status_code_sent");
-                break;
-            case STATE_VERIFY_FAILED:
-                // Verification has failed, show all options
-//                enableViews(mStartButton, mVerifyButton, mResendButton, mPhoneNumberField,
-//                        mVerificationField);
-//                mDetailText.setText("status_verification_failed");
-                break;
-            case STATE_VERIFY_SUCCESS:
-                // Verification has succeeded, proceed to firebase sign in
-//                disableViews(mStartButton, mVerifyButton, mResendButton, mPhoneNumberField,
-//                        mVerificationField);
-//                mDetailText.setText("status_verification_succeeded");
-//                String phone = prefMgr.read(FMCConstants.USER_MOBILE, "");
-//                Log.d(TAG, "mobile is " + phone);
-//                et_mobile.setText(phone);
-
-                break;
-            case STATE_SIGNIN_FAILED:
-                // No-op, handled by sign-in check
-//                mDetailText.setText("status_sign_in_failed");
-                break;
-            case STATE_SIGNIN_SUCCESS:
-                // Np-op, handled by sign-in check
-
-                break;
-        }
-
-        if (user == null) {
-            // Signed out
-//            mPhoneNumberViews.setVisibility(View.VISIBLE);
-//            mSignedInViews.setVisibility(View.GONE);
-//
-//            mStatusText.setText("signed_out");
-        } else {
-            // Signed in
-//            mPhoneNumberViews.setVisibility(View.GONE);
-//            mSignedInViews.setVisibility(View.VISIBLE);
-//
-//            enableViews(mPhoneNumberField, mVerificationField);
-//            mPhoneNumberField.setText(null);
-//            mVerificationField.setText(null);
-//
-//            mStatusText.setText("signed_in");
-//            mDetailText.setText(getString(R.string.firebase_status_fmt, user.getUid()));
 
 
-            if (prefMgr.getUsers() == null) {
-//                Toast.makeText(this, getString(R.string.moust_login), Toast.LENGTH_SHORT).show();
-                return;
-            } else {
-                _userModel = prefMgr.getUsers();
-            }
-
-
-            tv_label_user_name.setText(_userModel.getName());
-            et_mobile.setText(_userModel.getMobile());
-            tv_label_user_desc.setText(_userModel.getBio());
-//            tv_label_user_desc.setText(user.getUid());
-            et_full_name.setText(_userModel.getName());
-            et_email.setText(_userModel.getEmail());
-
-            try {
-                et_password.setText(AESCrypt.decrypt(_userModel.getPassword()));
-            } catch (Exception e) {
-                LogUtility.e(TAG, e.toString());
-            }
-            gender = _userModel.getGender() != null ? _userModel.getGender() : Gender.UNKNOWN;
-            if (Gender.FEMALE.equalsName(gender.getText()))
-                radio_female.setChecked(true);
-            else
-                radio_male.setChecked(true);
-//            rg_gender.check(radio_male.getId());
-
-
-            if (URLUtil.isValidUrl(_userModel.getPhotoUrl()))
-                Tools.displayUserProfile(this, img_profile, _userModel.getPhotoUrl());
-//            photoUrl = _userModel.getPhotoUrl();
-//            imageUri=Uri.parse(photoUrl);
-        }
-    }
-
-    @OnClick(R.id.btn_save)
-    public void onFabClick() {
-        saveUserData();
-    }
 
     private void saveUserData() {
         valedateInput();
 
 
-//        String userImage  = "empty" ;
-//        if (user.getPhotoUrl() != null && !user.getPhotoUrl().equals("empty")){
+//        String userImage  = null ;
+//        if (user.getPhotoUrl() != null && !user.getPhotoUrl().equals(null)){
 //            userImage = user.getPhotoUrl();
 //        }else {
 //            userImage =
 //        }
 
-        Users user = prefMgr.getUsers();
+        UserModel user = prefMgr.getUserSession();
 
 //        Users oldUser = prefMgr.getUsers();
 
 //        String _oName = oldUser.getName() != null ? oldUser.getName() : "";
 //        String _oPhoto = oldUser.getPhotoUrl() != null ? oldUser.getPhotoUrl() : "";
-//        String _imgUrl = prefMgr.read(FMCConstants.USER_IMAGE_Profile, "empty");
+//        String _imgUrl = prefMgr.read(FMCConstants.USER_IMAGE_Profile, null);
         if (user.equals(name) && user.getGender().equals(gender)) {
             startMainActivity();
         } else {
             user.setName(name);
             user.setGender(gender);
-            user.setDeviceToken(getToken(this));
+            user.setDeviceToken(FmUtilize.getToken(this));
 //            updateUser(user);
 //            updateUser(new Users(name, _imgUrl, gender, getToken(this)));
             fmRepo.createUpdateUser(_userModel.getUserId(), user, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    prefMgr.write(FMCConstants.USER_INFO, (Users) object);
+                    prefMgr.write(FMCConstants.USER_INFO, (UserModel) object);
                     showToast(getString(R.string.saved_successfully));
                     startMainActivity();
                 }
@@ -529,36 +351,36 @@ public class UserProfileActivity extends BaseActivity {
 
     private void valedateInput() {
 
-        name = et_full_name.getText().toString().trim();
-        email = "";// et_email.getText().toString().trim();
-        mobile = et_mobile.getText().toString().trim();
-        password = "";//et_password.getText().toString().trim();
+        name = binding.etFullName.getText().toString().trim();
+        email = "";// binding.etMobile.getText().toString().trim();
+        mobile = binding.etMobile.getText().toString().trim();
+        password = "";//binding.etPassword.getText().toString().trim();
 
         if (TextUtils.isEmpty(name)) {
-            showSnackBar(String.format(" %s", getResources().getString(R.string.field_is_required, et_full_name.getHint())));
-            et_full_name.requestFocus();
+            showSnackBar(String.format(" %s", getResources().getString(R.string.field_is_required, binding.etFullName.getHint())));
+            binding.etFullName.requestFocus();
             return;
         }
 
 //        if (TextUtils.isEmpty(email)) {
-//            showSnackBar(String.format(" %s", getResources().getString(R.string.field_is_required, et_email.getHint())));
-//            et_email.requestFocus();
+//            showSnackBar(String.format(" %s", getResources().getString(R.string.field_is_required, binding.etMobile.getHint())));
+//            binding.etMobile.requestFocus();
 //            return;
 //        }
 
         if (TextUtils.isEmpty(mobile)) {
-            showSnackBar(String.format(" %s", getResources().getString(R.string.field_is_required, et_mobile.getHint())));
-            et_mobile.requestFocus();
+            showSnackBar(String.format(" %s", getResources().getString(R.string.field_is_required, binding.etMobile.getHint())));
+            binding.etMobile.requestFocus();
             return;
         }
 
 //        if (TextUtils.isEmpty(password)) {
-//            showSnackBar(String.format(" %s", getResources().getString(R.string.field_is_required, et_password.getHint())));
-//            et_password.requestFocus();
+//            showSnackBar(String.format(" %s", getResources().getString(R.string.field_is_required, binding.etPassword.getHint())));
+//            binding.etPassword.requestFocus();
 //            return;
 //        }
 
-        if (rg_gender.getCheckedRadioButtonId() == -1) {
+        if (binding.rgGender.getCheckedRadioButtonId() == -1) {
             // no radio buttons  checked
             showSnackBar(String.format(" %s", getResources().getString(R.string.field_is_required, getResources().getString(R.string.gender))));
             return;
@@ -594,7 +416,7 @@ public class UserProfileActivity extends BaseActivity {
             @Override
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                 double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-//                    Log.d(TAG, "Upload is " + progress + "% done");
+                Log.d(TAG, "Upload is " + progress + "% done");
                 mProgressHUD.setCanceledOnTouchOutside(false);
                 mProgressHUD.setMessage(" يرجى الإنتظار " + " % " + (int) progress);
 
@@ -609,7 +431,9 @@ public class UserProfileActivity extends BaseActivity {
             public void onFailure(@NonNull Exception e) {
                 LogUtility.e(TAG, e.toString());
                 // Handle unsuccessful uploads
-                showToast("نعتذر لم يتم الحفظ !" + e);
+//                showToast("نعتذر لم يتم الحفظ !" + e);
+                ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_error_occurred), e.toString(), new ButtonConfig(getString(R.string.label_close)), null);
+                showWarningDialog(config);
                 mProgressHUD.dismiss();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -625,9 +449,8 @@ public class UserProfileActivity extends BaseActivity {
                                 String downloadUri = uri.toString();
 //                                    showSnackBar(downloadUri);
 //                                prefMgr.write(FMCConstants.USER_IMAGE_Profile, downloadUri);
-
 //                                ------------------------------------
-                                Users user = prefMgr.getUsers();
+                                UserModel user = prefMgr.getUserSession();
                                 user.setPhotoUrl(downloadUri);
                                 updateUser(user);
                             }
@@ -642,12 +465,12 @@ public class UserProfileActivity extends BaseActivity {
 //        }
 //        else {
 //            showSnackBar("يجب إضافة صورة البروفايل");
-//            img_profile.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake_error));
+//            binding.imgProfile.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake_error));
 //        }
     }
 
 
-    void updateUser(Users model) {
+    void updateUser(UserModel model) {
         // Check if user is signed in (non-null) and update UI accordingly.
 //        FirebaseUser currentUser = mAuth.getCurrentUser();
 //        if (currentUser == null) {
@@ -657,7 +480,7 @@ public class UserProfileActivity extends BaseActivity {
         fmRepo.createUpdateUser(_userModel.getUserId(), model, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                prefMgr.write(FMCConstants.USER_INFO, (Users) object);
+                prefMgr.write(FMCConstants.USER_INFO, (UserModel) object);
             }
 
             @Override
@@ -675,20 +498,14 @@ public class UserProfileActivity extends BaseActivity {
     }
 
 
-    //    void chekUserAuth() {
-//        Users.getUserInfo(ProfileWhite.this, prefMgr.read(FMCConstants.USER_MOBILE,""), new CallBack() {
-//            @Override
-//            public void onSuccess(Object object) {
-//                _userModel = (Users) object;
-////                showToast(_userModel.toString());
-//                Log.e(TAG,"_userModel : "+_userModel.toString());
-//            }
-//
-//            @Override
-//            public void onError(Object object) {
-//
-//            };
-//        });
-//    }
-
+    private void signOut() {
+        mAuth.signOut();
+        prefMgr.remove(FMCConstants.USER_INFO);
+        prefMgr.remove(FMCConstants.USER_MOBILE);
+        Intent intent = IntentHelper.splashActivity(this, true);
+        startActivity(intent);
+//        finish();
+        showToast(getString(R.string.user_loged_out));
+//        updateUI(STATE_INITIALIZED);
+    }
 }

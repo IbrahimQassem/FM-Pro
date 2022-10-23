@@ -68,7 +68,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:hint="@string/phone_number"
-                        android:imeOptions="actionGo"
+                        android:imeOptions="actionDone"
                         android:inputType="phone"
                         android:gravity="end"
                         tools:text="777777777"
@@ -76,16 +76,6 @@
                         android:singleLine="true"
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
                         android:textColor="@color/grey_90">
-                        <!--                    <com.google.android.material.textfield.TextInputEditText-->
-                        <!--                        android:id="@+id/editTextPhone"-->
-                        <!--                        android:layout_width="match_parent"-->
-                        <!--                        android:layout_height="wrap_content"-->
-                        <!--                        android:hint="@string/phone_number"-->
-                        <!--                        android:inputType="phone"-->
-                        <!--                        android:maxLines="1"-->
-                        <!--                        android:singleLine="true"-->
-                        <!--              12          android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"-->
-                        <!--                        android:textColor="@color/grey_90">-->
 
                         <requestFocus />
 
@@ -99,6 +89,7 @@
                         android:layout_marginEnd="@dimen/spacing_medium"
                         android:paddingTop="@dimen/spacing_medium"
                         android:layoutDirection="rtl"
+                        android:textDirection="ltr"
                         app:ccp_autoDetectLanguage="true"
                         app:ccp_defaultNameCode="YE"
                         app:ccp_showFlag="false"
@@ -112,7 +103,6 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/btn_rounded_accent"
                     android:fontFamily="@font/tj_bold"
-                    android:imeOptions="actionDone"
                     android:text="@string/send"
                     android:textColor="@android:color/white" />
 

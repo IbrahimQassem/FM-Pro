@@ -86,8 +86,8 @@ public class EpisodeFragment extends BaseFragment {
         ButterKnife.bind(this, view);
         sbHelp = new SnackBarUtility(getActivity());
         materialIntroView = new MaterialIntroView(ctx);
-        if (prefMgr.getUsers() != null && prefMgr.getUsers().getUserId() != null)
-            _userId = prefMgr.getUsers().getUserId();
+        if (prefMgr.getUserSession() != null && prefMgr.getUserSession().getUserId() != null)
+            _userId = prefMgr.getUserSession().getUserId();
 
         initRadios();
 

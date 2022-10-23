@@ -23,14 +23,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.gson.Gson;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.adapter.AdapterListProgram;
 import com.sana.dev.fm.adapter.ChatHolder;
 import com.sana.dev.fm.adapter.SimpleSectionedRecyclerViewAdapter;
 import com.sana.dev.fm.databinding.ItemGridBinding;
-import com.sana.dev.fm.databinding.ItemProgramsBinding;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.ModelConfig;
@@ -40,7 +37,6 @@ import com.sana.dev.fm.ui.activity.CommentsActivity;
 import com.sana.dev.fm.ui.activity.EpisodeAddStepperVertical;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
-import com.sana.dev.fm.ui.activity.SplashActivity;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
@@ -258,7 +254,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 //                LogUtility.d(LogUtility.TAG, "res newAdapter : " + new Gson().toJson(model));
 
                 if (RealTimeEpisodeFragment.this.isAccountSignedIn()) {
-                    model.userId = prefMgr.getUsers().getUserId();
+                    model.userId = prefMgr.getUserSession().getUserId();
                 }
                 ChatHolder viewHolder = (ChatHolder) holder;
 
@@ -268,7 +264,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 viewHolder.setOnLongItemClickListener(new ChatHolder.OnLongItemClickListener() {
                     @Override
                     public void onLongItemClick(View view, Episode obj, int position) {
-                        if (RealTimeEpisodeFragment.this.isAccountSignedIn() && prefMgr.getUsers().getUserType() == UserType.SuperADMIN)
+                        if (RealTimeEpisodeFragment.this.isAccountSignedIn() && prefMgr.getUserSession().getUserType() == UserType.SuperADMIN)
                             showBottomSheetDialog(obj, position);
                     }
                 });
@@ -306,7 +302,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                                 } else {
                                     boolean isLik = !model.isLiked;
                                     HashMap<String, Boolean> likeMap = new HashMap<>();
-                                    likeMap.put(prefMgr.getUsers().getUserId(), isLik);
+                                    likeMap.put(prefMgr.getUserSession().getUserId(), isLik);
                                     model.setEpisodeLikes(likeMap);
                                     ePiRepo.updateEpi("episodeLikes", model, new CallBack() {
                                         @Override
