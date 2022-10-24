@@ -6,7 +6,6 @@ import static com.sana.dev.fm.adapter.ProgramDetailsAdapter.SPAN_COUNT_THREE;
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
@@ -18,9 +17,6 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -30,6 +26,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.ProgramDetailsAdapter;
+import com.sana.dev.fm.databinding.ProgramDetailsActivityBinding;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
@@ -44,11 +41,8 @@ import com.sana.dev.fm.utils.my_firebase.EpisodeRepositoryImpl;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmRepositoryImpl;
 
-
 import java.util.ArrayList;
 import java.util.List;
-
-import butterknife.BindView;
 
 /**
  * Created by  Ibrahim on 25.03.21.
@@ -60,39 +54,10 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
     private static final int USER_OPTIONS_ANIMATION_DELAY = 300;
     private static final Interpolator INTERPOLATOR = new DecelerateInterpolator();
     private final String TAG = ProgramDetailsActivity.class.getSimpleName();
-    @BindView(R.id.vRevealBackground)
-    RevealBackgroundView vRevealBackground;
-    @BindView(R.id.recyclerView)
-    RecyclerView recyclerView;
 
-    @BindView(R.id.tlUserProfileTabs)
-    TabLayout tlUserProfileTabs;
+    ProgramDetailsActivityBinding binding;
 
-    @BindView(R.id.ivUserProfilePhoto)
-    ImageView ivUserProfilePhoto;
-    @BindView(R.id.vUserDetails)
-    View vUserDetails;
-    @BindView(R.id.btnFollow)
-    Button btnFollow;
-    @BindView(R.id.vUserStats)
-    View vUserStats;
-    @BindView(R.id.vUserProfileRoot)
-    View vUserProfileRoot;
-
-    @BindView(R.id.tvName)
-    TextView tvName;
-    @BindView(R.id.tvTag)
-    TextView tvTag;
-    @BindView(R.id.tvCategory)
-    TextView tvCategory;
-    @BindView(R.id.tvSubTitle)
-    TextView tvDesc;
-    @BindView(R.id.tvPostCount)
-    TextView tvPostCount;
-    @BindView(R.id.tvSubscribers)
-    TextView tvSubscribers;
-    @BindView(R.id.tvLikesCount)
-    TextView tvLikesCount;
+    
 
     //    StaggeredGridLayoutManager layoutManager;
     private GridLayoutManager gridLayoutManager;
@@ -116,8 +81,10 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.program_details_activity);
-
-        gridLayoutManager = new GridLayoutManager(this, SPAN_COUNT_ONE);
+        binding = ProgramDetailsActivityBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+        
 
 
         initToolbar();
@@ -129,8 +96,13 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 
 
     private void initToolbar() {
-//        Toolbar toolbar = getToolbar();
 
+        binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     @Override
@@ -224,34 +196,36 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
     @SuppressLint("SetTextI18n")
     private void updateInfoUI(TempModel model) {
 //        TempModel _temp = new TempModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), radioProgram.getPrCategoryList().toString(), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
-        Tools.displayImageRound(ProgramDetailsActivity.this, ivUserProfilePhoto, model.imgProfile);
-        tvName.setText(model.name);
-        tvDesc.setText(model.desc);
-        tvCategory.setText(model.category);
+        Tools.displayImageRound(ProgramDetailsActivity.this, binding.ivProfilePhoto, model.imgProfile);
+        binding. tvName.setText(model.name);
+        binding.tvDesc.setText(model.desc);
+        binding.tvCategory.setText(model.category);
 //      tvTag.setText(getResources().getString(R.string.tag_format, _temp.tag));
         if (!TextUtils.isEmpty(model.tag))
-            tvTag.setText(String.format("@%s", model.tag));
+            binding. tvTag.setText(String.format("@%s", model.tag));
         if (model.likesCount >= 1)
-            tvLikesCount.setText(Integer.toString(model.likesCount));
+            binding.tvLikesCount.setText(Integer.toString(model.likesCount));
         if (model.subScribeCount >= 1)
-            tvSubscribers.setText(Integer.toString(model.subScribeCount));
+            binding. tvSubscribers.setText(Integer.toString(model.subScribeCount));
         if (model.postCount >= 1)
-            tvPostCount.setText(Integer.toString(model.postCount));
-        vUserStats.setVisibility(View.VISIBLE);
+            binding. tvPostCount.setText(Integer.toString(model.postCount));
+        binding.lynStats.setVisibility(View.VISIBLE);
 
-        btnFollow.setVisibility(View.GONE);
+        binding.btnFollow.setVisibility(View.GONE);
     }
 
     private void setupTabs() {
-        tlUserProfileTabs.addTab(tlUserProfileTabs.newTab().setIcon(R.drawable.ic_grid_on_white).setText(R.string.label_grid));
-        tlUserProfileTabs.addTab(tlUserProfileTabs.newTab().setIcon(R.drawable.ic_list_white).setText(R.string.label_list));
-//        tlUserProfileTabs.addTab(tlUserProfileTabs.newTab().setIcon(R.drawable.ic_place_white));
-//        tlUserProfileTabs.addTab(tlUserProfileTabs.newTab().setIcon(R.drawable.ic_label_white));
+        gridLayoutManager = new GridLayoutManager(this, SPAN_COUNT_ONE);
+
+        binding.tlProfileTabs.addTab(binding.tlProfileTabs.newTab().setIcon(R.drawable.ic_grid_on_white).setText(R.string.label_grid));
+        binding.tlProfileTabs.addTab(binding.tlProfileTabs.newTab().setIcon(R.drawable.ic_list_white).setText(R.string.label_list));
+//        binding.tlProfileTabs.addTab(binding.tlProfileTabs.newTab().setIcon(R.drawable.ic_place_white));
+//        binding.tlProfileTabs.addTab(binding.tlProfileTabs.newTab().setIcon(R.drawable.ic_label_white));
 
 
-//        this.tlUserProfileTabs.getTabAt(0).getIcon().setColorFilter(-1, PorterDuff.Mode.SRC_IN);
-//        this.tlUserProfileTabs.getTabAt(1).getIcon().setColorFilter(getResources().getColor(R.color.grey_20), PorterDuff.Mode.SRC_IN);
-        this.tlUserProfileTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+//        this.binding.tlProfileTabs.getTabAt(0).getIcon().setColorFilter(-1, PorterDuff.Mode.SRC_IN);
+//        this.binding.tlProfileTabs.getTabAt(1).getIcon().setColorFilter(getResources().getColor(R.color.grey_20), PorterDuff.Mode.SRC_IN);
+        this.binding.tlProfileTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             public void onTabSelected(TabLayout.Tab tab) {
                 tab.getIcon().setColorFilter(-1, PorterDuff.Mode.SRC_IN);
                 switchIcon(tab.getPosition());
@@ -283,8 +257,8 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 //    }
 
     private void switchIcon(int tabIndex) {
-//        tlUserProfileTabs.setScrollPosition(tabIndex, 0F, true);
-//        TabLayout.Tab tab = tlUserProfileTabs.getTabAt(tabIndex);
+//        binding.tlProfileTabs.setScrollPosition(tabIndex, 0F, true);
+//        TabLayout.Tab tab = binding.tlProfileTabs.getTabAt(tabIndex);
 //        assert tab != null;
 //        tab.select();
 //        if (tabIndex == 1) {
@@ -299,7 +273,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
             gridLayoutManager.setSpanCount(SPAN_COUNT_ONE);
         }
 
-//        tlUserProfileTabs.setScrollPosition(tabIndex, 0f, true);
+//        binding.tlProfileTabs.setScrollPosition(tabIndex, 0f, true);
         itemAdapter.notifyItemRangeChanged(0, itemAdapter.getItemCount());
     }
 
@@ -308,22 +282,22 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 
         gridLayoutManager = new GridLayoutManager(this, SPAN_COUNT_THREE);
         itemAdapter = new ProgramDetailsAdapter(this, detailsList, gridLayoutManager);
-        recyclerView.setAdapter(itemAdapter);
-        recyclerView.setLayoutManager(gridLayoutManager);
+        binding.recyclerView.setAdapter(itemAdapter);
+        binding.recyclerView.setLayoutManager(gridLayoutManager);
 
 
 //        layoutManager = new StaggeredGridLayoutManager(viewType, StaggeredGridLayoutManager.VERTICAL);
 ////        final StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(CELL_SIZE, StaggeredGridLayoutManager.VERTICAL);
-//        recyclerView.setLayoutManager(layoutManager);
+//        binding.recyclerView.setLayoutManager(layoutManager);
 //
 //        itemAdapter = new UserProfileAdapter(ProgramProfileActivity.this, detailsList, viewType);
-//        recyclerView.setAdapter(itemAdapter);
+//        binding.recyclerView.setAdapter(itemAdapter);
 //        itemAdapter.notifyDataSetChanged();
 //
 //
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        binding.recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            public void onScrollStateChanged(RecyclerView rv, int newState) {
                 itemAdapter.setLockedAnimations(true);
             }
         });
@@ -343,19 +317,19 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 
 
     private void setupRevealBackground(Bundle savedInstanceState) {
-        vRevealBackground.setOnStateChangeListener(this);
+        binding.rbv.setOnStateChangeListener(this);
         if (savedInstanceState == null) {
             final int[] startingLocation = getIntent().getIntArrayExtra(ARG_REVEAL_START_LOCATION);
-            vRevealBackground.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            binding.rbv.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
-                    vRevealBackground.getViewTreeObserver().removeOnPreDrawListener(this);
-                    vRevealBackground.startFromLocation(startingLocation);
+                    binding.rbv.getViewTreeObserver().removeOnPreDrawListener(this);
+                    binding.rbv.startFromLocation(startingLocation);
                     return true;
                 }
             });
         } else {
-            vRevealBackground.setToFinishedFrame();
+            binding.rbv.setToFinishedFrame();
             itemAdapter.setLockedAnimations(true);
         }
     }
@@ -363,35 +337,35 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
     @Override
     public void onStateChange(int state) {
         if (RevealBackgroundView.STATE_FINISHED == state) {
-            recyclerView.setVisibility(View.VISIBLE);
-            tlUserProfileTabs.setVisibility(View.VISIBLE);
-            vUserProfileRoot.setVisibility(View.VISIBLE);
+            binding.recyclerView.setVisibility(View.VISIBLE);
+            binding.tlProfileTabs.setVisibility(View.VISIBLE);
+            binding.lynProfileRoot.setVisibility(View.VISIBLE);
             itemAdapter = new ProgramDetailsAdapter(this, detailsList, gridLayoutManager);
-            recyclerView.setAdapter(itemAdapter);
+            binding.recyclerView.setAdapter(itemAdapter);
             animateUserProfileOptions();
             animateUserProfileHeader();
         } else {
-            tlUserProfileTabs.setVisibility(View.INVISIBLE);
-            recyclerView.setVisibility(View.INVISIBLE);
-            vUserProfileRoot.setVisibility(View.INVISIBLE);
+            binding.tlProfileTabs.setVisibility(View.INVISIBLE);
+            binding.recyclerView.setVisibility(View.INVISIBLE);
+            binding.lynProfileRoot.setVisibility(View.INVISIBLE);
         }
     }
 
     private void animateUserProfileOptions() {
-        tlUserProfileTabs.setTranslationY(-tlUserProfileTabs.getHeight());
-        tlUserProfileTabs.animate().translationY(0).setDuration(300).setStartDelay(USER_OPTIONS_ANIMATION_DELAY).setInterpolator(INTERPOLATOR);
+        binding.tlProfileTabs.setTranslationY(-binding.tlProfileTabs.getHeight());
+        binding.tlProfileTabs.animate().translationY(0).setDuration(300).setStartDelay(USER_OPTIONS_ANIMATION_DELAY).setInterpolator(INTERPOLATOR);
     }
 
     private void animateUserProfileHeader() {
-        vUserProfileRoot.setTranslationY(-vUserProfileRoot.getHeight());
-        ivUserProfilePhoto.setTranslationY(-ivUserProfilePhoto.getHeight());
-        vUserDetails.setTranslationY(-vUserDetails.getHeight());
-        vUserStats.setAlpha(0);
+        binding.lynProfileRoot.setTranslationY(-binding.lynProfileRoot.getHeight());
+         binding.ivProfilePhoto.setTranslationY(-binding.ivProfilePhoto.getHeight());
+         binding.lynDetails.setTranslationY(-binding.lynDetails.getHeight());
+       binding.lynStats.setAlpha(0);
 
-        vUserProfileRoot.animate().translationY(0).setDuration(300).setInterpolator(INTERPOLATOR);
-        ivUserProfilePhoto.animate().translationY(0).setDuration(300).setStartDelay(100).setInterpolator(INTERPOLATOR);
-        vUserDetails.animate().translationY(0).setDuration(300).setStartDelay(200).setInterpolator(INTERPOLATOR);
-        vUserStats.animate().alpha(1).setDuration(200).setStartDelay(400).setInterpolator(INTERPOLATOR).start();
+        binding.lynProfileRoot.animate().translationY(0).setDuration(300).setInterpolator(INTERPOLATOR);
+        binding.ivProfilePhoto.animate().translationY(0).setDuration(300).setStartDelay(100).setInterpolator(INTERPOLATOR);
+        binding.lynDetails.animate().translationY(0).setDuration(300).setStartDelay(200).setInterpolator(INTERPOLATOR);
+        binding.lynStats.animate().alpha(1).setDuration(200).setStartDelay(400).setInterpolator(INTERPOLATOR).start();
     }
 
 
@@ -419,7 +393,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
     private void showFragment() {
         final SongPlayerFragment fragment = new SongPlayerFragment();
         final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.content, fragment, TAG_FRAGMENT);
+        transaction.replace(R.id.co_content, fragment, TAG_FRAGMENT);
         transaction.addToBackStack(null);
         transaction.commit();
     }

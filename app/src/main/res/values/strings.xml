@@ -4,10 +4,11 @@
     <string name="app_slogan">Yemen\'s first application for radio channels</string>
     <string name="app_version">Version</string>
     <string name="version_unknown">Unknown</string>
-    <string name="hudhudfm_gmail">hudhudfm.ye@gmail.com</string>
+    <string name="app_gmail">hudhudfm.ye@gmail.com</string>
     <string name="app_mobile">+967 775617017</string>
-    <string name="hudhudfm_twitter">https://twitter.com/HudhudFm</string>
-    <string name="hudhudfm_facebook">https://www.facebook.com/HudhudFm</string>
+    <string name="app_twitter">https://twitter.com/HudhudFm</string>
+    <string name="app_facebook">https://www.facebook.com/HudhudFm</string>
+    <string name="app_instagram">http://instagram.com/hudhudfm</string>
 
     <plurals name="likes_count">
         <item quantity="one">%d like</item>
@@ -128,7 +129,6 @@
     -->
     <string name="main_program_for">Main programs</string>
     <string name="app_message">Hodhud FM: is an Android application that enables userModel to access Yemeni radio channels from anywhere and at any time with the click of a button.</string>
-    <string name="hudhudfm_instagram">http://instagram.com/hudhudfm</string>
     <string name="update_episode">Update episode data</string>
     <!--    <string name="powered_by">Powered By &#x2665; Sana&apos;a Dev</string>-->
     <string name="powered_by">Powered By &#x2665; Sana\'a Dev</string>

@@ -78,6 +78,8 @@ public class EmptyViewFragment extends Fragment {
 
         if (!TextUtils.isEmpty(btn_label)) {
             binding.btnClick.setText(btn_label);
+        }else {
+            binding.btnClick.setVisibility(View.GONE);
         }
 
         binding.progressBar.setVisibility(View.GONE);

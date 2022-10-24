@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -54,7 +55,7 @@ public class SongPlayerFragment extends MusicServiceFragment {
 
     private BottomSheetBehavior bottomSheetBehavior;
     private ConstraintLayout panelLayout;
-    private ConstraintLayout.LayoutParams params;
+    private LinearLayout.LayoutParams params;
 
     private MusicService musicService;
     private boolean musicServiceStatus = false;
@@ -100,7 +101,7 @@ public class SongPlayerFragment extends MusicServiceFragment {
 
         appBarLayout.setVisibility(View.GONE);
 
-        params = (ConstraintLayout.LayoutParams) currentSong.getLayoutParams();
+        params = (LinearLayout.LayoutParams) currentSong.getLayoutParams();
 
         if (musicServiceStatus) {
             updateUI();
@@ -280,7 +281,7 @@ public class SongPlayerFragment extends MusicServiceFragment {
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
                 // animating the views when panel expanding and collapsing
-                params.topMargin = Tools.dpToPx(getActivity(), slideOffset * 30 + 5);
+                params.topMargin = Tools.dpToPx(getActivity(), slideOffset * 10 /*30*/ + 5);
                 actionBtn.setAlpha(1 - slideOffset);
                 currentCoverArt.setAlpha(slideOffset);
                 panelNextBtn.setAlpha(slideOffset);

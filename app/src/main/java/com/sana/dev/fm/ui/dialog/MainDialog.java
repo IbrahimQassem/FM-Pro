@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
@@ -16,12 +15,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatRatingBar;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
 
@@ -159,7 +155,7 @@ public class MainDialog {
         dialog.findViewById(R.id.iv_facebook).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 FmUtilize.getOpenFacebookIntent(context);
-                String YourPageURL = context.getString(R.string.hudhudfm_facebook);
+                String YourPageURL = context.getString(R.string.app_facebook);
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(YourPageURL));
                 context.startActivity(browserIntent);
                 dialog.dismiss();
@@ -168,7 +164,7 @@ public class MainDialog {
 
         dialog.findViewById(R.id.iv_twitter).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                String YourPageURL = context.getString(R.string.hudhudfm_twitter);
+                String YourPageURL = context.getString(R.string.app_twitter);
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(YourPageURL));
                 context.startActivity(browserIntent);
                 dialog.dismiss();
@@ -177,7 +173,7 @@ public class MainDialog {
 
         dialog.findViewById(R.id.iv_instagram).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                String YourPageURL = context.getString(R.string.hudhudfm_instagram);
+                String YourPageURL = context.getString(R.string.app_instagram);
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(YourPageURL));
                 context.startActivity(browserIntent);
                 dialog.dismiss();
@@ -188,7 +184,7 @@ public class MainDialog {
         dialog.findViewById(R.id.iv_email).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 try {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("mailto:" + context.getString(R.string.hudhudfm_gmail)));
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("mailto:" + context.getString(R.string.app_gmail)));
                     intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.app_name));
                     intent.putExtra(Intent.EXTRA_TEXT, "");//your_text
                     context.startActivity(intent);

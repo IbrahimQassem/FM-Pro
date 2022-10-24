@@ -4,10 +4,11 @@
     <string name="app_slogan">تطبيق اليمن الأول للقنوات الإذاعية</string>
     <string name="app_version">Version</string>
     <string name="version_unknown">Unknown</string>
-    <string name="hudhudfm_gmail">hudhudfm.ye@gmail.com</string>
+    <string name="app_gmail">hudhudfm.ye@gmail.com</string>
     <string name="app_mobile">+967 775617017</string>
-    <string name="hudhudfm_twitter">https://twitter.com/HudhudFm</string>
-    <string name="hudhudfm_facebook">https://www.facebook.com/HudhudFm</string>
+    <string name="app_twitter">https://twitter.com/HudhudFm</string>
+    <string name="app_facebook">https://www.facebook.com/HudhudFm</string>
+    <string name="app_instagram">http://instagram.com/hudhudfm</string>
 
     <plurals name="likes_count">
         <item quantity="one">%d إعجاب</item>
@@ -126,9 +127,8 @@
         <b>هل تريد الإنتقال الى نافذة تسجيل الدخول؟</b>
     </string>
     -->
-    <string name="main_program_for">" البرامج الرئيسية"</string>
+    <string name="main_program_for">البرامج الرئيسية</string>
     <string name="app_message">هدهد اف ام : هو تطبيق أندرويد يُمكَن المستخدمين من الوصول للقنوات الإذاعية اليمنية من أي مكان وفي أي وقت بضغطة زر .</string>
-    <string name="hudhudfm_instagram">http://instagram.com/hudhudfm</string>
     <string name="update_episode">تحديث بيانات البرامج</string>
     <!--    <string name="powered_by">Powered By &#x2665; Sana&apos;a Dev</string>-->
     <string name="powered_by">Powered By &#x2665; Sana\'a Dev</string>
