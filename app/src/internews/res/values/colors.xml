@@ -11,7 +11,8 @@
 
     <color name="colorAccent">#880e4f</color>
     <color name="colorAccentDark">#560027</color>
-    <color name="colorAccentLight">#bc477b</color>
+    <color name="colorAccentLight">#f8bbd0</color>
+<!--    <color name="colorAccentLight">#bc477b</color>-->
 
 
     <color name="fab_color_pressed">#7c43bd</color>

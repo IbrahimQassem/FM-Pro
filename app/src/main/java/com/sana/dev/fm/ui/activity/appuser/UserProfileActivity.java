@@ -18,7 +18,6 @@ import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.EditText;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -62,13 +61,6 @@ public class UserProfileActivity extends BaseActivity {
 
     private final String TAG = UserProfileActivity.class.getSimpleName();
 
-    private final int STATE_INITIALIZED = 1;
-    private final int STATE_CODE_SENT = 2;
-    private final int STATE_VERIFY_FAILED = 3;
-    private final int STATE_VERIFY_SUCCESS = 4;
-    private final int STATE_SIGNIN_FAILED = 5;
-    private final int STATE_SIGNIN_SUCCESS = 6;
-
     ActivityUserProfileBinding binding;
 
     private FirebaseAuth mAuth;
@@ -108,11 +100,10 @@ public class UserProfileActivity extends BaseActivity {
             _userModel = prefMgr.getUserSession();
             LogUtility.d(LogUtility.TAG," UserSession : "+new Gson().toJson(_userModel));
             binding.tvLabelUserName.setText(_userModel.getName());
-            binding.etMobile.setText(_userModel.getMobile());
+            binding.etMobile.setText(FmUtilize.trimMobileCode(_userModel.getMobile()));
             binding.tvLabelUserDesc.setText(_userModel.getBio());
-//            tv_label_user_desc.setText(user.getUid());
             binding.etFullName.setText(_userModel.getName());
-            binding.etMobile.setText(_userModel.getEmail());
+            binding.etEmail.setText(_userModel.getEmail());
             try {
                 binding.etPassword.setText(AESCrypt.decrypt(_userModel.getPassword()));
             } catch (Exception e) {
@@ -306,7 +297,7 @@ public class UserProfileActivity extends BaseActivity {
 
 
     private void saveUserData() {
-        valedateInput();
+        validateInput();
 
 
 //        String userImage  = null ;
@@ -349,10 +340,10 @@ public class UserProfileActivity extends BaseActivity {
 
     }
 
-    private void valedateInput() {
+    private void validateInput() {
 
         name = binding.etFullName.getText().toString().trim();
-        email = "";// binding.etMobile.getText().toString().trim();
+        email = "";
         mobile = binding.etMobile.getText().toString().trim();
         password = "";//binding.etPassword.getText().toString().trim();
 
@@ -398,8 +389,8 @@ public class UserProfileActivity extends BaseActivity {
 
     private void uploadUserProfile(Uri uriImage) {
 //        if (imageUri != null) {
-        ProgressHUD mProgressHUD = ProgressHUD.showDialog("حفظ صورة البروفايل", true, false, null);
-        mProgressHUD.setMessage("جاري حفظ صورة البروفايل ...");
+        ProgressHUD mProgressHUD = ProgressHUD.showDialog(getString(R.string.please_wait), true, false, null);
+        mProgressHUD.setMessage(getString(R.string.please_wait_to_save_youre_profile));
         mProgressHUD.show();
 
         // Create file metadata including the content type
@@ -418,7 +409,7 @@ public class UserProfileActivity extends BaseActivity {
                 double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                 Log.d(TAG, "Upload is " + progress + "% done");
                 mProgressHUD.setCanceledOnTouchOutside(false);
-                mProgressHUD.setMessage(" يرجى الإنتظار " + " % " + (int) progress);
+                mProgressHUD.setMessage(getString(R.string.please_wait) + " % " + (int) progress);
 
             }
         }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
@@ -504,8 +495,6 @@ public class UserProfileActivity extends BaseActivity {
         prefMgr.remove(FMCConstants.USER_MOBILE);
         Intent intent = IntentHelper.splashActivity(this, true);
         startActivity(intent);
-//        finish();
         showToast(getString(R.string.user_loged_out));
-//        updateUI(STATE_INITIALIZED);
     }
 }

@@ -219,6 +219,37 @@
                         </com.google.android.material.textfield.TextInputLayout>
 
 
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="5dp"
+                            android:background="@color/transparent" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_mlarge"
+                            android:text="رابط الحلقة الإذاعية"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                            android:textColor="@color/grey_95" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_middle"
+                            android:background="@color/grey_3"
+                            app:hintEnabled="false">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/tit_ep_stream_url"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@drawable/edit_text_round_bg_outline"
+                                android:hint="رابط الحلقة الإذاعية"
+                                android:lines="2"
+                                android:maxLines="3"
+                                android:textColorHint="@color/grey_20" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
 
 
 
@@ -228,7 +259,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/spacing_middle"
                             android:layout_marginBottom="@dimen/spacing_middle"
-                            android:gravity="center"
+                            android:layout_gravity="end"
                             android:minWidth="0dp"
                             android:onClick="clickAction"
                             android:text="@string/btn_continue"
@@ -420,7 +451,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/spacing_middle"
                             android:layout_marginBottom="@dimen/spacing_middle"
-                            android:gravity="center"
+                            android:layout_gravity="end"
                             android:minWidth="0dp"
                             android:onClick="clickAction"
                             android:text="@string/btn_continue"
@@ -633,7 +664,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/spacing_middle"
                             android:layout_marginBottom="@dimen/spacing_middle"
-                            android:gravity="center"
+                            android:layout_gravity="end"
                             android:minWidth="0dp"
                             android:onClick="clickAction"
                             android:text="@string/btn_continue"
@@ -931,7 +962,7 @@
                             android:id="@+id/bt_continue_four"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:gravity="center"
+                            android:layout_gravity="end"
                             android:minWidth="0dp"
                             android:layout_marginTop="@dimen/spacing_middle"
                             android:layout_marginBottom="@dimen/spacing_middle"

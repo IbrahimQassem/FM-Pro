@@ -100,7 +100,7 @@ public class SongDataLab {
         for (int i = 0; i < detailsList.size(); i++) {
             Episode ep = detailsList.get(i);
 //            SongModel song = SongModel.EMPTY();
-            SongModel song = new SongModel(i, ep.getEpName(), ep.getEpAnnouncer(), "", ep.getProgramName(), "zzz",ep.getEpProfile(), /*FmUtilize.modifyDateLayout(ep.getDateTimeModel().getDateStart())*/"http://www.dev2qa.com/demo/media/test.mp3", 0, 0, 0, 0, 0, 0, 0, 0);
+            SongModel song = new SongModel(i, ep.getEpName(), ep.getEpAnnouncer(), "", ep.getProgramName(), "zzz",ep.getEpProfile(), /*FmUtilize.modifyDateLayout(ep.getDateTimeModel().getDateStart())*//*"https://www.dev2qa.com/demo/media/test.mp3"*/ep.getEpStreamUrl(), 0, 0, 0, 0, 0, 0, 0, 0);
             songs.add(song);
         }
 /*        SongCursorWrapper cursor = querySong(null, null);

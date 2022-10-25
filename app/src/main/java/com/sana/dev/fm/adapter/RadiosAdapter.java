@@ -101,19 +101,7 @@ public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.MyViewHold
         selectedItem = pos;
         notifyItemChanged(previousItem);
         notifyItemChanged(pos);
-        recyclerView.smoothScrollToPosition(pos);
-
-
-//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                // Your Code
-//        recyclerView.smoothScrollToPosition(pos);
-//            }
-//        }, 200);
-
-
-    }
+        recyclerView.smoothScrollToPosition(pos);    }
 
 
     public void setOnClickListener(OnClickListener onClickListener) {

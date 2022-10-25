@@ -71,7 +71,7 @@ public class AboutAppActivity extends AppCompatActivity {
     private void initToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("من نحن");
+        getSupportActionBar().setTitle(getString(R.string.label_about_us));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Tools.setSystemBarColor(this, R.color.red_800);
     }

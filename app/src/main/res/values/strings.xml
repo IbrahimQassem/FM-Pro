@@ -219,6 +219,8 @@
     <string name="label_error_occurred">Error Occurred !</string>
     <string name="error_occurred_with_value">Error occurred ! \n [%s]</string>
     <string name="label_close">Close</string>
+    <string name="please_wait_to_save_youre_profile">جاري حفظ صورة البروفايل ...</string>
+    <string name="label_about_us">About Us</string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

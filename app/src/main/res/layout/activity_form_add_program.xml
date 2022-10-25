@@ -17,7 +17,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:tint="@color/grey_60"
-            app:srcCompat="@drawable/ic_chevron_left" />
+            app:srcCompat="@drawable/ic_arrow_back_" />
 
         <TextView
             android:layout_width="0dp"

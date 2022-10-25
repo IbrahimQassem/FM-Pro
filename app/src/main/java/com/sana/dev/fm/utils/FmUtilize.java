@@ -626,6 +626,29 @@ public class FmUtilize {
         return secret;
     }
 
+    public static String trimMobileCode(String mobile) {
+//        if (mobile != null && mobile.trim().length() >= 12)
+//            return mobile.substring(3);
+//        return mobile;
+
+        if (mobile.length() == 9) {
+            return mobile;
+        } else if (mobile.length() > 9) {
+            return mobile.substring(mobile.length() - 9);
+        } else {
+            // whatever is appropriate in this case
+            //throw new IllegalArgumentException("word has fewer than 3 characters!");
+            return mobile;
+        }
+    }
+
+    public String getLastThree(String myString) {
+        if(myString.length() > 3)
+            return myString.substring(myString.length()-3);
+        else
+            return myString;
+    }
+
     private void launchMarket(Context context) {
         Uri uri = Uri.parse("market://details?id=" + context.getPackageName());
         Intent myAppLinkToMarket = new Intent(Intent.ACTION_VIEW, uri);
@@ -636,24 +659,24 @@ public class FmUtilize {
         }
     }
 
-    public static String modifyDateLayout(String inputDate)  {
+    public static String modifyDateLayout(String inputDate) {
         String res = "null";
         try {
             SimpleDateFormat sdf = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.US);
             Date date = sdf.parse(inputDate);
-            res =new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(date);
+            res = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(date);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return res;
     }
 
-    public static String modifyDateLayout(long val)  {
+    public static String modifyDateLayout(long val) {
         String res = "";
         try {
             SimpleDateFormat sdf = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.US);
             System.out.format("%30s %s\n", "yyyy-MM-dd'T'HH:mm:ss.SSSZ", sdf.format(new Date(val))); // 0 - your "LongValue"
-            res= sdf.format(new Date(val));
+            res = sdf.format(new Date(val));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -675,7 +698,6 @@ public class FmUtilize {
     public String createTransactionID() throws Exception {
         return UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
     }
-
 
 
     public static String getFileName(Uri imageUri, Activity activity) {
@@ -867,20 +889,20 @@ public class FmUtilize {
         }
     }
 
-    public static void hideEmptyElement(String s, View view){
-        if (!TextUtils.isEmpty(s)){
+    public static void hideEmptyElement(String s, View view) {
+        if (!TextUtils.isEmpty(s)) {
             if (view instanceof TextView)
                 ((TextView) view).setText(s);
-        }else {
+        } else {
             view.setVisibility(View.GONE);
         }
     }
 
-        public static boolean isGooglePlayServicesAvailable(Activity activity) {
+    public static boolean isGooglePlayServicesAvailable(Activity activity) {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
         int status = googleApiAvailability.isGooglePlayServicesAvailable(activity);
-        if(status != ConnectionResult.SUCCESS) {
-            if(googleApiAvailability.isUserResolvableError(status)) {
+        if (status != ConnectionResult.SUCCESS) {
+            if (googleApiAvailability.isUserResolvableError(status)) {
                 googleApiAvailability.getErrorDialog(activity, status, 2404).show();
             }
             return false;

@@ -106,6 +106,8 @@ public class EpisodeAddStepperVertical extends BaseActivity {
     EditText et_station;
     @BindView(R.id.et_program)
     EditText et_program;
+    @BindView(R.id.tit_ep_stream_url)
+    EditText tit_ep_stream_url;
     //    @BindView(R.id.et_ep_start)
 //    EditText et_ep_start;
 //    @BindView(R.id.et_ep_end)
@@ -144,7 +146,6 @@ public class EpisodeAddStepperVertical extends BaseActivity {
     private int success_step = 0;
     private int current_step = 0;
     private View parent_view;
-    //    private String epName, epAnn, epDesc, timeStart, timeEnd, epProfile, epPeriod, epCastDateAt = null;
     private String radioId, epId, epName, epDesc, epAnnouncer, programId, epProfile, epStreamUrl, programName, timestamp, createBy, stopNote = null;
     private DateTimeModel dateTimeModel;
     /**
@@ -203,12 +204,19 @@ public class EpisodeAddStepperVertical extends BaseActivity {
 
 
     private void initToolbar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(null);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        Tools.setSystemBarColor(this);
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+//        setSupportActionBar(toolbar);
+//        getSupportActionBar().setTitle(null);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        Tools.setSystemBarColor(this);
+
+        getToolbarArrow().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     private void initComponent() {
@@ -332,6 +340,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
 //           RadioInfo ri = radioInfo.findRadio(radioId,ShardDate.getInstance().getInfoList());
             et_station.setText(radioInfo.getName());
             et_program.setText(programName);
+            tit_ep_stream_url.setText(epStreamUrl);
 
             loadProfile(Uri.parse(epProfile));
 
@@ -358,6 +367,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
         epName = tit_ep_name.getText().toString().trim();
         epAnnouncer = tit_ep_announcer.getText().toString().trim();
         epDesc = tit_ep_desc.getText().toString().trim();
+        epStreamUrl = tit_ep_stream_url.getText().toString().trim();
 
 
         if (imageUri != null) {
@@ -409,7 +419,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
                                     epProfile = uri.toString();
                                     mProgressHUD.dismiss();
 
-                                    Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, dateTimeModel, epProfile, "", 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
+                                    Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, dateTimeModel, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
                                     ePoRepo.createEpi(radioId, programId, episode, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
@@ -432,7 +442,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
             });
 
         } else {
-            Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, dateTimeModel, epProfile, "", 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
+            Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, dateTimeModel, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
             ePoRepo.createEpi(radioId, programId, episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
