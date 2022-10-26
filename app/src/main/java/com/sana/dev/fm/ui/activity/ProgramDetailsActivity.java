@@ -96,7 +96,6 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 
 
     private void initToolbar() {
-
         binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,6 +103,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
             }
         });
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">إنترنيوز</string>
-    <string name="app_slogan">Local voices. Global Change.</string>
+    <string name="app_slogan">أصوات محلية , تغيير عالمي.</string>
 
     <string name="app_message">إنترنيوز : هو تطبيق أندرويد يُمكَن المستخدمين من الوصول للقنوات الإذاعية اليمنية من أي مكان وفي أي وقت بضغطة زر .</string>
     <string name="app_instagram">http://instagram.com/hudhudfm</string>

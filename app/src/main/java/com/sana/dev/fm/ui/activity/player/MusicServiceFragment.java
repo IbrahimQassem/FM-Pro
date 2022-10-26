@@ -12,6 +12,8 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.sana.dev.fm.ui.fragment.BaseFragment;
+
 
 /**
  * This class makes a service fragments, so that other fragments
@@ -19,7 +21,7 @@ import androidx.fragment.app.Fragment;
  * The onconnected is callback function ho. .
  */
 
-public abstract class MusicServiceFragment extends Fragment {
+public abstract class MusicServiceFragment extends BaseFragment {
     public static final String TAG = "MusicServiceFragment";
     ServiceConnection serviceConnection;
     public MusicService musicService;

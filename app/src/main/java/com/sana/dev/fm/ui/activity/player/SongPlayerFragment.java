@@ -125,6 +125,8 @@ public class SongPlayerFragment extends MusicServiceFragment {
 //                    getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                    }else {
+                        finish();
                     }
                     return true;
                 }
