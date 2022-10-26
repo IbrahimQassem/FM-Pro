@@ -306,6 +306,7 @@ public class EpisodeRepositoryImpl extends FirebaseRepository implements Episode
         QuerySnapshot queryDocumentSnapshots = (QuerySnapshot) object;
         for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
             Episode program = snapshot.toObject(Episode.class);
+            if (!program.isStopped())
             programList.add(program);
         }
         return programList;
