@@ -1,11 +1,12 @@
 package com.sana.dev.fm.ui.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.kaopiz.kprogresshud.KProgressHUD;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserType;
@@ -25,9 +27,9 @@ import com.sana.dev.fm.utils.Constants;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
-import com.sana.dev.fm.utils.ProgressHUD;
 import com.sana.dev.fm.utils.SnackBarUtility;
 import com.sana.dev.fm.utils.UserGuide;
+import com.sana.dev.fm.utils.my_firebase.AppConstant;
 import com.sana.dev.fm.utils.network.CheckInternetConnection;
 import com.sana.dev.fm.utils.network.ConnectionChangeListener;
 
@@ -41,7 +43,6 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     private static final String TAG = BaseActivity.class.getSimpleName();
 
-    private ProgressHUD mProgressHUD;
     public PreferencesManager prefMgr;
 
     @Nullable
@@ -59,15 +60,14 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     protected CheckInternetConnection connectionChecker;
     UserGuide userGuide;
     protected NetworkCallback networkCallback;
+    protected KProgressHUD hud;
     private boolean connectionAvailable = true;
     private long backPressedTime;
-
 
 
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
-        mProgressHUD = new ProgressHUD((Activity) this);
         bindViews();
     }
 
@@ -91,8 +91,6 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     }
 
 
-
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -102,6 +100,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     protected void bindViews() {
         ButterKnife.bind(this);
         PreferencesManager.initializeInstance(this);
+        AppConstant.initializeInstance(this);
         connectionChecker = new CheckInternetConnection();
         prefMgr = PreferencesManager.getInstance();
         userGuide = new UserGuide(this);
@@ -193,37 +192,50 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     @Override
     public void showProgress(String message) {
-        hideProgress();
-        mProgressHUD.showDialogPrivate( /*(Activity) this.getApplicationContext(), */message, true, false, null);
+        hud = KProgressHUD.create(this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel(getString(R.string.please_wait))
+                .setDetailsLabel(message)
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f)
+                .show();
+
+//        hideProgress();
+//        ProgressHUD.getInstance(this).showDialog( message, true, false, null);
     }
 
     @Override
     public void hideProgress() {
-        if (mProgressHUD != null && mProgressHUD.isShowing()) {
-            mProgressHUD.dismiss();
-        }
+//        ProgressHUD mProgressHUD  = ProgressHUD.getInstance(this);
+//        if (mProgressHUD != null && mProgressHUD.isShowing()) {
+//            mProgressHUD.dismissWithFailure();
+//        }
 //        ProgressHUD.getInstance(this).dismissWithFailure("");
+
+        if (hud != null){
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    hud.dismiss();
+                }
+            }, 2000);
+        }
+
     }
 
-//    @Override
-//    public void onDestroy() {
-//        super.onDestroy();
-//        if (mProgressHUD != null && mProgressHUD.isShowing()) {
-//            mProgressHUD.cancel();
-//        }
-//    }
 
     @Override
     public void hideKeyboard() {
-        // Check if no view has focus:
-        View view = this.getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
+
+    public static void hideKeyboard(Context context) {
+        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+    }
 
     @Override
     public void showSnackBar(String message) {
@@ -316,6 +328,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     public boolean isRadioSelected() {
         return prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null;
     }
+
 
     @Override
     protected void attachBaseContext(Context newBase) {

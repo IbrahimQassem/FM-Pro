@@ -22,6 +22,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.PreferencesManager;
+import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 public class FcmMessagingService
         extends FirebaseMessagingService {
@@ -35,7 +36,7 @@ public class FcmMessagingService
         // If you want to send messages to this application instance or
         // manage this apps subscriptions on the server side, send the
         // FCM registration token to your app server.
-        getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(FMCConstants.DEVICE_TOKEN, token).apply();
+        getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(FirebaseConstants.DEVICE_TOKEN, token).apply();
 
         sendRegistrationToServer(token);
 

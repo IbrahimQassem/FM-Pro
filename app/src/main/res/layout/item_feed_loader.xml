@@ -29,7 +29,6 @@
                 android:textSize="20sp" />
 
             <com.mikhaellopez.circularimageview.CircularImageView
-                android:id="@+id/ivUserProfile"
                 android:layout_width="@dimen/global_card_avatar_size"
                 android:layout_height="@dimen/global_card_avatar_size"
                 android:layout_margin="@dimen/spacing_medium"
@@ -43,25 +42,21 @@
 
 
         <com.sana.dev.fm.ui.view.SquaredFrameLayout
-            android:id="@+id/vImageRoot"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <ImageView
-                android:id="@+id/ivFeedCenter"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop" />
 
             <View
-                android:id="@+id/vBgLike"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_like_circle_background"
                 android:visibility="invisible" />
 
             <ImageView
-                android:id="@+id/ivLike"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="center"
@@ -102,7 +97,6 @@
             android:layout_height="2dp" />
 
         <TextView
-            android:id="@+id/tvDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
@@ -124,7 +118,6 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tv_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
@@ -151,21 +144,18 @@
             android:paddingRight="8dp">
 
             <ImageButton
-                android:id="@+id/btnLike"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="@android:color/transparent"
                  app:srcCompat="@drawable/ic_heart_outline_grey" />
 
             <ImageButton
-                android:id="@+id/btnComments"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="@drawable/btn_feed_action"
                  app:srcCompat="@drawable/ic_comment_outline_grey" />
 
             <ImageButton
-                android:id="@+id/btnMore"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="@drawable/btn_feed_action"
@@ -184,7 +174,6 @@
                      app:srcCompat="@drawable/ic_heart_small_blue" />
 
                 <TextSwitcher
-                    android:id="@+id/tsLikesCounter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"

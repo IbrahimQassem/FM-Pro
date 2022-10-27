@@ -31,8 +31,8 @@ import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.UsersRepositoryImpl;
-import com.sana.dev.fm.utils.my_firebase.notification.FMCConstants;
+import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
+import com.sana.dev.fm.utils.my_firebase.FmUserCRUDImpl;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -101,7 +101,7 @@ public class VerificationPhone extends BaseActivity {
 
     private void signInWithCredential(PhoneAuthCredential credential) {
         if (!isFinishing())
-            showProgress(getString(R.string.please_wait));
+            showProgress("");
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -120,42 +120,42 @@ public class VerificationPhone extends BaseActivity {
 
     void chekUserAuth(FirebaseUser user) {
         Intent intent = IntentHelper.userProfileActivity(VerificationPhone.this, true);
-        UsersRepositoryImpl fmRepo = new UsersRepositoryImpl(this, USERS_TABLE);
-        fmRepo.isUserExists(phoneNumber, new CallBack() {
+        FmUserCRUDImpl fmRepo = new FmUserCRUDImpl(this, USERS_TABLE);
+        fmRepo.queryAllBy(phoneNumber,null, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 LogUtility.d(LogUtility.TAG, "onSuccess : " + object);
                 UserModel _userModel = (UserModel) object;
-                prefMgr.write(FMCConstants.USER_INFO, _userModel);
+                prefMgr.write(FirebaseConstants.USER_INFO, _userModel);
                 showToast(getString(R.string.login_successfully));
                 startActivity(intent);
             }
 
             @Override
             public void onError(Object object) {
-                LogUtility.d(LogUtility.TAG, "onError : " + object);
+                LogUtility.e(LogUtility.TAG, "onError : " + object);
 //                SuperADMIN
                 if (object == null) {
                     // create new user
                     String uid = user.getUid();
                     String name = user.getDisplayName();
 //                String email = user.getEmail();
-//                   String mobile = TextUtils.isEmpty(user.getPhoneNumber()) ? user.getPhoneNumber() : prefMgr.read(FMCConstants.USER_MOBILE,"");
-//                    Users obUser =  new Users(uid, name, phoneNumber,prefMgr.read(FMCConstants.USER_IMAGE_Profile,null), getToken(VerificationPhone.this), Gender.UNKNOWN, new Date(),null,null,null,null);
-                    UserModel obUser = new UserModel(uid, name, null, phoneNumber, null, null, FmUtilize.getToken(VerificationPhone.this), null, null, null, false, false, false, FmUtilize.deviceId(VerificationPhone.this), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, new Date());
+//                   String mobile = TextUtils.isEmpty(user.getPhoneNumber()) ? user.getPhoneNumber() : prefMgr.read(FirebaseConstants.USER_MOBILE,"");
+//                    Users obUser =  new Users(uid, name, phoneNumber,prefMgr.read(FirebaseConstants.USER_IMAGE_Profile,null), getToken(VerificationPhone.this), Gender.UNKNOWN, new Date(),null,null,null,null);
+                    UserModel obUser = new UserModel(uid, name, null, phoneNumber, null, null, FmUtilize.getIMEIDeviceId(VerificationPhone.this), null, null, null, false, false, false, FmUtilize.deviceId(VerificationPhone.this), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, Tools.getFormattedDateTimeSimple(System.currentTimeMillis()),FmUtilize.getFirebaseToken(VerificationPhone.this),null);
 
-                    fmRepo.createUpdateUser(uid, obUser, new CallBack() {
+                    fmRepo.create(uid, obUser, new CallBack() {
                         @Override
                         public void onSuccess(Object object) {
                             UserModel _userModel = (UserModel) object;
-                            prefMgr.write(FMCConstants.USER_INFO, _userModel);
+                            prefMgr.write(FirebaseConstants.USER_INFO, _userModel);
                             showToast(getString(R.string.login_successfully));
                             startActivity(intent);
                         }
 
                         @Override
                         public void onError(Object object) {
-                            LogUtility.d(LogUtility.TAG, "onError : " + object);
+                            LogUtility.e(LogUtility.TAG, "onError : " + object);
                             showToast(object.toString());
                         }
                     });

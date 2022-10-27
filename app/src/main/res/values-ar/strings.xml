@@ -2,8 +2,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingQuantity,TypographyDashes">
     <string name="app_name">هدهد اف ام</string>
     <string name="app_slogan">تطبيق اليمن الأول للقنوات الإذاعية</string>
-    <string name="app_version">Version</string>
-    <string name="version_unknown">Unknown</string>
+    <string name="app_version">الإصـدار</string>
+    <string name="version_unknown">غير معروف !</string>
     <string name="app_gmail">hudhudfm.ye@gmail.com</string>
     <string name="app_mobile">+967 775617017</string>
     <string name="app_twitter">https://twitter.com/HudhudFm</string>
@@ -28,9 +28,7 @@
 
     <string name="select_email_app">مشاركة</string>
 
-    <string name="login">تسجيل الدخول</string>
     <string name="btn_continue">التالي</string>
-    <string name="firebase_status_fmt">%d firebase status  </string>
 
     <!--Firebase Notification-->
 
@@ -44,16 +42,14 @@
 
 
     <!-- Connection dialogs -->
-    <string name="dialog_connection_title">Servers unreachable</string>
-    <string name="dialog_connection_description">We can not connect with our APIs.\n\nPlease ensure that you have set up your API keys and parameters as documented!</string>
-    <string name="dialog_internet_title">No internet</string>
-    <string name="dialog_internet_description">You seem to have no internet connection, this app requires internet to get the latest content.\n\nYou can continue to see your favorite/offline items!</string>
+    <string name="dialog_connection_title">الخدمة غير متوفرة</string>
+    <string name="dialog_connection_description">لا يمكننا الاتصال بواجهات برمجة التطبيقات الخاصة بنا. \n\ n الرجاء التأكد من قيامك بإعداد مفاتيح ومعلمات واجهة برمجة التطبيقات الخاصة بك كما هو موثق!</string>
+    <string name="dialog_internet_title">الإنترنت غير متوفر !</string>
+    <string name="dialog_internet_description">يبدو أنه ليس لديك اتصال بالإنترنت ، وهذا التطبيق يتطلب الإنترنت للحصول على أحدث محتوى. \n\ n يمكنك الاستمرار في مشاهدة العناصر المفضلة / غير المتصلة!</string>
     <!-- media viewer and radio-->
     <string name="volume_low">يجب رفع مستوى الصوت!</string>
     <string name="label_cancel">إلغاء</string>
-    <string name="label_confirm">موافق</string>
     <string name="label_ok">نعم</string>
-    <string name="label_no">لا</string>
     <string name="nav_home">الرئيسية</string>
     <string name="nav_about_us">عن التطبيق</string>
     <string name="nav_episode_daily">برامج اليوم</string>
@@ -80,9 +76,7 @@
     <string name="radio_map">البرامج الرئيسية</string>
     <string name="press_once_again_to_exit">إضفط مرة أخرى لتسجيل الخروج</string>
     <string name="password">كلمة المرور</string>
-    <string name="new_account">إنشاء حساب جديد ؟</string>
     <string name="user_name">إسم المستخدم</string>
-    <string name="user_profile">صورة البروفايل</string>
     <string name="mobile">الموبايل</string>
     <string name="email">الإيميل</string>
     <string name="country">الدولة</string>
@@ -103,7 +97,7 @@
 
     <string name="lbl_take_camera_picture">إلقاط صورة</string>
     <string name="lbl_choose_from_gallery">الإختيار من الاستوديو</string>
-    <string name="toast_image_intent_null">Image picker option is missing!</string>
+    <string name="toast_image_intent_null">خيار منتقي الصور مفقود!</string>
 
     <!-- font families -->
     <string name="dialog_permission_title">منح الصلاحية</string>
@@ -121,12 +115,7 @@
     <string name="offline">غير متصل</string>
     <string name="brows_more_station">يمكنك تصفح المزيد من القنوات الإذاعية \n  من خلال النافذة الرئيسية</string>
     <string name="add_episode">إضافة حلقة</string>
-    <string name="goto_login">لكي تتمكن من إستخدام خدمات التطبيق يجب عليك تسجيل الدخول \n  \n هل تريد الإنتقال الى نافذة تسجيل الدخول؟</string>
-    <!--
-    <string name="goto_login">لكي تتمكن من إستخدام خدمات التطبيق يجب عليك تسجيل الدخول \n
-        <b>هل تريد الإنتقال الى نافذة تسجيل الدخول؟</b>
-    </string>
-    -->
+    <string name="goto_login">لكي تتمكن من إستخدام خدمات التطبيق يجب عليك تسجيل الدخول \n \n هل تريد الإنتقال الى نافذة تسجيل الدخول؟</string>
     <string name="main_program_for">البرامج الرئيسية</string>
     <string name="app_message">هدهد اف ام : هو تطبيق أندرويد يُمكَن المستخدمين من الوصول للقنوات الإذاعية اليمنية من أي مكان وفي أي وقت بضغطة زر .</string>
     <string name="update_episode">تحديث بيانات البرامج</string>
@@ -137,28 +126,9 @@
 
 
     <!--RegistrationActivity-->
-    <string name="RegistrationActivity_select_your_country">يجب عليك اختيار بلدك</string>
-    <string name="RegistrationActivity_you_must_specify_your_country_code">يرجى إدخال رمز دولتك</string>
-    <string name="RegistrationActivity_you_must_specify_your_phone_number">يرجى إدخال رقم الهاتف الخاص بك</string>
-
-    <string name="RegistrationActivity_next">التالي</string>
-    <string name="RegistrationActivity_enter_your_phone_number_to_get_started">أدخل رقم هاتفك للبدء</string>
-    <string name="RegistrationActivity_you_will_receive_a_verification_code">ستستلم رمز تحقّق. قد تنطبّق تكلفة من مزوّد الخدمة.</string>
-    <string name="RegistrationActivity_country_code_description">رمز البلد</string>
 
     <!--country_selection_fragment-->
-    <string name="country_selection_fragment__loading_countries">تحميل البلدان جارٍ …</string>
-    <string name="country_selection_fragment__search">بحث</string>
-    <string name="country_selection_fragment__no_matching_countries">لا توجد دولة مطابقة</string>
 
-    <string name="RegistrationActivity_invalid_number">الرقم غير صحيح</string>
-    <string name="RegistrationActivity_the_number_you_specified_s_is_invalid">الرقم الذي حددته (%s) غير صحيح.</string>
-    <string name="RegistrationActivity_missing_google_play_services">خدمات Google Play غير متوفرة</string>
-    <string name="RegistrationActivity_update_google_play_services">هل تريد تحديث خدمات Google Play ؟</string>
-
-    <string name="RegistrationActivity_this_device_is_missing_google_play_services">خدمات Google Play غير موجودة في هذا الجهاز. لا زال بإمكانك استخدام التطبيق، ولكن هذا الضبط قد يؤدي إلى ضعف في موثوقية  أو أداء البرنامج</string>
-
-    <string name="RegistrationActivity_i_understand">فهمت</string>
     <string name="label_save">حفظ</string>
     <string name="verify_your_number">تحقق من رقمك</string>
     <string name="please_enter_your_mobile_number_to_receive_a_verification_code_carrier_rates_may_apply">يرجى إدخال رقم هاتفك المحمول لتلقي رمز التحقق.</string>
@@ -174,9 +144,7 @@
     <string name="label_title">العنوان</string>
     <string name="ex_date">22/سبتمبر/2022</string>
 
-    <string name="styled_welcome_message">We are <b><i>so</i></b> glad to see you.</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="label_radio_intro1">يمكنك تحديد القناة الإذاعية التي ترغب في متابعتها من خلال اختيار الكارد الخاص بالإذاعة</string>
     <string name="label_play_intro2">من خلال هذا الزر يمكنك تشغيل البث المباشر للقناة الإذاعية التي قمت بتحديدها</string>
     <string name="label_replay">إعادة</string>
@@ -215,11 +183,15 @@
     <string name="label_try_again">إعادة المحاولة</string>
     <string name="error_no_comment">لايوجد نص</string>
     <string name="label_warning">تنبيه !</string>
-    <string name="confirm_delete">You\'re about to delete %s \n Are you sure ?</string>
-    <string name="label_error_occurred">Error Occurred !</string>
-    <string name="error_occurred_with_value">Error occurred ! \n [%s]</string>
-    <string name="label_close">Close</string>
+    <string name="confirm_delete">أنت على وشك حذف٪ [%s] \n هل أنت متأكد؟</string>
+    <string name="label_error_occurred">حدث خطأ !</string>
+    <string name="label_close">إغلاق</string>
     <string name="please_wait_to_save_youre_profile">جاري حفظ صورة البروفايل ...</string>
-    <string name="label_about_us">About Us</string>
+    <string name="label_about_us">من نحن</string>
+    <string name="done_successfully">تمت العملية بنجاح</string>
+    <string name="error_failure">فشل في تنفذ العملية</string>
+    <string name="label_saving_in_progress">جاري الحفظ ...</string>
+    <string name="label_comment_as">تعليق كـ %s ..</string>
+    <string name="error_episode_audio_not_available">المعذرة , التسجل الصوتي للبرنامج الإذاعي غير موجود !</string>
 
 </resources>

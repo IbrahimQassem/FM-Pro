@@ -10,6 +10,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.ui.activity.MainActivity;
+import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
@@ -32,7 +33,7 @@ public class MyNotificationManager {
     public void displayNotification(String title, String body) {
 
         NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(mCtx, FMCConstants.CHANNEL_ID)
+                new NotificationCompat.Builder(mCtx, FirebaseConstants.CHANNEL_ID)
                         .setSmallIcon(R.drawable.logo_app)
                         .setContentTitle(title)
                         .setContentText(body);

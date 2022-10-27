@@ -26,7 +26,7 @@ import java.util.Map;
 
 
 
-public abstract class FirebaseRepository {
+public abstract class FirebaseRepository<T> {
 
     /**
      * Insert data on FireStore

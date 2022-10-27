@@ -97,6 +97,7 @@ public class SongDataLab {
 //        List<Episode> detailsList = DataGenerator.getEpisodeData(mContext);
         List<Episode> detailsList = ShardDate.getInstance().getEpisodeList();
 
+       String m = "https://firebasestorage.googleapis.com/v0/b/sanaa-dev.appspot.com/o/FM_Audio%2Fstream1.mp3?alt=media&token=fbaacbe9-782c-436f-82e8-3206811055b9";
         for (int i = 0; i < detailsList.size(); i++) {
             Episode ep = detailsList.get(i);
 //            SongModel song = SongModel.EMPTY();

@@ -9,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
+import android.webkit.URLUtil;
 
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -37,9 +39,9 @@ import com.sana.dev.fm.utils.DataGenerator;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.EpisodeRepositoryImpl;
+import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
-import com.sana.dev.fm.utils.my_firebase.FmRepositoryImpl;
+import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -129,17 +131,18 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
             TempModel tempModel = new TempModel(episode.getProgramName(), "", "", "", episode.getEpProfile(), episode.getLikesCount(), 1, 0);
             updateInfoUI(tempModel);
 
-            FmRepositoryImpl rpRepo = new FmRepositoryImpl(this, FirebaseConstants.RADIO_PROGRAM_TABLE);
+            FmProgramCRUDImpl rpRepo = new FmProgramCRUDImpl(this, FirebaseConstants.RADIO_PROGRAM_TABLE);
             RadioProgram program = new RadioProgram();
             program.setRadioId(episode.getRadioId());
             program.setProgramId(episode.getProgramId());
-            rpRepo.readProgramByRadioIdAndProgramId(program, new CallBack() {
+
+            showProgress("");
+            rpRepo.queryAllBy(null,program, new CallBack() {
                 @SuppressLint("SetTextI18n")
                 @Override
                 public void onSuccess(Object object) {
                     try {
                         LogUtility.d(LogUtility.TAG, "program info : " + new Gson().toJson(object));
-
                         if (isCollection(object)) {
                             List<RadioProgram> programList = (List<RadioProgram>) object;
                             RadioProgram radioProgram = programList.get(0);
@@ -149,16 +152,18 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                     } catch (Exception e) {
                         LogUtility.e(TAG, " readProgramByRadioIdAndProgramId: " + object, e);
                     }
+                    hideProgress();
                 }
 
                 @Override
                 public void onError(Object object) {
                     LogUtility.e(TAG, "readProgramByRadioIdAndProgramId: " + object);
+                    hideProgress();
                 }
             });
 
-            EpisodeRepositoryImpl ePiRepo = new EpisodeRepositoryImpl(this, FirebaseConstants.EPISODE_TABLE);
-            ePiRepo.readAllEpisodeByRadioIdAndPgId(episode, new CallBack() {
+            FmEpisodeCRUDImpl ePiRepo = new FmEpisodeCRUDImpl(this, FirebaseConstants.EPISODE_TABLE);
+            ePiRepo.queryAllBy(null,episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     LogUtility.d(LogUtility.TAG, "program details : " + new Gson().toJson(object));
@@ -303,11 +308,15 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
         });
 
 
-        itemAdapter.setOnClickListener(new OnClickListener() {
+        itemAdapter.setOnClickListener(new OnClickListener<Episode>() {
             @Override
-            public void onItemClick(View view, Object model, int position) {
+            public void onItemClick(View view, Episode model, int position) {
 //                showNotCancelableWarningDialog(String.valueOf((Episode) model));
-                showFragment();
+                if (URLUtil.isValidUrl(model.getEpStreamUrl())){
+                    showFragment();
+                }else {
+                    showToast(getString(R.string.error_episode_audio_not_available));
+                }
 //                BottomSheet bottomSheet = new BottomSheet();
 //                bottomSheet.show(getSupportFragmentManager(), bottomSheet.getTag());
             }

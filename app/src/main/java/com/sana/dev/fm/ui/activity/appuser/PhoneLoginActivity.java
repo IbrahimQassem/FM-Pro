@@ -9,11 +9,9 @@ import androidx.appcompat.widget.AppCompatButton;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.hbb20.CountryCodePicker;
-import com.sana.dev.fm.FmApplication;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.utils.FmUtilize;
-import com.sana.dev.fm.utils.ProgressHUD;
 import com.sana.dev.fm.utils.Tools;
 
 public class PhoneLoginActivity extends BaseActivity {
@@ -55,9 +53,8 @@ public class PhoneLoginActivity extends BaseActivity {
                 country_code.registerCarrierNumberEditText(editTextPhone);
                 String phoneNumber = country_code.getFullNumberWithPlus();
 
-                ProgressHUD dialog = ProgressHUD.getInstance(PhoneLoginActivity.this);
-                dialog.showDialogPrivate(getString(R.string.please_wait), false, false, null);
 
+//                showProgress(getString(R.string.please_wait));
 //                String phoneNumber = code + number;
                 Intent intent = new Intent(PhoneLoginActivity.this, VerificationPhone.class);
                 intent.putExtra("phoneNumber", phoneNumber);

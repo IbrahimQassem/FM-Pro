@@ -28,9 +28,7 @@
 
     <string name="select_email_app">Share</string>
 
-    <string name="login">Login</string>
     <string name="btn_continue">Next</string>
-    <string name="firebase_status_fmt">%d firebase status  </string>
 
     <!--Firebase Notification-->
 
@@ -51,9 +49,7 @@
     <!-- media viewer and radio-->
     <string name="volume_low">You must raise the volume!</string>
     <string name="label_cancel">Cancel</string>
-    <string name="label_confirm">Confirm</string>
     <string name="label_ok">Yes</string>
-    <string name="label_no">No</string>
     <string name="nav_home">Main</string>
     <string name="nav_about_us">About Us</string>
     <string name="nav_episode_daily">Today\'s Episode</string>
@@ -80,9 +76,7 @@
     <string name="radio_map">Main Programs</string>
     <string name="press_once_again_to_exit">Click again to log out</string>
     <string name="password">Password</string>
-    <string name="new_account">Create new account ?</string>
     <string name="user_name">User name</string>
-    <string name="user_profile">User profile</string>
     <string name="mobile">Mobile</string>
     <string name="email">Email</string>
     <string name="country">Country</string>
@@ -122,11 +116,6 @@
     <string name="brows_more_station">You can browse more radio channels\n through the main window</string>
     <string name="add_episode">Add Episode</string>
     <string name="goto_login">In order to use the application services you must log in \n \nDo you want to go to the login window?</string>
-    <!--
-    <string name="goto_login">لكي تتمكن من إستخدام خدمات التطبيق يجب عليك تسجيل الدخول \n
-        <b>هل تريد الإنتقال الى نافذة تسجيل الدخول؟</b>
-    </string>
-    -->
     <string name="main_program_for">Main programs</string>
     <string name="app_message">Hodhud FM: is an Android application that enables userModel to access Yemeni radio channels from anywhere and at any time with the click of a button.</string>
     <string name="update_episode">Update episode data</string>
@@ -137,28 +126,9 @@
 
 
     <!--RegistrationActivity-->
-    <string name="RegistrationActivity_select_your_country">You must choose your country</string>
-    <string name="RegistrationActivity_you_must_specify_your_country_code">Please enter your country code</string>
-    <string name="RegistrationActivity_you_must_specify_your_phone_number">Please enter your phone number</string>
-
-    <string name="RegistrationActivity_next">Next</string>
-    <string name="RegistrationActivity_enter_your_phone_number_to_get_started">Enter your phone number to get started</string>
-    <string name="RegistrationActivity_you_will_receive_a_verification_code">You will receive a verification code. Service provider charges may apply.</string>
-    <string name="RegistrationActivity_country_code_description">country code</string>
 
     <!--country_selection_fragment-->
-    <string name="country_selection_fragment__loading_countries">Loading countries in progress..</string>
-    <string name="country_selection_fragment__search">Search</string>
-    <string name="country_selection_fragment__no_matching_countries">لا توجد دولة مطابقة</string>
 
-    <string name="RegistrationActivity_invalid_number">The number is incorrect</string>
-    <string name="RegistrationActivity_the_number_you_specified_s_is_invalid">الرقم الذي حددته (%s) غير صحيح.</string>
-    <string name="RegistrationActivity_missing_google_play_services">خدمات Google Play غير متوفرة</string>
-    <string name="RegistrationActivity_update_google_play_services">Do you want to update Google Play Services?</string>
-
-    <string name="RegistrationActivity_this_device_is_missing_google_play_services">Google Play Services is not present on this device. You can still use the app, but this setting may result in poor reliability or performance of the software</string>
-
-    <string name="RegistrationActivity_i_understand">Understood</string>
     <string name="label_save">Save</string>
     <string name="verify_your_number">Verify your number</string>
     <string name="please_enter_your_mobile_number_to_receive_a_verification_code_carrier_rates_may_apply">Please enter your mobile phone number to receive the verification code.</string>
@@ -174,9 +144,7 @@
     <string name="label_title">Title</string>
     <string name="ex_date">22/Sep/2022</string>
 
-    <string name="styled_welcome_message">We are <b><i>so</i></b> glad to see you.</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="label_radio_intro1">You can select the radio channel you want to follow by choosing the radio card</string>
     <string name="label_play_intro2">Through this button you can play the live broadcast of the radio channel you selected</string>
     <string name="label_replay">Replay</string>
@@ -217,10 +185,14 @@
     <string name="label_warning">Warning</string>
     <string name="confirm_delete">You\'re about to delete %s \n Are you sure ?</string>
     <string name="label_error_occurred">Error Occurred !</string>
-    <string name="error_occurred_with_value">Error occurred ! \n [%s]</string>
     <string name="label_close">Close</string>
     <string name="please_wait_to_save_youre_profile">جاري حفظ صورة البروفايل ...</string>
     <string name="label_about_us">About Us</string>
+    <string name="done_successfully">تمت العملية بنجاح</string>
+    <string name="error_failure">فشل في تنفذ العملية</string>
+    <string name="label_saving_in_progress">جاري الحفظ ...</string>
+    <string name="label_comment_as">تعليق كـ %s ..</string>
+    <string name="error_episode_audio_not_available">Sorry episode audio not available</string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

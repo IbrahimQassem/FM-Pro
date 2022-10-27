@@ -2,6 +2,7 @@ package com.sana.dev.fm.utils;
 
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
+import static com.sana.dev.fm.utils.FmUtilize.DATE_TIME_FORMAT;
 import static com.sana.dev.fm.utils.FmUtilize._dateFormat;
 
 import android.app.Activity;
@@ -267,6 +268,11 @@ public class Tools {
 
     public static String getFormattedDateSimple(Long dateTime) {
         SimpleDateFormat newFormat = new SimpleDateFormat(_dateFormat);
+        return newFormat.format(new Date(dateTime));
+    }
+
+    public static String getFormattedDateTimeSimple(Long dateTime) {
+        SimpleDateFormat newFormat = new SimpleDateFormat(DATE_TIME_FORMAT);
         return newFormat.format(new Date(dateTime));
     }
 

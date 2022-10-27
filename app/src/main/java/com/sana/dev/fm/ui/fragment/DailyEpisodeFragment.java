@@ -34,7 +34,7 @@ import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.EpisodeRepositoryImpl;
+import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 
@@ -67,7 +67,7 @@ public class DailyEpisodeFragment extends BaseFragment {
     @BindView(R.id.tvTittle)
     TextView tvTittle;
     private TimeLineAdapter mAdapter;
-    private EpisodeRepositoryImpl ePiRepo;
+    private FmEpisodeCRUDImpl ePiRepo;
 
 
     public DailyEpisodeFragment() {
@@ -110,7 +110,7 @@ public class DailyEpisodeFragment extends BaseFragment {
         view = inflater.inflate(R.layout.fragment_radio_map, container, false);
         ButterKnife.bind(this, view);
 
-        ePiRepo = new EpisodeRepositoryImpl((MainActivity) ctx, FirebaseConstants.EPISODE_TABLE);
+        ePiRepo = new FmEpisodeCRUDImpl((MainActivity) ctx, FirebaseConstants.EPISODE_TABLE);
 
 //        if (getArguments() != null) {
 //            episodeList = (List<Episode>) getArguments().getSerializable(ARG_PARAM2);
@@ -162,7 +162,7 @@ public class DailyEpisodeFragment extends BaseFragment {
 //        tvTittle.setText(String.format(" %s", ctx.getResources().getString(R.string.episode_daily,blue )));
         tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
 
-        ePiRepo.reaDailyEpisodeByRadioId(radioId, new CallBack() {
+        ePiRepo.queryAllBy(radioId,null, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 List<Episode> episodeList = safeList((List<Episode>) object);

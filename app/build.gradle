@@ -72,8 +72,8 @@ android {
         hudhudfm_google_play {
             dimension 'fm_flavor'
             applicationId "com.sana.dev.fm"
-            versionCode 15
-            versionName "1.0.5"
+            versionCode 16
+            versionName "1.0.6"
             signingConfig signingConfigs.debug
             buildConfigField "String", "BASE_FB_DB" , '"HudHudFmGooglePlay"'
         }
@@ -145,6 +145,10 @@ dependencies {
     implementation 'com.github.dmytrodanylyk.circular-progress-button:library:1.1.3'
 
     implementation 'androidx.work:work-runtime:2.7.1'
+
+//    https://github.com/Kaopiz/KProgressHUD/blob/master/demo/src/main/java/com/kaopiz/progresshud/demo/MainActivity.java
+    implementation 'com.kaopiz:kprogresshud:1.2.0'
+
 
 //    -----------------------------------------------------------------------
 

@@ -23,11 +23,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
@@ -37,14 +33,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.OnProgressListener;
@@ -56,8 +50,8 @@ import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
-
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.databinding.ActivityAddEpisodeBinding;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.ModelConfig;
@@ -69,14 +63,13 @@ import com.sana.dev.fm.model.interfaces.OnCallbackDate;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
-import com.sana.dev.fm.utils.ProgressHUD;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.ViewAnimation;
 import com.sana.dev.fm.utils.my_firebase.AppConstant;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.EpisodeRepositoryImpl;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
-import com.sana.dev.fm.utils.my_firebase.FmRepositoryImpl;
+import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
+import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
@@ -88,54 +81,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Stack;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 
-public class EpisodeAddStepperVertical extends BaseActivity {
 
-    private final String TAG = EpisodeAddStepperVertical.class.getSimpleName();
-    @BindView(R.id.tit_ep_name)
-    TextInputEditText tit_ep_name;
-    @BindView(R.id.tit_ep_announcer)
-    TextInputEditText tit_ep_announcer;
-    @BindView(R.id.tit_ep_desc)
-    TextInputEditText tit_ep_desc;
-    @BindView(R.id.et_station)
-    EditText et_station;
-    @BindView(R.id.et_program)
-    EditText et_program;
-    @BindView(R.id.tit_ep_stream_url)
-    EditText tit_ep_stream_url;
-    //    @BindView(R.id.et_ep_start)
-//    EditText et_ep_start;
-//    @BindView(R.id.et_ep_end)
-//    EditText et_ep_end;
-//    @BindView(R.id.et_ep_stream_date)
-//    EditText et_ep_stream_date;
-    @BindView(R.id.img_logo)
-    ImageView img_logo;
-    @BindView(R.id.tv_add_logo)
-    TextView tv_add_logo;
-    @BindView(R.id.lin_file)
-    LinearLayout lin_file;
-    @BindView(R.id.tie_filename)
-    TextInputEditText tie_filename;
+public class AddEpisodeActivity extends BaseActivity {
 
-    @BindView(R.id.layout_list)
-    LinearLayout layout_list;
-
-//    @BindView(R.id.cg_display_day)
-//    ChipGroup cg_display_day;
-
-
-//    @BindView(R.id.tie_display_day)
-//    TextInputEditText tie_display_day;
-
-    @BindView(R.id.button_add)
-    Button button_add;
-
+    private final String TAG = AddEpisodeActivity.class.getSimpleName();
+    private ActivityAddEpisodeBinding binding;
+    
 
     int stSelected = 0;
     int prSelected = 0;
@@ -145,54 +98,49 @@ public class EpisodeAddStepperVertical extends BaseActivity {
     private List<RelativeLayout> step_view_list = new ArrayList<>();
     private int success_step = 0;
     private int current_step = 0;
-    private View parent_view;
     private String radioId, epId, epName, epDesc, epAnnouncer, programId, epProfile, epStreamUrl, programName, timestamp, createBy, stopNote = null;
     private DateTimeModel dateTimeModel;
-    /**
-     * broadcastDateAt
-     * epEndAt
-     * epStartAt
-     */
     private Uri imageUri = null;
     private RadioInfo radioInfo = new RadioInfo();
-    //    private RadioProgram program;
     private List<DateTimeModel> showTimeList = new ArrayList<>();
 
     private long timeStart, timeEnd;
-    private boolean isItMainTime = false;
-    private EpisodeRepositoryImpl ePoRepo;
+    private FmEpisodeCRUDImpl ePoRepo;
 
 
     public static void startActivity(Context context, Episode episode) {
-        Intent intent = new Intent(context, EpisodeAddStepperVertical.class);
+        Intent intent = new Intent(context, AddEpisodeActivity.class);
         String obj = (new Gson().toJson(episode));
         intent.putExtra("episode", obj);
         context.startActivity(intent);
     }
 
     public static void startActivity(Context context) {
-        Intent intent = new Intent(context, EpisodeAddStepperVertical.class);
+        Intent intent = new Intent(context, AddEpisodeActivity.class);
         context.startActivity(intent);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_episode_add_stepper_vertical);
-        parent_view = findViewById(android.R.id.content);
 
-        ButterKnife.bind(this);
-        ePoRepo = new EpisodeRepositoryImpl(this, FirebaseConstants.EPISODE_TABLE);
+        binding = ActivityAddEpisodeBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+        
+
+        ePoRepo = new FmEpisodeCRUDImpl(this, FirebaseConstants.EPISODE_TABLE);
         prefMgr = PreferencesManager.getInstance();
 
         initToolbar();
         initComponent();
         loadProfileDefault();
 
+        initClickEvent();
         initEditView();
 //        setDisplayDayChips();
 
-        button_add.setOnClickListener(new View.OnClickListener() {
+      binding.buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addView();
@@ -204,14 +152,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
 
 
     private void initToolbar() {
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
-//        setSupportActionBar(toolbar);
-//        getSupportActionBar().setTitle(null);
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        Tools.setSystemBarColor(this);
-
-        getToolbarArrow().setOnClickListener(new View.OnClickListener() {
+        binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
@@ -243,46 +184,49 @@ public class EpisodeAddStepperVertical extends BaseActivity {
         view_list.get(0).setVisibility(View.VISIBLE);
         hideKeyboard();
 
-
-//        et_ep_start.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                dialogTimePickerLight((TextView) v, new OnCallbackDate() {
-//                    @Override
-//                    public void getSelected(long _time) {
-//                        timeStart = _time;
-//                        et_ep_start.setError(null);
-//                        LogUtility.e(TAG, String.valueOf(_time));
-//                    }
-//                });
-//            }
-//        });
-
-//        et_ep_end.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                dialogTimePickerLight((TextView) v, new OnCallbackDate() {
-//                    @Override
-//                    public void getSelected(long _time) {
-//                        timeEnd = _time;
-//                        et_ep_end.setError(null);
-//                        LogUtility.e(TAG, String.valueOf(timeEnd));
-//
-//                    }
-//                });
-//            }
-//        });
-
-
-//        et_ep_stream_date.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                dialogDatePickerLight((TextView) v);
-//            }
-//        });
-
-
     }
+
+    private void initClickEvent() {
+
+
+        binding.imgLogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onProfileImageClick();
+            }
+        });
+
+        binding.tvAddLogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onProfileImageClick();
+            }
+        });
+
+        binding.ivClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearImg();
+            }
+        });
+
+
+        binding.etStation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showStationDialog();
+            }
+        });
+
+
+        binding.etProgram.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showProgramDialog();
+            }
+        });
+    }
+
 
     private void initEditView() {
         String s = getIntent().getStringExtra("episode");
@@ -290,13 +234,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
             Episode _episode = new Gson().fromJson(s, Episode.class);
             showSnackBar(_episode.getEpName());
 
-            et_station.setFocusable(false);
-            et_station.setClickable(true);
-
-            et_program.setFocusable(false);
-            et_program.setClickable(true);
-
-            et_station.setOnClickListener(new View.OnClickListener() {
+            binding.etStation.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير القناة الإاعية في حالة تحديث بيانات البرنامج",  null, null);
@@ -304,7 +242,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
                 }
             });
 
-            et_program.setOnClickListener(new View.OnClickListener() {
+            binding.etProgram.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير إسم البرنامج في حالة تحديث بيانات البرنامج",  null, null);
@@ -334,46 +272,40 @@ public class EpisodeAddStepperVertical extends BaseActivity {
 //            programId = program.getProgramId();
 
 
-            tit_ep_name.setText(epName);
-            tit_ep_announcer.setText(epAnnouncer);
-            tit_ep_desc.setText(epDesc);
+          binding.titEpName.setText(epName);
+            binding.titEpAnnouncer.setText(epAnnouncer);
+          binding.titEpDesc.setText(epDesc);
 //           RadioInfo ri = radioInfo.findRadio(radioId,ShardDate.getInstance().getInfoList());
-            et_station.setText(radioInfo.getName());
-            et_program.setText(programName);
-            tit_ep_stream_url.setText(epStreamUrl);
+            binding.etStation.setText(radioInfo.getName());
+            binding.etProgram.setText(programName);
+            binding.titEpStreamUrl.setText(epStreamUrl);
 
             loadProfile(Uri.parse(epProfile));
-
-
         }
     }
 
 
-    //    @OnClick({R.id.ib_send})
     public void send() {
-
 
         if (prefMgr.getUserSession() == null || prefMgr.getUserSession().getUserId() == null) {
             showToast(getString(R.string.most_login));
             return;
         }
 
-
         radioId = radioInfo.getRadioId();
 //        programId = program.getProgramId();
 //        programName = program.getPrName();
         createBy = prefMgr.getUserSession().getUserId();
 
-        epName = tit_ep_name.getText().toString().trim();
-        epAnnouncer = tit_ep_announcer.getText().toString().trim();
-        epDesc = tit_ep_desc.getText().toString().trim();
-        epStreamUrl = tit_ep_stream_url.getText().toString().trim();
+        epName = binding.titEpName.getText().toString().trim();
+        epAnnouncer = binding.titEpAnnouncer.getText().toString().trim();
+        epDesc = binding.titEpDesc.getText().toString().trim();
+        epStreamUrl = binding.titEpStreamUrl.getText().toString().trim();
 
+        showProgress(getString(R.string.label_saving_in_progress));
 
         if (imageUri != null) {
-            ProgressHUD mProgressHUD = ProgressHUD.showDialog("تحميل الصورة", true, false, null);
-            mProgressHUD.setMessage("جاري تحميل البيانات ...");
-            mProgressHUD.show();
+
 
             // Create file metadata including the content type
             StorageMetadata metadata = new StorageMetadata.Builder()
@@ -389,8 +321,8 @@ public class EpisodeAddStepperVertical extends BaseActivity {
                 public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                     double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
 //                    Log.d(TAG, "Upload is " + progress + "% done");
-                    mProgressHUD.setCanceledOnTouchOutside(false);
-                    mProgressHUD.setMessage(" جار الإرسال " + " % " + (int) progress);
+                    hud.setCancellable(false);
+                    hud.setProgress((int) progress);
 
                 }
             }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
@@ -401,10 +333,10 @@ public class EpisodeAddStepperVertical extends BaseActivity {
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    LogUtility.e(LogUtility.tag(EpisodeAddStepperVertical.class), e.toString());
+                    LogUtility.e(LogUtility.tag(AddEpisodeActivity.class), e.toString());
                     // Handle unsuccessful uploads
-                    showSnackBar("لم يتم حفظ الصورة !" + e.toString());
-                    mProgressHUD.dismiss();
+//                    showSnackBar("لم يتم حفظ الصورة !" + e.toString());
+                    hideProgress();
                 }
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -417,10 +349,9 @@ public class EpisodeAddStepperVertical extends BaseActivity {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     epProfile = uri.toString();
-                                    mProgressHUD.dismiss();
 
                                     Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, dateTimeModel, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
-                                    ePoRepo.createEpi(radioId, programId, episode, new CallBack() {
+                                    ePoRepo.create(radioId, episode, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
                                             showToast(object.toString());
@@ -436,22 +367,24 @@ public class EpisodeAddStepperVertical extends BaseActivity {
                             });
                         }
                     }
-                    mProgressHUD.dismiss();
+                    hideProgress();
 
                 }
             });
 
         } else {
             Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, dateTimeModel, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
-            ePoRepo.createEpi(radioId, programId, episode, new CallBack() {
+            ePoRepo.create(radioId, episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
+                    hideProgress();
                     showToast(object.toString());
                     finish();
                 }
 
                 @Override
                 public void onError(Object object) {
+                    hideProgress();
                     showToast(AppConstant.ERROR);
                 }
             });
@@ -467,10 +400,9 @@ public class EpisodeAddStepperVertical extends BaseActivity {
             case R.id.bt_continue_one:
                 // validate input user here
 
-
-                if (tit_ep_name.getText().toString().trim().isEmpty()) {
-                    tit_ep_name.setError(getString(R.string.error_empty_field_not_allowed));
-                    tit_ep_name.requestFocus();
+                if (binding.titEpName.getText().toString().trim().isEmpty()) {
+                    binding.titEpName.setError(getString(R.string.error_empty_field_not_allowed));
+                    binding.titEpName.requestFocus();
                     return;
                 }
 
@@ -478,14 +410,14 @@ public class EpisodeAddStepperVertical extends BaseActivity {
                 break;
             case R.id.bt_continue_tow:
                 // validate input user here
-                if (et_station.getText().toString().trim().isEmpty()) {
-                    et_station.setError(getString(R.string.error_empty_field_not_allowed));
-                    et_station.requestFocus();
+                if (binding.etStation.getText().toString().trim().isEmpty()) {
+                    binding.etStation.setError(getString(R.string.error_empty_field_not_allowed));
+                    binding.etStation.requestFocus();
                     showSnackBar(getString(R.string.error_please_select_radio_station));
                     return;
-                } else if (et_program.getText().toString().trim().isEmpty()) {
-                    et_program.setError(getString(R.string.error_empty_field_not_allowed));
-                    et_program.requestFocus();
+                } else if (binding.etProgram.getText().toString().trim().isEmpty()) {
+                    binding.etProgram.setError(getString(R.string.error_empty_field_not_allowed));
+                    binding.etProgram.requestFocus();
                     showSnackBar("يجب تحديد برنامج");
                     return;
                 }
@@ -630,7 +562,6 @@ public class EpisodeAddStepperVertical extends BaseActivity {
                 clickListener.getSelected(millis);
                 tv.setText(setTimeFormat(hourOfDay, minute, second));
 //                tv.setText(showTime(hourOfDay, minute, second));
-
             }
         }, cur_calender.get(Calendar.HOUR_OF_DAY), cur_calender.get(Calendar.MINUTE), false);
         //set dark light
@@ -670,7 +601,6 @@ public class EpisodeAddStepperVertical extends BaseActivity {
         datePicker.show(getSupportFragmentManager(), "تحديد التاريخ");
     }
 
-    @OnClick({R.id.et_station})
     public void showStationDialog() {
         List<RadioInfo> items = ShardDate.getInstance().getInfoList();
 
@@ -685,8 +615,8 @@ public class EpisodeAddStepperVertical extends BaseActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 stSelected = i;
                 radioInfo = items.get(i);
-                et_station.setText(radioInfo.getName());
-                et_station.setError(null);
+                binding.etStation.setText(radioInfo.getName());
+                binding.etStation.setError(null);
                 stackImg.push(radioInfo.getLogo());
                 loadRadioProgram(radioInfo.getRadioId());
                 dialogInterface.dismiss();
@@ -695,7 +625,6 @@ public class EpisodeAddStepperVertical extends BaseActivity {
         builder.show();
     }
 
-    @OnClick({R.id.et_program})
     public void showProgramDialog() {
 
         List<RadioProgram> items = ShardDate.getInstance().getProgramList();
@@ -716,8 +645,8 @@ public class EpisodeAddStepperVertical extends BaseActivity {
                 dateTimeModel = items.get(i).getDateTimeModel();
 //                setDisplayDayChips();
                 prSelected = i;
-                et_program.setText(programName);
-                et_program.setError(null);
+                binding.etProgram.setText(programName);
+                binding.etProgram.setError(null);
                 epProfile = items.get(i).getPrProfile();
                 stackImg.push(epProfile);
                 loadProfile(Uri.parse(epProfile));
@@ -730,14 +659,14 @@ public class EpisodeAddStepperVertical extends BaseActivity {
 
     private void loadRadioProgram(String RadioId) {
 
-        FmRepositoryImpl rpRepo = new FmRepositoryImpl(this, FirebaseConstants.RADIO_PROGRAM_TABLE);
-        rpRepo.readAllProgramByRadioId(RadioId, new CallBack() {
+        FmProgramCRUDImpl rpRepo = new FmProgramCRUDImpl(this, FirebaseConstants.RADIO_PROGRAM_TABLE);
+        rpRepo.queryAllBy(RadioId,null, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 if (isCollection(object)) {
                     List<RadioProgram> programList = (List<RadioProgram>) object;
                     ShardDate.getInstance().setProgramList(programList);
-                    et_program.setText(null);
+                    binding.etProgram.setText(null);
                 }
             }
 
@@ -773,40 +702,32 @@ public class EpisodeAddStepperVertical extends BaseActivity {
 
         Log.d(TAG, "Image cache path: " + imageUri.toString());
 
-        tv_add_logo.setVisibility(View.GONE);
-        lin_file.setVisibility(View.VISIBLE);
+       binding.tvAddLogo.setVisibility(View.GONE);
+        binding.linFile.setVisibility(View.VISIBLE);
         String dd = FmUtilize.getFileName(imageUri, this);
-        tie_filename.setText(dd);
+      binding.tieFilename.setText(dd);
 
-//        GlideApp.with(this).load(imageUri.toString())
-//                .into(img_logo);
-        Tools.displayImageOriginal(this, img_logo, imageUri.toString());
-
-        img_logo.setColorFilter(ContextCompat.getColor(this, android.R.color.transparent));
+        Tools.displayImageOriginal(this, binding.imgLogo, imageUri.toString());
+        binding.imgLogo.setColorFilter(ContextCompat.getColor(this, android.R.color.transparent));
     }
 
     private void loadProfileDefault() {
-//        GlideApp.with(this).load(R.drawable.ic_photo)
-//                .into(img_logo);
-        Tools.displayImageOriginal(this, img_logo, R.drawable.ic_photo);
+        Tools.displayImageOriginal(this, binding.imgLogo, R.drawable.ic_photo);
 
-        img_logo.setColorFilter(ContextCompat.getColor(this, R.color.grey_10));
-
+        binding.imgLogo.setColorFilter(ContextCompat.getColor(this, R.color.grey_10));
         // Displaying the Stack after the Operation
         System.out.println("Final stackImg: " + stackImg);
     }
 
-    @OnClick({R.id.iv_clear})
     public void clearImg() {
-        tv_add_logo.setVisibility(View.VISIBLE);
-        lin_file.setVisibility(View.GONE);
-        img_logo.setImageBitmap(null);
+        binding.tvAddLogo.setVisibility(View.VISIBLE);
+       binding.linFile.setVisibility(View.GONE);
+       binding.imgLogo.setImageBitmap(null);
         imageUri = null;
-        tie_filename.setText(null);
+        binding.tieFilename.setText(null);
         loadProfileDefault();
     }
 
-    @OnClick({R.id.img_logo, R.id.tv_add_logo})
     void onProfileImageClick() {
         Dexter.withContext(this)
                 .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -849,7 +770,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
      * NOTE: Keep proper title and message depending on your app
      */
     private void showSettingsDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(EpisodeAddStepperVertical.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(AddEpisodeActivity.this);
         builder.setTitle(getString(R.string.dialog_permission_title));
         builder.setMessage(getString(R.string.dialog_permission_message));
         builder.setPositiveButton(getString(R.string.go_to_settings), (dialog, which) -> {
@@ -870,7 +791,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
     }
 
     private void launchCameraIntent() {
-        Intent intent = new Intent(EpisodeAddStepperVertical.this, ImagePickerActivity.class);
+        Intent intent = new Intent(AddEpisodeActivity.this, ImagePickerActivity.class);
         intent.putExtra(ImagePickerActivity.INTENT_IMAGE_PICKER_OPTION, ImagePickerActivity.REQUEST_IMAGE_CAPTURE);
 
         // setting aspect ratio
@@ -887,7 +808,7 @@ public class EpisodeAddStepperVertical extends BaseActivity {
     }
 
     private void launchGalleryIntent() {
-        Intent intent = new Intent(EpisodeAddStepperVertical.this, ImagePickerActivity.class);
+        Intent intent = new Intent(AddEpisodeActivity.this, ImagePickerActivity.class);
         intent.putExtra(ImagePickerActivity.INTENT_IMAGE_PICKER_OPTION, ImagePickerActivity.REQUEST_GALLERY_IMAGE);
 
         // setting aspect ratio
@@ -905,8 +826,8 @@ public class EpisodeAddStepperVertical extends BaseActivity {
 //        selectedDays.clear();
         boolean result = true;
 
-        for (int i = 0; i < layout_list.getChildCount(); i++) {
-            View rowView = layout_list.getChildAt(i);
+        for (int i = 0; i < binding.layoutList.getChildCount(); i++) {
+            View rowView = binding.layoutList.getChildAt(i);
             DateTimeModel dateTimeModel = new DateTimeModel();
             List<String> selectedDays = new ArrayList<>();
 
@@ -1065,119 +986,10 @@ public class EpisodeAddStepperVertical extends BaseActivity {
             }
         });
 
-//        for (int position = 0; position < layout_list.getChildCount(); position++) {
-//
-//            View _rowPosition = layout_list.getChildAt(position);
-//            RadioButton tempRadio = (RadioButton) _rowPosition.findViewById(R.id.radio_main);
-//
-//            if (mSelectedPosition != position) {
-//                rbMainTime.setChecked(false);
-//            } else {
-//                rbMainTime.setChecked(true);
-//                if (mSelectedRB != null && rbMainTime != mSelectedRB) {
-//                    mSelectedRB = rbMainTime;
-//                }
-//            }
-//        }
-
-        layout_list.addView(rowView);
+        binding.layoutList.addView(rowView);
     }
 
     private void removeView(View view) {
-        layout_list.removeView(view);
+        binding.layoutList.removeView(view);
     }
-
-
-//    -------------------- show day name -------------------
-
-//    private void initSelectedChip() {
-//        if (dateTimeModel == null)
-//            return;
-//
-////        ArrayList<String> enList = new ArrayList<>();
-////        enList.add("Sun");
-////        enList.add("Mon");
-////        enList.add("Thu");
-////        for (int i = 0; i < 5; i++) {
-////            Chip mChip = (Chip) this.getLayoutInflater().inflate(R.layout.item_chip_display_days, null, false);
-////            mChip.setText("item " + i);
-////            int paddingDp = (int) TypedValue.applyDimension(
-////                    TypedValue.COMPLEX_UNIT_DIP, 10,
-////                    getResources().getDisplayMetrics()
-////            );
-////            mChip.setPadding(paddingDp, 0, paddingDp, 0);
-////            mChip.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-////                @Override
-////                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-////
-////                }
-////            });
-////            mChip.setChecked(true);
-////            cg_display_day.addView(mChip);
-////        }
-//        int chipsCount = cg_display_day.getChildCount();
-//        int i = 0;
-//        ArrayList<String> mList = new ArrayList<>();
-//        while (i < chipsCount) {
-//            Chip chip = (Chip) cg_display_day.getChildAt(i);
-//
-//            for (WakeTranslate s : translateWakeDaysAr(dateTimeModel.getDisplayDays())) {
-//                if (chip.getText().toString().equals(s.getDayName())) {
-////                    mList.add(chip.getText().toString());
-//                    ((Chip) cg_display_day.getChildAt(i)).setChecked(true);
-//                }
-//            }
-////            if (chip.isChecked()) {
-////                mList.add(chip.getText().toString());
-////            }
-//            i++;
-////            displayDay = translateWakeDaysEn(mList);
-//        }
-//
-//        onChipDisplayDayClick(null);
-////        tie_display_day.setText(android.text.TextUtils.join(" , ", mList));
-////        tie_display_day.setError(null);
-//
-//    }
-
-//    public void onChipDisplayDayClick(View view) {
-//        int chipsCount = cg_display_day.getChildCount();
-//        int i = 0;
-//        ArrayList<String> mList = new ArrayList<>();
-//        while (i < chipsCount) {
-//            Chip chip = (Chip) cg_display_day.getChildAt(i);
-//            if (chip.isChecked()) {
-//                mList.add(chip.getText().toString());
-//            }
-//            i++;
-//            dateTimeModel.setDisplayDays(translateWakeDaysEn(mList));;
-//        }
-//
-//        tie_display_day.setText(android.text.TextUtils.join(" , ", mList));
-//        tie_display_day.setError(null);
-//    }
-
-
-//    public void setDisplayDayChips() {
-//        cg_display_day.removeAllViews();
-//        ArrayList<WakeTranslate> displayDayList = translateWakeDaysAr(Arrays.asList(FmUtilize.getWeekDayNames()));
-//        for (WakeTranslate category : displayDayList) {
-//            Chip mChip = (Chip) this.getLayoutInflater().inflate(R.layout.item_chip_display_days, null, false);
-//            mChip.setText(category.getDayName());
-//            int paddingDp = (int) TypedValue.applyDimension(
-//                    TypedValue.COMPLEX_UNIT_DIP, 10,
-//                    getResources().getDisplayMetrics()
-//            );
-//            mChip.setPadding(paddingDp, 0, paddingDp, 0);
-//            mChip.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//                @Override
-//                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-//
-//                }
-//            });
-//            cg_display_day.addView(mChip);
-//        }
-//
-//            initSelectedChip();
-//    }
 }

@@ -420,14 +420,14 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             public void onClick(View view) {
 
                 if (checkPrivilege())
-                    startActivity(new Intent(MainActivity.this, FormAddPrgram.class));
+                    startActivity(new Intent(MainActivity.this, AddProgramActivity.class));
                 mBottomSheetDialog.dismiss();
             }
         });
 
         inflate.findViewById(R.id.lyt_add_episode).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                EpisodeAddStepperVertical.startActivity(MainActivity.this);
+                AddEpisodeActivity.startActivity(MainActivity.this);
                 mBottomSheetDialog.dismiss();
             }
         });
@@ -491,7 +491,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
     private void startPlay(Metadata metadata) {
 
-        if (!FmUtilize.isEmptyOrNull(metadata.getUrl())) {
+        if (!FmUtilize.isEmpty(metadata.getUrl())) {
             //Check the sound level
             AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
             int volume_level = am.getStreamVolume(AudioManager.STREAM_MUSIC);
@@ -502,6 +502,8 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 //        radioManager.playOrStop(streamURL);
 //        http://edge.mixlr.com/channel/kijwr
             }
+        }else {
+            showToast(String.format(" %s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
         }
     }
 
@@ -583,11 +585,11 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(this, instanceIdResult -> {
             String newToken = instanceIdResult.getToken();
             Log.e("newToken", newToken);
-            getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(FMCConstants.DEVICE_TOKEN, newToken).apply();
+            getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(FirebaseConstants.DEVICE_TOKEN, newToken).apply();
 
         });
 
-        Log.d("newToken",  getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(FMCConstants.DEVICE_TOKEN, null));
+        Log.d("newToken",  getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(FirebaseConstants.DEVICE_TOKEN, null));
 
         //If the device is having android oreo we will create a notification channel
 
@@ -595,8 +597,8 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             NotificationManager mNotificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel mChannel = new NotificationChannel(FMCConstants.CHANNEL_ID, FMCConstants.CHANNEL_NAME, importance);
-            mChannel.setDescription(FMCConstants.CHANNEL_DESCRIPTION);
+            NotificationChannel mChannel = new NotificationChannel(FirebaseConstants.CHANNEL_ID, FirebaseConstants.CHANNEL_NAME, importance);
+            mChannel.setDescription(FirebaseConstants.CHANNEL_DESCRIPTION);
             mChannel.enableLights(true);
             mChannel.setLightColor(Color.RED);
             mChannel.enableVibration(true);

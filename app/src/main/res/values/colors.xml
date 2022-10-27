@@ -17,7 +17,6 @@
     <color name="mask_color">#66C2185B</color>
 
     <color name="primaryTextColor">#4a148c</color>
-    <color name="secondaryTextColor">#880e4f</color>
 
 
     <color name="white">#ffffff</color>
@@ -26,8 +25,6 @@
     <!--    <color name="mbc">#ac201f</color>-->
 
 
-    <color name="btn_default_light_normal">#00000000</color>
-    <color name="btn_default_light_pressed">#40ffffff</color>
     <color name="btn_send_normal">#02c754</color>
     <color name="btn_send_pressed">#006633</color>
     <color name="btn_context_menu_normal">#ffffff</color>
@@ -39,13 +36,9 @@
     <!--for random color generator -->
 
 
-    <color name="amber_A100">#ffe57f</color>
-
     <color name="blue_300">#64b5f6</color>
     <color name="blue_400">#42a5f5</color>
-    <color name="blue_50">#e3f2fd</color>
 
-    <color name="blue_grey_600">#546e7a</color>
     <color name="blue_grey_700">#455a64</color>
 
     <color name="bright_foreground_disabled_material_dark">#80ffffff</color>
@@ -75,9 +68,6 @@
     <color name="common_google_signin_btn_text_light_disabled">#1f000000</color>
     <color name="common_google_signin_btn_text_light_focused">#90000000</color>
     <color name="common_google_signin_btn_text_light_pressed">#de000000</color>
-
-    <color name="cyan_800">#00838f</color>
-    <color name="cyan_800_overlay">#e600838f</color>
 
     <color name="design_bottom_navigation_shadow_color">#14000000</color>
     <color name="design_dark_default_color_background">#121212</color>
@@ -130,7 +120,6 @@
     <color name="grey_100">#f5f5f5</color>
     <color name="grey_20">#cccccc</color>
     <color name="grey_3">#f7f7f7</color>
-    <color name="grey_300">#e0e0e0</color>
     <color name="grey_40">#999999</color>
     <color name="grey_400">#bdbdbd</color>
     <color name="grey_5">#f2f2f2</color>
@@ -214,18 +203,10 @@
 
     <color name="overlay_dark_10">#1a000000</color>
     <color name="overlay_dark_20">#33000000</color>
-    <color name="overlay_dark_5">#0c000000</color>
     <color name="overlay_light_20">#33ffffff</color>
     <color name="overlay_light_80">#ccffffff</color>
 
-    <color name="pink_100">#f8bbd0</color>
-    <color name="pink_200">#f48fb1</color>
     <color name="pink_50">#fce4ec</color>
-    <color name="pink_500">#e91e63</color>
-    <color name="pink_700">#c2185b</color>
-    <color name="pink_800">#ad1457</color>
-    <color name="pink_900">#880e4f</color>
-    <color name="pink_A200">#ff4081</color>
 
 
     <color name="primary_dark_material_dark">@android:color/black</color>
@@ -243,7 +224,6 @@
     <color name="quantum_white_100">#ffffff</color>
     <color name="red_200">#ef9a9a</color>
     <color name="red_300">#e57373</color>
-    <color name="red_400">#ef5350</color>
     <color name="red_500">#f44336</color>
     <color name="red_600">#e53935</color>
     <color name="red_700">#d32f2f</color>
@@ -258,12 +238,11 @@
     <color name="switch_thumb_disabled_material_light">#ffbdbdbd</color>
     <color name="switch_thumb_normal_material_dark">#ffbdbdbd</color>
     <color name="switch_thumb_normal_material_light">#fff1f1f1</color>
-    <color name="teal_800">#00695c</color>
-    <color name="teal_900">#004d40</color>
     <color name="tooltip_background_dark">#e6616161</color>
     <color name="tooltip_background_light">#e6ffffff</color>
     <color name="transparent">#00ffffff</color>
     <color name="yellow_500">#ffeb3b</color>
     <color name="yellow_600">#fdd835</color>
+    <color name="kprogresshud_default_color">#b1000000</color>
 
 </resources>

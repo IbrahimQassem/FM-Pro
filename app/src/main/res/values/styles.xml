@@ -17,22 +17,6 @@
         <item name="android:textSize">14sp</item>
     </style>
 
-    <style name="ProgressBar_White" parent="@style/Theme.HudHudFM">
-        <item name="colorPrimary">@android:color/white</item>
-        <item name="colorAccent">@android:color/white</item>
-    </style>
-
-    <style name="EditText_White" parent="@style/Theme.HudHudFM">
-        <item name="colorControlActivated">@android:color/white</item>
-        <item name="colorControlHighlight">@android:color/white</item>
-        <item name="colorControlNormal">@color/grey_10</item>
-    </style>
-
-    <style name="EditText_White_Hint" parent="@style/EditText_White">
-        <item name="colorAccent">@android:color/white</item>
-        <item name="android:textColorHint">@color/grey_10</item>
-    </style>
-
     <!--style for ripple library-->
     <style name="RippleStyleWhite">
         <item name="mrl_rippleOverlay">true</item>
@@ -51,36 +35,8 @@
     <!-- Activity with no Title -->
 
     <!-- Dark Buttons -->
-    <style name="ThemeOverlay.MyDarkButton" parent="ThemeOverlay.AppCompat.Dark">
-        <item name="colorButtonNormal">@color/grey_500</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:layout_marginRight">4dp</item>
-        <item name="android:layout_marginLeft">4dp</item>
-        <item name="android:textColor">@android:color/white</item>
-    </style>
 
     <!-- Light EditTexts -->
-
-    <style name="ThemeOverlay.MyTextDetail" parent="Theme.HudHudFM">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:fadeScrollbars">true</item>
-        <item name="android:gravity">center</item>
-        <item name="android:maxLines">5</item>
-        <item name="android:padding">4dp</item>
-        <item name="android:scrollbars">vertical</item>
-        <item name="android:textSize">14sp</item>
-    </style>
-
-    <style name="ThemeOverlay.FirebaseIcon" parent="Theme.HudHudFM">
-        <item name="android:layout_marginTop">@dimen/spacing_medium</item>
-        <item name="android:layout_marginBottom">@dimen/spacing_medium</item>
-    </style>
-
-    <style name="ThemeOverlay.MyTitleText" parent="Theme.HudHudFM">
-        <item name="android:gravity">center</item>
-        <item name="android:textSize">36sp</item>
-    </style>
 
     <style name="EditText_Flat_Grey">
         <item name="android:textAppearance">@style/Base.TextAppearance.AppCompat.Subhead</item>
@@ -91,16 +47,6 @@
     <style name="Button_Primary">
         <item name="android:textColor">@android:color/white</item>
         <item name="colorButtonNormal">@color/colorPrimary</item>
-    </style>
-
-    <style name="Button.Accent" parent="@style/Widget.AppCompat.Button.Colored">
-        <item name="colorButtonNormal">@color/colorAccent</item>
-        <item name="android:textColor">@android:color/white</item>
-    </style>
-
-    <style name="Button.White.Primary" parent="@style/Widget.AppCompat.Button.Colored">
-        <item name="colorButtonNormal">@android:color/white</item>
-        <item name="android:textColor">@color/colorPrimary</item>
     </style>
 
     <style name="Yellow.AppCompatRatingBar" parent="Base.Widget.AppCompat.RatingBar.Indicator">
@@ -119,22 +65,6 @@
 
     <style name="Button.Accent.Borderless" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:textColor">@color/colorAccent</item>
-    </style>
-
-    <style name="ProgressD" parent="@android:style/Theme.Dialog">
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
-        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowNoTitle">true</item>
-    </style>
-
-
-    <style name="Toolbar_Light">
-        <item name="android:textColorPrimary">@color/grey_60</item>
-        <item name="colorControlNormal">@color/grey_60</item>
     </style>
 
 
@@ -202,10 +132,6 @@
     <style name="TextLight" parent="@style/main_text">
         <item name="android:fontFamily">@font/tj_light</item>
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Caption</item>
-    </style>
-
-    <style name="PauseDialog" parent="@android:style/Theme.Dialog">
-        <item name="android:windowAnimationStyle">@style/PauseDialogAnimation</item>
     </style>
 
     <style name="PauseDialogAnimation">

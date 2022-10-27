@@ -1,53 +1,29 @@
 package com.sana.dev.fm.model;
 
-import android.app.Activity;
-import android.content.Context;
-import android.net.Uri;
-import android.text.TextUtils;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GetTokenResult;
-import com.google.firebase.auth.UserInfo;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.ServerTimestamp;
-import com.sana.dev.fm.utils.PreferencesManager;
-import com.sana.dev.fm.utils.Tools;
-import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.UsersRepositoryImpl;
-import com.sana.dev.fm.utils.my_firebase.notification.FMCConstants;
 
 
 import java.util.Date;
-
-import static android.content.Context.MODE_PRIVATE;
-import static com.sana.dev.fm.FmApplication.TAG;
-import static com.sana.dev.fm.utils.FmUtilize.deviceId;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.USERS_TABLE;
 
 /**
  * Created by Ibrahim on 22/2/18.
  */
 
 public class UserModel extends UserId {
-    private String name, email, mobile, password, photoUrl, nickNme, bio, tag, deviceId, stopNote, country, city, deviceToken;
+    private String name, email, mobile, password, photoUrl, nickNme, bio, tag, deviceId, stopNote, country, city, deviceToken,notificationToken,otherDate;
     private boolean isVerified, isOnline, isStopped;
     private long lastSignInTimestamp;
     private Gender gender;
     private UserType userType;
-    @ServerTimestamp
-    private Date createdAt;
+//    @ServerTimestamp
+    private String createdAt;
 
     public UserModel() {
     }
 
-    public UserModel(String userId, String name, String email, String mobile, String password, String photoUrl, String deviceToken, String nickNme, String bio, String tag, boolean isVerified, boolean isOnline, boolean isStopped, String deviceId, String stopNote, Gender gender, String country, String city, long lastSignInTimestamp, UserType userType,Date createdAt) {
+    public UserModel(String userId, String name, String email, String mobile, String password, String photoUrl, String deviceToken, String nickNme, String bio, String tag, boolean isVerified, boolean isOnline, boolean isStopped, String deviceId, String stopNote, Gender gender, String country, String city, long lastSignInTimestamp, UserType userType,String createdAt,String notificationToken,String otherDate) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -69,6 +45,8 @@ public class UserModel extends UserId {
         this.lastSignInTimestamp = lastSignInTimestamp;
         this.userType = userType;
         this.createdAt = createdAt;
+        this.notificationToken = notificationToken;
+        this.otherDate = otherDate;
     }
 
     @Override
@@ -87,6 +65,8 @@ public class UserModel extends UserId {
                 ", country='" + country + '\'' +
                 ", city='" + city + '\'' +
                 ", deviceToken='" + deviceToken + '\'' +
+                ", notificationToken='" + notificationToken + '\'' +
+                ", otherDate='" + otherDate + '\'' +
                 ", isVerified=" + isVerified +
                 ", isOnline=" + isOnline +
                 ", isStopped=" + isStopped +
@@ -97,8 +77,6 @@ public class UserModel extends UserId {
                 ", userId='" + userId + '\'' +
                 '}';
     }
-
-
 
     public String getName() {
         return name;
@@ -204,6 +182,22 @@ public class UserModel extends UserId {
         this.deviceToken = deviceToken;
     }
 
+    public String getNotificationToken() {
+        return notificationToken;
+    }
+
+    public void setNotificationToken(String notificationToken) {
+        this.notificationToken = notificationToken;
+    }
+
+    public String getOtherDate() {
+        return otherDate;
+    }
+
+    public void setOtherDate(String otherDate) {
+        this.otherDate = otherDate;
+    }
+
     public boolean isVerified() {
         return isVerified;
     }
@@ -252,11 +246,11 @@ public class UserModel extends UserId {
         this.userType = userType;
     }
 
-    public Date getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 }

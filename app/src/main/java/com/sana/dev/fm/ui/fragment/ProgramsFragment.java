@@ -41,7 +41,7 @@ import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmRepositoryImpl;
+import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -101,7 +101,7 @@ public class ProgramsFragment extends BaseFragment {
     private AdapterListProgram mAdapter;
     private List<RadioProgram> itemList;
     private View parent_view;
-    private FmRepositoryImpl fmRepo;
+    private FmProgramCRUDImpl fmRepo;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -119,7 +119,7 @@ public class ProgramsFragment extends BaseFragment {
         view = inflater.inflate(R.layout.fragment_programs, container, false);
         ButterKnife.bind(this, view);
         parent_view = view.findViewById(android.R.id.content);
-        fmRepo = new FmRepositoryImpl(getActivity(), RADIO_PROGRAM_TABLE);
+        fmRepo = new FmProgramCRUDImpl(getActivity(), RADIO_PROGRAM_TABLE);
 
         initList();
         initComponent();
@@ -163,7 +163,7 @@ public class ProgramsFragment extends BaseFragment {
         tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
 
         if (isRadioSelected())
-            fmRepo.readAllProgramByRadioId(prefMgr.selectedRadio().getRadioId(), new CallBack() {
+            fmRepo.queryAllBy(prefMgr.selectedRadio().getRadioId(),null, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     LogUtility.d(LogUtility.TAG, "readAllProgramByRadioId response: " + new Gson().toJson(object));
@@ -196,10 +196,10 @@ public class ProgramsFragment extends BaseFragment {
                             @Override
                             public void onLongItemClick(View view, RadioProgram obj, int position) {
                                 if (ProgramsFragment.this.isAccountSignedIn() && prefMgr.getUserSession().getUserType() == UserType.SuperADMIN){
-                                    ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_delete,obj.getPrName() ),  null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                                    ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_warning), getString(R.string.confirm_delete,obj.getPrName() ),  new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            fmRepo.deleteProgram(obj, new CallBack() {
+                                            fmRepo.delete(obj, new CallBack() {
                                                 @Override
                                                 public void onSuccess(Object object) {
                                                     showToast("" + object.toString());

@@ -4,12 +4,14 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.sana.dev.fm.FmApplication.TAG;
 import static com.sana.dev.fm.model.AppConfig.RADIO_NAME;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -21,6 +23,8 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.OpenableColumns;
+import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
@@ -43,7 +47,7 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.WakeTranslate;
-import com.sana.dev.fm.utils.my_firebase.notification.FMCConstants;
+import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 import java.io.FileNotFoundException;
 import java.security.SecureRandom;
@@ -376,11 +380,14 @@ public class FmUtilize {
         return BitmapFactory.decodeStream(c.getContentResolver().openInputStream(uri), null, o2);
     }
 
-    public static boolean isEmptyOrNull(String value) {
+    public static boolean isEmpty(String value) {
         return value == null || value.trim().length() == 0;
 //        return (value != null || !value.isEmpty());
     }
 
+    public static boolean isEmpty(Collection coll) {
+        return (coll == null || coll.isEmpty());
+    }
 
     public static void showMessage(Context activity, String message) {
         Toast toast = Toast.makeText(activity, message, Toast.LENGTH_SHORT);
@@ -910,10 +917,42 @@ public class FmUtilize {
         return true;
     }
 
+    public static String getIMEIDeviceId(Context context) {
 
-    public static String getToken(Context context) {
-//        return PreferencesManager.getInstance().write(FMCConstants.DEVICE_TOKEN,null);
-        return context.getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(FMCConstants.DEVICE_TOKEN, null);
+        String deviceId;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        {
+            deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        } else {
+            final TelephonyManager mTelephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    return "";
+                }
+            }
+            assert mTelephony != null;
+            if (mTelephony.getDeviceId() != null)
+            {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                {
+                    deviceId = mTelephony.getImei();
+                }else {
+                    deviceId = mTelephony.getDeviceId();
+                }
+            } else {
+                deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+            }
+        }
+        Log.d("deviceId", deviceId);
+        return deviceId;
+    }
+
+
+
+    public static String getFirebaseToken(Context context) {
+//        return PreferencesManager.getInstance().write(FirebaseConstants.DEVICE_TOKEN,null);
+        return context.getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(FirebaseConstants.DEVICE_TOKEN, null);
     }
 
 

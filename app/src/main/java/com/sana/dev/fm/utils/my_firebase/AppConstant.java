@@ -3,25 +3,41 @@ package com.sana.dev.fm.utils.my_firebase;
 import android.content.Context;
 
 import com.sana.dev.fm.FmApplication;
+import com.sana.dev.fm.R;
+import com.sana.dev.fm.utils.PreferencesManager;
 
-public class AppConstant extends FmApplication {
+public class AppConstant  {
 
-    private static Context mContext;
+    private static AppConstant sInstance;
+    private static Context ctx;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        mContext = this;
+    public static synchronized AppConstant getInstance() {
+        if (sInstance == null) {
+            throw new IllegalStateException(PreferencesManager.class.getSimpleName() +
+                    " is not initialized, call initializeInstance(..) method first.");
+        }
+        return sInstance;
     }
-    public static Context getContext(){
-        return mContext;
+
+    public static synchronized void initializeInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = new AppConstant(context);
+        }
     }
 
-     public static final String SUCCESS = "تمت العملية بنجاح";
-    public static final String FAIL = "فشل في تنفذ العملية";
-    public static final String ERROR = "خطأ غير معروف";
-    public static final String ADD = "إضافة";
-    public static final String UPDATE = "تحديث";
-    public static final String DELETE = "حذف";
-    public static final String BR = "BR";
+    private AppConstant(Context context) {
+        this.ctx = context;
+    }
+
+
+
+    private static String getString(int id) {
+        if (ctx != null)
+        return ctx.getString(id);
+        return "";
+    }
+
+    public static final String SUCCESS = getString(R.string.done_successfully);
+    public static final String FAIL = getString(R.string.error_failure);
+    public static final String ERROR = getString(R.string.label_error_occurred);
 }

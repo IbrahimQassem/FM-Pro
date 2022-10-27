@@ -5,15 +5,17 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@android:color/white"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:context=".ui.activity.appuser.PhoneLoginActivity">
 
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
 
 
         <ImageView
@@ -22,31 +24,36 @@
             app:srcCompat="@drawable/img_number_verification" />
 
         <androidx.core.widget.NestedScrollView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:scrollbars="none"
             android:scrollingCache="true">
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:paddingEnd="@dimen/spacing_large"
+                android:paddingStart="@dimen/spacing_large"
                 android:gravity="center"
+                android:layout_gravity="center"
                 android:orientation="vertical">
 
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/TextBold"
+                    android:padding="@dimen/spacing_medium"
                     android:text="@string/verify_your_number"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-                    android:textColor="@color/grey_80"
-                    android:textStyle="bold" />
+                    android:textColor="@color/grey_80" />
 
                 <TextView
-                    android:layout_width="280dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    style="@style/TextRegular"
+                    android:padding="@dimen/spacing_medium"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:minLines="2"
+                    android:letterSpacing=".3"
+                    android:lineSpacingExtra="5dp"
                     android:gravity="center"
                     android:text="@string/please_enter_your_mobile_number_to_receive_a_verification_code_carrier_rates_may_apply"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
@@ -55,8 +62,9 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="35dp"
-                    android:layout_marginBottom="15dp"
+                    android:layout_margin="@dimen/spacing_xlarge"
+                    android:layout_gravity="center"
+                    android:gravity="center"
                     android:orientation="horizontal">
 
 
@@ -88,12 +96,10 @@
                         android:layout_height="match_parent"
                         android:layout_marginEnd="@dimen/spacing_medium"
                         android:paddingTop="@dimen/spacing_medium"
-                        android:layoutDirection="rtl"
-                        android:textDirection="ltr"
                         app:ccp_autoDetectLanguage="true"
                         app:ccp_defaultNameCode="YE"
                         app:ccp_showFlag="false"
-                        app:ccp_showNameCode="false" />
+                        app:ccp_showNameCode="true" />
 
                 </LinearLayout>
 

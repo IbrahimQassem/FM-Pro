@@ -1,80 +1,73 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/view_feed_toolbar" />
-
-    <!--    <androidx.appcompat.widget.Toolbar-->
-    <!--        android:id="@+id/toolbar"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="?attr/actionBarSize"-->
-    <!--        android:background="?attr/colorPrimary"-->
-    <!--        app:elevation="@dimen/default_elevation"-->
-    <!--        app:layout_collapseMode="pin"-->
-    <!--        app:layout_scrollFlags="scroll|enterAlways"-->
-    <!--        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">-->
-    <!--    </androidx.appcompat.widget.Toolbar>-->
-
-    <LinearLayout
-        android:id="@+id/contentRoot"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"
-        android:background="@color/white"
-        android:elevation="@dimen/default_elevation"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvComments"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingTop="@dimen/spacing_small"
-                android:scrollbars="none" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_gravity="bottom"
-                android:background="@drawable/shadow_top" />
-        </FrameLayout>
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/view_feed_toolbar" />
 
         <LinearLayout
-            android:id="@+id/llAddComment"
+            android:id="@+id/contentRoot"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_below="@id/toolbar"
             android:background="@color/white"
             android:elevation="@dimen/default_elevation"
-            android:gravity="center_vertical"
-            android:paddingLeft="8dp"
-            android:paddingTop="8dp"
-            android:paddingRight="8dp"
-            android:paddingBottom="4dp">
+            android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/etComment"
-                android:layout_width="0dp"
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvComments"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingTop="@dimen/spacing_small"
+                    android:scrollbars="none" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_gravity="bottom"
+                    android:background="@drawable/shadow_top" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/llAddComment"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="#555555"
-                android:textSize="14sp" />
+                android:background="@color/white"
+                android:elevation="@dimen/default_elevation"
+                android:gravity="center_vertical"
+                android:paddingLeft="8dp"
+                android:paddingTop="8dp"
+                android:paddingRight="8dp"
+                android:paddingBottom="4dp">
 
-            <com.sana.dev.fm.ui.view.SendCommentButton
-                android:id="@+id/btnSendComment"
-                android:layout_width="72dp"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="8dp"
-                android:layout_marginBottom="2dp"
-                android:background="@drawable/btn_send_comment"
-                android:elevation="4dp"
-                android:orientation="vertical" />
+                <EditText
+                    android:id="@+id/etComment"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="#555555"
+                    android:textSize="14sp" />
 
+                <com.sana.dev.fm.ui.view.SendCommentButton
+                    android:id="@+id/btnSendComment"
+                    android:layout_width="72dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginBottom="2dp"
+                    android:background="@drawable/btn_send_comment"
+                    android:elevation="4dp"
+                    android:orientation="vertical" />
+
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</RelativeLayout>
+    </RelativeLayout>
+</layout>

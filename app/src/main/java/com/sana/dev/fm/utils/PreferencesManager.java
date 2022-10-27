@@ -10,7 +10,6 @@ import com.google.gson.reflect.TypeToken;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
-import com.sana.dev.fm.utils.my_firebase.notification.FMCConstants;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -104,13 +103,13 @@ public class PreferencesManager {
     }
 
     public String getPrefLange() {
-        String lang = read(FMCConstants.PREF_LANGUAGE, "ar");
+        String lang = read(FirebaseConstants.PREF_LANGUAGE, "ar");
         return lang;
     }
 
     public UserModel getUserSession() {
         Gson gson = new Gson();
-        String json = read(FMCConstants.USER_INFO, null);
+        String json = read(FirebaseConstants.USER_INFO, null);
         return gson.fromJson(json, UserModel.class);
     }
 
@@ -118,13 +117,13 @@ public class PreferencesManager {
         //Set the values
         Gson gson = new Gson();
         String jsonText = gson.toJson(arrayList);
-        write(FMCConstants.RADIO_INFO_LIST, jsonText);
+        write(FirebaseConstants.RADIO_INFO_LIST, jsonText);
     }
 
 
     public ArrayList<RadioInfo> getRadioList(){
         Gson gson = new Gson();
-        String jstring = read(FMCConstants.RADIO_INFO_LIST, null);
+        String jstring = read(FirebaseConstants.RADIO_INFO_LIST, null);
         Type type = new TypeToken<ArrayList<RadioInfo>>() {}.getType();
 
 //        Type collectionType = new TypeToken<Collection<RadioInfo>>(){}.getType();

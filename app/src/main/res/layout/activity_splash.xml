@@ -19,7 +19,6 @@
         app:srcCompat="@drawable/logo_app" />
 
     <TextView
-        android:id="@+id/introTitle"
         style="@style/TextBold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,7 +31,6 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/introDesc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"

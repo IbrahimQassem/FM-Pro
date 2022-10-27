@@ -75,6 +75,7 @@ public class MainDialog {
 
     public void showDialogRateUs() {
         final Dialog dialog = new Dialog(context);
+        dialog.getWindow().getAttributes().windowAnimations = R.style.PauseDialogAnimation;
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); // before
         dialog.setContentView(R.layout.dialog_rate_us);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -97,11 +98,13 @@ public class MainDialog {
                 dialog.dismiss();
             }
         });
+
         dialog.show();
     }
 
     public void aboutUsDialogLight() {
         final Dialog dialog = new Dialog(context);
+        dialog.getWindow().getAttributes().windowAnimations = R.style.PauseDialogAnimation;
         dialog.requestWindowFeature(1);
         dialog.setContentView(R.layout.dialog_contact_light);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));

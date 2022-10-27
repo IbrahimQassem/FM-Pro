@@ -34,13 +34,13 @@ import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.CommentsActivity;
-import com.sana.dev.fm.ui.activity.EpisodeAddStepperVertical;
+import com.sana.dev.fm.ui.activity.AddEpisodeActivity;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.EpisodeRepositoryImpl;
+import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 import java.util.ArrayList;
@@ -81,7 +81,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
     View view;
     Context context;
-    EpisodeRepositoryImpl ePiRepo;
+    FmEpisodeCRUDImpl ePiRepo;
 
     @BindView(R.id.rvFeed)
     RecyclerView recyclerView;
@@ -129,7 +129,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         view = inflater.inflate(R.layout.fragment_real_time_episode, container, false);
         // Inflate the layout for this fragment
         ButterKnife.bind(this, view);
-        ePiRepo = new EpisodeRepositoryImpl((MainActivity) context, FirebaseConstants.EPISODE_TABLE);
+        ePiRepo = new FmEpisodeCRUDImpl((MainActivity) context, FirebaseConstants.EPISODE_TABLE);
 
         init();
         return view;
@@ -291,7 +291,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                             case R.id.imv_like:
                                 if (!RealTimeEpisodeFragment.this.isAccountSignedIn()) {
                                     if (context instanceof MainActivity) {
-                                        ModelConfig config = new ModelConfig(-1, getString(R.string.label_note), getString(R.string.goto_login),  null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                                        ModelConfig config = new ModelConfig(-1, getString(R.string.label_note), getString(R.string.goto_login),  new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
                                                 startActivity(new Intent(IntentHelper.phoneLoginActivity(context, false)));
@@ -304,7 +304,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                                     HashMap<String, Boolean> likeMap = new HashMap<>();
                                     likeMap.put(prefMgr.getUserSession().getUserId(), isLik);
                                     model.setEpisodeLikes(likeMap);
-                                    ePiRepo.updateEpi("episodeLikes", model, new CallBack() {
+                                    ePiRepo.update("episodeLikes", model, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
                                         }
@@ -355,7 +355,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 stringBuilder.append("تعديل : ");
                 stringBuilder.append(obj.getEpName());
 
-                EpisodeAddStepperVertical.startActivity(context, obj);
+                AddEpisodeActivity.startActivity(context, obj);
                 mBottomSheetDialog.dismiss();
             }
         });
@@ -365,11 +365,10 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_delete,obj.getEpName() ),  null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ePiRepo.deleteEpi(obj, new CallBack() {
+                        ePiRepo.delete(obj, new CallBack() {
                             @Override
                             public void onSuccess(Object object) {
                                 showToast("Deleted : " + object.toString());
-//                                adapter.removeAt(position);
                             }
 
                             @Override

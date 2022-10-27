@@ -6,7 +6,6 @@
     <dimen name="comment_avatar_size">56dp</dimen>
     <dimen name="user_profile_avatar_size">88dp</dimen>
     <dimen name="global_card_avatar_size">54dp</dimen>
-    <dimen name="publish_photo_thumbnail_size">96dp</dimen>
 
 
     <!--general spacing-->

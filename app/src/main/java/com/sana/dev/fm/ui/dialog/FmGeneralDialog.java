@@ -110,7 +110,7 @@ public class FmGeneralDialog extends Dialog {
                 });
             }
 
-            boolean isBtCancel = config.getBtnCancel() != null || config.getBtnCancel().getName() != null;
+            boolean isBtCancel = (config.getBtnCancel() != null ? config.getBtnCancel().getName() : null) != null;
             binding.btCancel.setVisibility(isBtCancel ? VISIBLE : View.GONE);
             if (isBtCancel) {
                 binding.btCancel.setText(config.getBtnCancel().getName());
@@ -149,7 +149,7 @@ public class FmGeneralDialog extends Dialog {
                 });
             }
 
-            boolean isBtCancel = config.getBtnCancel() != null || config.getBtnCancel().getName() != null;
+            boolean isBtCancel = (config.getBtnCancel() != null ? config.getBtnCancel().getName() : null) != null;
             binding.btCancel.setVisibility(isBtCancel ? VISIBLE : View.GONE);
             if (isBtCancel) {
                 binding.btCancel.setText(config.getBtnCancel().getName());

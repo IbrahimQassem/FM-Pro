@@ -20,19 +20,17 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.utils.Constants;
 import com.sana.dev.fm.utils.IntentHelper;
-import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.SignInResultNotifier;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
-import com.sana.dev.fm.utils.my_firebase.RadioInfoRepositoryImpl;
+import com.sana.dev.fm.utils.my_firebase.FmStationCRUDImpl;
 
 import java.util.ArrayList;
 
@@ -41,7 +39,7 @@ public class SplashActivity extends AppCompatActivity {
 
     private final Integer START_DELAY = 1500;
 
-    private RadioInfoRepositoryImpl rIRepo;
+    private FmStationCRUDImpl rIRepo;
     public PreferencesManager prefMgr;
 
 //    private FirebaseAuth mAuth;
@@ -60,12 +58,11 @@ public class SplashActivity extends AppCompatActivity {
 
 
     private void initRadios() {
-        rIRepo = new RadioInfoRepositoryImpl(this, FirebaseConstants.RADIO_INFO_TABLE);
+        rIRepo = new FmStationCRUDImpl(this, FirebaseConstants.RADIO_INFO_TABLE);
 
-        rIRepo.readAllRadioByEvent(new CallBack() {
+        rIRepo.queryAllBy(null,null,new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                LogUtility.d(LogUtility.TAG, "readAllRadioByEvent response: " + new Gson().toJson(object));
                 if (isCollection(object)) {
                     ArrayList<RadioInfo> stationList = (ArrayList<RadioInfo>) object;
                     ShardDate.getInstance().setInfoList(stationList);
@@ -86,7 +83,6 @@ public class SplashActivity extends AppCompatActivity {
 
             @Override
             public void onError(Object object) {
-                LogUtility.d(LogUtility.TAG, "readAllRadioByEvent error: " + new Gson().toJson(object));
 //                goToMain();
                 initRadios();
             }

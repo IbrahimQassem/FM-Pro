@@ -32,6 +32,20 @@ public class Comment extends CommentId {
         this.commentLikes = commentLikes;
     }
 
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "commentUser='" + commentUser + '\'' +
+                ", episodeId='" + episodeId + '\'' +
+                ", commentText='" + commentText + '\'' +
+                ", commentUserId='" + commentUserId + '\'' +
+                ", commentTime='" + commentTime + '\'' +
+                ", commentLikesCount=" + commentLikesCount +
+                ", commentLikes=" + commentLikes +
+                ", commentId='" + commentId + '\'' +
+                '}';
+    }
+
     public String getCommentId() {
         return commentId;
     }

@@ -9,32 +9,46 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.sana.dev.fm.model.RadioInfo;
+import com.sana.dev.fm.utils.LogUtility;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class RadioInfoRepositoryImpl extends FirebaseRepository implements RadioInfoRepository {
+public class FmStationCRUDImpl extends FirebaseRepository implements FmCRUD {
+    public static final String TAG = FmStationCRUDImpl.class.getSimpleName();
 
     private Activity activity;
     private CollectionReference employeeCollectionReference;
 
-    public RadioInfoRepositoryImpl(Activity activity, String TableName) {
+    public FmStationCRUDImpl(Activity activity, String TableName) {
         this.activity = activity;
         employeeCollectionReference = DATABASE.collection(TableName);
     }
 
 
     @Override
-    public void readAllRadioByEvent(final CallBack callBack) {
-//        progressDialog.showDialog(getString(R.string.loading), getString(R.string.please_wait));
-        //get all employees order by employee name
-//        Query query = employeeCollectionReference.whereEqualTo("disabled", false).orderBy("priority", Query.Direction.DESCENDING);
-//        Query query = employeeCollectionReference.whereEqualTo("disabled", false).orderBy("priority", Query.Direction.DESCENDING);
+    public void create(String key, Object model, CallBack callBack) {
+
+    }
+
+    @Override
+    public void update(String key, Object model, CallBack callBack) {
+
+    }
+
+    @Override
+    public void delete(Object key, CallBack callBack) {
+
+    }
+
+    @Override
+    public void queryAllBy(String key, Object model, CallBack callBack) {
         Query query = employeeCollectionReference.orderBy("priority", Query.Direction.DESCENDING);
         readQueryDocuments(query, new CallBack() {
             @Override
             public void onSuccess(Object object) {
+                LogUtility.d(TAG, " queryAllBy :  " + object);
                 if (object != null) {
                     callBack.onSuccess(getRIDataFromQuerySnapshot(object));
                 } else
@@ -43,14 +57,12 @@ public class RadioInfoRepositoryImpl extends FirebaseRepository implements Radio
 
             @Override
             public void onError(Object object) {
+                LogUtility.e(TAG, " queryAllBy :  " + object);
                 callBack.onError(object);
             }
         });
     }
 
-    private String getString(int id) {
-        return activity.getString(id);
-    }
 
     public List<RadioInfo> getRIDataFromQuerySnapshot(Object object) {
         List<RadioInfo> programList = new ArrayList<>();
@@ -66,6 +78,3 @@ public class RadioInfoRepositoryImpl extends FirebaseRepository implements Radio
 }
 
 
-interface RadioInfoRepository {
-    void readAllRadioByEvent(CallBack callBack);
-}

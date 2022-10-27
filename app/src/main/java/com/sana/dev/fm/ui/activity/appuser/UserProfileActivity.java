@@ -46,18 +46,17 @@ import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
-import com.sana.dev.fm.utils.ProgressHUD;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.UsersRepositoryImpl;
-import com.sana.dev.fm.utils.my_firebase.notification.FMCConstants;
+import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
+import com.sana.dev.fm.utils.my_firebase.FmUserCRUDImpl;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
 
 
 public class UserProfileActivity extends BaseActivity {
-    private static final int PICK_IMAGE = 100;
+    public static final int PICK_IMAGE = 100;
 
     private final String TAG = UserProfileActivity.class.getSimpleName();
 
@@ -70,20 +69,19 @@ public class UserProfileActivity extends BaseActivity {
 
     //    private Uri imageUri = null;
     private UserModel _userModel;
-    private UsersRepositoryImpl fmRepo;
+    private FmUserCRUDImpl fmRepo;
 
 
     /* Access modifiers changed, original: protected */
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-//        setContentView((int) R.layout.activity_user_profile);
         binding = ActivityUserProfileBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
 
         hideKeyboard();
 
-        fmRepo = new UsersRepositoryImpl(this, USERS_TABLE);
+        fmRepo = new FmUserCRUDImpl(this, USERS_TABLE);
         mAuth = FirebaseAuth.getInstance();
         mAuth.setLanguageCode(PreferencesManager.getInstance().getPrefLange());
         // [END initialize_auth]
@@ -313,19 +311,20 @@ public class UserProfileActivity extends BaseActivity {
 
 //        String _oName = oldUser.getName() != null ? oldUser.getName() : "";
 //        String _oPhoto = oldUser.getPhotoUrl() != null ? oldUser.getPhotoUrl() : "";
-//        String _imgUrl = prefMgr.read(FMCConstants.USER_IMAGE_Profile, null);
+//        String _imgUrl = prefMgr.read(FirebaseConstants.USER_IMAGE_Profile, null);
         if (user.equals(name) && user.getGender().equals(gender)) {
             startMainActivity();
         } else {
             user.setName(name);
             user.setGender(gender);
-            user.setDeviceToken(FmUtilize.getToken(this));
+            user.setDeviceToken(FmUtilize.getIMEIDeviceId(this));
+            user.setNotificationToken(FmUtilize.getFirebaseToken(this));
 //            updateUser(user);
 //            updateUser(new Users(name, _imgUrl, gender, getToken(this)));
-            fmRepo.createUpdateUser(_userModel.getUserId(), user, new CallBack() {
+            fmRepo.create(_userModel.getUserId(), user, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    prefMgr.write(FMCConstants.USER_INFO, (UserModel) object);
+                    prefMgr.write(FirebaseConstants.USER_INFO, (UserModel) object);
                     showToast(getString(R.string.saved_successfully));
                     startMainActivity();
                 }
@@ -389,10 +388,7 @@ public class UserProfileActivity extends BaseActivity {
 
     private void uploadUserProfile(Uri uriImage) {
 //        if (imageUri != null) {
-        ProgressHUD mProgressHUD = ProgressHUD.showDialog(getString(R.string.please_wait), true, false, null);
-        mProgressHUD.setMessage(getString(R.string.please_wait_to_save_youre_profile));
-        mProgressHUD.show();
-
+        showProgress(getString(R.string.please_wait_to_save_youre_profile));
         // Create file metadata including the content type
         StorageMetadata metadata = new StorageMetadata.Builder()
                 .setContentType("image/jpg")
@@ -408,8 +404,9 @@ public class UserProfileActivity extends BaseActivity {
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                 double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                 Log.d(TAG, "Upload is " + progress + "% done");
-                mProgressHUD.setCanceledOnTouchOutside(false);
-                mProgressHUD.setMessage(getString(R.string.please_wait) + " % " + (int) progress);
+                hud.setCancellable(false);
+//                hud.setMessage(getString(R.string.please_wait) + " % " + (int) progress);
+                hud.setProgress((int) progress);
 
             }
         }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
@@ -425,7 +422,7 @@ public class UserProfileActivity extends BaseActivity {
 //                showToast("نعتذر لم يتم الحفظ !" + e);
                 ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_error_occurred), e.toString(), new ButtonConfig(getString(R.string.label_close)), null);
                 showWarningDialog(config);
-                mProgressHUD.dismiss();
+                hud.dismiss();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -439,7 +436,7 @@ public class UserProfileActivity extends BaseActivity {
                             public void onSuccess(Uri uri) {
                                 String downloadUri = uri.toString();
 //                                    showSnackBar(downloadUri);
-//                                prefMgr.write(FMCConstants.USER_IMAGE_Profile, downloadUri);
+//                                prefMgr.write(FirebaseConstants.USER_IMAGE_Profile, downloadUri);
 //                                ------------------------------------
                                 UserModel user = prefMgr.getUserSession();
                                 user.setPhotoUrl(downloadUri);
@@ -448,7 +445,7 @@ public class UserProfileActivity extends BaseActivity {
                         });
                     }
                 }
-                mProgressHUD.dismiss();
+                hud.dismiss();
 
             }
         });
@@ -468,10 +465,10 @@ public class UserProfileActivity extends BaseActivity {
 //            Toast.makeText(this, getString(R.string.most_login), Toast.LENGTH_SHORT).show();
 //            return;
 //        }
-        fmRepo.createUpdateUser(_userModel.getUserId(), model, new CallBack() {
+        fmRepo.create(_userModel.getUserId(), model, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                prefMgr.write(FMCConstants.USER_INFO, (UserModel) object);
+                prefMgr.write(FirebaseConstants.USER_INFO, (UserModel) object);
             }
 
             @Override
@@ -491,8 +488,7 @@ public class UserProfileActivity extends BaseActivity {
 
     private void signOut() {
         mAuth.signOut();
-        prefMgr.remove(FMCConstants.USER_INFO);
-        prefMgr.remove(FMCConstants.USER_MOBILE);
+        prefMgr.remove(FirebaseConstants.USER_INFO);
         Intent intent = IntentHelper.splashActivity(this, true);
         startActivity(intent);
         showToast(getString(R.string.user_loged_out));

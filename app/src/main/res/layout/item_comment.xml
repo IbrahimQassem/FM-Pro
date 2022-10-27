@@ -1,125 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
         android:id="@+id/lyt_parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:baselineAligned="false"
         android:clickable="true"
+        android:focusable="true"
         android:orientation="horizontal"
-        android:paddingTop="@dimen/spacing_large"
-        android:paddingBottom="@dimen/spacing_large">
+        android:paddingStart="@dimen/spacing_medium"
+        android:paddingTop="@dimen/spacing_middle"
+        android:paddingEnd="@dimen/spacing_medium"
+        android:paddingBottom="@dimen/spacing_middle">
 
-        <View
-            android:layout_width="@dimen/spacing_large"
-            android:layout_height="0dp" />
+        <com.mikhaellopez.circularimageview.CircularImageView
+            android:id="@+id/civ_logo"
+            android:layout_width="@dimen/spacing_xmlarge"
+            android:layout_height="@dimen/spacing_xmlarge"
+            app:civ_border="true"
+            app:civ_border_color="@color/grey_20"
+            app:civ_border_width="1px"
+            app:civ_shadow="true"
+            app:civ_shadow_radius="0"
+            app:srcCompat="@drawable/ic_person" />
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
 
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:layout_width="@dimen/spacing_xmlarge"
-                    android:layout_height="@dimen/spacing_xmlarge"
-                    android:tint="@color/blue_grey_600"
-                    app:srcCompat="@drawable/shape_circle" />
-
-                <ImageView
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_centerInParent="true" />
-                <!--                app:srcCompat="@drawable/ic_done"-->
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <com.mikhaellopez.circularimageview.CircularImageView
-                    android:id="@+id/civ_logo"
-                    android:layout_width="@dimen/spacing_xmlarge"
-                    android:layout_height="@dimen/spacing_xmlarge"
-                    app:civ_border="true"
-                    app:civ_border_color="@color/grey_20"
-                    app:civ_border_width="1px"
-                    app:civ_shadow="true"
-                    app:civ_shadow_radius="0"
-                    app:srcCompat="@drawable/ic_person" />
-
-                <!--                <ImageView-->
-                <!--                    android:id="@+id/image"-->
-                <!--                    android:layout_width="@dimen/spacing_xmlarge"-->
-                <!--                    android:layout_height="@dimen/spacing_xmlarge"-->
-                <!--                    app:srcCompat="@drawable/ic_person"-->
-                <!--                   />-->
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="@android:color/white" />
-            </RelativeLayout>
-        </RelativeLayout>
-
-        <View
-            android:layout_width="@dimen/spacing_smlarge"
-            android:layout_height="0dp" />
-
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/spacing_medium"
+            android:paddingEnd="@dimen/spacing_medium">
 
             <LinearLayout
-                android:layout_alignParentStart="true"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:gravity="center"
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/tvFrom"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/TextBold"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:maxLines="1"
+                    android:padding="@dimen/spacing_small"
                     android:singleLine="true"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="@color/grey_90"
-                    android:textStyle="bold"
                     tools:text="@string/user_name" />
 
-
                 <TextView
-                    android:id="@+id/tvComment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:maxLines="1"
-                    android:singleLine="true"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textColor="@color/grey_40"
-                    tools:text="@string/ex_comment" />
+                    android:id="@+id/tv_date"
+                    style="@style/TextBold"
+                    android:paddingStart="@dimen/spacing_medium"
+                    android:paddingEnd="@dimen/spacing_medium"
+                    android:textColor="@color/blue_300"
+                    android:textSize="12sp"
+                    tools:text="@string/ex_time" />
+
+
             </LinearLayout>
 
             <TextView
-                android:id="@+id/tvDate"
-                style="@style/TextBold"
-                android:layout_alignParentEnd="true"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                android:textColor="@color/blue_300"
-                tools:text="@string/ex_time" />
-        </RelativeLayout>
+                android:id="@+id/tvComment"
+                style="@style/TextLight"
+                android:padding="@dimen/spacing_medium"
+                android:textColor="@color/grey_40"
+                tools:text="@string/ex_comment" />
 
-        <View
-            android:layout_width="@dimen/spacing_large"
-            android:layout_height="0dp" />
+        </LinearLayout>
+
     </LinearLayout>
-</FrameLayout>
+</layout>

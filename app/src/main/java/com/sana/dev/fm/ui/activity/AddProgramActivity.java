@@ -22,9 +22,6 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -36,8 +33,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.OnProgressListener;
@@ -49,6 +44,7 @@ import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.databinding.ActivityAddProgramBinding;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
@@ -58,11 +54,10 @@ import com.sana.dev.fm.model.interfaces.OnCallbackDate;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
-import com.sana.dev.fm.utils.ProgressHUD;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.AppConstant;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmRepositoryImpl;
+import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import java.io.IOException;
@@ -71,78 +66,35 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
+public class AddProgramActivity extends BaseActivity {
+    private static final String TAG = AddProgramActivity.class.getSimpleName();
 
-public class FormAddPrgram extends BaseActivity {
-    private static final String TAG = FormAddPrgram.class.getSimpleName();
-    @BindView(R.id.img_logo)
-    ImageView img_logo;
-
-    @BindView(R.id.cg_type)
-    ChipGroup cg_type;
-
-    @BindView(R.id.cg_display_day)
-    ChipGroup cg_display_day;
-
-    @BindView(R.id.tie_category)
-    TextInputEditText tie_category;
-
-    @BindView(R.id.tie_display_day)
-    TextInputEditText tie_display_day;
-
-
-    @BindView(R.id.tie_filename)
-    TextInputEditText tie_filename;
-
-    @BindView(R.id.tit_pr_name)
-    TextInputEditText tit_pr_name;
-    @BindView(R.id.tit_pr_desc)
-    TextInputEditText tit_pr_desc;
-
-    @BindView(R.id.tv_add_logo)
-    TextView tv_add_logo;
-
-    @BindView(R.id.lin_file)
-    LinearLayout lin_file;
-
-    @BindView(R.id.et_station)
-    EditText et_program;
-
-    @BindView(R.id.et_start)
-    EditText et_start;
-
-    @BindView(R.id.et_end)
-    EditText et_end;
+    private ActivityAddProgramBinding binding;
 
     Uri imageUri;
     PreferencesManager prefMgr;
     private String programId, radioId, prName, prDesc, prTag, prProfile, createBy, stopNote;
-    private FmRepositoryImpl fmRepo;
+    private FmProgramCRUDImpl fmRepo;
     private RadioInfo radioInfo;
     private long dateStart, dateEnd;
     private List<String> prCategoryList;
     private List<String> displayDay;
 
-    /* Access modifiers changed, original: protected */
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        setContentView((int) R.layout.activity_form_add_program);
-        ButterKnife.bind(this);
-        fmRepo = new FmRepositoryImpl(this, RADIO_PROGRAM_TABLE);
+
+        binding = ActivityAddProgramBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+
+        fmRepo = new FmProgramCRUDImpl(this, RADIO_PROGRAM_TABLE);
         prefMgr = PreferencesManager.getInstance();
 
         Tools.setSystemBarColor(this, R.color.white);
         Tools.setSystemBarLight(this);
-        findViewById(R.id.bt_close).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                FormAddPrgram.this.finish();
-            }
-        });
 
-
+        initClickEvent();
         loadProfileDefault();
 
         // Clearing older images from cache directory
@@ -150,44 +102,81 @@ public class FormAddPrgram extends BaseActivity {
         // call this once the bitmap(s) usage is over
         ImagePickerActivity.clearCache(this);
 
-
         setCategoryChips();
         setDisplayDayChips();
 
-        et_start.setOnClickListener(new View.OnClickListener() {
+    }
+
+    private void initClickEvent() {
+        binding.btClose.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                AddProgramActivity.this.finish();
+            }
+        });
+
+        binding.imgLogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onProfileImageClick();
+            }
+        });
+
+        binding.tvAddLogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onProfileImageClick();
+            }
+        });
+
+        binding.ivClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearImg();
+            }
+        });
+
+
+        binding.etStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialogDatePickerLight((TextView) v, new OnCallbackDate() {
                     @Override
                     public void getSelected(long _time) {
                         dateStart = _time;
-                        et_start.setError(null);
+                        binding.etStart.setError(null);
                     }
                 });
             }
         });
 
-        et_end.setOnClickListener(new View.OnClickListener() {
+        binding.etEnd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialogDatePickerLight((TextView) v, new OnCallbackDate() {
                     @Override
                     public void getSelected(long _time) {
                         dateEnd = _time;
-                        et_end.setError(null);
+                        binding.etEnd.setError(null);
                     }
                 });
+            }
+        });
+
+        binding.etStation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showStationDialog();
             }
         });
     }
 
 
     public void onChipCategoryClick(View view) {
-        int chipsCount = cg_type.getChildCount();
+        int chipsCount = binding.cgType.getChildCount();
         int i = 0;
         ArrayList<String> cgList = new ArrayList<>();
         while (i < chipsCount) {
-            Chip chip = (Chip) cg_type.getChildAt(i);
+            Chip chip = (Chip) binding.cgType.getChildAt(i);
             if (chip.isChecked()) {
 //                prType += chip.getText().toString() + ",";
                 cgList.add(chip.getText().toString());
@@ -197,18 +186,18 @@ public class FormAddPrgram extends BaseActivity {
         }
 
 //        prCategory = android.text.TextUtils.join(" , ", cgList);
-        tie_category.setText(android.text.TextUtils.join(" , ", prCategoryList));
-        tie_category.setError(null);
+        binding.tieCategory.setText(android.text.TextUtils.join(" , ", prCategoryList));
+        binding.tieCategory.setError(null);
 
     }
 
 
     public void onChipDisplayDayClick(View view) {
-        int chipsCount = cg_display_day.getChildCount();
+        int chipsCount = binding.cgDisplayDay.getChildCount();
         int i = 0;
         ArrayList<String> mList = new ArrayList<>();
         while (i < chipsCount) {
-            Chip chip = (Chip) cg_display_day.getChildAt(i);
+            Chip chip = (Chip) binding.cgDisplayDay.getChildAt(i);
             if (chip.isChecked()) {
                 mList.add(chip.getText().toString());
             }
@@ -216,8 +205,8 @@ public class FormAddPrgram extends BaseActivity {
             displayDay = translateWakeDaysEn(mList);
         }
 
-        tie_display_day.setText(android.text.TextUtils.join(" , ", mList));
-        tie_display_day.setError(null);
+        binding.tieDisplayDay.setText(android.text.TextUtils.join(" , ", mList));
+        binding.tieDisplayDay.setError(null);
 
     }
 
@@ -241,58 +230,68 @@ public class FormAddPrgram extends BaseActivity {
 
                 }
             });
-            cg_display_day.addView(mChip);
+            binding.cgDisplayDay.addView(mChip);
         }
 
 
+        binding.ibSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                send();
+            }
+        });
+
     }
 
-    @OnClick({R.id.ib_send})
     public void send() {
 
 //        Resources res = getResources();
 //        String localized = res.getString(res.getIdentifier(Constant.SUCCESS, "string", getPackageName()));
 //        showToast(Constant.SUCCESS);
 
+
         if (prefMgr.getUserSession() == null || prefMgr.getUserSession().getUserId() == null) {
             showToast(getString(R.string.most_login));
             return;
-        } else if (et_program.getText().toString().trim().isEmpty()) {
+        } else if (binding.etStation.getText().toString().trim().isEmpty()) {
             showToast("يجب تحديد إسم القناة الإذاعية");
             return;
-        } else if (tit_pr_name.getText().toString().trim().isEmpty()) {
-            tit_pr_name.setError(getString(R.string.error_empty_field_not_allowed));
-            tit_pr_name.requestFocus();
+        } else if (binding.titPrName.getText().toString().trim().isEmpty()) {
+            binding.titPrName.setError(getString(R.string.error_empty_field_not_allowed));
+            binding.titPrName.requestFocus();
             return;
-        } else if (tie_category.getText().toString().trim().isEmpty()) {
-            tie_category.setError(getString(R.string.error_empty_field_not_allowed));
-            tie_category.requestFocus();
+        } else if (binding.tieCategory.getText().toString().trim().isEmpty()) {
+            binding.tieCategory.setError(getString(R.string.error_empty_field_not_allowed));
+            binding.tieCategory.requestFocus();
             return;
         } else if (dateStart == 0L) {
-            et_start.setError(getString(R.string.error_empty_field_not_allowed));
-            et_start.requestFocus();
+            binding.etStart.setError(getString(R.string.error_empty_field_not_allowed));
+            binding.etStart.requestFocus();
             return;
         } else if (dateEnd == 0L) {
-            et_end.setError(getString(R.string.error_empty_field_not_allowed));
-            et_end.requestFocus();
+            binding.etEnd.setError(getString(R.string.error_empty_field_not_allowed));
+            binding.etEnd.requestFocus();
             return;
-        } else if (tie_display_day.getText().toString().trim().isEmpty()) {
-            tie_display_day.setError(getString(R.string.error_empty_field_not_allowed));
-            tie_display_day.requestFocus();
+        } else if (binding.tieDisplayDay.getText().toString().trim().isEmpty()) {
+            binding.tieDisplayDay.setError(getString(R.string.error_empty_field_not_allowed));
+            binding.tieDisplayDay.requestFocus();
             return;
         }
 
         programId = radioInfo.getRadioId() + "ـــ" + FmUtilize.random();
         radioId = radioInfo.getRadioId();
-        prName = tit_pr_name.getText().toString().trim();
-        prDesc = tit_pr_desc.getText().toString().trim();
+        prName = binding.titPrName.getText().toString().trim();
+        prDesc = binding.titPrDesc.getText().toString().trim();
         createBy = prefMgr.getUserSession().getUserId();
 
+        showProgress("");
 
         if (imageUri != null) {
-            ProgressHUD mProgressHUD = ProgressHUD.showDialog( "تحميل الصورة", true, false, null);
-            mProgressHUD.setMessage("جاري الحفظ ...");
-            mProgressHUD.show();
+//            hud = KProgressHUD.create(this)
+//                    .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+//                    .setLabel("Please wait")
+//                    .setDetailsLabel("Downloading data");
+
 
             // Create file metadata including the content type
             StorageMetadata metadata = new StorageMetadata.Builder()
@@ -307,10 +306,9 @@ public class FormAddPrgram extends BaseActivity {
                 @Override
                 public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                     double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-//                    Log.d(TAG, "Upload is " + progress + "% done");
-                    mProgressHUD.setCanceledOnTouchOutside(false);
-                    mProgressHUD.setMessage(" جار الإرسال " + " % " + (int) progress);
-
+                    Log.d(TAG, "Upload is " + progress + "% done");
+//                    hud.setDetailsLabel(" جار الإرسال " + " % " + (int) progress);
+                    hud.setProgress((int) progress);
                 }
             }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -320,10 +318,10 @@ public class FormAddPrgram extends BaseActivity {
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    LogUtility.e(LogUtility.tag(FormAddPrgram.class), e.toString());
+                    LogUtility.e(LogUtility.tag(AddProgramActivity.class), e.toString());
                     // Handle unsuccessful uploads
-                    showSnackBar("لم يتم حفظ الصورة !" + e.toString());
-                    mProgressHUD.dismiss();
+//                    showSnackBar("لم يتم حفظ الصورة !" + e.toString());
+                    hideProgress();
                 }
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -336,9 +334,9 @@ public class FormAddPrgram extends BaseActivity {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     prProfile = uri.toString();
-                                    mProgressHUD.dismiss();
+                                    hud.dismiss();
                                     RadioProgram radioProgram = new RadioProgram(programId, radioId, prName, prDesc, prCategoryList, RADIO_TAG, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
-                                    fmRepo.createPG(radioId, radioProgram, new CallBack() {
+                                    fmRepo.create(radioId, radioProgram, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
                                             showToast(object.toString());
@@ -354,7 +352,7 @@ public class FormAddPrgram extends BaseActivity {
                             });
                         }
                     }
-                    mProgressHUD.dismiss();
+                    hideProgress();
 
                 }
             });
@@ -362,15 +360,17 @@ public class FormAddPrgram extends BaseActivity {
         } else {
             prProfile = radioInfo.getLogo();
             RadioProgram radioProgram = new RadioProgram(programId, radioId, prName, prDesc, prCategoryList, RADIO_TAG, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
-            fmRepo.createPG(radioId, radioProgram, new CallBack() {
+            fmRepo.create(radioId, radioProgram, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
+                    hideProgress();
                     showToast(object.toString());
                     finish();
                 }
 
                 @Override
                 public void onError(Object object) {
+                    hideProgress();
                     showToast(AppConstant.ERROR);
                 }
             });
@@ -380,7 +380,6 @@ public class FormAddPrgram extends BaseActivity {
 
     int stSelected = 0;
 
-    @OnClick({R.id.et_station})
     public void showStationDialog() {
         List<RadioInfo> items = ShardDate.getInstance().getInfoList();
 
@@ -395,7 +394,7 @@ public class FormAddPrgram extends BaseActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 stSelected = i;
                 radioInfo = items.get(i);
-                ((EditText) et_program).setText(radioInfo.getName());
+                binding.etStation.setText(radioInfo.getName());
                 loadProfile(Uri.parse(radioInfo.getLogo()));
                 dialogInterface.dismiss();
             }
@@ -421,7 +420,7 @@ public class FormAddPrgram extends BaseActivity {
 
                 }
             });
-            cg_type.addView(mChip);
+            binding.cgType.addView(mChip);
         }
     }
 
@@ -429,37 +428,31 @@ public class FormAddPrgram extends BaseActivity {
     private void loadProfile(Uri imageUri) {
         Log.d(TAG, "Image cache path: " + imageUri.toString());
 
-        tv_add_logo.setVisibility(View.GONE);
-        lin_file.setVisibility(View.VISIBLE);
+        binding.tvAddLogo.setVisibility(View.GONE);
+        binding.linFile.setVisibility(View.VISIBLE);
         String dd = FmUtilize.getFileName(imageUri, this);
-        tie_filename.setText(dd);
+        binding.tieFilename.setText(dd);
 
-//        GlideApp.with(this).load(imageUri.toString())
-//                .into(img_logo);
-        Tools.displayImageOriginal(this,img_logo,imageUri.toString());
 
-        img_logo.setColorFilter(ContextCompat.getColor(this, android.R.color.transparent));
+        Tools.displayImageOriginal(this, binding.imgLogo, imageUri.toString());
+        binding.imgLogo.setColorFilter(ContextCompat.getColor(this, android.R.color.transparent));
     }
 
     private void loadProfileDefault() {
-//        GlideApp.with(this).load(R.drawable.ic_photo)
-//                .into(img_logo);
-        Tools.displayImageOriginal(this,img_logo,R.drawable.ic_photo);
-        img_logo.setColorFilter(ContextCompat.getColor(this, R.color.grey_10));
+        Tools.displayImageOriginal(this, binding.imgLogo, R.drawable.ic_photo);
+        binding.imgLogo.setColorFilter(ContextCompat.getColor(this, R.color.grey_10));
     }
 
-    @OnClick({R.id.iv_clear})
     public void clearImg() {
-        tv_add_logo.setVisibility(View.VISIBLE);
-        lin_file.setVisibility(View.GONE);
-        img_logo.setImageBitmap(null);
+        binding.tvAddLogo.setVisibility(View.VISIBLE);
+        binding.linFile.setVisibility(View.GONE);
+        binding.imgLogo.setImageBitmap(null);
         imageUri = null;
-        tie_filename.setText(null);
+        binding.tieFilename.setText(null);
         loadProfileDefault();
 
     }
 
-    @OnClick({R.id.img_logo, R.id.tv_add_logo})
     void onProfileImageClick() {
         Dexter.withContext(this)
                 .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -497,7 +490,7 @@ public class FormAddPrgram extends BaseActivity {
     }
 
     private void launchCameraIntent() {
-        Intent intent = new Intent(FormAddPrgram.this, ImagePickerActivity.class);
+        Intent intent = new Intent(AddProgramActivity.this, ImagePickerActivity.class);
         intent.putExtra(ImagePickerActivity.INTENT_IMAGE_PICKER_OPTION, ImagePickerActivity.REQUEST_IMAGE_CAPTURE);
 
         // setting aspect ratio
@@ -514,7 +507,7 @@ public class FormAddPrgram extends BaseActivity {
     }
 
     private void launchGalleryIntent() {
-        Intent intent = new Intent(FormAddPrgram.this, ImagePickerActivity.class);
+        Intent intent = new Intent(AddProgramActivity.this, ImagePickerActivity.class);
         intent.putExtra(ImagePickerActivity.INTENT_IMAGE_PICKER_OPTION, ImagePickerActivity.REQUEST_GALLERY_IMAGE);
 
         // setting aspect ratio
@@ -549,7 +542,7 @@ public class FormAddPrgram extends BaseActivity {
      * NOTE: Keep proper title and message depending on your app
      */
     private void showSettingsDialog() {
-        Builder builder = new Builder(FormAddPrgram.this);
+        Builder builder = new Builder(AddProgramActivity.this);
         builder.setTitle(getString(R.string.dialog_permission_title));
         builder.setMessage(getString(R.string.dialog_permission_message));
         builder.setPositiveButton(getString(R.string.go_to_settings), (dialog, which) -> {

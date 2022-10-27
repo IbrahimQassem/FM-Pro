@@ -12,13 +12,17 @@
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/drawable/ic_media_pause.xml" value="0.1" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/drawable/progress_hud_bg.xml" value="0.1" />
+        <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/drawable/spinner.xml" value="0.166" />
+        <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/activity_add_episode.xml" value="0.1" />
+        <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/activity_add_program.xml" value="0.1796875" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/activity_app_intro.xml" value="0.1796875" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/activity_comments.xml" value="0.1796875" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/activity_episode_add_stepper_vertical.xml" value="0.1796875" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/activity_form_add_program.xml" value="0.1796875" />
+        <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/activity_image_picker.xml" value="0.1796875" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/activity_main.xml" value="0.2254335260115607" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/activity_no_internet.xml" value="0.1796875" />
-        <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/activity_phone_login.xml" value="0.1796875" />
+        <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/activity_phone_login.xml" value="0.22" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/activity_player.xml" value="0.1796875" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/activity_splash.xml" value="0.1796875" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/activity_user_profile.xml" value="0.16666666666666666" />
@@ -40,7 +44,7 @@
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/item_card_wizard_light.xml" value="0.1796875" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/item_comment.xml" value="0.1796875" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/item_favorite.xml" value="0.1796875" />
-        <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/item_grid.xml" value="0.1" />
+        <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/item_grid.xml" value="0.22" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/item_inbox.xml" value="0.1796875" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/item_photo.xml" value="0.1796875" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/item_programs.xml" value="0.22" />
@@ -51,6 +55,7 @@
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/program_details_activity.xml" value="0.15463917525773196" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/progress_hud.xml" value="0.1796875" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/radios_item.xml" value="0.3333333333333333" />
+        <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/row_add_time.xml" value="0.1796875" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/sheet_list.xml" value="0.1796875" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/view_context_menu.xml" value="0.1796875" />
         <entry key="..\:/Users/Ibrahim Qassem/AndroidStudioProjects/Tasks/FM-Pro/app/src/main/res/layout/view_feed_toolbar.xml" value="0.1796875" />

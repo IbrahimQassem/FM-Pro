@@ -1,12 +1,10 @@
 package com.sana.dev.fm.utils.my_firebase;
 
-import static com.sana.dev.fm.utils.FmUtilize.isEmptyOrNull;
 import static com.sana.dev.fm.utils.FmUtilize.pojo2Map;
 import static com.sana.dev.fm.utils.my_firebase.AppConstant.FAIL;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABASE;
 
 import android.app.Activity;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -19,56 +17,36 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.sana.dev.fm.model.UserModel;
+import com.sana.dev.fm.utils.LogUtility;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-interface UsersRepository {
-    void createUpdateUser(String userId, UserModel userModel, CallBack callBack);
-
-    void isUserExists(String mobile, CallBack callBack);
-
-    void getOneUser(String userId, CallBack callBack);
-
-}
-
-public class UsersRepositoryImpl extends FirebaseRepository implements UsersRepository {
+public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
+    public static final String TAG = FmUserCRUDImpl.class.getSimpleName();
 
     private Activity activity;
     private CollectionReference colRef;
 
-    public UsersRepositoryImpl(Activity activity, String TableName) {
+    public FmUserCRUDImpl(Activity activity, String TableName) {
         this.activity = activity;
         colRef = DATABASE.collection(TableName);
     }
 
 
-    private String getString(int id) {
-        return activity.getString(id);
-    }
-
-    public List<UserModel> getDataFromQuerySnapshot(Object object) {
-        List<UserModel> programList = new ArrayList<>();
-        QuerySnapshot queryDocumentSnapshots = (QuerySnapshot) object;
-        for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
-            UserModel program = snapshot.toObject(UserModel.class);
-            programList.add(program);
-        }
-        return programList;
-    }
-
     @Override
-    public void createUpdateUser(String userId, UserModel userModel, CallBack callBack) {
-        if (userId != null && userModel != null) {
+    public void create(String key, Object model, CallBack callBack) {
+        if (key != null && model != null) {
+            UserModel userModel = (UserModel) model;
 //            ProgressHUD mProgressHUD = ProgressHUD.show(activity, getString(R.string.please_wait), true, false, null);
-            DocumentReference documentReference = colRef.document(userId);
+            DocumentReference documentReference = colRef.document(key);
 
             fireStoreCreateOrMerge(documentReference, pojo2Map(userModel), new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
 //                    mProgressHUD.dismiss();
-//                    prefMgr.write(FMCConstants.USER_INFO, _userModel);
+//                    prefMgr.write(FirebaseConstants.USER_INFO, _userModel);
                     callBack.onSuccess(userModel);
                 }
 
@@ -83,17 +61,29 @@ public class UsersRepositoryImpl extends FirebaseRepository implements UsersRepo
         }
     }
 
+    @Override
+    public void update(String key, Object model, CallBack callBack) {
+
+    }
 
     @Override
-    public void isUserExists(String mobile, CallBack callBack) {
-        if (mobile != null) {
-            Query query = colRef.whereEqualTo("mobile", mobile);
+    public void delete(Object key, CallBack callBack) {
+
+    }
+
+
+    @Override
+    public void queryAllBy(String key, Object model, CallBack callBack) {
+        if (key != null) {
+            Query query = colRef.whereEqualTo("mobile", key);
             query.get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
                                 UserModel user = new UserModel();
+                                LogUtility.d(TAG, "queryAllBy : " + user.toString());
+
                                 for (QueryDocumentSnapshot document : task.getResult()) {
 //                                    Log.d("TAG", document.getId() + " => " + document.getData());
                                     user = document.toObject(UserModel.class);
@@ -108,7 +98,7 @@ public class UsersRepositoryImpl extends FirebaseRepository implements UsersRepo
                                 }
 
                             } else {
-                                Log.d("TAG", "Error getting documents: ", task.getException());
+                                LogUtility.e(TAG, "queryAllBy : " + task.getException());
                                 callBack.onError(task.getException());
                             }
                         }
@@ -118,6 +108,9 @@ public class UsersRepositoryImpl extends FirebaseRepository implements UsersRepo
         }
     }
 
+
+
+/*
     @Override
     public void getOneUser(String userId, CallBack callBack) {
         if (!isEmptyOrNull(userId)) {
@@ -126,9 +119,11 @@ public class UsersRepositoryImpl extends FirebaseRepository implements UsersRepo
                 @Override
                 public void onSuccess(Object object) {
                     if (object != null) {
-                        /*
+                        */
+/*
                          *Here we episode data order by created tade in ASCENDING ORDER
-                         */
+                         *//*
+
 //                        callBack.onSuccess(getDataFromQuerySnapshot(object));
                         callBack.onSuccess(object);
                     } else
@@ -144,13 +139,17 @@ public class UsersRepositoryImpl extends FirebaseRepository implements UsersRepo
             callBack.onError(FAIL);
         }
     }
+*/
 
+    public List<UserModel> getDataFromQuerySnapshot(Object object) {
+        List<UserModel> programList = new ArrayList<>();
+        QuerySnapshot queryDocumentSnapshots = (QuerySnapshot) object;
+        for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
+            UserModel program = snapshot.toObject(UserModel.class);
+            programList.add(program);
+        }
+        return programList;
+    }
 
-//        private boolean isPostValid(Map<String, Object> post) {
-//        return post.containsKey("title")
-//                && post.containsKey("description")
-//                && post.containsKey("imageTitle")
-//                && post.containsKey("authorId");
-//    }
 
 }

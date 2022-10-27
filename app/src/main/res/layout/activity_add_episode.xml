@@ -1,0 +1,1065 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/view_feed_toolbar" />
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:scrollbars="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingLeft="@dimen/spacing_large"
+                android:paddingRight="@dimen/spacing_large">
+
+                <!--top line-->
+
+                <LinearLayout
+                    android:layout_width="@dimen/spacing_xlarge"
+                    android:layout_height="@dimen/spacing_mlarge"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="2dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/grey_10" />
+
+                </LinearLayout>
+
+                <!--section title-->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <RelativeLayout
+                            android:id="@+id/step_one"
+                            android:layout_width="@dimen/spacing_xlarge"
+                            android:layout_height="@dimen/spacing_xlarge"
+                            android:background="@drawable/shape_round_solid"
+                            android:gravity="center">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="1"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                                android:textColor="@android:color/white" />
+
+                        </RelativeLayout>
+
+                        <View
+                            android:layout_width="2dp"
+                            android:layout_height="match_parent"
+                            android:background="@color/grey_10"
+                            android:minHeight="?attr/actionBarSize" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="@dimen/spacing_large"
+                        android:layout_height="0dp" />
+
+                    <!--                gone-->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="?attr/actionBarSize"
+                        android:orientation="vertical"
+                        android:visibility="visible">
+
+                        <TextView
+                            android:id="@+id/tv_label_one"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/spacing_xlarge"
+                            android:gravity="center_vertical"
+                            android:onClick="clickLabel"
+                            android:paddingLeft="@dimen/spacing_small"
+                            android:paddingRight="@dimen/spacing_small"
+                            android:text="بيانات الحلقة"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="@color/grey_90" />
+
+                        <LinearLayout
+                            android:id="@+id/lyt_one"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/spacing_large"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_large"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:layout_width="@dimen/spacing_middle"
+                                    android:layout_height="@dimen/spacing_middle"
+                                    android:layout_margin="@dimen/spacing_medium"
+                                    app:srcCompat="@drawable/shape_circle"
+                                    app:tint="@color/colorPrimary" />
+
+                                <View
+                                    android:layout_width="@dimen/spacing_middle"
+                                    android:layout_height="0dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:hint="عنوان البرنامج"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                                    android:textColor="@color/grey_95" />
+                            </LinearLayout>
+
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/spacing_xmlarge"
+                                android:layout_marginTop="@dimen/spacing_middle"
+                                android:background="@color/grey_3"
+                                app:hintEnabled="false">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/tit_ep_name"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@drawable/edit_text_round_bg_outline"
+                                    android:hint="مثال : صباح العاصمة"
+                                    android:textColorHint="@color/grey_20" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="5dp"
+                                android:background="@color/transparent" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_mlarge"
+                                android:text="مقدم البرنامج"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                                android:textColor="@color/grey_95" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/spacing_xmlarge"
+                                android:layout_marginTop="@dimen/spacing_middle"
+                                android:background="@color/grey_3"
+                                app:hintEnabled="false">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/tit_ep_announcer"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@drawable/edit_text_round_bg_outline"
+                                    android:hint="مثال :  علي نجم"
+                                    android:textColorHint="@color/grey_20" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="5dp"
+                                android:background="@color/transparent" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_mlarge"
+                                android:text="وصف البرنامج"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                                android:textColor="@color/grey_95" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_middle"
+                                android:background="@color/grey_3"
+                                app:hintEnabled="false">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/tit_ep_desc"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@drawable/edit_text_round_bg_outline"
+                                    android:hint="مثال :  برنامج شبابي ترفيهي .."
+                                    android:lines="2"
+                                    android:maxLines="3"
+                                    android:textColorHint="@color/grey_20" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="5dp"
+                                android:background="@color/transparent" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_mlarge"
+                                android:text="رابط الحلقة الإذاعية"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                                android:textColor="@color/grey_95" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_middle"
+                                android:background="@color/grey_3"
+                                app:hintEnabled="false">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/tit_ep_stream_url"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@drawable/edit_text_round_bg_outline"
+                                    android:hint="رابط الحلقة الإذاعية"
+                                    android:lines="2"
+                                    android:maxLines="3"
+                                    android:textColorHint="@color/grey_20" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+
+                            <Button
+                                android:id="@+id/bt_continue_one"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:layout_marginTop="@dimen/spacing_middle"
+                                android:layout_marginBottom="@dimen/spacing_middle"
+                                android:minWidth="0dp"
+                                android:onClick="clickAction"
+                                android:text="@string/btn_continue"
+                                android:theme="@style/Button_Primary" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <!--section description-->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <RelativeLayout
+                            android:id="@+id/step_tow"
+                            android:layout_width="@dimen/spacing_xlarge"
+                            android:layout_height="@dimen/spacing_xlarge"
+                            android:background="@drawable/shape_round_solid"
+                            android:gravity="center">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="2"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                                android:textColor="@android:color/white" />
+
+                        </RelativeLayout>
+
+                        <View
+                            android:layout_width="2dp"
+                            android:layout_height="match_parent"
+                            android:background="@color/grey_10" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="@dimen/spacing_large"
+                        android:layout_height="0dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="?attr/actionBarSize"
+                        android:orientation="vertical"
+                        android:visibility="visible">
+
+                        <TextView
+                            android:id="@+id/tv_label_tow"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/spacing_xlarge"
+                            android:gravity="center_vertical"
+                            android:onClick="clickLabel"
+                            android:paddingLeft="@dimen/spacing_small"
+                            android:paddingRight="@dimen/spacing_small"
+                            android:text="بيانات البرنامج"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="@color/grey_90" />
+
+                        <LinearLayout
+                            android:id="@+id/lyt_tow"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/spacing_large"
+                            android:orientation="vertical">
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="5dp"
+                                android:background="@color/transparent" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_large"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:layout_width="@dimen/spacing_middle"
+                                    android:layout_height="@dimen/spacing_middle"
+                                    android:layout_margin="@dimen/spacing_medium"
+                                    app:srcCompat="@drawable/shape_circle"
+                                    app:tint="@color/colorPrimary" />
+
+                                <View
+                                    android:layout_width="@dimen/spacing_middle"
+                                    android:layout_height="0dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="إسم القناة الإذاعية"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                                    android:textColor="@color/grey_95" />
+                            </LinearLayout>
+
+
+                            <EditText
+                                android:id="@+id/et_station"
+                                style="@style/EditText_Flat_Grey"
+                                android:layout_width="match_parent"
+                                android:layout_height="45dp"
+                                android:layout_marginTop="@dimen/spacing_large"
+                                android:clickable="true"
+                                android:background="@drawable/edit_text_round_bg_white"
+                                android:editable="false"
+                                android:focusable="true"
+                                android:hint="@string/add_station"
+                                android:paddingLeft="@dimen/spacing_middle"
+                                android:paddingRight="@dimen/spacing_middle"
+                                android:textColorHint="@color/grey_20"
+                                app:drawableEndCompat="@drawable/ic_expand_arrow"
+                                app:drawableRightCompat="@drawable/ic_expand_arrow" />
+
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="5dp"
+                                android:background="@color/transparent" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_large"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:layout_width="@dimen/spacing_middle"
+                                    android:layout_height="@dimen/spacing_middle"
+                                    android:layout_margin="@dimen/spacing_medium"
+                                    app:srcCompat="@drawable/shape_circle"
+                                    app:tint="@color/colorPrimary" />
+
+                                <View
+                                    android:layout_width="@dimen/spacing_middle"
+                                    android:layout_height="0dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="إسم البرنامج"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                                    android:textColor="@color/grey_95" />
+                            </LinearLayout>
+
+
+                            <EditText
+                                android:id="@+id/et_program"
+                                style="@style/EditText_Flat_Grey"
+                                android:layout_width="match_parent"
+                                android:layout_height="45dp"
+                                android:layout_marginTop="@dimen/spacing_large"
+                                android:clickable="true"
+                                android:background="@drawable/edit_text_round_bg_white"
+                                android:editable="false"
+                                android:focusable="true"
+                                android:hint="@string/add_program"
+                                android:paddingLeft="@dimen/spacing_middle"
+                                android:paddingRight="@dimen/spacing_middle"
+                                android:textColorHint="@color/grey_20"
+                                app:drawableEndCompat="@drawable/ic_expand_arrow"
+                                app:drawableRightCompat="@drawable/ic_expand_arrow" />
+
+
+                            <Button
+                                android:id="@+id/bt_continue_tow"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:layout_marginTop="@dimen/spacing_middle"
+                                android:layout_marginBottom="@dimen/spacing_middle"
+                                android:minWidth="0dp"
+                                android:onClick="clickAction"
+                                android:text="@string/btn_continue"
+                                android:theme="@style/Button_Primary" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!--section start time-->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <RelativeLayout
+                            android:id="@+id/step_three"
+                            android:layout_width="@dimen/spacing_xlarge"
+                            android:layout_height="@dimen/spacing_xlarge"
+                            android:background="@drawable/shape_round_solid"
+                            android:gravity="center">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="3"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                                android:textColor="@android:color/white" />
+
+                        </RelativeLayout>
+
+                        <View
+                            android:layout_width="2dp"
+                            android:layout_height="match_parent"
+                            android:background="@color/grey_10" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="@dimen/spacing_large"
+                        android:layout_height="0dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="?attr/actionBarSize"
+                        android:orientation="vertical"
+                        android:visibility="visible">
+
+                        <TextView
+                            android:id="@+id/tv_label_three"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/spacing_xlarge"
+                            android:gravity="center_vertical"
+                            android:onClick="clickLabel"
+                            android:paddingLeft="@dimen/spacing_small"
+                            android:paddingRight="@dimen/spacing_small"
+                            android:text="وقت العرض"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="@color/grey_90" />
+
+                        <LinearLayout
+                            android:id="@+id/lyt_three"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/spacing_large"
+                            android:orientation="vertical">
+
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_large"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:layout_width="@dimen/spacing_middle"
+                                    android:layout_height="@dimen/spacing_middle"
+                                    android:layout_margin="@dimen/spacing_medium"
+                                    app:srcCompat="@drawable/shape_circle"
+                                    app:tint="@color/colorPrimary" />
+
+                                <View
+                                    android:layout_width="@dimen/spacing_middle"
+                                    android:layout_height="0dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="إضافة وقت العرض"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                                    android:textColor="@color/grey_95" />
+                            </LinearLayout>
+
+
+                            <!--start section time-->
+
+                            <LinearLayout
+                                android:id="@+id/layout_list"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical" />
+
+                            <Button
+                                android:id="@+id/button_add"
+                                android:layout_width="wrap_content"
+                                android:layout_height="40dp"
+                                android:layout_marginLeft="15dp"
+                                android:layout_marginTop="10dp"
+                                android:background="@drawable/btn_rounded_accent"
+                                android:paddingLeft="10dp"
+                                android:paddingRight="10dp"
+                                android:text="إضافة"
+                                android:textAllCaps="false"
+                                android:textColor="@color/white"
+                                app:drawableEndCompat="@drawable/ic_more_time" />
+
+                            <!--                        <View-->
+                            <!--                            android:layout_width="0dp"-->
+                            <!--                            android:layout_height="@dimen/spacing_large" />-->
+
+                            <!--                        <LinearLayout-->
+                            <!--                            android:layout_width="match_parent"-->
+                            <!--                            android:layout_height="wrap_content"-->
+                            <!--                            android:orientation="vertical">-->
+
+                            <!--                            <LinearLayout-->
+                            <!--                                android:layout_width="match_parent"-->
+                            <!--                                android:layout_height="wrap_content"-->
+                            <!--                                android:layout_marginTop="@dimen/spacing_large"-->
+                            <!--                                android:gravity="center_vertical"-->
+                            <!--                                android:layoutDirection="rtl"-->
+                            <!--                                android:orientation="horizontal">-->
+
+                            <!--                                <ImageView-->
+                            <!--                                    android:layout_width="@dimen/spacing_middle"-->
+                            <!--                                    android:layout_height="@dimen/spacing_middle"-->
+                            <!--                                    android:layout_margin="@dimen/spacing_medium"-->
+                            <!--                                     app:srcCompat="@drawable/shape_circle"-->
+                            <!--                                    app:tint="@color/colorPrimary" />-->
+
+                            <!--                                <View-->
+                            <!--                                    android:layout_width="@dimen/spacing_middle"-->
+                            <!--                                    android:layout_height="0dp" />-->
+
+                            <!--                                <TextView-->
+                            <!--                                    android:layout_width="wrap_content"-->
+                            <!--                                    android:layout_height="wrap_content"-->
+                            <!--                                    android:text="أيام العرض"-->
+                            <!--                                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"-->
+                            <!--                                    android:textColor="@color/grey_95" />-->
+                            <!--                            </LinearLayout>-->
+
+
+                            <!--                            <com.google.android.material.chip.ChipGroup-->
+                            <!--                                android:id="@+id/cg_display_day"-->
+                            <!--                                android:layout_width="match_parent"-->
+                            <!--                                android:layout_height="wrap_content"-->
+                            <!--                                android:layout_marginLeft="@dimen/spacing_middle"-->
+                            <!--                                android:layout_marginRight="@dimen/spacing_middle"-->
+                            <!--                                android:theme="@style/Theme.MaterialComponents.Light"-->
+                            <!--                                app:singleSelection="false">-->
+
+
+                            <!--                            </com.google.android.material.chip.ChipGroup>-->
+
+
+                            <!--                        </LinearLayout>-->
+
+
+                            <!--                        <com.google.android.material.textfield.TextInputLayout-->
+                            <!--                            android:layout_width="match_parent"-->
+                            <!--                            android:layout_height="wrap_content"-->
+                            <!--                            android:layout_marginTop="@dimen/spacing_middle"-->
+                            <!--                            android:background="@color/grey_3"-->
+                            <!--                            app:hintEnabled="false">-->
+
+                            <!--                            <com.google.android.material.textfield.TextInputEditText-->
+                            <!--                                android:id="@+id/tie_display_day"-->
+                            <!--                                android:layout_width="match_parent"-->
+                            <!--                                android:layout_height="match_parent"-->
+                            <!--                                android:background="@drawable/edit_text_round_bg_outline"-->
+                            <!--                                android:editable="false"-->
+                            <!--                                android:hint="مثال : سبت , أحد , إثنين"-->
+                            <!--                                android:maxLines="3"-->
+                            <!--                                android:textColorHint="@color/grey_20" />-->
+                            <!--                        </com.google.android.material.textfield.TextInputLayout>-->
+
+
+                            <!--end section time-->
+
+
+                            <Button
+                                android:id="@+id/bt_continue_three"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:layout_marginTop="@dimen/spacing_middle"
+                                android:layout_marginBottom="@dimen/spacing_middle"
+                                android:minWidth="0dp"
+                                android:onClick="clickAction"
+                                android:text="@string/btn_continue"
+                                android:theme="@style/Button_Primary" />
+
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!--section end time -->
+
+
+                <!--section date-->
+
+                <!--            <LinearLayout-->
+                <!--                android:layout_width="match_parent"-->
+                <!--                android:layout_height="wrap_content"-->
+                <!--                android:orientation="horizontal">-->
+
+                <!--                <LinearLayout-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="match_parent"-->
+                <!--                    android:gravity="center_horizontal"-->
+                <!--                    android:orientation="vertical">-->
+
+                <!--                    <RelativeLayout-->
+                <!--                        android:id="@+id/step_four"-->
+                <!--                        android:layout_width="@dimen/spacing_xlarge"-->
+                <!--                        android:layout_height="@dimen/spacing_xlarge"-->
+                <!--                        android:background="@drawable/shape_round_solid"-->
+                <!--                        android:gravity="center">-->
+
+                <!--                        <TextView-->
+                <!--                            android:layout_width="wrap_content"-->
+                <!--                            android:layout_height="wrap_content"-->
+                <!--                            android:text="4"-->
+                <!--                            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"-->
+                <!--                            android:textColor="@android:color/white" />-->
+
+                <!--                    </RelativeLayout>-->
+
+                <!--                    <View-->
+                <!--                        android:layout_width="2dp"-->
+                <!--                        android:layout_height="match_parent"-->
+                <!--                        android:background="@color/grey_10" />-->
+
+                <!--                </LinearLayout>-->
+
+                <!--                <View-->
+                <!--                    android:layout_width="@dimen/spacing_large"-->
+                <!--                    android:layout_height="0dp" />-->
+
+                <!--                <LinearLayout-->
+                <!--                    android:visibility="visible"-->
+                <!--                    android:layout_width="match_parent"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:minHeight="?attr/actionBarSize"-->
+                <!--                    android:orientation="vertical">-->
+
+                <!--                    <TextView-->
+                <!--                        android:id="@+id/tv_label_four"-->
+                <!--                        android:layout_width="match_parent"-->
+                <!--                        android:layout_height="@dimen/spacing_xlarge"-->
+                <!--                        android:gravity="center_vertical"-->
+                <!--                        android:onClick="clickLabel"-->
+                <!--                        android:paddingLeft="@dimen/spacing_small"-->
+                <!--                        android:paddingRight="@dimen/spacing_small"-->
+                <!--                        android:text="تاريخ بث البرنامج"-->
+                <!--                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
+                <!--                        android:textColor="@color/grey_90" />-->
+
+                <!--                    <LinearLayout-->
+                <!--                        android:id="@+id/lyt_four"-->
+                <!--                        android:layout_width="match_parent"-->
+                <!--                        android:layout_height="wrap_content"-->
+                <!--                        android:layout_marginBottom="@dimen/spacing_large"-->
+                <!--                        android:orientation="vertical">-->
+
+                <!--                        <LinearLayout-->
+                <!--                            android:layout_width="match_parent"-->
+                <!--                            android:layout_height="wrap_content"-->
+                <!--                            android:layoutDirection="rtl"-->
+                <!--                            android:layout_marginTop="@dimen/spacing_large"-->
+                <!--                            android:gravity="center_vertical"-->
+                <!--                            android:orientation="horizontal">-->
+
+                <!--                            <ImageView-->
+                <!--                                android:layout_width="@dimen/spacing_middle"-->
+                <!--                                android:layout_height="@dimen/spacing_middle"-->
+                <!--                                android:layout_margin="@dimen/spacing_medium"-->
+                <!--                                 app:srcCompat="@drawable/shape_circle"-->
+                <!--                                android:tint="@color/colorPrimary" />-->
+
+                <!--                            <View-->
+                <!--                                android:layout_width="@dimen/spacing_middle"-->
+                <!--                                android:layout_height="0dp" />-->
+
+                <!--                            <TextView-->
+                <!--                                android:layout_width="wrap_content"-->
+                <!--                                android:layout_height="wrap_content"-->
+                <!--                                android:text="تاريخ بث البرنامج"-->
+                <!--                                android:textAppearance="@style/TextAppearance.AppCompat.Caption"-->
+                <!--                                android:textColor="@color/grey_95" />-->
+                <!--                        </LinearLayout>-->
+
+
+                <!--                        <EditText-->
+                <!--                            android:id="@+id/et_ep_stream_date"-->
+                <!--                            style="@style/EditText_Flat_Grey"-->
+                <!--                            android:layout_width="match_parent"-->
+                <!--                            android:layout_height="45dp"-->
+                <!--                            android:layout_marginTop="@dimen/spacing_large"-->
+                <!--                            android:background="@drawable/edit_text_round_bg_white"-->
+                <!--                            android:editable="false"-->
+                <!--                            android:focusable="false"-->
+                <!--                            android:hint="@string/add_date"-->
+                <!--                            android:paddingLeft="@dimen/spacing_middle"-->
+                <!--                            android:paddingRight="@dimen/spacing_middle"-->
+                <!--                            android:textColorHint="@color/grey_20"-->
+                <!--                            android:drawableTint="@color/grey_40"-->
+                <!--                            android:drawablePadding="@dimen/spacing_small"-->
+                <!--                            app:drawableEndCompat="@drawable/ic_date_range"-->
+                <!--                            app:drawableRightCompat="@drawable/ic_date_range" />-->
+
+
+                <!--                        <Button-->
+                <!--                            android:id="@+id/bt_continue_four"-->
+                <!--                            android:layout_width="wrap_content"-->
+                <!--                            android:layout_height="wrap_content"-->
+                <!--                            android:gravity="center"-->
+                <!--                            android:minWidth="0dp"-->
+                <!--                            android:layout_marginTop="@dimen/spacing_middle"-->
+                <!--                            android:layout_marginBottom="@dimen/spacing_middle"-->
+                <!--                            android:onClick="clickAction"-->
+                <!--                            android:text="@string/btn_continue"-->
+                <!--                            android:theme="@style/Button_Primary" />-->
+
+                <!--                    </LinearLayout>-->
+
+                <!--                </LinearLayout>-->
+
+                <!--            </LinearLayout>-->
+
+                <!--section image-->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <RelativeLayout
+                            android:id="@+id/step_four"
+                            android:layout_width="@dimen/spacing_xlarge"
+                            android:layout_height="@dimen/spacing_xlarge"
+                            android:background="@drawable/shape_round_solid"
+                            android:gravity="center">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="4"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                                android:textColor="@android:color/white" />
+
+                        </RelativeLayout>
+
+                        <View
+                            android:layout_width="2dp"
+                            android:layout_height="match_parent"
+                            android:background="@color/grey_10" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="@dimen/spacing_large"
+                        android:layout_height="0dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="?attr/actionBarSize"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_label_four"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/spacing_xlarge"
+                            android:gravity="center_vertical"
+                            android:onClick="clickLabel"
+                            android:paddingLeft="@dimen/spacing_small"
+                            android:paddingRight="@dimen/spacing_small"
+                            android:text="صورة البرنامج"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="@color/grey_90" />
+
+                        <LinearLayout
+                            android:id="@+id/lyt_four"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/spacing_large"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_middle"
+                                android:background="@drawable/edit_text_round_bg_outline"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:padding="@dimen/spacing_large">
+
+                                <RelativeLayout
+                                    android:layout_width="80dp"
+                                    android:layout_height="80dp"
+                                    android:background="@color/grey_3">
+
+                                    <ImageView
+                                        android:id="@+id/img_logo"
+                                        android:layout_width="55dp"
+                                        android:layout_height="55dp"
+                                        android:layout_centerInParent="true"
+                                        app:srcCompat="@drawable/ic_photo"
+                                        app:tint="@color/grey_20" />
+                                </RelativeLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:id="@+id/tv_add_logo"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="صورة البرنامج"
+                                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                        android:textColor="@color/grey_40" />
+
+                                    <LinearLayout
+                                        android:id="@+id/lin_file"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginLeft="@dimen/spacing_medium"
+                                        android:layout_marginRight="@dimen/spacing_medium"
+                                        android:background="@drawable/edit_text_round_bg_outline"
+                                        android:orientation="horizontal"
+                                        android:visibility="gone">
+
+                                        <ImageView
+                                            android:layout_width="@dimen/spacing_xmlarge"
+                                            android:layout_height="@dimen/spacing_xmlarge"
+                                            android:padding="@dimen/spacing_xmedium"
+                                            app:srcCompat="@drawable/ic_insert_drive"
+                                            app:tint="@color/grey_40" />
+
+                                        <com.google.android.material.textfield.TextInputEditText
+                                            android:id="@+id/tie_filename"
+                                            android:layout_width="0dp"
+                                            android:layout_height="@dimen/spacing_xmlarge"
+                                            android:layout_weight="1"
+                                            android:background="@android:color/transparent"
+                                            android:editable="false"
+                                            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                            android:textColor="@color/grey_60" />
+
+                                        <ImageView
+                                            android:id="@+id/iv_clear"
+                                            android:layout_width="@dimen/spacing_xmlarge"
+                                            android:layout_height="@dimen/spacing_xmlarge"
+                                            android:padding="@dimen/spacing_xmedium"
+                                            app:srcCompat="@drawable/ic_close"
+                                            app:tint="@color/red_300" />
+                                    </LinearLayout>
+
+                                </LinearLayout>
+
+
+                            </LinearLayout>
+
+                            <Button
+                                android:id="@+id/bt_continue_four"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:layout_marginTop="@dimen/spacing_middle"
+                                android:layout_marginBottom="@dimen/spacing_middle"
+                                android:minWidth="0dp"
+                                android:onClick="clickAction"
+                                android:text="@string/btn_continue"
+                                android:theme="@style/Button_Primary" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <!--section confirmation-->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <RelativeLayout
+                            android:id="@+id/step_confirmation"
+                            android:layout_width="@dimen/spacing_xlarge"
+                            android:layout_height="@dimen/spacing_xlarge"
+                            android:background="@drawable/shape_round_solid"
+                            android:gravity="center">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="5"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                                android:textColor="@android:color/white" />
+
+                        </RelativeLayout>
+
+                        <View
+                            android:layout_width="2dp"
+                            android:layout_height="match_parent"
+                            android:background="@color/grey_10" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="@dimen/spacing_large"
+                        android:layout_height="0dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="?attr/actionBarSize"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_label_confirmation"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/spacing_xlarge"
+                            android:gravity="center_vertical"
+                            android:onClick="clickLabel"
+                            android:paddingLeft="@dimen/spacing_small"
+                            android:paddingRight="@dimen/spacing_small"
+                            android:text="@string/send"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="@color/grey_90" />
+
+                        <LinearLayout
+                            android:id="@+id/lyt_confirmation"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/spacing_large"
+                            android:orientation="vertical">
+
+                            <Button
+                                android:id="@+id/bt_add_event"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_middle"
+                                android:layout_marginBottom="@dimen/spacing_middle"
+                                android:gravity="center"
+                                android:minWidth="0dp"
+                                android:onClick="clickAction"
+                                android:text="@string/send"
+                                android:theme="@style/Button_Primary" />
+
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!--bottom line-->
+
+                <LinearLayout
+                    android:layout_width="@dimen/spacing_xlarge"
+                    android:layout_height="match_parent"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="2dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/grey_10" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </LinearLayout>
+
+
+</layout>
+

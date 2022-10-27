@@ -27,7 +27,7 @@ import com.sana.dev.fm.ui.view.LineItemDecoration;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.EpisodeRepositoryImpl;
+import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 
@@ -45,7 +45,7 @@ public class ListMultiSelection extends BaseActivity {
     private RecyclerView recyclerView;
     private Toolbar toolbar;
     private ArrayList<Episode> episodeList = new ArrayList<>();
-    private EpisodeRepositoryImpl ePiRepo;
+    private FmEpisodeCRUDImpl ePiRepo;
 
     public static void startActivity(Context context, Episode episode) {
         Intent intent = new Intent(context, ListMultiSelection.class);
@@ -65,7 +65,7 @@ public class ListMultiSelection extends BaseActivity {
         setContentView((int) R.layout.activity_list_multi_selection);
         this.parent_view = findViewById(R.id.lyt_parent);
 
-        ePiRepo = new EpisodeRepositoryImpl(this, FirebaseConstants.EPISODE_TABLE);
+        ePiRepo = new FmEpisodeCRUDImpl(this, FirebaseConstants.EPISODE_TABLE);
 
 
         initToolbar();
@@ -105,7 +105,7 @@ public class ListMultiSelection extends BaseActivity {
         this.recyclerView.setHasFixedSize(true);
 
 
-        ePiRepo.reaDailyEpisodeByRadioId(radioId, new CallBack() {
+        ePiRepo.queryAllBy(radioId,null, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 if (isCollection(object)) {
@@ -126,7 +126,7 @@ public class ListMultiSelection extends BaseActivity {
                             stringBuilder.append("تعديل : ");
                             stringBuilder.append(item.getEpName());
 
-                            EpisodeAddStepperVertical.startActivity(ListMultiSelection.this, episode);
+                            AddEpisodeActivity.startActivity(ListMultiSelection.this, episode);
 
 //                if (view.getId() == R.id.date) {
 ////                    EpisodeAddStepperVertical
