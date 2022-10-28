@@ -152,14 +152,18 @@ dependencies {
 
 //    -----------------------------------------------------------------------
 
-    implementation platform('com.google.firebase:firebase-bom:30.5.0')
+    implementation platform('com.google.firebase:firebase-bom:31.0.2')
     implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-perf'
+
+//    implementation 'com.google.firebase:firebase-auth'
+    implementation('com.google.firebase:firebase-auth') {
+        exclude module: "play-services-safetynet"
+    }
     implementation 'com.google.firebase:firebase-storage'
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.firebase:firebase-messaging'
-    implementation 'com.google.firebase:firebase-perf'
 
     // FirebaseUI for Cloud Firestore
     implementation 'com.firebaseui:firebase-ui-firestore:8.0.1'
