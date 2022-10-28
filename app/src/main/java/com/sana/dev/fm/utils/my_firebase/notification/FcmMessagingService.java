@@ -153,7 +153,7 @@ public class FcmMessagingService
                 = new NotificationCompat
                 .Builder(getApplicationContext(),
                 channel_id)
-                .setSmallIcon(R.drawable.logo_app)
+                .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setAutoCancel(true)
                 .setVibrate(new long[]{1000, 1000, 1000,
                         1000, 1000})
@@ -173,7 +173,7 @@ public class FcmMessagingService
         else {
             builder = builder.setContentTitle(title)
                     .setContentText(message)
-                    .setSmallIcon(R.drawable.logo_app);
+                    .setSmallIcon(R.mipmap.ic_launcher_round);
         }
         // Create an object of NotificationManager class to
         // notify the

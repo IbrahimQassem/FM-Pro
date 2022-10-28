@@ -122,7 +122,7 @@ package com.sana.dev.fm.utils.radio_player.media;//package com.sana.dev.fm.shear
 //                .setLargeIcon(notifyIcon)
 //                .setContentIntent(pendingIntent)
 //                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-//                .setSmallIcon(R.drawable.ic_play)
+//                .setSmallIcon(R.mipmap.ic_launcher_round)
 //                .addAction(icon, "pause", action)
 //                .addAction(R.drawable.ic_stop, "stop", stopAction)
 //                .setPriority(NotificationCompat.PRIORITY_HIGH)

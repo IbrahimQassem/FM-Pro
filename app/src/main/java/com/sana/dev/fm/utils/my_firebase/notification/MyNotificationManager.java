@@ -34,7 +34,7 @@ public class MyNotificationManager {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(mCtx, FirebaseConstants.CHANNEL_ID)
-                        .setSmallIcon(R.drawable.logo_app)
+                        .setSmallIcon(R.mipmap.ic_launcher_round)
                         .setContentTitle(title)
                         .setContentText(body);
 

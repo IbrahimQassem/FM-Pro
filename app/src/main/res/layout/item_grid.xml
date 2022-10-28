@@ -195,7 +195,7 @@
                     android:focusable="true"
                     android:gravity="center"
                     android:orientation="horizontal"
-                    android:visibility="visible">
+                    android:visibility="gone">
 
                     <ImageView
                         android:id="@+id/imv_comment"
@@ -220,12 +220,14 @@
                         tools:text="@string/ex_comment_count" />
                 </LinearLayout>
 
+                <View android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+
                 <TextView
                     android:id="@+id/tv_state"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="start"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textColor="@color/colorPrimary"
                     tools:text="@string/label_display_now" />
