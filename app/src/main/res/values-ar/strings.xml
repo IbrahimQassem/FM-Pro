@@ -73,7 +73,7 @@
     <string name="subscribers">متابع</string>
     <string name="likes">إعجاب</string>
     <string name="check_internet_connection">يرجى التأكد من توفر الإنترنت !</string>
-    <string name="radio_map">البرامج الرئيسية</string>
+    <string name="label_radio_map">البرامج</string>
     <string name="press_once_again_to_exit">إضفط مرة أخرى لتسجيل الخروج</string>
     <string name="password">كلمة المرور</string>
     <string name="user_name">إسم المستخدم</string>

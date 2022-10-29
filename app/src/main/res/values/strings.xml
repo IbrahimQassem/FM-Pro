@@ -73,7 +73,7 @@
     <string name="subscribers">Subscribe</string>
     <string name="likes">Like</string>
     <string name="check_internet_connection">Please make sure the internet is available!</string>
-    <string name="radio_map">Main Programs</string>
+    <string name="label_radio_map">Programs</string>
     <string name="press_once_again_to_exit">Click again to log out</string>
     <string name="password">Password</string>
     <string name="user_name">User name</string>

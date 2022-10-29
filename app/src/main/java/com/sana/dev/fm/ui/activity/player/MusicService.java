@@ -218,6 +218,7 @@ public class MusicService extends Service implements
             play(currentSong);
             firstTime = false;
         } else {
+            if (player != null)
             player.start();
         }
     }
