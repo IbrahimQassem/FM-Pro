@@ -21,7 +21,9 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Gender;
+import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.ui.activity.BaseActivity;
@@ -42,11 +44,9 @@ public class VerificationPhone extends BaseActivity {
     private String verificationId;
     private FirebaseAuth mAuth;
 
-    //    ProgressBar progressBar;
     TextInputEditText editText;
     AppCompatButton buttonSignIn;
     String phoneNumber = "";
-    //    SharedPreferences prefs;
     PreferencesManager prefMgr;
 
     @Override
@@ -56,21 +56,16 @@ public class VerificationPhone extends BaseActivity {
         Tools.setSystemBarColor(this, R.color.grey_20);
 
         mAuth = FirebaseAuth.getInstance();
+        prefMgr = PreferencesManager.getInstance();
 
 //        progressBar = findViewById(R.id.progressbar);
         editText = findViewById(R.id.editTextCode);
         buttonSignIn = findViewById(R.id.buttonSignIn);
 
-        phoneNumber = getIntent().getStringExtra("phoneNumber");
-        sendVerificationCode(phoneNumber);
+        phoneNumber = getIntent().getStringExtra(FirebaseConstants.CONST_MOBILE);
+        if (phoneNumber != null)
+            sendVerificationCode(phoneNumber);
 
-        // save phone number
-//        prefs = getApplicationContext().getSharedPreferences("USER_PREF",
-//                Context.MODE_PRIVATE);
-        prefMgr = PreferencesManager.getInstance();
-
-//        SharedPreferences.Editor editor = prefs.edit();
-        prefMgr.write("mobile", phoneNumber);
 
         buttonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,7 +90,8 @@ public class VerificationPhone extends BaseActivity {
             signInWithCredential(credential);
         } catch (Exception e) {
             LogUtility.e(LogUtility.tag(VerificationPhone.class), e.toString());
-//            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_error_occurred), e.toString(), new ButtonConfig(getString(R.string.label_cancel)), null);
+            showWarningDialog(config);
         }
     }
 
@@ -112,7 +108,10 @@ public class VerificationPhone extends BaseActivity {
                             user.updatePhoneNumber(credential);
                             chekUserAuth(user);
                         } else {
-                            showToast(task.getException().getLocalizedMessage());
+//                            showToast(task.getException().getLocalizedMessage());
+                            LogUtility.e(LogUtility.tag(VerificationPhone.class), task.getException().getLocalizedMessage());
+                            ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_error_occurred), task.getException().getLocalizedMessage(), new ButtonConfig(getString(R.string.label_cancel)), null);
+                            showWarningDialog(config);
                         }
                     }
                 });
@@ -121,7 +120,7 @@ public class VerificationPhone extends BaseActivity {
     void chekUserAuth(FirebaseUser user) {
         Intent intent = IntentHelper.userProfileActivity(VerificationPhone.this, true);
         FmUserCRUDImpl fmRepo = new FmUserCRUDImpl(this, USERS_TABLE);
-        fmRepo.queryAllBy(phoneNumber,null, new CallBack() {
+        fmRepo.queryAllBy(phoneNumber, null, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 LogUtility.d(LogUtility.TAG, "onSuccess : " + object);
@@ -142,7 +141,7 @@ public class VerificationPhone extends BaseActivity {
 //                String email = user.getEmail();
 //                   String mobile = TextUtils.isEmpty(user.getPhoneNumber()) ? user.getPhoneNumber() : prefMgr.read(FirebaseConstants.USER_MOBILE,"");
 //                    Users obUser =  new Users(uid, name, phoneNumber,prefMgr.read(FirebaseConstants.USER_IMAGE_Profile,null), getToken(VerificationPhone.this), Gender.UNKNOWN, new Date(),null,null,null,null);
-                    UserModel obUser = new UserModel(uid, name, null, phoneNumber, null, null, FmUtilize.getIMEIDeviceId(VerificationPhone.this), null, null, null, false, false, false, FmUtilize.deviceId(VerificationPhone.this), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, Tools.getFormattedDateTimeSimple(System.currentTimeMillis()),FmUtilize.getFirebaseToken(VerificationPhone.this),null);
+                    UserModel obUser = new UserModel(uid, name, null, phoneNumber, null, null, FmUtilize.getIMEIDeviceId(VerificationPhone.this), null, null, null, false, false, false, FmUtilize.deviceId(VerificationPhone.this), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, Tools.getFormattedDateTimeSimple(System.currentTimeMillis()), FmUtilize.getFirebaseToken(VerificationPhone.this), null);
 
                     fmRepo.create(uid, obUser, new CallBack() {
                         @Override
@@ -166,7 +165,9 @@ public class VerificationPhone extends BaseActivity {
     }
 
     private void sendVerificationCode(String phoneNumber) {
-        //        progressBar.setVisibility(View.VISIBLE);
+
+        try {
+            //        progressBar.setVisibility(View.VISIBLE);
 //        PhoneAuthProvider.getInstance().verifyPhoneNumber(
 //                phoneNumber,
 //                120,
@@ -174,16 +175,23 @@ public class VerificationPhone extends BaseActivity {
 //                (VerificationPhone) ContextCompat.getMainExecutor(VerificationPhone.this),
 //                mCallBack
 //        );
-        PhoneAuthOptions options =
-                PhoneAuthOptions.newBuilder(mAuth)
-                        .setPhoneNumber(phoneNumber)       // Phone number to verify
-                        .setTimeout(120L, TimeUnit.SECONDS) // Timeout and unit
-                        .setActivity(this)                 // Activity (for callback binding)
-                        .setCallbacks(mCallBack)          // OnVerificationStateChangedCallbacks
-                        .build();
-        PhoneAuthProvider.verifyPhoneNumber(options);
+            PhoneAuthOptions options =
+                    PhoneAuthOptions.newBuilder(mAuth)
+                            .setPhoneNumber(phoneNumber)       // Phone number to verify
+                            .setTimeout(120L, TimeUnit.SECONDS) // Timeout and unit
+                            .setActivity(this)                 // Activity (for callback binding)
+                            .setCallbacks(mCallBack)          // OnVerificationStateChangedCallbacks
+                            .build();
+            PhoneAuthProvider.verifyPhoneNumber(options);
 
 //        progressBar.setVisibility(View.GONE);
+        } catch (Throwable e) {
+            // Todo fixme
+            //handle carefully
+            LogUtility.e(LogUtility.tag(VerificationPhone.class), e.toString());
+            ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_error_occurred), e.toString(), new ButtonConfig(getString(R.string.label_cancel)), null);
+            showWarningDialog(config);
+        }
     }
 
 
@@ -207,8 +215,9 @@ public class VerificationPhone extends BaseActivity {
 
         @Override
         public void onVerificationFailed(FirebaseException e) {
-            Toast.makeText(VerificationPhone.this, e.getMessage(), Toast.LENGTH_LONG).show();
-//            progressBar.setVisibility(View.GONE);
+            LogUtility.e(LogUtility.tag(VerificationPhone.class), e.toString());
+            ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_error_occurred), e.toString(), new ButtonConfig(getString(R.string.label_cancel)), null);
+            showWarningDialog(config);
             hideProgress();
         }
     };

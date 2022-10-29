@@ -13,6 +13,7 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
+import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 public class PhoneLoginActivity extends BaseActivity {
 
@@ -57,7 +58,7 @@ public class PhoneLoginActivity extends BaseActivity {
 //                showProgress(getString(R.string.please_wait));
 //                String phoneNumber = code + number;
                 Intent intent = new Intent(PhoneLoginActivity.this, VerificationPhone.class);
-                intent.putExtra("phoneNumber", phoneNumber);
+                intent.putExtra(FirebaseConstants.CONST_MOBILE, phoneNumber);
                 startActivity(intent);
 
             }

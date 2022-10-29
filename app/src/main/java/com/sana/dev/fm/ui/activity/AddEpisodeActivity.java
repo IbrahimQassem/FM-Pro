@@ -52,6 +52,7 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityAddEpisodeBinding;
+import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.ModelConfig;
@@ -237,7 +238,7 @@ public class AddEpisodeActivity extends BaseActivity {
             binding.etStation.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير القناة الإاعية في حالة تحديث بيانات البرنامج",  null, null);
+                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير القناة الإاعية في حالة تحديث بيانات البرنامج",  new ButtonConfig(getString(R.string.label_cancel)), null);
                     showWarningDialog(config);
                 }
             });
@@ -245,7 +246,7 @@ public class AddEpisodeActivity extends BaseActivity {
             binding.etProgram.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير إسم البرنامج في حالة تحديث بيانات البرنامج",  null, null);
+                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير إسم البرنامج في حالة تحديث بيانات البرنامج",  new ButtonConfig(getString(R.string.label_cancel)), null);
                     showWarningDialog(config);
                 }
             });
