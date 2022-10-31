@@ -76,7 +76,7 @@
                 android:layout_width="match_parent"
                 android:justificationMode="inter_word"
                 android:lineSpacingExtra="3dp"
-                android:text="@string/app_message"
+                android:text="@string/label_app_description"
                 android:textColor="@color/grey_40"
                 android:textSize="16sp" />
 
@@ -148,7 +148,7 @@
                     android:id="@+id/iv_facebook"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:tooltipText="@string/label_favebook"
+                    android:tooltipText="@string/label_facebook"
                     app:srcCompat="@drawable/ic_social_facebook"
                     app:tint="@color/white" />
 
@@ -172,7 +172,7 @@
                     android:id="@+id/iv_whats"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:tooltipText="@string/label_whatssup"
+                    android:tooltipText="@string/label_whatsapp"
                     app:srcCompat="@drawable/ic_whatsapp"
                     app:tint="@color/white" />
 

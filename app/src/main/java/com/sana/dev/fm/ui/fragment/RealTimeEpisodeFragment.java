@@ -368,12 +368,12 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                         ePiRepo.delete(obj, new CallBack() {
                             @Override
                             public void onSuccess(Object object) {
-                                showToast("Deleted : " + object.toString());
+                                showToast(getString(R.string.deleted_successfully_with_param,obj.getEpName() ));
                             }
 
                             @Override
                             public void onError(Object object) {
-                                showToast("Error : " + object.toString());
+                                showToast(getString(R.string.error_failure));
                             }
                         });
                     }

@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content"
                 android:minHeight="100dp"
                 android:justificationMode="inter_word"
-                android:text="@string/app_message"
+                android:text="@string/label_app_description"
                 android:layout_marginStart="@dimen/spacing_mxlarge"
                 android:layout_marginTop="@dimen/spacing_middle"
                 android:layout_marginEnd="@dimen/spacing_mxlarge"

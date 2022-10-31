@@ -202,13 +202,13 @@ public class ProgramsFragment extends BaseFragment {
                                             fmRepo.delete(obj, new CallBack() {
                                                 @Override
                                                 public void onSuccess(Object object) {
-                                                    showToast("" + object.toString());
+                                                    showToast(getString(R.string.deleted_successfully_with_param,obj.getPrName() ));
                                                     mAdapter.removeAt(position);
                                                 }
 
                                                 @Override
                                                 public void onError(Object object) {
-                                                    showToast("" + object.toString());
+                                                    showToast(getString(R.string.error_failure));
                                                 }
                                             });
                                         }

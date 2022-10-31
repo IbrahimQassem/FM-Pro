@@ -2,10 +2,8 @@ package com.sana.dev.fm.ui.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.PorterDuff.Mode;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -98,7 +96,7 @@ public class AppIntroLight extends BaseActivity {
 
         about_description_array = new String[]{getResources().getString(R.string.label_intro_1), getString(R.string.label_intro_2), getString(R.string.label_intro_3)};
         about_images_array = new int[]{R.drawable.img_wizard_1, R.drawable.img_wizard_2, /*R.drawable.img_wizard_3,*/ R.drawable.img_wizard_4};
-        about_title_array = new String[]{getString(R.string.app_name), getString(R.string.label_your_favorite_station), getString(R.string.label_enjoi)};
+        about_title_array = new String[]{getString(R.string.app_name), getString(R.string.label_your_favorite_station), getString(R.string.label_enjoy)};
 
 
         this.viewPager = (ViewPager) findViewById(R.id.view_pager);

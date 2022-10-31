@@ -388,7 +388,7 @@ public class UserProfileActivity extends BaseActivity {
 
     private void uploadUserProfile(Uri uriImage) {
 //        if (imageUri != null) {
-        showProgress(getString(R.string.please_wait_to_save_youre_profile));
+        showProgress(getString(R.string.please_wait_to_save_your_profile));
         // Create file metadata including the content type
         StorageMetadata metadata = new StorageMetadata.Builder()
                 .setContentType("image/jpg")

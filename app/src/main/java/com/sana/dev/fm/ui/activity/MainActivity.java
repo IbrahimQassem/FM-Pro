@@ -341,7 +341,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
 
         boolean isOnline = hasInternetConnection();
-        String isOnlineTxt = isOnline ? getString(R.string.online) : getString(R.string.offline);
+        String isOnlineTxt = isOnline ? getString(R.string.label_online) : getString(R.string.offline);
         int colorState = isOnline ? R.color.green_500 : R.color.yellow_500;
 
         if (isAccountSignedIn()) {
