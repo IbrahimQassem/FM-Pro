@@ -62,3 +62,5 @@ lint/outputs/
 lint/tmp/
 # lint/reports/
 exports/
+/app/lint-baseline.xml
+/app/internews/release/output-metadata.json
