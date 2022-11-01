@@ -109,8 +109,62 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/btn_rounded_accent"
                     android:fontFamily="@font/tj_bold"
-                    android:text="@string/send"
+                    android:text="@string/label_send"
                     android:textColor="@android:color/white" />
+
+              <!--  <LinearLayout
+                    android:id="@+id/linearLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="32dp"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal">
+
+                    <com.hbb20.CountryCodePicker
+                        android:id="@+id/activity_verify_phone_number_ccp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginTop="12dp"
+                        app:ccp_textSize="12sp"
+                        app:ccp_autoDetectCountry="true"
+                        app:ccp_autoDetectLanguage="true"
+                        app:ccp_autoFormatNumber="true"
+                        app:ccp_contentColor="@color/grey_50"
+                        app:ccp_countryPreference="us,ca,cm"
+                        app:ccp_showNameCode="false" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/activity_verify_phone_number_phone_TextInputLayout"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/label_title"
+                        android:textColorHint="@color/grey_5"
+                        app:errorEnabled="false"
+                        app:hintEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/activity_verify_phone_number_phone_EditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="16dp"
+                            android:hint="@string/mobile"
+                            android:inputType="phone"
+                            android:imeOptions="actionDone"
+                            android:singleLine="true"
+                            android:textColor="@color/colorAccentDark"
+                            android:textColorHint="@color/colorAccentLight" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>-->
+
+
 
 
             </LinearLayout>

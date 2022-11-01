@@ -126,7 +126,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textColor="@color/colorPrimary"
-            android:text="@string/send" />
+            android:text="@string/label_send" />
 
     </LinearLayout>
 
