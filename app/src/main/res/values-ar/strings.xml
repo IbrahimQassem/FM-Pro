@@ -77,7 +77,7 @@
     <string name="press_once_again_to_exit">إضفط مرة أخرى لتسجيل الخروج</string>
     <string name="password">كلمة المرور</string>
     <string name="user_name">إسم المستخدم</string>
-    <string name="mobile">الموبايل</string>
+    <string name="mobile">موبايل</string>
     <string name="email">الإيميل</string>
     <string name="country">الدولة</string>
     <string name="city">المدينة</string>
@@ -196,5 +196,8 @@
     <string name="deleted_successfully_with_param"> تم حذف <b>[%s]</b> بنجاح </string>
     <string name="label_edit">تعديل</string>
     <string name="label_delete">حذف</string>
+    <string name="label_enter_you_re_mobile_number">أدخل رقم هاتفك المحمول</string>
+    <string name="label_please_enter_your_mobile">يرجى إدخال رقم الموبايل</string>
+    <string name="label_please_enter_valid_mobile">يرجى إدخال رقم موبايل صحيح</string>
 
 </resources>

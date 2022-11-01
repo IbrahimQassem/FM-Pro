@@ -196,6 +196,9 @@
     <string name="deleted_successfully_with_param">Deleted <b>[%s]</b> successfully</string>
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>
+    <string name="label_enter_you_re_mobile_number">Enter your mobile number</string>
+    <string name="label_please_enter_your_mobile">please enter you\'re mobile</string>
+    <string name="label_please_enter_valid_mobile">please enter valid mobile number </string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 
