@@ -61,12 +61,12 @@
 
     <string name="delete_messages">Do you want to delete %1$s?</string>
     <string name="user_account">User Profile</string>
-    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</string>
+    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consecrated animistic elite.</string>
     <string name="label_note">Note !</string>
     <string name="most_login">You must be logged in!</string>
     <string name="add_comment">Add comment ..</string>
     <string name="click_to_change_image">Choose a picture</string>
-    <string name="send">Send</string>
+    <string name="label_send">Send</string>
     <string name="error_empty_field_not_allowed">The field must not be empty</string>
     <string name="following">Follow</string>
     <string name="post">Daily Episode</string>
@@ -196,6 +196,9 @@
     <string name="deleted_successfully_with_param">Deleted <b>[%s]</b> successfully</string>
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>
+    <string name="label_enter_you_re_mobile_number">Enter your mobile number</string>
+    <string name="label_please_enter_your_mobile">please enter you\'re mobile</string>
+    <string name="label_please_enter_valid_mobile">please enter valid mobile number </string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

@@ -1009,7 +1009,7 @@
                             android:onClick="clickLabel"
                             android:paddingLeft="@dimen/spacing_small"
                             android:paddingRight="@dimen/spacing_small"
-                            android:text="@string/send"
+                            android:text="@string/label_send"
                             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                             android:textColor="@color/grey_90" />
 
@@ -1029,7 +1029,7 @@
                                 android:gravity="center"
                                 android:minWidth="0dp"
                                 android:onClick="clickAction"
-                                android:text="@string/send"
+                                android:text="@string/label_send"
                                 android:theme="@style/Button_Primary" />
 
 

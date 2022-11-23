@@ -58,3 +58,6 @@
 -keep class com.bumptech.glide.load.data.ParcelFileDescriptorRewinder$InternalRewinder {
   *** rewind();
 }
+
+-keep class com.hbb20.CountryCodePicker {*;}
+-keep class com.futuremind.recyclerviewfastscroll.* {*;}
