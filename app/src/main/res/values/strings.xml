@@ -197,6 +197,9 @@
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>
 
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="notification_channel_name" translatable="false">Channel human readable title</string>
+
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 
 </resources>
