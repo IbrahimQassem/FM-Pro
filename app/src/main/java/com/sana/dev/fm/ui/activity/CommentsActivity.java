@@ -39,6 +39,7 @@ import com.sana.dev.fm.ui.view.SendCommentButton;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.PreferencesManager;
+import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 /**
@@ -120,7 +121,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         }
 
 
-        FmUtilize.hideEmptyElement(episode.getEpName(),binding.toolbar.tvTitle);
+        Tools.setTextOrHideIfEmpty(binding.toolbar.tvTitle,episode.getEpName());
 
 //        getComments();
 

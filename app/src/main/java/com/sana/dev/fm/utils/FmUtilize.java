@@ -896,14 +896,7 @@ public class FmUtilize {
         }
     }
 
-    public static void hideEmptyElement(String s, View view) {
-        if (!TextUtils.isEmpty(s)) {
-            if (view instanceof TextView)
-                ((TextView) view).setText(s);
-        } else {
-            view.setVisibility(View.GONE);
-        }
-    }
+
 
     public static boolean isGooglePlayServicesAvailable(Activity activity) {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();

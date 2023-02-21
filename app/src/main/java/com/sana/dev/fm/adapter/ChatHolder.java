@@ -2,15 +2,14 @@ package com.sana.dev.fm.adapter;
 
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.View;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemGridBinding;
 import com.sana.dev.fm.model.DateTimeModel;
@@ -44,14 +43,24 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         initBindViewHolder(mode);
 //        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 //        setIsSender(currentUser != null && chat.getUid().equals(currentUser.getUid()));
+
+        if ((BuildConfig.FLAVOR.equals("hudhudfm_google_play") && !BuildConfig.DEBUG)) {
+            binding.lytCommentParent.setVisibility(View.GONE);
+        }
+
     }
 
 
-
     private void initBindViewHolder(@Nullable Episode episode) {
-        binding.tvTitle.setText(episode.getEpName());
-        FmUtilize.hideEmptyElement(episode.getEpAnnouncer(),binding.tvAnnouncer);
-        binding.tvSubDesc.setText(episode.getEpDesc());
+        Tools.setTextOrHideIfEmpty(binding.tvTitle, episode.getEpName());
+        Tools.setTextOrHideIfEmpty(binding.tvAnnouncer, episode.getEpAnnouncer());
+
+        Tools.setTextOrHideIfEmpty(binding.tvDesc, episode.getEpDesc());
+        Tools.setTextOrHideIfEmpty(binding.tvState, null);
+        Tools.setTextOrHideIfEmpty(binding.tvDate, null);
+        Tools.setTextOrHideIfEmpty(binding.tvTime, Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
+//        Tools.setTextOrHideIfEmpty(binding.tvDate, Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
+//        binding.tvTime.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
 //        String st = "" +  getFormattedTimeEvent(episode.getDateTimeModel().getTimeStart());
 //        tv_time.setText(st);
 //        if (episode.getDateTimeModel() != null){
@@ -59,7 +68,6 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 //            LogUtility.d(TAG, "date  getDateEnd : " + new Gson().toJson(FmUtilize.modifyDateLayout(episode.getDateTimeModel().getDateEnd())));
 //        }
 //        tv_time.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
-        binding.tvTime.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
         Tools.displayImageRound(ctx, binding.civLogo, episode.getEpProfile());
         Tools.displayImageOriginal(ctx, binding.ivBanner, episode.getEpProfile());
 

@@ -178,7 +178,7 @@ public class ProgramsFragment extends BaseFragment {
                         initAdapter();
                         mAdapter.setOnItemClickListener(new AdapterListProgram.OnItemClickListener() {
                             public void onItemClick(View v, RadioProgram radioProgram, int i) {
-                                if (BuildConfig.FLAVOR.equals("internews")) {
+                                if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhud") || (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG) ) {
                                     Episode episode = new Episode();
                                     episode.setRadioId(radioProgram.getRadioId());
                                     episode.setProgramId(radioProgram.getProgramId());

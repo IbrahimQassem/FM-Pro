@@ -34,7 +34,9 @@ import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
@@ -55,6 +57,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.material.textfield.TextInputEditText;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppConfig;
 import com.sana.dev.fm.model.DeviceInfo;
@@ -65,6 +68,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
@@ -146,14 +150,12 @@ public class Tools {
 //        GlideApp.with(ctx).load(resDrawable)
 //                .into(img);
             //        }
-        } catch(
-    Exception e)
+        } catch (
+                Exception e) {
+            LogUtility.d(TAG + " displayImageOriginal :", e.toString());
+        }
 
-    {
-        LogUtility.d(TAG + " displayImageOriginal :", e.toString());
     }
-
-}
 
 
     public static void displayImageOriginal(Context ctx, ImageView img, String imgUrl) {
@@ -649,7 +651,7 @@ public class Tools {
         String strMinute = Integer.toString(minute);
         String strSecond = Integer.toString(second);
         String strHour;
-        if (strMinute.length()< 2){
+        if (strMinute.length() < 2) {
             strMinute = "0" + minute;
         }
         if (strSecond.length() < 2) {
@@ -669,5 +671,77 @@ public class Tools {
         Configuration config = resources.getConfiguration();
         config.setLocale(locale);
         resources.updateConfiguration(config, resources.getDisplayMetrics());
+    }
+
+    public static boolean isEmpty(EditText editText) {
+        if (editText.getText().toString().trim().length() > 0)
+            return false;
+        return true;
+    }
+
+    public static String toString(View view) {
+        if (view instanceof EditText) {
+            EditText editText = (EditText) view;
+            if (editText.getText().toString().trim().length() > 0)
+                return editText.getText().toString().trim();
+        } else if (view instanceof TextView) {
+            TextView textView = (TextView) view;
+            if (textView.getText().toString().trim().length() > 0)
+                return textView.getText().toString().trim();
+        } else if (view instanceof TextInputEditText) {
+            TextInputEditText textView = (TextInputEditText) view;
+            if (textView.getText().toString().trim().length() > 0)
+                return textView.getText().toString().trim();
+        }
+
+        return "";
+    }
+
+//       public static void setTextOrHideIfEmpty(String s, View view) {
+//        if (!TextUtils.isEmpty(s)) {
+//            if (view instanceof TextView)
+//                ((TextView) view).setText(s);
+//        } else {
+//            view.setVisibility(View.GONE);
+//        }
+//    }
+    public static void setTextOrHideIfEmpty(View view, String val) {
+        if (Tools.isEmpty(val)) {
+            view.setVisibility(View.GONE);
+        } else {
+            view.setVisibility(View.VISIBLE);
+            if (view instanceof EditText) {
+                EditText editText = (EditText) view;
+                editText.setText(val);
+            } else if (view instanceof TextView) {
+                TextView textView = (TextView) view;
+                textView.setText(val);
+            } else if (view instanceof TextInputEditText) {
+                TextInputEditText textView = (TextInputEditText) view;
+                textView.setText(val);
+            }
+        }
+    }
+
+    public static void disableEditText(EditText editText) {
+        editText.setFocusable(false);
+        editText.setEnabled(false);
+        editText.setCursorVisible(false);
+        editText.setKeyListener(null);
+        editText.setBackgroundColor(Color.TRANSPARENT);
+    }
+
+    public static boolean isEmpty(Collection coll) {
+        return (coll == null || coll.isEmpty());
+    }
+
+    public static boolean isEmpty(@androidx.annotation.Nullable CharSequence str) {
+        return str == null || str.length() == 0;
+    }
+
+    public static void emptyEditText(EditText editText, String hint) {
+        editText.setError(hint);
+        editText.requestFocus();
+        editText.setFocusable(true);
     }
 }

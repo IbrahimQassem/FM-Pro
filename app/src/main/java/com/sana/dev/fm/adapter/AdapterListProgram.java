@@ -113,13 +113,13 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
 
 
-            FmUtilize.hideEmptyElement(program.getPrName(), holder.binding.title);
+            Tools.setTextOrHideIfEmpty( holder.binding.title,program.getPrName());
 
             // Todo
 //            originalViewHolder.tvCategory.setText(android.text.TextUtils.join(" , ", program.getPrCategoryList()));
 //            originalViewHolder.tag.setText(String.format("@%s", program.getPrTag()));
 //            holder.binding.tvTag.setText(program.getPrTag());
-            FmUtilize.hideEmptyElement(null, holder.binding.tvTag);
+            Tools.setTextOrHideIfEmpty( holder.binding.tvTag,null);
 
             if (!TextUtils.isEmpty(program.getPrDesc())) {
                 holder.binding.tvDesc.setText(program.getPrDesc());

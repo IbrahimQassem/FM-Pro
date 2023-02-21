@@ -18,7 +18,6 @@ android {
         versionName "1.0.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.debug
-
     }
 
 
@@ -72,8 +71,8 @@ android {
         hudhudfm_google_play {
             dimension 'fm_flavor'
             applicationId "com.sana.dev.fm"
-            versionCode 18
-            versionName "1.0.8"
+            versionCode 19
+            versionName "1.0.9"
             signingConfig signingConfigs.debug
             buildConfigField "String", "BASE_FB_DB" , '"HudHudFmGooglePlay"'
         }

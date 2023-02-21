@@ -22,6 +22,7 @@ import com.sana.dev.fm.databinding.DialogWarningBinding;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
+import com.sana.dev.fm.utils.Tools;
 
 public class FmGeneralDialog extends Dialog {
     public static int VIEW_WARNING = 0;
@@ -93,8 +94,8 @@ public class FmGeneralDialog extends Dialog {
 
             }
 
-            FmUtilize.hideEmptyElement(config.getTitle(), binding.tvTitle);
-            FmUtilize.hideEmptyElement(config.getDesc(), binding.tvDesc);
+            Tools.setTextOrHideIfEmpty( binding.tvTitle,config.getTitle());
+            Tools.setTextOrHideIfEmpty( binding.tvDesc,config.getDesc());
 
             boolean isBtConfirm = (config.getBtnConfirm() != null ? config.getBtnConfirm().getName() : null) != null;
             binding.btConfirm.setVisibility(isBtConfirm ? VISIBLE : View.GONE);
@@ -132,8 +133,8 @@ public class FmGeneralDialog extends Dialog {
 
             }
 
-            FmUtilize.hideEmptyElement(config.getTitle(), binding.tvTitle);
-            FmUtilize.hideEmptyElement(config.getDesc(), binding.tvDesc);
+            Tools.setTextOrHideIfEmpty( binding.tvTitle,config.getTitle());
+            Tools.setTextOrHideIfEmpty( binding.tvDesc,config.getDesc());
 
             boolean isBtConfirm = (config.getBtnConfirm() != null ? config.getBtnConfirm().getName() : null) != null;
             binding.btConfirm.setVisibility(isBtConfirm ? VISIBLE : View.GONE);
