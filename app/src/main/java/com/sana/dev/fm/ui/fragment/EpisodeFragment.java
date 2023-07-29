@@ -134,9 +134,11 @@ public class EpisodeFragment extends BaseFragment {
         if (isCollection(prefMgr.getRadioList())) {
 //        if (isCollection(ShardDate.getInstance().getInfoList())) {
 //            stationList = (ArrayList<RadioInfo>) ShardDate.getInstance().getInfoList();
+            int indexToScrollTo = prefMgr.read("ScrollToPosition", 0);
+
             stationList = prefMgr.getRadioList();
             ShardDate.getInstance().setRadioInfoList(stationList);
-            RadiosAdapter adapter = new RadiosAdapter(ctx, stationList, recyclerView, prefMgr.read("ScrollToPosition", 0));
+            RadiosAdapter adapter = new RadiosAdapter(ctx, stationList, recyclerView, indexToScrollTo);
 
             if (!isRadioSelected() && !stationList.isEmpty()) {
                 prefMgr.write(FirebaseConstants.RADIO_INFO_TABLE, stationList.get(0));
@@ -163,24 +165,30 @@ public class EpisodeFragment extends BaseFragment {
                 }
             });
 
-            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            // Scroll the RecyclerView to the selected index
+//            recyclerView.scrollToPosition(indexToScrollTo);
+            // Get the position of the first visible item
+//            int firstVisiblePosition = ((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition();
+//            showIntro(recyclerView.getChildAt(firstVisiblePosition), UserGuide.INTRO_FOCUS_1, ctx.getString(R.string.label_radio_intro1));
 
-                @Override
-                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                    if (layoutManager.findFirstVisibleItemPosition() > 0) {
-                        Log.d("SCROLLINGDOWN", "SCROLL");
-                    } else {
-                        Log.d("SCROLLINGUP", "SCROLL");
+//            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//
+//                @Override
+//                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                    if (layoutManager.findFirstVisibleItemPosition() > 0) {
+//                        Log.d("SCROLLINGDOWN", "SCROLL");
+//                    } else {
+//                        Log.d("SCROLLINGUP", "SCROLL");
                         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                recyclerView.smoothScrollToPosition(prefMgr.read("ScrollToPosition", 0));
+                                recyclerView.smoothScrollToPosition(indexToScrollTo);
                                 showIntro(recyclerView.getChildAt(0), UserGuide.INTRO_FOCUS_1, ctx.getString(R.string.label_radio_intro1));
                             }
                         }, 3000);
-                    }
-                }
-            });
+//                    }
+//                }
+//            });
 
         } else {
             // Todo check radio is empty call it again
