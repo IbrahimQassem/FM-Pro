@@ -471,9 +471,11 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             lyt_add_program.setVisibility(View.VISIBLE);
             lyt_add_episode.setVisibility(View.VISIBLE);
             lyt_update_episode.setVisibility(View.VISIBLE);
-            UserModel user = prefMgr.getUserSession();
-            user.setUserType(UserType.SuperADMIN);
-            prefMgr.write(FirebaseConstants.USER_INFO, (UserModel) user);
+            if (isAccountSignedIn()) {
+                UserModel user = prefMgr.getUserSession();
+                user.setUserType(UserType.SuperADMIN);
+                prefMgr.write(FirebaseConstants.USER_INFO, (UserModel) user);
+            }
         }
 
         inflate.findViewById(R.id.lyt_user_acc).setOnClickListener(new View.OnClickListener() {

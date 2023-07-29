@@ -1,12 +1,15 @@
 package com.sana.dev.fm.ui.fragment;
 
 
+import static androidx.recyclerview.widget.LinearSmoothScroller.SNAP_TO_START;
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 
 import android.content.Context;
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sana.dev.fm.R;
@@ -165,6 +169,13 @@ public class EpisodeFragment extends BaseFragment {
                 }
             });
 
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    recyclerView.smoothScrollToPosition(indexToScrollTo);
+                    showIntro(recyclerView.getChildAt(0), UserGuide.INTRO_FOCUS_1, ctx.getString(R.string.label_radio_intro1));
+                }
+            }, 3000);
             // Scroll the RecyclerView to the selected index
 //            recyclerView.scrollToPosition(indexToScrollTo);
             // Get the position of the first visible item
@@ -179,16 +190,17 @@ public class EpisodeFragment extends BaseFragment {
 //                        Log.d("SCROLLINGDOWN", "SCROLL");
 //                    } else {
 //                        Log.d("SCROLLINGUP", "SCROLL");
-                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                recyclerView.smoothScrollToPosition(indexToScrollTo);
-                                showIntro(recyclerView.getChildAt(0), UserGuide.INTRO_FOCUS_1, ctx.getString(R.string.label_radio_intro1));
-                            }
-                        }, 3000);
+//                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                recyclerView.smoothScrollToPosition(indexToScrollTo);
+//                                showIntro(recyclerView.getChildAt(0), UserGuide.INTRO_FOCUS_1, ctx.getString(R.string.label_radio_intro1));
+//                            }
+//                        }, 3000);
 //                    }
 //                }
 //            });
+
 
         } else {
             // Todo check radio is empty call it again
