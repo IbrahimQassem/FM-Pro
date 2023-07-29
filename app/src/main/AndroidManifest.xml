@@ -6,17 +6,12 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-
-    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
+    <uses-permission
+        android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
         tools:ignore="ProtectedPermissions" />
-
-
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-<!--    Todo Remove or Check those permission-->
-<!--    <uses-permission android:name="android.permission.WAKE_LOCK" />-->
 
     <application
         android:name=".FmApplication"
@@ -32,7 +27,13 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:supportsRtl"
         tools:targetApi="31">
-
+        <activity
+            android:name=".ui.activity.ListDragActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
         <activity
             android:name=".ui.activity.SplashActivity"
             android:exported="true"
@@ -90,9 +91,7 @@
         <activity
             android:name=".ui.activity.NoInternetActivity"
             android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <!-- <activity android:name=".ui.activity.player.MusicServiceActivity" /> -->
+            android:screenOrientation="portrait" /> <!-- <activity android:name=".ui.activity.player.MusicServiceActivity" /> -->
         <!-- <activity android:name=".ui.activity.player.PlayerActivity" /> -->
         <!-- <activity android:name=".ui.activity.player.PermitActivity" /> -->
         <service
@@ -151,6 +150,14 @@
         <meta-data
             android:name="firebase_performance_logcat_enabled"
             android:value="true" />
+
+        <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
+        <!-- Hudhud FM AdMob app ID: ca-app-pub-1616966459725238~1829350433 -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-1616966459725238~1829350433"/>
+
+
     </application>
 
 </manifest>

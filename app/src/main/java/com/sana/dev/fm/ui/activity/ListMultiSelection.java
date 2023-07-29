@@ -41,7 +41,6 @@ public class ListMultiSelection extends BaseActivity {
     private ActionMode actionMode;
     private ActionModeCallback actionModeCallback;
     private AdapterListInbox mAdapter;
-    private View parent_view;
     private RecyclerView recyclerView;
     private Toolbar toolbar;
     private ArrayList<Episode> episodeList = new ArrayList<>();
@@ -63,7 +62,6 @@ public class ListMultiSelection extends BaseActivity {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView((int) R.layout.activity_list_multi_selection);
-        this.parent_view = findViewById(R.id.lyt_parent);
 
         ePiRepo = new FmEpisodeCRUDImpl(this, FirebaseConstants.EPISODE_TABLE);
 
@@ -82,17 +80,15 @@ public class ListMultiSelection extends BaseActivity {
 
     }
 
+
     private void initToolbar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        this.toolbar = toolbar;
-        toolbar.setNavigationIcon((int) R.drawable.ic_arrow_back_white_24dp);
-        setSupportActionBar(this.toolbar);
-        getSupportActionBar().setTitle((CharSequence) getString(R.string.main_program_for));
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        Tools.setSystemBarColor(this, R.color.colorPrimary);
-        Tools.setSystemBarColor(this);
-
-
+        getIvLogo().setText(getString(R.string.main_program_for));
+        getToolbarArrow().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     private void initComponent(String radioId) {
@@ -116,12 +112,12 @@ public class ListMultiSelection extends BaseActivity {
                     recyclerView.setAdapter(adapterListInbox);
                     mAdapter.setOnClickListener(new AdapterListInbox.OnClickListener() {
                         public void onItemClick(View view, Episode episode, int i) {
-                            if (ListMultiSelection.this.mAdapter.getSelectedItemCount() > 0) {
-                                ListMultiSelection.this.enableActionMode(i);
+                            if (mAdapter.getSelectedItemCount() > 0) {
+                                enableActionMode(i);
                                 return;
                             }
-                            Episode item = ListMultiSelection.this.mAdapter.getItem(i);
-                            Context applicationContext = ListMultiSelection.this.getApplicationContext();
+                            Episode item = mAdapter.getItem(i);
+                            Context applicationContext = getApplicationContext();
                             StringBuilder stringBuilder = new StringBuilder();
                             stringBuilder.append("تعديل : ");
                             stringBuilder.append(item.getEpName());
@@ -141,7 +137,7 @@ public class ListMultiSelection extends BaseActivity {
                         }
 
                         public void onItemLongClick(View view, Episode episode, int i) {
-                            ListMultiSelection.this.enableActionMode(i);
+                            enableActionMode(i);
                         }
                     });
                     actionModeCallback = new ActionModeCallback(ListMultiSelection.this, null);
@@ -220,14 +216,14 @@ public class ListMultiSelection extends BaseActivity {
             if (menuItem.getItemId() != R.id.action_delete) {
                 return false;
             }
-            ListMultiSelection.this.deleteInboxes();
+            deleteInboxes();
             actionMode.finish();
             return true;
         }
 
         public void onDestroyActionMode(ActionMode actionMode) {
-            ListMultiSelection.this.mAdapter.clearSelections();
-            ListMultiSelection.this.actionMode = null;
+            mAdapter.clearSelections();
+            actionMode = null;
             Tools.setSystemBarColor(ListMultiSelection.this, R.color.red_600);
         }
     }

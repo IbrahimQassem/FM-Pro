@@ -36,6 +36,7 @@ import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmUserCRUDImpl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -125,6 +126,8 @@ public class VerificationPhone extends BaseActivity {
             public void onSuccess(Object object) {
                 LogUtility.d(LogUtility.TAG, "onSuccess : " + object);
                 UserModel _userModel = (UserModel) object;
+                // cause user logged with phone auth
+                _userModel.setVerified(true);
                 prefMgr.write(FirebaseConstants.USER_INFO, _userModel);
                 showToast(getString(R.string.login_successfully));
                 startActivity(intent);
@@ -141,7 +144,7 @@ public class VerificationPhone extends BaseActivity {
 //                String email = user.getEmail();
 //                   String mobile = TextUtils.isEmpty(user.getPhoneNumber()) ? user.getPhoneNumber() : prefMgr.read(FirebaseConstants.USER_MOBILE,"");
 //                    Users obUser =  new Users(uid, name, phoneNumber,prefMgr.read(FirebaseConstants.USER_IMAGE_Profile,null), getToken(VerificationPhone.this), Gender.UNKNOWN, new Date(),null,null,null,null);
-                    UserModel obUser = new UserModel(uid, name, null, phoneNumber, null, null, FmUtilize.getIMEIDeviceId(VerificationPhone.this), null, null, null, false, false, false, FmUtilize.deviceId(VerificationPhone.this), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, Tools.getFormattedDateTimeSimple(System.currentTimeMillis()), FmUtilize.getFirebaseToken(VerificationPhone.this), null);
+                    UserModel obUser = new UserModel(uid, name, null, phoneNumber, null, null, FmUtilize.getIMEIDeviceId(VerificationPhone.this), null, null, null, true, false, false, FmUtilize.deviceId(VerificationPhone.this), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, Tools.getFormattedDateTimeSimple(System.currentTimeMillis()), FmUtilize.getFirebaseToken(VerificationPhone.this), null,new ArrayList<>());
 
                     fmRepo.create(uid, obUser, new CallBack() {
                         @Override

@@ -96,7 +96,7 @@ public class UserProfileActivity extends BaseActivity {
         // Todo fix
         if (prefMgr.getUserSession() != null) {
             _userModel = prefMgr.getUserSession();
-            LogUtility.d(LogUtility.TAG," UserSession : "+new Gson().toJson(_userModel));
+            LogUtility.d(LogUtility.TAG, " UserSession : " + new Gson().toJson(_userModel));
             binding.tvLabelUserName.setText(_userModel.getName());
             binding.etMobile.setText(FmUtilize.trimMobileCode(_userModel.getMobile()));
             binding.tvLabelUserDesc.setText(_userModel.getBio());
@@ -269,7 +269,7 @@ public class UserProfileActivity extends BaseActivity {
                 onImageSelect(binding.imgProfile);
                 break;
             case R.id.action_close:
-                signOut();
+                userLogOut();
 //                Toast.makeText(getApplicationContext(), menuItem.getTitle(), Toast.LENGTH_LONG).show();
                 break;
         }
@@ -289,11 +289,6 @@ public class UserProfileActivity extends BaseActivity {
     // [END on_start_check_user]
 
 
-
-
-
-
-
     private void saveUserData() {
         validateInput();
 
@@ -306,12 +301,14 @@ public class UserProfileActivity extends BaseActivity {
 //        }
 
         UserModel user = prefMgr.getUserSession();
+        // set privilege
+//        List<String> per = new ArrayList<>();
+//        per.add("ALL");
+//        for (RadioInfo obj : prefMgr.getRadioList()) {
+//            per.add(obj.getName());
+//        }
+//        user.setAllowedPermissions(per);
 
-//        Users oldUser = prefMgr.getUsers();
-
-//        String _oName = oldUser.getName() != null ? oldUser.getName() : "";
-//        String _oPhoto = oldUser.getPhotoUrl() != null ? oldUser.getPhotoUrl() : "";
-//        String _imgUrl = prefMgr.read(FirebaseConstants.USER_IMAGE_Profile, null);
         if (user.equals(name) && user.getGender().equals(gender)) {
             startMainActivity();
         } else {
@@ -486,8 +483,8 @@ public class UserProfileActivity extends BaseActivity {
     }
 
 
-    private void signOut() {
-        mAuth.signOut();
+    private void userLogOut() {
+//        mAuth.signOut();
         prefMgr.remove(FirebaseConstants.USER_INFO);
         Intent intent = IntentHelper.splashActivity(this, true);
         startActivity(intent);

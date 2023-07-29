@@ -142,6 +142,7 @@
     <string name="label_list">عرض قائمة</string>
     <string name="label_comments">التعليقات</string>
     <string name="label_title">العنوان</string>
+    <string name="label_label">Label</string>
     <string name="ex_date">22/سبتمبر/2022</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -196,5 +197,8 @@
     <string name="deleted_successfully_with_param"> تم حذف <b>[%s]</b> بنجاح </string>
     <string name="label_edit">تعديل</string>
     <string name="label_delete">حذف</string>
+    <string name="update_radio_info">تحديث بيانات الإذاعة</string>
+    <string name="label_pick_date">تحديد التاريخ</string>
+    <string name="label_radio_list">قائمة القنوات الإذاعية</string>
 
 </resources>

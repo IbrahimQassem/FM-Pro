@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -22,6 +23,12 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -30,20 +37,24 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.gson.Gson;
 import com.mikhaellopez.circularimageview.CircularImageView;
+import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
+import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.dialog.MainDialog;
 import com.sana.dev.fm.ui.fragment.DailyEpisodeFragment;
 import com.sana.dev.fm.ui.fragment.EpisodeFragment;
 import com.sana.dev.fm.ui.fragment.ProgramsFragment;
 import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.GoogleMobileAdsConsentManager;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
+import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.radio_player.PlaybackStatus;
 import com.sana.dev.fm.utils.radio_player.RadioManager;
 import com.sana.dev.fm.utils.radio_player.StaticEventDistributor;
@@ -51,6 +62,9 @@ import com.sana.dev.fm.utils.radio_player.metadata.Metadata;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import co.mobiwise.materialintro.animation.MaterialIntroListener;
 import co.mobiwise.materialintro.shape.Focus;
@@ -75,6 +89,10 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     private BottomSheetDialog mBottomSheetDialog;
     private BottomSheetBehavior mBehavior;
 
+
+    private final AtomicBoolean isMobileAdsInitializeCalled = new AtomicBoolean(false);
+    private AdView adView;
+    private GoogleMobileAdsConsentManager googleMobileAdsConsentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +125,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
 
         initBottomNav();
+        initAdMob();
 
 
         View lyt_profile = (View) findViewById(R.id.lyt_profile);
@@ -199,6 +218,65 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
     }
 
+    private void initAdMob() {
+        // Log the Mobile Ads SDK version.
+        Log.d(TAG, "Google Mobile Ads SDK Version: " + MobileAds.getVersion());
+
+        // Set your test devices. Check your logcat output for the hashed device ID to
+        // get test ads on a physical device. e.g.
+        // "Use RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("ABCDEF012345"))
+        // to get test ads on this device."
+        MobileAds.setRequestConfiguration(
+                new RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("ABCDEF012345"))
+                        .build());
+
+        // Gets the ad view defined in layout/ad_fragment.xml with ad unit ID set in
+        // values/strings.xml.
+        adView = findViewById(R.id.ad_view);
+
+        googleMobileAdsConsentManager = new GoogleMobileAdsConsentManager(this);
+
+        googleMobileAdsConsentManager.gatherConsent(
+                consentError -> {
+                    if (consentError != null) {
+                        // Consent not obtained in current session. This sample loads ads using
+                        // consent obtained in the previous session.
+                        Log.w(
+                                TAG,
+                                String.format(
+                                        "%s: %s",
+                                        consentError.getErrorCode(),
+                                        consentError.getMessage()));
+                    }
+
+                    if (googleMobileAdsConsentManager.canRequestAds()) {
+                        initializeMobileAdsSdk();
+                    }
+
+                    if (googleMobileAdsConsentManager.isFormAvailable()) {
+                        // Regenerate the options menu to include a privacy setting.
+                        invalidateOptionsMenu();
+                    }
+                }
+        );
+
+        if (googleMobileAdsConsentManager.canRequestAds()) {
+            initializeMobileAdsSdk();
+        }
+    }
+
+    private void initializeMobileAdsSdk() {
+        if (isMobileAdsInitializeCalled.getAndSet(true)) {
+            return;
+        }
+
+        // Initialize the Google Mobile Ads SDK.
+        MobileAds.initialize(this);
+
+        // Load an ad.
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+    }
 
     private void rotateImageAlbum() {
         fab_radio.setImageResource(R.drawable.ic_arrow_back);
@@ -374,10 +452,28 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         LinearLayout lyt_add_program = inflate.findViewById(R.id.lyt_add_program);
         LinearLayout lyt_add_episode = inflate.findViewById(R.id.lyt_add_episode);
         LinearLayout lyt_update_episode = inflate.findViewById(R.id.lyt_update_episode);
+        LinearLayout lyt_update_radio = inflate.findViewById(R.id.lyt_update_radio);
+        lyt_update_radio.setVisibility(View.GONE);
+
+
         if (checkPrivilege()) {
             lyt_add_program.setVisibility(View.VISIBLE);
             lyt_add_episode.setVisibility(View.VISIBLE);
-//            lyt_update_episode.setVisibility(View.VISIBLE);
+            lyt_update_episode.setVisibility(View.VISIBLE);
+        } else {
+            lyt_add_program.setVisibility(View.GONE);
+            lyt_add_episode.setVisibility(View.GONE);
+            lyt_update_episode.setVisibility(View.GONE);
+        }
+
+        if ((BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
+            lyt_update_radio.setVisibility(View.VISIBLE);
+            lyt_add_program.setVisibility(View.VISIBLE);
+            lyt_add_episode.setVisibility(View.VISIBLE);
+            lyt_update_episode.setVisibility(View.VISIBLE);
+            UserModel user = prefMgr.getUserSession();
+            user.setUserType(UserType.SuperADMIN);
+            prefMgr.write(FirebaseConstants.USER_INFO, (UserModel) user);
         }
 
         inflate.findViewById(R.id.lyt_user_acc).setOnClickListener(new View.OnClickListener() {
@@ -396,7 +492,6 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             public void onClick(View view) {
                 MainDialog mainDialog = new MainDialog(MainActivity.this);
                 mainDialog.showDialogRateUs();
-
                 mBottomSheetDialog.dismiss();
             }
         });
@@ -416,7 +511,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             }
         });
 
-        inflate.findViewById(R.id.lyt_add_program).setOnClickListener(new View.OnClickListener() {
+        lyt_add_program.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
 
                 if (checkPrivilege())
@@ -425,16 +520,24 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             }
         });
 
-        inflate.findViewById(R.id.lyt_add_episode).setOnClickListener(new View.OnClickListener() {
+        lyt_add_episode.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 AddEpisodeActivity.startActivity(MainActivity.this);
                 mBottomSheetDialog.dismiss();
             }
         });
 
-        inflate.findViewById(R.id.lyt_update_episode).setOnClickListener(new View.OnClickListener() {
+        lyt_update_episode.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 ListMultiSelection.startActivity(MainActivity.this);
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
+
+        lyt_update_radio.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                ListDragActivity.startActivity(MainActivity.this);
                 mBottomSheetDialog.dismiss();
             }
         });
@@ -502,7 +605,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 //        radioManager.playOrStop(streamURL);
 //        http://edge.mixlr.com/channel/kijwr
             }
-        }else {
+        } else {
             showToast(String.format(" %s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
         }
     }
@@ -519,13 +622,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         return (null != radioManager && null != RadioManager.getService() && RadioManager.getService().isPlaying());
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        radioManager.bind(getApplicationContext());
-        prefMgr = PreferencesManager.getInstance();
-        initToolbarProfile();
-    }
+
 
     @Subscribe
     public void onEvent(String status) {
@@ -627,9 +724,34 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         StaticEventDistributor.unregisterAsListener(this);
     }
 
+    /** Called when leaving the activity */
+    @Override
+    public void onPause() {
+        if (adView != null) {
+            adView.pause();
+        }
+        super.onPause();
+    }
 
+    /** Called when returning to the activity */
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (adView != null) {
+            adView.resume();
+        }
+        radioManager.bind(getApplicationContext());
+        prefMgr = PreferencesManager.getInstance();
+        initToolbarProfile();
+    }
+
+
+    /** Called before the activity is destroyed */
     @Override
     protected void onDestroy() {
+        if (adView != null) {
+            adView.destroy();
+        }
         super.onDestroy();
         if (!radioManager.isPlaying())
             radioManager.unbind(getApplicationContext());

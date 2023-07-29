@@ -65,7 +65,7 @@ public class SplashActivity extends AppCompatActivity {
             public void onSuccess(Object object) {
                 if (isCollection(object)) {
                     ArrayList<RadioInfo> stationList = (ArrayList<RadioInfo>) object;
-                    ShardDate.getInstance().setInfoList(stationList);
+                    ShardDate.getInstance().setRadioInfoList(stationList);
                     prefMgr.setRadioInfo(stationList);
 
                     if (prefMgr.selectedRadio() == null) {

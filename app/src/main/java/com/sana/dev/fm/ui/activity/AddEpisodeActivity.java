@@ -599,11 +599,11 @@ public class AddEpisodeActivity extends BaseActivity {
         datePicker.setThemeDark(false);
         datePicker.setAccentColor(getResources().getColor(R.color.colorPrimary));
         datePicker.setMinDate(cur_calender);
-        datePicker.show(getSupportFragmentManager(), "تحديد التاريخ");
+        datePicker.show(getSupportFragmentManager(), getString(R.string.label_pick_date));
     }
 
     public void showStationDialog() {
-        List<RadioInfo> items = ShardDate.getInstance().getInfoList();
+        List<RadioInfo> items = ShardDate.getInstance().getAllowedRadioInfoList(prefMgr.getUserSession());
 
         String[] charSequence = new String[items.size()];
         for (int i = 0; i < items.size(); i++) {

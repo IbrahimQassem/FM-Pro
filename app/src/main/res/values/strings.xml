@@ -10,15 +10,22 @@
     <string name="app_facebook">https://www.facebook.com/HudhudFm</string>
     <string name="app_instagram">http://instagram.com/hudhudfm</string>
 
+    <!-- This is an ad unit ID for a test ad. Replace with your own banner ad unit id. -->
+<!--    <string name="banner_ad_unit_id" translatable="false">ca-app-pub-3940256099942544/6300978111</string>-->
+    <!--   Hudhud FM Ad Unit ID -->
+    <string name="banner_ad_unit_id" translatable="false">ca-app-pub-1616966459725238/5299807688</string>
+
+
+
+
+    <!--    <string name="facebook_app_id">811088116023852</string>-->
+
     <plurals name="likes_count">
         <item quantity="one">%d like</item>
         <!--        like-->
         <item quantity="other">%d likes</item>
         <!--        likes-->
     </plurals>
-
-    <!--    <string name="facebook_app_id">811088116023852</string>-->
-
 
     <string name="url_profile">https://picsum.photos/200</string>
 
@@ -142,6 +149,7 @@
     <string name="label_list">List</string>
     <string name="label_comments">Comments</string>
     <string name="label_title">Title</string>
+    <string name="label_label">Label</string>
     <string name="ex_date">22/Sep/2022</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -183,7 +191,7 @@
     <string name="label_try_again">Try Again</string>
     <string name="error_no_comment">No text</string>
     <string name="label_warning">Warning</string>
-    <string name="confirm_delete">You\'re about to delete <br/>  <b>[%s]</b> \n Are you sure ?</string>
+    <string name="confirm_delete">You\'re about to delete <br />  <b>[%s]</b> \n Are you sure ?</string>
     <string name="label_error_occurred">Error Occurred !</string>
     <string name="label_close">Close</string>
     <string name="please_wait_to_save_your_profile">Saving image profile in progress ..</string>
@@ -199,6 +207,9 @@
 
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
     <string name="notification_channel_name" translatable="false">Channel human readable title</string>
+    <string name="update_radio_info">update radio info</string>
+    <string name="label_pick_date">Pick Date</string>
+    <string name="label_radio_list">Radio List</string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

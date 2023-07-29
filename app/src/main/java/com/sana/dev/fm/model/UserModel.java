@@ -2,10 +2,10 @@ package com.sana.dev.fm.model;
 
 import androidx.annotation.NonNull;
 
-import com.google.firebase.firestore.ServerTimestamp;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-
-import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Ibrahim on 22/2/18.
@@ -17,13 +17,13 @@ public class UserModel extends UserId {
     private long lastSignInTimestamp;
     private Gender gender;
     private UserType userType;
-//    @ServerTimestamp
     private String createdAt;
+    private List<String> allowedPermissions;
 
     public UserModel() {
     }
 
-    public UserModel(String userId, String name, String email, String mobile, String password, String photoUrl, String deviceToken, String nickNme, String bio, String tag, boolean isVerified, boolean isOnline, boolean isStopped, String deviceId, String stopNote, Gender gender, String country, String city, long lastSignInTimestamp, UserType userType,String createdAt,String notificationToken,String otherDate) {
+    public UserModel(String userId, String name, String email, String mobile, String password, String photoUrl, String deviceToken, String nickNme, String bio, String tag, boolean isVerified, boolean isOnline, boolean isStopped, String deviceId, String stopNote, Gender gender, String country, String city, long lastSignInTimestamp, UserType userType,String createdAt,String notificationToken,String otherDate,List<String> allowedPermissions) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -47,35 +47,18 @@ public class UserModel extends UserId {
         this.createdAt = createdAt;
         this.notificationToken = notificationToken;
         this.otherDate = otherDate;
+        this.allowedPermissions = allowedPermissions;
     }
 
     @Override
     public String toString() {
-        return "UserModel{" +
-                "name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", mobile='" + mobile + '\'' +
-                ", password='" + password + '\'' +
-                ", photoUrl='" + photoUrl + '\'' +
-                ", nickNme='" + nickNme + '\'' +
-                ", bio='" + bio + '\'' +
-                ", tag='" + tag + '\'' +
-                ", deviceId='" + deviceId + '\'' +
-                ", stopNote='" + stopNote + '\'' +
-                ", country='" + country + '\'' +
-                ", city='" + city + '\'' +
-                ", deviceToken='" + deviceToken + '\'' +
-                ", notificationToken='" + notificationToken + '\'' +
-                ", otherDate='" + otherDate + '\'' +
-                ", isVerified=" + isVerified +
-                ", isOnline=" + isOnline +
-                ", isStopped=" + isStopped +
-                ", lastSignInTimestamp=" + lastSignInTimestamp +
-                ", gender=" + gender +
-                ", userType=" + userType +
-                ", createdAt=" + createdAt +
-                ", userId='" + userId + '\'' +
-                '}';
+        return new GsonBuilder().create().toJson(this, UserModel.class);
+    }
+
+    public String toJSON() {
+        Gson gson = new Gson();
+        String json = gson.toJson(this);
+        return json;
     }
 
     public String getName() {
@@ -252,6 +235,14 @@ public class UserModel extends UserId {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public List<String> getAllowedPermissions() {
+        return allowedPermissions;
+    }
+
+    public void setAllowedPermissions(List<String> allowedPermissions) {
+        this.allowedPermissions = allowedPermissions;
     }
 }
 

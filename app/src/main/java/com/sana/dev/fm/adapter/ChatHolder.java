@@ -44,6 +44,8 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 //        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 //        setIsSender(currentUser != null && chat.getUid().equals(currentUser.getUid()));
 
+        binding.btMore.setVisibility(View.GONE);
+
         if ((BuildConfig.FLAVOR.equals("hudhudfm_google_play") && !BuildConfig.DEBUG)) {
             binding.lytCommentParent.setVisibility(View.GONE);
         }

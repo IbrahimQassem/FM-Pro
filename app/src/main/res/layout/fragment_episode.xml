@@ -33,7 +33,7 @@
                     android:layout_marginLeft="@dimen/spacing_middle"
                     android:layout_marginRight="@dimen/spacing_middle"
                     android:layout_marginBottom="@dimen/spacing_small"
-                    android:text="قائمة القنوات الإذاعية"
+                    android:text="@string/label_radio_list"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                     android:textColor="@color/grey_90" />
 

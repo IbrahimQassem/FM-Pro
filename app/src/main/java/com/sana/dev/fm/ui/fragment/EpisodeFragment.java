@@ -135,7 +135,7 @@ public class EpisodeFragment extends BaseFragment {
 //        if (isCollection(ShardDate.getInstance().getInfoList())) {
 //            stationList = (ArrayList<RadioInfo>) ShardDate.getInstance().getInfoList();
             stationList = prefMgr.getRadioList();
-            ShardDate.getInstance().setInfoList(stationList);
+            ShardDate.getInstance().setRadioInfoList(stationList);
             RadiosAdapter adapter = new RadiosAdapter(ctx, stationList, recyclerView, prefMgr.read("ScrollToPosition", 0));
 
             if (!isRadioSelected() && !stationList.isEmpty()) {

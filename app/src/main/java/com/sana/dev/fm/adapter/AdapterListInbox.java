@@ -1,6 +1,8 @@
 package com.sana.dev.fm.adapter;
 
 
+import static com.sana.dev.fm.utils.Tools.getFormattedTimeEvent;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.SparseBooleanArray;
@@ -12,16 +14,19 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.databinding.ItemInboxBinding;
+import com.sana.dev.fm.databinding.ItemProgramsBinding;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.utils.Tools;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdapterListInbox extends Adapter<AdapterListInbox.ViewHolder> {
+public class AdapterListInbox extends Adapter<AdapterListInbox.MyViewHolder> {
     private Context ctx;
     private int current_selected_idx = -1;
     private List<Episode> items;
@@ -34,28 +39,12 @@ public class AdapterListInbox extends Adapter<AdapterListInbox.ViewHolder> {
         void onItemLongClick(View view, Episode episode, int i);
     }
 
-    public class ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
-        public TextView date;
-        public TextView email;
-        public TextView from;
-        public ImageView image;
-        public TextView image_letter;
-        public RelativeLayout lyt_checked;
-        public RelativeLayout lyt_image;
-        public View lyt_parent;
-        public TextView message;
+    public static class MyViewHolder extends RecyclerView.ViewHolder {
+        private final ItemInboxBinding binding;
 
-        public ViewHolder(View view) {
-            super(view);
-            this.from = (TextView) view.findViewById(R.id.from);
-            this.email = (TextView) view.findViewById(R.id.email);
-            this.message = (TextView) view.findViewById(R.id.message);
-            this.date = (TextView) view.findViewById(R.id.tv_day_period);
-            this.image_letter = (TextView) view.findViewById(R.id.image_letter);
-            this.image = (ImageView) view.findViewById(R.id.civ_logo);
-            this.lyt_checked = (RelativeLayout) view.findViewById(R.id.lyt_checked);
-            this.lyt_image = (RelativeLayout) view.findViewById(R.id.lyt_image);
-            this.lyt_parent = view.findViewById(R.id.lyt_parent);
+        public MyViewHolder(ItemInboxBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 
@@ -69,71 +58,69 @@ public class AdapterListInbox extends Adapter<AdapterListInbox.ViewHolder> {
         this.selected_items = new SparseBooleanArray();
     }
 
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        return new ViewHolder(LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_inbox, viewGroup, false));
+    @Override
+    public MyViewHolder onCreateViewHolder(ViewGroup parent, int type) {
+        ItemInboxBinding inflate = ItemInboxBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new MyViewHolder(inflate);
     }
 
-    public void onBindViewHolder(ViewHolder viewHolder, @SuppressLint("RecyclerView") final int i) {
-        final Episode inbox = (Episode) this.items.get(i);
-        viewHolder.from.setText(inbox.getEpName());
-        viewHolder.email.setText(inbox.getEpDesc());
-        viewHolder.message.setText(inbox.getEpDesc());
-//        viewHolder.date.setText(inbox.getBroadcastDateAt());
-        viewHolder.image_letter.setText(inbox.getEpName().substring(0, 1));
-        viewHolder.lyt_parent.setActivated(this.selected_items.get(i, false));
-        viewHolder.lyt_parent.setOnClickListener(new View.OnClickListener() {
+
+
+    public void onBindViewHolder(MyViewHolder viewHolder, @SuppressLint("RecyclerView") final int i) {
+        final Episode model = (Episode) this.items.get(i);
+        viewHolder.binding.tvTitle.setText(model.getEpName());
+        viewHolder.binding.tvSubtitle.setText(model.getEpAnnouncer());
+        viewHolder.binding.tvDesc.setText(model.getEpDesc());
+//        viewHolder.binding.tvDate.setText(getFormattedTimeEvent(model.getDateTimeModel().getTimeStart()));
+        viewHolder.binding.imageLetter.setText(model.getEpName().substring(0, 1));
+        viewHolder.binding.lytParent.setActivated(this.selected_items.get(i, false));
+
+        viewHolder.binding.lytParent.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 if (AdapterListInbox.this.onClickListener != null) {
-                    AdapterListInbox.this.onClickListener.onItemClick(view, inbox, i);
+                    AdapterListInbox.this.onClickListener.onItemClick(view, model, i);
                 }
             }
         });
 
-        viewHolder.date.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                if (AdapterListInbox.this.onClickListener != null) {
-                    AdapterListInbox.this.onClickListener.onItemClick(view, inbox, i);
-                }
-            }
-        });
-
-        viewHolder.lyt_parent.setOnLongClickListener(new OnLongClickListener() {
+        viewHolder.binding.lytParent.setOnLongClickListener(new OnLongClickListener() {
             public boolean onLongClick(View view) {
                 if (AdapterListInbox.this.onClickListener == null) {
                     return false;
                 }
-                AdapterListInbox.this.onClickListener.onItemLongClick(view, inbox, i);
+                AdapterListInbox.this.onClickListener.onItemLongClick(view, model, i);
                 return true;
             }
         });
+
         toggleCheckedIcon(viewHolder, i);
-        displayImage(viewHolder, inbox);
+        displayImage(viewHolder, model);
     }
 
-    private void displayImage(ViewHolder viewHolder, Episode inbox) {
+    private void displayImage(MyViewHolder viewHolder, Episode inbox) {
         if (inbox.getEpProfile() != null) {
-            Tools.displayImageRound(this.ctx, viewHolder.image, inbox.getEpProfile());
-            viewHolder.image.setColorFilter(null);
-            viewHolder.image_letter.setVisibility(View.GONE);
+            Tools.displayImageRound(this.ctx, viewHolder.binding.image, inbox.getEpProfile());
+            viewHolder.binding.image.setColorFilter(null);
+            viewHolder.binding.imageLetter.setVisibility(View.GONE);
             return;
         }
-        viewHolder.image.setImageResource(R.drawable.shape_circle);
+        viewHolder.binding.image.setImageResource(R.drawable.shape_circle);
 //        viewHolder.image.setColorFilter(inbox.color);
-        viewHolder.image_letter.setVisibility(View.VISIBLE);
+        viewHolder.binding.imageLetter.setVisibility(View.VISIBLE);
     }
 
-    private void toggleCheckedIcon(ViewHolder viewHolder, int i) {
+    private void toggleCheckedIcon(MyViewHolder viewHolder, int i) {
         if (this.selected_items.get(i, false)) {
-            viewHolder.lyt_image.setVisibility(View.GONE);
-            viewHolder.lyt_checked.setVisibility(View.VISIBLE);
+            viewHolder.binding.lytImage.setVisibility(View.GONE);
+            viewHolder.binding.lytChecked.setVisibility(View.VISIBLE);
             if (this.current_selected_idx == i) {
                 resetCurrentIndex();
                 return;
             }
             return;
         }
-        viewHolder.lyt_checked.setVisibility(View.GONE);
-        viewHolder.lyt_image.setVisibility(View.VISIBLE);
+        viewHolder.binding.lytChecked.setVisibility(View.GONE);
+        viewHolder.binding.lytImage.setVisibility(View.VISIBLE);
         if (this.current_selected_idx == i) {
             resetCurrentIndex();
         }
