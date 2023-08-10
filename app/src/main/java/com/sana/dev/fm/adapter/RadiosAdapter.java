@@ -1,16 +1,21 @@
 package com.sana.dev.fm.adapter;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.RadiosItemBinding;
 import com.sana.dev.fm.model.RadioInfo;
+import com.sana.dev.fm.model.UserModel;
+import com.sana.dev.fm.utils.Helper;
+import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
 
@@ -62,6 +67,33 @@ public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.MyViewHold
 //        holder.title.setText(model.getName() +" : "+ (model.isActive() ? "active" : "inactive"));
         Tools.displayImageOriginal(context, holder.binding.civLogo, model.getLogo());
 
+        holder.binding.ivInternet.setVisibility(View.GONE);
+////        boolean isInternetAvailable = Helper.isOnline(context);
+//        boolean isInternetAvailable = Helper.isInternetUrlConnected(context,model.getStreamUrl());
+//        if (isInternetAvailable) {
+//           // new Helper.CheckStreamTask().execute(model.getStreamUrl());
+////            Thread thread = new Thread(new Runnable() {
+////                @Override
+////                public void run() {
+////                    try {
+////                        // Your code goes here
+////                        boolean isOnlineTxt = Helper.checkIfRadioOnline(model.getStreamUrl());
+////                        int colorState = isOnlineTxt ? R.color.green_500 : R.color.yellow_500;
+////                        holder.binding.ivInternet.setColorFilter(ContextCompat.getColor(context, colorState), android.graphics.PorterDuff.Mode.MULTIPLY);
+////                    } catch (Exception e) {
+////                        e.printStackTrace();
+////                    }
+////                }
+////            });
+////            thread.start();
+//            int colorState = isInternetAvailable ? R.color.green_500 : R.color.yellow_500;
+//            holder.binding.ivInternet.setVisibility(View.VISIBLE);
+//            holder.binding.ivInternet.setColorFilter(ContextCompat.getColor(context, colorState), android.graphics.PorterDuff.Mode.MULTIPLY);
+//
+//        } else {
+//            holder.binding.ivInternet.setColorFilter(ContextCompat.getColor(context, R.color.yellow_500), android.graphics.PorterDuff.Mode.MULTIPLY);
+//        }
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,7 +133,8 @@ public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.MyViewHold
         selectedItem = pos;
         notifyItemChanged(previousItem);
         notifyItemChanged(pos);
-        recyclerView.smoothScrollToPosition(pos);    }
+        recyclerView.smoothScrollToPosition(pos);
+    }
 
 
     public void setOnClickListener(OnClickListener onClickListener) {

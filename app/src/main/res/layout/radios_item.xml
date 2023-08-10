@@ -55,7 +55,17 @@
                 android:textSize="12.2sp"
                 tools:text="99.9" />
 
-
+            <ImageView
+                android:visibility="invisible"
+                android:id="@+id/iv_internet"
+                android:layout_width="@dimen/spacing_medium"
+                android:layout_height="@dimen/spacing_medium"
+                android:layout_marginStart="@dimen/spacing_medium"
+                android:layout_marginEnd="@dimen/spacing_medium"
+                android:layout_marginTop="1dp"
+                android:tint="@color/transparent"
+                app:srcCompat="@drawable/shape_circle"
+                tools:ignore="UseAppTint" />
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>

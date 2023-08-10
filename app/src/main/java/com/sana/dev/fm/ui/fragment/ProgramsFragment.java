@@ -6,6 +6,7 @@ import static com.sana.dev.fm.utils.FmUtilize.month_date;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.RADIO_PROGRAM_TABLE;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.SpannableString;
@@ -36,8 +37,10 @@ import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
+import com.sana.dev.fm.ui.activity.CommentsActivity;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
+import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
@@ -95,12 +98,11 @@ public class ProgramsFragment extends BaseFragment {
     @BindView(R.id.tvTittle)
     TextView tvTittle;
 
-    View view;
+    View parent_fragment_view;
     Context ctx;
 
     private AdapterListProgram mAdapter;
     private List<RadioProgram> itemList;
-    private View parent_view;
     private FmProgramCRUDImpl fmRepo;
 
     @Override
@@ -116,16 +118,12 @@ public class ProgramsFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_programs, container, false);
-        ButterKnife.bind(this, view);
-        parent_view = view.findViewById(android.R.id.content);
+        parent_fragment_view = inflater.inflate(R.layout.fragment_programs, container, false);
+        ButterKnife.bind(this, parent_fragment_view);
         fmRepo = new FmProgramCRUDImpl(getActivity(), RADIO_PROGRAM_TABLE);
-
         initList();
         initComponent();
-
-
-        return view;
+        return parent_fragment_view;
     }
 
 
@@ -148,7 +146,7 @@ public class ProgramsFragment extends BaseFragment {
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
         String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : "";
-        SpannableString blueSpannable = new SpannableString(Html.fromHtml("<b>" + primary + "</b>"));
+        SpannableString blueSpannable = new SpannableString(Html.fromHtml(" <b>" + primary + "</b> "));
 //        StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
 //        blueSpannable.setSpan(boldSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
@@ -166,15 +164,11 @@ public class ProgramsFragment extends BaseFragment {
             fmRepo.queryAllBy(prefMgr.selectedRadio().getRadioId(),null, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    LogUtility.d(LogUtility.TAG, "readAllProgramByRadioId response: " + new Gson().toJson(object));
+//                    LogUtility.d(LogUtility.TAG, "readAllProgramByRadioId response: " + new Gson().toJson(object));
 
                     if (isCollection(object)) {
                         itemList = (List<RadioProgram>) object;
-                        recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
-                        recyclerView.setHasFixedSize(true);
 //                      itemList =  DataGenerator.getProgramData(ctx);
-//                        mAdapter = new AdapterListProgram(ctx, itemList, R.layout.item_programs);
-//                        recyclerView.setAdapter(mAdapter);
                         initAdapter();
                         mAdapter.setOnItemClickListener(new AdapterListProgram.OnItemClickListener() {
                             public void onItemClick(View v, RadioProgram radioProgram, int i) {
@@ -189,6 +183,13 @@ public class ProgramsFragment extends BaseFragment {
                                     getActivity().overridePendingTransition(0, 0);
 //                                showToast("is : "+radioProgram.getPrName());
                                 }
+//                                switch (v.getId()) {
+//                                    case R.id.bt_toggle:
+//                                        break;
+//                                    default:return;
+//                                }
+
+
                             }
                         });
 
@@ -278,6 +279,9 @@ public class ProgramsFragment extends BaseFragment {
 
 
         mAdapter = new AdapterListProgram(ctx, itemList, R.layout.item_programs);
+//        recyclerView.setAdapter(mAdapter);
+
+      //  showToast(itemList.size() + "");
 
         //Add your adapter to the sectionAdapter
         SimpleSectionedRecyclerViewAdapter.Section[] dummy = new SimpleSectionedRecyclerViewAdapter.Section[sections.size()];
@@ -285,8 +289,11 @@ public class ProgramsFragment extends BaseFragment {
                 SimpleSectionedRecyclerViewAdapter(ctx, R.layout.layout_section, R.id.section_text, mAdapter);
         mSectionedAdapter.setSections(sections.toArray(dummy));
 
-        recyclerView.setAdapter(mSectionedAdapter);
 
+        recyclerView.setAdapter(mSectionedAdapter);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerView.setNestedScrollingEnabled(false);
     }
 
     @Override

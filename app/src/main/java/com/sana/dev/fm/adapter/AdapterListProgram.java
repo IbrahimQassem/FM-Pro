@@ -103,11 +103,12 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
             if (isExpanded) {
                 Tools.toggleArrow(holder.binding.btToggle);
 
-                ViewAnimation.expand(holder.binding.lytMore, new ViewAnimation.AnimListener() {
-                    public void onFinish() {
-//                        Tools.nestedScrollTo(holder.nested_scroll_view, holder.lyt_more);
-                    }
-                });
+                ViewAnimation.expand(holder.binding.lytMore);
+//                ViewAnimation.expand(holder.binding.lytMore, new ViewAnimation.AnimListener() {
+//                    public void onFinish() {
+////                        Tools.nestedScrollTo(holder.nested_scroll_view, holder.lyt_more);
+//                    }
+//                });
             } else {
                 ViewAnimation.collapse(holder.binding.lytMore);
             }
@@ -135,9 +136,7 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
                 holder.binding.lytParentDayPeriod.setVisibility(View.GONE);
             }
 
-
             Tools.displayImageOriginal(this.ctx, holder.binding.ivBanner, program.getPrProfile());
-
 
             holder.binding.btToggle.setOnClickListener(new OnClickListener() {
                 @Override
@@ -171,49 +170,7 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
-
-
-/*    private void changeStateOfItemsInLayout(int p) {
-        for (int x = 0; x < items.size(); x++) {
-            if (x == p) {
-                items.get(x).setExpanded(true);
-                //Since this is the tapped item, we will skip
-                //the rest of loop for this item and set it expanded
-                continue;
-            }
-            items.get(x).setExpanded(false);
-        }
-    }*/
-
     public void initExpand(MyViewHolder holder, RadioProgram program) {
-
-//        if (program.isExpanded()) {
-////            holder.contentLayout.setVisibility(View.VISIBLE);
-//            ViewAnimation.expand(holder.lyt_more, new ViewAnimation.AnimListener() {
-//                public void onFinish() {
-//                }
-//            });
-//        } else {
-//            ViewAnimation.collapse(holder.lyt_more);
-//
-//        }
-
-
-//        holder.lyt_more.setVisibility(View.GONE);
-//        holder.binding.btToggle.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View view) {
-//                toggleSection(holder.binding.btToggle, holder);
-////                if (holder.lyt_more.isShown()) {
-////                    items.get(holder.getLayoutPosition()).isExpanded = false;
-////                } else {
-////                    items.get(holder.getLayoutPosition()).isExpanded = true;
-////                    changeStateOfItemsInLayout(holder.getLayoutPosition());
-////                }
-//                notifyDataSetChanged();
-//            }
-//        });
-
-
         if (program.getDateTimeModel() != null) {
             DateTimeModel dateTime = program.getDateTimeModel();
             ArrayList<WakeTranslate> arDayList = translateWakeDaysAr(dateTime.getDisplayDays());
@@ -271,29 +228,6 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
             holder.binding.lytParentCategory.setVisibility(View.GONE);
         }
 
-
-    }
-
-    private void toggleSection(View view, MyViewHolder viewHolder) {
-//        if (Tools.toggleArrow(view)) {
-//            ViewAnimation.expand(viewHolder.lyt_more, new ViewAnimation.AnimListener() {
-//                public void onFinish() {
-//                }
-//            });
-//        } else {
-//            ViewAnimation.collapse(viewHolder.lyt_more);
-//        }
-
-//      for(int i=0;i<items.size();i++){
-//          if (Tools.toggleArrow(view)) {
-//              ViewAnimation.expand(viewHolder.lyt_more, new ViewAnimation.AnimListener() {
-//                  public void onFinish() {
-//                  }
-//              });
-//          } else {
-//              ViewAnimation.collapse(viewHolder.lyt_more);
-//          }
-//      }
 
     }
 

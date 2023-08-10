@@ -152,10 +152,10 @@
             android:value="true" />
 
         <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
-        <!-- Hudhud FM AdMob app ID: ca-app-pub-1616966459725238~1829350433 -->
+        <!-- Hudhud FM AdMob app ID: ca-app-pub-8921334057686979~6893968687 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-1616966459725238~1829350433"/>
+            android:value="ca-app-pub-8921334057686979~6893968687"/>
 
 
     </application>

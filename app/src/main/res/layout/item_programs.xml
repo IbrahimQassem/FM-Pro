@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="@dimen/spacing_large">
+        android:paddingBottom="@dimen/spacing_middle">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -31,11 +31,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="220dp"
                     android:adjustViewBounds="true"
-                    android:padding="@dimen/spacing_medium"
+                    android:contentDescription="@string/app_name"
                     android:scaleType="fitCenter"
                     android:transitionName="@string/app_name"
-                    app:srcCompat="@drawable/logo_app"
-                    tools:ignore="MissingConstraints" />
+                    app:srcCompat="@drawable/logo_app" />
 
                 <View
                     android:id="@+id/view"
@@ -49,8 +48,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center|center_vertical"
                     android:orientation="horizontal"
-                    android:padding="@dimen/spacing_xmedium"
-                    >
+                    android:padding="@dimen/spacing_xmedium">
 
                     <com.mikhaellopez.circularimageview.CircularImageView
                         android:id="@+id/civ_logo"

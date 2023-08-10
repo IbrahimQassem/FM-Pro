@@ -71,8 +71,8 @@ android {
         hudhudfm_google_play {
             dimension 'fm_flavor'
             applicationId "com.sana.dev.fm"
-            versionCode 19
-            versionName "1.0.9"
+            versionCode 20
+            versionName "2.0.0"
             signingConfig signingConfigs.debug
             buildConfigField "String", "BASE_FB_DB" , '"HudHudFmGooglePlay"'
         }
@@ -115,7 +115,7 @@ dependencies {
     implementation 'com.jakewharton:butterknife:10.2.3'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
 
-    implementation 'com.hbb20:ccp:2.1.9'                            // country code
+    implementation 'com.hbb20:ccp:2.5.0'                            // country code
 
     implementation 'com.mikhaellopez:circularimageview:3.2.0'          // circle image view
 

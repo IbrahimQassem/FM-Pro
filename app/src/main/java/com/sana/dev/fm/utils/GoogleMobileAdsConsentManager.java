@@ -52,38 +52,38 @@ public class GoogleMobileAdsConsentManager {
      * consent form if necessary. */
     public void gatherConsent(
             OnConsentGatheringCompleteListener onConsentGatheringCompleteListener) {
-        // For testing purposes, you can force a DebugGeography of EEA or NOT_EEA.
-        ConsentDebugSettings debugSettings = new ConsentDebugSettings.Builder(activity)
-                // .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
-                // Check your logcat output for the hashed device ID e.g.
-                // "Use new ConsentDebugSettings.Builder().addTestDeviceHashedId("ABCDEF012345")" to use
-                // the debug functionality.
-                .addTestDeviceHashedId("TEST-DEVICE-HASHED-ID")
-                .build();
-
-        ConsentRequestParameters params = new ConsentRequestParameters.Builder()
-                .setConsentDebugSettings(debugSettings)
-                .build();
-
-        // Requesting an update to consent information should be called on every app launch.
-        consentInformation.requestConsentInfoUpdate(
-                activity,
-                params,
-                () ->
-                        loadAndPresentConsentFormIfRequired(
-                                activity,
-                                formError -> {
-                                    // Consent has been gathered.
-                                    onConsentGatheringCompleteListener.consentGatheringComplete(formError);
-
-                                    // Your app needs to allow the user to change their consent status at any time.
-                                    // Load another form and store it so it's ready to be displayed immediately after
-                                    // the user clicks your app's privacy settings button.
-                                    loadPrivacyOptionsFormIfRequired();
-                                }),
-                requestConsentError ->
-                        onConsentGatheringCompleteListener.consentGatheringComplete(requestConsentError)
-        );
+//        // For testing purposes, you can force a DebugGeography of EEA or NOT_EEA.
+//        ConsentDebugSettings debugSettings = new ConsentDebugSettings.Builder(activity)
+//                // .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
+//                // Check your logcat output for the hashed device ID e.g.
+//                // "Use new ConsentDebugSettings.Builder().addTestDeviceHashedId("ABCDEF012345")" to use
+//                // the debug functionality.
+//                .addTestDeviceHashedId("A9E33D385BEC7E8EBB240261B32C2385")
+//                .build();
+////UserMessagingPlatform: Use new ConsentDebugSettings.Builder().addTestDeviceHashedId("A9E33D385BEC7E8EBB240261B32C2385") to set this as a debug device
+//        ConsentRequestParameters params = new ConsentRequestParameters.Builder()
+//                .setConsentDebugSettings(debugSettings)
+//                .build();
+//
+//        // Requesting an update to consent information should be called on every app launch.
+//        consentInformation.requestConsentInfoUpdate(
+//                activity,
+//                params,
+//                () ->
+//                        loadAndPresentConsentFormIfRequired(
+//                                activity,
+//                                formError -> {
+//                                    // Consent has been gathered.
+//                                    onConsentGatheringCompleteListener.consentGatheringComplete(formError);
+//
+//                                    // Your app needs to allow the user to change their consent status at any time.
+//                                    // Load another form and store it so it's ready to be displayed immediately after
+//                                    // the user clicks your app's privacy settings button.
+//                                    loadPrivacyOptionsFormIfRequired();
+//                                }),
+//                requestConsentError ->
+//                        onConsentGatheringCompleteListener.consentGatheringComplete(requestConsentError)
+//        );
     }
 
     private void loadAndPresentConsentFormIfRequired(

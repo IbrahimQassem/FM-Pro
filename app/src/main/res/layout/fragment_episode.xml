@@ -27,15 +27,21 @@
                 android:layout_marginTop="@dimen/spacing_middle"
                 android:orientation="vertical">
 
+
                 <TextView
+                    android:id="@+id/tvTittle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/spacing_middle"
-                    android:layout_marginRight="@dimen/spacing_middle"
-                    android:layout_marginBottom="@dimen/spacing_small"
+                    android:layout_margin="@dimen/spacing_middle"
+                    android:gravity="center_vertical"
+                    android:paddingStart="@dimen/spacing_middle"
+                    android:paddingEnd="@dimen/spacing_middle"
+                    android:paddingTop="@dimen/spacing_middle"
                     android:text="@string/label_radio_list"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                    android:textColor="@color/grey_90" />
+                    android:textColor="@color/grey_90"
+                    tools:text="@string/label_label" />
+
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -47,11 +53,11 @@
                         android:id="@+id/recyclerView"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:clipToPadding="false"
                         android:layoutDirection="ltr"
                         android:minHeight="120dp"
                         android:orientation="horizontal"
                         android:scrollbarStyle="insideOverlay"
-                        android:clipToPadding="false"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                         tools:listitem="@layout/radios_item" />
 
@@ -61,10 +67,6 @@
 
             </LinearLayout>
 
-
-<!--            <View-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="@dimen/spacing_small" />-->
         </LinearLayout>
 
 
@@ -75,13 +77,18 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tv_title_sec2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/spacing_middle"
-                android:layout_marginRight="@dimen/spacing_middle"
-                android:text="البرامج"
+                android:layout_margin="@dimen/spacing_middle"
+                android:gravity="center_vertical"
+                android:paddingStart="@dimen/spacing_middle"
+                android:paddingEnd="@dimen/spacing_middle"
+                android:paddingTop="@dimen/spacing_middle"
+                android:text="@string/label_radio_map"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                android:textColor="@color/grey_90" />
+                android:textColor="@color/grey_90"
+                tools:text="@string/label_label" />
 
             <FrameLayout
                 android:id="@+id/child_fragment_container"

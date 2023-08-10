@@ -226,9 +226,10 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         // get test ads on a physical device. e.g.
         // "Use RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("ABCDEF012345"))
         // to get test ads on this device."
-        MobileAds.setRequestConfiguration(
-                new RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("ABCDEF012345"))
-                        .build());
+        //UserMessagingPlatform: Use new ConsentDebugSettings.Builder().addTestDeviceHashedId("A9E33D385BEC7E8EBB240261B32C2385") to set this as a debug device
+//        MobileAds.setRequestConfiguration(
+//                new RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("ABCDEF012345"))
+//                        .build());
 
         // Gets the ad view defined in layout/ad_fragment.xml with ad unit ID set in
         // values/strings.xml.

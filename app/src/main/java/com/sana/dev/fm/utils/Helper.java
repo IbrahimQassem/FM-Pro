@@ -3,14 +3,18 @@ package com.sana.dev.fm.utils;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 
 import org.json.JSONObject;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,6 +22,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class Helper {
 
@@ -156,6 +167,125 @@ public class Helper {
 
         return chaine.toString();
     }
+
+    public static boolean checkIfRadioOnline(String radioUrl) {
+//        AsyncTask<String, Void, Boolean> state = new RetrieveFeedTask().execute(radioUrl);
+        boolean state;
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(radioUrl)
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                // response code 200 indicates the stream is online
+                // you can perform additional checks based on your requirements
+                Log.d("Radio URL Status", "Stream is online");
+                state = true;
+            } else {
+                Log.d("Radio URL Status", "Stream is offline");
+                state = false;
+            }
+        } catch (IOException e) {
+            Log.d("Radio URL Status", "Error checking stream status: " + e.getMessage());
+            state = false;
+        }
+
+        return state;
+    }
+
+    static class RetrieveFeedTask extends AsyncTask<String, Void, Boolean> {
+
+        private Exception exception;
+
+        protected Boolean doInBackground(String... urls) {
+            try {
+                URL url = new URL(urls[0]);
+                return checkIfRadioOnline(urls[0]);
+            } catch (Exception e) {
+                this.exception = e;
+                return false;
+            } finally {
+            }
+        }
+
+        protected void onPostExecute(boolean feed) {
+            // TODO: check this.exception
+            // TODO: do something with the feed
+        }
+    }
+
+    public static class CheckStreamTask extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            String streamUrl = params[0];
+            try {
+                MediaPlayer mediaPlayer = new MediaPlayer();
+                mediaPlayer.setDataSource(streamUrl);
+                mediaPlayer.prepareAsync();
+                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        // The stream can be played successfully
+                        publishProgress();
+                        mp.release();
+                    }
+                });
+                mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                    @Override
+                    public boolean onError(MediaPlayer mp, int what, int extra) {
+                        // The stream cannot be played
+                        return true;
+                    }
+                });
+            } catch (Exception e) {
+                // There was an error setting up the MediaPlayer
+                return false;
+            }
+            return false;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            // Update UI to indicate that stream is playable
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (!success) {
+                // Update UI to indicate that stream is not playable
+            }
+        }
+    }
+
+    public static boolean isInternetUrlConnected(Context context,String v) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        if (isConnected) {
+            String[] testUrls = new String[] {
+                   v
+            };
+            for (String url : testUrls) {
+                try {
+                    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+                    connection.setRequestMethod("HEAD");
+                    int responseCode = connection.getResponseCode();
+                    if (responseCode != 200) {
+                        isConnected = false;
+                        break;
+                    }
+                } catch (Exception e) {
+                    isConnected = false;
+                    break;
+                }
+            }
+        }
+        return isConnected;
+    }
+
+
 
 
 }
