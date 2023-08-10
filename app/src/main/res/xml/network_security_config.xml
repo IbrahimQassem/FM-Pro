@@ -5,4 +5,8 @@
             <certificates src="system" />
         </trust-anchors>
     </base-config>
+
+    <!--    <domain-config cleartextTrafficPermitted="true">-->
+    <!--        <domain includeSubdomains="true">myowndomain.com</domain>-->
+    <!--    </domain-config>-->
 </network-security-config>

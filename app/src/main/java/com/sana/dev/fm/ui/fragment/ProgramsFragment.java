@@ -24,11 +24,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 
 import com.google.gson.Gson;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.adapter.AdapterListInbox;
 import com.sana.dev.fm.adapter.AdapterListProgram;
 import com.sana.dev.fm.adapter.SimpleSectionedRecyclerViewAdapter;
 import com.sana.dev.fm.model.ButtonConfig;
@@ -38,8 +40,10 @@ import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.CommentsActivity;
+import com.sana.dev.fm.ui.activity.ListMultiSelection;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
+import com.sana.dev.fm.utils.DataGenerator;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
@@ -75,7 +79,7 @@ public class ProgramsFragment extends BaseFragment {
      * this fragment using the provided parameters.
      *
      * @param radioId Parameter 1.
-     * @param list   Parameter 2.
+     * @param list    Parameter 2.
      * @return A new instance of fragment ProgramsFragment.
      */
     public static ProgramsFragment newInstance(String radioId, List<RadioProgram> list) {
@@ -121,8 +125,24 @@ public class ProgramsFragment extends BaseFragment {
         parent_fragment_view = inflater.inflate(R.layout.fragment_programs, container, false);
         ButterKnife.bind(this, parent_fragment_view);
         fmRepo = new FmProgramCRUDImpl(getActivity(), RADIO_PROGRAM_TABLE);
-        initList();
-        initComponent();
+         initComponent();
+
+//        itemList = DataGenerator.getProgramData(ctx);
+////        List<Episode> list = DataGenerator.getEpisodeData(ctx);
+//////        AdapterListInbox adapterListInbox = new AdapterListInbox(ctx, list);
+////
+//        mAdapter = new AdapterListProgram(ctx, itemList, R.layout.item_programs);
+////        recyclerView.setAdapter(mAdapter);
+////        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+//
+//        // Removes blinks
+//        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+//
+//        // Standard setup
+//        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+//        recyclerView.setAdapter(mAdapter);
+//        recyclerView.setHasFixedSize(true);
+
         return parent_fragment_view;
     }
 
@@ -161,7 +181,7 @@ public class ProgramsFragment extends BaseFragment {
         tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
 
         if (isRadioSelected())
-            fmRepo.queryAllBy(prefMgr.selectedRadio().getRadioId(),null, new CallBack() {
+            fmRepo.queryAllBy(prefMgr.selectedRadio().getRadioId(), null, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
 //                    LogUtility.d(LogUtility.TAG, "readAllProgramByRadioId response: " + new Gson().toJson(object));
@@ -172,7 +192,7 @@ public class ProgramsFragment extends BaseFragment {
                         initAdapter();
                         mAdapter.setOnItemClickListener(new AdapterListProgram.OnItemClickListener() {
                             public void onItemClick(View v, RadioProgram radioProgram, int i) {
-                                if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhud") || (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG) ) {
+                                if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhud") || (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
                                     Episode episode = new Episode();
                                     episode.setRadioId(radioProgram.getRadioId());
                                     episode.setProgramId(radioProgram.getProgramId());
@@ -196,14 +216,14 @@ public class ProgramsFragment extends BaseFragment {
                         mAdapter.setOnLongItemClickListener(new AdapterListProgram.OnLongItemClickListener() {
                             @Override
                             public void onLongItemClick(View view, RadioProgram obj, int position) {
-                                if (ProgramsFragment.this.isAccountSignedIn() && prefMgr.getUserSession().getUserType() == UserType.SuperADMIN){
-                                    ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_warning), getString(R.string.confirm_delete,obj.getPrName() ),  new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                                if (ProgramsFragment.this.isAccountSignedIn() && prefMgr.getUserSession().getUserType() == UserType.SuperADMIN) {
+                                    ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_warning), getString(R.string.confirm_delete, obj.getPrName()), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
                                             fmRepo.delete(obj, new CallBack() {
                                                 @Override
                                                 public void onSuccess(Object object) {
-                                                    showToast(getString(R.string.deleted_successfully_with_param,obj.getPrName() ));
+                                                    showToast(getString(R.string.deleted_successfully_with_param, obj.getPrName()));
                                                     mAdapter.removeAt(position);
                                                 }
 
@@ -281,7 +301,7 @@ public class ProgramsFragment extends BaseFragment {
         mAdapter = new AdapterListProgram(ctx, itemList, R.layout.item_programs);
 //        recyclerView.setAdapter(mAdapter);
 
-      //  showToast(itemList.size() + "");
+        //  showToast(itemList.size() + "");
 
         //Add your adapter to the sectionAdapter
         SimpleSectionedRecyclerViewAdapter.Section[] dummy = new SimpleSectionedRecyclerViewAdapter.Section[sections.size()];
@@ -312,13 +332,9 @@ public class ProgramsFragment extends BaseFragment {
     }
 
 
-    private ArrayList<Map<String, String>> keyList;
-    private Map<String, List<RadioProgram>> map;
+    private ArrayList<Map<String, String>>  keyList = new ArrayList<>();
+    private Map<String, List<RadioProgram>> map = new HashMap<>();
 
-    private void initList() {
-        map = new HashMap<>();
-        keyList = new ArrayList<>();
-    }
 
 //    SimpleDateFormat month_date = new SimpleDateFormat("MMMM",_arabicFormat);
 //    String month_name = month_date.format(cal.getTime());
