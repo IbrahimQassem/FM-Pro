@@ -319,7 +319,7 @@ public class ProgramsFragment extends BaseFragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        this.ctx = context;
+        this.ctx = mActivity;
     }
 
     @Override

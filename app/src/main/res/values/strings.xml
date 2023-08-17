@@ -210,6 +210,7 @@
     <string name="update_radio_info">update radio info</string>
     <string name="label_pick_date">Pick Date</string>
     <string name="label_radio_list">Radio List</string>
+    <string name="label_priority">Priority %d</string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

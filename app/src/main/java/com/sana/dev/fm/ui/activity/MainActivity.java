@@ -125,7 +125,10 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
 
         initBottomNav();
-        initAdMob();
+//        initAdMob();
+        adView = findViewById(R.id.ad_view);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
 
 
         View lyt_profile = (View) findViewById(R.id.lyt_profile);

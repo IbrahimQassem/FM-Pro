@@ -125,9 +125,9 @@
                         android:id="@+id/tv_state"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:padding="@dimen/spacing_middle"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                         android:textColor="@color/colorPrimary"
-                        android:padding="@dimen/spacing_middle"
                         tools:text="@string/label_display_now" />
 
                     <View
@@ -139,9 +139,9 @@
                         android:id="@+id/tv_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:padding="@dimen/spacing_middle"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                         android:textColor="@color/grey_40"
-                        android:padding="@dimen/spacing_middle"
                         tools:text="@string/ex_date" />
                 </LinearLayout>
 
@@ -217,10 +217,10 @@
                         tools:text="@string/ex_comment_count" />
                 </LinearLayout>
 
-                <View android:layout_width="0dp"
+                <View
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
-
+                    android:layout_weight="1" />
 
 
                 <ImageView

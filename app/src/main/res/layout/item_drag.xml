@@ -5,7 +5,8 @@
     android:id="@+id/lyt_parent"
     style="@style/RippleStyleBlack"
     android:layout_width="match_parent"
-    android:layout_height="?attr/actionBarSize"
+    android:layout_height="150dp"
+    android:minHeight="?attr/actionBarSize"
     android:background="@android:color/white"
     android:focusable="true">
 
@@ -57,16 +58,24 @@
                         android:textStyle="bold"
                         tools:text="@string/label_title" />
 
+                    <TextView
+                        android:id="@+id/tv_priority"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textColor="@color/blue_300"
+                        android:textStyle="bold"
+                        tools:text="@string/label_label" />
 
                     <TextView
                         android:id="@+id/tv_desc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:singleLine="true"
+                        android:maxLines="3"
+                        android:singleLine="false"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                         android:textColor="@color/grey_40"
-                        tools:text="@string/label_desc" />
+                        tools:text="@string/lorem_ipsum" />
                 </LinearLayout>
 
                 <TextView
@@ -87,8 +96,8 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@android:color/transparent"
-                android:tint="@color/grey_40"
-                app:srcCompat="@drawable/ic_reoder" />
+                app:srcCompat="@drawable/ic_reoder"
+                app:tint="@color/grey_40" />
 
         </LinearLayout>
 

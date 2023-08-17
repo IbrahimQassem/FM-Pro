@@ -10,6 +10,7 @@ import com.google.gson.reflect.TypeToken;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
+import com.sana.dev.fm.utils.network.CheckInternetConnection;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -122,16 +123,22 @@ public class PreferencesManager {
 
 
     public ArrayList<RadioInfo> getRadioList(){
-        Gson gson = new Gson();
-        String jstring = read(FirebaseConstants.RADIO_INFO_LIST, null);
-        Type type = new TypeToken<ArrayList<RadioInfo>>() {}.getType();
+        ArrayList<RadioInfo> list = new ArrayList<>();
+        try {
+            Gson gson = new Gson();
+            String json = read(FirebaseConstants.RADIO_INFO_LIST, null);
+            Type type = new TypeToken<ArrayList<RadioInfo>>() {}.getType();
 
 //        Type collectionType = new TypeToken<Collection<RadioInfo>>(){}.getType();
 //        Collection<RadioInfo> enums = gson.fromJson(jstring, collectionType);
 //        List<RadioInfo> lcs = (List<RadioInfo>) new Gson()
 //                .fromJson( jstring , collectionType);
 
-        return gson.fromJson(jstring, type);
+            list = gson.fromJson(json, type);
+        }catch (Exception e){
+            LogUtility.e(LogUtility.tag(PreferencesManager.class), e.toString());
+        }
+        return list;
     }
 
     public RadioInfo selectedRadio() {

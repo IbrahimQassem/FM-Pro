@@ -200,5 +200,6 @@
     <string name="update_radio_info">تحديث بيانات الإذاعة</string>
     <string name="label_pick_date">تحديد التاريخ</string>
     <string name="label_radio_list">قائمة القنوات الإذاعية</string>
+    <string name="label_priority">الأولوية %d</string>
 
 </resources>

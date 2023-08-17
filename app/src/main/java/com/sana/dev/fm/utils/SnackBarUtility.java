@@ -24,7 +24,7 @@ public class SnackBarUtility {
     }
 
     public interface SbClickListener {
-        void onClick(View view );
+        void onClick(View view);
     }
 
     public void setOnSbClickListener(SbClickListener sbClickListener) {
@@ -57,8 +57,8 @@ public class SnackBarUtility {
 
 
     public void deleteConfirm(String s) {
-        Snackbar snack = Snackbar.make(activity.findViewById(android.R.id.content), activity.getResources().getString(R.string.delete_messages,s), Snackbar.LENGTH_LONG);
-        snack .setAction("نعم", new View.OnClickListener() {
+        Snackbar snack = Snackbar.make(activity.findViewById(android.R.id.content), activity.getResources().getString(R.string.delete_messages, s), Snackbar.LENGTH_LONG);
+        snack.setAction("نعم", new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                Snackbar mSnackbar = Snackbar.make(view, activity.getResources().getString(R.string.delete_confirmed,   s), Snackbar.LENGTH_SHORT);
@@ -75,7 +75,7 @@ public class SnackBarUtility {
     }
 
 
-    public Snackbar showSnackBar( String txt,int duration) { // Create the Snackbar
+    public Snackbar showSnackBar(String txt, int duration) { // Create the Snackbar
         Snackbar snackbar = Snackbar.make(activity.findViewById(android.R.id.content), txt, duration);
         // 15 is margin from all the sides for snackbar
         int marginFromSides = 15;

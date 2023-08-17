@@ -495,17 +495,18 @@ public class FmUtilize {
     }
 
     public static Date stringToDate(String string) {
-        final Locale locale = Locale.ENGLISH;
-        ThreadLocal formater = new ThreadLocal() {
-            protected SimpleDateFormat initialValue() {
-                return new SimpleDateFormat(_dateFormat, locale);
+        if (!FmUtilize.isEmpty(string))
+            try {
+                final Locale locale = Locale.ENGLISH;
+                ThreadLocal formater = new ThreadLocal() {
+                    protected SimpleDateFormat initialValue() {
+                        return new SimpleDateFormat(_dateFormat, locale);
+                    }
+                };
+                return ((SimpleDateFormat) formater.get()).parse(string);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        };
-        try {
-            return ((SimpleDateFormat) formater.get()).parse(string);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
         return null;
     }
 
@@ -650,8 +651,8 @@ public class FmUtilize {
     }
 
     public String getLastThree(String myString) {
-        if(myString.length() > 3)
-            return myString.substring(myString.length()-3);
+        if (myString.length() > 3)
+            return myString.substring(myString.length() - 3);
         else
             return myString;
     }
@@ -897,7 +898,6 @@ public class FmUtilize {
     }
 
 
-
     public static boolean isGooglePlayServicesAvailable(Activity activity) {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
         int status = googleApiAvailability.isGooglePlayServicesAvailable(activity);
@@ -914,8 +914,7 @@ public class FmUtilize {
 
         String deviceId;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-        {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         } else {
             final TelephonyManager mTelephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -925,12 +924,10 @@ public class FmUtilize {
                 }
             }
             assert mTelephony != null;
-            if (mTelephony.getDeviceId() != null)
-            {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                {
+            if (mTelephony.getDeviceId() != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     deviceId = mTelephony.getImei();
-                }else {
+                } else {
                     deviceId = mTelephony.getDeviceId();
                 }
             } else {
@@ -940,7 +937,6 @@ public class FmUtilize {
         Log.d("deviceId", deviceId);
         return deviceId;
     }
-
 
 
     public static String getFirebaseToken(Context context) {

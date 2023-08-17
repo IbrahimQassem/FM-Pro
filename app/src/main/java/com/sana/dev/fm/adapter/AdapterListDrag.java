@@ -11,12 +11,16 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemDragBinding;
+import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioInfo;
+import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.utils.DragItemTouchHelper;
+import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
 
 import java.util.ArrayList;
@@ -28,19 +32,16 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private List<RadioInfo> items = new ArrayList<>();
 
     private Context ctx;
-    private OnItemClickListener mOnItemClickListener;
+    private OnClickListener onClickListener = null;
     private OnStartDragListener mDragStartListener = null;
-
-    public interface OnItemClickListener {
-        void onItemClick(View view, RadioInfo obj, int position);
-    }
 
     public interface OnStartDragListener {
         void onStartDrag(RecyclerView.ViewHolder viewHolder, RadioInfo obj, int position);
     }
 
-    public void setOnItemClickListener(final OnItemClickListener mItemClickListener) {
-        this.mOnItemClickListener = mItemClickListener;
+
+    public void setOnClickListener(OnClickListener onClickListener) {
+        this.onClickListener = onClickListener;
     }
 
     public AdapterListDrag(Context context, List<RadioInfo> items) {
@@ -90,21 +91,25 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
             final OriginalViewHolder view = (OriginalViewHolder) holder;
 
             final RadioInfo p = items.get(position);
-            view.binding.tvTitle.setText(p.getName());
-            view.binding.tvDesc.setText(p.getChannelFreq());
-            view.binding.tvDate.setText(String.valueOf(p.getPriority()));
+            view.binding.tvTitle.setText(p.getName()+" - "+p.getRadioId());
+            view.binding.tvDesc.setText(p.getChannelFreq() + "\n"+ p.getDesc() + "\n" + FmUtilize.stringToDate(p.getCreateAt()));
+            view.binding.tvPriority.setText(ctx.getString(R.string.label_priority,p.getPriority()));
+            view.binding.tvDate.setText(String.valueOf(position + 1));
             Tools.displayImageOriginal(ctx, view.binding.image, p.getLogo());
+
+
             view.binding.lytParent.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (mOnItemClickListener != null) {
-                        mOnItemClickListener.onItemClick(view, items.get(position), position);
+                    if (onClickListener != null) {
+                        onClickListener.onItemClick(view, (RadioInfo) p , position);
                     }
                 }
             });
 
             // Start a drag whenever the handle view it touched
             view.binding.btMove.setOnTouchListener(new View.OnTouchListener() {
+                @SuppressLint("ClickableViewAccessibility")
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN && mDragStartListener != null) {

@@ -9,6 +9,8 @@ import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.ServerTimestamp;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
@@ -17,6 +19,7 @@ import com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -25,11 +28,9 @@ public class RadioInfo implements Serializable {
     private int id;
     @DocumentId
     private String radioId;
-    private String name, desc, streamUrl, logo, tag, city, channelFreq, enName, createBy, timestamp;
+    private String name, desc, streamUrl, logo, tag, city, channelFreq, enName, createBy,createAt;
     private int programsCount, followers, subscribers, rating, priority;
 
-    @ServerTimestamp
-    private Date createdDate;
     private boolean isOnline, disabled;
 
 
@@ -37,7 +38,7 @@ public class RadioInfo implements Serializable {
 
     }
 
-    public RadioInfo(String radioId, String name, String desc, String streamUrl, String logo, String tag, int programs, int followers, int subscribers, int rating, int priority, Date createdDate, boolean isOnline, boolean disabled, String city, String channelFreq, String enName, String createBy, String timestamp) {
+    public RadioInfo(String radioId, String name, String desc, String streamUrl, String logo, String tag, int programs, int followers, int subscribers, int rating, int priority, boolean isOnline, boolean disabled, String city, String channelFreq, String enName, String createBy,  String createAt) {
         this.radioId = radioId;
         this.name = name;
         this.desc = desc;
@@ -49,25 +50,37 @@ public class RadioInfo implements Serializable {
         this.subscribers = subscribers;
         this.rating = rating;
         this.priority = priority;
-        this.createdDate = createdDate;
         this.isOnline = isOnline;
         this.disabled = disabled;
         this.city = city;
         this.channelFreq = channelFreq;
         this.enName = enName;
         this.createBy = createBy;
-        this.timestamp = timestamp;
+        this.createAt = createAt;
     }
 
     public static RadioInfo newInstance(String radioId, String name, String desc, String streamUrl, String logo, String tag, String city, String channelFreq, String enName, String createBy, boolean disabled) {
-        return new RadioInfo(radioId, name, desc, streamUrl, logo, tag, 1, 1, 1, 1, 1, new Date(), false, disabled, city, channelFreq, enName, createBy, Tools.getFormattedDateSimple(new Date().getTime()));
+        return new RadioInfo(radioId, name, desc, streamUrl, logo, tag, 1, 1, 1, 1, 1, false, disabled, city, channelFreq, enName, createBy, Tools.getFormattedDateTimeSimple(System.currentTimeMillis()));
     }
 
 
     @Exclude
     @Override
     public String toString() {
-        return name;
+        return new GsonBuilder().create().toJson(this, RadioInfo.class);
+    }
+
+    public String toJSON() {
+        Gson gson = new Gson();
+        String json = gson.toJson(this);
+        return json;
+    }
+
+    public static class RadioInfoPriorityComparator implements Comparator<RadioInfo> {
+        @Override
+        public int compare(RadioInfo person1, RadioInfo person2) {
+            return Integer.compare(person1.getPriority(), person2.getPriority());
+        }
     }
 
     public RadioInfo findRadio(String RadioId, List<RadioInfo> radios) {
@@ -278,14 +291,6 @@ public class RadioInfo implements Serializable {
         this.priority = priority;
     }
 
-    public Date getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
-    }
-
     public boolean isOnline() {
         return isOnline;
     }
@@ -334,13 +339,12 @@ public class RadioInfo implements Serializable {
         this.createBy = createBy;
     }
 
-    public String getTimestamp() {
-        return timestamp;
+    public String getCreateAt() {
+        return createAt;
     }
 
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
+    public void setCreateAt(String createAt) {
+        this.createAt = createAt;
     }
-
 }
 

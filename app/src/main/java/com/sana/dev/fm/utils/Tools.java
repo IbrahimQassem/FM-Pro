@@ -274,7 +274,7 @@ public class Tools {
     }
 
     public static String getFormattedDateTimeSimple(Long dateTime) {
-        SimpleDateFormat newFormat = new SimpleDateFormat(DATE_TIME_FORMAT);
+        SimpleDateFormat newFormat = new SimpleDateFormat(DATE_TIME_FORMAT, FmUtilize._arabicFormat);
         return newFormat.format(new Date(dateTime));
     }
 
