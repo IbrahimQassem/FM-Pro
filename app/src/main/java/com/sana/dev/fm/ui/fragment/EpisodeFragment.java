@@ -1,16 +1,12 @@
 package com.sana.dev.fm.ui.fragment;
 
 
-import static androidx.recyclerview.widget.LinearSmoothScroller.SNAP_TO_START;
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 
 import android.content.Context;
-import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +19,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sana.dev.fm.R;

@@ -273,8 +273,8 @@ public class Tools {
         return newFormat.format(new Date(dateTime));
     }
 
-    public static String getFormattedDateTimeSimple(Long dateTime) {
-        SimpleDateFormat newFormat = new SimpleDateFormat(DATE_TIME_FORMAT, FmUtilize._arabicFormat);
+    public static String getFormattedDateTimeSimple(Long dateTime,Locale locale) {
+        SimpleDateFormat newFormat = new SimpleDateFormat(DATE_TIME_FORMAT, locale);
         return newFormat.format(new Date(dateTime));
     }
 
@@ -293,15 +293,9 @@ public class Tools {
         return newFormat.format(new Date(dateTime));
     }
 
-    public static String getFormattedDateEvent(Date dateTime) {
-//        SimpleDateFormat newFormat = new SimpleDateFormat("EEE,"+FmUtilize._dateFormat);
-//        SimpleDateFormat newFormat = new SimpleDateFormat("E, dd MMM yyyy ", FmUtilize._arabicFormat);
-        SimpleDateFormat newFormat = new SimpleDateFormat("E dd MMM yyyy ", FmUtilize._arabicFormat);
-        return newFormat.format(dateTime);
-    }
 
-    public static String getFormattedTimeEvent(Long time) {
-        SimpleDateFormat newFormat = new SimpleDateFormat(FmUtilize._timeFormat, FmUtilize._arabicFormat);
+    public static String getFormattedTimeEvent(Long time,Locale locale) {
+        SimpleDateFormat newFormat = new SimpleDateFormat(FmUtilize._timeFormat, locale);
         return newFormat.format(new Date(time));
     }
 
@@ -574,9 +568,9 @@ public class Tools {
         }
     }
 
-    public static String getFormattedDateOnly(Long l) {
+    public static String getFormattedDateOnly(Long l,Locale locale) {
 //        return new SimpleDateFormat("dd MMM yy", FmUtilize._arabicFormat).format(new Date(l.longValue()));
-        return new SimpleDateFormat("d MMM yyyy", FmUtilize._arabicFormat).format(new Date(l.longValue()));
+        return new SimpleDateFormat("d MMM yyyy", locale).format(new Date(l.longValue()));
     }
 
     public static void directLinkToBrowser(Activity activity, String str) {

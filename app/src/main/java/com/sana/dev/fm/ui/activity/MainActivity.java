@@ -26,9 +26,6 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.RequestConfiguration;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -63,7 +60,6 @@ import com.sana.dev.fm.utils.radio_player.metadata.Metadata;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import co.mobiwise.materialintro.animation.MaterialIntroListener;
@@ -451,7 +447,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             this.mBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
 
-        View inflate = getLayoutInflater().inflate(R.layout.sheet_list, null);
+        View inflate = getLayoutInflater().inflate(R.layout.main_activity_sheet_list, null);
 
         LinearLayout lyt_add_program = inflate.findViewById(R.id.lyt_add_program);
         LinearLayout lyt_add_episode = inflate.findViewById(R.id.lyt_add_episode);

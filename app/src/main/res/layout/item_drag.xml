@@ -6,9 +6,9 @@
     style="@style/RippleStyleBlack"
     android:layout_width="match_parent"
     android:layout_height="150dp"
-    android:minHeight="?attr/actionBarSize"
     android:background="@android:color/white"
-    android:focusable="true">
+    android:focusable="true"
+    android:minHeight="?attr/actionBarSize">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,6 +33,17 @@
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_baseline_check_circle_24" />
 
+            <ImageView
+                android:id="@+id/iv_internet"
+                android:layout_width="@dimen/spacing_middle"
+                android:layout_height="@dimen/spacing_middle"
+                android:layout_marginStart="@dimen/spacing_medium"
+                android:layout_marginTop="1dp"
+                android:layout_marginEnd="@dimen/spacing_medium"
+                android:tint="@color/transparent"
+                android:visibility="invisible"
+                app:srcCompat="@drawable/shape_circle"
+                tools:ignore="UseAppTint" />
 
             <RelativeLayout
                 android:layout_width="0dp"
@@ -88,6 +99,8 @@
                     android:textColor="@color/blue_300"
                     android:textStyle="bold"
                     tools:text="@string/label_label" />
+
+
             </RelativeLayout>
 
 

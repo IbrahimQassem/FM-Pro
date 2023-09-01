@@ -15,6 +15,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.sana.dev.fm.model.RadioProgram;
+import com.sana.dev.fm.utils.LogUtility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -284,11 +285,15 @@ public class FmProgramCRUDImpl extends FirebaseRepository implements FmCRUD<Radi
 
     public List<RadioProgram> getDataFromQuerySnapshot(Object object) {
         List<RadioProgram> programList = new ArrayList<>();
-        QuerySnapshot queryDocumentSnapshots = (QuerySnapshot) object;
-        for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
-            RadioProgram program = snapshot.toObject(RadioProgram.class);
-            if (!program.isStopped())
-                programList.add(program);
+        try {
+            QuerySnapshot queryDocumentSnapshots = (QuerySnapshot) object;
+            for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
+                RadioProgram program = snapshot.toObject(RadioProgram.class);
+                if (!program.isStopped())
+                    programList.add(program);
+            }
+        } catch (Exception e) {
+            LogUtility.e(TAG, " getDataFromQuerySnapshot: " + object, e);
         }
         return programList;
     }

@@ -130,7 +130,7 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 
             if (program.getDateTimeModel() != null) {
-                String dt = getFormattedDateOnly(program.getDateTimeModel().getDateStart()) + " - " + getFormattedDateOnly(program.getDateTimeModel().getDateEnd());
+                String dt = getFormattedDateOnly(program.getDateTimeModel().getDateStart(),FmUtilize.arabicFormat) + " - " + getFormattedDateOnly(program.getDateTimeModel().getDateEnd(),FmUtilize.arabicFormat);
                 holder.binding.tvDayPeriod.setText(dt);
             } else {
                 holder.binding.lytParentDayPeriod.setVisibility(View.GONE);

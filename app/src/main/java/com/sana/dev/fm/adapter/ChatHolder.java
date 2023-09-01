@@ -54,13 +54,18 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 
 
     private void initBindViewHolder(@Nullable Episode episode) {
+//        if (episode.isStopped()){
+//            itemView.setVisibility(View.GONE);
+//        }
+
+
         Tools.setTextOrHideIfEmpty(binding.tvTitle, episode.getEpName());
         Tools.setTextOrHideIfEmpty(binding.tvAnnouncer, episode.getEpAnnouncer());
 
         Tools.setTextOrHideIfEmpty(binding.tvDesc, episode.getEpDesc());
         Tools.setTextOrHideIfEmpty(binding.tvState, null);
         Tools.setTextOrHideIfEmpty(binding.tvDate, null);
-        Tools.setTextOrHideIfEmpty(binding.tvTime, Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
+        Tools.setTextOrHideIfEmpty(binding.tvTime, Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
 //        Tools.setTextOrHideIfEmpty(binding.tvDate, Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
 //        binding.tvTime.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
 //        String st = "" +  getFormattedTimeEvent(episode.getDateTimeModel().getTimeStart());

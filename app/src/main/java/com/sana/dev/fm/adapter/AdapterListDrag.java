@@ -2,6 +2,8 @@ package com.sana.dev.fm.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+
+import androidx.core.content.ContextCompat;
 import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,6 +21,7 @@ import com.sana.dev.fm.databinding.ItemDragBinding;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
+import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.utils.DragItemTouchHelper;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
@@ -33,6 +36,7 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private Context ctx;
     private OnClickListener onClickListener = null;
+    private OnItemLongClick onLongClickListener = null;
     private OnStartDragListener mDragStartListener = null;
 
     public interface OnStartDragListener {
@@ -42,6 +46,9 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public void setOnClickListener(OnClickListener onClickListener) {
         this.onClickListener = onClickListener;
+    }
+    public void setOnLongClickListener(OnItemLongClick onLongClickListener) {
+        this.onLongClickListener = onLongClickListener;
     }
 
     public AdapterListDrag(Context context, List<RadioInfo> items) {
@@ -90,21 +97,35 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (holder instanceof OriginalViewHolder) {
             final OriginalViewHolder view = (OriginalViewHolder) holder;
 
-            final RadioInfo p = items.get(position);
-            view.binding.tvTitle.setText(p.getName()+" - "+p.getRadioId());
-            view.binding.tvDesc.setText(p.getChannelFreq() + "\n"+ p.getDesc() + "\n" + FmUtilize.stringToDate(p.getCreateAt()));
-            view.binding.tvPriority.setText(ctx.getString(R.string.label_priority,p.getPriority()));
+            final RadioInfo model = items.get(position);
+            view.binding.tvTitle.setText(model.getName()+" - "+model.getRadioId());
+            view.binding.tvDesc.setText(model.getChannelFreq() + "\n"+ model.getDesc() + "\n" + FmUtilize.stringToDate(model.getCreateAt()));
+            view.binding.tvPriority.setText(ctx.getString(R.string.label_priority,model.getPriority()));
             view.binding.tvDate.setText(String.valueOf(position + 1));
-            Tools.displayImageOriginal(ctx, view.binding.image, p.getLogo());
+            Tools.displayImageOriginal(ctx, view.binding.image, model.getLogo());
 
+            int colorState = !model.isDisabled() ? R.color.green_500 : R.color.red_500;
+            view.binding.ivInternet.setVisibility(View.VISIBLE);
+            view.binding.ivInternet.setColorFilter(ContextCompat.getColor(ctx, colorState), android.graphics.PorterDuff.Mode.MULTIPLY);
+//
 
             view.binding.lytParent.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view) {
+                public void onClick(View v) {
                     if (onClickListener != null) {
-                        onClickListener.onItemClick(view, (RadioInfo) p , position);
+                        onClickListener.onItemClick(v, (RadioInfo) model , position);
                     }
                 }
+            });
+
+            view.binding.lytParent.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (onLongClickListener == null) {
+                        return false;
+                    }
+                    onLongClickListener.onItemLongClick(v, model, position);
+                    return true;                }
             });
 
             // Start a drag whenever the handle view it touched
@@ -113,7 +134,7 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN && mDragStartListener != null) {
-                        mDragStartListener.onStartDrag(holder,p,position);
+                        mDragStartListener.onStartDrag(holder,model,position);
                     }
                     return false;
                 }

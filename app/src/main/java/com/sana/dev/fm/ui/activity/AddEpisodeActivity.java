@@ -238,7 +238,7 @@ public class AddEpisodeActivity extends BaseActivity {
             binding.etStation.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير القناة الإاعية في حالة تحديث بيانات البرنامج",  new ButtonConfig(getString(R.string.label_cancel)), null);
+                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير القناة الإذاعية في حالة تحديث بيانات البرنامج",  new ButtonConfig(getString(R.string.label_cancel)), null);
                     showWarningDialog(config);
                 }
             });
@@ -603,7 +603,8 @@ public class AddEpisodeActivity extends BaseActivity {
     }
 
     public void showStationDialog() {
-        List<RadioInfo> items = ShardDate.getInstance().getAllowedRadioInfoList(prefMgr.getUserSession());
+//        List<RadioInfo> items = ShardDate.getInstance().getAllowedRadioInfoList(prefMgr.getUserSession());
+        List<RadioInfo> items = ShardDate.getInstance().getRadioInfoList();
 
         String[] charSequence = new String[items.size()];
         for (int i = 0; i < items.size(); i++) {

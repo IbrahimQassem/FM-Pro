@@ -14,6 +14,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.utils.LogUtility;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -102,14 +103,14 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
     @Override
     public void queryAllBy(String key, Object model, CallBack callBack) {
         Query query = null;
-        if (model != null){
+        if (model != null) {
             Episode episode = (Episode) model;
             query = colRef.document(episode.getRadioId()).collection(FirebaseConstants.EPISODE_TABLE).whereEqualTo("radioId", episode.getRadioId()).whereEqualTo("programId", episode.getProgramId());
-        }else if (!isNullOrEmpty(key) ){
+        } else if (!isNullOrEmpty(key)) {
             query = mainQuery(key);
         }
 
-        if (query != null){
+        if (query != null) {
             readQueryDocuments(query, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
@@ -124,19 +125,39 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
                     callBack.onError(object);
                 }
             });
-        }else {
+        } else {
             callBack.onError(FAIL);
         }
 
     }
 
 
-
     @Override
     public void update(String key, Object model, CallBack callBack) {
+    }
+
+    public void updateLike(Object model, CallBack callBack){
         Episode episode = (Episode) model;
         Map<String, Object> docData = new HashMap<>();
-        docData.put(key, episode.getEpisodeLikes());
+        docData.put("episodeLikes", episode.getEpisodeLikes());
+        DocumentReference documentReference = colRef.document(episode.getRadioId()).collection(FirebaseConstants.EPISODE_TABLE).document(episode.getEpId());
+        fireStoreCreateOrMerge(documentReference, docData, new CallBack() {
+            @Override
+            public void onSuccess(Object object) {
+                callBack.onSuccess(SUCCESS);
+            }
+
+            @Override
+            public void onError(Object object) {
+                callBack.onError(object);
+            }
+        });
+    }
+
+    public void updateEpisodeState(Object model, CallBack callBack) {
+        Episode episode = (Episode) model;
+        Map<String, Object> docData = new HashMap<>();
+        docData.put("stopped", episode.isStopped());
         DocumentReference documentReference = colRef.document(episode.getRadioId()).collection(FirebaseConstants.EPISODE_TABLE).document(episode.getEpId());
         fireStoreCreateOrMerge(documentReference, docData, new CallBack() {
             @Override
@@ -174,14 +195,18 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
     }
 
 
-
     public List<Episode> getDataFromQuerySnapshot(Object object) {
         List<Episode> programList = new ArrayList<>();
-        QuerySnapshot queryDocumentSnapshots = (QuerySnapshot) object;
-        for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
-            Episode program = snapshot.toObject(Episode.class);
-            if (!program.isStopped())
-            programList.add(program);
+        try {
+            QuerySnapshot queryDocumentSnapshots = (QuerySnapshot) object;
+            for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
+                Episode program = snapshot.toObject(Episode.class);
+                if (program != null && !program.isStopped()) {
+                    programList.add(program);
+                }
+            }
+        } catch (Exception e) {
+            LogUtility.e(TAG, " getDataFromQuerySnapshot: " + object, e);
         }
         return programList;
     }

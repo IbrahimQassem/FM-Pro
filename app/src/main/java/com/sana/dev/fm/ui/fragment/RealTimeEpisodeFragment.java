@@ -138,7 +138,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : "";
-        EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(context.getString(R.string.no_data_available),  String.format(" %s", getResources().getString(R.string.empty_ep, primary)),null);
+        EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(context.getString(R.string.no_data_available), String.format(" %s", getResources().getString(R.string.empty_ep, primary)), null);
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.replace(R.id.child_fragment_container, emptyViewFragment).commit();
         emptyViewFragment.setOnItemClickListener(new CallBackListener() {
@@ -258,8 +258,8 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 }
                 ChatHolder viewHolder = (ChatHolder) holder;
 
-                if (!model.isStopped())
-                viewHolder.bind(model, position);
+                if (model != null && !model.isStopped())
+                    viewHolder.bind(model, position);
 
                 viewHolder.setOnLongItemClickListener(new ChatHolder.OnLongItemClickListener() {
                     @Override
@@ -275,7 +275,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                         int[] startingLocation = new int[2];
                         switch (view.getId()) {
                             case R.id.civ_logo:
-                                if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhud")  || (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
+                                if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhud") || (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
                                     view.getLocationOnScreen(startingLocation);
                                     ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, context, obj);
                                     getActivity().overridePendingTransition(0, 0);
@@ -291,7 +291,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                             case R.id.imv_like:
                                 if (!RealTimeEpisodeFragment.this.isAccountSignedIn()) {
                                     if (context instanceof MainActivity) {
-                                        ModelConfig config = new ModelConfig(-1, getString(R.string.label_note), getString(R.string.goto_login),  new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                                        ModelConfig config = new ModelConfig(-1, getString(R.string.label_note), getString(R.string.goto_login), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
                                                 startActivity(new Intent(IntentHelper.phoneLoginActivity(context, false)));
@@ -304,7 +304,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                                     HashMap<String, Boolean> likeMap = new HashMap<>();
                                     likeMap.put(prefMgr.getUserSession().getUserId(), isLik);
                                     model.setEpisodeLikes(likeMap);
-                                    ePiRepo.update("episodeLikes", model, new CallBack() {
+                                    ePiRepo.updateLike( model, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
                                         }
@@ -352,7 +352,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         inflate.findViewById(R.id.lyt_edit).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append("تعديل : ");
+                stringBuilder.append(context.getString(R.string.label_edit) + " : ");
                 stringBuilder.append(obj.getEpName());
 
                 AddEpisodeActivity.startActivity(context, obj);
@@ -360,15 +360,40 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
             }
         });
 
+
+        inflate.findViewById(R.id.lyt_hide).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_hide, obj.getEpName()), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        obj.setStopped(true);
+                        ePiRepo.updateEpisodeState(obj, new CallBack() {
+                            @Override
+                            public void onSuccess(Object object) {
+                                showToast(getString(R.string.done_successfully));
+                            }
+
+                            @Override
+                            public void onError(Object object) {
+                                showToast(getString(R.string.error_failure));
+                            }
+                        });
+                    }
+                }));
+                showWarningDialog(config);
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
         inflate.findViewById(R.id.lyt_delete).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_delete,obj.getEpName() ),  null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_delete, obj.getEpName()), null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         ePiRepo.delete(obj, new CallBack() {
                             @Override
                             public void onSuccess(Object object) {
-                                showToast(getString(R.string.deleted_successfully_with_param,obj.getEpName() ));
+                                showToast(getString(R.string.deleted_successfully_with_param, obj.getEpName()));
                             }
 
                             @Override

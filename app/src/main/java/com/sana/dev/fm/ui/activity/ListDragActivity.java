@@ -1,32 +1,45 @@
 package com.sana.dev.fm.ui.activity;
 
 
+import static com.sana.dev.fm.utils.FmUtilize.isCollection;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListDrag;
+import com.sana.dev.fm.model.ButtonConfig;
+import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
-import com.sana.dev.fm.model.ShardDate;
+import com.sana.dev.fm.model.UserModel;
+import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
+import com.sana.dev.fm.model.interfaces.OnItemLongClick;
+import com.sana.dev.fm.ui.dialog.MainDialog;
 import com.sana.dev.fm.utils.DragItemTouchHelper;
+import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmStationCRUDImpl;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ListDragActivity extends BaseActivity {
@@ -37,7 +50,12 @@ public class ListDragActivity extends BaseActivity {
     private AdapterListDrag mAdapter;
     private ItemTouchHelper mItemTouchHelper;
 
+    List<RadioInfo> items = new ArrayList<>();
+
     private FmStationCRUDImpl fmStationCRUD;
+
+    private BottomSheetDialog mBottomSheetDialog;
+    private BottomSheetBehavior mBehavior;
 
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, ListDragActivity.class);
@@ -53,6 +71,7 @@ public class ListDragActivity extends BaseActivity {
 
         initToolbar();
         initComponent();
+        loadData();
     }
 
     private void initToolbar() {
@@ -70,7 +89,7 @@ public class ListDragActivity extends BaseActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
 
-        List<RadioInfo> items = ShardDate.getInstance().getRadioInfoList();
+
         // Sort the list using the custom comparator
         //set data and list adapter
         mAdapter = new AdapterListDrag(this, items);
@@ -122,6 +141,23 @@ public class ListDragActivity extends BaseActivity {
         });
 
 
+        mAdapter.setOnLongClickListener(new OnItemLongClick() {
+            @Override
+            public void onItemLongClick(View view, Object model, int position) {
+                RadioInfo item = (RadioInfo) model;
+                // showToast("Item " + item.getName() + " position : " + position);
+                String state = item.isDisabled() ? "Enable" : "Disable";
+                ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_note), "Are you sure you want to " + state + " ? ", new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        changePriority(!item.isDisabled(), item);
+                        loadData();
+                    }
+                }));
+                showWarningDialog(config);
+            }
+        });
+
         mAdapter.setDragListener(new AdapterListDrag.OnStartDragListener() {
             @Override
             public void onStartDrag(RecyclerView.ViewHolder viewHolder, RadioInfo item, int position) {
@@ -138,8 +174,155 @@ public class ListDragActivity extends BaseActivity {
 
     }
 
-    private void changePriority(RadioInfo model) {
-        fmStationCRUD.update("priority", model, new CallBack() {
+    private void loadData() {
+        //         items = ShardDate.getInstance().getRadioInfoList();
+        fmStationCRUD.queryAll(new CallBack() {
+            @Override
+            public void onSuccess(Object object) {
+                if (isCollection(object)) {
+                    ArrayList<RadioInfo> stationList = (ArrayList<RadioInfo>) object;
+                    items.addAll(stationList);
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onError(Object object) {
+            }
+        });
+    }
+
+/*
+    private void showBottomSheetDialog() {
+
+        View findViewById = findViewById(R.id.bottom_sheet);
+        this.mBehavior = BottomSheetBehavior.from(findViewById);
+
+        if (this.mBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            this.mBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+
+        View inflate = getLayoutInflater().inflate(R.layout.main_activity_sheet_list, null);
+
+        LinearLayout lyt_add_program = inflate.findViewById(R.id.lyt_add_program);
+        LinearLayout lyt_add_episode = inflate.findViewById(R.id.lyt_add_episode);
+        LinearLayout lyt_update_episode = inflate.findViewById(R.id.lyt_update_episode);
+        LinearLayout lyt_update_radio = inflate.findViewById(R.id.lyt_update_radio);
+        lyt_update_radio.setVisibility(View.GONE);
+
+
+        if (checkPrivilege()) {
+            lyt_add_program.setVisibility(View.VISIBLE);
+            lyt_add_episode.setVisibility(View.VISIBLE);
+            lyt_update_episode.setVisibility(View.VISIBLE);
+        } else {
+            lyt_add_program.setVisibility(View.GONE);
+            lyt_add_episode.setVisibility(View.GONE);
+            lyt_update_episode.setVisibility(View.GONE);
+        }
+
+        if ((BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
+            lyt_update_radio.setVisibility(View.VISIBLE);
+            lyt_add_program.setVisibility(View.VISIBLE);
+            lyt_add_episode.setVisibility(View.VISIBLE);
+            lyt_update_episode.setVisibility(View.VISIBLE);
+            if (isAccountSignedIn()) {
+                UserModel user = prefMgr.getUserSession();
+                user.setUserType(UserType.SuperADMIN);
+                prefMgr.write(FirebaseConstants.USER_INFO, (UserModel) user);
+            }
+        }
+
+        inflate.findViewById(R.id.lyt_user_acc).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                checkUserLogin();
+                mBottomSheetDialog.dismiss();
+            }
+        });
+        inflate.findViewById(R.id.lyt_share).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                FmUtilize.shareApp(MainActivity.this);
+                mBottomSheetDialog.dismiss();
+            }
+        });
+        inflate.findViewById(R.id.lyt_get_rate).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                MainDialog mainDialog = new MainDialog(MainActivity.this);
+                mainDialog.showDialogRateUs();
+                mBottomSheetDialog.dismiss();
+            }
+        });
+        inflate.findViewById(R.id.lyt_about_us).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+//                Context applicationContext = getApplicationContext();
+//                StringBuilder stringBuilder = new StringBuilder();
+//                stringBuilder.append("Make a copy '");
+//                stringBuilder.append("name");
+//                stringBuilder.append("' clicked");
+//                Toast.makeText(applicationContext, stringBuilder.toString(), Toast.LENGTH_SHORT).show();
+
+                MainDialog mainDialog = new MainDialog(MainActivity.this);
+                mainDialog.aboutUsDialogLight();
+
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
+        lyt_add_program.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+
+                if (checkPrivilege())
+                    startActivity(new Intent(MainActivity.this, AddProgramActivity.class));
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
+        lyt_add_episode.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                AddEpisodeActivity.startActivity(MainActivity.this);
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
+        lyt_update_episode.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                ListMultiSelection.startActivity(MainActivity.this);
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
+
+        lyt_update_radio.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                ListDragActivity.startActivity(MainActivity.this);
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        this.mBottomSheetDialog = bottomSheetDialog;
+        bottomSheetDialog.setContentView(inflate);
+        if (Build.VERSION.SDK_INT >= 21) {
+            this.mBottomSheetDialog.getWindow().addFlags(67108864);
+        }
+        this.mBottomSheetDialog.show();
+        this.mBottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            public void onDismiss(DialogInterface dialogInterface) {
+                mBottomSheetDialog = null;
+            }
+        });
+
+        inflate.findViewById(R.id.lyt_make_close).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                bottomSheetDialog.dismiss();
+            }
+        });
+    }
+*/
+
+
+    private void changePriority(boolean radioState, RadioInfo model) {
+        fmStationCRUD.toggleRadioAvailability(radioState, model, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 showToast(object.toString());
@@ -147,7 +330,20 @@ public class ListDragActivity extends BaseActivity {
 
             @Override
             public void onError(Object object) {
-                LogUtility.e("Error priority", object.toString());
+                showToast(object.toString());
+            }
+        });
+    }
+
+    private void changePriority(RadioInfo model) {
+        fmStationCRUD.changePriority(model, new CallBack() {
+            @Override
+            public void onSuccess(Object object) {
+                showToast(object.toString());
+            }
+
+            @Override
+            public void onError(Object object) {
                 showToast(object.toString());
             }
         });

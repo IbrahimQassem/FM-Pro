@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.vipulasri.timelineview.TimelineView;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.model.TempEpisodeModel;
 
@@ -86,10 +87,10 @@ public class TimeLineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 //            DateTimeModel timeModel = episode.showTimeObj;
 //            for (int i = 0; i < _showTimeList.size(); i++) {
-                String st = "يبدأ الساعة : " + getFormattedTimeEvent(episode.getDateTimeModel().getTimeStart());
+                String st = "يبدأ الساعة : " + getFormattedTimeEvent(episode.getDateTimeModel().getTimeStart(), FmUtilize.arabicFormat);
                 viewHolder.tevDate.setText(st);
 //            String ts = "Start : " + getFormattedTimeEvent(timeModel.getTimeStart()) + "End : " + getFormattedTimeEvent(timeModel.getTimeEnd());
-                String period = "مدة العرض : " + timeDifference(episode.getDateTimeModel().getTimeStart(), episode.getDateTimeModel().getTimeEnd());
+                String period = "مدة العرض : " + timeDifference(episode.getDateTimeModel().getTimeStart(), episode.getDateTimeModel().getTimeEnd(),FmUtilize.arabicFormat);
                 viewHolder.tevTimeShow.setText(period);
 
                 String replay = episode.getDateTimeModel().isItMainTime() ? "" : "إعادة";

@@ -93,7 +93,7 @@ public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
                                     user.setVerified(true);
                                     callBack.onSuccess(user);
 
-                                }else {
+                                } else {
                                     callBack.onError(null);
                                 }
 
@@ -120,9 +120,9 @@ public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
                 public void onSuccess(Object object) {
                     if (object != null) {
                         */
-/*
-                         *Here we episode data order by created tade in ASCENDING ORDER
-                         *//*
+    /*
+     *Here we episode data order by created tade in ASCENDING ORDER
+     *//*
 
 //                        callBack.onSuccess(getDataFromQuerySnapshot(object));
                         callBack.onSuccess(object);
@@ -143,10 +143,14 @@ public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
 
     public List<UserModel> getDataFromQuerySnapshot(Object object) {
         List<UserModel> programList = new ArrayList<>();
-        QuerySnapshot queryDocumentSnapshots = (QuerySnapshot) object;
-        for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
-            UserModel program = snapshot.toObject(UserModel.class);
-            programList.add(program);
+        try {
+            QuerySnapshot queryDocumentSnapshots = (QuerySnapshot) object;
+            for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
+                UserModel program = snapshot.toObject(UserModel.class);
+                programList.add(program);
+            }
+        } catch (Exception e) {
+            LogUtility.e(TAG, " getDataFromQuerySnapshot: " + object, e);
         }
         return programList;
     }

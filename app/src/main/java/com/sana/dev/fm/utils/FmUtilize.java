@@ -75,8 +75,9 @@ import java.util.UUID;
  */
 public class FmUtilize {
 
-    public static final Locale _arabicFormat = new Locale("ar", "SA");  // Arabic language. Saudi Arabia cultural norms.
-    public static final SimpleDateFormat month_date = new SimpleDateFormat("MMMM", _arabicFormat);
+    public static final Locale arabicFormat = new Locale("ar", "SA");  // Arabic language. Saudi Arabia cultural norms.
+    public static final Locale englishFormat = new Locale("en", "En"); // Locale.ENGLISH
+    public static final SimpleDateFormat month_date = new SimpleDateFormat("MMMM", arabicFormat);
     public static final String DATE_TIME_FORMAT = "MM/dd/yyyy HH:mm:ss a";
 
 //    public static final Locale _arabicFormat = new Locale("en", "US");  // Arabic language. Saudi Arabia cultural norms.
@@ -213,7 +214,7 @@ public class FmUtilize {
         return millis;
     }
 
-    public static String timeDifference(long startTime, long endTime) {
+    public static String timeDifference(long startTime, long endTime,Locale locale) {
 
 //        long period = 0;
 //        int days, hours, min;
@@ -245,7 +246,7 @@ public class FmUtilize {
 //        return period;
 
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", FmUtilize._arabicFormat);
+            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", locale);
             String _startDate = sdf.format(startTime);
             String _endDate = sdf.format(endTime);
 
@@ -256,7 +257,7 @@ public class FmUtilize {
             int hours = (int) (millis / (1000 * 60 * 60));
             int mins = (int) ((millis / (1000 * 60)) % 60);
 
-            String formattedTime = String.format(FmUtilize._arabicFormat, "%d:%02d",
+            String formattedTime = String.format(locale, "%d:%02d",
                     Math.abs(hours), Math.abs(mins));
 //
 //             return Math.abs(hours) + ":" + Math.abs(mins);

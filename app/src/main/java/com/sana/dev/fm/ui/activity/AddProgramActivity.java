@@ -379,9 +379,10 @@ public class AddProgramActivity extends BaseActivity {
     }
 
     int stSelected = 0;
-
+// البرنامج العام
     public void showStationDialog() {
-        List<RadioInfo> items = ShardDate.getInstance().getAllowedRadioInfoList(prefMgr.getUserSession());
+//        List<RadioInfo> items = ShardDate.getInstance().getAllowedRadioInfoList(prefMgr.getUserSession());
+        List<RadioInfo> items = ShardDate.getInstance().getRadioInfoList();
 
         String[] charSequence = new String[items.size()];
         for (int i = 0; i < items.size(); i++) {

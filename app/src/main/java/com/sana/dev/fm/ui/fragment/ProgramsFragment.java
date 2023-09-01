@@ -2,11 +2,9 @@ package com.sana.dev.fm.ui.fragment;
 
 
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
-import static com.sana.dev.fm.utils.FmUtilize.month_date;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.RADIO_PROGRAM_TABLE;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.SpannableString;
@@ -24,13 +22,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
-
 
 import com.google.gson.Gson;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.adapter.AdapterListInbox;
 import com.sana.dev.fm.adapter.AdapterListProgram;
 import com.sana.dev.fm.adapter.SimpleSectionedRecyclerViewAdapter;
 import com.sana.dev.fm.model.ButtonConfig;
@@ -39,12 +34,9 @@ import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
-import com.sana.dev.fm.ui.activity.CommentsActivity;
-import com.sana.dev.fm.ui.activity.ListMultiSelection;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
-import com.sana.dev.fm.utils.DataGenerator;
-import com.sana.dev.fm.utils.IntentHelper;
+import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
@@ -124,7 +116,7 @@ public class ProgramsFragment extends BaseFragment {
         // Inflate the layout for this fragment
         parent_fragment_view = inflater.inflate(R.layout.fragment_programs, container, false);
         ButterKnife.bind(this, parent_fragment_view);
-        fmRepo = new FmProgramCRUDImpl(getActivity(), RADIO_PROGRAM_TABLE);
+        fmRepo = new FmProgramCRUDImpl(mActivity, RADIO_PROGRAM_TABLE);
          initComponent();
 
 //        itemList = DataGenerator.getProgramData(ctx);
@@ -155,8 +147,8 @@ public class ProgramsFragment extends BaseFragment {
         emptyViewFragment.setOnItemClickListener(new CallBackListener() {
             @Override
             public void onCallBack() {
-                if ((MainActivity) getActivity() != null)
-                    ((MainActivity) getActivity()).selectTab(R.id.navigation_home);
+                if ((MainActivity) mActivity != null)
+                    ((MainActivity) mActivity).selectTab(R.id.navigation_home);
             }
         });
     }
@@ -199,8 +191,8 @@ public class ProgramsFragment extends BaseFragment {
                                     int[] startingLocation = new int[2];
                                     v.getLocationOnScreen(startingLocation);
                                     startingLocation[0] += v.getWidth() / 2;
-                                    ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, getActivity(), episode);
-                                    getActivity().overridePendingTransition(0, 0);
+                                    ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, mActivity, episode);
+                                    mActivity.overridePendingTransition(0, 0);
 //                                showToast("is : "+radioProgram.getPrName());
                                 }
 //                                switch (v.getId()) {
@@ -285,7 +277,7 @@ public class ProgramsFragment extends BaseFragment {
         HashMap<String, ArrayList<RadioProgram>> myProgram = new HashMap<String, ArrayList<RadioProgram>>();
         for (int i = 0; i < itemList.size(); i++) {
             if (itemList.get(i).getDateTimeModel() != null) {
-                String month_name = month_date.format(Tools.getDateFormat(itemList.get(i).getDateTimeModel().getDateStart()));
+                String month_name = FmUtilize.month_date.format(Tools.getDateFormat(itemList.get(i).getDateTimeModel().getDateStart()));
                 ArrayList<RadioProgram> programList = myProgram.get(month_name);
                 if (programList == null) {
                     programList = new ArrayList<RadioProgram>();
@@ -336,8 +328,7 @@ public class ProgramsFragment extends BaseFragment {
     private Map<String, List<RadioProgram>> map = new HashMap<>();
 
 
-//    SimpleDateFormat month_date = new SimpleDateFormat("MMMM",_arabicFormat);
-//    String month_name = month_date.format(cal.getTime());
+
 
     private void getPhotoList(ArrayList<RadioProgram> arrayList) {
 
@@ -353,7 +344,7 @@ public class ProgramsFragment extends BaseFragment {
 
         HashMap<String, ArrayList<RadioProgram>> myProgram = new HashMap<String, ArrayList<RadioProgram>>();
         for (int i = 0; i < arrayList.size(); i++) {
-            String month_name = month_date.format(Tools.getDateFormat(arrayList.get(i).getDateTimeModel().getDateStart()));
+            String month_name = FmUtilize.month_date.format(Tools.getDateFormat(arrayList.get(i).getDateTimeModel().getDateStart()));
             ArrayList<RadioProgram> programList = myProgram.get(month_name);
             if (programList == null) {
                 programList = new ArrayList<RadioProgram>();
