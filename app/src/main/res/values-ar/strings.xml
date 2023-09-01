@@ -93,6 +93,8 @@
     <string name="stop">إيقاف</string>
     <string name="notification_playing">البث المباشر</string>
     <string name="pick_profile_image">تغيير صورة المستخدم</string>
+    <string name="delete_my_account">حذف حسابي</string>
+    <string name="confirm_delete_my_account">أنت على وشك حذف حسابك نهائيًا<br/>  تأكيد الحذف ؟ </string>
 
 
     <string name="lbl_take_camera_picture">إلقاط صورة</string>

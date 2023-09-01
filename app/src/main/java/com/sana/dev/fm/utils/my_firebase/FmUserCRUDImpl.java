@@ -2,6 +2,8 @@ package com.sana.dev.fm.utils.my_firebase;
 
 import static com.sana.dev.fm.utils.FmUtilize.pojo2Map;
 import static com.sana.dev.fm.utils.my_firebase.AppConstant.FAIL;
+import static com.sana.dev.fm.utils.my_firebase.AppConstant.SUCCESS;
+import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.RADIO_PROGRAM_TABLE;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABASE;
 
 import android.app.Activity;
@@ -67,8 +69,24 @@ public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
     }
 
     @Override
-    public void delete(Object key, CallBack callBack) {
+    public void delete(Object data, CallBack callBack) {
+        if (data != null) {
+            UserModel model = (UserModel) data;
+            DocumentReference documentReference = colRef.document(model.getUserId());
+            fireStoreDelete(documentReference, new CallBack() {
+                @Override
+                public void onSuccess(Object object) {
+                    callBack.onSuccess(SUCCESS);
+                }
 
+                @Override
+                public void onError(Object object) {
+                    callBack.onError(object);
+                }
+            });
+        } else {
+            callBack.onError(FAIL);
+        }
     }
 
 

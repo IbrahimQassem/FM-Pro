@@ -100,6 +100,8 @@
     <string name="stop">Stop</string>
     <string name="notification_playing">Live broadcast</string>
     <string name="pick_profile_image">Change user picture</string>
+    <string name="delete_my_account">Delete my account</string>
+    <string name="confirm_delete_my_account">You\'re about to delete your account permanently <br/>  Are you sure ?</string>
 
 
     <string name="lbl_take_camera_picture">Take picture</string>
@@ -191,8 +193,8 @@
     <string name="label_try_again">Try Again</string>
     <string name="error_no_comment">No text</string>
     <string name="label_warning">Warning</string>
-    <string name="confirm_delete">You\'re about to delete <br />  <b>[%s]</b> \n Are you sure ?</string>
-    <string name="confirm_hide">You\'re about to hide <br />  <b>[%s]</b> \n Are you sure ?</string>
+    <string name="confirm_delete">You\'re about to delete <br/>  <b>[%s]</b> \n Are you sure ?</string>
+    <string name="confirm_hide">You\'re about to hide <br/>  <b>[%s]</b> \n Are you sure ?</string>
     <string name="label_error_occurred">Error Occurred !</string>
     <string name="label_close">Close</string>
     <string name="please_wait_to_save_your_profile">Saving image profile in progress ..</string>

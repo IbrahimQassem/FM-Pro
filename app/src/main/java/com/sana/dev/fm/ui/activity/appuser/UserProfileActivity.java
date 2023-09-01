@@ -22,10 +22,14 @@ import android.widget.RadioGroup;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnPausedListener;
@@ -268,6 +272,16 @@ public class UserProfileActivity extends BaseActivity {
             case R.id.action_pick_image:
                 onImageSelect(binding.imgProfile);
                 break;
+            case R.id.action_delete:
+                ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_warning), getString(R.string.confirm_delete_my_account), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        deleteMyAccount();
+//                        showToast(getString(R.string.done_successfully));
+                    }
+                }));
+                showWarningDialog(config);
+                break;
             case R.id.action_close:
                 userLogOut();
 //                Toast.makeText(getApplicationContext(), menuItem.getTitle(), Toast.LENGTH_LONG).show();
@@ -275,6 +289,45 @@ public class UserProfileActivity extends BaseActivity {
         }
         return super.onOptionsItemSelected(menuItem);
     }
+
+    private void deleteMyAccount() {
+        if (_userModel != null)
+            fmRepo.delete(_userModel, new CallBack() {
+                @Override
+                public void onSuccess(Object object) {
+                    deleteFirebaseUser();
+                    showToast(getString(R.string.done_successfully));
+                }
+
+                @Override
+                public void onError(Object object) {
+                    showToast(getString(R.string.unkon_error_please_try_again_later));
+                }
+            });
+    }
+
+    void deleteFirebaseUser() {
+        try {
+            FirebaseUser user = mAuth.getCurrentUser();
+            if (user == null) {
+                user.delete()
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Log.d(TAG, "User account deleted.");
+                                } else {
+                                    Log.w(TAG, "Error deleting user", task.getException());
+                                }
+                            }
+                        });
+            }
+
+        } catch (Exception e) {
+            Log.d(TAG, "Error deleting user: " + e.getMessage());
+        }
+    }
+
 
     // [START on_start_check_user]
     @Override
