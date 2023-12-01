@@ -6,6 +6,7 @@ import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABA
 import android.app.Activity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -215,6 +216,11 @@ public class FmStationCRUDImpl extends FirebaseRepository implements FmCRUD {
         } catch (Exception e) {
             LogUtility.e(LogUtility.tag(FmStationCRUDImpl.class), e.toString());
         }
+
+    }
+
+    @Override
+    public void queryAllByKeyValue(@NonNull String field, @Nullable Object value, Object model, CallBack callBack) {
 
     }
 

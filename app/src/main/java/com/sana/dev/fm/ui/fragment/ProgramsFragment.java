@@ -95,8 +95,6 @@ public class ProgramsFragment extends BaseFragment {
     TextView tvTittle;
 
     View parent_fragment_view;
-    Context ctx;
-
     private AdapterListProgram mAdapter;
     private List<RadioProgram> itemList;
     private FmProgramCRUDImpl fmRepo;
@@ -141,7 +139,7 @@ public class ProgramsFragment extends BaseFragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(ctx.getString(R.string.no_data_available), getString(R.string.brows_more_station), getString(R.string.label_main_screen));
+        EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(requireActivity().getString(R.string.no_data_available), getString(R.string.brows_more_station), getString(R.string.label_main_screen));
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.replace(R.id.child_fragment_container, emptyViewFragment).commit();
         emptyViewFragment.setOnItemClickListener(new CallBackListener() {
@@ -164,7 +162,7 @@ public class ProgramsFragment extends BaseFragment {
         blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
         builder.append(blueSpannable);
 
-        String black = ctx.getResources().getString(R.string.main_program_for);
+        String black = requireActivity().getResources().getString(R.string.main_program_for);
         SpannableString whiteSpannable = new SpannableString(black);
         whiteSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.grey_40)), 0, black.length(), 0);
         builder.append(whiteSpannable);
@@ -290,7 +288,7 @@ public class ProgramsFragment extends BaseFragment {
         }
 
 
-        mAdapter = new AdapterListProgram(ctx, itemList, R.layout.item_programs);
+        mAdapter = new AdapterListProgram(requireActivity(), itemList, R.layout.item_programs);
 //        recyclerView.setAdapter(mAdapter);
 
         //  showToast(itemList.size() + "");
@@ -298,7 +296,7 @@ public class ProgramsFragment extends BaseFragment {
         //Add your adapter to the sectionAdapter
         SimpleSectionedRecyclerViewAdapter.Section[] dummy = new SimpleSectionedRecyclerViewAdapter.Section[sections.size()];
         SimpleSectionedRecyclerViewAdapter mSectionedAdapter = new
-                SimpleSectionedRecyclerViewAdapter(ctx, R.layout.layout_section, R.id.section_text, mAdapter);
+                SimpleSectionedRecyclerViewAdapter(requireActivity(), R.layout.layout_section, R.id.section_text, mAdapter);
         mSectionedAdapter.setSections(sections.toArray(dummy));
 
 
@@ -311,7 +309,6 @@ public class ProgramsFragment extends BaseFragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        this.ctx = mActivity;
     }
 
     @Override

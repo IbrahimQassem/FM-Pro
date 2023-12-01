@@ -9,6 +9,7 @@ import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABA
 import android.app.Activity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -125,6 +126,47 @@ public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
             callBack.onError(FAIL);
         }
     }
+
+    @Override
+    public void queryAllByKeyValue(@NonNull String field, @Nullable Object value, Object model, CallBack callBack) {
+
+    }
+
+    public void queryAllByFbEmail(String key, Object model, CallBack callBack) {
+        if (key != null) {
+            Query query = colRef.whereEqualTo("email", key);
+            query.get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                UserModel user = new UserModel();
+                                LogUtility.d(TAG, "queryAllBy : " + user.toString());
+
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+//                                    Log.d("TAG", document.getId() + " => " + document.getData());
+                                    user = document.toObject(UserModel.class);
+                                    break;
+                                }
+                                if (user.getUserId() != null) {
+                                    user.setVerified(true);
+                                    callBack.onSuccess(user);
+
+                                } else {
+                                    callBack.onError(null);
+                                }
+
+                            } else {
+                                LogUtility.e(TAG, "queryAllBy : " + task.getException());
+                                callBack.onError(task.getException());
+                            }
+                        }
+                    });
+        } else {
+            callBack.onError(FAIL);
+        }
+    }
+
 
 
 

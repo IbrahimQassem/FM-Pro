@@ -42,6 +42,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.zxing.common.StringUtils;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.Episode;
@@ -214,7 +215,7 @@ public class FmUtilize {
         return millis;
     }
 
-    public static String timeDifference(long startTime, long endTime,Locale locale) {
+    public static String timeDifference(long startTime, long endTime, Locale locale) {
 
 //        long period = 0;
 //        int days, hours, min;
@@ -636,19 +637,13 @@ public class FmUtilize {
     }
 
     public static String trimMobileCode(String mobile) {
-//        if (mobile != null && mobile.trim().length() >= 12)
-//            return mobile.substring(3);
-//        return mobile;
-
-        if (mobile.length() == 9) {
-            return mobile;
-        } else if (mobile.length() > 9) {
-            return mobile.substring(mobile.length() - 9);
+        String res;
+        if (!FmUtilize.isEmpty(mobile) && mobile.length() > 9) {
+            res = mobile.substring(mobile.length() - 9);
         } else {
-            // whatever is appropriate in this case
-            //throw new IllegalArgumentException("word has fewer than 3 characters!");
-            return mobile;
+            res = mobile;
         }
+        return res;
     }
 
     public String getLastThree(String myString) {

@@ -17,7 +17,7 @@
         <!--        likes-->
     </plurals>
 
-    <!--    <string name="facebook_app_id">811088116023852</string>-->
+<!--        <string name="facebook_app_id">811088116023852</string>-->
 
 
     <string name="url_profile">https://picsum.photos/200</string>
@@ -188,7 +188,7 @@
     <string name="label_warning">تنبيه !</string>
     <string name="confirm_delete"> أنت على وشك حذف :  <b>[%s]</b>  \n هل أنت متأكد؟</string>
     <string name="confirm_hide"> أنت على وشك اخفاء :  <b>[%s]</b>  \n هل أنت متأكد؟</string>
-    <string name="label_error_occurred">حدث خطأ !</string>
+    <string name="label_error_occurred">خطأ غير معروف !</string>
     <string name="label_close">إغلاق</string>
     <string name="please_wait_to_save_your_profile">جاري حفظ صورة البروفايل ..</string>
     <string name="label_about_us">من نحن</string>

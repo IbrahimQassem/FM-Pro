@@ -16,18 +16,28 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.utils.Constants;
 import com.sana.dev.fm.utils.IntentHelper;
+import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
-import com.sana.dev.fm.utils.SignInResultNotifier;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmStationCRUDImpl;
@@ -36,31 +46,75 @@ import java.util.ArrayList;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
+    private static final String TAG = "SplashActivity";
 
     private final Integer START_DELAY = 1500;
 
     private FmStationCRUDImpl rIRepo;
     public PreferencesManager prefMgr;
 
-//    private FirebaseAuth mAuth;
 //    private FirebaseUser currentUser;
 
-    private boolean isIntentChecked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         prefMgr = PreferencesManager.getInstance();
-        startAnimation();
         setFullScreen();
+        startAnimation();
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
+
+        if (currentUser != null) {
+            // User is already signed in
+            // Proceed with user-specific operations
+            updateUI(currentUser);
+        } else {
+            // User is not signed in
+            // Proceed with sign-in logic
+            auth.signInAnonymously()
+                    .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                        @Override
+                        public void onSuccess(AuthResult authResult) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInAnonymously:success");
+                            FirebaseUser user = authResult.getUser();
+                            updateUI(user);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInAnonymously:failure", e);
+                            updateUI(null);
+                        }
+                    });
+
+        }
+
+//        signInAnonymously();
+    }
+
+    private void updateUI(FirebaseUser user) {
+        if (user != null) {
+            // User is signed in
+            // Display welcome message or allow access to user-specific content
+            checkFirstTime();
+        } else {
+            // User is not signed in
+            // Display sign-in prompt or redirect to sign-in page
+            startActivity(new Intent(IntentHelper.noInternetActivity(SplashActivity.this, false)));
+        }
     }
 
 
-    private void initRadios() {
+    private void loadRadios() {
         rIRepo = new FmStationCRUDImpl(this, FirebaseConstants.RADIO_INFO_TABLE);
 
-        rIRepo.queryAllBy(null,null,new CallBack() {
+        rIRepo.queryAllBy(null, null, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 if (isCollection(object)) {
@@ -71,27 +125,22 @@ public class SplashActivity extends AppCompatActivity {
                     if (prefMgr.selectedRadio() == null) {
                         prefMgr.write(FirebaseConstants.RADIO_INFO_TABLE, stationList.get(0));
                     }
-
-                    if (!isIntentChecked) {
-                        startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
-                        isIntentChecked = true;
-                    }
-
-
+                    startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
                 }
             }
 
             @Override
             public void onError(Object object) {
-//                goToMain();
-                initRadios();
+                LogUtility.e(TAG, " loadRadios :  " + object);
+                updateUI(null);
             }
         });
 
-        if (isCollection(prefMgr.getRadioList()) && !isIntentChecked) {
-            startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
-            isIntentChecked = true;
-        }
+//        if (isCollection(prefMgr.getRadioList()) ) {
+//            startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
+//        }else {
+//            startActivity(new Intent(IntentHelper.noInternetActivity(SplashActivity.this, false)));
+//        }
 
     }
 
@@ -100,7 +149,6 @@ public class SplashActivity extends AppCompatActivity {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
-        chekFirstTime();
     }
 
     private void startAnimation() {
@@ -120,45 +168,80 @@ public class SplashActivity extends AppCompatActivity {
         super.attachBaseContext(MyContextWrapper.wrap(newBase, PreferencesManager.getInstance().getPrefLange()));
     }
 
+//    // [START on_start_check_user]
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//        // Check if user is signed in (non-null) and update UI accordingly.
+////        FirebaseUser currentUser = mAuth.getCurrentUser();
+////        updateUI(currentUser);
+//    }
+//    // [END on_start_check_user]
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        checkIfFirebaseAuth();
-    }
+/*    private void signInAnonymously() {
+        // [START signin_anonymously]
+        mAuth.signInAnonymously()
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInAnonymously:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInAnonymously:failure", task.getException());
+                            Toast.makeText(SplashActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            updateUI(null);
+                        }
+                    }
+                });
+        // [END signin_anonymously]
+    }*/
 
-    private void checkIfFirebaseAuth() {
-        FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(new SignInResultNotifier(SplashActivity.this));
-//        mAuth.getInstance().signInAnonymously()
-//                .addOnCompleteListener(SplashActivity.this, new OnCompleteListener<AuthResult>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<AuthResult> task) {
-//                        if (task.isSuccessful()) {
-//                            // Sign in success, update UI with the signed-in user's information
-//                            Log.d(LogUtility.TAG, "signInAnonymously:success");
-////                            startActivity(new Intent(IntentHelper.introActivity(SplashActivity.this, true)));
-//                        } else {
-//                            // If sign in fails, display a message to the user.
-//                            Log.w(LogUtility.TAG, "signInAnonymously:failure", task.getException());
-////                            startActivity(new Intent(IntentHelper.noInternetActivity(SplashActivity.this,false)));
-////                            prefMgr.remove(LAST_APP_VERSION);
-//                        }
-//                    }
-//                });
-    }
+/*    private void linkAccount() {
+        AuthCredential credential = EmailAuthProvider.getCredential("", "");
 
-    private void chekFirstTime() {
+        // [START link_credential]
+        mAuth.getCurrentUser().linkWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "linkWithCredential:success");
+                            FirebaseUser user = task.getResult().getUser();
+                            updateUI(user);
+                        } else {
+                            Log.w(TAG, "linkWithCredential:failure", task.getException());
+                            Toast.makeText(SplashActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            updateUI(null);
+                        }
+                    }
+                });
+        // [END link_credential]
+    }*/
+
+/*    private void updateUI(FirebaseUser user) {
+        if (user != null) {
+//            linkAccount();
+//            loadRadios();
+        } else {
+
+        }
+
+        Log.w(TAG, "linkWithCredential:failure" + user);
+    }*/
+
+    private void checkFirstTime() {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 switch (checkAppStart()) {
                     case NORMAL:
-                        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                            initRadios();
-                        } else {
-                            startActivity(new Intent(IntentHelper.noInternetActivity(SplashActivity.this, false)));
-                        }
+                        loadRadios();
                         break;
                     case FIRST_TIME_VERSION:
                         // TODO show what's new

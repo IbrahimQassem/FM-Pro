@@ -582,7 +582,8 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
     private void checkUserLogin() {
         if (!isAccountSignedIn()) {
-            Intent intent = IntentHelper.phoneLoginActivity(MainActivity.this, false);
+//            Intent intent = IntentHelper.phoneLoginActivity(MainActivity.this, false);
+            Intent intent = IntentHelper.intentFormSignUp(MainActivity.this, false);
             startActivity(intent);
         } else {
             startActivity(new Intent(IntentHelper.userProfileActivity(MainActivity.this, false)));

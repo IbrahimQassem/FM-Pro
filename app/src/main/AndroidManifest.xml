@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.sana.dev.fm">
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -20,14 +23,21 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:largeHeap="true"
         android:theme="@style/Theme.HudHudFM"
         android:usesCleartextTraffic="true"
         tools:replace="android:supportsRtl"
         tools:targetApi="31">
+        <activity
+            android:name=".ui.activity.appuser.LoginByActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
         <activity
             android:name=".ui.activity.ListDragActivity"
             android:exported="false">
@@ -81,7 +91,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.appuser.VerificationPhone"
-            android:screenOrientation="portrait" /> <!--  -->
+            android:screenOrientation="portrait" />
+        <!--  -->
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
@@ -92,7 +103,23 @@
         <activity
             android:name=".ui.activity.NoInternetActivity"
             android:exported="false"
-            android:screenOrientation="portrait" /> <!-- <activity android:name=".ui.activity.player.MusicServiceActivity" /> -->
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name" />
+        <activity
+            android:name="com.facebook.CustomTabActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="@string/fb_login_protocol_scheme" />
+            </intent-filter>
+        </activity> <!-- <activity android:name=".ui.activity.player.MusicServiceActivity" /> -->
         <!-- <activity android:name=".ui.activity.player.PlayerActivity" /> -->
         <!-- <activity android:name=".ui.activity.player.PermitActivity" /> -->
         <service
@@ -150,14 +177,22 @@
 
         <meta-data
             android:name="firebase_performance_logcat_enabled"
-            android:value="true" />
-
-        <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
+            android:value="true" /> <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
         <!-- Hudhud FM AdMob app ID: ca-app-pub-8921334057686979~6893968687 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-8921334057686979~6893968687"/>
+            android:value="ca-app-pub-8921334057686979~6893968687" />
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+        <meta-data
+            android:name="com.facebook.sdk.ClientToken"
+            android:value="@string/facebook_client_token" />
 
+
+<!--        <queries>-->
+<!--            <package android:name="com.facebook.katana" />-->
+<!--        </queries>-->
 
     </application>
 

@@ -5,7 +5,6 @@ import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.USERS_TABLE;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
@@ -37,14 +36,11 @@ import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmUserCRUDImpl;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class VerificationPhone extends BaseActivity {
-
     private String verificationId;
     private FirebaseAuth mAuth;
-
     TextInputEditText editText;
     AppCompatButton buttonSignIn;
     String phoneNumber = "";
@@ -91,7 +87,7 @@ public class VerificationPhone extends BaseActivity {
             signInWithCredential(credential);
         } catch (Exception e) {
             LogUtility.e(LogUtility.tag(VerificationPhone.class), e.toString());
-            ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_error_occurred), e.toString(), new ButtonConfig(getString(R.string.label_cancel)), null);
+            ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_error_occurred), e.getLocalizedMessage(), new ButtonConfig(getString(R.string.label_cancel)), null);
             showWarningDialog(config);
         }
     }
@@ -107,7 +103,7 @@ public class VerificationPhone extends BaseActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = task.getResult().getUser();
                             user.updatePhoneNumber(credential);
-                            chekUserAuth(user);
+                            checkUserAuth(user);
                         } else {
 //                            showToast(task.getException().getLocalizedMessage());
                             LogUtility.e(LogUtility.tag(VerificationPhone.class), task.getException().getLocalizedMessage());
@@ -118,7 +114,7 @@ public class VerificationPhone extends BaseActivity {
                 });
     }
 
-    void chekUserAuth(FirebaseUser user) {
+    void checkUserAuth(FirebaseUser user) {
         Intent intent = IntentHelper.userProfileActivity(VerificationPhone.this, true);
         FmUserCRUDImpl fmRepo = new FmUserCRUDImpl(this, USERS_TABLE);
         fmRepo.queryAllBy(phoneNumber, null, new CallBack() {
@@ -144,7 +140,7 @@ public class VerificationPhone extends BaseActivity {
 //                String email = user.getEmail();
 //                   String mobile = TextUtils.isEmpty(user.getPhoneNumber()) ? user.getPhoneNumber() : prefMgr.read(FirebaseConstants.USER_MOBILE,"");
 //                    Users obUser =  new Users(uid, name, phoneNumber,prefMgr.read(FirebaseConstants.USER_IMAGE_Profile,null), getToken(VerificationPhone.this), Gender.UNKNOWN, new Date(),null,null,null,null);
-                    UserModel obUser = new UserModel(uid, name, null, phoneNumber, null, null, FmUtilize.getIMEIDeviceId(VerificationPhone.this), null, null, null, true, false, false, FmUtilize.deviceId(VerificationPhone.this), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(),FmUtilize.englishFormat), FmUtilize.getFirebaseToken(VerificationPhone.this), null,new ArrayList<>());
+                    UserModel obUser = new UserModel(uid, name, null, phoneNumber, null, null, FmUtilize.getIMEIDeviceId(VerificationPhone.this), null, null, null, true, false, false, FmUtilize.deviceId(VerificationPhone.this), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(VerificationPhone.this), null, new ArrayList<>());
 
                     fmRepo.create(uid, obUser, new CallBack() {
                         @Override
@@ -170,14 +166,13 @@ public class VerificationPhone extends BaseActivity {
     private void sendVerificationCode(String phoneNumber) {
 
         try {
-            //        progressBar.setVisibility(View.VISIBLE);
-//        PhoneAuthProvider.getInstance().verifyPhoneNumber(
-//                phoneNumber,
-//                120,
-//                TimeUnit.SECONDS,
-//                (VerificationPhone) ContextCompat.getMainExecutor(VerificationPhone.this),
-//                mCallBack
-//        );
+/*        PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                phoneNumber,
+                120,
+                TimeUnit.SECONDS,
+                (VerificationPhone) ContextCompat.getMainExecutor(VerificationPhone.this),
+                mCallBack
+        );*/
             PhoneAuthOptions options =
                     PhoneAuthOptions.newBuilder(mAuth)
                             .setPhoneNumber(phoneNumber)       // Phone number to verify
@@ -186,13 +181,11 @@ public class VerificationPhone extends BaseActivity {
                             .setCallbacks(mCallBack)          // OnVerificationStateChangedCallbacks
                             .build();
             PhoneAuthProvider.verifyPhoneNumber(options);
-
-//        progressBar.setVisibility(View.GONE);
         } catch (Throwable e) {
             // Todo fixme
             //handle carefully
             LogUtility.e(LogUtility.tag(VerificationPhone.class), e.toString());
-            ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_error_occurred), e.toString(), new ButtonConfig(getString(R.string.label_cancel)), null);
+            ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_error_occurred), e.getLocalizedMessage(), new ButtonConfig(getString(R.string.label_cancel)), null);
             showWarningDialog(config);
         }
     }
@@ -219,7 +212,7 @@ public class VerificationPhone extends BaseActivity {
         @Override
         public void onVerificationFailed(FirebaseException e) {
             LogUtility.e(LogUtility.tag(VerificationPhone.class), e.toString());
-            ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_error_occurred), e.toString(), new ButtonConfig(getString(R.string.label_cancel)), null);
+            ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_error_occurred), e.getLocalizedMessage(), new ButtonConfig(getString(R.string.label_cancel)), null);
             showWarningDialog(config);
             hideProgress();
         }

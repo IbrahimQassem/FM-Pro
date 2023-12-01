@@ -17,9 +17,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -67,12 +69,12 @@ public class UserProfileActivity extends BaseActivity {
     ActivityUserProfileBinding binding;
 
     private FirebaseAuth mAuth;
-    private String userId, name, email, mobile, password, photoUrl, token, nickNme, bio, tag, deviceId, stopNote, country, city;
+//    private String userId, name, email, mobile, password, photoUrl, token, nickNme, bio, tag, deviceId, stopNote, country, city;
 
-    private Gender gender = Gender.UNKNOWN;
+//    private Gender gender = Gender.UNKNOWN;
 
     //    private Uri imageUri = null;
-    private UserModel _userModel;
+//    private UserModel _userModel;
     private FmUserCRUDImpl fmRepo;
 
 
@@ -99,31 +101,44 @@ public class UserProfileActivity extends BaseActivity {
 
         // Todo fix
         if (prefMgr.getUserSession() != null) {
-            _userModel = prefMgr.getUserSession();
+            UserModel _userModel = prefMgr.getUserSession();
             LogUtility.d(LogUtility.TAG, " UserSession : " + new Gson().toJson(_userModel));
             binding.tvLabelUserName.setText(_userModel.getName());
-            binding.etMobile.setText(FmUtilize.trimMobileCode(_userModel.getMobile()));
-            binding.tvLabelUserDesc.setText(_userModel.getBio());
+            binding.tvLabelUserEmail.setText(_userModel.getEmail());
+            binding.tvLabelUserMobile.setText(_userModel.getMobile());
+
             binding.etFullName.setText(_userModel.getName());
             binding.etEmail.setText(_userModel.getEmail());
+            binding.etMobile.setText(FmUtilize.trimMobileCode(_userModel.getMobile()));
+
             try {
                 binding.etPassword.setText(AESCrypt.decrypt(_userModel.getPassword()));
             } catch (Exception e) {
                 LogUtility.e(TAG, e.toString());
             }
-            gender = _userModel.getGender() != null ? _userModel.getGender() : Gender.UNKNOWN;
-            if (Gender.FEMALE.equalsName(gender.getText()))
+
+            Gender gender = _userModel.getGender() != null ? _userModel.getGender() : Gender.UNKNOWN;
+            if (Gender.FEMALE == gender) {
                 binding.radioFemale.setChecked(true);
-            else
+            } else if (Gender.MALE == gender) {
                 binding.radioMale.setChecked(true);
+            }
+
+//            Tools.setTextOrHideIfEmpty(binding.etMobile, null);
+//            Tools.setTextOrHideIfEmpty(binding.etEmail, null);
+
+            disableEditText(binding.etMobile);
+            disableEditText(binding.etEmail);
 
             if (URLUtil.isValidUrl(_userModel.getPhotoUrl()))
                 Tools.displayUserProfile(this, binding.imgProfile, _userModel.getPhotoUrl());
         }
 
 
-        binding.etMobile.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
-//        disableEditText(binding.etMobile);
+//        binding.etMobile.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
+//        binding.etEmail.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
+
+
         binding.rtlImgParent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -131,38 +146,47 @@ public class UserProfileActivity extends BaseActivity {
             }
         });
 
-        binding.rgGender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId) {
-                    case R.id.radio_male:
-                        // do operations specific to this selection
-                        gender = Gender.MALE;
-                        break;
-                    case R.id.radio_female:
-                        // do operations specific to this selection
-                        gender = Gender.FEMALE;
-                        break;
-                }
-            }
-        });
+//        binding.rgGender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+//            public void onCheckedChanged(RadioGroup group, int checkedId) {
+//                switch (checkedId) {
+//                    case R.id.radio_male:
+//                        // do operations specific to this selection
+//                        gender = Gender.MALE;
+//                        break;
+//                    case R.id.radio_female:
+//                        // do operations specific to this selection
+//                        gender = Gender.FEMALE;
+//                        break;
+//                }
+//            }
+//        });
 
-        binding.etMobile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showToast(getString(R.string.mobile_cant_edited));
-            }
-        });
-
-        binding.etPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    showToast(AESCrypt.decrypt(_userModel.getPassword()));
-                } catch (Exception e) {
-                    LogUtility.e(TAG, e.toString());
-                }
-            }
-        });
+//        if (!FmUtilize.isEmpty(_userModel.getMobile()))
+//            binding.etMobile.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    showToast(getString(R.string.mobile_cant_edited));
+//                }
+//            });
+//
+//        if (!FmUtilize.isEmpty(_userModel.getEmail()))
+//            binding.etEmail.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    showToast(getString(R.string.mobile_cant_edited));
+//                }
+//            });
+//
+//        binding.etPassword.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                try {
+//                    showToast(AESCrypt.decrypt(_userModel.getPassword()));
+//                } catch (Exception e) {
+//                    LogUtility.e(TAG, e.toString());
+//                }
+//            }
+//        });
 
 
         //assign the image in code (or you can do this in your layout xml with the src attribute)
@@ -284,6 +308,7 @@ public class UserProfileActivity extends BaseActivity {
                 break;
             case R.id.action_close:
                 userLogOut();
+                showToast(getString(R.string.user_loged_out));
 //                Toast.makeText(getApplicationContext(), menuItem.getTitle(), Toast.LENGTH_LONG).show();
                 break;
         }
@@ -291,12 +316,13 @@ public class UserProfileActivity extends BaseActivity {
     }
 
     private void deleteMyAccount() {
-        if (_userModel != null)
-            fmRepo.delete(_userModel, new CallBack() {
+        if (isAccountSignedIn())
+            fmRepo.delete(prefMgr.getUserSession(), new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     deleteFirebaseUser();
                     showToast(getString(R.string.done_successfully));
+                    userLogOut();
                 }
 
                 @Override
@@ -343,15 +369,6 @@ public class UserProfileActivity extends BaseActivity {
 
 
     private void saveUserData() {
-        validateInput();
-
-
-//        String userImage  = null ;
-//        if (user.getPhotoUrl() != null && !user.getPhotoUrl().equals(null)){
-//            userImage = user.getPhotoUrl();
-//        }else {
-//            userImage =
-//        }
 
         UserModel user = prefMgr.getUserSession();
         // set privilege
@@ -362,7 +379,30 @@ public class UserProfileActivity extends BaseActivity {
 //        }
 //        user.setAllowedPermissions(per);
 
-        if (user.equals(name) && user.getGender().equals(gender)) {
+        Gender gender = Gender.UNKNOWN;
+        int checkedRadioButtonId = binding.rgGender.getCheckedRadioButtonId();
+        AppCompatRadioButton checkedRadioButton = (AppCompatRadioButton) findViewById(checkedRadioButtonId);
+//            String checkedRadioButtonText = checkedRadioButton.getText().toString();
+//        binding.rgGender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+//            public void onCheckedChanged(RadioGroup group, int checkedId) {
+        switch (checkedRadioButton.getId()) {
+            case R.id.radio_male:
+                // do operations specific to this selection
+                gender = Gender.MALE;
+                break;
+            case R.id.radio_female:
+                // do operations specific to this selection
+                gender = Gender.FEMALE;
+                break;
+        }
+//            }
+//        });
+
+        String name = binding.etFullName.getText().toString().trim();
+
+        boolean isUserNameEdite = !user.getName().equals(name);
+        boolean isGenderEdited = user.getGender() != gender;
+        if (isUserNameEdite || isGenderEdited) {
             startMainActivity();
         } else {
             user.setName(name);
@@ -370,8 +410,7 @@ public class UserProfileActivity extends BaseActivity {
             user.setDeviceToken(FmUtilize.getIMEIDeviceId(this));
             user.setNotificationToken(FmUtilize.getFirebaseToken(this));
 //            updateUser(user);
-//            updateUser(new Users(name, _imgUrl, gender, getToken(this)));
-            fmRepo.create(_userModel.getUserId(), user, new CallBack() {
+            fmRepo.create(user.getUserId(), user, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     prefMgr.write(FirebaseConstants.USER_INFO, (UserModel) object);
@@ -389,10 +428,11 @@ public class UserProfileActivity extends BaseActivity {
 
     }
 
+/*
     private void validateInput() {
 
         name = binding.etFullName.getText().toString().trim();
-        email = "";
+        email = binding.etEmail.getText().toString().trim();
         mobile = binding.etMobile.getText().toString().trim();
         password = "";//binding.etPassword.getText().toString().trim();
 
@@ -435,6 +475,7 @@ public class UserProfileActivity extends BaseActivity {
 
 
     }
+*/
 
     private void uploadUserProfile(Uri uriImage) {
 //        if (imageUri != null) {
@@ -499,23 +540,11 @@ public class UserProfileActivity extends BaseActivity {
 
             }
         });
-
-//        }
-//        else {
-//            showSnackBar("يجب إضافة صورة البروفايل");
-//            binding.imgProfile.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake_error));
-//        }
     }
 
 
     void updateUser(UserModel model) {
-        // Check if user is signed in (non-null) and update UI accordingly.
-//        FirebaseUser currentUser = mAuth.getCurrentUser();
-//        if (currentUser == null) {
-//            Toast.makeText(this, getString(R.string.most_login), Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-        fmRepo.create(_userModel.getUserId(), model, new CallBack() {
+        fmRepo.create(prefMgr.getUserSession().getUserId(), model, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 prefMgr.write(FirebaseConstants.USER_INFO, (UserModel) object);
@@ -537,10 +566,10 @@ public class UserProfileActivity extends BaseActivity {
 
 
     private void userLogOut() {
+        // Todo check login type
 //        mAuth.signOut();
         prefMgr.remove(FirebaseConstants.USER_INFO);
         Intent intent = IntentHelper.splashActivity(this, true);
         startActivity(intent);
-        showToast(getString(R.string.user_loged_out));
     }
 }

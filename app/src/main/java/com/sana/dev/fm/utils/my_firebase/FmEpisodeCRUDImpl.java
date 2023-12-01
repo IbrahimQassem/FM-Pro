@@ -8,6 +8,9 @@ import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABA
 
 import android.app.Activity;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -128,6 +131,11 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
         } else {
             callBack.onError(FAIL);
         }
+
+    }
+
+    @Override
+    public void queryAllByKeyValue(@NonNull String field, @Nullable Object value, Object model, CallBack callBack) {
 
     }
 

@@ -691,14 +691,6 @@ public class Tools {
         return "";
     }
 
-//       public static void setTextOrHideIfEmpty(String s, View view) {
-//        if (!TextUtils.isEmpty(s)) {
-//            if (view instanceof TextView)
-//                ((TextView) view).setText(s);
-//        } else {
-//            view.setVisibility(View.GONE);
-//        }
-//    }
     public static void setTextOrHideIfEmpty(View view, String val) {
         if (Tools.isEmpty(val)) {
             view.setVisibility(View.GONE);
