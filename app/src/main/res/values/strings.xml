@@ -4,11 +4,13 @@
     <string name="app_slogan">Yemen\'s first application for radio channels</string>
     <string name="app_version">Version</string>
     <string name="version_unknown">Unknown</string>
-    <string name="app_gmail">hudhudfm.ye@gmail.com</string>
-    <string name="app_mobile">+967 775617017</string>
-    <string name="app_twitter">https://twitter.com/HudhudFm</string>
-    <string name="app_facebook">https://www.facebook.com/HudhudFm</string>
-    <string name="app_instagram">http://instagram.com/hudhudfm</string>
+    <string name="app_gmail" translatable="false">hudhudfm.ye@gmail.com</string>
+    <string name="app_mobile" translatable="false">+967 775617017</string>
+    <string name="app_twitter" translatable="false">https://twitter.com/HudhudFm</string>
+    <string name="app_facebook" translatable="false">https://www.facebook.com/HudhudFm</string>
+    <string name="app_instagram" translatable="false">http://instagram.com/hudhudfm</string>
+
+    <string name="developer_reference" translatable="false">https://portfolio.sanaa-dev.com</string>
 
     <!-- This is an ad unit ID for a test ad. Replace with your own banner ad unit id. -->
     <!--    <string name="banner_ad_unit_id" translatable="false">ca-app-pub-3940256099942544/6300978111</string>-->
@@ -16,10 +18,21 @@
     <string name="banner_ad_unit_id" translatable="false">ca-app-pub-8921334057686979/6618636515</string>
 
 
+<!--    <string name="facebook_app_id" translatable="false">811088116023852</string>-->
+<!--    <string name="fb_login_protocol_scheme" translatable="false">fb1234</string>-->
+<!--    <string name="facebook_client_token" translatable="false">170e1661cdcf6358ee03ac6ef53278c3</string>-->
+<!--&lt;!&ndash;    afe4eb099e9ad5f32fd9b17ce8ca50ea &ndash;&gt;-->
+
     <string name="facebook_app_id" translatable="false">811088116023852</string>
     <string name="fb_login_protocol_scheme" translatable="false">fb1234</string>
-    <string name="facebook_client_token" translatable="false">170e1661cdcf6358ee03ac6ef53278c3</string>
-<!--    afe4eb099e9ad5f32fd9b17ce8ca50ea -->
+    <string name="facebook_client_token" translatable="false">afe4eb099e9ad5f32fd9b17ce8ca50ea</string>
+
+
+<!--    test app-->
+<!--    <string name="facebook_app_id" translatable="false">1018585879216952</string>-->
+<!--    <string name="fb_login_protocol_scheme" translatable="false">fb1234</string>-->
+<!--    <string name="facebook_client_token" translatable="false">fad23c664feb985b0804395215f5495b</string>-->
+
 
 
     <plurals name="likes_count">
@@ -104,6 +117,7 @@
     <string name="pick_profile_image">Change user picture</string>
     <string name="delete_my_account">Delete my account</string>
     <string name="confirm_delete_my_account">You\'re about to delete your account permanently <br />  Are you sure ?</string>
+    <string name="confirm_logout_my_account">You\'re about to logout from the app <br />  Confirm ?</string>
 
 
     <string name="lbl_take_camera_picture">Take picture</string>
@@ -132,7 +146,7 @@
     <string name="update_episode">Update episode data</string>
     <!--    <string name="powered_by">Powered By &#x2665; Sana&apos;a Dev</string>-->
     <string name="powered_by">Powered By &#x2665; Sana\'a Dev</string>
-    <string name="empty_ep">Sorry, program data for %s radio is currently unavailableً</string>
+    <string name="empty_ep">Sorry, program data for %s radio is currently unavailable</string>
     <string name="whatsapp_not_installed">You do not have WhatsApp installed</string>
 
 
@@ -216,6 +230,9 @@
     <string name="label_pick_date">Pick Date</string>
     <string name="label_radio_list">Radio List</string>
     <string name="label_priority">Priority %d</string>
+    <string name="login_via_mobile">Login via Mobile</string>
+    <string name="label_login_by">Login By</string>
+    <string name="login_via_facebook">Login via Facebook</string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

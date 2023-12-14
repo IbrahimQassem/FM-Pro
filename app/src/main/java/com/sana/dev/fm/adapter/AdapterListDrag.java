@@ -99,7 +99,7 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             final RadioInfo model = items.get(position);
             view.binding.tvTitle.setText(model.getName()+" - "+model.getRadioId());
-            view.binding.tvDesc.setText(model.getChannelFreq() + "\n"+ model.getDesc() + "\n" + FmUtilize.stringToDate(model.getCreateAt()));
+            Tools.setTextOrHideIfEmpty( view.binding.tvDesc, model.getChannelFreq() + "\n"+ model.getDesc() + "\n" + FmUtilize.stringToDate(model.getCreateAt()));
             view.binding.tvPriority.setText(ctx.getString(R.string.label_priority,model.getPriority()));
             view.binding.tvDate.setText(String.valueOf(position + 1));
             Tools.displayImageOriginal(ctx, view.binding.image, model.getLogo());

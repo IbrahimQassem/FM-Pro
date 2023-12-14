@@ -7,6 +7,9 @@ import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.sana.dev.fm.FmApplication;
+import com.sana.dev.fm.R;
+import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
@@ -106,6 +109,18 @@ public class PreferencesManager {
     public String getPrefLange() {
         String lang = read(FirebaseConstants.PREF_LANGUAGE, "ar");
         return lang;
+    }
+
+    public AppRemoteConfig getAppRemoteConfig() {
+        Gson gson = new Gson();
+        Context ctx  = FmApplication.getInstance();
+        AppRemoteConfig appRemoteConfig = new AppRemoteConfig(ctx.getString(R.string.app_mobile), ctx.getString(R.string.developer_reference), false, false, true, true);
+        String json = read(FirebaseConstants.APP_REMOTE_CONFIG, appRemoteConfig.toString());
+        return gson.fromJson(json, AppRemoteConfig.class);
+    }
+
+    public void setUserSession(UserModel userModel) {
+        write(FirebaseConstants.USER_INFO, userModel);
     }
 
     public UserModel getUserSession() {

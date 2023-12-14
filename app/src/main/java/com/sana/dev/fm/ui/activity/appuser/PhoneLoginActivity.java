@@ -31,6 +31,13 @@ public class PhoneLoginActivity extends BaseActivity {
         editTextPhone = findViewById(R.id.editTextPhone);
         buttonContinue = findViewById(R.id.buttonContinue);
 
+        getToolbarArrow().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         editTextPhone.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
 
         buttonContinue.setOnClickListener(new View.OnClickListener() {

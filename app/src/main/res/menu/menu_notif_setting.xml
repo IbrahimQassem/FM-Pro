@@ -24,7 +24,7 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_close"
+        android:id="@+id/action_logout"
         android:orderInCategory="103"
         android:title="@string/logout"
         app:showAsAction="never" />

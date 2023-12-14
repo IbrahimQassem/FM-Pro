@@ -1,6 +1,8 @@
 package com.sana.dev.fm.ui.activity;
 
 
+import static android.view.View.VISIBLE;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
@@ -10,7 +12,6 @@ import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -25,7 +26,6 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -36,6 +36,7 @@ import com.google.gson.Gson;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.UserType;
@@ -122,10 +123,15 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
         initBottomNav();
 //        initAdMob();
-        adView = findViewById(R.id.ad_view);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);
 
+        // setup addMod
+        adView = findViewById(R.id.ad_view);
+        AppRemoteConfig remoteConfig = PreferencesManager.getInstance().getAppRemoteConfig();
+        if (remoteConfig != null && remoteConfig.isAdMobEnable()) {
+            AdRequest adRequest = new AdRequest.Builder().build();
+            adView.loadAd(adRequest);
+            adView.setVisibility(remoteConfig.isAdMobEnable() ? VISIBLE : View.GONE);
+        }
 
         View lyt_profile = (View) findViewById(R.id.lyt_profile);
         lyt_profile.setOnClickListener(new View.OnClickListener() {
@@ -217,6 +223,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
     }
 
+/*
     private void initAdMob() {
         // Log the Mobile Ads SDK version.
         Log.d(TAG, "Google Mobile Ads SDK Version: " + MobileAds.getVersion());
@@ -264,8 +271,9 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             initializeMobileAdsSdk();
         }
     }
+*/
 
-    private void initializeMobileAdsSdk() {
+/*    private void initializeMobileAdsSdk() {
         if (isMobileAdsInitializeCalled.getAndSet(true)) {
             return;
         }
@@ -276,7 +284,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         // Load an ad.
         AdRequest adRequest = new AdRequest.Builder().build();
         adView.loadAd(adRequest);
-    }
+    }*/
 
     private void rotateImageAlbum() {
         fab_radio.setImageResource(R.drawable.ic_arrow_back);
@@ -300,7 +308,6 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     Fragment active = fragment1;
 
     public void initBottomNav() {
-
 
         BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
                 = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -326,8 +333,6 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
                         active = fragment3;
 //                        fm.beginTransaction().replace(R.id.main_container, active).commit();
 //                        fm.beginTransaction().setMaxLifecycle(active,"").commit();
-
-
                         return true;
 
                     case R.id.nav_more:
@@ -456,7 +461,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         lyt_update_radio.setVisibility(View.GONE);
 
 
-        if (checkPrivilege()) {
+        if (checkPrivilegeAdmin()) {
             lyt_add_program.setVisibility(View.VISIBLE);
             lyt_add_episode.setVisibility(View.VISIBLE);
             lyt_update_episode.setVisibility(View.VISIBLE);
@@ -466,17 +471,17 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             lyt_update_episode.setVisibility(View.GONE);
         }
 
-        if ((BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
-            lyt_update_radio.setVisibility(View.VISIBLE);
-            lyt_add_program.setVisibility(View.VISIBLE);
-            lyt_add_episode.setVisibility(View.VISIBLE);
-            lyt_update_episode.setVisibility(View.VISIBLE);
-            if (isAccountSignedIn()) {
-                UserModel user = prefMgr.getUserSession();
-                user.setUserType(UserType.SuperADMIN);
-                prefMgr.write(FirebaseConstants.USER_INFO, (UserModel) user);
-            }
-        }
+//        if (checkPrivilegeAdmin() && (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
+//            lyt_update_radio.setVisibility(View.VISIBLE);
+//            lyt_add_program.setVisibility(View.VISIBLE);
+//            lyt_add_episode.setVisibility(View.VISIBLE);
+//            lyt_update_episode.setVisibility(View.VISIBLE);
+//            if (isAccountSignedIn()) {
+//                UserModel user = prefMgr.getUserSession();
+//                user.setUserType(UserType.SuperADMIN);
+//                prefMgr.write(FirebaseConstants.USER_INFO, (UserModel) user);
+//            }
+//        }
 
         inflate.findViewById(R.id.lyt_user_acc).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -515,8 +520,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
         lyt_add_program.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-
-                if (checkPrivilege())
+                if (checkPrivilegeAdmin())
                     startActivity(new Intent(MainActivity.this, AddProgramActivity.class));
                 mBottomSheetDialog.dismiss();
             }
@@ -524,14 +528,16 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
         lyt_add_episode.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                AddEpisodeActivity.startActivity(MainActivity.this);
+                if (checkPrivilegeAdmin())
+                    AddEpisodeActivity.startActivity(MainActivity.this);
                 mBottomSheetDialog.dismiss();
             }
         });
 
         lyt_update_episode.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                ListMultiSelection.startActivity(MainActivity.this);
+                if (checkPrivilegeAdmin())
+                    ListMultiSelection.startActivity(MainActivity.this);
                 mBottomSheetDialog.dismiss();
             }
         });
@@ -539,7 +545,8 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
         lyt_update_radio.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                ListDragActivity.startActivity(MainActivity.this);
+                if (checkPrivilegeAdmin())
+                    ListDragActivity.startActivity(MainActivity.this);
                 mBottomSheetDialog.dismiss();
             }
         });
@@ -624,7 +631,6 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     private boolean isPlaying() {
         return (null != radioManager && null != RadioManager.getService() && RadioManager.getService().isPlaying());
     }
-
 
 
     @Subscribe
@@ -727,7 +733,9 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         StaticEventDistributor.unregisterAsListener(this);
     }
 
-    /** Called when leaving the activity */
+    /**
+     * Called when leaving the activity
+     */
     @Override
     public void onPause() {
         if (adView != null) {
@@ -736,7 +744,9 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         super.onPause();
     }
 
-    /** Called when returning to the activity */
+    /**
+     * Called when returning to the activity
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -749,7 +759,9 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     }
 
 
-    /** Called before the activity is destroyed */
+    /**
+     * Called before the activity is destroyed
+     */
     @Override
     protected void onDestroy() {
         if (adView != null) {

@@ -2,7 +2,6 @@ package com.sana.dev.fm.utils;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.sana.dev.fm.FmApplication.TAG;
-import static com.sana.dev.fm.model.AppConfig.RADIO_NAME;
 
 import android.Manifest;
 import android.app.Activity;
@@ -25,7 +24,6 @@ import android.os.Build;
 import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -33,7 +31,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.DatePicker;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,7 +39,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.zxing.common.StringUtils;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.Episode;
@@ -277,8 +273,8 @@ public class FmUtilize {
     }
 
     public static String getDayName(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("EEEE", new Locale("ar"));
-//        DateFormat format = new SimpleDateFormat("EEEE yyyy/MM/dd", new Locale("ar"));
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE", arabicFormat);
+//        DateFormat format = new SimpleDateFormat("EEEE yyyy/MM/dd", arabicFormat);
         String dayOfTheWeek = sdf.format(date);
         return dayOfTheWeek;
     }
@@ -759,7 +755,7 @@ public class FmUtilize {
         Intent contactUsIntent = new Intent(Intent.ACTION_SENDTO);
         contactUsIntent.setData(Uri.parse("mailto:"));
         contactUsIntent.putExtra(Intent.EXTRA_EMAIL, developerEmail);
-        contactUsIntent.putExtra(Intent.EXTRA_SUBJECT, RADIO_NAME);
+        contactUsIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.app_name));
         contactUsIntent.putExtra(Intent.EXTRA_TEXT, emailTemplate);
         Intent chooser = Intent.createChooser(contactUsIntent, context.getString(R.string
                 .select_email_app));

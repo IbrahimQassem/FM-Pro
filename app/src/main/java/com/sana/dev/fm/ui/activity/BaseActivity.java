@@ -107,7 +107,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
         setupToolbar();
     }
 
-    void chekInternetCon() {
+    void checkInternetCon() {
         if (connectionChecker == null)
             connectionChecker = new CheckInternetConnection();
 
@@ -150,7 +150,6 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     public ImageButton getToolbarArrow() {
         return imb_event;
     }
-
 
 /*
     public void startTour(View view, String id, String text, Focus focusType, ShapeType shape) {
@@ -308,7 +307,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     }
 
 
-    boolean checkPrivilege() {
+    boolean checkPrivilegeAdmin() {
         if (prefMgr.getUserSession() == null) {
             return false;
         } else
@@ -344,7 +343,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     @Override
     protected void onResume() {
         super.onResume();
-        chekInternetCon();
+        checkInternetCon();
     }
 
 

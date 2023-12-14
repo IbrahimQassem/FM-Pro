@@ -30,7 +30,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.utils.Constants;
@@ -41,6 +43,9 @@ import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmStationCRUDImpl;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -63,6 +68,7 @@ public class SplashActivity extends AppCompatActivity {
         prefMgr = PreferencesManager.getInstance();
         setFullScreen();
         startAnimation();
+        initRemoteConfig();
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
@@ -166,6 +172,54 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(MyContextWrapper.wrap(newBase, PreferencesManager.getInstance().getPrefLange()));
+    }
+
+
+    private void initRemoteConfig() {
+        FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.getInstance();
+        remoteConfig.fetchAndActivate()
+                .addOnCompleteListener(new OnCompleteListener<Boolean>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Boolean> task) {
+                        if (task.isSuccessful()) {
+                            // Fetch successful, get JSON data
+                            String jsonString = remoteConfig.getString("hudhudFmAppConfig");
+
+                            /*{
+  "adminMobile": "+967 775617017",
+  "developerReference": "https://portfolio.sanaa-dev.com",
+  "isAuthSmsEnable": false,
+  "isAuthEmailEnable": true,
+  "isAuthFacebookEnable": true,
+  "isAdMobEnable": true
+}*/
+                            // Parse JSON string into a JSON object
+                            try {
+                                JSONObject configData = new JSONObject(jsonString);
+
+                                // Use configData object to access data
+                                String adminMobile = configData.getString("adminMobile");
+                                String developerReference = configData.getString("developerReference");
+                                Boolean isSmsEnable = configData.getBoolean("isAuthSmsEnable");
+                                Boolean isEmailEnable = configData.getBoolean("isAuthEmailEnable");
+                                Boolean isFacebookEnable = configData.getBoolean("isAuthFacebookEnable");
+                                Boolean isAddMobEnable = configData.getBoolean("isAdMobEnable");
+                                AppRemoteConfig appRemoteConfig = new AppRemoteConfig(adminMobile, developerReference, isSmsEnable, isEmailEnable, isFacebookEnable, isAddMobEnable);
+                                prefMgr.write(FirebaseConstants.APP_REMOTE_CONFIG, appRemoteConfig);
+
+                                // Update UI with retrieved data
+                                // updateUI(welcomeMessage, discountPercentage);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Log.d(TAG, "JSONException  :"+e);
+                            }
+                        } else {
+                            // Fetch failed
+                            Log.d(TAG, "RemoteConfig Fetch failed");
+                        }
+                    }
+                });
+
     }
 
 //    // [START on_start_check_user]

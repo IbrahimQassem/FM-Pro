@@ -59,7 +59,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.textfield.TextInputEditText;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.model.AppConfig;
+import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.DeviceInfo;
 
 import java.net.MalformedURLException;
@@ -161,15 +161,15 @@ public class Tools {
     public static void displayImageOriginal(Context ctx, ImageView img, String imgUrl) {
         try {
             if (imgUrl.equals("no_image")) {
-                GlideApp.with(ctx).load(AppConfig.RADIO_IMG)
+                GlideApp.with(ctx).load(ctx.getDrawable(R.drawable.logo_app))
                         .centerCrop()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(img);
             } else {
                 GlideApp.with(ctx).load(imgUrl)
                         .fitCenter()
-                        .placeholder(AppConfig.RADIO_IMG)
-                        .error(AppConfig.RADIO_IMG)
+                        .placeholder(ctx.getDrawable(R.drawable.logo_app))
+                        .error(ctx.getDrawable(R.drawable.logo_app))
                         .centerCrop()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(img);
@@ -177,7 +177,7 @@ public class Tools {
 
 //            Glide.with(ctx).load(Uri.parse(imgUrl))
 //                    .fitCenter()
-//                    .placeholder(AppConfig.RADIO_IMG)
+//                    .placeholder(AppRemoteConfig.RADIO_IMG)
 //                    .error(BaseDrawerActivity.APP_CONFIG.getCount())
 //                    .crossFade()
 //                    .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -187,7 +187,7 @@ public class Tools {
 
 //            Picasso.get()
 //                    .load(url)
-//                    .placeholder(AppConfig.RADIO_IMG)
+//                    .placeholder(AppRemoteConfig.RADIO_IMG)
 //                    .networkPolicy(NetworkPolicy.OFFLINE)
 //                    .into(img);
         } catch (Exception e) {
@@ -204,16 +204,16 @@ public class Tools {
                     .load(imgUrl)
                     .apply(requestOptions)
                     .placeholder(R.drawable.bg_comment_avatar)
-                    .error(AppConfig.RADIO_LOGO)
+                    .error(ctx.getDrawable(R.drawable.logo_app))
                     .into(img);
 //            Glide.with(ctx)
 //                    .load(imgUrl)
 //                    .apply(RequestOptions.bitmapTransform(new RoundedCorners(50)))
 //                    .placeholder(R.drawable.bg_comment_avatar)
-//                    .error(AppConfig.RADIO_LOGO)
+//                    .error(AppRemoteConfig.RADIO_LOGO)
 //                     .into(img);
 
-//            Glide.with(ctx).load(imgUrl).asBitmap().placeholder(R.drawable.bg_comment_avatar).error(AppConfig.RADIO_LOGO).centerCrop().into(new BitmapImageViewTarget(img) {
+//            Glide.with(ctx).load(imgUrl).asBitmap().placeholder(R.drawable.bg_comment_avatar).error(AppRemoteConfig.RADIO_LOGO).centerCrop().into(new BitmapImageViewTarget(img) {
 //                @Override
 //                protected void setResource(Bitmap resource) {
 //                    RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(ctx.getResources(), resource);

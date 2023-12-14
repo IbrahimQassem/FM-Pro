@@ -294,7 +294,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                                         ModelConfig config = new ModelConfig(-1, getString(R.string.label_note), getString(R.string.goto_login), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                startActivity(new Intent(IntentHelper.phoneLoginActivity(context, false)));
+                                                startActivity(new Intent(IntentHelper.intentFormSignUp(context, false)));
                                             }
                                         }));
                                         showWarningDialog(config);

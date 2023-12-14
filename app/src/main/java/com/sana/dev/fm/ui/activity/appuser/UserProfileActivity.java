@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.core.content.ContextCompat;
 
+import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -306,9 +307,15 @@ public class UserProfileActivity extends BaseActivity {
                 }));
                 showWarningDialog(config);
                 break;
-            case R.id.action_close:
-                userLogOut();
-                showToast(getString(R.string.user_loged_out));
+            case R.id.action_logout:
+                config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_warning), getString(R.string.confirm_logout_my_account), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        userLogOut();
+                        showToast(getString(R.string.user_loged_out));
+                    }
+                }));
+                showWarningDialog(config);
 //                Toast.makeText(getApplicationContext(), menuItem.getTitle(), Toast.LENGTH_LONG).show();
                 break;
         }
@@ -381,28 +388,29 @@ public class UserProfileActivity extends BaseActivity {
 
         Gender gender = Gender.UNKNOWN;
         int checkedRadioButtonId = binding.rgGender.getCheckedRadioButtonId();
-        AppCompatRadioButton checkedRadioButton = (AppCompatRadioButton) findViewById(checkedRadioButtonId);
-//            String checkedRadioButtonText = checkedRadioButton.getText().toString();
-//        binding.rgGender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-//            public void onCheckedChanged(RadioGroup group, int checkedId) {
-        switch (checkedRadioButton.getId()) {
-            case R.id.radio_male:
-                // do operations specific to this selection
-                gender = Gender.MALE;
-                break;
-            case R.id.radio_female:
-                // do operations specific to this selection
-                gender = Gender.FEMALE;
-                break;
+        if (binding.rgGender.getCheckedRadioButtonId() != -1) {
+            // radio buttons  checked
+            AppCompatRadioButton checkedRadioButton = (AppCompatRadioButton) findViewById(checkedRadioButtonId);
+            switch (checkedRadioButton.getId()) {
+                case R.id.radio_male:
+                    // do operations specific to this selection
+                    gender = Gender.MALE;
+                    break;
+                case R.id.radio_female:
+                    // do operations specific to this selection
+                    gender = Gender.FEMALE;
+                    break;
+            }
         }
+
 //            }
 //        });
 
         String name = binding.etFullName.getText().toString().trim();
 
-        boolean isUserNameEdite = !user.getName().equals(name);
-        boolean isGenderEdited = user.getGender() != gender;
-        if (isUserNameEdite || isGenderEdited) {
+        boolean isUserNameEdite = user.getName().equals(name);
+        boolean isGenderEdited = user.getGender() == gender;
+        if (isUserNameEdite && isGenderEdited) {
             startMainActivity();
         } else {
             user.setName(name);
@@ -413,7 +421,7 @@ public class UserProfileActivity extends BaseActivity {
             fmRepo.create(user.getUserId(), user, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    prefMgr.write(FirebaseConstants.USER_INFO, (UserModel) object);
+                    prefMgr.setUserSession((UserModel) object);
                     showToast(getString(R.string.saved_successfully));
                     startMainActivity();
                 }
@@ -547,7 +555,8 @@ public class UserProfileActivity extends BaseActivity {
         fmRepo.create(prefMgr.getUserSession().getUserId(), model, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                prefMgr.write(FirebaseConstants.USER_INFO, (UserModel) object);
+                prefMgr.setUserSession( (UserModel) object);
+                showToast(getString(R.string.done_successfully));
             }
 
             @Override
@@ -569,6 +578,7 @@ public class UserProfileActivity extends BaseActivity {
         // Todo check login type
 //        mAuth.signOut();
         prefMgr.remove(FirebaseConstants.USER_INFO);
+        LoginManager.getInstance().logOut();
         Intent intent = IntentHelper.splashActivity(this, true);
         startActivity(intent);
     }

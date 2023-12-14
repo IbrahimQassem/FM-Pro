@@ -1,7 +1,6 @@
 package com.sana.dev.fm.ui.activity;
 
 
-import static com.sana.dev.fm.model.AppConfig.RADIO_TAG;
 import static com.sana.dev.fm.ui.activity.ImagePickerActivity.REQUEST_IMAGE;
 import static com.sana.dev.fm.utils.FmUtilize.getWeekDayNames;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
@@ -335,7 +334,7 @@ public class AddProgramActivity extends BaseActivity {
                                 public void onSuccess(Uri uri) {
                                     prProfile = uri.toString();
                                     hud.dismiss();
-                                    RadioProgram radioProgram = new RadioProgram(programId, radioId, prName, prDesc, prCategoryList, RADIO_TAG, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
+                                    RadioProgram radioProgram = new RadioProgram(programId, radioId, prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
                                     fmRepo.create(radioId, radioProgram, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
@@ -359,7 +358,7 @@ public class AddProgramActivity extends BaseActivity {
 
         } else {
             prProfile = radioInfo.getLogo();
-            RadioProgram radioProgram = new RadioProgram(programId, radioId, prName, prDesc, prCategoryList, RADIO_TAG, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
+            RadioProgram radioProgram = new RadioProgram(programId, radioId, prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
             fmRepo.create(radioId, radioProgram, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {

@@ -4,11 +4,6 @@
     <string name="app_slogan">تطبيق اليمن الأول للقنوات الإذاعية</string>
     <string name="app_version">الإصـدار</string>
     <string name="version_unknown">غير معروف !</string>
-    <string name="app_gmail">hudhudfm.ye@gmail.com</string>
-    <string name="app_mobile">+967 775617017</string>
-    <string name="app_twitter">https://twitter.com/HudhudFm</string>
-    <string name="app_facebook">https://www.facebook.com/HudhudFm</string>
-    <string name="app_instagram">http://instagram.com/hudhudfm</string>
 
     <plurals name="likes_count">
         <item quantity="one">%d إعجاب</item>
@@ -95,6 +90,7 @@
     <string name="pick_profile_image">تغيير صورة المستخدم</string>
     <string name="delete_my_account">حذف حسابي</string>
     <string name="confirm_delete_my_account">أنت على وشك حذف حسابك نهائيًا<br/>  تأكيد الحذف ؟ </string>
+    <string name="confirm_logout_my_account">تأكيد تسجيل الخروج من التطبيق ؟</string>
 
 
     <string name="lbl_take_camera_picture">إلقاط صورة</string>
@@ -204,5 +200,8 @@
     <string name="label_pick_date">تحديد التاريخ</string>
     <string name="label_radio_list">قائمة القنوات الإذاعية</string>
     <string name="label_priority">الأولوية %d</string>
+    <string name="login_via_mobile">رقم الموبايل</string>
+    <string name="label_login_by">تسجيل الدخول عبر</string>
+    <string name="login_via_facebook">فيسبوك</string>
 
 </resources>

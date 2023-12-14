@@ -38,9 +38,7 @@ import java.net.URL;
  * </intent-filter>
  */
 public class FcmMessagingService extends FirebaseMessagingService {
-
     private static final String TAG = FcmMessagingService.class.getSimpleName();
-
     /**
      * Called when message is received.
      *
@@ -151,7 +149,6 @@ public class FcmMessagingService extends FirebaseMessagingService {
     private void sendRegistrationToServer(String token) {
         // TODO: Implement this method to send token to your app server.
         getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(FirebaseConstants.DEVICE_TOKEN, token).apply();
-
     }
 
 

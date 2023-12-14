@@ -1,7 +1,7 @@
 package com.sana.dev.fm.ui.activity;
 
-import static com.sana.dev.fm.model.AppConfig.RADIO_NAME;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -63,7 +63,7 @@ public class AboutAppActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String email = txv_email.getText().toString().trim();
-                processNavItemContactUs(email);
+                processNavItemContactUs(getApplicationContext(),email);
             }
         });
     }
@@ -85,7 +85,7 @@ public class AboutAppActivity extends AppCompatActivity {
      * @return false because we are merely triggering an Intent and not changing the content frame
      * with another Fragment.
      */
-    private boolean processNavItemContactUs(String email) {
+    private boolean processNavItemContactUs(Context ctx, String email) {
         final String[] developerEmail = new String[]{email};
         final String deviceInfo = "Device info:";
         final String deviceManufacturer = Build.MANUFACTURER;
@@ -96,7 +96,7 @@ public class AboutAppActivity extends AppCompatActivity {
         Intent contactUsIntent = new Intent(Intent.ACTION_SENDTO);
         contactUsIntent.setData(Uri.parse("mailto:"));
         contactUsIntent.putExtra(Intent.EXTRA_EMAIL, developerEmail);
-        contactUsIntent.putExtra(Intent.EXTRA_SUBJECT, RADIO_NAME);
+        contactUsIntent.putExtra(Intent.EXTRA_SUBJECT, ctx.getString(R.string.app_name));
         contactUsIntent.putExtra(Intent.EXTRA_TEXT, emailTemplate);
         Intent chooser = Intent.createChooser(contactUsIntent, getString(R.string
                 .select_email_app));

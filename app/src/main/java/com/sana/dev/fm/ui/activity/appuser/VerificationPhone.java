@@ -124,7 +124,7 @@ public class VerificationPhone extends BaseActivity {
                 UserModel _userModel = (UserModel) object;
                 // cause user logged with phone auth
                 _userModel.setVerified(true);
-                prefMgr.write(FirebaseConstants.USER_INFO, _userModel);
+                prefMgr.setUserSession(_userModel);
                 showToast(getString(R.string.login_successfully));
                 startActivity(intent);
             }
@@ -132,7 +132,6 @@ public class VerificationPhone extends BaseActivity {
             @Override
             public void onError(Object object) {
                 LogUtility.e(LogUtility.TAG, "onError : " + object);
-//                SuperADMIN
                 if (object == null) {
                     // create new user
                     String uid = user.getUid();
@@ -145,8 +144,7 @@ public class VerificationPhone extends BaseActivity {
                     fmRepo.create(uid, obUser, new CallBack() {
                         @Override
                         public void onSuccess(Object object) {
-                            UserModel _userModel = (UserModel) object;
-                            prefMgr.write(FirebaseConstants.USER_INFO, _userModel);
+                            prefMgr.setUserSession((UserModel) object);
                             showToast(getString(R.string.login_successfully));
                             startActivity(intent);
                         }

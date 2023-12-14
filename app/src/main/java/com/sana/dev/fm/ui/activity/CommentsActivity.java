@@ -267,7 +267,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
             ModelConfig config = new ModelConfig(-1, getString(R.string.label_note), getString(R.string.goto_login), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = IntentHelper.phoneLoginActivity(getApplicationContext(), false);
+                    Intent intent = IntentHelper.intentFormSignUp(getApplicationContext(), false);
                     startActivity(intent);
                 }
             }));

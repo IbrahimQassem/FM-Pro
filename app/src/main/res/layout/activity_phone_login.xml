@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="@android:color/white"
     android:fitsSystemWindows="true"
     tools:context=".ui.activity.appuser.PhoneLoginActivity">
 
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/view_feed_toolbar" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,11 +36,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:paddingEnd="@dimen/spacing_large"
-                android:paddingStart="@dimen/spacing_large"
-                android:gravity="center"
                 android:layout_gravity="center"
-                android:orientation="vertical">
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/spacing_large"
+                android:paddingEnd="@dimen/spacing_large">
 
 
                 <TextView
@@ -49,12 +52,12 @@
 
                 <TextView
                     style="@style/TextRegular"
-                    android:padding="@dimen/spacing_medium"
                     android:layout_marginTop="@dimen/spacing_medium"
-                    android:minLines="2"
+                    android:gravity="center"
                     android:letterSpacing=".3"
                     android:lineSpacingExtra="5dp"
-                    android:gravity="center"
+                    android:minLines="2"
+                    android:padding="@dimen/spacing_medium"
                     android:text="@string/please_enter_your_mobile_number_to_receive_a_verification_code_carrier_rates_may_apply"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                     android:textColor="@color/grey_60" />
@@ -62,28 +65,26 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/spacing_xlarge"
                     android:layout_gravity="center"
+                    android:layout_margin="@dimen/spacing_xlarge"
                     android:gravity="center"
                     android:orientation="horizontal">
 
 
-
-
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editTextPhone"
-                        android:layout_weight="1"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="end"
                         android:hint="@string/phone_number"
                         android:imeOptions="actionDone"
                         android:inputType="phone"
-                        android:gravity="end"
-                        tools:text="777777777"
                         android:maxLines="1"
                         android:singleLine="true"
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-                        android:textColor="@color/grey_90">
+                        android:textColor="@color/grey_90"
+                        tools:text="777777777">
 
                         <requestFocus />
 
@@ -112,59 +113,57 @@
                     android:text="@string/label_send"
                     android:textColor="@android:color/white" />
 
-              <!--  <LinearLayout
-                    android:id="@+id/linearLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="32dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="32dp"
-                    android:gravity="center"
-                    android:layout_gravity="center"
-                    android:orientation="horizontal">
+                <!--  <LinearLayout
+                      android:id="@+id/linearLayout"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_marginStart="16dp"
+                      android:layout_marginTop="32dp"
+                      android:layout_marginEnd="16dp"
+                      android:layout_marginBottom="32dp"
+                      android:gravity="center"
+                      android:layout_gravity="center"
+                      android:orientation="horizontal">
 
-                    <com.hbb20.CountryCodePicker
-                        android:id="@+id/activity_verify_phone_number_ccp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginTop="12dp"
-                        app:ccp_textSize="12sp"
-                        app:ccp_autoDetectCountry="true"
-                        app:ccp_autoDetectLanguage="true"
-                        app:ccp_autoFormatNumber="true"
-                        app:ccp_contentColor="@color/grey_50"
-                        app:ccp_countryPreference="us,ca,cm"
-                        app:ccp_showNameCode="false" />
+                      <com.hbb20.CountryCodePicker
+                          android:id="@+id/activity_verify_phone_number_ccp"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_gravity="center_vertical"
+                          android:layout_marginTop="12dp"
+                          app:ccp_textSize="12sp"
+                          app:ccp_autoDetectCountry="true"
+                          app:ccp_autoDetectLanguage="true"
+                          app:ccp_autoFormatNumber="true"
+                          app:ccp_contentColor="@color/grey_50"
+                          app:ccp_countryPreference="us,ca,cm"
+                          app:ccp_showNameCode="false" />
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/activity_verify_phone_number_phone_TextInputLayout"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/label_title"
-                        android:textColorHint="@color/grey_5"
-                        app:errorEnabled="false"
-                        app:hintEnabled="true">
+                      <com.google.android.material.textfield.TextInputLayout
+                          android:id="@+id/activity_verify_phone_number_phone_TextInputLayout"
+                          style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:hint="@string/label_title"
+                          android:textColorHint="@color/grey_5"
+                          app:errorEnabled="false"
+                          app:hintEnabled="true">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/activity_verify_phone_number_phone_EditText"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:drawablePadding="16dp"
-                            android:hint="@string/mobile"
-                            android:inputType="phone"
-                            android:imeOptions="actionDone"
-                            android:singleLine="true"
-                            android:textColor="@color/colorAccentDark"
-                            android:textColorHint="@color/colorAccentLight" />
+                          <com.google.android.material.textfield.TextInputEditText
+                              android:id="@+id/activity_verify_phone_number_phone_EditText"
+                              android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:drawablePadding="16dp"
+                              android:hint="@string/mobile"
+                              android:inputType="phone"
+                              android:imeOptions="actionDone"
+                              android:singleLine="true"
+                              android:textColor="@color/colorAccentDark"
+                              android:textColorHint="@color/colorAccentLight" />
 
-                    </com.google.android.material.textfield.TextInputLayout>
+                      </com.google.android.material.textfield.TextInputLayout>
 
-                </LinearLayout>-->
-
-
+                  </LinearLayout>-->
 
 
             </LinearLayout>
