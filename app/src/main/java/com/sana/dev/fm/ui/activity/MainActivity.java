@@ -34,12 +34,10 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.gson.Gson;
 import com.mikhaellopez.circularimageview.CircularImageView;
-import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
-import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.dialog.MainDialog;
 import com.sana.dev.fm.ui.fragment.DailyEpisodeFragment;
@@ -52,7 +50,6 @@ import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.radio_player.PlaybackStatus;
 import com.sana.dev.fm.utils.radio_player.RadioManager;
 import com.sana.dev.fm.utils.radio_player.StaticEventDistributor;
@@ -458,17 +455,18 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         LinearLayout lyt_add_episode = inflate.findViewById(R.id.lyt_add_episode);
         LinearLayout lyt_update_episode = inflate.findViewById(R.id.lyt_update_episode);
         LinearLayout lyt_update_radio = inflate.findViewById(R.id.lyt_update_radio);
-        lyt_update_radio.setVisibility(View.GONE);
+        //lyt_update_radio.setVisibility(View.GONE);
 
 
         if (checkPrivilegeAdmin()) {
             lyt_add_program.setVisibility(View.VISIBLE);
             lyt_add_episode.setVisibility(View.VISIBLE);
             lyt_update_episode.setVisibility(View.VISIBLE);
+            lyt_update_radio.setVisibility(View.VISIBLE);
         } else {
             lyt_add_program.setVisibility(View.GONE);
             lyt_add_episode.setVisibility(View.GONE);
-            lyt_update_episode.setVisibility(View.GONE);
+            lyt_update_radio.setVisibility(View.GONE);
         }
 
 //        if (checkPrivilegeAdmin() && (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
@@ -546,7 +544,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         lyt_update_radio.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 if (checkPrivilegeAdmin())
-                    ListDragActivity.startActivity(MainActivity.this);
+                    RadioListActivity.startActivity(MainActivity.this);
                 mBottomSheetDialog.dismiss();
             }
         });

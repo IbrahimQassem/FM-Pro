@@ -42,7 +42,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".ui.activity.ListDragActivity"
+            android:name=".ui.activity.RadioListActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"

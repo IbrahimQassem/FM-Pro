@@ -34,7 +34,7 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private List<RadioInfo> items = new ArrayList<>();
 
-    private Context ctx;
+    private final Context ctx;
     private OnClickListener onClickListener = null;
     private OnItemLongClick onLongClickListener = null;
     private OnStartDragListener mDragStartListener = null;
@@ -101,7 +101,7 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
             view.binding.tvTitle.setText(model.getName()+" - "+model.getRadioId());
             Tools.setTextOrHideIfEmpty( view.binding.tvDesc, model.getChannelFreq() + "\n"+ model.getDesc() + "\n" + FmUtilize.stringToDate(model.getCreateAt()));
             view.binding.tvPriority.setText(ctx.getString(R.string.label_priority,model.getPriority()));
-            view.binding.tvDate.setText(String.valueOf(position + 1));
+            view.binding.tvDate.setText(ctx.getString(R.string.label_index)+ (position + 1));
             Tools.displayImageOriginal(ctx, view.binding.image, model.getLogo());
 
             int colorState = !model.isDisabled() ? R.color.green_500 : R.color.red_500;

@@ -203,5 +203,6 @@
     <string name="login_via_mobile">رقم الموبايل</string>
     <string name="label_login_by">تسجيل الدخول عبر</string>
     <string name="login_via_facebook">فيسبوك</string>
+    <string name="label_index">رقم</string>
 
 </resources>

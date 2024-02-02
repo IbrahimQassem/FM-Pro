@@ -6,12 +6,10 @@ import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -20,31 +18,25 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListDrag;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
-import com.sana.dev.fm.model.UserModel;
-import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
-import com.sana.dev.fm.ui.dialog.MainDialog;
 import com.sana.dev.fm.utils.DragItemTouchHelper;
-import com.sana.dev.fm.utils.FmUtilize;
-import com.sana.dev.fm.utils.IntentHelper;
-import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmStationCRUDImpl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class ListDragActivity extends BaseActivity {
+public class RadioListActivity extends BaseActivity {
 
-    private static final String TAG = ListDragActivity.class.getSimpleName();
+    private static final String TAG = RadioListActivity.class.getSimpleName();
 
     private RecyclerView recyclerView;
     private AdapterListDrag mAdapter;
@@ -58,7 +50,7 @@ public class ListDragActivity extends BaseActivity {
     private BottomSheetBehavior mBehavior;
 
     public static void startActivity(Context context) {
-        Intent intent = new Intent(context, ListDragActivity.class);
+        Intent intent = new Intent(context, RadioListActivity.class);
         context.startActivity(intent);
     }
 
@@ -105,11 +97,11 @@ public class ListDragActivity extends BaseActivity {
 //                mAdapter.notifyDataSetChanged();
                 //showInfoDialog();
                 // Create an AlertDialog.Builder object
-                AlertDialog.Builder builder = new AlertDialog.Builder(ListDragActivity.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(RadioListActivity.this);
                 builder.setTitle("Enter new Priority");
 
 // Create the input field
-                final EditText input = new EditText(ListDragActivity.this);
+                final EditText input = new EditText(RadioListActivity.this);
                 input.setInputType(InputType.TYPE_CLASS_NUMBER);
                 builder.setView(input);
 
@@ -181,8 +173,19 @@ public class ListDragActivity extends BaseActivity {
             public void onSuccess(Object object) {
                 if (isCollection(object)) {
                     ArrayList<RadioInfo> stationList = (ArrayList<RadioInfo>) object;
+//                    items.addAll(stationList);
+//                    mAdapter.notifyDataSetChanged();
+
+                    // ... (data model with priority field)
+
+// Sort data:
+                    Collections.sort(stationList, (item1, item2) -> Integer.compare(item2.getPriority(), item1.getPriority()));
                     items.addAll(stationList);
+
+// Set sorted data to adapter:
+//                    mAdapter.setData(yourDataList);
                     mAdapter.notifyDataSetChanged();
+
                 }
             }
 
@@ -294,7 +297,7 @@ public class ListDragActivity extends BaseActivity {
 
         lyt_update_radio.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                ListDragActivity.startActivity(MainActivity.this);
+                RadioListActivity.startActivity(MainActivity.this);
                 mBottomSheetDialog.dismiss();
             }
         });

@@ -5,7 +5,7 @@
     android:id="@+id/lyt_parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.activity.ListDragActivity">
+    tools:context=".ui.activity.RadioListActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

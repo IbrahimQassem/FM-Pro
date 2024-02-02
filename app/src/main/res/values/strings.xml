@@ -233,6 +233,7 @@
     <string name="login_via_mobile">Login via Mobile</string>
     <string name="label_login_by">Login By</string>
     <string name="login_via_facebook">Login via Facebook</string>
+    <string name="label_index">Index\n</string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

@@ -5,6 +5,7 @@ import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.USERS_TABLE;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Debug;
 import android.util.Log;
 import android.view.View;
 
@@ -24,6 +25,7 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityLoginByBinding;
 import com.sana.dev.fm.model.AppRemoteConfig;
@@ -186,13 +188,16 @@ public class LoginByActivity extends BaseActivity {
 */
 
     private void initRemoteConfig() {
-        AppRemoteConfig remoteConfig = PreferencesManager.getInstance().getAppRemoteConfig();
-        if (remoteConfig != null) {
-            // Todo check
+        if (/*BuildConfig.FLAVOR.equals("hudhudfm_google_play") && */!BuildConfig.DEBUG) {
+            AppRemoteConfig remoteConfig = PreferencesManager.getInstance().getAppRemoteConfig();
+            if (remoteConfig != null) {
+                // Todo check
 //            binding.loginButtonFacebook.setVisibility(remoteConfig.isFacebookEnable() ? VISIBLE : View.GONE);
-            binding.btFacebookLogin.setVisibility(remoteConfig.isAuthFacebookEnable() ? VISIBLE : View.GONE);
-            binding.btMobileLogin.setVisibility(remoteConfig.isAuthSmsEnable() ? VISIBLE : View.GONE);
+                binding.btFacebookLogin.setVisibility(remoteConfig.isAuthFacebookEnable() ? VISIBLE : View.GONE);
+                binding.btMobileLogin.setVisibility(remoteConfig.isAuthSmsEnable() ? VISIBLE : View.GONE);
+            }
         }
+
     }
 
 
