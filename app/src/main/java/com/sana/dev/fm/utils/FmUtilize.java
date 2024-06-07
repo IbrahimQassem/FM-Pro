@@ -44,7 +44,6 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.WakeTranslate;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 import java.io.FileNotFoundException;
 import java.security.SecureRandom;
@@ -933,7 +932,7 @@ public class FmUtilize {
 
     public static String getFirebaseToken(Context context) {
 //        return PreferencesManager.getInstance().write(FirebaseConstants.DEVICE_TOKEN,null);
-        return context.getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(FirebaseConstants.DEVICE_TOKEN, null);
+        return context.getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(AppConstant.General.DEVICE_TOKEN, null);
     }
 
 

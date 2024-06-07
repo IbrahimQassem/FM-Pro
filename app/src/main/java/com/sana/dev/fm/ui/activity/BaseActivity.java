@@ -23,13 +23,12 @@ import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.BaseView;
 import com.sana.dev.fm.ui.dialog.FmGeneralDialog;
-import com.sana.dev.fm.utils.Constants;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.SnackBarUtility;
 import com.sana.dev.fm.utils.UserGuide;
-import com.sana.dev.fm.utils.my_firebase.AppConstant;
 import com.sana.dev.fm.utils.network.CheckInternetConnection;
 import com.sana.dev.fm.utils.network.ConnectionChangeListener;
 
@@ -100,7 +99,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     protected void bindViews() {
         ButterKnife.bind(this);
         PreferencesManager.initializeInstance(this);
-        AppConstant.initializeInstance(this);
+        com.sana.dev.fm.utils.my_firebase.AppConstant.initializeInstance(this);
         connectionChecker = new CheckInternetConnection();
         prefMgr = PreferencesManager.getInstance();
         userGuide = new UserGuide(this);
@@ -280,7 +279,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     public void attemptToExitIfRoot(@Nullable View anchorView) {
         if (isTaskRoot()) {
-            if (backPressedTime + Constants.General.DOUBLE_CLICK_TO_EXIT_INTERVAL > System.currentTimeMillis()) {
+            if (backPressedTime + AppConstant.General.DOUBLE_CLICK_TO_EXIT_INTERVAL > System.currentTimeMillis()) {
                 super.onBackPressed();
             } else {
                 if (anchorView != null) {

@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,23 +24,23 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.ShardDate;
-import com.sana.dev.fm.utils.Constants;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
+import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmStationCRUDImpl;
 
 import org.json.JSONException;
@@ -55,6 +54,7 @@ public class SplashActivity extends AppCompatActivity {
     private final Integer START_DELAY = 1500;
     private FmStationCRUDImpl rIRepo;
     public PreferencesManager prefMgr;
+    protected FirebaseCrashlytics crashlytics;
 
 //    private FirebaseUser currentUser;
     @Override
@@ -62,6 +62,7 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         prefMgr = PreferencesManager.getInstance();
+        crashlytics = FirebaseCrashlytics.getInstance();
 
         setFullScreen();
         startAnimation();
@@ -114,7 +115,7 @@ public class SplashActivity extends AppCompatActivity {
 
 
     private void loadRadios() {
-        rIRepo = new FmStationCRUDImpl(this, FirebaseConstants.RADIO_INFO_TABLE);
+        rIRepo = new FmStationCRUDImpl(this, AppConstant.Firebase.RADIO_INFO_TABLE);
 
         rIRepo.queryAllBy(null, null, new CallBack() {
             @Override
@@ -125,7 +126,7 @@ public class SplashActivity extends AppCompatActivity {
                     prefMgr.setRadioInfo(stationList);
 
                     if (prefMgr.selectedRadio() == null) {
-                        prefMgr.write(FirebaseConstants.RADIO_INFO_TABLE, stationList.get(0));
+                        prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, stationList.get(0));
                     }
                     startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
                 }
@@ -168,8 +169,108 @@ public class SplashActivity extends AppCompatActivity {
         super.attachBaseContext(MyContextWrapper.wrap(newBase, PreferencesManager.getInstance().getPrefLange()));
     }
 
-
     private void initRemoteConfig() {
+        FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.getInstance();
+        remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults); // Set default values
+
+        remoteConfig.fetchAndActivate()
+                .addOnCompleteListener(new OnCompleteListener<Boolean>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Boolean> task) {
+                        if (task.isSuccessful()) {
+                            try {
+                                String remoteConfigKey = getString(R.string.label_remote_config_key);
+                                String jsonString = remoteConfig.getString(remoteConfigKey);
+
+                                // Safety check for null or empty string before parsing
+                                if (Tools.isEmpty(jsonString)) {
+                                    Log.w(TAG, "Remote config data is empty or null. Using default config.");
+                                    crashlytics.setCustomKey(TAG, "Remote config data is empty or null. Using default config.");
+                                    useDefaultConfig();
+//                                    return;
+                                }
+
+                                // Parse JSON using Gson
+                                Gson gson = new Gson();
+                                AppRemoteConfig remoteConfigObject = gson.fromJson(jsonString, AppRemoteConfig.class);
+
+                                // Access and use data from remoteConfigObject
+                                // Save the entire config as a String (optional, consider specific data access)
+                                prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, remoteConfigObject.toString());
+
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing remote config JSON: " + e.getMessage());
+                                crashlytics.recordException(e);
+                                crashlytics.setCustomKey("SplashActivity", TAG);
+                                // Handle parsing errors (use more specific exception handling if possible)
+                                useDefaultConfig();
+                            }
+                        } else {
+                            // Handle fetch failure
+                            Log.e(TAG, "RemoteConfig Fetch failed", task.getException());
+                            // Log the Exception with custom key
+                            crashlytics.setCustomKey(TAG, "RemoteConfig Fetch failed " + task.getException());
+//                            crashlytics.recordException("RemoteConfig Fetch failed "+  task.getException());
+//                            crashlytics.setCustomKey("activity_name", TAG);
+                            useDefaultConfig();
+
+//                            CustomKeysAndValues keysAndValues = new CustomKeysAndValues.Builder()
+//                                    .putString("string key", "string value")
+//                                    .putString("string key 2", "string  value 2")
+//                                    .putBoolean("boolean key", True)
+//                                    .putBoolean("boolean key 2", False)
+//                                    .putFloat("float key", 1.01)
+//                                    .putFloat("float key 2", 2.02)
+//                                    .build();
+//                            crashlytics.setCustomKeys(keysAndValues);
+                        }
+
+
+                       // initSplash();
+
+                        //        -----------------------------------------------------------------------------------------
+
+//                        /*
+//                         * Showing splash screen with a timer. This will be useful when you
+//                         * want to show case your app logo / company
+//                         */
+//                        new Handler().postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                binding.tvSlogan.setVisibility(View.VISIBLE);
+//                                Animation animation = AnimationUtils.loadAnimation(SplashActivity.this, R.anim.topnews_text_view);
+//                                binding.tvSlogan.setAnimation(animation);
+//                            }
+//                        }, 1000);
+
+
+//                        new Handler().postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+////                //this method will be executed once the timer is over
+////                //start the main activity or the start activity
+//                                if (isAccountSignedIn()) {
+//                                    intent = new Intent(IntentHelper.mainActivity(mContext, true));
+//                                } else {
+//                                    intent = new Intent(IntentHelper.loginIntroActivity(mContext, true));
+//                                }
+//                                startActivity(intent);
+//                                finish();
+//                                //checkIfUserIsAuthenticated();
+//                            }
+//                        }, SPLASH_TIME_OUT);
+                    }
+                });
+
+    }
+
+    // Helper method to use default config
+    private void useDefaultConfig() {
+        AppRemoteConfig remoteConfig = Tools.getDefAppRemoteConfig(SplashActivity.this);
+        prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, remoteConfig.toString());
+    }
+
+    private void initRemoteConfigZ() {
         FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.getInstance();
         remoteConfig.fetchAndActivate()
                 .addOnCompleteListener(new OnCompleteListener<Boolean>() {
@@ -200,7 +301,7 @@ public class SplashActivity extends AppCompatActivity {
                                 Boolean isFacebookEnable = configData.getBoolean("isAuthFacebookEnable");
                                 Boolean isAddMobEnable = configData.getBoolean("isAdMobEnable");
                                 AppRemoteConfig appRemoteConfig = new AppRemoteConfig(adminMobile, developerReference, isSmsEnable, isEmailEnable, isFacebookEnable, isAddMobEnable);
-                                prefMgr.write(FirebaseConstants.APP_REMOTE_CONFIG, appRemoteConfig);
+                                prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, appRemoteConfig);
 
                                 // Update UI with retrieved data
                             } catch (JSONException e) {
@@ -356,7 +457,7 @@ public class SplashActivity extends AppCompatActivity {
             sharedPreferences.edit()
                     .putInt(LAST_APP_VERSION, currentVersionCode).apply();
         } catch (PackageManager.NameNotFoundException e) {
-            Log.w(Constants.LOG,
+            Log.w(AppConstant.LOG,
                     "Unable to determine current app version from pacakge manager. Defenisvely assuming normal app start.");
         }
         return appStart;
@@ -368,7 +469,7 @@ public class SplashActivity extends AppCompatActivity {
         } else if (lastVersionCode < currentVersionCode) {
             return AppStart.FIRST_TIME_VERSION;
         } else if (lastVersionCode > currentVersionCode) {
-            Log.w(Constants.LOG, "Current version code (" + currentVersionCode
+            Log.w(AppConstant.LOG, "Current version code (" + currentVersionCode
                     + ") is less then the one recognized on last startup ("
                     + lastVersionCode
                     + "). Defenisvely assuming normal app start.");

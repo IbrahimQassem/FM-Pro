@@ -17,6 +17,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.utils.AppConstant.Firebase;
 import com.sana.dev.fm.utils.LogUtility;
 
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
     }
 
     public Query createSimpleQueries(String rdId) {
-        CollectionReference cities = colRef.document(rdId).collection(FirebaseConstants.EPISODE_TABLE);
+        CollectionReference cities = colRef.document(rdId).collection(com.sana.dev.fm.utils.AppConstant.Firebase.EPISODE_TABLE);
 
 //        // [START fs_simple_queries]
 //        // [START firestore_query_filter_single_examples]
@@ -58,7 +59,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
     }
 
     public Query mainQuery(String rdId) {
-        return colRef.document(rdId).collection(FirebaseConstants.EPISODE_TABLE)
+        return colRef.document(rdId).collection(com.sana.dev.fm.utils.AppConstant.Firebase.EPISODE_TABLE)
                 .whereGreaterThanOrEqualTo("dateTimeModel.dateEnd", System.currentTimeMillis())
 //                .whereEqualTo("dateTimeModel.dateEnd", System.currentTimeMillis())
 //                .whereEqualTo("dateTimeModel.dateEnd", System.currentTimeMillis())
@@ -78,11 +79,11 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
         String pushKey = key + "__" + colRef.document().getId();
         if (episode != null && !isEmpty(pushKey)) {
             episode.setEpId(pushKey);
-            DocumentReference documentReference = colRef.document(key).collection(FirebaseConstants.EPISODE_TABLE).document(pushKey);
+            DocumentReference documentReference = colRef.document(key).collection(Firebase.EPISODE_TABLE).document(pushKey);
             fireStoreCreateOrMerge(documentReference, episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    DocumentReference pRef = DATABASE.collection(FirebaseConstants.RADIO_PROGRAM_TABLE).document(episode.getRadioId()).collection(FirebaseConstants.RADIO_PROGRAM_TABLE).document(episode.getProgramId());
+                    DocumentReference pRef = DATABASE.collection(Firebase.RADIO_PROGRAM_TABLE).document(episode.getRadioId()).collection(Firebase.RADIO_PROGRAM_TABLE).document(episode.getProgramId());
                     incrementCounter("episodeCount", pRef);
                     callBack.onSuccess(SUCCESS);
                 }
@@ -99,7 +100,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
 
 
     public Query getQuery(String radioId) {
-        Query query = colRef.document(radioId).collection(FirebaseConstants.EPISODE_TABLE).whereEqualTo("radioId", radioId).orderBy("epStartAt", Query.Direction.DESCENDING).limit(100);
+        Query query = colRef.document(radioId).collection(Firebase.EPISODE_TABLE).whereEqualTo("radioId", radioId).orderBy("epStartAt", Query.Direction.DESCENDING).limit(100);
         return query;
     }
 
@@ -108,7 +109,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
         Query query = null;
         if (model != null) {
             Episode episode = (Episode) model;
-            query = colRef.document(episode.getRadioId()).collection(FirebaseConstants.EPISODE_TABLE).whereEqualTo("radioId", episode.getRadioId()).whereEqualTo("programId", episode.getProgramId());
+            query = colRef.document(episode.getRadioId()).collection(Firebase.EPISODE_TABLE).whereEqualTo("radioId", episode.getRadioId()).whereEqualTo("programId", episode.getProgramId());
         } else if (!isNullOrEmpty(key)) {
             query = mainQuery(key);
         }
@@ -148,7 +149,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
         Episode episode = (Episode) model;
         Map<String, Object> docData = new HashMap<>();
         docData.put("episodeLikes", episode.getEpisodeLikes());
-        DocumentReference documentReference = colRef.document(episode.getRadioId()).collection(FirebaseConstants.EPISODE_TABLE).document(episode.getEpId());
+        DocumentReference documentReference = colRef.document(episode.getRadioId()).collection(Firebase.EPISODE_TABLE).document(episode.getEpId());
         fireStoreCreateOrMerge(documentReference, docData, new CallBack() {
             @Override
             public void onSuccess(Object object) {
@@ -166,7 +167,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
         Episode episode = (Episode) model;
         Map<String, Object> docData = new HashMap<>();
         docData.put("stopped", episode.isStopped());
-        DocumentReference documentReference = colRef.document(episode.getRadioId()).collection(FirebaseConstants.EPISODE_TABLE).document(episode.getEpId());
+        DocumentReference documentReference = colRef.document(episode.getRadioId()).collection(Firebase.EPISODE_TABLE).document(episode.getEpId());
         fireStoreCreateOrMerge(documentReference, docData, new CallBack() {
             @Override
             public void onSuccess(Object object) {
@@ -184,7 +185,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
     public void delete(Object model, CallBack callBack) {
         Episode episode = (Episode) model;
         if (!isEmpty(episode.getEpId()) && !isEmpty(episode.getRadioId())) {
-            DocumentReference documentReference = colRef.document(episode.getRadioId()).collection(FirebaseConstants.EPISODE_TABLE).document(episode.getEpId());
+            DocumentReference documentReference = colRef.document(episode.getRadioId()).collection(Firebase.EPISODE_TABLE).document(episode.getEpId());
 
             fireStoreDelete(documentReference, new CallBack() {
                 @Override

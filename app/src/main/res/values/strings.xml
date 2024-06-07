@@ -17,6 +17,7 @@
     <!--   Hudhud FM Ad Unit ID -->
     <string name="banner_ad_unit_id" translatable="false">ca-app-pub-8921334057686979/6618636515</string>
 
+    <string name="label_remote_config_key" translatable="false">hudhudFmAppConfig</string>
 
 <!--    <string name="facebook_app_id" translatable="false">811088116023852</string>-->
 <!--    <string name="fb_login_protocol_scheme" translatable="false">fb1234</string>-->

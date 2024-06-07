@@ -25,9 +25,9 @@ import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.DragItemTouchHelper;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmStationCRUDImpl;
 
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ public class RadioListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView((int) R.layout.activity_list_drag);
 
-        fmStationCRUD = new FmStationCRUDImpl(this, FirebaseConstants.RADIO_INFO_TABLE);
+        fmStationCRUD = new FmStationCRUDImpl(this, AppConstant.Firebase.RADIO_INFO_TABLE);
 
         initToolbar();
         initComponent();

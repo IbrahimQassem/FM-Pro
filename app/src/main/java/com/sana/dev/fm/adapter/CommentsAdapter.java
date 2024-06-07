@@ -1,8 +1,8 @@
 package com.sana.dev.fm.adapter;
 
+import static com.sana.dev.fm.utils.AppConstant.Firebase.USERS_TABLE;
 import static com.sana.dev.fm.utils.FmUtilize.getTimeAgo;
 import static com.sana.dev.fm.utils.FmUtilize.isEmpty;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.USERS_TABLE;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

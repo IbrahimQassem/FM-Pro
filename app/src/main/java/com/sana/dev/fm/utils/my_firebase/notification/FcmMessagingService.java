@@ -17,10 +17,9 @@ import androidx.core.app.NotificationCompat;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.PreferencesManager;
-import com.sana.dev.fm.utils.my_firebase.AppConstant;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -148,7 +147,7 @@ public class FcmMessagingService extends FirebaseMessagingService {
      */
     private void sendRegistrationToServer(String token) {
         // TODO: Implement this method to send token to your app server.
-        getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(FirebaseConstants.DEVICE_TOKEN, token).apply();
+        getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(AppConstant.General.DEVICE_TOKEN, token).apply();
     }
 
 
@@ -564,7 +563,7 @@ public class FcmMessagingService
         // If you want to send messages to this application instance or
         // manage this apps subscriptions on the server side, send the
         // FCM registration token to your app server.
-        getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(FirebaseConstants.DEVICE_TOKEN, token).apply();
+        getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(AppConstant.Firebase.DEVICE_TOKEN, token).apply();
 
         sendRegistrationToServer(token);
 

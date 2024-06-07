@@ -61,6 +61,7 @@ import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.WakeTranslate;
 import com.sana.dev.fm.model.interfaces.OnCallbackDate;
+import com.sana.dev.fm.utils.AppConstant.General;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
@@ -68,7 +69,6 @@ import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.ViewAnimation;
 import com.sana.dev.fm.utils.my_firebase.AppConstant;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
 import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
@@ -130,7 +130,7 @@ public class AddEpisodeActivity extends BaseActivity {
         setContentView(view);
         
 
-        ePoRepo = new FmEpisodeCRUDImpl(this, FirebaseConstants.EPISODE_TABLE);
+        ePoRepo = new FmEpisodeCRUDImpl(this, com.sana.dev.fm.utils.AppConstant.Firebase.EPISODE_TABLE);
         prefMgr = PreferencesManager.getInstance();
 
         initToolbar();
@@ -312,7 +312,7 @@ public class AddEpisodeActivity extends BaseActivity {
             StorageMetadata metadata = new StorageMetadata.Builder()
                     .setContentType("image/jpg")
                     .build();
-            StorageReference ref = FirebaseStorage.getInstance().getReference().child(FirebaseConstants.FB_FM_FOLDER_PATH).child(radioId).child(random() + ".jpg");
+            StorageReference ref = FirebaseStorage.getInstance().getReference().child(General.FB_FM_FOLDER_PATH).child(radioId).child(random() + ".jpg");
             // Upload file and metadata to the path 'images/mountains.jpg'
             UploadTask uploadTask = ref.putFile(imageUri, metadata);
 
@@ -661,7 +661,7 @@ public class AddEpisodeActivity extends BaseActivity {
 
     private void loadRadioProgram(String RadioId) {
 
-        FmProgramCRUDImpl rpRepo = new FmProgramCRUDImpl(this, FirebaseConstants.RADIO_PROGRAM_TABLE);
+        FmProgramCRUDImpl rpRepo = new FmProgramCRUDImpl(this, com.sana.dev.fm.utils.AppConstant.Firebase.RADIO_PROGRAM_TABLE);
         rpRepo.queryAllBy(RadioId,null, new CallBack() {
             @Override
             public void onSuccess(Object object) {

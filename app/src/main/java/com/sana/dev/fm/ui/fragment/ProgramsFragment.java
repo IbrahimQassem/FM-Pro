@@ -2,7 +2,6 @@ package com.sana.dev.fm.ui.fragment;
 
 
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.RADIO_PROGRAM_TABLE;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -36,6 +35,7 @@ import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
@@ -114,7 +114,7 @@ public class ProgramsFragment extends BaseFragment {
         // Inflate the layout for this fragment
         parent_fragment_view = inflater.inflate(R.layout.fragment_programs, container, false);
         ButterKnife.bind(this, parent_fragment_view);
-        fmRepo = new FmProgramCRUDImpl(mActivity, RADIO_PROGRAM_TABLE);
+        fmRepo = new FmProgramCRUDImpl(mActivity, AppConstant.Firebase.RADIO_PROGRAM_TABLE);
          initComponent();
 
 //        itemList = DataGenerator.getProgramData(ctx);

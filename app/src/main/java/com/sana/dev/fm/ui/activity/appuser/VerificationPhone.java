@@ -1,6 +1,7 @@
 package com.sana.dev.fm.ui.activity.appuser;
 
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.USERS_TABLE;
+
+import static com.sana.dev.fm.utils.AppConstant.Firebase.USERS_TABLE;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,13 +27,13 @@ import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.ui.activity.BaseActivity;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmUserCRUDImpl;
 
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class VerificationPhone extends BaseActivity {
         editText = findViewById(R.id.editTextCode);
         buttonSignIn = findViewById(R.id.buttonSignIn);
 
-        phoneNumber = getIntent().getStringExtra(FirebaseConstants.CONST_MOBILE);
+        phoneNumber = getIntent().getStringExtra(AppConstant.General.CONST_MOBILE);
         if (phoneNumber != null)
             sendVerificationCode(phoneNumber);
 

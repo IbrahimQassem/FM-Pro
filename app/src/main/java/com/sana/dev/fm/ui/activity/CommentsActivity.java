@@ -36,11 +36,11 @@ import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.ui.view.SendCommentButton;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 /**
  * Created by ibrahim
@@ -130,11 +130,11 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         binding.rvComments.setLayoutManager(linearLayoutManager);
 //        binding.rvComments.setHasFixedSize(true);
 
-        query = DATABASE.collection(FirebaseConstants.EPISODE_TABLE)
+        query = DATABASE.collection(AppConstant.Firebase.EPISODE_TABLE)
                 .document(radioId)
-                .collection(FirebaseConstants.EPISODE_TABLE)
+                .collection(AppConstant.Firebase.EPISODE_TABLE)
                 .document(epId)
-                .collection(FirebaseConstants.COMMENT_TABLE)
+                .collection(AppConstant.Firebase.COMMENT_TABLE)
                 .orderBy("commentTime", Query.Direction.ASCENDING);
 
 //        Query query = notebookRef.orderBy("priority", Query.Direction.DESCENDING);
@@ -230,11 +230,11 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 //            binding.etComment.setText(null);
 //            binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
 
-            CollectionReference colRef = DATABASE.collection(FirebaseConstants.EPISODE_TABLE)
+            CollectionReference colRef = DATABASE.collection(AppConstant.Firebase.EPISODE_TABLE)
                     .document(radioId)
-                    .collection(FirebaseConstants.EPISODE_TABLE)
+                    .collection(AppConstant.Firebase.EPISODE_TABLE)
                     .document(epId)
-                    .collection(FirebaseConstants.COMMENT_TABLE);
+                    .collection(AppConstant.Firebase.COMMENT_TABLE);
             String pushKey = colRef.document().getId();
             Comment comment = new Comment(pushKey, epId, currentUser.getName(), binding.etComment.getText().toString().trim(), currentUser.getUserId(), String.valueOf(System.currentTimeMillis()), 0, null);
             colRef.add(comment).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {

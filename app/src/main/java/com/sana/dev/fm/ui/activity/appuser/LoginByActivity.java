@@ -1,11 +1,11 @@
 package com.sana.dev.fm.ui.activity.appuser;
 
 import static android.view.View.VISIBLE;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.USERS_TABLE;
+
+import static com.sana.dev.fm.utils.AppConstant.Firebase.USERS_TABLE;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
 import android.view.View;
 
@@ -41,7 +41,6 @@ import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmUserCRUDImpl;
 
 import java.util.ArrayList;

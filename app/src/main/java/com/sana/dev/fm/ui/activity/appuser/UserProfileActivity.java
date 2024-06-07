@@ -1,15 +1,10 @@
 package com.sana.dev.fm.ui.activity.appuser;
 
 
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.FB_FM_FOLDER_PATH;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.USERS_TABLE;
-
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.telephony.PhoneNumberFormattingTextWatcher;
-import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -17,8 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatRadioButton;
@@ -29,10 +22,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnPausedListener;
@@ -49,13 +39,13 @@ import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.utils.AESCrypt;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmUserCRUDImpl;
 import com.yalantis.ucrop.UCrop;
 
@@ -88,7 +78,7 @@ public class UserProfileActivity extends BaseActivity {
 
         hideKeyboard();
 
-        fmRepo = new FmUserCRUDImpl(this, USERS_TABLE);
+        fmRepo = new FmUserCRUDImpl(this, AppConstant.Firebase.USERS_TABLE);
         mAuth = FirebaseAuth.getInstance();
         mAuth.setLanguageCode(PreferencesManager.getInstance().getPrefLange());
         // [END initialize_auth]
@@ -492,7 +482,7 @@ public class UserProfileActivity extends BaseActivity {
         StorageMetadata metadata = new StorageMetadata.Builder()
                 .setContentType("image/jpg")
                 .build();
-        final StorageReference ref = FirebaseStorage.getInstance().getReference().child(FB_FM_FOLDER_PATH).child(USERS_TABLE).child(mAuth.getUid() + ".jpg");
+        final StorageReference ref = FirebaseStorage.getInstance().getReference().child(AppConstant.General.FB_FM_FOLDER_PATH).child(AppConstant.Firebase.USERS_TABLE).child(mAuth.getUid() + ".jpg");
 
         // Upload file and metadata to the path 'images/mountains.jpg'
         UploadTask uploadTask = ref.putFile(uriImage, metadata);
@@ -577,7 +567,7 @@ public class UserProfileActivity extends BaseActivity {
     private void userLogOut() {
         // Todo check login type
 //        mAuth.signOut();
-        prefMgr.remove(FirebaseConstants.USER_INFO);
+        prefMgr.remove(AppConstant.General.USER_INFO);
         LoginManager.getInstance().logOut();
         Intent intent = IntentHelper.splashActivity(this, true);
         startActivity(intent);

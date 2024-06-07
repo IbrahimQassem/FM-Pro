@@ -1,7 +1,6 @@
 package com.sana.dev.fm.ui.fragment;
 
 
-
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 import static com.sana.dev.fm.utils.FmUtilize.safeList;
 
@@ -24,19 +23,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sana.dev.fm.R;
-
 import com.sana.dev.fm.adapter.TimeLineAdapter;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.TempEpisodeModel;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.MainActivity;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
-
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -110,7 +107,7 @@ public class DailyEpisodeFragment extends BaseFragment {
         view = inflater.inflate(R.layout.fragment_radio_map, container, false);
         ButterKnife.bind(this, view);
 
-        ePiRepo = new FmEpisodeCRUDImpl((MainActivity) ctx, FirebaseConstants.EPISODE_TABLE);
+        ePiRepo = new FmEpisodeCRUDImpl((MainActivity) ctx, AppConstant.Firebase.EPISODE_TABLE);
 
 //        if (getArguments() != null) {
 //            episodeList = (List<Episode>) getArguments().getSerializable(ARG_PARAM2);

@@ -10,12 +10,7 @@ public class AppRemoteConfig {
     private boolean isAuthEmailEnable;
     private boolean isAuthFacebookEnable;
     private boolean isAdMobEnable;
-//  "adminMobile": "+967 775617017",
-//  "developerReference": "https://portfolio.sanaa-dev.com",
-//  "isAuthSmsEnable": false,
-//  "isAuthEmailEnable": true,
-//  "isAuthFacebookEnable": true,
-//  "isAdMobEnable": true
+
     public AppRemoteConfig() {
     }
 
@@ -38,7 +33,6 @@ public class AppRemoteConfig {
         String json = gson.toJson(this);
         return json;
     }
-
 
     public String getAdminMobile() {
         return adminMobile;

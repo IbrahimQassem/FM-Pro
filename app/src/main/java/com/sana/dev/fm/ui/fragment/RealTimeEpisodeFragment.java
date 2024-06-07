@@ -37,11 +37,11 @@ import com.sana.dev.fm.ui.activity.CommentsActivity;
 import com.sana.dev.fm.ui.activity.AddEpisodeActivity;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -129,7 +129,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         view = inflater.inflate(R.layout.fragment_real_time_episode, container, false);
         // Inflate the layout for this fragment
         ButterKnife.bind(this, view);
-        ePiRepo = new FmEpisodeCRUDImpl((MainActivity) context, FirebaseConstants.EPISODE_TABLE);
+        ePiRepo = new FmEpisodeCRUDImpl((MainActivity) context, AppConstant.Firebase.EPISODE_TABLE);
 
         init();
         return view;

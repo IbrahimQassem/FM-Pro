@@ -12,8 +12,6 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
-import com.sana.dev.fm.utils.network.CheckInternetConnection;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -107,7 +105,7 @@ public class PreferencesManager {
     }
 
     public String getPrefLange() {
-        String lang = read(FirebaseConstants.PREF_LANGUAGE, "ar");
+        String lang = read(AppConstant.General.PREF_LANGUAGE, "ar");
         return lang;
     }
 
@@ -115,17 +113,17 @@ public class PreferencesManager {
         Gson gson = new Gson();
         Context ctx  = FmApplication.getInstance();
         AppRemoteConfig appRemoteConfig = new AppRemoteConfig(ctx.getString(R.string.app_mobile), ctx.getString(R.string.developer_reference), false, false, true, true);
-        String json = read(FirebaseConstants.APP_REMOTE_CONFIG, appRemoteConfig.toString());
+        String json = read(AppConstant.General.APP_REMOTE_CONFIG, appRemoteConfig.toString());
         return gson.fromJson(json, AppRemoteConfig.class);
     }
 
     public void setUserSession(UserModel userModel) {
-        write(FirebaseConstants.USER_INFO, userModel);
+        write(AppConstant.General.USER_INFO, userModel);
     }
 
     public UserModel getUserSession() {
         Gson gson = new Gson();
-        String json = read(FirebaseConstants.USER_INFO, null);
+        String json = read(AppConstant.General.USER_INFO, null);
         return gson.fromJson(json, UserModel.class);
     }
 
@@ -133,7 +131,7 @@ public class PreferencesManager {
         //Set the values
         Gson gson = new Gson();
         String jsonText = gson.toJson(arrayList);
-        write(FirebaseConstants.RADIO_INFO_LIST, jsonText);
+        write(AppConstant.General.RADIO_INFO_LIST, jsonText);
     }
 
 
@@ -141,7 +139,7 @@ public class PreferencesManager {
         ArrayList<RadioInfo> list = new ArrayList<>();
         try {
             Gson gson = new Gson();
-            String json = read(FirebaseConstants.RADIO_INFO_LIST, null);
+            String json = read(AppConstant.General.RADIO_INFO_LIST, null);
             Type type = new TypeToken<ArrayList<RadioInfo>>() {}.getType();
 
 //        Type collectionType = new TypeToken<Collection<RadioInfo>>(){}.getType();
@@ -158,7 +156,7 @@ public class PreferencesManager {
 
     public RadioInfo selectedRadio() {
         Gson gson = new Gson();
-        String json = read(FirebaseConstants.RADIO_INFO_TABLE, null);
+        String json = read(AppConstant.Firebase.RADIO_INFO_TABLE, null);
         return gson.fromJson(json, RadioInfo.class);
 //        RadioInfo ob =  new RadioInfo();
 //        ob.setRadioId("1001");

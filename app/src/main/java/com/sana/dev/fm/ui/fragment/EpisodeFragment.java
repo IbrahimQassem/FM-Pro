@@ -27,10 +27,10 @@ import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.MainActivity;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.ItemAnimation;
 import com.sana.dev.fm.utils.SnackBarUtility;
 import com.sana.dev.fm.utils.UserGuide;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 import java.util.ArrayList;
 
@@ -140,7 +140,7 @@ public class EpisodeFragment extends BaseFragment {
             RadiosAdapter adapter = new RadiosAdapter(ctx, stationList, recyclerView, indexToScrollTo);
 
             if (!isRadioSelected() && !stationList.isEmpty()) {
-                prefMgr.write(FirebaseConstants.RADIO_INFO_TABLE, stationList.get(0));
+                prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, stationList.get(0));
             }
 
             recyclerView.setAdapter(adapter);
@@ -149,7 +149,7 @@ public class EpisodeFragment extends BaseFragment {
                 @Override
                 public void onItemClick(View view, RadioInfo radioInfo, int i) {
                     prefMgr.write("ScrollToPosition", i);
-                    prefMgr.write(FirebaseConstants.RADIO_INFO_TABLE, radioInfo);
+                    prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, radioInfo);
                     adapter.selectTaskListItem(i);
                     updateRecycle();
                     if (callBackListener != null)

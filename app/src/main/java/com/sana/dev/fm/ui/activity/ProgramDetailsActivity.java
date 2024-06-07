@@ -35,12 +35,12 @@ import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.ui.activity.player.SongPlayerFragment;
 import com.sana.dev.fm.ui.view.RevealBackgroundView;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.DataGenerator;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
 
 import java.util.ArrayList;
@@ -131,7 +131,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
             TempModel tempModel = new TempModel(episode.getProgramName(), "", "", "", episode.getEpProfile(), episode.getLikesCount(), 1, 0);
             updateInfoUI(tempModel);
 
-            FmProgramCRUDImpl rpRepo = new FmProgramCRUDImpl(this, FirebaseConstants.RADIO_PROGRAM_TABLE);
+            FmProgramCRUDImpl rpRepo = new FmProgramCRUDImpl(this, AppConstant.Firebase.RADIO_PROGRAM_TABLE);
             RadioProgram program = new RadioProgram();
             program.setRadioId(episode.getRadioId());
             program.setProgramId(episode.getProgramId());
@@ -162,7 +162,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                 }
             });
 
-            FmEpisodeCRUDImpl ePiRepo = new FmEpisodeCRUDImpl(this, FirebaseConstants.EPISODE_TABLE);
+            FmEpisodeCRUDImpl ePiRepo = new FmEpisodeCRUDImpl(this, AppConstant.Firebase.EPISODE_TABLE);
             ePiRepo.queryAllBy(null,episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {

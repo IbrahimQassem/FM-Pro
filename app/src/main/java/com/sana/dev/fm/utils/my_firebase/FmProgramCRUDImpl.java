@@ -1,10 +1,10 @@
 package com.sana.dev.fm.utils.my_firebase;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.sana.dev.fm.utils.AppConstant.Firebase.RADIO_PROGRAM_TABLE;
 import static com.sana.dev.fm.utils.FmUtilize.isEmpty;
 import static com.sana.dev.fm.utils.my_firebase.AppConstant.FAIL;
 import static com.sana.dev.fm.utils.my_firebase.AppConstant.SUCCESS;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.RADIO_PROGRAM_TABLE;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABASE;
 
 import android.app.Activity;
@@ -18,6 +18,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.sana.dev.fm.model.RadioProgram;
+import com.sana.dev.fm.utils.AppConstant.Firebase;
 import com.sana.dev.fm.utils.LogUtility;
 
 import java.util.ArrayList;

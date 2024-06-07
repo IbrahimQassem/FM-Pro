@@ -59,7 +59,9 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.textfield.TextInputEditText;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.DeviceInfo;
+import com.sana.dev.fm.ui.activity.SplashActivity;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -728,5 +730,19 @@ public class Tools {
         editText.setError(hint);
         editText.requestFocus();
         editText.setFocusable(true);
+    }
+
+    public static AppRemoteConfig getDefAppRemoteConfig(Context context) {
+        AppRemoteConfig rc = new AppRemoteConfig();
+//        rc.setAdminMobile(context.getString(R.string.adminMobile));
+//        rc.setDeveloperReference(context.getString(R.string.developerReference));
+//        rc.setAuthSmsEnable(context.getResources().getBoolean(R.bool.isAuthSmsEnable));
+//        rc.setAuthEmailEnable(context.getResources().getBoolean(R.bool.isAuthEmailEnable));
+//        rc.setAuthFacebookEnable(context.getResources().getBoolean(R.bool.isAuthFacebookEnable));
+//        rc.setAdMobEnable(context.getResources().getBoolean(R.bool.isAdMobEnable));
+//        rc.setPackageName(context.getPackageName());
+//        rc.setSheetLink("https://script.google.com/macros/s/AKfycbxwOcJZJfB5ytIkYSt0875oDTb0nHaM8pxuKnom5MTspNlHaZjs52rHAAqHKRiY3LOrlQ/exec");
+//        rc.setsSheetId("1nhntQWrodHvVmWRgoY3AzVMMlJXWkUKhwgxEuDDYUn8");
+        return rc;
     }
 }

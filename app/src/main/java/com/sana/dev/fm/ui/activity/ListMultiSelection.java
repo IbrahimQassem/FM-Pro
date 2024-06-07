@@ -24,11 +24,11 @@ import com.sana.dev.fm.adapter.AdapterListInbox;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.ui.view.LineItemDecoration;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public class ListMultiSelection extends BaseActivity {
         super.onCreate(bundle);
         setContentView((int) R.layout.activity_list_multi_selection);
 
-        ePiRepo = new FmEpisodeCRUDImpl(this, FirebaseConstants.EPISODE_TABLE);
+        ePiRepo = new FmEpisodeCRUDImpl(this, AppConstant.Firebase.EPISODE_TABLE);
 
 
         initToolbar();

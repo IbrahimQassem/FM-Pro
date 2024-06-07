@@ -11,10 +11,10 @@ import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.ServerTimestamp;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 import com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference;
 
 import java.io.Serializable;
@@ -179,7 +179,7 @@ public class RadioInfo implements Serializable {
         if (!infos.isEmpty()) {
             for (int i = 0; i < infos.size(); i++) {
                 RadioInfo info = infos.get(i);
-                DocumentReference mFirestoreProfiles1 = FirebaseDatabaseReference.DATABASE.collection(FirebaseConstants.RADIO_INFO_TABLE).document(info.getRadioId());
+                DocumentReference mFirestoreProfiles1 = FirebaseDatabaseReference.DATABASE.collection(AppConstant.Firebase.RADIO_INFO_TABLE).document(info.getRadioId());
 
                 mFirestoreProfiles1.set(info).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

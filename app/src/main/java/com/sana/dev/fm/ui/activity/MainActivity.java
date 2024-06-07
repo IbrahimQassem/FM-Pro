@@ -124,11 +124,14 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         // setup addMod
         adView = findViewById(R.id.ad_view);
         AppRemoteConfig remoteConfig = PreferencesManager.getInstance().getAppRemoteConfig();
-        if (remoteConfig != null && remoteConfig.isAdMobEnable()) {
+        LogUtility.d(TAG, "AppRemoteConfig : " + new Gson().toJson(remoteConfig.toJSON()));
+        boolean isAdMobEnable = remoteConfig != null && remoteConfig.isAdMobEnable();
+        if (isAdMobEnable) {
             AdRequest adRequest = new AdRequest.Builder().build();
             adView.loadAd(adRequest);
-            adView.setVisibility(remoteConfig.isAdMobEnable() ? VISIBLE : View.GONE);
         }
+        adView.setVisibility(isAdMobEnable ? VISIBLE : View.GONE);
+
 
         View lyt_profile = (View) findViewById(R.id.lyt_profile);
         lyt_profile.setOnClickListener(new View.OnClickListener() {
@@ -477,7 +480,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 //            if (isAccountSignedIn()) {
 //                UserModel user = prefMgr.getUserSession();
 //                user.setUserType(UserType.SuperADMIN);
-//                prefMgr.write(FirebaseConstants.USER_INFO, (UserModel) user);
+//                prefMgr.write(AppConstant.Firebase.USER_INFO, (UserModel) user);
 //            }
 //        }
 
@@ -689,7 +692,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(this, instanceIdResult -> {
             String newToken = instanceIdResult.getToken();
             Log.e("newToken", newToken);
-            getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(FirebaseConstants.DEVICE_TOKEN, newToken).apply();
+            getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(AppConstant.Firebase.DEVICE_TOKEN, newToken).apply();
 
         });
 
