@@ -52,20 +52,17 @@ import java.util.ArrayList;
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
     private static final String TAG = "SplashActivity";
-
     private final Integer START_DELAY = 1500;
-
     private FmStationCRUDImpl rIRepo;
     public PreferencesManager prefMgr;
 
 //    private FirebaseUser currentUser;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         prefMgr = PreferencesManager.getInstance();
+
         setFullScreen();
         startAnimation();
         initRemoteConfig();
@@ -98,7 +95,6 @@ public class SplashActivity extends AppCompatActivity {
                             updateUI(null);
                         }
                     });
-
         }
 
 //        signInAnonymously();
@@ -147,9 +143,7 @@ public class SplashActivity extends AppCompatActivity {
 //        }else {
 //            startActivity(new Intent(IntentHelper.noInternetActivity(SplashActivity.this, false)));
 //        }
-
     }
-
 
     private void setFullScreen() {
         View decorView = getWindow().getDecorView();
@@ -193,6 +187,7 @@ public class SplashActivity extends AppCompatActivity {
   "isAuthFacebookEnable": true,
   "isAdMobEnable": true
 }*/
+
                             // Parse JSON string into a JSON object
                             try {
                                 JSONObject configData = new JSONObject(jsonString);
@@ -208,7 +203,6 @@ public class SplashActivity extends AppCompatActivity {
                                 prefMgr.write(FirebaseConstants.APP_REMOTE_CONFIG, appRemoteConfig);
 
                                 // Update UI with retrieved data
-                                // updateUI(welcomeMessage, discountPercentage);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                                 Log.d(TAG, "JSONException  :"+e);
@@ -219,7 +213,6 @@ public class SplashActivity extends AppCompatActivity {
                         }
                     }
                 });
-
     }
 
 //    // [START on_start_check_user]

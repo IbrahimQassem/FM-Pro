@@ -59,7 +59,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.textfield.TextInputEditText;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.DeviceInfo;
 
 import java.net.MalformedURLException;

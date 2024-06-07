@@ -23,6 +23,7 @@ android {
         versionName "1.0.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.debug
+        archivesBaseName = "hudhudfm-v($versionName)" // to name generated apk
     }
 
 

@@ -5,8 +5,8 @@ public class ModelConfig {
     private String title;
     private String desc;
     private boolean cancellable;
-    private ButtonConfig btnCancel;
-    private ButtonConfig btnConfirm;
+    private transient ButtonConfig btnCancel;
+    private transient ButtonConfig btnConfirm;
     private int viewType;
 
     public ModelConfig(int icon, String title, String desc, ButtonConfig btnCancel, ButtonConfig btnConfirm) {
