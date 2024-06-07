@@ -2,8 +2,6 @@ package com.sana.dev.fm.utils.my_firebase;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.sana.dev.fm.utils.FmUtilize.isEmpty;
-import static com.sana.dev.fm.utils.my_firebase.AppConstant.FAIL;
-import static com.sana.dev.fm.utils.my_firebase.AppConstant.SUCCESS;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABASE;
 
 import android.app.Activity;
@@ -85,7 +83,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
                 public void onSuccess(Object object) {
                     DocumentReference pRef = DATABASE.collection(Firebase.RADIO_PROGRAM_TABLE).document(episode.getRadioId()).collection(Firebase.RADIO_PROGRAM_TABLE).document(episode.getProgramId());
                     incrementCounter("episodeCount", pRef);
-                    callBack.onSuccess(SUCCESS);
+                    callBack.onSuccess(AppGeneralMessage.SUCCESS);
                 }
 
                 @Override
@@ -94,7 +92,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
                 }
             });
         } else {
-            callBack.onError(FAIL);
+            callBack.onError(AppGeneralMessage.FAIL);
         }
     }
 
@@ -130,7 +128,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
                 }
             });
         } else {
-            callBack.onError(FAIL);
+            callBack.onError(AppGeneralMessage.FAIL);
         }
 
     }
@@ -153,7 +151,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
         fireStoreCreateOrMerge(documentReference, docData, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                callBack.onSuccess(SUCCESS);
+                callBack.onSuccess(AppGeneralMessage.SUCCESS);
             }
 
             @Override
@@ -171,7 +169,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
         fireStoreCreateOrMerge(documentReference, docData, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                callBack.onSuccess(SUCCESS);
+                callBack.onSuccess(AppGeneralMessage.SUCCESS);
             }
 
             @Override
@@ -190,7 +188,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
             fireStoreDelete(documentReference, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    callBack.onSuccess(SUCCESS);
+                    callBack.onSuccess(AppGeneralMessage.SUCCESS);
                 }
 
                 @Override
@@ -199,7 +197,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
                 }
             });
         } else {
-            callBack.onError(FAIL);
+            callBack.onError(AppGeneralMessage.FAIL);
         }
     }
 

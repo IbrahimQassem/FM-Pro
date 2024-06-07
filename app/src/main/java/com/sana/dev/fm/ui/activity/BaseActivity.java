@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.snackbar.Snackbar;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.BaseView;
@@ -28,7 +29,9 @@ import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.SnackBarUtility;
+import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
+import com.sana.dev.fm.utils.my_firebase.AppGeneralMessage;
 import com.sana.dev.fm.utils.network.CheckInternetConnection;
 import com.sana.dev.fm.utils.network.ConnectionChangeListener;
 
@@ -43,6 +46,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     private static final String TAG = BaseActivity.class.getSimpleName();
 
     public PreferencesManager prefMgr;
+    public AppRemoteConfig remoteConfig;
 
     @Nullable
     @BindView(R.id.tv_title)
@@ -99,10 +103,12 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     protected void bindViews() {
         ButterKnife.bind(this);
         PreferencesManager.initializeInstance(this);
-        com.sana.dev.fm.utils.my_firebase.AppConstant.initializeInstance(this);
+        AppGeneralMessage.initializeInstance(this);
         connectionChecker = new CheckInternetConnection();
         prefMgr = PreferencesManager.getInstance();
         userGuide = new UserGuide(this);
+        remoteConfig = Tools.getAppRemoteConfig();
+
         setupToolbar();
     }
 
@@ -190,18 +196,28 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     @Override
     public void showProgress(String message) {
-        hud = KProgressHUD.create(this)
-                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                .setLabel(getString(R.string.please_wait))
-                .setDetailsLabel(message)
-                .setCancellable(true)
-                .setAnimationSpeed(2)
-                .setDimAmount(0.5f)
-                .show();
-
+        if (hud != null && hud.isShowing()) {
+            hud.dismiss();
+            hud = KProgressHUD.create(this)
+                    .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                    .setLabel(getString(R.string.please_wait))
+                    .setDetailsLabel(message)
+                    .setCancellable(true)
+                    .setAnimationSpeed(2)
+                    .setDimAmount(0.5f)
+                    .show();
+        }
 //        hideProgress();
 //        ProgressHUD.getInstance(this).showDialog( message, true, false, null);
     }
+
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//        if (hud != null && hud.isShowing()) {
+//            hud.dismiss();
+//        }
+//    }
 
     @Override
     public void hideProgress() {
@@ -211,7 +227,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 //        }
 //        ProgressHUD.getInstance(this).dismissWithFailure("");
 
-        if (hud != null){
+        if (hud != null && hud.isShowing()) {
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override

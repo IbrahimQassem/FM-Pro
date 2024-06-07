@@ -235,6 +235,10 @@
     <string name="label_login_by">Login By</string>
     <string name="login_via_facebook">Login via Facebook</string>
     <string name="label_index">Index\n</string>
+    <string name="login_via_email">Login via Email</string>
+    <string name="label_please_enter_a_valid_mobile_number">Please enter a valid mobile number</string>
+    <string name="label_confirm">Confirm</string>
+    <string name="label_verifying_code">Verifying Code</string>
 
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

@@ -147,7 +147,8 @@ public class FcmMessagingService extends FirebaseMessagingService {
      */
     private void sendRegistrationToServer(String token) {
         // TODO: Implement this method to send token to your app server.
-        getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(AppConstant.General.DEVICE_TOKEN, token).apply();
+        PreferencesManager.getInstance().write(AppConstant.General.FIREBASE_FCM_TOKEN,token);
+//        getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(AppConstant.General.FIREBASE_FCM_TOKEN, token).apply();
     }
 
 

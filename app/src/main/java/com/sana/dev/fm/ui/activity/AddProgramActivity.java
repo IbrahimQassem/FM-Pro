@@ -54,7 +54,7 @@ import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
-import com.sana.dev.fm.utils.my_firebase.AppConstant;
+import com.sana.dev.fm.utils.my_firebase.AppGeneralMessage;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
@@ -344,7 +344,7 @@ public class AddProgramActivity extends BaseActivity {
 
                                         @Override
                                         public void onError(Object object) {
-                                            showToast(AppConstant.ERROR);
+                                            showToast(AppGeneralMessage.ERROR);
                                         }
                                     });
                                 }
@@ -370,7 +370,7 @@ public class AddProgramActivity extends BaseActivity {
                 @Override
                 public void onError(Object object) {
                     hideProgress();
-                    showToast(AppConstant.ERROR);
+                    showToast(AppGeneralMessage.ERROR);
                 }
             });
         }

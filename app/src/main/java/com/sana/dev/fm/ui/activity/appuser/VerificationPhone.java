@@ -45,7 +45,6 @@ public class VerificationPhone extends BaseActivity {
     TextInputEditText editText;
     AppCompatButton buttonSignIn;
     String phoneNumber = "";
-    PreferencesManager prefMgr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +70,7 @@ public class VerificationPhone extends BaseActivity {
 
                 String code = editText.getText().toString().trim();
                 if (code.isEmpty() || code.length() < 6) {
-                    editText.setError("أدخل رمز التحقق");
+                    editText.setError(getString(R.string.label_verifying_code));
                     editText.requestFocus();
                     return;
                 }
@@ -92,6 +91,8 @@ public class VerificationPhone extends BaseActivity {
             showWarningDialog(config);
         }
     }
+
+
 
     private void signInWithCredential(PhoneAuthCredential credential) {
         if (!isFinishing())

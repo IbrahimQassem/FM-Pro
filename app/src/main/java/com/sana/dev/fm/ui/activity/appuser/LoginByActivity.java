@@ -106,6 +106,7 @@ public class LoginByActivity extends BaseActivity {
     }
 
     private void initToolbar() {
+        setTitle(getString(R.string.label_login_by));
         binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -187,15 +188,16 @@ public class LoginByActivity extends BaseActivity {
 */
 
     private void initRemoteConfig() {
-        if (/*BuildConfig.FLAVOR.equals("hudhudfm_google_play") && */!BuildConfig.DEBUG) {
-            AppRemoteConfig remoteConfig = PreferencesManager.getInstance().getAppRemoteConfig();
-            if (remoteConfig != null) {
-                // Todo check
-//            binding.loginButtonFacebook.setVisibility(remoteConfig.isFacebookEnable() ? VISIBLE : View.GONE);
-                binding.btFacebookLogin.setVisibility(remoteConfig.isAuthFacebookEnable() ? VISIBLE : View.GONE);
-                binding.btMobileLogin.setVisibility(remoteConfig.isAuthSmsEnable() ? VISIBLE : View.GONE);
-            }
-        }
+//        if (/*BuildConfig.FLAVOR.equals("hudhudfm_google_play") && */!BuildConfig.DEBUG) {
+            boolean isAuthFacebookEnable = remoteConfig != null && remoteConfig.isAuthFacebookEnable();
+            boolean isAuthSmsEnable = remoteConfig != null && remoteConfig.isAuthSmsEnable();
+            boolean isAuthEmailEnable = remoteConfig != null && remoteConfig.isAuthEmailEnable();
+
+            //            binding.loginButtonFacebook.setVisibility(remoteConfig.isFacebookEnable() ? VISIBLE : View.GONE);
+            binding.btFacebookLogin.setVisibility(isAuthFacebookEnable ? VISIBLE : View.GONE);
+            binding.btEmailLogin.setVisibility(isAuthEmailEnable ? VISIBLE : View.GONE);
+            binding.btMobileLogin.setVisibility(isAuthSmsEnable ? VISIBLE : View.GONE);
+//        }
 
     }
 

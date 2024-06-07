@@ -204,5 +204,9 @@
     <string name="label_login_by">تسجيل الدخول عبر</string>
     <string name="login_via_facebook">فيسبوك</string>
     <string name="label_index">رقم</string>
+    <string name="login_via_email">الإيميل</string>
+    <string name="label_please_enter_a_valid_mobile_number">يرجى إدخال رقم موبايل صحيح</string>
+    <string name="label_confirm">Confirm</string>
+    <string name="label_verifying_code">Verifying Code</string>
 
 </resources>

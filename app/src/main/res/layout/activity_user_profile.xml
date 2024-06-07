@@ -101,7 +101,8 @@
                             android:layout_marginTop="@dimen/spacing_medium"
                             android:textColor="@color/grey_80"
                             app:fontFamily="@font/tj_medium"
-                            tools:text="@string/email" />
+                            tools:text="@string/app_gmail" />
+
                         <TextView
                             android:id="@+id/tv_label_user_mobile"
                             style="@style/TextLight"
@@ -109,8 +110,9 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/spacing_medium"
                             android:textColor="@color/grey_80"
+                            android:textDirection="ltr"
                             app:fontFamily="@font/tj_medium"
-                            tools:text="@string/mobile" />
+                            tools:text="+967777777777" />
                     </LinearLayout>
 
 

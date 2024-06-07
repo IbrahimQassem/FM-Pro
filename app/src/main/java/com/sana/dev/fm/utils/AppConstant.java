@@ -5,8 +5,7 @@ package com.sana.dev.fm.utils;
  */
 
 public class AppConstant {
-
-    public static final String LOG = "MyLog";
+    public static final String LOG = "AppConstant";
 
     public static class Profile {
         public static final int MAX_AVATAR_SIZE = 1280; //px, side of square
@@ -38,13 +37,14 @@ public class AppConstant {
         public static final String CHANNEL_ID = "my_channel_01";
         //    public static final String CHANNEL_NAME = "Simplified  Notification";
 //    public static final String CHANNEL_DESCRIPTION = "www.sanaadev.net";
-        public static final String DEVICE_TOKEN = "deviceToken";
+        public static final String FIREBASE_FCM_TOKEN = "firebaseFmcToken";
         public static final String USER_INFO = "userInfo";
         public static final String RADIO_INFO_LIST = "radioInfoList";
         //    public static final String USER_IMAGE_Profile = "userImageProfile";
         public static final String PREF_LANGUAGE = "prefLanguage";
         public static final String CONST_MOBILE = "userMobile";
-        public static final String APP_REMOTE_CONFIG = "appRemoteConfig";    }
+        public static final String APP_REMOTE_CONFIG = "appRemoteConfig";
+    }
 
     public class Firebase {
         public static final String RADIO_INFO_TABLE = "RadioInfo";
@@ -54,7 +54,6 @@ public class AppConstant {
         public static final String COMMENT_TABLE = "Comment";
         //    public static String LIKED_USERS = "Liked_Users";
 //    public static String FAVORITE_USERS = "Favorite_Users";
-
 
 
     }

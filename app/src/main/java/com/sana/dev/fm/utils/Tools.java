@@ -58,6 +58,8 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.gson.Gson;
+import com.sana.dev.fm.FmApplication;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.DeviceInfo;
@@ -274,7 +276,7 @@ public class Tools {
         return newFormat.format(new Date(dateTime));
     }
 
-    public static String getFormattedDateTimeSimple(Long dateTime,Locale locale) {
+    public static String getFormattedDateTimeSimple(Long dateTime, Locale locale) {
         SimpleDateFormat newFormat = new SimpleDateFormat(DATE_TIME_FORMAT, locale);
         return newFormat.format(new Date(dateTime));
     }
@@ -295,7 +297,7 @@ public class Tools {
     }
 
 
-    public static String getFormattedTimeEvent(Long time,Locale locale) {
+    public static String getFormattedTimeEvent(Long time, Locale locale) {
         SimpleDateFormat newFormat = new SimpleDateFormat(FmUtilize._timeFormat, locale);
         return newFormat.format(new Date(time));
     }
@@ -569,7 +571,7 @@ public class Tools {
         }
     }
 
-    public static String getFormattedDateOnly(Long l,Locale locale) {
+    public static String getFormattedDateOnly(Long l, Locale locale) {
 //        return new SimpleDateFormat("dd MMM yy", FmUtilize._arabicFormat).format(new Date(l.longValue()));
         return new SimpleDateFormat("d MMM yyyy", locale).format(new Date(l.longValue()));
     }
@@ -732,17 +734,24 @@ public class Tools {
         editText.setFocusable(true);
     }
 
-    public static AppRemoteConfig getDefAppRemoteConfig(Context context) {
-        AppRemoteConfig rc = new AppRemoteConfig();
-//        rc.setAdminMobile(context.getString(R.string.adminMobile));
-//        rc.setDeveloperReference(context.getString(R.string.developerReference));
-//        rc.setAuthSmsEnable(context.getResources().getBoolean(R.bool.isAuthSmsEnable));
-//        rc.setAuthEmailEnable(context.getResources().getBoolean(R.bool.isAuthEmailEnable));
-//        rc.setAuthFacebookEnable(context.getResources().getBoolean(R.bool.isAuthFacebookEnable));
-//        rc.setAdMobEnable(context.getResources().getBoolean(R.bool.isAdMobEnable));
-//        rc.setPackageName(context.getPackageName());
-//        rc.setSheetLink("https://script.google.com/macros/s/AKfycbxwOcJZJfB5ytIkYSt0875oDTb0nHaM8pxuKnom5MTspNlHaZjs52rHAAqHKRiY3LOrlQ/exec");
-//        rc.setsSheetId("1nhntQWrodHvVmWRgoY3AzVMMlJXWkUKhwgxEuDDYUn8");
-        return rc;
+    public static AppRemoteConfig getAppRemoteConfig() {
+        AppRemoteConfig model = new AppRemoteConfig();
+        PreferencesManager preferences = PreferencesManager.getInstance();
+        String json = preferences.read(AppConstant.General.APP_REMOTE_CONFIG, getDefAppRemoteConfig(FmApplication.getInstance()).toString());
+        if (!isEmpty(json)) {
+            Gson gson = new Gson();
+            model = gson.fromJson(json, AppRemoteConfig.class);
+        }
+//        Log.d(TAG, " getAppRemoteConfig : " + new Gson().toJson(model));
+        return model;
+    }
+
+
+    public static AppRemoteConfig getDefAppRemoteConfig(Context ctx) {
+        Gson gson = new Gson();
+        PreferencesManager preferences = PreferencesManager.getInstance();
+        AppRemoteConfig appRemoteConfig = new AppRemoteConfig(ctx.getString(R.string.app_mobile), ctx.getString(R.string.developer_reference), true, true, true, false);
+        String json = preferences.read(AppConstant.General.APP_REMOTE_CONFIG, appRemoteConfig.toString());
+        return gson.fromJson(json, AppRemoteConfig.class);
     }
 }

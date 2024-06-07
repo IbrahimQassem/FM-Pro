@@ -1,6 +1,5 @@
 package com.sana.dev.fm.utils.my_firebase;
 
-import static com.sana.dev.fm.utils.my_firebase.AppConstant.SUCCESS;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABASE;
 
 import android.app.Activity;
@@ -17,7 +16,6 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.sana.dev.fm.model.RadioInfo;
-import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.utils.LogUtility;
 
 import java.lang.reflect.Field;
@@ -80,7 +78,7 @@ public class FmStationCRUDImpl extends FirebaseRepository implements FmCRUD {
         fireStoreUpdate(documentReference, updates, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                callBack.onSuccess(SUCCESS);
+                callBack.onSuccess(AppGeneralMessage.SUCCESS);
             }
 
             @Override
@@ -99,7 +97,7 @@ public class FmStationCRUDImpl extends FirebaseRepository implements FmCRUD {
         fireStoreUpdate(documentReference, updates, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                callBack.onSuccess(SUCCESS);
+                callBack.onSuccess(AppGeneralMessage.SUCCESS);
             }
 
             @Override

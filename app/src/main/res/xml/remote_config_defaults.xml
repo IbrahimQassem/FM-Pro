@@ -6,5 +6,4 @@
     <bool name="isAuthEmailEnable">false</bool>
     <bool name="isAuthFacebookEnable">false</bool>
     <bool name="isAdMobEnable">false</bool>
-<!--    <string name="packageName">com.sanaadev.m.perfume</string>-->
 </resources>

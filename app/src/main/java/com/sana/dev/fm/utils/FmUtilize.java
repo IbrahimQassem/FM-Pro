@@ -40,6 +40,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sana.dev.fm.BuildConfig;
+import com.sana.dev.fm.FmApplication;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioProgram;
@@ -932,7 +933,9 @@ public class FmUtilize {
 
     public static String getFirebaseToken(Context context) {
 //        return PreferencesManager.getInstance().write(FirebaseConstants.DEVICE_TOKEN,null);
-        return context.getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(AppConstant.General.DEVICE_TOKEN, null);
+        String token = PreferencesManager.getInstance().read(AppConstant.General.FIREBASE_FCM_TOKEN, null).toString();
+        return token;
+//        return context.getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(AppConstant.General.FIREBASE_FCM_TOKEN, null);
     }
 
 

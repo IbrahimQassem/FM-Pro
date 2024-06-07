@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -26,16 +27,18 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
@@ -43,6 +46,7 @@ import com.sana.dev.fm.ui.dialog.MainDialog;
 import com.sana.dev.fm.ui.fragment.DailyEpisodeFragment;
 import com.sana.dev.fm.ui.fragment.EpisodeFragment;
 import com.sana.dev.fm.ui.fragment.ProgramsFragment;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.GoogleMobileAdsConsentManager;
 import com.sana.dev.fm.utils.IntentHelper;
@@ -105,6 +109,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         fab_radio = (FloatingActionButton) findViewById(R.id.fab_radio);
         radioManager = RadioManager.with();
 
+        logRegToken();
 
 //        if (!isRadioSelected()) {
 //            RadioInfo radio = RadioInfo.newInstance("1002", "أصالة", "", "https://streamingv2.shoutcast.com/assala-fm", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1002%2Fmicar.jpg?alt=media&token=b568c461-9563-44e2-a091-e953471e42c4", "@asalah_fm", "صنعاء", "", "Asalah Fm", "usId", true);
@@ -123,8 +128,6 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
         // setup addMod
         adView = findViewById(R.id.ad_view);
-        AppRemoteConfig remoteConfig = PreferencesManager.getInstance().getAppRemoteConfig();
-        LogUtility.d(TAG, "AppRemoteConfig : " + new Gson().toJson(remoteConfig.toJSON()));
         boolean isAdMobEnable = remoteConfig != null && remoteConfig.isAdMobEnable();
         if (isAdMobEnable) {
             AdRequest adRequest = new AdRequest.Builder().build();
@@ -219,8 +222,29 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 //                info.createRadio(MainActivity.this);
             }
         });
+    }
 
+    private void logRegToken() {
+        // [START log_reg_token]
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
 
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        // Log and toast
+                        String msg = "FCM Registration token: " + token;
+                        Log.d(TAG, msg);
+                        PreferencesManager.getInstance().write(AppConstant.General.FIREBASE_FCM_TOKEN,token);
+                    }
+                });
+        // [END log_reg_token]
     }
 
 /*

@@ -7,31 +7,31 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-<!--    <androidx.appcompat.widget.Toolbar-->
-<!--        android:id="@+id/toolbar"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="?attr/actionBarSize"-->
-<!--        app:contentInsetStartWithNavigation="0dp"-->
-<!--        app:layout_collapseMode="pin"-->
-<!--        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">-->
+    <!--    <androidx.appcompat.widget.Toolbar-->
+    <!--        android:id="@+id/toolbar"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="?attr/actionBarSize"-->
+    <!--        app:contentInsetStartWithNavigation="0dp"-->
+    <!--        app:layout_collapseMode="pin"-->
+    <!--        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">-->
 
-<!--        <RelativeLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent">-->
+    <!--        <RelativeLayout-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="match_parent">-->
 
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_centerInParent="true"-->
-<!--                android:paddingEnd="?attr/actionBarSize"-->
-<!--                android:paddingRight="?attr/actionBarSize"-->
-<!--                android:text="VERIFICATION"-->
-<!--                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"-->
-<!--                android:textColor="@color/grey_80" />-->
+    <!--            <TextView-->
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:layout_centerInParent="true"-->
+    <!--                android:paddingEnd="?attr/actionBarSize"-->
+    <!--                android:paddingRight="?attr/actionBarSize"-->
+    <!--                android:text="VERIFICATION"-->
+    <!--                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"-->
+    <!--                android:textColor="@color/grey_80" />-->
 
-<!--        </RelativeLayout>-->
+    <!--        </RelativeLayout>-->
 
-<!--    </androidx.appcompat.widget.Toolbar>-->
+    <!--    </androidx.appcompat.widget.Toolbar>-->
 
 
     <ScrollView
@@ -44,74 +44,74 @@
             android:layout_gravity="center"
             android:gravity="center">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                 app:srcCompat="@drawable/img_code_verification" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:gravity="center"
-                android:textAlignment="center"
-                android:elegantTextHeight="true"
-                android:text="@string/label_enter_received_smtp"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/grey_60" />
-
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="35dp"
-                android:layout_marginBottom="15dp"
-                android:orientation="horizontal">
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:orientation="vertical">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/editTextCode"
+                <ImageView
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    app:srcCompat="@drawable/img_code_verification" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:elegantTextHeight="true"
+                    android:gravity="center"
+                    android:text="@string/label_enter_received_smtp"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/grey_60" />
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="35dp"
+                    android:layout_marginBottom="15dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editTextCode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:hint="@string/label_verifying_code"
+                        android:inputType="phone"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
+                        android:textColor="@color/grey_90">
+
+                        <requestFocus />
+                    </com.google.android.material.textfield.TextInputEditText>
+
+                </LinearLayout>
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/buttonSignIn"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/tj_bold"
                     android:gravity="center"
-                    android:hint="رمز التحقق"
-                    android:inputType="phone"
-                    android:maxLines="1"
-                    android:singleLine="true"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-                    android:textColor="@color/grey_90">
-                    <requestFocus />
-                </com.google.android.material.textfield.TextInputEditText>
+                    android:text="@string/label_confirm"
+                    android:textColor="@color/colorPrimaryDark" />
+
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/buttonSignIn"
+                    android:layout_centerHorizontal="true"
+                    android:visibility="gone" />
 
             </LinearLayout>
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/buttonSignIn"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="تأكيد"
-                android:fontFamily="@font/tj_bold"
-                android:textColor="@color/colorPrimaryDark" />
 
-            <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/buttonSignIn"
-                android:layout_centerHorizontal="true"
-                android:visibility="gone" />
-
-        </LinearLayout>
-
-
-
-    </RelativeLayout>
+        </RelativeLayout>
     </ScrollView>
 
 </LinearLayout>

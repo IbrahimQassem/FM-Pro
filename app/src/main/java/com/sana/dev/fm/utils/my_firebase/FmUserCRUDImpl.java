@@ -1,8 +1,6 @@
 package com.sana.dev.fm.utils.my_firebase;
 
 import static com.sana.dev.fm.utils.FmUtilize.pojo2Map;
-import static com.sana.dev.fm.utils.my_firebase.AppConstant.FAIL;
-import static com.sana.dev.fm.utils.my_firebase.AppConstant.SUCCESS;
 import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABASE;
 
 import android.app.Activity;
@@ -55,11 +53,11 @@ public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
                 @Override
                 public void onError(Object object) {
 //                    mProgressHUD.dismiss();
-                    callBack.onError(AppConstant.ERROR);
+                    callBack.onError(AppGeneralMessage.ERROR);
                 }
             });
         } else {
-            callBack.onError(FAIL);
+            callBack.onError(AppGeneralMessage.FAIL);
         }
     }
 
@@ -76,7 +74,7 @@ public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
             fireStoreDelete(documentReference, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    callBack.onSuccess(SUCCESS);
+                    callBack.onSuccess(AppGeneralMessage.SUCCESS);
                 }
 
                 @Override
@@ -85,7 +83,7 @@ public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
                 }
             });
         } else {
-            callBack.onError(FAIL);
+            callBack.onError(AppGeneralMessage.FAIL);
         }
     }
 
@@ -122,7 +120,7 @@ public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
                         }
                     });
         } else {
-            callBack.onError(FAIL);
+            callBack.onError(AppGeneralMessage.FAIL);
         }
     }
 
@@ -162,7 +160,7 @@ public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
                         }
                     });
         } else {
-            callBack.onError(FAIL);
+            callBack.onError(AppGeneralMessage.FAIL);
         }
     }
 

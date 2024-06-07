@@ -1,8 +1,5 @@
 package com.sana.dev.fm.utils.my_firebase;
 
-
-import static com.sana.dev.fm.utils.my_firebase.AppConstant.FAIL;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -39,7 +36,7 @@ public abstract class FirebaseRepository<T> {
         documentReference.set(model).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                callback.onSuccess(AppConstant.SUCCESS);
+                callback.onSuccess(AppGeneralMessage.SUCCESS);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -60,7 +57,7 @@ public abstract class FirebaseRepository<T> {
         documentReference.update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                callback.onSuccess(AppConstant.SUCCESS);
+                callback.onSuccess(AppGeneralMessage.SUCCESS);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -118,7 +115,7 @@ public abstract class FirebaseRepository<T> {
         documentReference.set(model, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                callback.onSuccess(AppConstant.SUCCESS);
+                callback.onSuccess(AppGeneralMessage.SUCCESS);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -138,7 +135,7 @@ public abstract class FirebaseRepository<T> {
         documentReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                callback.onSuccess(AppConstant.SUCCESS);
+                callback.onSuccess(AppGeneralMessage.SUCCESS);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -159,9 +156,9 @@ public abstract class FirebaseRepository<T> {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful())
-                    callback.onSuccess(AppConstant.SUCCESS);
+                    callback.onSuccess(AppGeneralMessage.SUCCESS);
                 else
-                    callback.onError(FAIL);
+                    callback.onError(AppGeneralMessage.FAIL);
             }
         });
     }

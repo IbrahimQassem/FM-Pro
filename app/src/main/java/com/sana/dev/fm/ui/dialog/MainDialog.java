@@ -123,7 +123,7 @@ public class MainDialog {
         dialog.findViewById(R.id.iv_whats).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 String contact = context.getString(R.string.app_mobile);
-                AppRemoteConfig remoteConfig = PreferencesManager.getInstance().getAppRemoteConfig();
+                AppRemoteConfig remoteConfig = Tools.getAppRemoteConfig();
                 if (remoteConfig != null) {
                      contact = remoteConfig.getAdminMobile();
                 }
@@ -145,7 +145,7 @@ public class MainDialog {
         dialog.findViewById(R.id.iv_mobile).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 String contact = context.getString(R.string.app_mobile);
-                AppRemoteConfig remoteConfig = PreferencesManager.getInstance().getAppRemoteConfig();
+                AppRemoteConfig remoteConfig = Tools.getAppRemoteConfig();
                 if (remoteConfig != null) {
                     contact = remoteConfig.getAdminMobile();
                 }
@@ -161,7 +161,7 @@ public class MainDialog {
             public void onClick(View view) {
                 FmUtilize.getOpenFacebookIntent(context);
                 String YourPageURL = context.getString(R.string.developer_reference);
-                AppRemoteConfig remoteConfig =  PreferencesManager.getInstance().getAppRemoteConfig();
+                AppRemoteConfig remoteConfig =  Tools.getAppRemoteConfig();
                 if (remoteConfig != null){
                     YourPageURL = remoteConfig.getDeveloperReference();
                 }

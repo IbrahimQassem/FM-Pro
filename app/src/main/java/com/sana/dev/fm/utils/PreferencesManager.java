@@ -109,14 +109,6 @@ public class PreferencesManager {
         return lang;
     }
 
-    public AppRemoteConfig getAppRemoteConfig() {
-        Gson gson = new Gson();
-        Context ctx  = FmApplication.getInstance();
-        AppRemoteConfig appRemoteConfig = new AppRemoteConfig(ctx.getString(R.string.app_mobile), ctx.getString(R.string.developer_reference), false, false, true, true);
-        String json = read(AppConstant.General.APP_REMOTE_CONFIG, appRemoteConfig.toString());
-        return gson.fromJson(json, AppRemoteConfig.class);
-    }
-
     public void setUserSession(UserModel userModel) {
         write(AppConstant.General.USER_INFO, userModel);
     }

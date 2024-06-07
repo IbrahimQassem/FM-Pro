@@ -2,16 +2,15 @@ package com.sana.dev.fm.utils.my_firebase;
 
 import android.content.Context;
 
-import com.sana.dev.fm.FmApplication;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.utils.PreferencesManager;
 
-public class AppConstant  {
+public class AppGeneralMessage  {
 
-    private static AppConstant sInstance;
+    private static AppGeneralMessage sInstance;
     private static Context ctx;
 
-    public static synchronized AppConstant getInstance() {
+    public static synchronized AppGeneralMessage getInstance() {
         if (sInstance == null) {
             throw new IllegalStateException(PreferencesManager.class.getSimpleName() +
                     " is not initialized, call initializeInstance(..) method first.");
@@ -21,11 +20,11 @@ public class AppConstant  {
 
     public static synchronized void initializeInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new AppConstant(context);
+            sInstance = new AppGeneralMessage(context);
         }
     }
 
-    private AppConstant(Context context) {
+    private AppGeneralMessage(Context context) {
         this.ctx = context;
     }
 

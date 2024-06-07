@@ -66,7 +66,10 @@ public class SplashActivity extends AppCompatActivity {
 
         setFullScreen();
         startAnimation();
-        initRemoteConfig();
+        // Todo undo
+//        initRemoteConfig();
+        useDefaultConfig();
+
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();

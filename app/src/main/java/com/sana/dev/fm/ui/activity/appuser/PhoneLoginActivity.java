@@ -25,18 +25,12 @@ public class PhoneLoginActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phone_login);
-        Tools.setSystemBarColor(this, R.color.grey_20);
+        initToolbar();
 
         country_code = findViewById(R.id.country_code);
         editTextPhone = findViewById(R.id.editTextPhone);
         buttonContinue = findViewById(R.id.buttonContinue);
 
-        getToolbarArrow().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
 
         editTextPhone.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
 
@@ -46,15 +40,16 @@ public class PhoneLoginActivity extends BaseActivity {
 //                String code = country_code.getText().toString().trim();
                 String number = editTextPhone.getText().toString().trim();
 
-                if (number.isEmpty()) {
-                    editTextPhone.setError("يرجى إدخال رقم الموبايل");
+                if (Tools.isEmpty(number)) {
+                    editTextPhone.setError(getString(R.string.error_empty_field_not_allowed));
                     editTextPhone.requestFocus();
                     return;
                 } else if (!FmUtilize.isValidPhoneNumber(number)) {
-                    editTextPhone.setError("يرجى إدخال رقم موبايل صحيح");
+                    editTextPhone.setError(getString(R.string.label_please_enter_a_valid_mobile_number));
                     editTextPhone.requestFocus();
                     return;
                 }
+
                 hideKeyboard();
 
 
@@ -68,6 +63,18 @@ public class PhoneLoginActivity extends BaseActivity {
                 intent.putExtra(AppConstant.General.CONST_MOBILE, phoneNumber);
                 startActivity(intent);
 
+            }
+        });
+    }
+
+    private void initToolbar() {
+//        Tools.setSystemBarColor(this, R.color.grey_20);
+
+        setTitle(getString(R.string.label_login_by));
+        getToolbarArrow().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
     }
