@@ -30,6 +30,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.gson.Gson;
+import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.RadioInfo;
@@ -56,7 +57,7 @@ public class SplashActivity extends AppCompatActivity {
     public PreferencesManager prefMgr;
     protected FirebaseCrashlytics crashlytics;
 
-//    private FirebaseUser currentUser;
+    //    private FirebaseUser currentUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +65,9 @@ public class SplashActivity extends AppCompatActivity {
         prefMgr = PreferencesManager.getInstance();
         crashlytics = FirebaseCrashlytics.getInstance();
 
+//        Intent intent = new Intent(SplashActivity.this, GoogleSignInActivity.class);
+//        startActivity(intent);
+//        return;
         setFullScreen();
         startAnimation();
         // Todo undo
@@ -157,8 +161,7 @@ public class SplashActivity extends AppCompatActivity {
 
     private void startAnimation() {
         Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.img_zoom_out);
-        ImageView logo = findViewById(R.id.introLogo);
-        logo.startAnimation(animation);
+        findViewById(R.id.introLogo).startAnimation(animation);
     }
 
     @Override
@@ -229,7 +232,7 @@ public class SplashActivity extends AppCompatActivity {
                         }
 
 
-                       // initSplash();
+                        // initSplash();
 
                         //        -----------------------------------------------------------------------------------------
 
@@ -271,52 +274,6 @@ public class SplashActivity extends AppCompatActivity {
     private void useDefaultConfig() {
         AppRemoteConfig remoteConfig = Tools.getDefAppRemoteConfig(SplashActivity.this);
         prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, remoteConfig.toString());
-    }
-
-    private void initRemoteConfigZ() {
-        FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.getInstance();
-        remoteConfig.fetchAndActivate()
-                .addOnCompleteListener(new OnCompleteListener<Boolean>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Boolean> task) {
-                        if (task.isSuccessful()) {
-                            // Fetch successful, get JSON data
-                            String jsonString = remoteConfig.getString("hudhudFmAppConfig");
-
-                            /*{
-  "adminMobile": "+967 775617017",
-  "developerReference": "https://portfolio.sanaa-dev.com",
-  "isAuthSmsEnable": false,
-  "isAuthEmailEnable": true,
-  "isAuthFacebookEnable": true,
-  "isAdMobEnable": true
-}*/
-
-                            // Parse JSON string into a JSON object
-                            try {
-                                JSONObject configData = new JSONObject(jsonString);
-
-                                // Use configData object to access data
-                                String adminMobile = configData.getString("adminMobile");
-                                String developerReference = configData.getString("developerReference");
-                                Boolean isSmsEnable = configData.getBoolean("isAuthSmsEnable");
-                                Boolean isEmailEnable = configData.getBoolean("isAuthEmailEnable");
-                                Boolean isFacebookEnable = configData.getBoolean("isAuthFacebookEnable");
-                                Boolean isAddMobEnable = configData.getBoolean("isAdMobEnable");
-                                AppRemoteConfig appRemoteConfig = new AppRemoteConfig(adminMobile, developerReference, isSmsEnable, isEmailEnable, isFacebookEnable, isAddMobEnable);
-                                prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, appRemoteConfig);
-
-                                // Update UI with retrieved data
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                                Log.d(TAG, "JSONException  :"+e);
-                            }
-                        } else {
-                            // Fetch failed
-                            Log.d(TAG, "RemoteConfig Fetch failed");
-                        }
-                    }
-                });
     }
 
 //    // [START on_start_check_user]

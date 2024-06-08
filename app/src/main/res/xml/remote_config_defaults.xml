@@ -3,6 +3,7 @@
     <string name="adminMobile">770022750</string>
     <string name="developerReference">https://portfolio.sanaa-dev.com</string>
     <bool name="isAuthSmsEnable">false</bool>
+    <bool name="isAuthGoogleEnable">true</bool>
     <bool name="isAuthEmailEnable">false</bool>
     <bool name="isAuthFacebookEnable">false</bool>
     <bool name="isAdMobEnable">false</bool>

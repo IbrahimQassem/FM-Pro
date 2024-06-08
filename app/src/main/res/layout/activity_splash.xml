@@ -8,10 +8,18 @@
     tools:context="com.sana.dev.fm.ui.activity.SplashActivity">
 
 
-    <ImageView
+    <com.mikhaellopez.circularimageview.CircularImageView
         android:id="@+id/introLogo"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/spacing_small"
+        android:layout_marginBottom="@dimen/spacing_small"
+        android:scaleType="centerInside"
+        android:tint="@color/colorPrimary"
+        app:civ_border="true"
+        app:civ_border_color="@color/colorAccentDark"
+        app:civ_border_width="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

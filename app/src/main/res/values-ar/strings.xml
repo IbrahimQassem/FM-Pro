@@ -206,7 +206,10 @@
     <string name="label_index">رقم</string>
     <string name="login_via_email">الإيميل</string>
     <string name="label_please_enter_a_valid_mobile_number">يرجى إدخال رقم موبايل صحيح</string>
-    <string name="label_confirm">Confirm</string>
-    <string name="label_verifying_code">Verifying Code</string>
+    <string name="label_confirm">تأكيد</string>
+    <string name="label_verifying_code">رمز التحقق</string>
+    <string name="label_error_occurred_with_val">حدث خطأ (%s)</string>
+    <string name="label_login">تسجيل الدخول</string>
+    <string name="label_login_via_google">قوقل</string>
 
 </resources>

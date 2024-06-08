@@ -7,6 +7,7 @@ public class AppRemoteConfig {
     private String adminMobile;
     private String developerReference;
     private boolean isAuthSmsEnable;
+    private boolean isAuthGoogleEnable;
     private boolean isAuthEmailEnable;
     private boolean isAuthFacebookEnable;
     private boolean isAdMobEnable;
@@ -14,10 +15,11 @@ public class AppRemoteConfig {
     public AppRemoteConfig() {
     }
 
-    public AppRemoteConfig(String adminMobile, String developerReference, boolean isAuthSmsEnable, boolean isAuthEmailEnable, boolean isAuthFacebookEnable, boolean isAdMobEnable) {
+    public AppRemoteConfig(String adminMobile, String developerReference, boolean isAuthSmsEnable, boolean isAuthGoogleEnable, boolean isAuthEmailEnable, boolean isAuthFacebookEnable, boolean isAdMobEnable) {
         this.adminMobile = adminMobile;
         this.developerReference = developerReference;
         this.isAuthSmsEnable = isAuthSmsEnable;
+        this.isAuthGoogleEnable = isAuthGoogleEnable;
         this.isAuthEmailEnable = isAuthEmailEnable;
         this.isAuthFacebookEnable = isAuthFacebookEnable;
         this.isAdMobEnable = isAdMobEnable;
@@ -56,6 +58,14 @@ public class AppRemoteConfig {
 
     public void setAuthSmsEnable(boolean authSmsEnable) {
         isAuthSmsEnable = authSmsEnable;
+    }
+
+    public boolean isAuthGoogleEnable() {
+        return isAuthGoogleEnable;
+    }
+
+    public void setAuthGoogleEnable(boolean authGoogleEnable) {
+        isAuthGoogleEnable = authGoogleEnable;
     }
 
     public boolean isAuthEmailEnable() {

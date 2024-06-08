@@ -1,7 +1,6 @@
 package com.sana.dev.fm.ui.activity.appuser;
 
 import static android.view.View.VISIBLE;
-
 import static com.sana.dev.fm.utils.AppConstant.Firebase.USERS_TABLE;
 
 import android.content.Intent;
@@ -17,6 +16,7 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -25,20 +25,19 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
-import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityLoginByBinding;
-import com.sana.dev.fm.model.AppRemoteConfig;
+import com.sana.dev.fm.model.AuthMethod;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Gender;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.ui.activity.BaseActivity;
+import com.sana.dev.fm.ui.activity.RadioListActivity;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
-import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FmUserCRUDImpl;
@@ -47,8 +46,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class LoginByActivity extends BaseActivity {
-    private static final String TAG = "LoginByActivity";
+
+public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.SignInListener {
+    private static final String TAG = LogUtility.tag(LoginByActivity.class);
 
     // [START declare_auth]
     private FirebaseAuth mAuth;
@@ -56,8 +56,8 @@ public class LoginByActivity extends BaseActivity {
 
     private CallbackManager mCallbackManager;
     private static final String EMAIL = "email";
-
     ActivityLoginByBinding binding;
+    private GoogleSignInHelper helper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,6 +68,7 @@ public class LoginByActivity extends BaseActivity {
         binding = ActivityLoginByBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+        helper = new GoogleSignInHelper(this);
 
         initToolbar();
 
@@ -103,10 +104,61 @@ public class LoginByActivity extends BaseActivity {
                 LoginManager.getInstance().logInWithReadPermissions(LoginByActivity.this, Arrays.asList("public_profile", EMAIL));
             }
         });
+
+
+        // Button click listener for Google Sign-in
+        binding.btGoogleLogin.setOnClickListener(v -> helper.signInWithGoogle(this));
+
+
+        //        binding.btEmailLogin.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(LoginByActivity.this, GoogleSignInActivity.class);
+//                startActivity(intent);
+//            }
+//        });
+
     }
 
+    void logOut() {
+//        mAuth.getCurrentUser().linkWithCredential();
+    }
+    //-----------------------------------------------------
+
+    @Override
+    public void onSignInSuccess(GoogleSignInAccount account) {
+        // Handle successful sign-in with Google account details
+        Log.d(TAG, "User signed in with Google: " + account.getEmail());
+        // You can also access account.getIdToken() etc.
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        String uid = firebaseUser.getUid();
+        String email = firebaseUser.getEmail();
+        String displayName = firebaseUser.getDisplayName();
+        String phoneNumber = firebaseUser.getPhoneNumber();
+        String photoUrl = firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "";
+
+        UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.GOOGLE, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
+        userModel.setVerified(true);
+        prefMgr.setUserSession(userModel);
+        showToast(getString(R.string.login_successfully));
+
+        updateUI(firebaseUser, userModel);
+//        showToast("User signed in with Google: " + account.getEmail());
+//        showToast(getString(R.string.done_successfully));
+//        showToast("User signed in with Google: "+ account.getEmail() + "\n : "+firebaseUser.getEmail());
+    }
+
+    @Override
+    public void onSignInFailure(Exception e) {
+        // Handle sign-in failure
+        Log.w(TAG, "Sign in failed", e);
+//        showToast("Sign in failed : " + e.toString());
+        showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
+    }
+
+
     private void initToolbar() {
-        setTitle(getString(R.string.label_login_by));
+        binding.toolbar.tvTitle.setText(getString(R.string.label_login));
         binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,6 +167,7 @@ public class LoginByActivity extends BaseActivity {
         });
 
     }
+
 
     FacebookCallback<LoginResult> facebookCallback = new FacebookCallback<LoginResult>() {
         @Override
@@ -135,7 +188,7 @@ public class LoginByActivity extends BaseActivity {
         public void onError(FacebookException error) {
             Log.d(TAG, "facebook:onError", error);
 //            showToast(error.getMessage());
-            showToast(getString(R.string.unkon_error_please_try_again_later));
+            showToast(getString(R.string.label_error_occurred_with_val, error.getLocalizedMessage()));
         }
     };
 
@@ -189,14 +242,16 @@ public class LoginByActivity extends BaseActivity {
 
     private void initRemoteConfig() {
 //        if (/*BuildConfig.FLAVOR.equals("hudhudfm_google_play") && */!BuildConfig.DEBUG) {
-            boolean isAuthFacebookEnable = remoteConfig != null && remoteConfig.isAuthFacebookEnable();
-            boolean isAuthSmsEnable = remoteConfig != null && remoteConfig.isAuthSmsEnable();
-            boolean isAuthEmailEnable = remoteConfig != null && remoteConfig.isAuthEmailEnable();
+        boolean isAuthFacebookEnable = remoteConfig != null && remoteConfig.isAuthFacebookEnable();
+        boolean isAuthSmsEnable = remoteConfig != null && remoteConfig.isAuthSmsEnable();
+        boolean isAuthEmailEnable = remoteConfig != null && remoteConfig.isAuthEmailEnable();
+        boolean isAuthGoogleEnable = remoteConfig != null && remoteConfig.isAuthGoogleEnable();
 
-            //            binding.loginButtonFacebook.setVisibility(remoteConfig.isFacebookEnable() ? VISIBLE : View.GONE);
-            binding.btFacebookLogin.setVisibility(isAuthFacebookEnable ? VISIBLE : View.GONE);
-            binding.btEmailLogin.setVisibility(isAuthEmailEnable ? VISIBLE : View.GONE);
-            binding.btMobileLogin.setVisibility(isAuthSmsEnable ? VISIBLE : View.GONE);
+        //            binding.loginButtonFacebook.setVisibility(remoteConfig.isFacebookEnable() ? VISIBLE : View.GONE);
+        binding.btFacebookLogin.setVisibility(isAuthFacebookEnable ? VISIBLE : View.GONE);
+        binding.btGoogleLogin.setVisibility(isAuthGoogleEnable ? VISIBLE : View.GONE);
+        binding.btEmailLogin.setVisibility(isAuthEmailEnable ? VISIBLE : View.GONE);
+        binding.btMobileLogin.setVisibility(isAuthSmsEnable ? VISIBLE : View.GONE);
 //        }
 
     }
@@ -216,6 +271,8 @@ public class LoginByActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        helper.handleActivityResult(requestCode, resultCode, data, this);
 
         // Pass the activity result back to the Facebook SDK
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
@@ -246,23 +303,23 @@ public class LoginByActivity extends BaseActivity {
 //                        hideProgress();
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = task.getResult().getUser();
-                            String uid = user.getUid();
-                            String email = user.getEmail();
-                            String displayName = user.getDisplayName();
-                            String phoneNumber = user.getPhoneNumber();
-                            String photoUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "";
+                            FirebaseUser firebaseUser = task.getResult().getUser();
+                            String uid = firebaseUser.getUid();
+                            String email = firebaseUser.getEmail();
+                            String displayName = firebaseUser.getDisplayName();
+                            String phoneNumber = firebaseUser.getPhoneNumber();
+                            String photoUrl = firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "";
 
-                            UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
+                            UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.FACEBOOK, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
                             userModel.setVerified(true);
                             prefMgr.setUserSession(userModel);
                             showToast(getString(R.string.login_successfully));
 
-                            updateUI(user);
+                            updateUI(firebaseUser, userModel);
                         } else {
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             LogUtility.e(LogUtility.tag(VerificationPhone.class), task.getException().getLocalizedMessage());
-                            ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_error_occurred), task.getException().getLocalizedMessage(), new ButtonConfig(getString(R.string.label_cancel)), null);
+                            ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_error_occurred_with_val, task.getException().getLocalizedMessage()), task.getException().getLocalizedMessage(), new ButtonConfig(getString(R.string.label_cancel)), null);
                             showWarningDialog(config);
                         }
                     }
@@ -270,20 +327,20 @@ public class LoginByActivity extends BaseActivity {
     }
     // [END auth_with_facebook]
 
-    private void updateUI(FirebaseUser user) {
+    private void updateUI(FirebaseUser firebaseUser, UserModel userModel) {
         try {
-            if (user != null) {
+            if (firebaseUser != null && userModel != null) {
 //                Log.d(TAG, "FirebaseUser: " + new Gson().toJson(user));
 
-                String uid = user.getUid();
-                String email = user.getEmail();
-                String displayName = user.getDisplayName();
-                String phoneNumber = user.getPhoneNumber();
-//                String getPhotoUrl = user.getPhotoUrl();
+//                String uid = firebaseUser.getUid();
+//                String email = firebaseUser.getEmail();
+//                String displayName = firebaseUser.getDisplayName();
+//                String phoneNumber = firebaseUser.getPhoneNumber();
+////                String getPhotoUrl = user.getPhotoUrl();
+//
+//                UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, null, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
 
-                UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, null, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
-
-                List<UserInfo> providerData = (List<UserInfo>) user.getProviderData();
+                List<UserInfo> providerData = (List<UserInfo>) firebaseUser.getProviderData();
 
                 for (UserInfo userInfo : providerData) {
                     String providerId = userInfo.getProviderId();
@@ -294,6 +351,7 @@ public class LoginByActivity extends BaseActivity {
                         checkUserAuth(userModel);
                     } else if (providerId.equals("google.com")) {
                         // User signed in using Google
+                        checkUserAuth(userModel);
                     } else if (providerId.equals("password")) {
                         // User signed in using email and password
                     } else if (providerId.equals("firebase")) {
@@ -341,7 +399,7 @@ public class LoginByActivity extends BaseActivity {
                         @Override
                         public void onError(Object object) {
                             LogUtility.e(LogUtility.TAG, "onError : " + object);
-                            showToast(object.toString());
+                            showToast(getString(R.string.label_error_occurred_with_val, object.toString()));
                         }
                     });
                 }

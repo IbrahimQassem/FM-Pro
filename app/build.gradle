@@ -22,7 +22,7 @@ android {
         versionCode 15
         versionName "1.0.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        signingConfig signingConfigs.debug
+//        signingConfig signingConfigs.debug
         archivesBaseName = "hudhudfm-v($versionName)" // to name generated apk
     }
 
@@ -62,23 +62,23 @@ android {
     productFlavors {
 
 
-//        hudhud {
-//            dimension 'fm_flavor'
-//            applicationId 'com.sanaadev.fm'
-//            applicationIdSuffix '.hudhud'
-//            versionCode 1
-//            versionName '0.0.1'
-//            versionNameSuffix 'dev'
+        hudhud_fm {
+            dimension 'fm_flavor'
+            applicationId 'com.sanaadev'
+            applicationIdSuffix '.hudhudfm'
+            versionCode 1
+            versionName '0.0.1'
+            versionNameSuffix 'dev'
 //            signingConfig signingConfigs.debug
-//            buildConfigField "String", "BASE_FB_DB", '"HudHud"'
-//        }
+            buildConfigField "String", "BASE_FB_DB", '"HudHudFM"'
+        }
 
         hudhudfm_google_play {
             dimension 'fm_flavor'
             applicationId "com.sana.dev.fm"
             versionCode 22
             versionName "2.0.2"
-            signingConfig signingConfigs.debug
+//            signingConfig signingConfigs.debug
             buildConfigField "String", "BASE_FB_DB", '"HudHudFmGooglePlay"'
         }
 
@@ -90,7 +90,7 @@ android {
             versionCode 1
             versionName '0.0.1'
             versionNameSuffix 'dev'
-            signingConfig signingConfigs.debug
+//            signingConfig signingConfigs.debug
             proguardFiles
             resourceConfigurations += []
 
@@ -187,4 +187,7 @@ dependencies {
 
     // FirebaseUI for Cloud Storage
     implementation 'com.firebaseui:firebase-ui-storage:8.0.1'
+
+    // Also add the dependency for the Google Play services library and specify its version
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 }

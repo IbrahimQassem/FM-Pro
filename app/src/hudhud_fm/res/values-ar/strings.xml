@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">هدهد التجريبي</string>
+    <string name="app_slogan">أصوات محلية , تغيير عالمي.</string>
+
+    <string name="label_app_description">إنترنيوز : هو تطبيق أندرويد يُمكَن المستخدمين من الوصول للقنوات الإذاعية اليمنية من أي مكان وفي أي وقت بضغطة زر .</string>
+    <string name="app_instagram">http://instagram.com/hudhudfm</string>
+
+    <string name="app_gmail">internews@gmail.com</string>
+    <string name="app_mobile">+967 7** *** ***</string>
+    <string name="app_twitter">https://twitter.com/internews</string>
+    <string name="app_facebook">https://www.facebook.com/internews</string>
+
+    <string name="label_intro_1">مرحبا بك عزيزي المستخدم في تطبيق القنوات الإذاعية</string>
+</resources>

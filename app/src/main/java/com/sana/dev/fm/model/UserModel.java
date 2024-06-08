@@ -17,13 +17,14 @@ public class UserModel extends UserId {
     private long lastSignInTimestamp;
     private Gender gender;
     private UserType userType;
+    private AuthMethod authMethod;
     private String createdAt;
     private List<String> allowedPermissions;
 
     public UserModel() {
     }
 
-    public UserModel(String userId, String name, String email, String mobile, String password, String photoUrl, String deviceToken, String nickNme, String bio, String tag, boolean isVerified, boolean isOnline, boolean isStopped, String deviceId, String stopNote, Gender gender, String country, String city, long lastSignInTimestamp, UserType userType,String createdAt,String notificationToken,String otherDate,List<String> allowedPermissions) {
+    public UserModel(String userId, String name, String email, String mobile, String password, String photoUrl, String deviceToken, String nickNme, String bio, String tag, boolean isVerified, boolean isOnline, boolean isStopped, String deviceId, String stopNote, Gender gender, String country, String city, long lastSignInTimestamp, UserType userType,AuthMethod authMethod,String createdAt,String notificationToken,String otherDate,List<String> allowedPermissions) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -44,6 +45,7 @@ public class UserModel extends UserId {
         this.city = city;
         this.lastSignInTimestamp = lastSignInTimestamp;
         this.userType = userType;
+        this.authMethod = authMethod;
         this.createdAt = createdAt;
         this.notificationToken = notificationToken;
         this.otherDate = otherDate;
@@ -227,6 +229,14 @@ public class UserModel extends UserId {
 
     public void setUserType(UserType userType) {
         this.userType = userType;
+    }
+
+    public AuthMethod getAuthMethod() {
+        return authMethod;
+    }
+
+    public void setAuthMethod(AuthMethod authMethod) {
+        this.authMethod = authMethod;
     }
 
     public String getCreatedAt() {

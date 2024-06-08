@@ -46,7 +46,7 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 
         binding.btMore.setVisibility(View.GONE);
 
-        if ((BuildConfig.FLAVOR.equals("hudhudfm_google_play") && !BuildConfig.DEBUG)) {
+        if ((BuildConfig.FLAVOR.equals("hudhudfm_google_play"))) {
             binding.lytCommentParent.setVisibility(View.GONE);
         }
 
