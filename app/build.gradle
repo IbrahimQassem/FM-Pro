@@ -13,6 +13,15 @@ if (keystorePropertiesFile.exists()) {
 
 android {
 
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
     compileSdk 34
 
     defaultConfig {
@@ -39,6 +48,7 @@ android {
             shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 
@@ -76,8 +86,8 @@ android {
         hudhudfm_google_play {
             dimension 'fm_flavor'
             applicationId "com.sana.dev.fm"
-            versionCode 22
-            versionName "2.0.2"
+            versionCode 23
+            versionName "2.0.3"
 //            signingConfig signingConfigs.debug
             buildConfigField "String", "BASE_FB_DB", '"HudHudFmGooglePlay"'
         }

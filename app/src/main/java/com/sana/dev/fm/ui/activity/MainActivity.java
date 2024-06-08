@@ -241,7 +241,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
                         // Log and toast
                         String msg = "FCM Registration token: " + token;
                         Log.d(TAG, msg);
-                        PreferencesManager.getInstance().write(AppConstant.General.FIREBASE_FCM_TOKEN,token);
+                        PreferencesManager.getInstance().write(AppConstant.General.FIREBASE_FCM_TOKEN, token);
                     }
                 });
         // [END log_reg_token]
@@ -493,6 +493,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         } else {
             lyt_add_program.setVisibility(View.GONE);
             lyt_add_episode.setVisibility(View.GONE);
+            lyt_update_episode.setVisibility(View.GONE);
             lyt_update_radio.setVisibility(View.GONE);
         }
 
