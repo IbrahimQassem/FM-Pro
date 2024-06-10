@@ -127,6 +127,7 @@ public class VerificationPhone extends BaseActivity {
                 UserModel _userModel = (UserModel) object;
                 // cause user logged with phone auth
                 _userModel.setVerified(true);
+                _userModel.setAuthMethod(AuthMethod.SMS);
                 prefMgr.setUserSession(_userModel);
                 showToast(getString(R.string.login_successfully));
                 startActivity(intent);

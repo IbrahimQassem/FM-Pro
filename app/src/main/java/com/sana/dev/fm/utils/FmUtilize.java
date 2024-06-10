@@ -938,6 +938,38 @@ public class FmUtilize {
 //        return context.getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(AppConstant.General.FIREBASE_FCM_TOKEN, null);
     }
 
+    public static Bitmap resizeImage(Context context, int resourceId, int targetWidth, int targetHeight) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true; // Only decode bounds, not full image data
+        BitmapFactory.decodeResource(context.getResources(), resourceId, options);
+
+        // Calculate the sample size based on target dimensions
+        int sampleSize = calculateInSampleSize(options, targetWidth, targetHeight);
+
+        // Decode the image with the calculated sample size
+        options.inJustDecodeBounds = false;
+        options.inSampleSize = sampleSize;
+        return BitmapFactory.decodeResource(context.getResources(), resourceId, options);
+    }
+
+    public static int calculateInSampleSize(BitmapFactory.Options options, int targetWidth, int targetHeight) {
+        int originalWidth = options.outWidth;
+        int originalHeight = options.outHeight;
+
+        int inSampleSize = 1;
+
+        if (originalHeight > targetHeight || originalWidth > targetWidth) {
+            int halfWidth = originalWidth / 2;
+            int halfHeight = originalHeight / 2;
+
+            while ((halfWidth / inSampleSize) >= targetWidth && (halfHeight / inSampleSize) >= targetHeight) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
 
 //    public boolean checkFieldsIsNull(Object instance, List<String> fieldNames) {
 //

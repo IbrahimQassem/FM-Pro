@@ -107,7 +107,7 @@
     <string name="female">Female</string>
     <string name="male">Male</string>
     <string name="phone_number">Mobile nomber</string>
-    <string name="image_desc">fm_radio_post_%s.png</string>
+    <string name="image_desc" translatable="false">fm_radio_post_%s.png</string>
     <string name="logout">Logout</string>
     <string name="saved_successfully">Saved successfully</string>
     <string name="no_data_available">No available data</string>
@@ -241,7 +241,9 @@
     <string name="label_error_occurred_with_val">Error occurred (%s)</string>
     <string name="label_login">Login</string>
     <string name="label_login_via_google">Login via Google</string>
-
+    <string name="label_week_days">أيام الأسبوع</string>
+    <string name="label_set_time">تحديد الوقت</string>
+<!--label_weke_days-->
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 
 </resources>

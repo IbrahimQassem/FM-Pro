@@ -80,7 +80,6 @@
     <string name="female">أنثى</string>
     <string name="male">ذكر</string>
     <string name="phone_number">رقم الموبايل</string>
-    <string name="image_desc">fm_radio_post_%s.png</string>
     <string name="logout">تسجيل الخروج</string>
     <string name="saved_successfully">تم الحفظ بنجاح</string>
     <string name="no_data_available">البيانات غير متوفرة</string>
@@ -211,5 +210,7 @@
     <string name="label_error_occurred_with_val">حدث خطأ (%s)</string>
     <string name="label_login">تسجيل الدخول</string>
     <string name="label_login_via_google">قوقل</string>
+    <string name="label_week_days">أيام الأسبوع</string>
+    <string name="label_set_time">تحديد الوقت</string>
 
 </resources>

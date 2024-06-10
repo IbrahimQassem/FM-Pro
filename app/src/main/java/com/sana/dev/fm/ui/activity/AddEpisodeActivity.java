@@ -1,7 +1,6 @@
 package com.sana.dev.fm.ui.activity;
 
 
-import static com.sana.dev.fm.ui.activity.ImagePickerActivity.REQUEST_IMAGE;
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 import static com.sana.dev.fm.utils.FmUtilize.random;
 import static com.sana.dev.fm.utils.FmUtilize.setTimeFormat;
@@ -9,18 +8,14 @@ import static com.sana.dev.fm.utils.FmUtilize.stringTimeToMillis;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysEn;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -28,7 +23,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,10 +40,6 @@ import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityAddEpisodeBinding;
 import com.sana.dev.fm.model.ButtonConfig;
@@ -74,7 +64,6 @@ import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -83,13 +72,11 @@ import java.util.Locale;
 import java.util.Stack;
 
 
-
-
 public class AddEpisodeActivity extends BaseActivity {
 
     private final String TAG = AddEpisodeActivity.class.getSimpleName();
     private ActivityAddEpisodeBinding binding;
-    
+
 
     int stSelected = 0;
     int prSelected = 0;
@@ -128,7 +115,7 @@ public class AddEpisodeActivity extends BaseActivity {
         binding = ActivityAddEpisodeBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-        
+
 
         ePoRepo = new FmEpisodeCRUDImpl(this, com.sana.dev.fm.utils.AppConstant.Firebase.EPISODE_TABLE);
         prefMgr = PreferencesManager.getInstance();
@@ -141,7 +128,7 @@ public class AddEpisodeActivity extends BaseActivity {
         initEditView();
 //        setDisplayDayChips();
 
-      binding.buttonAdd.setOnClickListener(new View.OnClickListener() {
+        binding.buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addView();
@@ -190,19 +177,15 @@ public class AddEpisodeActivity extends BaseActivity {
     private void initClickEvent() {
 
 
-        binding.imgLogo.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener onClickListenerImg = new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                onProfileImageClick();
+            public void onClick(View view) {
+                showImagePickerOptions();
             }
-        });
+        };
+        binding.imgLogo.setOnClickListener(onClickListenerImg);
 
-        binding.tvAddLogo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onProfileImageClick();
-            }
-        });
+        binding.tvAddLogo.setOnClickListener(onClickListenerImg);
 
         binding.ivClear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -238,7 +221,7 @@ public class AddEpisodeActivity extends BaseActivity {
             binding.etStation.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير القناة الإذاعية في حالة تحديث بيانات البرنامج",  new ButtonConfig(getString(R.string.label_cancel)), null);
+                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير القناة الإذاعية في حالة تحديث بيانات البرنامج", new ButtonConfig(getString(R.string.label_cancel)), null);
                     showWarningDialog(config);
                 }
             });
@@ -246,7 +229,7 @@ public class AddEpisodeActivity extends BaseActivity {
             binding.etProgram.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير إسم البرنامج في حالة تحديث بيانات البرنامج",  new ButtonConfig(getString(R.string.label_cancel)), null);
+                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير إسم البرنامج في حالة تحديث بيانات البرنامج", new ButtonConfig(getString(R.string.label_cancel)), null);
                     showWarningDialog(config);
                 }
             });
@@ -273,9 +256,9 @@ public class AddEpisodeActivity extends BaseActivity {
 //            programId = program.getProgramId();
 
 
-          binding.titEpName.setText(epName);
+            binding.titEpName.setText(epName);
             binding.titEpAnnouncer.setText(epAnnouncer);
-          binding.titEpDesc.setText(epDesc);
+            binding.titEpDesc.setText(epDesc);
 //           RadioInfo ri = radioInfo.findRadio(radioId,ShardDate.getInstance().getInfoList());
             binding.etStation.setText(radioInfo.getName());
             binding.etProgram.setText(programName);
@@ -570,7 +553,7 @@ public class AddEpisodeActivity extends BaseActivity {
         datePicker.vibrate(true);
         datePicker.setLocale(Locale.ENGLISH);
         datePicker.setAccentColor(getResources().getColor(R.color.colorPrimary));
-        datePicker.show(getSupportFragmentManager(), "تحديد الوقت");
+        datePicker.show(getSupportFragmentManager(), getString(R.string.label_set_time));
     }
 
     private void dialogDatePickerLight(final TextView tv) {
@@ -662,7 +645,7 @@ public class AddEpisodeActivity extends BaseActivity {
     private void loadRadioProgram(String RadioId) {
 
         FmProgramCRUDImpl rpRepo = new FmProgramCRUDImpl(this, com.sana.dev.fm.utils.AppConstant.Firebase.RADIO_PROGRAM_TABLE);
-        rpRepo.queryAllBy(RadioId,null, new CallBack() {
+        rpRepo.queryAllBy(RadioId, null, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 if (isCollection(object)) {
@@ -683,16 +666,15 @@ public class AddEpisodeActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE) {
+        if (requestCode == ImagePickerActivity.REQUEST_IMAGE) {
             if (resultCode == Activity.RESULT_OK) {
-                imageUri = data.getParcelableExtra("path");
+                imageUri = data.getParcelableExtra(ImagePickerActivity.INTENT_IMAGE_PATH);
                 try {
                     // You can update this bitmap to your server
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-
+//                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
                     // loading profile image from local cache
                     loadProfile(imageUri);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -700,14 +682,11 @@ public class AddEpisodeActivity extends BaseActivity {
     }
 
     private void loadProfile(Uri imageUri) {
-
-
         Log.d(TAG, "Image cache path: " + imageUri.toString());
-
-       binding.tvAddLogo.setVisibility(View.GONE);
+        binding.tvAddLogo.setVisibility(View.GONE);
         binding.linFile.setVisibility(View.VISIBLE);
         String dd = FmUtilize.getFileName(imageUri, this);
-      binding.tieFilename.setText(dd);
+        binding.tieFilename.setText(dd);
 
         Tools.displayImageOriginal(this, binding.imgLogo, imageUri.toString());
         binding.imgLogo.setColorFilter(ContextCompat.getColor(this, android.R.color.transparent));
@@ -723,34 +702,13 @@ public class AddEpisodeActivity extends BaseActivity {
 
     public void clearImg() {
         binding.tvAddLogo.setVisibility(View.VISIBLE);
-       binding.linFile.setVisibility(View.GONE);
-       binding.imgLogo.setImageBitmap(null);
+        binding.linFile.setVisibility(View.GONE);
+        binding.imgLogo.setImageBitmap(null);
         imageUri = null;
         binding.tieFilename.setText(null);
         loadProfileDefault();
     }
 
-    void onProfileImageClick() {
-        Dexter.withContext(this)
-                .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .withListener(new MultiplePermissionsListener() {
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport report) {
-                        if (report.areAllPermissionsGranted()) {
-                            showImagePickerOptions();
-                        }
-
-                        if (report.isAnyPermissionPermanentlyDenied()) {
-                            showSettingsDialog();
-                        }
-                    }
-
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List<com.karumi.dexter.listener.PermissionRequest> list, PermissionToken permissionToken) {
-                        permissionToken.continuePermissionRequest();
-                    }
-                }).check();
-    }
 
     private void showImagePickerOptions() {
         ImagePickerActivity.showImagePickerOptions(this, new ImagePickerActivity.PickerOptionListener() {
@@ -764,32 +722,6 @@ public class AddEpisodeActivity extends BaseActivity {
                 launchGalleryIntent();
             }
         });
-    }
-
-    /**
-     * Showing Alert Dialog with Settings option
-     * Navigates user to app settings
-     * NOTE: Keep proper title and message depending on your app
-     */
-    private void showSettingsDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(AddEpisodeActivity.this);
-        builder.setTitle(getString(R.string.dialog_permission_title));
-        builder.setMessage(getString(R.string.dialog_permission_message));
-        builder.setPositiveButton(getString(R.string.go_to_settings), (dialog, which) -> {
-            dialog.cancel();
-            openSettings();
-        });
-        builder.setNegativeButton(getString(android.R.string.cancel), (dialog, which) -> dialog.cancel());
-        builder.show();
-
-    }
-
-    // navigating user to app settings
-    private void openSettings() {
-        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        Uri uri = Uri.fromParts("package", getPackageName(), null);
-        intent.setData(uri);
-        startActivityForResult(intent, 101);
     }
 
     private void launchCameraIntent() {
@@ -806,7 +738,7 @@ public class AddEpisodeActivity extends BaseActivity {
         intent.putExtra(ImagePickerActivity.INTENT_BITMAP_MAX_WIDTH, 1000);
         intent.putExtra(ImagePickerActivity.INTENT_BITMAP_MAX_HEIGHT, 1000);
 
-        startActivityForResult(intent, REQUEST_IMAGE);
+        startActivityForResult(intent, ImagePickerActivity.REQUEST_IMAGE);
     }
 
     private void launchGalleryIntent() {
@@ -817,7 +749,7 @@ public class AddEpisodeActivity extends BaseActivity {
         intent.putExtra(ImagePickerActivity.INTENT_LOCK_ASPECT_RATIO, true);
         intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_X, 1); // 16x9, 1x1, 3:4, 3:2
         intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_Y, 1);
-        startActivityForResult(intent, REQUEST_IMAGE);
+        startActivityForResult(intent, ImagePickerActivity.REQUEST_IMAGE);
     }
 
 
@@ -879,9 +811,9 @@ public class AddEpisodeActivity extends BaseActivity {
 
         if (showTimeList.size() == 0) {
             result = false;
-            Toast.makeText(this, "  تأكد من إضافة جميع البيانات بشكل صحيح ! " + getEmojiByUnicode(unicode), Toast.LENGTH_SHORT).show();
+            showToast("  تأكد من إضافة جميع البيانات بشكل صحيح ! " + getEmojiByUnicode(unicode));
         } else if (!result) {
-            Toast.makeText(this, "تأكد من إدخال البيانات بشكل صحيح !", Toast.LENGTH_SHORT).show();
+            showToast("تأكد من إدخال البيانات بشكل صحيح !");
         }
 
 //        dateTimeModel.setDisplayDays(translateWakeDaysEn(selectedDays));
@@ -907,7 +839,7 @@ public class AddEpisodeActivity extends BaseActivity {
         CharSequence[] charSequenceArr = arList.toArray(new CharSequence[arList.size()]);
 //        final CharSequence[] charSequenceArr = new String[]{"Arizona", "California", "Florida", "Massachusetts", "New York", "Washington"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle((CharSequence) "أيام الأسبوع");
+        builder.setTitle((CharSequence) getString(R.string.label_week_days));
         builder.setSingleChoiceItems(charSequenceArr, -1, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialogInterface, int i) {
                 ((TextView) view).setText(charSequenceArr[i]);

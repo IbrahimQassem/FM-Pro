@@ -42,8 +42,7 @@ import butterknife.ButterKnife;
  * Created by  on 19.01.15.
  */
 public class BaseActivity extends AppCompatActivity implements BaseView {
-
-    private static final String TAG = BaseActivity.class.getSimpleName();
+//    private static final String TAG = BaseActivity.class.getSimpleName();
 
     public PreferencesManager prefMgr;
     public AppRemoteConfig remoteConfig;

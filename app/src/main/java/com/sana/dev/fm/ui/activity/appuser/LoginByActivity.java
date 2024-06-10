@@ -140,7 +140,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
         UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.GOOGLE, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
         userModel.setVerified(true);
         prefMgr.setUserSession(userModel);
-        showToast(getString(R.string.login_successfully));
+//        showToast(getString(R.string.login_successfully));
 
         updateUI(firebaseUser, userModel);
 //        showToast("User signed in with Google: " + account.getEmail());
@@ -313,7 +313,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
                             UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.FACEBOOK, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
                             userModel.setVerified(true);
                             prefMgr.setUserSession(userModel);
-                            showToast(getString(R.string.login_successfully));
+//                            showToast(getString(R.string.login_successfully));
 
                             updateUI(firebaseUser, userModel);
                         } else {
@@ -348,9 +348,11 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
 
                     if (providerId.equals("facebook.com")) {
                         // User signed in using Facebook
+                        userModel.setAuthMethod(AuthMethod.FACEBOOK);
                         checkUserAuth(userModel);
                     } else if (providerId.equals("google.com")) {
                         // User signed in using Google
+                        userModel.setAuthMethod(AuthMethod.GOOGLE);
                         checkUserAuth(userModel);
                     } else if (providerId.equals("password")) {
                         // User signed in using email and password

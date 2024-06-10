@@ -1,21 +1,15 @@
 package com.sana.dev.fm.ui.activity;
 
-
-import static com.sana.dev.fm.ui.activity.ImagePickerActivity.REQUEST_IMAGE;
 import static com.sana.dev.fm.utils.AppConstant.Firebase.RADIO_PROGRAM_TABLE;
 import static com.sana.dev.fm.utils.FmUtilize.getWeekDayNames;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysEn;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.provider.Settings;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -37,10 +31,6 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityAddProgramBinding;
 import com.sana.dev.fm.model.DateTimeModel;
@@ -59,7 +49,6 @@ import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -113,19 +102,15 @@ public class AddProgramActivity extends BaseActivity {
             }
         });
 
-        binding.imgLogo.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener onClickListenerImg = new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                onProfileImageClick();
+            public void onClick(View view) {
+                showImagePickerOptions();
             }
-        });
+        };
+        binding.imgLogo.setOnClickListener(onClickListenerImg);
 
-        binding.tvAddLogo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onProfileImageClick();
-            }
-        });
+        binding.tvAddLogo.setOnClickListener(onClickListenerImg);
 
         binding.ivClear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -453,27 +438,6 @@ public class AddProgramActivity extends BaseActivity {
 
     }
 
-    void onProfileImageClick() {
-        Dexter.withContext(this)
-                .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .withListener(new MultiplePermissionsListener() {
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport report) {
-                        if (report.areAllPermissionsGranted()) {
-                            showImagePickerOptions();
-                        }
-
-                        if (report.isAnyPermissionPermanentlyDenied()) {
-                            showSettingsDialog();
-                        }
-                    }
-
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List<com.karumi.dexter.listener.PermissionRequest> list, PermissionToken permissionToken) {
-                        permissionToken.continuePermissionRequest();
-                    }
-                }).check();
-    }
 
     private void showImagePickerOptions() {
         ImagePickerActivity.showImagePickerOptions(this, new ImagePickerActivity.PickerOptionListener() {
@@ -503,7 +467,7 @@ public class AddProgramActivity extends BaseActivity {
         intent.putExtra(ImagePickerActivity.INTENT_BITMAP_MAX_WIDTH, 1000);
         intent.putExtra(ImagePickerActivity.INTENT_BITMAP_MAX_HEIGHT, 1000);
 
-        startActivityForResult(intent, REQUEST_IMAGE);
+        startActivityForResult(intent, ImagePickerActivity.REQUEST_IMAGE);
     }
 
     private void launchGalleryIntent() {
@@ -514,55 +478,26 @@ public class AddProgramActivity extends BaseActivity {
         intent.putExtra(ImagePickerActivity.INTENT_LOCK_ASPECT_RATIO, true);
         intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_X, 1); // 16x9, 1x1, 3:4, 3:2
         intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_Y, 1);
-        startActivityForResult(intent, REQUEST_IMAGE);
+        startActivityForResult(intent, ImagePickerActivity.REQUEST_IMAGE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE) {
+        if (requestCode == ImagePickerActivity.REQUEST_IMAGE) {
             if (resultCode == Activity.RESULT_OK) {
-                imageUri = data.getParcelableExtra("path");
+                imageUri = data.getParcelableExtra(ImagePickerActivity.INTENT_IMAGE_PATH);
                 try {
                     // You can update this bitmap to your server
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-
+//                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
                     // loading profile image from local cache
                     loadProfile(imageUri);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
     }
-
-    /**
-     * Showing Alert Dialog with Settings option
-     * Navigates user to app settings
-     * NOTE: Keep proper title and message depending on your app
-     */
-    private void showSettingsDialog() {
-        Builder builder = new Builder(AddProgramActivity.this);
-        builder.setTitle(getString(R.string.dialog_permission_title));
-        builder.setMessage(getString(R.string.dialog_permission_message));
-        builder.setPositiveButton(getString(R.string.go_to_settings), (dialog, which) -> {
-            dialog.cancel();
-            openSettings();
-        });
-        builder.setNegativeButton(getString(android.R.string.cancel), (dialog, which) -> dialog.cancel());
-        builder.show();
-
-    }
-
-
-    // navigating user to app settings
-    private void openSettings() {
-        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        Uri uri = Uri.fromParts("package", getPackageName(), null);
-        intent.setData(uri);
-        startActivityForResult(intent, 101);
-    }
-
 
     private void dialogDatePickerLight(final TextView tv, OnCallbackDate clickListener) {
         Calendar cur_calender = Calendar.getInstance();

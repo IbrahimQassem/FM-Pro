@@ -1,10 +1,12 @@
 package com.sana.dev.fm.ui.activity.appuser;
 
 
+import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -13,7 +15,10 @@ import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.EditText;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.core.content.ContextCompat;
 
@@ -33,32 +38,27 @@ import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityUserProfileBinding;
+import com.sana.dev.fm.model.AuthMethod;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Gender;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.ui.activity.BaseActivity;
+import com.sana.dev.fm.ui.activity.ImagePickerActivity;
 import com.sana.dev.fm.utils.AESCrypt;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
-import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FmUserCRUDImpl;
-import com.yalantis.ucrop.UCrop;
-
-import java.io.File;
 
 
 public class UserProfileActivity extends BaseActivity {
     public static final int PICK_IMAGE = 100;
-
     private final String TAG = UserProfileActivity.class.getSimpleName();
-
     ActivityUserProfileBinding binding;
-
     private FirebaseAuth mAuth;
 //    private String userId, name, email, mobile, password, photoUrl, token, nickNme, bio, tag, deviceId, stopNote, country, city;
 
@@ -68,6 +68,9 @@ public class UserProfileActivity extends BaseActivity {
 //    private UserModel _userModel;
     private FmUserCRUDImpl fmRepo;
 
+//    private ProfileImageHelper profileImageHelper;
+
+    private Uri imageUri = null;
 
     /* Access modifiers changed, original: protected */
     public void onCreate(Bundle bundle) {
@@ -83,20 +86,76 @@ public class UserProfileActivity extends BaseActivity {
         mAuth.setLanguageCode(PreferencesManager.getInstance().getPrefLange());
         // [END initialize_auth]
         prefMgr = PreferencesManager.getInstance();
+//        profileImageHelper = new ProfileImageHelper(this);
+
 
         initToolbar();
         init();
+
     }
 
-    private void init() {
+/*    private void initEvent() {
 
+        binding.includeToolbar.imbClose.setOnClickListener(v -> finishThisActivity());
+
+        binding.etData.setOnClickListener(view -> {
+            PermissionListener permissionlistener = new PermissionListener() {
+                @Override
+                public void onPermissionGranted() {
+                    Intent intent = new Intent(Intent.ACTION_PICK);
+                    intent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
+                    selectContactActivityResult.launch(intent);
+                }
+
+                @Override
+                public void onPermissionDenied(List<String> deniedPermissions) {
+
+                }
+            };
+
+            TedPermission.create()
+                    .setPermissionListener(permissionlistener)
+                    .setDeniedMessage(getString(R.string.message_required_contacts_permission))
+                    .setPermissions(Manifest.permission.READ_CONTACTS)
+                    .setGotoSettingButtonText(getString(R.string.label_settings))
+                    .setDeniedCloseButtonText(getString(R.string.close))
+                    .check();
+        });
+
+
+    }*/
+
+    ActivityResultLauncher<Intent> selectContactActivityResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                Log.d("contact_test", "result code: " + result.getResultCode());
+
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    try {
+                        Uri contactData = result.getData().getData();
+                        Cursor c = getContentResolver().query(contactData, null, null, null, null);
+                        if (c.moveToFirst()) {
+                            String number = c.getString(c.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER));
+//                            binding.etData.setText(Utils.cleanMobileNumber(number));
+                        }
+                    } catch (Exception ex) {
+                    }
+
+                }
+            });
+
+
+    private void init() {
         // Todo fix
         if (prefMgr.getUserSession() != null) {
+
+            binding.lytParentPass.setVisibility(View.GONE);
+            binding.lytParentCity.setVisibility(View.GONE);
+
             UserModel _userModel = prefMgr.getUserSession();
-            LogUtility.d(LogUtility.TAG, " UserSession : " + new Gson().toJson(_userModel));
+            Log.d(TAG, " UserSession : " + new Gson().toJson(_userModel));
             binding.tvLabelUserName.setText(_userModel.getName());
             binding.tvLabelUserEmail.setText(_userModel.getEmail());
-            binding.tvLabelUserMobile.setText(_userModel.getMobile());
+            binding.tvLabelUserMobile.setText(FmUtilize.trimMobileCode(_userModel.getMobile()));
 
             binding.etFullName.setText(_userModel.getName());
             binding.etEmail.setText(_userModel.getEmail());
@@ -105,7 +164,7 @@ public class UserProfileActivity extends BaseActivity {
             try {
                 binding.etPassword.setText(AESCrypt.decrypt(_userModel.getPassword()));
             } catch (Exception e) {
-                LogUtility.e(TAG, e.toString());
+                Log.e(TAG, e.toString());
             }
 
             Gender gender = _userModel.getGender() != null ? _userModel.getGender() : Gender.UNKNOWN;
@@ -118,8 +177,11 @@ public class UserProfileActivity extends BaseActivity {
 //            Tools.setTextOrHideIfEmpty(binding.etMobile, null);
 //            Tools.setTextOrHideIfEmpty(binding.etEmail, null);
 
-            disableEditText(binding.etMobile);
-            disableEditText(binding.etEmail);
+            if (_userModel.getAuthMethod() != null && _userModel.getAuthMethod().equals(AuthMethod.SMS)) {
+                disableEditText(binding.etMobile);
+            } else if (_userModel.getAuthMethod() != null && _userModel.getAuthMethod().equals(AuthMethod.EMAIL)) {
+                disableEditText(binding.etEmail);
+            }
 
             if (URLUtil.isValidUrl(_userModel.getPhotoUrl()))
                 Tools.displayUserProfile(this, binding.imgProfile, _userModel.getPhotoUrl());
@@ -133,51 +195,10 @@ public class UserProfileActivity extends BaseActivity {
         binding.rtlImgParent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onImageSelect(view);
+//                profileImageHelper.onImageSelect();
+                showImagePickerOptions();
             }
         });
-
-//        binding.rgGender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-//            public void onCheckedChanged(RadioGroup group, int checkedId) {
-//                switch (checkedId) {
-//                    case R.id.radio_male:
-//                        // do operations specific to this selection
-//                        gender = Gender.MALE;
-//                        break;
-//                    case R.id.radio_female:
-//                        // do operations specific to this selection
-//                        gender = Gender.FEMALE;
-//                        break;
-//                }
-//            }
-//        });
-
-//        if (!FmUtilize.isEmpty(_userModel.getMobile()))
-//            binding.etMobile.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    showToast(getString(R.string.mobile_cant_edited));
-//                }
-//            });
-//
-//        if (!FmUtilize.isEmpty(_userModel.getEmail()))
-//            binding.etEmail.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    showToast(getString(R.string.mobile_cant_edited));
-//                }
-//            });
-//
-//        binding.etPassword.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                try {
-//                    showToast(AESCrypt.decrypt(_userModel.getPassword()));
-//                } catch (Exception e) {
-//                    LogUtility.e(TAG, e.toString());
-//                }
-//            }
-//        });
 
 
         //assign the image in code (or you can do this in your layout xml with the src attribute)
@@ -185,7 +206,6 @@ public class UserProfileActivity extends BaseActivity {
 
 //set the click listener
         binding.ibPass.setOnClickListener(new View.OnClickListener() {
-
             public void onClick(View button) {
                 try {
                     //Set the button's appearance
@@ -194,16 +214,14 @@ public class UserProfileActivity extends BaseActivity {
                     if (button.isSelected()) {
                         //Handle selected state change
                         binding.ibPass.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_visibility));
-//                        binding.etPassword.setText(AESCrypt.decrypt(_userModel.getPassword()));
                         binding.etPassword.setTransformationMethod(null);
                     } else {
                         //Handle de-select state change
                         binding.ibPass.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_visibility_off));
-//                        binding.etPassword.setText(AESCrypt.encrypt(_userModel.getPassword()));
                         binding.etPassword.setTransformationMethod(new PasswordTransformationMethod());
                     }
                 } catch (Exception e) {
-                    LogUtility.printStackTrace(e);
+                   e.printStackTrace();
                 }
             }
         });
@@ -223,47 +241,6 @@ public class UserProfileActivity extends BaseActivity {
         editText.setKeyListener(null);
 //        editText.setBackgroundColor(Color.TRANSPARENT);
     }
-
-    public void onImageSelect(View view) {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, getString(R.string.click_to_change_image)), PICK_IMAGE);
-    }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE) {
-            if (resultCode == RESULT_OK) {
-                Uri uriImg = data.getData();
-                //start crop activity
-                UCrop.Options options = new UCrop.Options();
-                options.setCompressionFormat(Bitmap.CompressFormat.PNG);
-                options.setCompressionQuality(100);
-                options.setShowCropGrid(true);
-
-                UCrop.of(uriImg, Uri.fromFile(new File(getCacheDir(), String.format(getResources().getString(R.string.image_desc), FmUtilize.random()))))
-                        .withAspectRatio(1, 1)
-                        .withOptions(options)
-                        .start(this);
-
-            }
-        }
-        if (requestCode == UCrop.REQUEST_CROP) {
-            if (resultCode == RESULT_OK) {
-                Uri uriImg = UCrop.getOutput(data);
-//                ivUserProfile.setImageURI(imageUri);
-                Tools.displayUserProfile(getBaseContext(), binding.imgProfile, String.valueOf(uriImg));
-                // Todo upload image
-                uploadUserProfile(uriImg);
-            } else if (resultCode == UCrop.RESULT_ERROR) {
-                Log.e(TAG, "Crop error:" + UCrop.getError(data).getMessage());
-            }
-        }
-    }
-
 
     private void initToolbar() {
         setSupportActionBar(binding.toolbar);
@@ -285,7 +262,7 @@ public class UserProfileActivity extends BaseActivity {
                 startMainActivity();
                 break;
             case R.id.action_pick_image:
-                onImageSelect(binding.imgProfile);
+                showImagePickerOptions();
                 break;
             case R.id.action_delete:
                 ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_warning), getString(R.string.confirm_delete_my_account), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
@@ -397,6 +374,9 @@ public class UserProfileActivity extends BaseActivity {
 //        });
 
         String name = binding.etFullName.getText().toString().trim();
+        String mobile = binding.etMobile.getText().toString().trim();
+        String email = binding.etEmail.getText().toString().trim();
+        String pass = AESCrypt.encrypt(Tools.toString(binding.etPassword));
 
         boolean isUserNameEdite = user.getName().equals(name);
         boolean isGenderEdited = user.getGender() == gender;
@@ -404,13 +384,21 @@ public class UserProfileActivity extends BaseActivity {
             startMainActivity();
         } else {
             user.setName(name);
+            user.setMobile(mobile);
+            user.setEmail(email);
+            user.setPassword(pass);
+
             user.setGender(gender);
             user.setDeviceToken(FmUtilize.getIMEIDeviceId(this));
             user.setNotificationToken(FmUtilize.getFirebaseToken(this));
 //            updateUser(user);
+            Log.d(TAG, "before submit : " + user.toString());
+
             fmRepo.create(user.getUserId(), user, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
+                    Log.d(TAG, "after submit : " + object);
+
                     prefMgr.setUserSession((UserModel) object);
                     showToast(getString(R.string.saved_successfully));
                     startMainActivity();
@@ -425,55 +413,6 @@ public class UserProfileActivity extends BaseActivity {
         }
 
     }
-
-/*
-    private void validateInput() {
-
-        name = binding.etFullName.getText().toString().trim();
-        email = binding.etEmail.getText().toString().trim();
-        mobile = binding.etMobile.getText().toString().trim();
-        password = "";//binding.etPassword.getText().toString().trim();
-
-        if (TextUtils.isEmpty(name)) {
-            showSnackBar(String.format(" %s", getResources().getString(R.string.field_is_required, binding.etFullName.getHint())));
-            binding.etFullName.requestFocus();
-            return;
-        }
-
-//        if (TextUtils.isEmpty(email)) {
-//            showSnackBar(String.format(" %s", getResources().getString(R.string.field_is_required, binding.etMobile.getHint())));
-//            binding.etMobile.requestFocus();
-//            return;
-//        }
-
-        if (TextUtils.isEmpty(mobile)) {
-            showSnackBar(String.format(" %s", getResources().getString(R.string.field_is_required, binding.etMobile.getHint())));
-            binding.etMobile.requestFocus();
-            return;
-        }
-
-//        if (TextUtils.isEmpty(password)) {
-//            showSnackBar(String.format(" %s", getResources().getString(R.string.field_is_required, binding.etPassword.getHint())));
-//            binding.etPassword.requestFocus();
-//            return;
-//        }
-
-        if (binding.rgGender.getCheckedRadioButtonId() == -1) {
-            // no radio buttons  checked
-            showSnackBar(String.format(" %s", getResources().getString(R.string.field_is_required, getResources().getString(R.string.gender))));
-            return;
-        }
-
-////        if (!imageUri.equals(Uri.parse(photoUrl))) {
-//        if (imageUri != null) {
-//            uploadUserProfile();
-//        } else {
-//            updateUser(photoUrl);
-//        }
-
-
-    }
-*/
 
     private void uploadUserProfile(Uri uriImage) {
 //        if (imageUri != null) {
@@ -493,9 +432,13 @@ public class UserProfileActivity extends BaseActivity {
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                 double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                 Log.d(TAG, "Upload is " + progress + "% done");
-                hud.setCancellable(false);
+                showProgress(String.valueOf((int) progress));
+                if (hud != null) {
 //                hud.setMessage(getString(R.string.please_wait) + " % " + (int) progress);
-                hud.setProgress((int) progress);
+//                hud.setProgress((int) progress);
+                    hud.setCancellable(false);
+
+                }
 
             }
         }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
@@ -506,12 +449,12 @@ public class UserProfileActivity extends BaseActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                LogUtility.e(TAG, e.toString());
+                Log.e(TAG, e.toString());
                 // Handle unsuccessful uploads
 //                showToast("نعتذر لم يتم الحفظ !" + e);
                 ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_error_occurred), e.toString(), new ButtonConfig(getString(R.string.label_close)), null);
                 showWarningDialog(config);
-                hud.dismiss();
+                hideProgress();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -534,7 +477,7 @@ public class UserProfileActivity extends BaseActivity {
                         });
                     }
                 }
-                hud.dismiss();
+                hideProgress();
 
             }
         });
@@ -545,7 +488,7 @@ public class UserProfileActivity extends BaseActivity {
         fmRepo.create(prefMgr.getUserSession().getUserId(), model, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                prefMgr.setUserSession( (UserModel) object);
+                prefMgr.setUserSession((UserModel) object);
                 showToast(getString(R.string.done_successfully));
             }
 
@@ -572,4 +515,79 @@ public class UserProfileActivity extends BaseActivity {
         Intent intent = IntentHelper.splashActivity(this, true);
         startActivity(intent);
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+//        Log.e(TAG, "onActivityResult requestCode:"+requestCode+" resultCode:"+resultCode);
+        if (requestCode == ImagePickerActivity.REQUEST_IMAGE) {
+            if (resultCode == Activity.RESULT_OK) {
+                imageUri = data.getParcelableExtra(ImagePickerActivity.INTENT_IMAGE_PATH);
+                try {
+                    // You can update this bitmap to your server
+//                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                    // loading profile image from local cache
+                    loadProfile(imageUri);
+                    uploadUserProfile(imageUri);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
+                }
+            }
+        }
+    }
+
+    private void loadProfile(Uri imageUri) {
+        Log.d(TAG, "Image cache path: " + imageUri.toString());
+//        binding.tvAddLogo.setVisibility(View.GONE);
+//        binding.linFile.setVisibility(View.VISIBLE);
+//        String dd = FmUtilize.getFileName(imageUri, this);
+//        binding.tieFilename.setText(dd);
+
+        Tools.displayUserProfile(this, binding.imgProfile, imageUri.toString());
+        binding.imgProfile.setColorFilter(ContextCompat.getColor(this, android.R.color.transparent));
+    }
+
+    private void showImagePickerOptions() {
+        ImagePickerActivity.showImagePickerOptions(this, new ImagePickerActivity.PickerOptionListener() {
+            @Override
+            public void onTakeCameraSelected() {
+                launchCameraIntent();
+            }
+
+            @Override
+            public void onChooseGallerySelected() {
+                launchGalleryIntent();
+            }
+        });
+    }
+
+    private void launchCameraIntent() {
+        Intent intent = new Intent(UserProfileActivity.this, ImagePickerActivity.class);
+        intent.putExtra(ImagePickerActivity.INTENT_IMAGE_PICKER_OPTION, ImagePickerActivity.REQUEST_IMAGE_CAPTURE);
+
+        // setting aspect ratio
+        intent.putExtra(ImagePickerActivity.INTENT_LOCK_ASPECT_RATIO, true);
+        intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_X, 1); // 16x9, 1x1, 3:4, 3:2
+        intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_Y, 1);
+
+        // setting maximum bitmap width and height
+        intent.putExtra(ImagePickerActivity.INTENT_SET_BITMAP_MAX_WIDTH_HEIGHT, true);
+        intent.putExtra(ImagePickerActivity.INTENT_BITMAP_MAX_WIDTH, 1000);
+        intent.putExtra(ImagePickerActivity.INTENT_BITMAP_MAX_HEIGHT, 1000);
+
+        startActivityForResult(intent, ImagePickerActivity.REQUEST_IMAGE);
+    }
+
+    private void launchGalleryIntent() {
+        Intent intent = new Intent(UserProfileActivity.this, ImagePickerActivity.class);
+        intent.putExtra(ImagePickerActivity.INTENT_IMAGE_PICKER_OPTION, ImagePickerActivity.REQUEST_GALLERY_IMAGE);
+
+        // setting aspect ratio
+        intent.putExtra(ImagePickerActivity.INTENT_LOCK_ASPECT_RATIO, true);
+        intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_X, 1); // 16x9, 1x1, 3:4, 3:2
+        intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_Y, 1);
+        startActivityForResult(intent, ImagePickerActivity.REQUEST_IMAGE);
+    }
+
 }

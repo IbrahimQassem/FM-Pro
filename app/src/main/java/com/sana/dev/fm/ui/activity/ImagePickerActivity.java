@@ -33,6 +33,11 @@ import java.util.List;
 
 public class ImagePickerActivity extends AppCompatActivity {
     private static final String TAG = ImagePickerActivity.class.getSimpleName();
+
+    //    public static final String[] PERMISSIONS = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE;
+    public static final String[] PERMISSIONS = {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
+    public static final String[] PERMISSIONSCAMERA = {Manifest.permission.CAMERA};
+    public static final String[] PERMISSIONSREAD_EXTERNAL_STORAGE = {Manifest.permission.CAMERA};
     public static final String INTENT_IMAGE_PICKER_OPTION = "image_picker_option";
     public static final String INTENT_ASPECT_RATIO_X = "aspect_ratio_x";
     public static final String INTENT_ASPECT_RATIO_Y = "aspect_ratio_Y";
@@ -41,16 +46,13 @@ public class ImagePickerActivity extends AppCompatActivity {
     public static final String INTENT_SET_BITMAP_MAX_WIDTH_HEIGHT = "set_bitmap_max_width_height";
     public static final String INTENT_BITMAP_MAX_WIDTH = "max_width";
     public static final String INTENT_BITMAP_MAX_HEIGHT = "max_height";
-
+    public static final String INTENT_IMAGE_PATH = "imagePath";
     public static final int REQUEST_IMAGE = 100;
-
-
     public static final int REQUEST_IMAGE_CAPTURE = 0;
     public static final int REQUEST_GALLERY_IMAGE = 1;
-
     private boolean lockAspectRatio = false, setBitmapMaxWidthHeight = false;
     private int ASPECT_RATIO_X = 16, ASPECT_RATIO_Y = 9, bitmapMaxWidth = 1000, bitmapMaxHeight = 1000;
-    private int IMAGE_COMPRESSION = 80;
+    private int IMAGE_COMPRESSION = 60;
     public static String fileName;
 
     public interface PickerOptionListener {
@@ -71,8 +73,6 @@ public class ImagePickerActivity extends AppCompatActivity {
         }
 
 
-
-
         ASPECT_RATIO_X = intent.getIntExtra(INTENT_ASPECT_RATIO_X, ASPECT_RATIO_X);
         ASPECT_RATIO_Y = intent.getIntExtra(INTENT_ASPECT_RATIO_Y, ASPECT_RATIO_Y);
         IMAGE_COMPRESSION = intent.getIntExtra(INTENT_IMAGE_COMPRESSION_QUALITY, IMAGE_COMPRESSION);
@@ -82,6 +82,8 @@ public class ImagePickerActivity extends AppCompatActivity {
         bitmapMaxHeight = intent.getIntExtra(INTENT_BITMAP_MAX_HEIGHT, bitmapMaxHeight);
 
         int requestCode = intent.getIntExtra(INTENT_IMAGE_PICKER_OPTION, -1);
+        Log.d(TAG, "onCreate requestCode:" + requestCode + " IMAGE_COMPRESSION:" + IMAGE_COMPRESSION);
+
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
             takeCameraImage();
         } else {
@@ -95,8 +97,8 @@ public class ImagePickerActivity extends AppCompatActivity {
         builder.setTitle(context.getString(R.string.click_to_change_image));
 
         // add a list
-        String[] animals = {context.getString(R.string.lbl_take_camera_picture), context.getString(R.string.lbl_choose_from_gallery)};
-        builder.setItems(animals, (dialog, which) -> {
+        String[] list = {context.getString(R.string.lbl_take_camera_picture), context.getString(R.string.lbl_choose_from_gallery)};
+        builder.setItems(list, (dialog, which) -> {
             switch (which) {
                 case 0:
                     listener.onTakeCameraSelected();
@@ -114,17 +116,13 @@ public class ImagePickerActivity extends AppCompatActivity {
 
     private void takeCameraImage() {
         Dexter.withContext(this)
-                .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .withPermissions(PERMISSIONSCAMERA)
                 .withListener(new MultiplePermissionsListener() {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
                         if (report.areAllPermissionsGranted()) {
                             fileName = System.currentTimeMillis() + ".jpg";
-                            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, getCacheImagePath(fileName));
-                            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                            }
+                            openCamera();
                         }
                     }
 
@@ -137,9 +135,17 @@ public class ImagePickerActivity extends AppCompatActivity {
                 }).check();
     }
 
+    private void openCamera() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, getCacheImagePath(fileName));
+            ImagePickerActivity.this.startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
     private void chooseImageFromGallery() {
         Dexter.withContext(this)
-                .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .withPermissions(PERMISSIONSREAD_EXTERNAL_STORAGE)
                 .withListener(new MultiplePermissionsListener() {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
@@ -162,6 +168,8 @@ public class ImagePickerActivity extends AppCompatActivity {
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult requestCode:" + requestCode + " resultCode:" + resultCode);
+
         switch (requestCode) {
             case REQUEST_IMAGE_CAPTURE:
                 if (resultCode == RESULT_OK) {
@@ -198,9 +206,11 @@ public class ImagePickerActivity extends AppCompatActivity {
     private void cropImage(Uri sourceUri) {
         Uri destinationUri = Uri.fromFile(new File(getCacheDir(), queryName(getContentResolver(), sourceUri)));
         UCrop.Options options = new UCrop.Options();
+//        options.setToolbarTitle(getString(R.string.edite_photo));
         options.setCompressionQuality(IMAGE_COMPRESSION);
         options.setToolbarColor(ContextCompat.getColor(this, R.color.colorPrimary));
         options.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimary));
+//        options.sette(ContextCompat.getColor(this, R.color.colorPrimary));
 //        options.setActiveWidgetColor(ContextCompat.getColor(this, R.color.colorPrimary));
 
         if (lockAspectRatio)
@@ -225,7 +235,7 @@ public class ImagePickerActivity extends AppCompatActivity {
 
     private void setResultOk(Uri imagePath) {
         Intent intent = new Intent();
-        intent.putExtra("path", imagePath);
+        intent.putExtra(INTENT_IMAGE_PATH, imagePath);
         setResult(Activity.RESULT_OK, intent);
         finish();
     }
