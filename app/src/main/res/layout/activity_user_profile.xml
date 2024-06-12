@@ -60,7 +60,7 @@
                             android:scaleType="centerInside"
                             android:tint="@color/colorPrimary"
                             app:civ_border="true"
-                            app:civ_border_color="@color/colorAccentDark"
+                            app:civ_border_color="@color/colorPrimaryLight"
                             app:civ_border_width="1dp"
                             app:srcCompat="@drawable/ic_person" />
 
@@ -70,7 +70,7 @@
                             android:layout_alignBottom="@id/img_profile"
                             android:layout_alignParentStart="true"
                             android:layout_alignParentBottom="true"
-                            android:tint="@color/fab_color_shadow"
+                            android:tint="@color/colorAccent"
                             app:srcCompat="@drawable/ic_photo_camera"
                             tools:ignore="UseAppTint" />
 
@@ -180,7 +180,7 @@
                             android:background="@color/transparent"
                             android:padding="@dimen/spacing_middle"
                             app:srcCompat="@drawable/ic_person"
-                            app:tint="@color/colorAccent" />
+                            app:tint="@color/colorPrimary" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -218,8 +218,8 @@
                             android:layout_height="match_parent"
                             android:background="@color/transparent"
                             android:padding="@dimen/spacing_middle"
-                            app:tint="@color/colorAccent"
-                            app:srcCompat="@drawable/ic_email_black" />
+                            app:srcCompat="@drawable/ic_email_black"
+                            app:tint="@color/colorPrimary" />
                     </LinearLayout>
 
 
@@ -259,8 +259,8 @@
                             android:layout_height="match_parent"
                             android:background="@color/transparent"
                             android:padding="@dimen/spacing_middle"
-                            app:tint="@color/colorAccent"
-                            app:srcCompat="@drawable/ic_smart_phone" />
+                            app:srcCompat="@drawable/ic_smart_phone"
+                            app:tint="@color/colorPrimary" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -300,8 +300,8 @@
                             android:layout_height="match_parent"
                             android:background="@color/transparent"
                             android:padding="@dimen/spacing_middle"
-                            app:tint="@color/colorAccent"
-                            app:srcCompat="@drawable/ic_password" />
+                            app:srcCompat="@drawable/ic_password"
+                            app:tint="@color/colorPrimary" />
                     </LinearLayout>
 
                     <LinearLayout

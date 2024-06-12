@@ -30,4 +30,4 @@
     <!--    style="@style/Widget.MaterialComponents.Chip.Choice"-->
     <!--    android:textAppearance="?android:attr/textAppearance"-->
     <!--    android:textColor="@color/colorPrimary"-->
-    <!--    app:chipBackgroundColor="@color/colorAccent" />-->
+    <!--    app:chipBackgroundColor="@color/colorPrimary" />-->

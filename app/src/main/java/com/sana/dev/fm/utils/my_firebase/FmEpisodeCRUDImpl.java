@@ -15,6 +15,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.AppConstant.Firebase;
 import com.sana.dev.fm.utils.LogUtility;
 
@@ -40,13 +41,13 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
     }
 
     public Query createSimpleQueries(String rdId) {
-        CollectionReference cities = colRef.document(rdId).collection(com.sana.dev.fm.utils.AppConstant.Firebase.EPISODE_TABLE);
+        CollectionReference crf = colRef.document(rdId).collection(AppConstant.Firebase.EPISODE_TABLE);
+        Query populationQuery = crf.whereGreaterThanOrEqualTo("dateTimeModel.dateEnd", /*"1662054250043"*/System.currentTimeMillis());
 
 //        // [START fs_simple_queries]
 //        // [START firestore_query_filter_single_examples]
 //        Query stateQuery = cities.whereEqualTo("state", "CA");
 //        Query populationQuery = cities.whereLessThan("dateTimeModel.dateEnd", System.currentTimeMillis());
-        Query populationQuery = cities.whereGreaterThanOrEqualTo("dateTimeModel.dateEnd", /*"1662054250043"*/System.currentTimeMillis());
 //        // [END firestore_query_filter_single_examples]
 //        // [END fs_simple_queries]
 
@@ -57,7 +58,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
     }
 
     public Query mainQuery(String rdId) {
-        return colRef.document(rdId).collection(com.sana.dev.fm.utils.AppConstant.Firebase.EPISODE_TABLE)
+        return colRef.document(rdId).collection(AppConstant.Firebase.EPISODE_TABLE)
                 .whereGreaterThanOrEqualTo("dateTimeModel.dateEnd", System.currentTimeMillis())
 //                .whereEqualTo("dateTimeModel.dateEnd", System.currentTimeMillis())
 //                .whereEqualTo("dateTimeModel.dateEnd", System.currentTimeMillis())

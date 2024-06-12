@@ -1,25 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?><!--colors.xml-->
 <resources>
 
-    <color name="colorPrimary">#005C78</color>
-    <color name="colorPrimaryDark">#01394A</color>
-    <color name="colorPrimaryLight">#006989</color>
+    <color name="colorPrimary">#006989</color>
+    <color name="colorPrimaryDark">#005C78</color>
+    <color name="colorPrimaryLight">#80006989</color>
 
     <color name="colorAccent">#E88D67</color>
-    <color name="colorAccentDark">#A0360A</color>
-    <color name="colorAccentLight">#F3F7EC</color>
-<!--    <color name="colorAccentLight">#bc477b</color>-->
-
-
-    <color name="fab_color_pressed">#7c43bd</color>
-    <color name="fab_color_shadow">#bc477b</color>
-    <color name="text_like_counter">#7c43bd</color>
 
     <color name="mask_color">#66C2185B</color>
 
-    <color name="primaryTextColor">#4a148c</color>
-    <color name="secondaryTextColor">#880e4f</color>
-
-    <color name="ic_launcher_background">#FFFFFF</color>
 
 </resources>

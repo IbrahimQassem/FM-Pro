@@ -21,6 +21,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListInbox;
+import com.sana.dev.fm.databinding.ActivityAddEpisodeBinding;
+import com.sana.dev.fm.databinding.ActivityListMultiSelectionBinding;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.ui.view.LineItemDecoration;
@@ -38,6 +40,7 @@ public class ListMultiSelection extends BaseActivity {
 
     private static final String TAG = ListMultiSelection.class.getSimpleName();
 
+    ActivityListMultiSelectionBinding binding;
     private ActionMode actionMode;
     private ActionModeCallback actionModeCallback;
     private AdapterListInbox mAdapter;
@@ -63,6 +66,10 @@ public class ListMultiSelection extends BaseActivity {
         super.onCreate(bundle);
         setContentView((int) R.layout.activity_list_multi_selection);
 
+        binding = ActivityListMultiSelectionBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+
         ePiRepo = new FmEpisodeCRUDImpl(this, AppConstant.Firebase.EPISODE_TABLE);
 
 
@@ -82,14 +89,15 @@ public class ListMultiSelection extends BaseActivity {
 
 
     private void initToolbar() {
-        getIvLogo().setText(getString(R.string.main_program_for));
-        getToolbarArrow().setOnClickListener(new View.OnClickListener() {
+        binding.toolbar.tvTitle.setText(getString(R.string.main_program_for));
+        binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
     }
+
 
     private void initComponent(String radioId) {
 

@@ -247,12 +247,12 @@ public class UserProfileActivity extends BaseActivity {
         getSupportActionBar().setTitle(null);
         (binding.toolbar).setNavigationIcon(R.drawable.ic_arrow_back);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        Tools.setSystemBarColor(this, R.color.colorAccent);
+        Tools.setSystemBarColor(this, R.color.colorPrimary);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_notif_setting, menu);
-        Tools.changeMenuIconColor(menu, getResources().getColor(R.color.colorAccent));
+        Tools.changeMenuIconColor(menu, getResources().getColor(R.color.colorPrimary));
         return true;
     }
 

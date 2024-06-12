@@ -229,7 +229,7 @@
                     android:id="@+id/tl_profile_tabs"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="?attr/colorAccent"
+                    android:background="?attr/colorPrimary"
                     app:tabGravity="fill"
                     app:tabIndicatorColor="#5be5ad"
                     app:tabIndicatorHeight="4dp"

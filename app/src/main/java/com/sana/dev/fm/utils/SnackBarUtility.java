@@ -35,7 +35,7 @@ public class SnackBarUtility {
         LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View root = inflater.inflate(R.layout.snackbar_icon_text, null);
         Snackbar make = Snackbar.make(activity.findViewById(android.R.id.content), (CharSequence) "", 2000);
-//        make.getView().setBackgroundColor(ContextCompat.getColor(activity, R.color.colorAccent));
+//        make.getView().setBackgroundColor(ContextCompat.getColor(activity, R.color.colorPrimary));
         Snackbar.SnackbarLayout snackbarLayout = (Snackbar.SnackbarLayout) make.getView();
         snackbarLayout.setPadding(0, 0, 0, 0);
         ((TextView) root.findViewById(R.id.message)).setText(text);
@@ -49,7 +49,7 @@ public class SnackBarUtility {
     protected void displaySnackbar(View view, String s) {
         Snackbar snack = Snackbar.make(view, s, Snackbar.LENGTH_LONG);
         View sbview = snack.getView();
-        sbview.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorAccent));
+        sbview.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorPrimary));
         TextView textView = (TextView) sbview.findViewById(android.R.id.text1);
         textView.setTextColor(activity.getResources().getColor(R.color.colorPrimary));
         snack.show();
@@ -69,7 +69,7 @@ public class SnackBarUtility {
             }
         });
 
-        snack.setActionTextColor(ContextCompat.getColor(activity, R.color.colorAccent));
+        snack.setActionTextColor(ContextCompat.getColor(activity, R.color.colorPrimary));
 //        sbView.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorPrimary));
         snack.show();
     }

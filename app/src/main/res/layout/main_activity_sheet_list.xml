@@ -29,7 +29,7 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/colorAccent"
+                android:tint="@color/colorPrimary"
                 app:srcCompat="@drawable/ic_person_pin"
                 tools:ignore="UseAppTint" />
 
@@ -63,7 +63,7 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/colorAccent"
+                android:tint="@color/colorPrimary"
                 app:srcCompat="@drawable/ic_share"
                 tools:ignore="UseAppTint" />
 
@@ -97,7 +97,7 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/colorAccent"
+                android:tint="@color/colorPrimary"
                 app:srcCompat="@drawable/ic_star"
                 tools:ignore="UseAppTint" />
 
@@ -131,7 +131,7 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/colorAccent"
+                android:tint="@color/colorPrimary"
                 app:srcCompat="@drawable/ic_emoji_objects"
                 tools:ignore="UseAppTint" />
 
@@ -167,7 +167,7 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/colorAccent"
+                android:tint="@color/colorPrimary"
                 app:srcCompat="@drawable/ic_collections_white_24dp"
                 tools:ignore="UseAppTint" />
 
@@ -203,7 +203,7 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/colorAccent"
+                android:tint="@color/colorPrimary"
                 app:srcCompat="@drawable/ic_collections_white_24dp"
                 tools:ignore="UseAppTint" />
 
@@ -240,7 +240,7 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/colorAccent"
+                android:tint="@color/colorPrimary"
                 app:srcCompat="@drawable/ic_settings"
                 tools:ignore="UseAppTint" />
 
@@ -276,7 +276,7 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/colorAccent"
+                android:tint="@color/colorPrimary"
                 app:srcCompat="@drawable/ic_settings"
                 tools:ignore="UseAppTint" />
 
@@ -311,7 +311,7 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/colorAccent"
+                android:tint="@color/colorPrimary"
                 app:srcCompat="@drawable/ic_close"
                 tools:ignore="UseAppTint" />
 

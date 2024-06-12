@@ -34,7 +34,6 @@ import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.ui.activity.BaseActivity;
-import com.sana.dev.fm.ui.activity.RadioListActivity;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
@@ -156,7 +155,6 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
         showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
     }
 
-
     private void initToolbar() {
         binding.toolbar.tvTitle.setText(getString(R.string.label_login));
         binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
@@ -165,7 +163,6 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
                 finish();
             }
         });
-
     }
 
 

@@ -6,6 +6,8 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+
+
     <style name="ContextMenuButton">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -40,7 +42,7 @@
 
     <style name="EditText_Flat_Grey">
         <item name="android:textAppearance">@style/Base.TextAppearance.AppCompat.Subhead</item>
-        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textColor">@color/grey_500</item>
         <item name="android:textColorHint">@color/grey_40</item>
     </style>
 
@@ -53,11 +55,6 @@
         <item name="colorControlNormal">@color/grey_60</item>
         <item name="colorControlActivated">@color/yellow_600</item>
     </style>
-
-    <!--    <style name="Button.Accent" parent="@style/Widget.AppCompat.Button.Colored">-->
-    <!--        <item name="colorButtonNormal">@color/colorAccent</item>-->
-    <!--        <item name="android:textColor">@android:color/white</item>-->
-    <!--    </style>-->
 
     <style name="Button.Primary.Borderless" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:textColor">@color/colorPrimary</item>
@@ -83,7 +80,7 @@
         <item name="colorButtonNormal">@color/colorPrimary</item>
         <item name="colorControlNormal">@color/colorPrimary</item>
         <item name="colorControlActivated">@color/colorPrimary</item>
-        <item name="colorControlHighlight">@color/fab_color_pressed</item>
+<!--        <item name="colorControlHighlight">@color/fab_color_pressed</item>-->
         -
 
         <!-- AppCompat Dialog Attributes -->

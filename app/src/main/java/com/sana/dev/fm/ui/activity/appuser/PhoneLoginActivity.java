@@ -10,6 +10,8 @@ import androidx.appcompat.widget.AppCompatButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.hbb20.CountryCodePicker;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.databinding.ActivityAddEpisodeBinding;
+import com.sana.dev.fm.databinding.ActivityPhoneLoginBinding;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
@@ -17,6 +19,7 @@ import com.sana.dev.fm.utils.Tools;
 
 public class PhoneLoginActivity extends BaseActivity {
 
+    ActivityPhoneLoginBinding binding;
     TextInputEditText editTextPhone;
     CountryCodePicker country_code;
     AppCompatButton buttonContinue;
@@ -25,11 +28,16 @@ public class PhoneLoginActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phone_login);
+
+        binding = ActivityPhoneLoginBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+
         initToolbar();
 
-        country_code = findViewById(R.id.country_code);
-        editTextPhone = findViewById(R.id.editTextPhone);
-        buttonContinue = findViewById(R.id.buttonContinue);
+        country_code = binding.countryCode;
+        editTextPhone = binding.editTextPhone;
+        buttonContinue = binding.buttonContinue;
 
 
         editTextPhone.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
@@ -69,9 +77,8 @@ public class PhoneLoginActivity extends BaseActivity {
 
     private void initToolbar() {
 //        Tools.setSystemBarColor(this, R.color.grey_20);
-
-        setTitle(getString(R.string.label_login_by));
-        getToolbarArrow().setOnClickListener(new View.OnClickListener() {
+        binding.toolbar.tvTitle.setText(getString(R.string.label_login));
+        binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();

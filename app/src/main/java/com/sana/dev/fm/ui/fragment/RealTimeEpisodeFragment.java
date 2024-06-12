@@ -56,16 +56,6 @@ import butterknife.ButterKnife;
  * create an instance of this fragment.
  */
 public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAuth.AuthStateListener {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private static final String TAG = RealTimeEpisodeFragment.class.getSimpleName();
 
 //    private static final CollectionReference sChatCollection =
@@ -98,16 +88,12 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment FirestoreChatFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static RealTimeEpisodeFragment newInstance(String param1, String param2) {
+    public static RealTimeEpisodeFragment newInstance() {
         RealTimeEpisodeFragment fragment = new RealTimeEpisodeFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -115,10 +101,9 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+//        if (getArguments() != null) {
+//            mParam1 = getArguments().getString(ARG_PARAM1);
+//        }
     }
 
     @Override

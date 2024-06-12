@@ -20,6 +20,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListDrag;
+import com.sana.dev.fm.databinding.ActivityListDragBinding;
+import com.sana.dev.fm.databinding.ActivityListMultiSelectionBinding;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
@@ -35,9 +37,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class RadioListActivity extends BaseActivity {
-
     private static final String TAG = RadioListActivity.class.getSimpleName();
 
+    ActivityListDragBinding binding;
     private RecyclerView recyclerView;
     private AdapterListDrag mAdapter;
     private ItemTouchHelper mItemTouchHelper;
@@ -59,6 +61,10 @@ public class RadioListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView((int) R.layout.activity_list_drag);
 
+        binding = ActivityListDragBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+
         fmStationCRUD = new FmStationCRUDImpl(this, AppConstant.Firebase.RADIO_INFO_TABLE);
 
         initToolbar();
@@ -67,8 +73,8 @@ public class RadioListActivity extends BaseActivity {
     }
 
     private void initToolbar() {
-        getIvLogo().setText(getString(R.string.label_radio_list));
-        getToolbarArrow().setOnClickListener(new View.OnClickListener() {
+        binding.toolbar.tvTitle.setText(getString(R.string.label_radio_list));
+        binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();

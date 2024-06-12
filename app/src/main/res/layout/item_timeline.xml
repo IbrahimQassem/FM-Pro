@@ -12,12 +12,12 @@
         android:id="@+id/timeline"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        app:endLineColor="@color/colorAccentLight"
+        app:endLineColor="@color/colorPrimaryLight"
         app:lineStyle="dash"
         app:lineWidth="3dp"
-        app:marker="@color/colorAccent"
+        app:marker="@color/colorPrimary"
         app:markerSize="20dp"
-        app:startLineColor="@color/colorAccentLight" />
+        app:startLineColor="@color/colorPrimaryLight" />
 
     <FrameLayout
         android:layout_width="match_parent"

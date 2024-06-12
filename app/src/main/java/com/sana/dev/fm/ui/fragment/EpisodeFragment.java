@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -63,9 +62,6 @@ public class EpisodeFragment extends BaseFragment {
     ArrayList<RadioInfo> stationList;
     boolean isSearchBarHide = false;
     MaterialIntroView materialIntroView;
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
     private int animation_type = ItemAnimation.BOTTOM_UP;
     private SnackBarUtility sbHelp;
     private View lyt_station;
@@ -155,7 +151,7 @@ public class EpisodeFragment extends BaseFragment {
                     if (callBackListener != null)
                         callBackListener.onCallBack();
 
-                    Toast.makeText(ctx, radioInfo.getName(), Toast.LENGTH_SHORT).show();
+                    showToast(radioInfo.getName());
                 }
 
                 @Override
@@ -236,7 +232,6 @@ public class EpisodeFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-//        Toast.makeText(ctx, "onResume", Toast.LENGTH_SHORT).show();
         updateRecycle();
     }
 

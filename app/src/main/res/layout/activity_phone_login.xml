@@ -158,8 +158,8 @@
                               android:inputType="phone"
                               android:imeOptions="actionDone"
                               android:singleLine="true"
-                              android:textColor="@color/colorAccentDark"
-                              android:textColorHint="@color/colorAccentLight" />
+                              android:textColor="@color/colorPrimaryDark"
+                              android:textColorHint="@color/colorPrimaryLight" />
 
                       </com.google.android.material.textfield.TextInputLayout>
 

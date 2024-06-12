@@ -20,7 +20,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/colorAccentDark"
+                android:background="@color/colorPrimaryDark"
                 android:gravity="center"
                 android:minHeight="120dp"
                 android:orientation="vertical"
@@ -58,7 +58,7 @@
                     android:gravity="center"
                     android:textAlignment="center"
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/colorPrimary"
                     tools:text="@string/lorem_ipsum" />
 
             </LinearLayout>
@@ -77,7 +77,7 @@
                     android:layout_marginStart="@dimen/spacing_middle"
                     android:background="@drawable/btn_round"
                     android:text="@string/label_cancel"
-                    android:textColor="@color/colorAccent" />
+                    android:textColor="@color/colorPrimary" />
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/bt_confirm"

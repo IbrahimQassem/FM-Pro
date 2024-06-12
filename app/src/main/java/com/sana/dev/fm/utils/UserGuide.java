@@ -30,7 +30,6 @@ public class UserGuide implements MaterialIntroListener {
             if (view != null){
                 MaterialIntroView ss = new MaterialIntroView.Builder((Activity) context)
                         .enableDotAnimation(false) //Shows dot animation center of focus area
-//                .setMaskColor(context.getResources().getColor(R.color.fab_color_shadow))
                         .setMaskColor(context.getResources().getColor(R.color.mask_color))
                         .setTargetPadding(20) //add 30px padding to focus circle
                         .setTextColor(context.getResources().getColor(R.color.colorPrimaryDark)) //Info dialog's text color is set to black

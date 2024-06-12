@@ -124,7 +124,7 @@ public class AppIntroLight extends BaseActivity {
             linearLayout.addView(imageViewArr[i2]);
         }
         imageViewArr[i].setImageResource(R.drawable.shape_circle);
-        imageViewArr[i].setColorFilter(getResources().getColor(R.color.colorAccent), Mode.SRC_IN);
+        imageViewArr[i].setColorFilter(getResources().getColor(R.color.colorPrimary), Mode.SRC_IN);
     }
 
     @Override

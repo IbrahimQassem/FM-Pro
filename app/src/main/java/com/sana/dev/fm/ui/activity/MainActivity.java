@@ -69,28 +69,21 @@ import co.mobiwise.materialintro.shape.Focus;
 import co.mobiwise.materialintro.shape.ShapeType;
 
 public class MainActivity extends BaseActivity implements StaticEventDistributor.EventListener, CallBackListener, BaseActivity.NetworkCallback {
-
     private static final String TAG = MainActivity.class.getSimpleName();
-
     public static String FRAGMENT_DATA = "transaction_data";
     public static String FRAGMENT_CLASS = "transaction_target";
-
     public static final String ACTION_SHOW_LOADING_ITEM = "action_show_loading_item";
-
     FirebaseCrashlytics firebaseCrashlytics;
     FirebaseAnalytics firebaseAnalytics;
-
 
     //    ---------- Radio Player -----------
     RadioManager radioManager;
     FloatingActionButton fab_radio;
     private BottomSheetDialog mBottomSheetDialog;
     private BottomSheetBehavior mBehavior;
-
-
-    private final AtomicBoolean isMobileAdsInitializeCalled = new AtomicBoolean(false);
+//    private final AtomicBoolean isMobileAdsInitializeCalled = new AtomicBoolean(false);
     private AdView adView;
-    private GoogleMobileAdsConsentManager googleMobileAdsConsentManager;
+//    private GoogleMobileAdsConsentManager googleMobileAdsConsentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -438,7 +431,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
     public void initToolbarProfile() {
         CircularImageView civ = (CircularImageView) findViewById(R.id.civ_logo);
-//        int color = getResources().getColor(R.color.fab_color_shadow);
+//        int color = getResources().getColor(R.color.colorAccent);
 //        ColorFilter cf = new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY);
 //        civ.setColorFilter(cf);
 

@@ -110,7 +110,7 @@ public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.MyViewHold
         }
 
 //        if ( d.getRadioId().equals(model.getRadioId())) {
-//            holder.cardView.setCardBackgroundColor(context.getResources().getColor(R.color.colorAccentLight));
+//            holder.cardView.setCardBackgroundColor(context.getResources().getColor(R.color.colorPrimaryLight));
 //        }else {
 //            holder.cardView.setCardBackgroundColor(context.getResources().getColor(R.color.white));
 //        }

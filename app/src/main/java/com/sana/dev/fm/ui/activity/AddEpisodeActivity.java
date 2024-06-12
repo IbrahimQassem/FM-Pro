@@ -51,6 +51,7 @@ import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.WakeTranslate;
 import com.sana.dev.fm.model.interfaces.OnCallbackDate;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.AppConstant.General;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
@@ -111,13 +112,13 @@ public class AddEpisodeActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView((int) R.layout.activity_add_episode);
 
         binding = ActivityAddEpisodeBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
 
-
-        ePoRepo = new FmEpisodeCRUDImpl(this, com.sana.dev.fm.utils.AppConstant.Firebase.EPISODE_TABLE);
+        ePoRepo = new FmEpisodeCRUDImpl(this, AppConstant.Firebase.EPISODE_TABLE);
         prefMgr = PreferencesManager.getInstance();
 
         initToolbar();
@@ -134,12 +135,10 @@ public class AddEpisodeActivity extends BaseActivity {
                 addView();
             }
         });
-
-
     }
 
-
     private void initToolbar() {
+        binding.toolbar.tvTitle.setText(getString(R.string.add_episode));
         binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -644,7 +643,7 @@ public class AddEpisodeActivity extends BaseActivity {
 
     private void loadRadioProgram(String RadioId) {
 
-        FmProgramCRUDImpl rpRepo = new FmProgramCRUDImpl(this, com.sana.dev.fm.utils.AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+        FmProgramCRUDImpl rpRepo = new FmProgramCRUDImpl(this, AppConstant.Firebase.RADIO_PROGRAM_TABLE);
         rpRepo.queryAllBy(RadioId, null, new CallBack() {
             @Override
             public void onSuccess(Object object) {

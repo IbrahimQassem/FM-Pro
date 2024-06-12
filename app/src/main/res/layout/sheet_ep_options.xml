@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_gravity="bottom"
     android:background="@color/grey_5"
     android:orientation="vertical"
@@ -29,9 +29,9 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/colorAccent"
-                tools:ignore="UseAppTint"
-                app:srcCompat="@drawable/ic_edit_white_24dp" />
+                android:tint="@color/colorPrimary"
+                app:srcCompat="@drawable/ic_edit_white_24dp"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -40,7 +40,7 @@
                 android:layout_marginRight="@dimen/spacing_middle"
                 android:text="@string/label_edit"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/primaryTextColor" />
+                android:textColor="@color/colorPrimary" />
         </LinearLayout>
     </com.balysv.materialripple.MaterialRippleLayout>
 
@@ -56,17 +56,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="true"
+            android:focusable="true"
             android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:focusable="true">
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/colorAccent"
-                tools:ignore="UseAppTint"
-                app:srcCompat="@drawable/ic_visibility_off" />
+                android:tint="@color/colorPrimary"
+                app:srcCompat="@drawable/ic_visibility_off"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -75,7 +75,7 @@
                 android:layout_marginRight="@dimen/spacing_middle"
                 android:text="@string/label_hide"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/primaryTextColor" />
+                android:textColor="@color/colorPrimary" />
         </LinearLayout>
     </com.balysv.materialripple.MaterialRippleLayout>
 
@@ -98,9 +98,9 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/colorAccent"
-                tools:ignore="UseAppTint"
-                app:srcCompat="@drawable/ic_delete" />
+                android:tint="@color/colorPrimary"
+                app:srcCompat="@drawable/ic_delete"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -109,11 +109,9 @@
                 android:layout_marginRight="@dimen/spacing_middle"
                 android:text="@string/label_delete"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/primaryTextColor" />
+                android:textColor="@color/colorPrimary" />
         </LinearLayout>
     </com.balysv.materialripple.MaterialRippleLayout>
-
-
 
 
     <com.balysv.materialripple.MaterialRippleLayout
@@ -135,9 +133,9 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:padding="@dimen/spacing_large"
-                android:tint="@color/colorAccent"
-                tools:ignore="UseAppTint"
-                app:srcCompat="@drawable/ic_close" />
+                android:tint="@color/colorPrimary"
+                app:srcCompat="@drawable/ic_close"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -146,7 +144,7 @@
                 android:layout_marginRight="@dimen/spacing_middle"
                 android:text="@string/label_hide"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/primaryTextColor" />
+                android:textColor="@color/colorPrimary" />
         </LinearLayout>
 
     </com.balysv.materialripple.MaterialRippleLayout>

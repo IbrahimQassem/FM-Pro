@@ -58,7 +58,6 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 //            itemView.setVisibility(View.GONE);
 //        }
 
-
         Tools.setTextOrHideIfEmpty(binding.tvTitle, episode.getEpName());
         Tools.setTextOrHideIfEmpty(binding.tvAnnouncer, episode.getEpAnnouncer());
 
@@ -84,7 +83,7 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 //                    LogUtility.d("getEpisodeLikes", String.format("Key (name) is: %s, Value   is : %s", pair.getKey(), pair.getValue()));
                 if (Boolean.TRUE.equals(likeStates.get(episode.userId))) {
                     episode.isLiked = pair.getValue();
-                    binding.imvLike.setColorFilter(ContextCompat.getColor(ctx, R.color.colorAccent));
+                    binding.imvLike.setColorFilter(ContextCompat.getColor(ctx, R.color.colorPrimary));
                 }
             }
         }

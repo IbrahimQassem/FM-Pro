@@ -47,16 +47,6 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     public PreferencesManager prefMgr;
     public AppRemoteConfig remoteConfig;
 
-    @Nullable
-    @BindView(R.id.tv_title)
-    TextView txvLogo;
-
-    @Nullable
-    @BindView(R.id.imb_event)
-    ImageButton imb_event;
-
-    private MenuItem inboxMenuItem;
-
     SnackBarUtility sbHelp;
 
     protected CheckInternetConnection connectionChecker;
@@ -100,7 +90,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     }
 
     protected void bindViews() {
-        ButterKnife.bind(this);
+//        ButterKnife.bind(this);
         PreferencesManager.initializeInstance(this);
         AppGeneralMessage.initializeInstance(this);
         connectionChecker = new CheckInternetConnection();
@@ -142,19 +132,6 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 //    public Toolbar getToolbar() {
 //        return toolbar;
 //    }
-
-    public MenuItem getInboxMenuItem() {
-        return inboxMenuItem;
-    }
-
-    public TextView getIvLogo() {
-        return txvLogo;
-    }
-
-    public ImageButton getToolbarArrow() {
-        return imb_event;
-    }
-
 /*
     public void startTour(View view, String id, String text, Focus focusType, ShapeType shape) {
         userGuide.showIntro(view, id, text, focusType, shape);

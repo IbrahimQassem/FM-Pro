@@ -25,7 +25,7 @@
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 app:civ_border="true"
-                app:civ_border_color="@color/fab_color_shadow"
+                app:civ_border_color="@color/colorPrimaryLight"
                 app:civ_border_width="0.5dp"
                 app:elevation="@dimen/spacing_small"
                 app:srcCompat="@drawable/logo_app" />
@@ -39,7 +39,7 @@
                 android:maxLines="1"
                 android:padding="@dimen/spacing_small"
                 android:textAlignment="center"
-                android:textColor="@color/colorPrimaryDark"
+                android:textColor="@color/colorPrimary"
                 android:textSize="16.2sp"
                 tools:text="@string/label_radio_station" />
 
@@ -51,19 +51,19 @@
                 android:lineSpacingExtra="1.8sp"
                 android:maxLines="1"
                 android:textAlignment="center"
-                android:textColor="@color/colorAccent"
+                android:textColor="@color/colorPrimaryDark"
                 android:textSize="12.2sp"
                 tools:text="99.9" />
 
             <ImageView
-                android:visibility="invisible"
                 android:id="@+id/iv_internet"
                 android:layout_width="@dimen/spacing_medium"
                 android:layout_height="@dimen/spacing_medium"
                 android:layout_marginStart="@dimen/spacing_medium"
-                android:layout_marginEnd="@dimen/spacing_medium"
                 android:layout_marginTop="1dp"
+                android:layout_marginEnd="@dimen/spacing_medium"
                 android:tint="@color/transparent"
+                android:visibility="invisible"
                 app:srcCompat="@drawable/shape_circle"
                 tools:ignore="UseAppTint" />
         </LinearLayout>
