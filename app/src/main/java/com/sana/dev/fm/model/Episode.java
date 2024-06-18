@@ -19,7 +19,7 @@ public class Episode implements Serializable {
     private String radioId, programId, epId, epName, epDesc, epAnnouncer,
             epProfile, epStreamUrl, programName,
             timestamp, createBy, stopNote;
-    private DateTimeModel dateTimeModel;
+    private DateTimeModel programScheduleTime;
     private List<DateTimeModel> showTimeList;
 
     private Map<String, Boolean> episodeLikes = new HashMap<>();
@@ -44,28 +44,8 @@ public class Episode implements Serializable {
         this.timestamp = timestamp;
     }
 
-    public Episode(Episode another, DateTimeModel showTimeObj) {
-        this.radioId = another.radioId;
-        this.programId = another.programId;
-        this.programName = another.programName;
-        this.epId = another.epId;
-        this.epName = another.epName;
-        this.epDesc = another.epDesc;
-        this.epAnnouncer = another.epAnnouncer;
-        this.dateTimeModel = another.dateTimeModel;
-        this.epProfile = another.epProfile;
-        this.epStreamUrl = another.epStreamUrl;
-        this.likesCount = another.likesCount;
-        this.favCount = another.favCount;
-        this.timestamp = another.timestamp;
-        this.createBy = another.createBy;
-        this.stopNote = another.stopNote;
-        this.disabled = another.disabled;
-//        this.showTimeObj = showTimeObj;
 
-    }
-
-    public Episode(String radioId, String programId, String programName, String epId, String epName, String epDesc, String epAnnouncer, DateTimeModel showDayModel, String epProfile, String epStreamUrl, int likesCount, int favCount, String timestamp, String createBy, String stopNote, boolean disabled, List<DateTimeModel> dateTimeModel) {
+    public Episode(String radioId, String programId, String programName, String epId, String epName, String epDesc, String epAnnouncer, DateTimeModel programScheduleTime, String epProfile, String epStreamUrl, int likesCount, int favCount, String timestamp, String createBy, String stopNote, boolean disabled, List<DateTimeModel> dateTimeModel) {
         this.radioId = radioId;
         this.programId = programId;
         this.programName = programName;
@@ -73,7 +53,7 @@ public class Episode implements Serializable {
         this.epName = epName;
         this.epDesc = epDesc;
         this.epAnnouncer = epAnnouncer;
-        this.dateTimeModel = showDayModel;
+        this.programScheduleTime = programScheduleTime;
         this.epProfile = epProfile;
         this.epStreamUrl = epStreamUrl;
         this.likesCount = likesCount;
@@ -105,7 +85,7 @@ public class Episode implements Serializable {
                 ", timestamp='" + timestamp + '\'' +
                 ", createBy='" + createBy + '\'' +
                 ", stopNote='" + stopNote + '\'' +
-                ", dateTimeModel=" + dateTimeModel +
+                ", programScheduleTime=" + programScheduleTime +
                 ", showTimeList=" + showTimeList +
                 ", episodeLikes=" + episodeLikes +
                 ", epDayleInfoList=" + epDayleInfoList +
@@ -242,12 +222,12 @@ public class Episode implements Serializable {
         this.episodeLikes = episodeLikes;
     }
 
-    public DateTimeModel getDateTimeModel() {
-        return dateTimeModel;
+    public DateTimeModel getProgramScheduleTime() {
+        return programScheduleTime;
     }
 
-    public void setDateTimeModel(DateTimeModel dateTimeModel) {
-        this.dateTimeModel = dateTimeModel;
+    public void setProgramScheduleTime(DateTimeModel programScheduleTime) {
+        this.programScheduleTime = programScheduleTime;
     }
 
     public List<DateTimeModel> getShowTimeList() {

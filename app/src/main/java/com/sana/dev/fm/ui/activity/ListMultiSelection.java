@@ -1,9 +1,6 @@
 package com.sana.dev.fm.ui.activity;
 
 
-
-import static com.sana.dev.fm.utils.FmUtilize.isCollection;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListInbox;
-import com.sana.dev.fm.databinding.ActivityAddEpisodeBinding;
 import com.sana.dev.fm.databinding.ActivityListMultiSelectionBinding;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioInfo;
@@ -30,16 +26,15 @@ import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
-
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ListMultiSelection extends BaseActivity {
-
     private static final String TAG = ListMultiSelection.class.getSimpleName();
-
     ActivityListMultiSelectionBinding binding;
     private ActionMode actionMode;
     private ActionModeCallback actionModeCallback;
@@ -47,7 +42,7 @@ public class ListMultiSelection extends BaseActivity {
     private RecyclerView recyclerView;
     private Toolbar toolbar;
     private ArrayList<Episode> episodeList = new ArrayList<>();
-    private FmEpisodeCRUDImpl ePiRepo;
+    private FirestoreDbUtility firestoreDbUtility;
 
     public static void startActivity(Context context, Episode episode) {
         Intent intent = new Intent(context, ListMultiSelection.class);
@@ -70,7 +65,7 @@ public class ListMultiSelection extends BaseActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-        ePiRepo = new FmEpisodeCRUDImpl(this, AppConstant.Firebase.EPISODE_TABLE);
+        firestoreDbUtility = new FirestoreDbUtility();
 
 
         initToolbar();
@@ -108,29 +103,41 @@ public class ListMultiSelection extends BaseActivity {
         this.recyclerView.addItemDecoration(new LineItemDecoration(this, 1));
         this.recyclerView.setHasFixedSize(true);
 
+        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                "radioId",
+                radioId
+        ));
 
-        ePiRepo.queryAllBy(radioId,null, new CallBack() {
+//        firestoreQueryList.add(new FirestoreQuery(
+//                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+//                "disabled",
+//                false
+//        ));
+
+        firestoreDbUtility.getMany(AppConstant.Firebase.EPISODE_TABLE, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                if (isCollection(object)) {
-                    episodeList = (ArrayList<Episode>) object;
-                    AdapterListInbox adapterListInbox = new AdapterListInbox(ListMultiSelection.this, episodeList);
+                List<Episode> episodes = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);
+                episodeList = new ArrayList<>(episodes);
+                AdapterListInbox adapterListInbox = new AdapterListInbox(ListMultiSelection.this, episodeList);
 //        AdapterListInbox adapterListInbox = new AdapterListInbox(this, DataGenerator.getEpisodeData(this));
-                    mAdapter = adapterListInbox;
-                    recyclerView.setAdapter(adapterListInbox);
-                    mAdapter.setOnClickListener(new AdapterListInbox.OnClickListener() {
-                        public void onItemClick(View view, Episode episode, int i) {
-                            if (mAdapter.getSelectedItemCount() > 0) {
-                                enableActionMode(i);
-                                return;
-                            }
-                            Episode item = mAdapter.getItem(i);
-                            Context applicationContext = getApplicationContext();
-                            StringBuilder stringBuilder = new StringBuilder();
-                            stringBuilder.append("تعديل : ");
-                            stringBuilder.append(item.getEpName());
+                mAdapter = adapterListInbox;
+                recyclerView.setAdapter(adapterListInbox);
+                mAdapter.setOnClickListener(new AdapterListInbox.OnClickListener() {
+                    public void onItemClick(View view, Episode episode, int i) {
+                        if (mAdapter.getSelectedItemCount() > 0) {
+                            enableActionMode(i);
+                            return;
+                        }
+                        Episode item = mAdapter.getItem(i);
+                        Context applicationContext = getApplicationContext();
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.append("تعديل : ");
+                        stringBuilder.append(item.getEpName());
 
-                            AddEpisodeActivity.startActivity(ListMultiSelection.this, episode);
+                        AddEpisodeActivity.startActivity(ListMultiSelection.this, episode);
 
 //                if (view.getId() == R.id.date) {
 ////                    EpisodeAddStepperVertical
@@ -142,22 +149,19 @@ public class ListMultiSelection extends BaseActivity {
 ////                        }
 ////                    });
 //                }
-                        }
+                    }
 
-                        public void onItemLongClick(View view, Episode episode, int i) {
-                            enableActionMode(i);
-                        }
-                    });
-                    actionModeCallback = new ActionModeCallback(ListMultiSelection.this, null);
-
-                }
-//                LogUtility.e(TAG, "reaDailyEpisodeByRadioId: " + object);
+                    public void onItemLongClick(View view, Episode episode, int i) {
+                        enableActionMode(i);
+                    }
+                });
+                actionModeCallback = new ActionModeCallback(ListMultiSelection.this, null);
 
             }
 
             @Override
             public void onFailure(Object object) {
-                LogUtility.e(TAG, "reaDailyEpisodeByRadioId: " + object);
+                LogUtility.e(TAG, " loadDailyEpisode :  " + object);
             }
         });
     }

@@ -73,8 +73,8 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 //        binding.tvTime.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
 //        String st = "" +  getFormattedTimeEvent(episode.getDateTimeModel().getTimeStart(), FmUtilize.arabicFormat);
 //        binding.tvState.setText(st);
-            if (episode.getDateTimeModel() != null) {
-                String dt = getFormattedDateOnly(episode.getDateTimeModel().getDateStart(),FmUtilize.arabicFormat) + " - " + getFormattedDateOnly(episode.getDateTimeModel().getDateEnd(),FmUtilize.arabicFormat);
+            if (episode.getProgramScheduleTime() != null) {
+                String dt = getFormattedDateOnly(episode.getProgramScheduleTime().getDateStart(),FmUtilize.arabicFormat) + " - " + getFormattedDateOnly(episode.getProgramScheduleTime().getDateEnd(),FmUtilize.arabicFormat);
                 binding.tvState.setText(dt);
             } else {
 //            binding.tvState.setVisibility(View.GONE);

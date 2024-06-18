@@ -1,9 +1,7 @@
 package com.sana.dev.fm.ui.activity;
 
 
-import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 import static com.sana.dev.fm.utils.FmUtilize.random;
-import static com.sana.dev.fm.utils.FmUtilize.safeList;
 import static com.sana.dev.fm.utils.FmUtilize.setTimeFormat;
 import static com.sana.dev.fm.utils.FmUtilize.stringTimeToMillis;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
@@ -29,12 +27,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.OnProgressListener;
@@ -43,7 +41,6 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.adapter.TimeLineAdapter;
 import com.sana.dev.fm.databinding.ActivityAddEpisodeBinding;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.DateTimeModel;
@@ -52,7 +49,6 @@ import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
-import com.sana.dev.fm.model.TempEpisodeModel;
 import com.sana.dev.fm.model.WakeTranslate;
 import com.sana.dev.fm.model.interfaces.OnCallbackDate;
 import com.sana.dev.fm.utils.AppConstant;
@@ -64,7 +60,7 @@ import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.ViewAnimation;
 import com.sana.dev.fm.utils.my_firebase.AppGeneralMessage;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
+import com.sana.dev.fm.utils.my_firebase.SharedAction;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
@@ -79,7 +75,7 @@ import java.util.Locale;
 import java.util.Stack;
 
 
-public class AddEpisodeActivity extends BaseActivity {
+public class AddEpisodeActivity extends BaseActivity implements SharedAction {
 
     private final String TAG = AddEpisodeActivity.class.getSimpleName();
     private ActivityAddEpisodeBinding binding;
@@ -94,13 +90,13 @@ public class AddEpisodeActivity extends BaseActivity {
     private int success_step = 0;
     private int current_step = 0;
     private String radioId, epId, epName, epDesc, epAnnouncer, programId, epProfile, epStreamUrl, programName, timestamp, createBy, stopNote = null;
-    private DateTimeModel dateTimeModel;
+    private DateTimeModel programScheduleTime;
     private Uri imageUri = null;
     private RadioInfo radioInfo = new RadioInfo();
     private List<DateTimeModel> showTimeList = new ArrayList<>();
 
     private long timeStart, timeEnd;
-    private FmEpisodeCRUDImpl ePoRepo;
+    private FirestoreDbUtility firestoreDbUtility;
 
 
     public static void startActivity(Context context, Episode episode) {
@@ -124,7 +120,8 @@ public class AddEpisodeActivity extends BaseActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-        ePoRepo = new FmEpisodeCRUDImpl(this, AppConstant.Firebase.EPISODE_TABLE);
+        firestoreDbUtility = new FirestoreDbUtility();
+
         prefMgr = PreferencesManager.getInstance();
 
         initToolbar();
@@ -255,7 +252,7 @@ public class AddEpisodeActivity extends BaseActivity {
             stopNote = _episode.getStopNote();
             radioInfo = prefMgr.selectedRadio();
             radioId = radioInfo.getRadioId();
-            dateTimeModel = _episode.getDateTimeModel();
+            programScheduleTime = _episode.getProgramScheduleTime();
             showTimeList = _episode.getShowTimeList() != null ? _episode.getShowTimeList() : new ArrayList<>();
 //            program = program.findRadioProgram(programId, ShardDate.getInstance().getProgramList());
 //            programId = program.getProgramId();
@@ -339,16 +336,20 @@ public class AddEpisodeActivity extends BaseActivity {
                                 public void onSuccess(Uri uri) {
                                     epProfile = uri.toString();
 
-                                    Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, dateTimeModel, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
-                                    ePoRepo.create(radioId, episode, new CallBack() {
+                                    Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
+                                    String pushKey = radioId + "__" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
+                                    episode.setEpId(pushKey);
+
+                                    firestoreDbUtility.createOrMerge(AppConstant.Firebase.EPISODE_TABLE, episode.getEpId(), episode, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
-                                            showToast(object.toString());
+                                            showToast(getString(R.string.done_successfully));
                                             finish();
                                         }
 
                                         @Override
                                         public void onFailure(Object object) {
+                                            hideProgress();
                                             showToast(AppGeneralMessage.ERROR);
                                         }
                                     });
@@ -362,12 +363,17 @@ public class AddEpisodeActivity extends BaseActivity {
             });
 
         } else {
-            Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, dateTimeModel, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
-            ePoRepo.create(radioId, episode, new CallBack() {
+            Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
+            String pushKey = radioId + "__" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
+            episode.setEpId(pushKey);
+
+            firestoreDbUtility.createOrMerge(AppConstant.Firebase.EPISODE_TABLE, episode.getEpId(), episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
+                    DocumentReference pRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE).document(episode.getRadioId()).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE).document(episode.getProgramId());
+                    incrementCounter("episodeCount", pRef);
                     hideProgress();
-                    showToast(object.toString());
+                    showToast(getString(R.string.done_successfully));
                     finish();
                 }
 
@@ -377,6 +383,7 @@ public class AddEpisodeActivity extends BaseActivity {
                     showToast(AppGeneralMessage.ERROR);
                 }
             });
+
 
         }
 
@@ -632,7 +639,7 @@ public class AddEpisodeActivity extends BaseActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 programId = items.get(i).getProgramId();
                 programName = items.get(i).getPrName();
-                dateTimeModel = items.get(i).getDateTimeModel();
+                programScheduleTime = items.get(i).getProgramScheduleTime();
 //                setDisplayDayChips();
                 prSelected = i;
                 binding.etProgram.setText(programName);
@@ -817,7 +824,7 @@ public class AddEpisodeActivity extends BaseActivity {
 
             // find the radiobutton by returned id
             RadioButton radioButton = (RadioButton) findViewById(selectedId);
-            dateTimeModel.setItMainTime(radioButton.isChecked());
+            dateTimeModel.setAsMainTime(radioButton.isChecked());
 
 //            Toast.makeText(EpisodeAddStepperVertical.this,
 //                    radioButton.getText(), Toast.LENGTH_SHORT).show();

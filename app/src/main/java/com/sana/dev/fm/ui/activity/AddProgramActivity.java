@@ -321,10 +321,13 @@ public class AddProgramActivity extends BaseActivity {
                                     prProfile = uri.toString();
                                     hud.dismiss();
                                     RadioProgram radioProgram = new RadioProgram(programId, radioId, prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
-                                    firestoreDbUtility.createOrMerge(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioId, radioProgram, new CallBack() {
+                                    String pushKey = radioId + "__" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
+                                    radioProgram.setProgramId(pushKey);
+
+                                    firestoreDbUtility.createOrMerge(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioProgram.getProgramId(), radioProgram, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
-                                            showToast(object.toString());
+                                            showToast(getString(R.string.done_successfully));
                                             finish();
                                         }
 
@@ -345,11 +348,13 @@ public class AddProgramActivity extends BaseActivity {
         } else {
             prProfile = radioInfo.getLogo();
             RadioProgram radioProgram = new RadioProgram(programId, radioId, prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
-            firestoreDbUtility.createOrMerge(AppConstant.Firebase.RADIO_PROGRAM_TABLE,radioId, radioProgram, new CallBack() {
+            String pushKey = radioId + "__" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
+            radioProgram.setProgramId(pushKey);
+            firestoreDbUtility.createOrMerge(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioProgram.getProgramId(), radioProgram, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     hideProgress();
-                    showToast(object.toString());
+                    showToast(getString(R.string.done_successfully));
                     finish();
                 }
 

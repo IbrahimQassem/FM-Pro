@@ -9,4 +9,7 @@ public final class FirestoreQueryConditionCode {
     public static final int WHERE_GREATER_THAN = 3;
     public static final int WHERE_LESS_THAN_OR_EQUAL_TO = 4;
     public static final int WHERE_GREATER_THAN_OR_EQUAL_TO = 5;
+    public static final int Query_Direction_ASCENDING = 6;
+    public static final int Query_Direction_DESCENDING = 7;
+
 }

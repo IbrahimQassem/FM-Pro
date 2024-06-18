@@ -22,6 +22,7 @@ import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
+import com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,23 +46,43 @@ public class FirestoreDbUtility {
     }
 
     // Get a reference to a specific collection
-    private CollectionReference getCollectionReference(String collectionPath) {
+//    public CollectionReference getCollectionReference(String collectionPath) {
+//        String[] pathSegments = collectionPath.split("/");
+////        CollectionReference collectionRef = db.collection(TOP_LEVEL_COLLECTION).document(collectionPath).collection(collectionPath);
+//        CollectionReference collectionRef = getTopLevelCollection();
+//        for (String segment : pathSegments) {
+//            if (!segment.isEmpty()) {
+////                collectionRef = collectionRef.document(collectionPath).collection(segment);
+//                collectionRef = collectionRef.document().collection(segment);
+//            }
+//        }
+//        return collectionRef;
+//    }
+
+    public CollectionReference getCollectionReference(String collectionPath) {
         String[] pathSegments = collectionPath.split("/");
 //        CollectionReference collectionRef = db.collection(TOP_LEVEL_COLLECTION).document(collectionPath).collection(collectionPath);
         CollectionReference collectionRef = getTopLevelCollection();
         for (String segment : pathSegments) {
             if (!segment.isEmpty()) {
-                collectionRef = collectionRef.document(collectionPath).collection(segment);
+//                collectionRef = collectionRef.document(collectionPath).collection(segment);
+                collectionRef = collectionRef.document().collection(segment);
             }
         }
         return collectionRef;
     }
 
-
     //    // Get a document by its ID from a specific collection
     public DocumentReference getDocument(String collectionPath, String documentId) {
         return getCollectionReference(collectionPath).document(documentId);
     }
+
+
+    public CollectionReference getKeyId(String collectionPath) {
+        CollectionReference colRef = FirebaseDatabaseReference.getTopLevelCollection().getFirestore().collection(collectionPath);
+        return colRef;
+    }
+
 
     public void createOrMerge(final String collectionName, final String documentName,
                               Object object, final CallBack callback) {
@@ -248,6 +269,36 @@ public class FirestoreDbUtility {
                             query = query.whereGreaterThanOrEqualTo(
                                     firestoreQuery.getField(),
                                     firestoreQuery.getValue()
+                            );
+                        }
+                        break;
+                    }
+
+                    case FirestoreQueryConditionCode.Query_Direction_DESCENDING: {
+                        if (query == null) {
+                            query = collectionReference.orderBy(
+                                    firestoreQuery.getField(),
+                                    Query.Direction.DESCENDING
+                            );
+                        } else {
+                            query = query.orderBy(
+                                    firestoreQuery.getField(),
+                                    Query.Direction.DESCENDING
+                            );
+                        }
+                        break;
+                    }
+
+                    case FirestoreQueryConditionCode.Query_Direction_ASCENDING: {
+                        if (query == null) {
+                            query = collectionReference.orderBy(
+                                    firestoreQuery.getField(),
+                                    Query.Direction.ASCENDING
+                            );
+                        } else {
+                            query = query.orderBy(
+                                    firestoreQuery.getField(),
+                                    Query.Direction.ASCENDING
                             );
                         }
                         break;

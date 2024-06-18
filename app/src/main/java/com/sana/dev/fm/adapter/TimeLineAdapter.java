@@ -59,12 +59,12 @@ public class TimeLineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 //                holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
 
 //            } else {
-                holder.itemView.setVisibility(View.VISIBLE);
-                holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            holder.itemView.setVisibility(View.VISIBLE);
+            holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-                viewHolder.tvTitle.setText(episode.getEpName());
-                viewHolder.tvSubTitle.setText(episode.getEpAnnouncer());
-                // TODO: I am waiting for you to be fixed ;)
+            viewHolder.tvTitle.setText(episode.getEpName());
+            viewHolder.tvSubTitle.setText(episode.getEpAnnouncer());
+            // TODO: I am waiting for you to be fixed ;)
 //            List<DateTimeModel> _showTimeList = episode.getShowTimeList();
 //            for (DateTimeModel a : _showTimeList) {
 //                // or equalsIgnoreCase or whatever your conditon is
@@ -76,10 +76,10 @@ public class TimeLineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 //            }
 
 
-                Tools.displayImageRound(context, viewHolder.circularImage, episode.getEpProfile());
+            Tools.displayImageRound(context, viewHolder.circularImage, episode.getEpProfile());
 
-
-//        if (timeLineModelList.get(position).getStatus().equals("inactive"))
+            if (episode.getProgramScheduleTime() != null){
+                //        if (timeLineModelList.get(position).getStatus().equals("inactive"))
 //            if ( position != 1)
                 // TODO: I am waiting for you to be fixed ;)
 //            if (!episode.getDateTimeModel().contains(episode.getDateTimeModel().getDisplayDays(),getShortEnDayName()))
@@ -87,23 +87,26 @@ public class TimeLineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 //            DateTimeModel timeModel = episode.showTimeObj;
 //            for (int i = 0; i < _showTimeList.size(); i++) {
-                String st = "يبدأ الساعة : " + getFormattedTimeEvent(episode.getDateTimeModel().getTimeStart(), FmUtilize.arabicFormat);
+                String st = "يبدأ الساعة : " + getFormattedTimeEvent(episode.getProgramScheduleTime().getTimeStart(), FmUtilize.arabicFormat);
                 viewHolder.tevDate.setText(st);
 //            String ts = "Start : " + getFormattedTimeEvent(timeModel.getTimeStart()) + "End : " + getFormattedTimeEvent(timeModel.getTimeEnd());
-                String period = "مدة العرض : " + timeDifference(episode.getDateTimeModel().getTimeStart(), episode.getDateTimeModel().getTimeEnd(),FmUtilize.arabicFormat);
+                String period = "مدة العرض : " + timeDifference(episode.getProgramScheduleTime().getTimeStart(), episode.getProgramScheduleTime().getTimeEnd(), FmUtilize.arabicFormat);
                 viewHolder.tevTimeShow.setText(period);
 
-                String replay = episode.getDateTimeModel().isItMainTime() ? "" : "إعادة";
-                int _state = episode.getDateTimeModel().isItMainTime() ? View.INVISIBLE : View.VISIBLE;
+                String replay = episode.getProgramScheduleTime().isAsMainTime() ? "" : "إعادة";
+                int _state = episode.getProgramScheduleTime().isAsMainTime() ? View.INVISIBLE : View.VISIBLE;
                 viewHolder.tevEpState.setVisibility(_state);
                 viewHolder.tevEpState.setText(replay);
 
 
-                boolean isNow = episode.getDateTimeModel().isWithinRange(episode.getDateTimeModel());
+                boolean isNow = episode.getProgramScheduleTime().isWithinRange(episode.getProgramScheduleTime());
                 if (!isNow)
                     viewHolder.timelineView.setMarker(ContextCompat.getDrawable(context, R.drawable.ic_baseline_adjust_24));
                 else
                     viewHolder.timelineView.setMarker(ContextCompat.getDrawable(context, R.drawable.ic_baseline_check_circle_24));
+
+            }
+
 //            }
 
 //            // last item

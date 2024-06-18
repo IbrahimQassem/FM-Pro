@@ -129,8 +129,8 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
 
 
-            if (program.getDateTimeModel() != null) {
-                String dt = getFormattedDateOnly(program.getDateTimeModel().getDateStart(),FmUtilize.arabicFormat) + " - " + getFormattedDateOnly(program.getDateTimeModel().getDateEnd(),FmUtilize.arabicFormat);
+            if (program.getProgramScheduleTime() != null) {
+                String dt = getFormattedDateOnly(program.getProgramScheduleTime().getDateStart(),FmUtilize.arabicFormat) + " - " + getFormattedDateOnly(program.getProgramScheduleTime().getDateEnd(),FmUtilize.arabicFormat);
                 holder.binding.tvDayPeriod.setText(dt);
             } else {
                 holder.binding.lytParentDayPeriod.setVisibility(View.GONE);
@@ -171,8 +171,8 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public void initExpand(MyViewHolder holder, RadioProgram program) {
-        if (program.getDateTimeModel() != null) {
-            DateTimeModel dateTime = program.getDateTimeModel();
+        if (program.getProgramScheduleTime() != null) {
+            DateTimeModel dateTime = program.getProgramScheduleTime();
             ArrayList<WakeTranslate> arDayList = translateWakeDaysAr(dateTime.getDisplayDays());
             for (int i2 = 0; i2 < arDayList.size(); i2++) {
                 int pixels = Math.round(Tools.dip2px(ctx, 40));

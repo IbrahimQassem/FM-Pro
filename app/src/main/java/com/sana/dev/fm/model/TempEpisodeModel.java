@@ -2,14 +2,14 @@ package com.sana.dev.fm.model;
 
 public class TempEpisodeModel {
     private String epProfile,epName,epAnnouncer,displayDayName;
-    private DateTimeModel dateTimeModel;
+    private DateTimeModel programScheduleTime;
 
-    public TempEpisodeModel(String epProfile, String epName, String epAnnouncer, String displayDayName, DateTimeModel dateTimeModel) {
+    public TempEpisodeModel(String epProfile, String epName, String epAnnouncer, String displayDayName, DateTimeModel programScheduleTime) {
         this.epProfile = epProfile;
         this.epName = epName;
         this.epAnnouncer = epAnnouncer;
         this.displayDayName = displayDayName;
-        this.dateTimeModel = dateTimeModel;
+        this.programScheduleTime = programScheduleTime;
     }
 
     public String getEpProfile() {
@@ -36,12 +36,12 @@ public class TempEpisodeModel {
         this.epAnnouncer = epAnnouncer;
     }
 
-    public DateTimeModel getDateTimeModel() {
-        return dateTimeModel;
+    public DateTimeModel getProgramScheduleTime() {
+        return programScheduleTime;
     }
 
-    public void setDateTimeModel(DateTimeModel dateTimeModel) {
-        this.dateTimeModel = dateTimeModel;
+    public void setProgramScheduleTime(DateTimeModel programScheduleTime) {
+        this.programScheduleTime = programScheduleTime;
     }
 
     public String getDisplayDayName() {

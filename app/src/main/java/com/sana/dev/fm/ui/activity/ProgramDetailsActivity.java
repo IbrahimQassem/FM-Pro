@@ -3,13 +3,11 @@ package com.sana.dev.fm.ui.activity;
 
 import static com.sana.dev.fm.adapter.ProgramDetailsAdapter.SPAN_COUNT_ONE;
 import static com.sana.dev.fm.adapter.ProgramDetailsAdapter.SPAN_COUNT_THREE;
-import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -40,10 +38,8 @@ import com.sana.dev.fm.utils.DataGenerator;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
-import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -155,30 +151,27 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                 }
             });
 
-            FmEpisodeCRUDImpl ePiRepo = new FmEpisodeCRUDImpl(this, AppConstant.Firebase.EPISODE_TABLE);
-            ePiRepo.queryAllBy(null,episode, new CallBack() {
+            List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+//        firestoreQueryList.add(new FirestoreQuery(
+//                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+//                "disabled",
+//                false
+//        ));
+
+            firestoreDbUtility.getMany(AppConstant.Firebase.EPISODE_TABLE, firestoreQueryList, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    LogUtility.d(LogUtility.TAG, "program details : " + new Gson().toJson(object));
-
-                    if (isCollection(object)) {
-                        detailsList = (List<Episode>) object;
-                        ShardDate.getInstance().setEpisodeList(detailsList);
-                    } /*else {
-                        detailsList = DataGenerator.getEpisodeData(ProgramDetailsActivity.this);
-                    }*/
-
-//                    itemAdapter.notifyDataSetChanged();
-//                    itemAdapter.notifyItemRangeChanged(0,detailsList.size());
+                    List<Episode> episodeList = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);
+                    ShardDate.getInstance().setEpisodeList(episodeList);
                     setupUserProfileGrid();
-
                 }
 
                 @Override
                 public void onFailure(Object object) {
-                    LogUtility.e(TAG, "readAllEpisodeByRadioIdAndPgId: " + object);
+                    LogUtility.e(TAG, " loadDailyEpisode :  " + object);
                 }
             });
+
 
 
         } else {

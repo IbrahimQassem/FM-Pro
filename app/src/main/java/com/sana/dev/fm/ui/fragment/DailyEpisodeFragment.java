@@ -33,7 +33,6 @@ import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
 
@@ -65,7 +64,7 @@ public class DailyEpisodeFragment extends BaseFragment {
     @BindView(R.id.tvTittle)
     TextView tvTittle;
     private TimeLineAdapter mAdapter;
-    private FmEpisodeCRUDImpl ePiRepo;
+    private FirestoreDbUtility firestoreDbUtility;
 
 
     public DailyEpisodeFragment() {
@@ -108,7 +107,7 @@ public class DailyEpisodeFragment extends BaseFragment {
         view = inflater.inflate(R.layout.fragment_radio_map, container, false);
         ButterKnife.bind(this, view);
 
-        ePiRepo = new FmEpisodeCRUDImpl((MainActivity) ctx, AppConstant.Firebase.EPISODE_TABLE);
+        firestoreDbUtility = new FirestoreDbUtility();
 
 //        if (getArguments() != null) {
 //            episodeList = (List<Episode>) getArguments().getSerializable(ARG_PARAM2);
@@ -164,9 +163,6 @@ public class DailyEpisodeFragment extends BaseFragment {
         }catch (Exception e){
 
         }
-
-
-        FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
 
 
         // Todo

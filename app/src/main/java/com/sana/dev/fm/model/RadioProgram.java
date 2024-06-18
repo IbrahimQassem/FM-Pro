@@ -17,7 +17,7 @@ public class RadioProgram implements Serializable {
     private boolean disabled = false;
     //    private Long id;
     private String programId, radioId, prName, prDesc, prTag, prProfile, timestamp, createBy, stopNote;
-    private DateTimeModel dateTimeModel;
+    private DateTimeModel programScheduleTime;
 
     @Exclude
     public boolean isLiked, isSubscribe;
@@ -42,7 +42,7 @@ public class RadioProgram implements Serializable {
     public RadioProgram() {
     }
 
-    public RadioProgram(String programId, String radioId, String prName, String prDesc, List<String> prCategoryList, String prTag, String prProfile, int likesCount, int subscribeCount, int rateCount, String timestamp, String createBy, boolean disabled, String stopNote, DateTimeModel dateTimeModel) {
+    public RadioProgram(String programId, String radioId, String prName, String prDesc, List<String> prCategoryList, String prTag, String prProfile, int likesCount, int subscribeCount, int rateCount, String timestamp, String createBy, boolean disabled, String stopNote, DateTimeModel programScheduleTime) {
         this.programId = programId;
         this.radioId = radioId;
         this.prName = prName;
@@ -57,7 +57,7 @@ public class RadioProgram implements Serializable {
         this.createBy = createBy;
         this.disabled = disabled;
         this.stopNote = stopNote;
-        this.dateTimeModel = dateTimeModel;
+        this.programScheduleTime = programScheduleTime;
     }
 
 
@@ -217,11 +217,11 @@ public class RadioProgram implements Serializable {
         this.disabled = disabled;
     }
 
-    public DateTimeModel getDateTimeModel() {
-        return dateTimeModel;
+    public DateTimeModel getProgramScheduleTime() {
+        return programScheduleTime;
     }
 
-    public void setDateTimeModel(DateTimeModel dateTimeModel) {
-        this.dateTimeModel = dateTimeModel;
+    public void setProgramScheduleTime(DateTimeModel programScheduleTime) {
+        this.programScheduleTime = programScheduleTime;
     }
 }

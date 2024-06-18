@@ -12,7 +12,7 @@ import java.util.Locale;
 public class DateTimeModel {
     long dateStart, dateEnd, timeStart, timeEnd;
     List<String> displayDays;//= DateFormatSymbols.getInstance(Locale.getDefault()).getShortWeekdays();
-    boolean isItMainTime;
+    boolean asMainTime;
 
 
     public DateTimeModel() {
@@ -38,10 +38,10 @@ public class DateTimeModel {
 //        return isContain;
 //    }
 
-    public DateTimeModel(long timeStart, long timeEnd, boolean isItMainTime) {
+    public DateTimeModel(long timeStart, long timeEnd, boolean asMainTime) {
         this.timeStart = timeStart;
         this.timeEnd = timeEnd;
-        this.isItMainTime = isItMainTime;
+        this.asMainTime = asMainTime;
     }
 
     public boolean isWithinRange(DateTimeModel model) {
@@ -86,7 +86,7 @@ public class DateTimeModel {
         long time = 0;
         if (!Tools.isEmpty(list)){
             for (DateTimeModel dateTimeModel : list) {
-                if (dateTimeModel.isItMainTime()) {
+                if (dateTimeModel.isAsMainTime()) {
 //                timeModel = dateTimeModel;
                     time = dateTimeModel.getTimeStart();
                     break;
@@ -146,12 +146,12 @@ public class DateTimeModel {
         this.displayDays = displayDays;
     }
 
-    public boolean isItMainTime() {
-        return isItMainTime;
+    public boolean isAsMainTime() {
+        return asMainTime;
     }
 
-    public void setItMainTime(boolean itMainTime) {
-        isItMainTime = itMainTime;
+    public void setAsMainTime(boolean asMainTime) {
+        this.asMainTime = asMainTime;
     }
 }
 

@@ -57,7 +57,7 @@ import butterknife.ButterKnife;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link ProgramsFragment#newInstance} factory method to
+ * Use the {@link ProgramsFragment} factory method to
  * create an instance of this fragment.
  */
 public class ProgramsFragment extends BaseFragment {
@@ -297,8 +297,8 @@ public class ProgramsFragment extends BaseFragment {
 //       List<RadioProgram> x = new ArrayList<RadioProgram>(Arrays.asList(new RadioProgram()));
         HashMap<String, ArrayList<RadioProgram>> myProgram = new HashMap<String, ArrayList<RadioProgram>>();
         for (int i = 0; i < itemList.size(); i++) {
-            if (itemList.get(i).getDateTimeModel() != null) {
-                String month_name = FmUtilize.month_date.format(Tools.getDateFormat(itemList.get(i).getDateTimeModel().getDateStart()));
+            if (itemList.get(i).getProgramScheduleTime() != null) {
+                String month_name = FmUtilize.month_date.format(Tools.getDateFormat(itemList.get(i).getProgramScheduleTime().getDateStart()));
                 ArrayList<RadioProgram> programList = myProgram.get(month_name);
                 if (programList == null) {
                     programList = new ArrayList<RadioProgram>();
@@ -362,7 +362,7 @@ public class ProgramsFragment extends BaseFragment {
 
         HashMap<String, ArrayList<RadioProgram>> myProgram = new HashMap<String, ArrayList<RadioProgram>>();
         for (int i = 0; i < arrayList.size(); i++) {
-            String month_name = FmUtilize.month_date.format(Tools.getDateFormat(arrayList.get(i).getDateTimeModel().getDateStart()));
+            String month_name = FmUtilize.month_date.format(Tools.getDateFormat(arrayList.get(i).getProgramScheduleTime().getDateStart()));
             ArrayList<RadioProgram> programList = myProgram.get(month_name);
             if (programList == null) {
                 programList = new ArrayList<RadioProgram>();
@@ -377,7 +377,7 @@ public class ProgramsFragment extends BaseFragment {
             ArrayList<RadioProgram> photos = new ArrayList<>();
             long count = s.containsKey("key") ? Long.parseLong(s.get("key")) : 0;
             for (RadioProgram s1 : arrayList) {
-                if (s1.getDateTimeModel().getDateStart() == count)
+                if (s1.getProgramScheduleTime().getDateStart() == count)
                     photos.add(s1);
                 else ;
             }
