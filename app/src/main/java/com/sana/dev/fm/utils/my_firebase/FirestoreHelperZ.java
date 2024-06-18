@@ -112,7 +112,7 @@
 //            QuerySnapshot queryDocumentSnapshots = (QuerySnapshot) object;
 //            for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
 //                RadioProgram program = snapshot.toObject(RadioProgram.class);
-//                if (!program.isStopped())
+//                if (!program.disabled())
 //                    programList.add(program);
 //            }
 //        } catch (Exception e) {

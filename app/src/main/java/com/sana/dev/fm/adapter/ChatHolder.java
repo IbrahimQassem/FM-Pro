@@ -57,7 +57,7 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 
 
     private void initBindViewHolder(@Nullable Episode episode) {
-//        if (episode.isStopped()){
+//        if (episode.disabled()){
 //            itemView.setVisibility(View.GONE);
 //        }
 
@@ -67,16 +67,20 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         Tools.setTextOrHideIfEmpty(binding.tvDesc, episode.getEpDesc());
         Tools.setTextOrHideIfEmpty(binding.tvState, null);
 //        Tools.setTextOrHideIfEmpty(binding.tvDate, null);
-        Tools.setTextOrHideIfEmpty(binding.tvTime, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
-        Tools.setTextOrHideIfEmpty(binding.tvDate, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
+        try {
+            Tools.setTextOrHideIfEmpty(binding.tvTime, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
+            Tools.setTextOrHideIfEmpty(binding.tvDate, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
 //        binding.tvTime.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
 //        String st = "" +  getFormattedTimeEvent(episode.getDateTimeModel().getTimeStart(), FmUtilize.arabicFormat);
 //        binding.tvState.setText(st);
-        if (episode.getDateTimeModel() != null) {
-            String dt = getFormattedDateOnly(episode.getDateTimeModel().getDateStart(),FmUtilize.arabicFormat) + " - " + getFormattedDateOnly(episode.getDateTimeModel().getDateEnd(),FmUtilize.arabicFormat);
-            binding.tvState.setText(dt);
-        } else {
+            if (episode.getDateTimeModel() != null) {
+                String dt = getFormattedDateOnly(episode.getDateTimeModel().getDateStart(),FmUtilize.arabicFormat) + " - " + getFormattedDateOnly(episode.getDateTimeModel().getDateEnd(),FmUtilize.arabicFormat);
+                binding.tvState.setText(dt);
+            } else {
 //            binding.tvState.setVisibility(View.GONE);
+            }
+        }catch (Exception e){
+
         }
 
 //        if (episode.getDateTimeModel() != null){

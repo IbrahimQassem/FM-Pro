@@ -212,5 +212,6 @@
     <string name="label_login_via_google">قوقل</string>
     <string name="label_week_days">أيام الأسبوع</string>
     <string name="label_set_time">تحديد الوقت</string>
+    <string name="msg_you_must_select_radio_station">You must select radio station</string>
 
 </resources>

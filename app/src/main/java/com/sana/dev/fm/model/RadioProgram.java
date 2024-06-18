@@ -14,11 +14,10 @@ public class RadioProgram implements Serializable {
 
     List<String> prCategoryList;
     private int episodeCount, likesCount, subscribeCount, rateCount = 0;
-    private boolean isStopped = false;
+    private boolean disabled = false;
     //    private Long id;
     private String programId, radioId, prName, prDesc, prTag, prProfile, timestamp, createBy, stopNote;
     private DateTimeModel dateTimeModel;
-
 
     @Exclude
     public boolean isLiked, isSubscribe;
@@ -43,7 +42,7 @@ public class RadioProgram implements Serializable {
     public RadioProgram() {
     }
 
-    public RadioProgram(String programId, String radioId, String prName, String prDesc, List<String> prCategoryList, String prTag, String prProfile, int likesCount, int subscribeCount, int rateCount, String timestamp, String createBy, boolean isStopped, String stopNote, DateTimeModel dateTimeModel) {
+    public RadioProgram(String programId, String radioId, String prName, String prDesc, List<String> prCategoryList, String prTag, String prProfile, int likesCount, int subscribeCount, int rateCount, String timestamp, String createBy, boolean disabled, String stopNote, DateTimeModel dateTimeModel) {
         this.programId = programId;
         this.radioId = radioId;
         this.prName = prName;
@@ -56,7 +55,7 @@ public class RadioProgram implements Serializable {
         this.rateCount = rateCount;
         this.timestamp = timestamp;
         this.createBy = createBy;
-        this.isStopped = isStopped;
+        this.disabled = disabled;
         this.stopNote = stopNote;
         this.dateTimeModel = dateTimeModel;
     }
@@ -210,12 +209,12 @@ public class RadioProgram implements Serializable {
         this.stopNote = stopNote;
     }
 
-    public boolean isStopped() {
-        return isStopped;
+    public boolean isDisabled() {
+        return disabled;
     }
 
-    public void setStopped(boolean stopped) {
-        isStopped = stopped;
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
     }
 
     public DateTimeModel getDateTimeModel() {

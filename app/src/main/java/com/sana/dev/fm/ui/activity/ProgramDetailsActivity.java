@@ -41,7 +41,9 @@ import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
-import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -127,37 +129,28 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
         if (s != null) {
             Episode episode = new Gson().fromJson(s, Episode.class);
 
-
             TempModel tempModel = new TempModel(episode.getProgramName(), "", "", "", episode.getEpProfile(), episode.getLikesCount(), 1, 0);
             updateInfoUI(tempModel);
 
-            FmProgramCRUDImpl rpRepo = new FmProgramCRUDImpl(this, AppConstant.Firebase.RADIO_PROGRAM_TABLE);
-            RadioProgram program = new RadioProgram();
-            program.setRadioId(episode.getRadioId());
-            program.setProgramId(episode.getProgramId());
-
             showProgress("");
-            rpRepo.queryAllBy(null,program, new CallBack() {
-                @SuppressLint("SetTextI18n")
+
+            FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
+
+            firestoreDbUtility.getOne(AppConstant.Firebase.RADIO_PROGRAM_TABLE, episode.getRadioId(), new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    try {
-                        LogUtility.d(LogUtility.TAG, "program info : " + new Gson().toJson(object));
-                        if (isCollection(object)) {
-                            List<RadioProgram> programList = (List<RadioProgram>) object;
-                            RadioProgram radioProgram = programList.get(0);
-                            TempModel tempModel = new TempModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), radioProgram.getPrCategoryList().toString(), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
-                            updateInfoUI(tempModel);
-                        }
-                    } catch (Exception e) {
-                        LogUtility.e(TAG, " readProgramByRadioIdAndProgramId: " + object, e);
+                    List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
+                    if (!programList.isEmpty()){
+                        RadioProgram radioProgram = programList.get(0);
+                        TempModel tempModel = new TempModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), radioProgram.getPrCategoryList().toString(), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
+                        updateInfoUI(tempModel);
                     }
                     hideProgress();
                 }
 
                 @Override
                 public void onFailure(Object object) {
-                    LogUtility.e(TAG, "readProgramByRadioIdAndProgramId: " + object);
+                    LogUtility.e(TAG, " loadRadioProgram :  " + object);
                     hideProgress();
                 }
             });

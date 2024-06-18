@@ -13,7 +13,7 @@ import java.util.List;
 
 public class UserModel extends UserId {
     private String name, email, mobile, password, photoUrl, nickNme, bio, tag, deviceId, stopNote, country, city, deviceToken,notificationToken,otherDate;
-    private boolean isVerified, isOnline, isStopped;
+    private boolean isVerified, isOnline, disabled;
     private long lastSignInTimestamp;
     private Gender gender;
     private UserType userType;
@@ -24,7 +24,7 @@ public class UserModel extends UserId {
     public UserModel() {
     }
 
-    public UserModel(String userId, String name, String email, String mobile, String password, String photoUrl, String deviceToken, String nickNme, String bio, String tag, boolean isVerified, boolean isOnline, boolean isStopped, String deviceId, String stopNote, Gender gender, String country, String city, long lastSignInTimestamp, UserType userType,AuthMethod authMethod,String createdAt,String notificationToken,String otherDate,List<String> allowedPermissions) {
+    public UserModel(String userId, String name, String email, String mobile, String password, String photoUrl, String deviceToken, String nickNme, String bio, String tag, boolean isVerified, boolean isOnline, boolean disabled, String deviceId, String stopNote, Gender gender, String country, String city, long lastSignInTimestamp, UserType userType,AuthMethod authMethod,String createdAt,String notificationToken,String otherDate,List<String> allowedPermissions) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -37,7 +37,7 @@ public class UserModel extends UserId {
         this.tag = tag;
         this.isVerified = isVerified;
         this.isOnline = isOnline;
-        this.isStopped = isStopped;
+        this.disabled = disabled;
         this.deviceId = deviceId;
         this.stopNote = stopNote;
         this.gender = gender;
@@ -199,12 +199,12 @@ public class UserModel extends UserId {
         isOnline = online;
     }
 
-    public boolean isStopped() {
-        return isStopped;
+    public boolean isDisabled() {
+        return disabled;
     }
 
-    public void setStopped(boolean stopped) {
-        isStopped = stopped;
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
     }
 
     public long getLastSignInTimestamp() {

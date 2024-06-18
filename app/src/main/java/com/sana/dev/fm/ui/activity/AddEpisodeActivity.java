@@ -3,6 +3,7 @@ package com.sana.dev.fm.ui.activity;
 
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 import static com.sana.dev.fm.utils.FmUtilize.random;
+import static com.sana.dev.fm.utils.FmUtilize.safeList;
 import static com.sana.dev.fm.utils.FmUtilize.setTimeFormat;
 import static com.sana.dev.fm.utils.FmUtilize.stringTimeToMillis;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
@@ -28,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -41,6 +43,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.adapter.TimeLineAdapter;
 import com.sana.dev.fm.databinding.ActivityAddEpisodeBinding;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.DateTimeModel;
@@ -49,6 +52,7 @@ import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
+import com.sana.dev.fm.model.TempEpisodeModel;
 import com.sana.dev.fm.model.WakeTranslate;
 import com.sana.dev.fm.model.interfaces.OnCallbackDate;
 import com.sana.dev.fm.utils.AppConstant;
@@ -61,7 +65,9 @@ import com.sana.dev.fm.utils.ViewAnimation;
 import com.sana.dev.fm.utils.my_firebase.AppGeneralMessage;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
-import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
@@ -641,22 +647,33 @@ public class AddEpisodeActivity extends BaseActivity {
     }
 
 
-    private void loadRadioProgram(String RadioId) {
+    private void loadRadioProgram(String radioId) {
 
-        FmProgramCRUDImpl rpRepo = new FmProgramCRUDImpl(this, AppConstant.Firebase.RADIO_PROGRAM_TABLE);
-        rpRepo.queryAllBy(RadioId, null, new CallBack() {
+        FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
+        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                "radioId",
+                radioId
+        ));
+
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                "disabled",
+                false
+        ));
+
+        firestoreDbUtility.getMany(AppConstant.Firebase.RADIO_PROGRAM_TABLE, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                if (isCollection(object)) {
-                    List<RadioProgram> programList = (List<RadioProgram>) object;
-                    ShardDate.getInstance().setProgramList(programList);
-                    binding.etProgram.setText(null);
-                }
+                List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
+                ShardDate.getInstance().setProgramList(programList);
+                binding.etProgram.setText(null);
             }
 
             @Override
             public void onFailure(Object object) {
-                LogUtility.d(TAG, "readAllProgramByRadioId: " + object);
+                LogUtility.e(TAG, " loadRadioProgram :  " + object);
             }
         });
 

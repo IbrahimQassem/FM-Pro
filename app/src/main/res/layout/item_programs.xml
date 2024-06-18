@@ -237,7 +237,7 @@
                                     style="@style/TextMedium"
                                     android:layout_width="match_parent"
                                     android:layout_weight="1"
-                                    tools:text="@string/label_desc" />
+                                    tools:text="@string/ex_date" />
 
                             </LinearLayout>
 

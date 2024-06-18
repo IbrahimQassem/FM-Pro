@@ -169,6 +169,7 @@ public class DailyEpisodeFragment extends BaseFragment {
         FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
 
 
+        // Todo
         List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
 //        firestoreQueryList.add(new FirestoreQuery(
 //                FirestoreQueryConditionCode.WHERE_EQUAL_TO,

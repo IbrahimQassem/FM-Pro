@@ -385,13 +385,12 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_marginBottom="@dimen/spacing_medium"
-                            android:text="@string/label_to"
+                            android:text="@string/label_from"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                             android:textColor="@color/grey_60" />
 
-
                         <EditText
-                            android:id="@+id/et_end"
+                            android:id="@+id/et_start"
                             style="@style/EditText_Flat_Grey"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/spacing_xmlarge"
@@ -425,12 +424,13 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_marginBottom="@dimen/spacing_medium"
-                            android:text="@string/label_from"
+                            android:text="@string/label_to"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                             android:textColor="@color/grey_60" />
 
+
                         <EditText
-                            android:id="@+id/et_start"
+                            android:id="@+id/et_end"
                             style="@style/EditText_Flat_Grey"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/spacing_xmlarge"
@@ -447,6 +447,7 @@
                             app:drawableEndCompat="@drawable/ic_date_range"
                             app:drawableRightCompat="@drawable/ic_date_range" />
                     </LinearLayout>
+
 
                 </LinearLayout>
 

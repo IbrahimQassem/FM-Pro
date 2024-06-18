@@ -6,10 +6,12 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -55,6 +57,12 @@ public class FirestoreDbUtility {
         return collectionRef;
     }
 
+
+    //    // Get a document by its ID from a specific collection
+    public DocumentReference getDocument(String collectionPath, String documentId) {
+        return getCollectionReference(collectionPath).document(documentId);
+    }
+
     public void createOrMerge(final String collectionName, final String documentName,
                               Object object, final CallBack callback) {
         try {
@@ -77,11 +85,12 @@ public class FirestoreDbUtility {
                                     + collectionName
                                     + " "
                                     + documentName);
-                            callback.onFailure(null);
+                            callback.onFailure(e.getMessage());
                         }
                     });
         } catch (Exception e) {
             e.printStackTrace();
+            Log.e(TAG, "createOrMerge Exception: " + collectionName + " " + documentName + " " + e);
         }
     }
 
@@ -120,7 +129,19 @@ public class FirestoreDbUtility {
                     });
         } catch (Exception e) {
             e.printStackTrace();
+            Log.e(TAG, "update Exception: " + collectionName + " " + documentName + " " + e);
         }
+    }
+
+    //    // Example: Delete a document by ID
+    public void deleteDocument(String collectionPath, String documentId, CallBack callback) {
+        getDocument(collectionPath, documentId).delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        callback.onSuccess(task.getResult());
+                    }
+                });
     }
 
     public void getOne(final String collectionName, final String documentName,
@@ -142,8 +163,8 @@ public class FirestoreDbUtility {
                     });
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtility.e(TAG, " getOne: " + collectionName + e);
 //            Log.d(TAG, document.getId() + " => " + document.getData());
+            Log.e(TAG, "getOne Exception: " + collectionName + " " + documentName + " " + e);
 
         }
     }
@@ -266,11 +287,11 @@ public class FirestoreDbUtility {
                 for (DocumentSnapshot snapshot : querySnapshot.getDocuments()) {
                     T dataObject = snapshot.toObject(targetClass);
 
-//                    // Assuming targetClass has a field named "isStopped" (modify condition as needed)
-//                    if (dataObject != null && !(dataObject instanceof RadioProgram) || (dataObject instanceof RadioProgram && !((RadioProgram) dataObject).isStopped())) {
+//                    // Assuming targetClass has a field named "disabled" (modify condition as needed)
+//                    if (dataObject != null && !(dataObject instanceof RadioProgram) || (dataObject instanceof RadioProgram && !((RadioProgram) dataObject).disabled())) {
 //                        dataList.add(dataObject);
 //                    }else {
-                        dataList.add(dataObject);
+                    dataList.add(dataObject);
 //                    }
                 }
             } else {

@@ -39,6 +39,7 @@ import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.WakeTranslate;
 import com.sana.dev.fm.model.interfaces.OnCallbackDate;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.AppConstant.General;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
@@ -46,7 +47,7 @@ import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.AppGeneralMessage;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class AddProgramActivity extends BaseActivity {
     Uri imageUri;
     PreferencesManager prefMgr;
     private String programId, radioId, prName, prDesc, prTag, prProfile, createBy, stopNote;
-    private FmProgramCRUDImpl fmRepo;
+    private FirestoreDbUtility firestoreDbUtility;
     private RadioInfo radioInfo;
     private long dateStart, dateEnd;
     private List<String> prCategoryList;
@@ -76,7 +77,7 @@ public class AddProgramActivity extends BaseActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-        fmRepo = new FmProgramCRUDImpl(this, RADIO_PROGRAM_TABLE);
+        firestoreDbUtility = new FirestoreDbUtility();
         prefMgr = PreferencesManager.getInstance();
 
         Tools.setSystemBarColor(this, R.color.white);
@@ -320,7 +321,7 @@ public class AddProgramActivity extends BaseActivity {
                                     prProfile = uri.toString();
                                     hud.dismiss();
                                     RadioProgram radioProgram = new RadioProgram(programId, radioId, prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
-                                    fmRepo.create(radioId, radioProgram, new CallBack() {
+                                    firestoreDbUtility.createOrMerge(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioId, radioProgram, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
                                             showToast(object.toString());
@@ -344,7 +345,7 @@ public class AddProgramActivity extends BaseActivity {
         } else {
             prProfile = radioInfo.getLogo();
             RadioProgram radioProgram = new RadioProgram(programId, radioId, prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
-            fmRepo.create(radioId, radioProgram, new CallBack() {
+            firestoreDbUtility.createOrMerge(AppConstant.Firebase.RADIO_PROGRAM_TABLE,radioId, radioProgram, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     hideProgress();
@@ -363,7 +364,8 @@ public class AddProgramActivity extends BaseActivity {
     }
 
     int stSelected = 0;
-// البرنامج العام
+
+    // البرنامج العام
     public void showStationDialog() {
 //        List<RadioInfo> items = ShardDate.getInstance().getAllowedRadioInfoList(prefMgr.getUserSession());
         List<RadioInfo> items = ShardDate.getInstance().getRadioInfoList();

@@ -1,6 +1,8 @@
 package com.sana.dev.fm.model;
 
 
+import com.sana.dev.fm.utils.Tools;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -78,14 +80,17 @@ public class DateTimeModel {
 
 
 
+    // Todo
     public static long findMainShowTime( List<DateTimeModel> list){
 //        DateTimeModel timeModel = new DateTimeModel();
         long time = 0;
-        for (DateTimeModel dateTimeModel : list) {
-            if (dateTimeModel.isItMainTime()) {
+        if (!Tools.isEmpty(list)){
+            for (DateTimeModel dateTimeModel : list) {
+                if (dateTimeModel.isItMainTime()) {
 //                timeModel = dateTimeModel;
-                time = dateTimeModel.getTimeStart();
-                break;
+                    time = dateTimeModel.getTimeStart();
+                    break;
+                }
             }
         }
         return  time;

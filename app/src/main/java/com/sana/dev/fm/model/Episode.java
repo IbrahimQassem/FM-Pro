@@ -15,7 +15,7 @@ public class Episode implements Serializable {
     private int likesCount, favCount;
     //    @Exclude
 //    private DateTimeModel showTimeObj;
-    private boolean isStopped;
+    private boolean disabled;
     private String radioId, programId, epId, epName, epDesc, epAnnouncer,
             epProfile, epStreamUrl, programName,
             timestamp, createBy, stopNote;
@@ -60,12 +60,12 @@ public class Episode implements Serializable {
         this.timestamp = another.timestamp;
         this.createBy = another.createBy;
         this.stopNote = another.stopNote;
-        this.isStopped = another.isStopped;
+        this.disabled = another.disabled;
 //        this.showTimeObj = showTimeObj;
 
     }
 
-    public Episode(String radioId, String programId, String programName, String epId, String epName, String epDesc, String epAnnouncer, DateTimeModel showDayModel, String epProfile, String epStreamUrl, int likesCount, int favCount, String timestamp, String createBy, String stopNote, boolean isStopped, List<DateTimeModel> dateTimeModel) {
+    public Episode(String radioId, String programId, String programName, String epId, String epName, String epDesc, String epAnnouncer, DateTimeModel showDayModel, String epProfile, String epStreamUrl, int likesCount, int favCount, String timestamp, String createBy, String stopNote, boolean disabled, List<DateTimeModel> dateTimeModel) {
         this.radioId = radioId;
         this.programId = programId;
         this.programName = programName;
@@ -81,7 +81,7 @@ public class Episode implements Serializable {
         this.timestamp = timestamp;
         this.createBy = createBy;
         this.stopNote = stopNote;
-        this.isStopped = isStopped;
+        this.disabled = disabled;
         this.showTimeList = dateTimeModel;
     }
 
@@ -92,7 +92,7 @@ public class Episode implements Serializable {
                 ", isFavorite=" + isFavorite +
                 ", likesCount=" + likesCount +
                 ", favCount=" + favCount +
-                ", isStopped=" + isStopped +
+                ", disabled=" + disabled +
                 ", radioId='" + radioId + '\'' +
                 ", programId='" + programId + '\'' +
                 ", epId='" + epId + '\'' +
@@ -226,12 +226,12 @@ public class Episode implements Serializable {
         this.stopNote = stopNote;
     }
 
-    public boolean isStopped() {
-        return isStopped;
+    public boolean isDisabled() {
+        return disabled;
     }
 
-    public void setStopped(boolean stopped) {
-        isStopped = stopped;
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
     }
 
     public Map<String, Boolean> getEpisodeLikes() {

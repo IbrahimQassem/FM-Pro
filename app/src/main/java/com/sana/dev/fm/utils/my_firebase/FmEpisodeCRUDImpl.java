@@ -164,7 +164,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
     public void updateEpisodeState(Object model, CallBack callBack) {
         Episode episode = (Episode) model;
         Map<String, Object> docData = new HashMap<>();
-        docData.put("stopped", episode.isStopped());
+        docData.put("disabled", episode.isDisabled());
         DocumentReference documentReference = colRef.document(episode.getRadioId()).collection(Firebase.EPISODE_TABLE).document(episode.getEpId());
         fireStoreCreateOrMerge(documentReference, docData, new CallBack() {
             @Override
@@ -208,7 +208,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
             QuerySnapshot queryDocumentSnapshots = (QuerySnapshot) object;
             for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
                 Episode program = snapshot.toObject(Episode.class);
-                if (program != null && !program.isStopped()) {
+                if (program != null && !program.isDisabled()) {
                     programList.add(program);
                 }
             }

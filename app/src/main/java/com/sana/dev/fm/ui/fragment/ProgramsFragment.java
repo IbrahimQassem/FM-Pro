@@ -30,7 +30,9 @@ import com.sana.dev.fm.adapter.SimpleSectionedRecyclerViewAdapter;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.ModelConfig;
+import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
+import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.MainActivity;
@@ -40,7 +42,9 @@ import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -61,10 +65,10 @@ public class ProgramsFragment extends BaseFragment {
     private static final String TAG = ProgramsFragment.class.getSimpleName();
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_RADIO_ID = "radioId";
-    private static final String ARG_RADIO_LIST = "radioList";
+//    private static final String ARG_RADIO_ID = "radioId";
+//    private static final String ARG_RADIO_LIST = "radioList";
 
-    private String radioId;
+//    private String radioId;
 
     /**
      * Use this factory method to create a new instance of
@@ -74,18 +78,18 @@ public class ProgramsFragment extends BaseFragment {
      * @param list    Parameter 2.
      * @return A new instance of fragment ProgramsFragment.
      */
-    public static ProgramsFragment newInstance(String radioId, List<RadioProgram> list) {
-        ProgramsFragment fragment = new ProgramsFragment();
-        // Don't include arguments unless uuid != null
-
-        if (list != null) {
-            Bundle args = new Bundle();
-            args.putString(ARG_RADIO_ID, radioId);
-            args.putSerializable(ARG_RADIO_LIST, (Serializable) list);
-            fragment.setArguments(args);
-        }
-        return fragment;
-    }
+//    public static ProgramsFragment newInstance(String radioId, List<RadioProgram> list) {
+//        ProgramsFragment fragment = new ProgramsFragment();
+//        // Don't include arguments unless uuid != null
+//
+//        if (list != null) {
+//            Bundle args = new Bundle();
+//            args.putString(ARG_RADIO_ID, radioId);
+//            args.putSerializable(ARG_RADIO_LIST, (Serializable) list);
+//            fragment.setArguments(args);
+//        }
+//        return fragment;
+//    }
 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
@@ -97,15 +101,15 @@ public class ProgramsFragment extends BaseFragment {
     View parent_fragment_view;
     private AdapterListProgram mAdapter;
     private List<RadioProgram> itemList;
-    private FmProgramCRUDImpl fmRepo;
+    private FirestoreDbUtility firestoreDbUtility;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            radioId = getArguments().getString(ARG_RADIO_ID);
-            itemList = (List<RadioProgram>) getArguments().getSerializable(ARG_RADIO_LIST);
-        }
+//        if (getArguments() != null) {
+//            radioId = getArguments().getString(ARG_RADIO_ID);
+//            itemList = (List<RadioProgram>) getArguments().getSerializable(ARG_RADIO_LIST);
+//        }
     }
 
     @Override
@@ -114,8 +118,8 @@ public class ProgramsFragment extends BaseFragment {
         // Inflate the layout for this fragment
         parent_fragment_view = inflater.inflate(R.layout.fragment_programs, container, false);
         ButterKnife.bind(this, parent_fragment_view);
-        fmRepo = new FmProgramCRUDImpl(mActivity, AppConstant.Firebase.RADIO_PROGRAM_TABLE);
-         initComponent();
+        firestoreDbUtility = new FirestoreDbUtility();
+        initComponent();
 
 //        itemList = DataGenerator.getProgramData(ctx);
 ////        List<Episode> list = DataGenerator.getEpisodeData(ctx);
@@ -152,37 +156,46 @@ public class ProgramsFragment extends BaseFragment {
     }
 
     private void initComponent() {
-        try {
+        RadioInfo selectedRadio = prefMgr.selectedRadio();
+        if (selectedRadio != null || !isRadioSelected()) {
 
+            SpannableStringBuilder builder = new SpannableStringBuilder();
 
-        SpannableStringBuilder builder = new SpannableStringBuilder();
-
-        String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : " ";
-        SpannableString blueSpannable = new SpannableString(Html.fromHtml(" <b>" + primary + "</b> "));
+            String primary = selectedRadio.getName() != null ? selectedRadio.getName() : " ";
+            SpannableString blueSpannable = new SpannableString(Html.fromHtml(" <b>" + primary + "</b> "));
 //        StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
 //        blueSpannable.setSpan(boldSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
-        builder.append(blueSpannable);
+            blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
+            builder.append(blueSpannable);
 
-        String black = requireActivity().getResources().getString(R.string.main_program_for);
-        SpannableString whiteSpannable = new SpannableString(black);
-        whiteSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.grey_40)), 0, black.length(), 0);
-        builder.append(whiteSpannable);
+            String black = requireActivity().getResources().getString(R.string.main_program_for);
+            SpannableString whiteSpannable = new SpannableString(black);
+            whiteSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.grey_40)), 0, black.length(), 0);
+            builder.append(whiteSpannable);
 
 
-        tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
-        }catch (Exception e){
+            tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
 
-        }
+            List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+            firestoreQueryList.add(new FirestoreQuery(
+                    FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                    "radioId",
+                    selectedRadio.getRadioId()
+            ));
 
-        if (isRadioSelected())
-            fmRepo.queryAllBy(prefMgr.selectedRadio().getRadioId(), null, new CallBack() {
+            firestoreQueryList.add(new FirestoreQuery(
+                    FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                    "disabled",
+                    false
+            ));
+
+            firestoreDbUtility.getMany(AppConstant.Firebase.RADIO_PROGRAM_TABLE, firestoreQueryList, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-//                    LogUtility.d(LogUtility.TAG, "readAllProgramByRadioId response: " + new Gson().toJson(object));
+                    List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
 
-                    if (isCollection(object)) {
-                        itemList = (List<RadioProgram>) object;
+                    if (!programList.isEmpty()) {
+                        itemList = programList;
 //                      itemList =  DataGenerator.getProgramData(ctx);
                         initAdapter();
                         mAdapter.setOnItemClickListener(new AdapterListProgram.OnItemClickListener() {
@@ -215,7 +228,7 @@ public class ProgramsFragment extends BaseFragment {
                                     ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_warning), getString(R.string.confirm_delete, obj.getPrName()), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            fmRepo.delete(obj, new CallBack() {
+                                            firestoreDbUtility.deleteDocument(AppConstant.Firebase.RADIO_PROGRAM_TABLE, obj.getProgramId(), new CallBack() {
                                                 @Override
                                                 public void onSuccess(Object object) {
                                                     showToast(getString(R.string.deleted_successfully_with_param, obj.getPrName()));
@@ -224,7 +237,8 @@ public class ProgramsFragment extends BaseFragment {
 
                                                 @Override
                                                 public void onFailure(Object object) {
-                                                    showToast(getString(R.string.error_failure));
+                                                    showToast(getString(R.string.label_error_occurred_with_val, object));
+
                                                 }
                                             });
                                         }
@@ -249,9 +263,13 @@ public class ProgramsFragment extends BaseFragment {
 
                 @Override
                 public void onFailure(Object object) {
-                    LogUtility.d(LogUtility.TAG, "readAllProgramByRadioId error: " + new Gson().toJson(object));
+                    LogUtility.e(TAG, " loadRadioProgram :  " + object);
                 }
             });
+        }else {
+            showToast(getString(R.string.msg_you_must_select_radio_station));
+        }
+
     }
 
     void initAdapter() {
@@ -326,10 +344,8 @@ public class ProgramsFragment extends BaseFragment {
     }
 
 
-    private ArrayList<Map<String, String>>  keyList = new ArrayList<>();
+    private ArrayList<Map<String, String>> keyList = new ArrayList<>();
     private Map<String, List<RadioProgram>> map = new HashMap<>();
-
-
 
 
     private void getPhotoList(ArrayList<RadioProgram> arrayList) {

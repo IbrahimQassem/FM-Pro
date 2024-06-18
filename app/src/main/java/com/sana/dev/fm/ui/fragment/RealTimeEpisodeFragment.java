@@ -243,7 +243,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 }
                 ChatHolder viewHolder = (ChatHolder) holder;
 
-                if (model != null && !model.isStopped())
+                if (model != null && !model.isDisabled())
                     viewHolder.bind(model, position);
 
                 viewHolder.setOnLongItemClickListener(new ChatHolder.OnLongItemClickListener() {
@@ -351,7 +351,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_hide, obj.getEpName()), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        obj.setStopped(true);
+                        obj.setDisabled(true);
                         ePiRepo.updateEpisodeState(obj, new CallBack() {
                             @Override
                             public void onSuccess(Object object) {

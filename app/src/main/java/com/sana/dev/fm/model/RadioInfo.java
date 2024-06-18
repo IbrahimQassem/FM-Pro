@@ -23,7 +23,7 @@ import java.util.List;
 public class RadioInfo implements Serializable {
 
     private int id;
-    @DocumentId
+//    @DocumentId
     private String radioId;
     private String name, desc, streamUrl, logo, tag, city, channelFreq, enName, createBy, createAt;
     private int programsCount, followers, subscribers, rating, priority;
@@ -207,7 +207,7 @@ public class RadioInfo implements Serializable {
         this.id = id;
     }
 
-    @Exclude
+//    @Exclude
     public String getRadioId() {
         return radioId;
     }
