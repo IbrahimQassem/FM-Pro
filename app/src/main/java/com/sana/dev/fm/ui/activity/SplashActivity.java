@@ -1,6 +1,6 @@
 package com.sana.dev.fm.ui.activity;
 
-import static com.sana.dev.fm.utils.FmUtilize.isCollection;
+import static com.sana.dev.fm.utils.FmUtilize.showMessage;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -32,6 +32,7 @@ import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.RadioInfo;
+import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.IntentHelper;
@@ -41,8 +42,12 @@ import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FmStationCRUDImpl;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
@@ -117,7 +122,78 @@ public class SplashActivity extends AppCompatActivity {
 
 
     private void loadRadios() {
-        rIRepo = new FmStationCRUDImpl(this, AppConstant.Firebase.RADIO_INFO_TABLE);
+
+        FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
+
+/*        GeoPoint lesserGeoPoint = new GeoPoint(12.1, 77.1); // latitude is 12.1 and longitude is 77.1
+        GeoPoint greaterGeoPoint = new GeoPoint(13.0, 78);
+
+        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.WHERE_LESS_THAN,
+                "location",
+                greaterGeoPoint
+        ));
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.WHERE_GREATER_THAN,
+                "location",
+                lesserGeoPoint
+        ));*/
+
+        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                "disabled",
+                false
+        ));
+
+        firestoreDbUtility.getMany(AppConstant.Firebase.RADIO_INFO_TABLE, firestoreQueryList, new CallBack() {
+            @Override
+            public void onSuccess(Object object) {
+                List<RadioInfo> radioInfoList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioInfo.class);
+                ShardDate.getInstance().setRadioInfoList(radioInfoList);
+                prefMgr.setRadioInfo(new ArrayList<>(radioInfoList));
+
+                if (prefMgr.selectedRadio() == null) {
+                    prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, radioInfoList.get(0));
+                }
+                startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
+
+//                        QuerySnapshot querySnapshot = (QuerySnapshot) object;
+//                        for (DocumentSnapshot documentSnapshot: querySnapshot.getDocuments()) {
+//                            RadioInfo radioInfo = documentSnapshot.toObject(RadioInfo.class); // do something with user object
+//                        }
+            }
+
+            @Override
+            public void onFailure(Object object) {
+                LogUtility.e(TAG, " loadRadios :  " + object);
+                startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
+            }
+        });
+
+
+//        FirestoreHelper firestoreHelperZ = new FirestoreHelper();
+//        firestoreHelperZ.getAllDocuments(AppConstant.Firebase.RADIO_INFO_TABLE, new CallBack() {
+//            @Override
+//            public void onSuccess(Object object) {
+//                List<RadioInfo> stationList = safeList((List<RadioInfo>) object);
+//                ShardDate.getInstance().setRadioInfoList(stationList);
+//                prefMgr.setRadioInfo(new ArrayList<>(stationList));
+//
+//                if (prefMgr.selectedRadio() == null) {
+//                    prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, stationList.get(0));
+//                }
+//                startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
+//            }
+//
+//            @Override
+//            public void onFailure(Object object) {
+//                LogUtility.e(TAG, " loadRadios :  " + object);
+//                startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
+//            }
+//        });
+/*        rIRepo = new FmStationCRUDImpl(this, AppConstant.Firebase.RADIO_INFO_TABLE);
 
         rIRepo.queryAllBy(null, null, new CallBack() {
             @Override
@@ -139,7 +215,7 @@ public class SplashActivity extends AppCompatActivity {
                 LogUtility.e(TAG, " loadRadios :  " + object);
                 updateUI(null);
             }
-        });
+        });*/
 
 //        if (isCollection(prefMgr.getRadioList()) ) {
 //            startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));

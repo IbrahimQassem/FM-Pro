@@ -342,7 +342,7 @@ public class AddEpisodeActivity extends BaseActivity {
                                         }
 
                                         @Override
-                                        public void onError(Object object) {
+                                        public void onFailure(Object object) {
                                             showToast(AppGeneralMessage.ERROR);
                                         }
                                     });
@@ -366,7 +366,7 @@ public class AddEpisodeActivity extends BaseActivity {
                 }
 
                 @Override
-                public void onError(Object object) {
+                public void onFailure(Object object) {
                     hideProgress();
                     showToast(AppGeneralMessage.ERROR);
                 }
@@ -655,7 +655,7 @@ public class AddEpisodeActivity extends BaseActivity {
             }
 
             @Override
-            public void onError(Object object) {
+            public void onFailure(Object object) {
                 LogUtility.d(TAG, "readAllProgramByRadioId: " + object);
             }
         });

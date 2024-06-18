@@ -152,10 +152,12 @@ public class ProgramsFragment extends BaseFragment {
     }
 
     private void initComponent() {
+        try {
+
 
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
-        String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : "";
+        String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : " ";
         SpannableString blueSpannable = new SpannableString(Html.fromHtml(" <b>" + primary + "</b> "));
 //        StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
 //        blueSpannable.setSpan(boldSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -169,6 +171,9 @@ public class ProgramsFragment extends BaseFragment {
 
 
         tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
+        }catch (Exception e){
+
+        }
 
         if (isRadioSelected())
             fmRepo.queryAllBy(prefMgr.selectedRadio().getRadioId(), null, new CallBack() {
@@ -218,7 +223,7 @@ public class ProgramsFragment extends BaseFragment {
                                                 }
 
                                                 @Override
-                                                public void onError(Object object) {
+                                                public void onFailure(Object object) {
                                                     showToast(getString(R.string.error_failure));
                                                 }
                                             });
@@ -243,7 +248,7 @@ public class ProgramsFragment extends BaseFragment {
                 }
 
                 @Override
-                public void onError(Object object) {
+                public void onFailure(Object object) {
                     LogUtility.d(LogUtility.TAG, "readAllProgramByRadioId error: " + new Gson().toJson(object));
                 }
             });

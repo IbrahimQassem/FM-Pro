@@ -383,7 +383,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
             }
 
             @Override
-            public void onError(Object object) {
+            public void onFailure(Object object) {
                 LogUtility.e(LogUtility.TAG, "onError : " + object);
                 if (object == null) {
                     // create new user
@@ -396,7 +396,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
                         }
 
                         @Override
-                        public void onError(Object object) {
+                        public void onFailure(Object object) {
                             LogUtility.e(LogUtility.TAG, "onError : " + object);
                             showToast(getString(R.string.label_error_occurred_with_val, object.toString()));
                         }

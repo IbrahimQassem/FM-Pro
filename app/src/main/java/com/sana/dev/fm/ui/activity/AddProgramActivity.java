@@ -328,7 +328,7 @@ public class AddProgramActivity extends BaseActivity {
                                         }
 
                                         @Override
-                                        public void onError(Object object) {
+                                        public void onFailure(Object object) {
                                             showToast(AppGeneralMessage.ERROR);
                                         }
                                     });
@@ -353,7 +353,7 @@ public class AddProgramActivity extends BaseActivity {
                 }
 
                 @Override
-                public void onError(Object object) {
+                public void onFailure(Object object) {
                     hideProgress();
                     showToast(AppGeneralMessage.ERROR);
                 }

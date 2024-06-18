@@ -1,7 +1,5 @@
 package com.sana.dev.fm.utils.my_firebase;
 
-import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABASE;
-
 import android.app.Activity;
 
 import androidx.annotation.NonNull;
@@ -33,7 +31,7 @@ public class FmStationCRUDImpl extends FirebaseRepository implements FmCRUD {
 
     public FmStationCRUDImpl(Activity activity, String TableName) {
         this.activity = activity;
-        colRef = DATABASE.collection(TableName);
+        colRef = FirebaseDatabaseReference.getTopLevelCollection().getFirestore().collection(TableName);
     }
 
 
@@ -82,8 +80,8 @@ public class FmStationCRUDImpl extends FirebaseRepository implements FmCRUD {
             }
 
             @Override
-            public void onError(Object object) {
-                callBack.onError(object);
+            public void onFailure(Object object) {
+                callBack.onFailure(object);
             }
         });
     }
@@ -101,8 +99,8 @@ public class FmStationCRUDImpl extends FirebaseRepository implements FmCRUD {
             }
 
             @Override
-            public void onError(Object object) {
-                callBack.onError(object);
+            public void onFailure(Object object) {
+                callBack.onFailure(object);
             }
         });
     }
@@ -206,9 +204,9 @@ public class FmStationCRUDImpl extends FirebaseRepository implements FmCRUD {
                 }
 
                 @Override
-                public void onError(Object object) {
+                public void onFailure(Object object) {
                     LogUtility.e(TAG, " queryAllBy :  " + object);
-                    callBack.onError(object);
+                    callBack.onFailure(object);
                 }
             });
         } catch (Exception e) {
@@ -264,7 +262,7 @@ public class FmStationCRUDImpl extends FirebaseRepository implements FmCRUD {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             // Error occurred while retrieving documents
-                            callBack.onError(e.toString());
+                            callBack.onFailure(e.toString());
                         }
                     });
 

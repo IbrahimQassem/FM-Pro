@@ -2,7 +2,6 @@ package com.sana.dev.fm.utils.my_firebase;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.sana.dev.fm.utils.FmUtilize.isEmpty;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABASE;
 
 import android.app.Activity;
 
@@ -42,7 +41,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
 
     public Query createSimpleQueries(String rdId) {
         CollectionReference crf = colRef.document(rdId).collection(AppConstant.Firebase.EPISODE_TABLE);
-        Query populationQuery = crf.whereGreaterThanOrEqualTo("dateTimeModel.dateEnd", /*"1662054250043"*/System.currentTimeMillis());
+//        Query populationQuery = crf.whereGreaterThanOrEqualTo("dateTimeModel.dateEnd", /*"1662054250043"*/System.currentTimeMillis());
 
 //        // [START fs_simple_queries]
 //        // [START firestore_query_filter_single_examples]
@@ -54,7 +53,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
 //        querys.add(stateQuery);
 //        querys.add(populationQuery);
 //        querys.add(nameQuery);
-        return populationQuery.orderBy("dateTimeModel.dateEnd", Query.Direction.DESCENDING);
+        return crf.orderBy("dateTimeModel.dateEnd", Query.Direction.DESCENDING);
     }
 
     public Query mainQuery(String rdId) {
@@ -69,7 +68,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
 
     public FmEpisodeCRUDImpl(Activity activity, String TableName) {
         this.activity = activity;
-        colRef = DATABASE.collection(TableName);
+        colRef = FirebaseDatabaseReference.getTopLevelCollection().getFirestore().collection(TableName);
     }
 
     @Override
@@ -82,18 +81,18 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
             fireStoreCreateOrMerge(documentReference, episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    DocumentReference pRef = DATABASE.collection(Firebase.RADIO_PROGRAM_TABLE).document(episode.getRadioId()).collection(Firebase.RADIO_PROGRAM_TABLE).document(episode.getProgramId());
+                    DocumentReference pRef = FirebaseDatabaseReference.getTopLevelCollection().getFirestore().collection(Firebase.RADIO_PROGRAM_TABLE).document(episode.getRadioId()).collection(Firebase.RADIO_PROGRAM_TABLE).document(episode.getProgramId());
                     incrementCounter("episodeCount", pRef);
                     callBack.onSuccess(AppGeneralMessage.SUCCESS);
                 }
 
                 @Override
-                public void onError(Object object) {
-                    callBack.onError(object);
+                public void onFailure(Object object) {
+                    callBack.onFailure(object);
                 }
             });
         } else {
-            callBack.onError(AppGeneralMessage.FAIL);
+            callBack.onFailure(AppGeneralMessage.FAIL);
         }
     }
 
@@ -124,12 +123,12 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
                 }
 
                 @Override
-                public void onError(Object object) {
-                    callBack.onError(object);
+                public void onFailure(Object object) {
+                    callBack.onFailure(object);
                 }
             });
         } else {
-            callBack.onError(AppGeneralMessage.FAIL);
+            callBack.onFailure(AppGeneralMessage.FAIL);
         }
 
     }
@@ -156,8 +155,8 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
             }
 
             @Override
-            public void onError(Object object) {
-                callBack.onError(object);
+            public void onFailure(Object object) {
+                callBack.onFailure(object);
             }
         });
     }
@@ -174,8 +173,8 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
             }
 
             @Override
-            public void onError(Object object) {
-                callBack.onError(object);
+            public void onFailure(Object object) {
+                callBack.onFailure(object);
             }
         });
     }
@@ -193,12 +192,12 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
                 }
 
                 @Override
-                public void onError(Object object) {
-                    callBack.onError(object);
+                public void onFailure(Object object) {
+                    callBack.onFailure(object);
                 }
             });
         } else {
-            callBack.onError(AppGeneralMessage.FAIL);
+            callBack.onFailure(AppGeneralMessage.FAIL);
         }
     }
 

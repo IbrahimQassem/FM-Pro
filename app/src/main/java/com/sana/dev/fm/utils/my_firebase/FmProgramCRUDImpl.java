@@ -3,7 +3,6 @@ package com.sana.dev.fm.utils.my_firebase;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.sana.dev.fm.utils.AppConstant.Firebase.RADIO_PROGRAM_TABLE;
 import static com.sana.dev.fm.utils.FmUtilize.isEmpty;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABASE;
 
 import android.app.Activity;
 
@@ -31,7 +30,7 @@ public class FmProgramCRUDImpl extends FirebaseRepository implements FmCRUD<Radi
 
     public FmProgramCRUDImpl(Activity activity, String TableName) {
         this.activity = activity;
-        colRef = DATABASE.collection(TableName);
+        colRef = FirebaseDatabaseReference.getTopLevelCollection().document().collection(TableName);
     }
 
 
@@ -51,12 +50,12 @@ public class FmProgramCRUDImpl extends FirebaseRepository implements FmCRUD<Radi
                 }
 
                 @Override
-                public void onError(Object object) {
-                    callBack.onError(object);
+                public void onFailure(Object object) {
+                    callBack.onFailure(object);
                 }
             });
         } else {
-            callBack.onError(AppGeneralMessage.FAIL);
+            callBack.onFailure(AppGeneralMessage.FAIL);
         }
     }
 
@@ -73,12 +72,12 @@ public class FmProgramCRUDImpl extends FirebaseRepository implements FmCRUD<Radi
                 }
 
                 @Override
-                public void onError(Object object) {
-                    callBack.onError(object);
+                public void onFailure(Object object) {
+                    callBack.onFailure(object);
                 }
             });
         } else {
-            callBack.onError(AppGeneralMessage.FAIL);
+            callBack.onFailure(AppGeneralMessage.FAIL);
         }
     }
 
@@ -94,12 +93,12 @@ public class FmProgramCRUDImpl extends FirebaseRepository implements FmCRUD<Radi
                 }
 
                 @Override
-                public void onError(Object object) {
-                    callBack.onError(object);
+                public void onFailure(Object object) {
+                    callBack.onFailure(object);
                 }
             });
         } else {
-            callBack.onError(AppGeneralMessage.FAIL);
+            callBack.onFailure(AppGeneralMessage.FAIL);
         }
     }
 
@@ -129,12 +128,12 @@ public class FmProgramCRUDImpl extends FirebaseRepository implements FmCRUD<Radi
                 }
 
                 @Override
-                public void onError(Object object) {
-                    callBack.onError(object);
+                public void onFailure(Object object) {
+                    callBack.onFailure(object);
                 }
             });
         }else {
-            callBack.onError(AppGeneralMessage.FAIL);
+            callBack.onFailure(AppGeneralMessage.FAIL);
         }
     }
 

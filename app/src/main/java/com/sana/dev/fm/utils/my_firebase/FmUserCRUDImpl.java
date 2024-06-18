@@ -1,7 +1,6 @@
 package com.sana.dev.fm.utils.my_firebase;
 
 import static com.sana.dev.fm.utils.FmUtilize.pojo2Map;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABASE;
 
 import android.app.Activity;
 
@@ -31,7 +30,7 @@ public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
 
     public FmUserCRUDImpl(Activity activity, String TableName) {
         this.activity = activity;
-        colRef = DATABASE.collection(TableName);
+        colRef = FirebaseDatabaseReference.getTopLevelCollection().getFirestore().collection(TableName);
     }
 
 
@@ -51,13 +50,13 @@ public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
                 }
 
                 @Override
-                public void onError(Object object) {
+                public void onFailure(Object object) {
 //                    mProgressHUD.dismiss();
-                    callBack.onError(AppGeneralMessage.ERROR);
+                    callBack.onFailure(AppGeneralMessage.ERROR);
                 }
             });
         } else {
-            callBack.onError(AppGeneralMessage.FAIL);
+            callBack.onFailure(AppGeneralMessage.FAIL);
         }
     }
 
@@ -78,12 +77,12 @@ public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
                 }
 
                 @Override
-                public void onError(Object object) {
-                    callBack.onError(object);
+                public void onFailure(Object object) {
+                    callBack.onFailure(object);
                 }
             });
         } else {
-            callBack.onError(AppGeneralMessage.FAIL);
+            callBack.onFailure(AppGeneralMessage.FAIL);
         }
     }
 
@@ -110,17 +109,17 @@ public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
                                     callBack.onSuccess(user);
 
                                 } else {
-                                    callBack.onError(null);
+                                    callBack.onFailure(null);
                                 }
 
                             } else {
                                 LogUtility.e(TAG, "queryAllBy : " + task.getException());
-                                callBack.onError(task.getException());
+                                callBack.onFailure(task.getException());
                             }
                         }
                     });
         } else {
-            callBack.onError(AppGeneralMessage.FAIL);
+            callBack.onFailure(AppGeneralMessage.FAIL);
         }
     }
 
@@ -150,17 +149,17 @@ public class FmUserCRUDImpl extends FirebaseRepository implements FmCRUD {
                                     callBack.onSuccess(user);
 
                                 } else {
-                                    callBack.onError(null);
+                                    callBack.onFailure(null);
                                 }
 
                             } else {
                                 LogUtility.e(TAG, "queryAllBy : " + task.getException());
-                                callBack.onError(task.getException());
+                                callBack.onFailure(task.getException());
                             }
                         }
                     });
         } else {
-            callBack.onError(AppGeneralMessage.FAIL);
+            callBack.onFailure(AppGeneralMessage.FAIL);
         }
     }
 

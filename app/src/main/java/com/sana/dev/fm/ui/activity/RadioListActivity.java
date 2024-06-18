@@ -196,7 +196,7 @@ public class RadioListActivity extends BaseActivity {
             }
 
             @Override
-            public void onError(Object object) {
+            public void onFailure(Object object) {
             }
         });
     }
@@ -338,7 +338,7 @@ public class RadioListActivity extends BaseActivity {
             }
 
             @Override
-            public void onError(Object object) {
+            public void onFailure(Object object) {
                 showToast(object.toString());
             }
         });
@@ -352,7 +352,7 @@ public class RadioListActivity extends BaseActivity {
             }
 
             @Override
-            public void onError(Object object) {
+            public void onFailure(Object object) {
                 showToast(object.toString());
             }
         });

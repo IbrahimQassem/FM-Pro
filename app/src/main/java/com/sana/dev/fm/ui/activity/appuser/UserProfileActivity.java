@@ -300,7 +300,7 @@ public class UserProfileActivity extends BaseActivity {
                 }
 
                 @Override
-                public void onError(Object object) {
+                public void onFailure(Object object) {
                     showToast(getString(R.string.unkon_error_please_try_again_later));
                 }
             });
@@ -405,7 +405,7 @@ public class UserProfileActivity extends BaseActivity {
                 }
 
                 @Override
-                public void onError(Object object) {
+                public void onFailure(Object object) {
                     Log.d(TAG, "onError : " + object);
                     showToast(getString(R.string.unkon_error_please_try_again_later));
                 }
@@ -493,7 +493,7 @@ public class UserProfileActivity extends BaseActivity {
             }
 
             @Override
-            public void onError(Object object) {
+            public void onFailure(Object object) {
                 Log.d(TAG, "onError : " + object);
             }
         });

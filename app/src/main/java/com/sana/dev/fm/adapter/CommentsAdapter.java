@@ -83,7 +83,7 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
     }
 
     private void getListItems(CommentViewHolder holder, String userId) {
-        DocumentReference colRef = FirebaseDatabaseReference.DATABASE.collection(USERS_TABLE).document(userId);
+        DocumentReference colRef = FirebaseDatabaseReference.getTopLevelCollection().getFirestore().collection(USERS_TABLE).document(userId);
         colRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {

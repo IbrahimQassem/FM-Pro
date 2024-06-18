@@ -41,7 +41,7 @@ public abstract class FirebaseRepository<T> {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                callback.onError(e);
+                callback.onFailure(e);
             }
         });
     }
@@ -62,7 +62,7 @@ public abstract class FirebaseRepository<T> {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                callback.onError(e);
+                callback.onFailure(e);
             }
         });
     }
@@ -120,7 +120,7 @@ public abstract class FirebaseRepository<T> {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                callback.onError(e);
+                callback.onFailure(e);
             }
         });
     }
@@ -140,7 +140,7 @@ public abstract class FirebaseRepository<T> {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                callback.onError(e);
+                callback.onFailure(e);
             }
         });
     }
@@ -158,7 +158,7 @@ public abstract class FirebaseRepository<T> {
                 if (task.isSuccessful())
                     callback.onSuccess(AppGeneralMessage.SUCCESS);
                 else
-                    callback.onError(AppGeneralMessage.FAIL);
+                    callback.onFailure(AppGeneralMessage.FAIL);
             }
         });
     }
@@ -181,7 +181,7 @@ public abstract class FirebaseRepository<T> {
                         callBack.onSuccess(null);
                     }
                 } else {
-                    callBack.onError(task.getException());
+                    callBack.onFailure(task.getException());
                 }
             }
         });
@@ -205,7 +205,7 @@ public abstract class FirebaseRepository<T> {
                         callBack.onSuccess(null);
                     }
                 } else {
-                    callBack.onError(task.getException());
+                    callBack.onFailure(task.getException());
                 }
             }
         });
@@ -224,7 +224,7 @@ public abstract class FirebaseRepository<T> {
             public void onEvent(@Nullable DocumentSnapshot snapshot,
                                 @Nullable FirebaseFirestoreException e) {
                 if (e != null) {
-                    callBack.onError(e);
+                    callBack.onFailure(e);
                     return;
                 }
                 if (snapshot != null && snapshot.exists()) {
@@ -254,13 +254,13 @@ public abstract class FirebaseRepository<T> {
                         callBack.onSuccess(null);
                     }
                 } else {
-                    callBack.onError(task.getException());
+                    callBack.onFailure(task.getException());
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                callBack.onError(e);
+                callBack.onFailure(e);
             }
         });
     }
@@ -277,7 +277,7 @@ public abstract class FirebaseRepository<T> {
             public void onEvent(@Nullable QuerySnapshot value,
                                 @Nullable FirebaseFirestoreException e) {
                 if (e != null) {
-                    callBack.onError(e);
+                    callBack.onFailure(e);
                     return;
                 }
                 callBack.onSuccess(value);
@@ -329,7 +329,7 @@ public abstract class FirebaseRepository<T> {
             public void onEvent(@Nullable QuerySnapshot querySnapshot,
                                 @Nullable FirebaseFirestoreException e) {
                 if (e != null) {
-                    callBack.onError(e);
+                    callBack.onFailure(e);
                     return;
                 }
                 callBack.onSuccess(querySnapshot);

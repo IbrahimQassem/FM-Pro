@@ -1,6 +1,9 @@
 package com.sana.dev.fm.adapter;
 
 
+import static com.sana.dev.fm.utils.Tools.getFormattedDateOnly;
+import static com.sana.dev.fm.utils.Tools.getFormattedTimeEvent;
+
 import android.content.Context;
 import android.view.View;
 
@@ -63,12 +66,19 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 
         Tools.setTextOrHideIfEmpty(binding.tvDesc, episode.getEpDesc());
         Tools.setTextOrHideIfEmpty(binding.tvState, null);
-        Tools.setTextOrHideIfEmpty(binding.tvDate, null);
-        Tools.setTextOrHideIfEmpty(binding.tvTime, Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
-//        Tools.setTextOrHideIfEmpty(binding.tvDate, Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
+//        Tools.setTextOrHideIfEmpty(binding.tvDate, null);
+        Tools.setTextOrHideIfEmpty(binding.tvTime, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
+        Tools.setTextOrHideIfEmpty(binding.tvDate, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
 //        binding.tvTime.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
-//        String st = "" +  getFormattedTimeEvent(episode.getDateTimeModel().getTimeStart());
-//        tv_time.setText(st);
+//        String st = "" +  getFormattedTimeEvent(episode.getDateTimeModel().getTimeStart(), FmUtilize.arabicFormat);
+//        binding.tvState.setText(st);
+        if (episode.getDateTimeModel() != null) {
+            String dt = getFormattedDateOnly(episode.getDateTimeModel().getDateStart(),FmUtilize.arabicFormat) + " - " + getFormattedDateOnly(episode.getDateTimeModel().getDateEnd(),FmUtilize.arabicFormat);
+            binding.tvState.setText(dt);
+        } else {
+//            binding.tvState.setVisibility(View.GONE);
+        }
+
 //        if (episode.getDateTimeModel() != null){
 //            LogUtility.d(TAG, "date  getDateStart : " + new Gson().toJson(FmUtilize.modifyDateLayout(episode.getDateTimeModel().getDateStart())));
 //            LogUtility.d(TAG, "date  getDateEnd : " + new Gson().toJson(FmUtilize.modifyDateLayout(episode.getDateTimeModel().getDateEnd())));

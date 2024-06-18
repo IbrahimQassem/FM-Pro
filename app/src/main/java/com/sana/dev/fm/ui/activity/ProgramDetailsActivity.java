@@ -156,7 +156,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                 }
 
                 @Override
-                public void onError(Object object) {
+                public void onFailure(Object object) {
                     LogUtility.e(TAG, "readProgramByRadioIdAndProgramId: " + object);
                     hideProgress();
                 }
@@ -182,7 +182,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                 }
 
                 @Override
-                public void onError(Object object) {
+                public void onFailure(Object object) {
                     LogUtility.e(TAG, "readAllEpisodeByRadioIdAndPgId: " + object);
                 }
             });

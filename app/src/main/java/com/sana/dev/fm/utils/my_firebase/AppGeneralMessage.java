@@ -36,7 +36,7 @@ public class AppGeneralMessage  {
         return "";
     }
 
-    public static final String SUCCESS = getString(R.string.done_successfully);
-    public static final String FAIL = getString(R.string.error_failure);
-    public static final String ERROR = getString(R.string.label_error_occurred);
+    public static final String SUCCESS = "200";// getString(R.string.done_successfully);
+    public static final String FAIL = "401";//getString(R.string.error_failure);
+    public static final String ERROR = "501";// getString(R.string.label_error_occurred);
 }

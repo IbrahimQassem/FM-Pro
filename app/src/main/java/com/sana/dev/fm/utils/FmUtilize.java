@@ -47,6 +47,7 @@ import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.WakeTranslate;
 
 import java.io.FileNotFoundException;
+import java.lang.reflect.Field;
 import java.security.SecureRandom;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
@@ -58,6 +59,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -616,6 +618,19 @@ public class FmUtilize {
         Map<String, Object> result = new Gson().fromJson(json, Map.class);
         return result;
     }
+
+    public static Map<String, Object> classToMap(Object obj) throws IllegalAccessException {
+        Map<String, Object> map = new HashMap<>();
+        Class<?> c = obj.getClass();
+
+        for (Field field : c.getDeclaredFields()) {
+            field.setAccessible(true);
+            map.put(field.getName(), field.get(obj));
+        }
+
+        return map;
+    }
+
 
     public static String getSecret(int size) {
         byte[] secret = getSecretBytes(size);

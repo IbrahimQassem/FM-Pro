@@ -156,7 +156,7 @@ public class ListMultiSelection extends BaseActivity {
             }
 
             @Override
-            public void onError(Object object) {
+            public void onFailure(Object object) {
                 LogUtility.e(TAG, "reaDailyEpisodeByRadioId: " + object);
             }
         });

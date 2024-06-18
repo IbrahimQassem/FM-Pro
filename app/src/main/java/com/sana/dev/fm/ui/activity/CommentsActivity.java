@@ -1,8 +1,6 @@
 package com.sana.dev.fm.ui.activity;
 
 
-import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABASE;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
@@ -41,6 +39,7 @@ import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
+import com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference;
 
 /**
  * Created by ibrahim
@@ -129,8 +128,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         binding.rvComments.setLayoutManager(linearLayoutManager);
 //        binding.rvComments.setHasFixedSize(true);
-
-        query = DATABASE.collection(AppConstant.Firebase.EPISODE_TABLE)
+        query = FirebaseDatabaseReference.getTopLevelCollection().getFirestore().collection(AppConstant.Firebase.EPISODE_TABLE)
                 .document(radioId)
                 .collection(AppConstant.Firebase.EPISODE_TABLE)
                 .document(epId)
@@ -230,7 +228,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 //            binding.etComment.setText(null);
 //            binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
 
-            CollectionReference colRef = DATABASE.collection(AppConstant.Firebase.EPISODE_TABLE)
+            CollectionReference colRef = FirebaseDatabaseReference.getTopLevelCollection().getFirestore().collection(AppConstant.Firebase.EPISODE_TABLE)
                     .document(radioId)
                     .collection(AppConstant.Firebase.EPISODE_TABLE)
                     .document(epId)

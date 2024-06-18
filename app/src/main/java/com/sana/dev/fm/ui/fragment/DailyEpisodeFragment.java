@@ -34,6 +34,8 @@ import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -49,7 +51,6 @@ import butterknife.ButterKnife;
  * create an instance of this fragment.
  */
 public class DailyEpisodeFragment extends BaseFragment {
-
     private static final String TAG = DailyEpisodeFragment.class.getSimpleName();
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -138,9 +139,11 @@ public class DailyEpisodeFragment extends BaseFragment {
 
 
     private void loadDailyEpisode(String radioId) {
+        try {
+
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
-        String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : "";
+        String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : " ";
          SpannableString primarySpannable = new SpannableString(Html.fromHtml("<b>" + primary + "</b>"));
         primarySpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
         builder.append(primarySpannable);
@@ -155,10 +158,64 @@ public class DailyEpisodeFragment extends BaseFragment {
         blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.grey_700)), 0, blue.length(), 0);
         builder.append(blueSpannable);
 
-
 //        tvTittle.setText(String.format(" %s", ctx.getResources().getString(R.string.episode_daily,blue )));
         tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
 
+        }catch (Exception e){
+
+        }
+
+
+        FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
+
+
+        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+//        firestoreQueryList.add(new FirestoreQuery(
+//                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+//                "disabled",
+//                false
+//        ));
+
+        firestoreDbUtility.getMany(AppConstant.Firebase.EPISODE_TABLE, firestoreQueryList, new CallBack() {
+            @Override
+            public void onSuccess(Object object) {
+                List<Episode> episodeList = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);
+                List<TempEpisodeModel> modelList = new ArrayList<>();
+                for (int i1 = 0; i1 < safeList(episodeList).size(); i1++) {
+                    List<DateTimeModel> shTimeList = episodeList.get(i1).getShowTimeList();
+                    for (int i2 = 0; i2 < safeList(shTimeList).size(); i2++) {
+                        DateTimeModel timeModel = shTimeList.get(i2);
+                        Episode ep = episodeList.get(i1);
+                        String _displayDayName = isCollection(timeModel.getDisplayDays()) ? timeModel.getDisplayDays().get(0) : "";
+                        modelList.add(new TempEpisodeModel(ep.getEpProfile(), ep.getEpName(), ep.getEpAnnouncer(), _displayDayName, timeModel));
+                    }
+                }
+
+                List<TempEpisodeModel> filtered = new ArrayList<TempEpisodeModel>();
+                for(TempEpisodeModel article : modelList)
+                {
+                    if(article.getDisplayDayName().matches(FmUtilize.getShortEnDayName()))
+                        filtered.add(article);
+                }
+
+                boolean isToday = filtered.size() > 0;
+
+                recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
+                TimeLineAdapter adapterPeople = new TimeLineAdapter(ctx, filtered);
+                mAdapter = adapterPeople;
+                recyclerView.setAdapter(adapterPeople);
+
+                recyclerView.setVisibility(isToday ? View.VISIBLE : View.GONE);
+                cf_container.setVisibility(!isToday ? View.VISIBLE : View.GONE);
+            }
+
+            @Override
+            public void onFailure(Object object) {
+                LogUtility.e(TAG, " loadDailyEpisode :  " + object);
+            }
+        });
+
+/*
         ePiRepo.queryAllBy(radioId,null, new CallBack() {
             @Override
             public void onSuccess(Object object) {
@@ -199,6 +256,7 @@ public class DailyEpisodeFragment extends BaseFragment {
                 LogUtility.e(TAG, "reaDailyEpisodeByRadioId onError : " + object);
             }
         });
+*/
 
 
     }

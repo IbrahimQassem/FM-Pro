@@ -48,12 +48,13 @@ import com.sana.dev.fm.ui.fragment.EpisodeFragment;
 import com.sana.dev.fm.ui.fragment.ProgramsFragment;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
-import com.sana.dev.fm.utils.GoogleMobileAdsConsentManager;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
+import com.sana.dev.fm.utils.my_firebase.CallBack;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.radio_player.PlaybackStatus;
 import com.sana.dev.fm.utils.radio_player.RadioManager;
 import com.sana.dev.fm.utils.radio_player.StaticEventDistributor;
@@ -62,7 +63,8 @@ import com.sana.dev.fm.utils.radio_player.metadata.Metadata;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.HashMap;
+import java.util.Map;
 
 import co.mobiwise.materialintro.animation.MaterialIntroListener;
 import co.mobiwise.materialintro.shape.Focus;
@@ -81,7 +83,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     FloatingActionButton fab_radio;
     private BottomSheetDialog mBottomSheetDialog;
     private BottomSheetBehavior mBehavior;
-//    private final AtomicBoolean isMobileAdsInitializeCalled = new AtomicBoolean(false);
+    //    private final AtomicBoolean isMobileAdsInitializeCalled = new AtomicBoolean(false);
     private AdView adView;
 //    private GoogleMobileAdsConsentManager googleMobileAdsConsentManager;
 
@@ -189,7 +191,8 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         fab_radio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//        rotation.setRepeatCount(0);
+
+/*//        rotation.setRepeatCount(0);
 
 //                v.clearAnimation();
 //                fab_radio.clearAnimation();
@@ -212,7 +215,51 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
                 }
 
 //                RadioInfo info = new RadioInfo();
-//                info.createRadio(MainActivity.this);
+//                info.createRadio(MainActivity.this);*/
+                //                RadioInfo radioInfo = new RadioInfo();
+//                radioInfo.createRadio(MainActivity.this);
+
+
+                try {
+                    FirestoreDbUtility firestoreHelper = new FirestoreDbUtility();
+
+                    // Example: Add a document with generated ID
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("id", "123");
+                    data.put("name", "John Doe");
+                    RadioInfo radio1 = RadioInfo.newInstance("1001", "يمن", "", "http://93.190.141.15:7183/live", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1001%2F1001.jpg?alt=media&token=41d7cab7-d1cf-4d10-840a-dd576c04871a", "@yemen_fm", "صنعاء", "99,9", "Yemen Fm", prefMgr.getUserSession().userId, false);
+
+                    firestoreHelper.createOrMerge(AppConstant.Firebase.RADIO_INFO_TABLE, radio1.getRadioId(), FmUtilize.classToMap(radio1), new CallBack() {
+                        @Override
+                        public void onSuccess(Object object) {
+                            showToast(getString(R.string.done_successfully));
+                        }
+
+                        @Override
+                        public void onFailure(Object object) {
+                            showToast(getString(R.string.label_error_occurred_with_val, object));
+                        }
+                    });
+                } catch (Exception e) {
+                    showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
+                }
+//                RadioInfo radio1 = RadioInfo.newInstance("1001", "يمن", "", "http://93.190.141.15:7183/live", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1001%2F1001.jpg?alt=media&token=41d7cab7-d1cf-4d10-840a-dd576c04871a", "@yemen_fm", "صنعاء", "99,9", "Yemen Fm", "usId", false);
+//
+//                firestoreHelperZ.addDocument(AppConstant.Firebase.RADIO_INFO_TABLE, radio1.getRadioId(), radio1, new CallBack() {
+//                    @Override
+//                    public void onSuccess(Object object) {
+//                        Log.d("MyActivity", "Document added: " + object);
+//                    }
+//
+//                    @Override
+//                    public void onError(Object object) {
+//                        Log.w("MyActivity", "Error adding document: "+object);
+//                    }
+//                });
+
+//                // Example: Access a subcollection
+//                CollectionReference usersCollection = firestoreHelperZ.getSubcollection("users");
+//                // ... (Perform operations on the users subcollection)
             }
         });
     }

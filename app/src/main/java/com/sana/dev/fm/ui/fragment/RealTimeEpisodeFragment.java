@@ -295,7 +295,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                                         }
 
                                         @Override
-                                        public void onError(Object object) {
+                                        public void onFailure(Object object) {
                                             LogUtility.e("Error like", object.toString());
                                         }
                                     });
@@ -359,7 +359,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                             }
 
                             @Override
-                            public void onError(Object object) {
+                            public void onFailure(Object object) {
                                 showToast(getString(R.string.error_failure));
                             }
                         });
@@ -382,7 +382,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                             }
 
                             @Override
-                            public void onError(Object object) {
+                            public void onFailure(Object object) {
                                 showToast(getString(R.string.error_failure));
                             }
                         });

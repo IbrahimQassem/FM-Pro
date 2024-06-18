@@ -151,7 +151,9 @@ public class EpisodeFragment extends BaseFragment {
                     if (callBackListener != null)
                         callBackListener.onCallBack();
 
-                    showToast(radioInfo.getName());
+                    if (radioInfo != null && radioInfo.getName() != null){
+                        showToast(radioInfo.getName());
+                    }
                 }
 
                 @Override
