@@ -58,7 +58,6 @@ public class EpisodeFragment extends BaseFragment {
 
     View view;
     Context ctx;
-    String _userId;
     ArrayList<RadioInfo> stationList;
     boolean isSearchBarHide = false;
     MaterialIntroView materialIntroView;
@@ -81,8 +80,6 @@ public class EpisodeFragment extends BaseFragment {
         ButterKnife.bind(this, view);
         sbHelp = new SnackBarUtility(getActivity());
         materialIntroView = new MaterialIntroView(ctx);
-        if (prefMgr.getUserSession() != null && prefMgr.getUserSession().getUserId() != null)
-            _userId = prefMgr.getUserSession().getUserId();
 
         initRadios();
 

@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.firestore.CollectionReference;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListDrag;
 import com.sana.dev.fm.databinding.ActivityListDragBinding;
@@ -25,12 +26,17 @@ import com.sana.dev.fm.databinding.ActivityListMultiSelectionBinding;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
+import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.DragItemTouchHelper;
+import com.sana.dev.fm.utils.IntentHelper;
+import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,7 +75,7 @@ public class RadioListActivity extends BaseActivity {
 
         initToolbar();
         initComponent();
-        loadData();
+        loadRadios();
     }
 
     private void initToolbar() {
@@ -149,7 +155,7 @@ public class RadioListActivity extends BaseActivity {
                     @Override
                     public void onClick(View v) {
                         changePriority(!item.isDisabled(), item);
-                        loadData();
+                        loadRadios();
                     }
                 }));
                 showWarningDialog(config);
@@ -172,34 +178,39 @@ public class RadioListActivity extends BaseActivity {
 
     }
 
-    private void loadData() {
-        //         items = ShardDate.getInstance().getRadioInfoList();
-//        fmStationCRUD.queryAll(new CallBack() {
-//            @Override
-//            public void onSuccess(Object object) {
-//                if (isCollection(object)) {
-//                    ArrayList<RadioInfo> stationList = (ArrayList<RadioInfo>) object;
-////                    items.addAll(stationList);
-////                    mAdapter.notifyDataSetChanged();
-//
-//                    // ... (data model with priority field)
-//
-//// Sort data:
-//                    Collections.sort(stationList, (item1, item2) -> Integer.compare(item2.getPriority(), item1.getPriority()));
-//                    items.addAll(stationList);
-//
-//// Set sorted data to adapter:
-////                    mAdapter.setData(yourDataList);
-//                    mAdapter.notifyDataSetChanged();
-//
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Object object) {
-//            }
-//        });
+    private void loadRadios() {
+
+        FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
+
+        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+//        firestoreQueryList.add(new FirestoreQuery(
+//                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+//                "disabled",
+//                false
+//        ));
+
+        CollectionReference collectionRef = firestoreDbUtility.getTopLevelCollection()
+                .document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);  // Subcollection named "1001"
+
+        firestoreDbUtility.getMany(collectionRef, firestoreQueryList, new CallBack() {
+            @Override
+            public void onSuccess(Object object) {
+                List<RadioInfo> stationList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioInfo.class);
+                Collections.sort(stationList, (item1, item2) -> Integer.compare(item2.getPriority(), item1.getPriority()));
+                items.addAll(stationList);
+
+// Set sorted data to adapter:
+//                    mAdapter.setData(yourDataList);
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Object object) {
+                LogUtility.e(TAG, " loadRadios :  " + object);
+            }
+        });
     }
+
 
 /*
     private void showBottomSheetDialog() {

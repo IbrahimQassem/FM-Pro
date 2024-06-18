@@ -25,13 +25,9 @@ public class Episode implements Serializable {
     private Map<String, Boolean> episodeLikes = new HashMap<>();
 
     @Exclude
-    private List<Episode> epDayleInfoList;
-
-    @Exclude
     public String userId;
     @Exclude
     public int mExpandedPosition = -2;
-
 
 //    @ServerTimestamp
 //    public Date getTimestamp() { return mTimestamp; }
@@ -88,7 +84,6 @@ public class Episode implements Serializable {
                 ", programScheduleTime=" + programScheduleTime +
                 ", showTimeList=" + showTimeList +
                 ", episodeLikes=" + episodeLikes +
-                ", epDayleInfoList=" + epDayleInfoList +
                 ", userId='" + userId + '\'' +
                 '}';
     }
@@ -237,24 +232,6 @@ public class Episode implements Serializable {
     public void setShowTimeList(List<DateTimeModel> showTimeList) {
         this.showTimeList = showTimeList;
     }
-
-    public List<Episode> getEpDayleInfoList() {
-        return epDayleInfoList;
-    }
-
-    public void setEpDayleInfoList(List<Episode> epDayleInfoList) {
-        this.epDayleInfoList = epDayleInfoList;
-    }
-
-//    @ServerTimestamp
-//    public Date getmTimestamp() {
-//        return mTimestamp;
-//    }
-//
-//    public void setmTimestamp(Date mTimestamp) {
-//        this.mTimestamp = mTimestamp;
-//    }
-
 
 }
 

@@ -22,6 +22,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.CollectionReference;
 import com.google.gson.Gson;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
@@ -228,11 +229,14 @@ public class ProgramsFragment extends BaseFragment {
                                     ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_warning), getString(R.string.confirm_delete, obj.getPrName()), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            firestoreDbUtility.deleteDocument(AppConstant.Firebase.RADIO_PROGRAM_TABLE, obj.getProgramId(), new CallBack() {
+
+                                            CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE,selectedRadio.getRadioId());
+                                            firestoreDbUtility.deleteDocument(collectionRef,obj.getProgramId(), new CallBack() {
                                                 @Override
                                                 public void onSuccess(Object object) {
                                                     showToast(getString(R.string.deleted_successfully_with_param, obj.getPrName()));
-                                                    mAdapter.removeAt(position);
+//                                                    mAdapter.removeAt(position);
+                                                    mAdapter.notifyItemRangeRemoved(0, itemList.size());
                                                 }
 
                                                 @Override
@@ -346,7 +350,6 @@ public class ProgramsFragment extends BaseFragment {
 
     private ArrayList<Map<String, String>> keyList = new ArrayList<>();
     private Map<String, List<RadioProgram>> map = new HashMap<>();
-
 
     private void getPhotoList(ArrayList<RadioProgram> arrayList) {
 

@@ -32,6 +32,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnPausedListener;
@@ -70,8 +71,10 @@ import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Stack;
 
 
@@ -370,11 +373,29 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
             firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId), episode.getEpId(), episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    DocumentReference pRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE,radioId).document(episode.getRadioId()).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE).document(episode.getProgramId());
+//                    Map<String, Object> docData = new HashMap<>();
+//                    docData.put("disabled", obj.isDisabled());
+
+                    CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE,episode.getRadioId());
+                    DocumentReference pRef = collectionRef.document(episode.getProgramId());
+
                     incrementCounter("episodeCount", pRef);
                     hideProgress();
                     showToast(getString(R.string.done_successfully));
                     finish();
+//                    firestoreDbUtility.createOrMerge(collectionRef, obj.getEpId(), docData, new CallBack() {
+//                        @Override
+//                        public void onSuccess(Object object) {
+////                                            showToast(getString(R.string.done_successfully));
+//                        }
+//
+//                        @Override
+//                        public void onFailure(Object object) {
+////                                            showToast(getString(R.string.label_error_occurred_with_val,object));
+//                        }
+//                    });
+//
+
                 }
 
                 @Override

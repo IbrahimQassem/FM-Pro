@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,14 +19,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.sana.dev.fm.BuildConfig;
@@ -47,6 +42,7 @@ import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
+import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
@@ -232,57 +228,28 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
         firestoreQueryList.add(new FirestoreQuery(
                 FirestoreQueryConditionCode.WHERE_GREATER_THAN_OR_EQUAL_TO,
-                "dateTimeModel.dateEnd",
+                "programScheduleTime.dateEnd",
                 System.currentTimeMillis()
         ));
 
         firestoreQueryList.add(new FirestoreQuery(
                 FirestoreQueryConditionCode.Query_Direction_DESCENDING,
-                "dateTimeModel.dateEnd",
+                "programScheduleTime.dateEnd",
                 Query.Direction.DESCENDING
         ));
 
 
-//        CollectionReference crf = colRef.document(rdId).collection(AppConstant.Firebase.EPISODE_TABLE);
+//        CollectionReference collectionRef = firestoreDbUtility.getTopLevelCollection()
+//                .document(AppConstant.Firebase.EPISODE_TABLE).collection(radioId);  // Subcollection named "1001"
 
-//        CollectionReference crf = firestoreDbUtility.getDocument(AppConstant.Firebase.EPISODE_TABLE,radioId).collection(AppConstant.Firebase.EPISODE_TABLE);
-        CollectionReference crf = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,radioId).document(radioId).collection(AppConstant.Firebase.EPISODE_TABLE);
-        Query populationQuery = crf;
-//      populationQuery = crf.whereGreaterThanOrEqualTo("dateTimeModel.dateEnd", System.currentTimeMillis());
-        populationQuery.orderBy("dateTimeModel.dateEnd", Query.Direction.DESCENDING);
-        //Query(target=Query(HudHudFM/Episode/Episode order by __name__);limitType=LIMIT_TO_FIRST)
-        // /HudHudFM/Episode/1001/Episode/1001__1Rvj9DI6tzOL0G1E0c3j
-        // Build the path reference
-        DocumentReference docRef = firestoreDbUtility.getCollectionReference("/Episode/Episode/1001__avBGai8epXkvuF4H2kms",radioId).document();  // Assuming "1001__avBGai8epXkvuF4H2kms" is the document ID
-        Task<DocumentSnapshot> documentSnapshot = docRef.get();
 
-        documentSnapshot.addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        // Access document data here
-                        Map<String, Object> data = document.getData();
-                        Log.w(TAG, "getting document : " +  data.toString());
+        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,radioId);
 
-                        // ...
-                    } else {
-                        Log.d(TAG, "Document does not exist");
-                    }
-                } else {
-                    Log.w(TAG, "Error getting document", task.getException());
-                }
-            }
-        });
+        Query populationQuery = collectionRef;
+        populationQuery = populationQuery.whereGreaterThanOrEqualTo("programScheduleTime.dateEnd", System.currentTimeMillis());
+        populationQuery = populationQuery.whereEqualTo("disabled", false);
+        populationQuery.orderBy("programScheduleTime.dateEnd", Query.Direction.DESCENDING);
 
-// Build the path reference
-//        DocumentReference docRef = db.collection("HudHudFM")
-//                .collection("Episode")
-//                .document("Episode")  // Possible duplicate "Episode" segment (see note below)
-//                .collection("1001__avBGai8epXkvuF4H2kms");  // Assuming "1001__avBGai8epXkvuF4H2kms" is the document ID
-
-// Get the document
         FirestoreRecyclerOptions<Episode> options =
                 new FirestoreRecyclerOptions.Builder<Episode>()
                         .setQuery(populationQuery, Episode.class)
@@ -313,7 +280,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                     @Override
                     public void onLongItemClick(View view, Episode obj, int position) {
                         if (RealTimeEpisodeFragment.this.isAccountSignedIn() && prefMgr.getUserSession().getUserType() == UserType.SuperADMIN)
-                            showBottomSheetDialog(obj, position);
+                            showBottomSheetDialog(obj, position, radioId);
                     }
                 });
 
@@ -354,22 +321,22 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                                     model.setEpisodeLikes(likeMap);
 
                                     // Todo
-//                                    Map<String, Object> docData = new HashMap<>();
-//                                    docData.put("episodeLikes", model.getEpisodeLikes());
-//
-//                                    DocumentReference documentReference = firestoreDbUtility.getDocument(AppConstant.Firebase.EPISODE_TABLE,radioId).collection(AppConstant.Firebase.EPISODE_TABLE).document(model.getEpId());
-//
-//                                    firestoreDbUtility.update(AppConstant.Firebase.EPISODE_TABLE, model.getEpId(), docData, new CallBack() {
-//                                        @Override
-//                                        public void onSuccess(Object object) {
+                                    Map<String, Object> docData = new HashMap<>();
+                                    docData.put("episodeLikes", model.getEpisodeLikes());
+
+                                    CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,radioId);
+
+                                    firestoreDbUtility.createOrMerge(collectionRef, model.getEpId(), docData, new CallBack() {
+                                        @Override
+                                        public void onSuccess(Object object) {
 //                                            showToast(getString(R.string.done_successfully));
-//                                        }
-//
-//                                        @Override
-//                                        public void onFailure(Object object) {
-//
-//                                        }
-//                                    });
+                                        }
+
+                                        @Override
+                                        public void onFailure(Object object) {
+//                                            showToast(getString(R.string.label_error_occurred_with_val,object));
+                                        }
+                                    });
                                 }
                                 break;
                             case R.id.bt_toggle:
@@ -393,7 +360,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
     private BottomSheetDialog mBottomSheetDialog;
 
-    private void showBottomSheetDialog(Episode obj, int position) {
+    private void showBottomSheetDialog(Episode obj, int position, String radioId) {
         View findViewById = view.findViewById(R.id.bottom_sheet);
         View bottom_sheet = findViewById;
         BottomSheetBehavior mBehavior = BottomSheetBehavior.from(findViewById);
@@ -427,17 +394,20 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                         // Todo
                         Map<String, Object> docData = new HashMap<>();
                         docData.put("disabled", obj.isDisabled());
-//                        ePiRepo.updateEpisodeState(obj, new CallBack() {
-//                            @Override
-//                            public void onSuccess(Object object) {
-//                                showToast(getString(R.string.done_successfully));
-//                            }
-//
-//                            @Override
-//                            public void onFailure(Object object) {
-//                                showToast(getString(R.string.error_failure));
-//                            }
-//                        });
+
+                        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,radioId);
+
+                        firestoreDbUtility.createOrMerge(collectionRef, obj.getEpId(), docData, new CallBack() {
+                            @Override
+                            public void onSuccess(Object object) {
+//                                            showToast(getString(R.string.done_successfully));
+                            }
+
+                            @Override
+                            public void onFailure(Object object) {
+//                                            showToast(getString(R.string.label_error_occurred_with_val,object));
+                            }
+                        });
                     }
                 }));
                 showWarningDialog(config);
@@ -451,19 +421,19 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                     @Override
                     public void onClick(View v) {
                         // Todo
-//                        DocumentReference documentReference = colRef.document(episode.getRadioId()).collection(AppConstant.Firebase.EPISODE_TABLE).document(episode.getEpId());
-//
-//                        firestoreDbUtility.deleteDocument(obj, new CallBack() {
-//                            @Override
-//                            public void onSuccess(Object object) {
-//                                showToast(getString(R.string.deleted_successfully_with_param, obj.getEpName()));
-//                            }
-//
-//                            @Override
-//                            public void onFailure(Object object) {
-//                                showToast(getString(R.string.error_failure));
-//                            }
-//                        });
+                        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,radioId);
+
+                        firestoreDbUtility.deleteDocument(collectionRef,obj.getEpId(), new CallBack() {
+                            @Override
+                            public void onSuccess(Object object) {
+                                showToast(getString(R.string.deleted_successfully_with_param, obj.getEpName()));
+                            }
+
+                            @Override
+                            public void onFailure(Object object) {
+                                showToast(getString(R.string.error_failure));
+                            }
+                        });
                     }
                 }));
                 showWarningDialog(config);

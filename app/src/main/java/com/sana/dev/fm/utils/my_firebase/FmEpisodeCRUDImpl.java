@@ -41,27 +41,27 @@
 //
 //    public Query createSimpleQueries(String rdId) {
 //        CollectionReference crf = colRef.document(rdId).collection(AppConstant.Firebase.EPISODE_TABLE);
-//        Query populationQuery = crf.whereGreaterThanOrEqualTo("dateTimeModel.dateEnd", /*"1662054250043"*/System.currentTimeMillis());
+//        Query populationQuery = crf.whereGreaterThanOrEqualTo("programScheduleTime.dateEnd", /*"1662054250043"*/System.currentTimeMillis());
 //
 ////        // [START fs_simple_queries]
 ////        // [START firestore_query_filter_single_examples]
 ////        Query stateQuery = cities.whereEqualTo("state", "CA");
-////        Query populationQuery = cities.whereLessThan("dateTimeModel.dateEnd", System.currentTimeMillis());
+////        Query populationQuery = cities.whereLessThan("programScheduleTime.dateEnd", System.currentTimeMillis());
 ////        // [END firestore_query_filter_single_examples]
 ////        // [END fs_simple_queries]
 //
 ////        querys.add(stateQuery);
 ////        querys.add(populationQuery);
 ////        querys.add(nameQuery);
-//        return crf.orderBy("dateTimeModel.dateEnd", Query.Direction.DESCENDING);
+//        return crf.orderBy("programScheduleTime.dateEnd", Query.Direction.DESCENDING);
 //    }
 //
 //    public Query mainQuery(String rdId) {
 //        return colRef.document(rdId).collection(AppConstant.Firebase.EPISODE_TABLE)
-//                .whereGreaterThanOrEqualTo("dateTimeModel.dateEnd", System.currentTimeMillis())
-////                .whereEqualTo("dateTimeModel.dateEnd", System.currentTimeMillis())
-////                .whereEqualTo("dateTimeModel.dateEnd", System.currentTimeMillis())
-//                .orderBy("dateTimeModel.dateEnd", Query.Direction.DESCENDING)
+//                .whereGreaterThanOrEqualTo("programScheduleTime.dateEnd", System.currentTimeMillis())
+////                .whereEqualTo("programScheduleTime.dateEnd", System.currentTimeMillis())
+////                .whereEqualTo("programScheduleTime.dateEnd", System.currentTimeMillis())
+//                .orderBy("programScheduleTime.dateEnd", Query.Direction.DESCENDING)
 //                ;
 //    }
 //

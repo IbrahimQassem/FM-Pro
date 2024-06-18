@@ -113,7 +113,7 @@
 //            RadioProgram radioProgram = (RadioProgram) model;
 //            query = colRef.document(radioProgram.getRadioId()).collection(RADIO_PROGRAM_TABLE).whereEqualTo("radioId", radioProgram.getRadioId()).whereEqualTo("programId", radioProgram.getProgramId());
 //        }else if (!isNullOrEmpty(key) ){
-//            query = colRef.document(key).collection(RADIO_PROGRAM_TABLE)/*.orderBy("dateTimeModel.dateEnd", Query.Direction.DESCENDING)*/.orderBy("rateCount", Query.Direction.DESCENDING);
+//            query = colRef.document(key).collection(RADIO_PROGRAM_TABLE)/*.orderBy("programScheduleTime.dateEnd", Query.Direction.DESCENDING)*/.orderBy("rateCount", Query.Direction.DESCENDING);
 //
 //        }
 //

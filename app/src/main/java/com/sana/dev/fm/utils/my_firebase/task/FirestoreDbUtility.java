@@ -189,8 +189,13 @@ public class FirestoreDbUtility {
     }
 
     //    // Example: Delete a document by ID
-    public void deleteDocument(String collectionPath, String documentId, CallBack callback) {
-        getDocument(collectionPath, documentId).delete()
+    public void deleteDocument(final CollectionReference collectionReference, final String documentId, CallBack callback) {
+        CollectionReference collectionRef = collectionReference;
+        // Get a DocumentReference for the document you want to delete (replace "documentId" with the actual ID)
+        DocumentReference docRef = collectionRef.document(documentId);
+
+        // Delete the document
+        docRef.delete()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {

@@ -36,7 +36,6 @@ import java.util.List;
 
 public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context ctx;
-
     private List<RadioProgram> items;
     @LayoutRes
     private int layout_id;
