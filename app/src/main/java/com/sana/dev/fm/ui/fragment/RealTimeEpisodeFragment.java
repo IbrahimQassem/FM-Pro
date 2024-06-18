@@ -246,13 +246,14 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 //        CollectionReference crf = colRef.document(rdId).collection(AppConstant.Firebase.EPISODE_TABLE);
 
 //        CollectionReference crf = firestoreDbUtility.getDocument(AppConstant.Firebase.EPISODE_TABLE,radioId).collection(AppConstant.Firebase.EPISODE_TABLE);
-        CollectionReference crf = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE).document(radioId).collection(AppConstant.Firebase.EPISODE_TABLE);
+        CollectionReference crf = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,radioId).document(radioId).collection(AppConstant.Firebase.EPISODE_TABLE);
         Query populationQuery = crf;
 //      populationQuery = crf.whereGreaterThanOrEqualTo("dateTimeModel.dateEnd", System.currentTimeMillis());
         populationQuery.orderBy("dateTimeModel.dateEnd", Query.Direction.DESCENDING);
         //Query(target=Query(HudHudFM/Episode/Episode order by __name__);limitType=LIMIT_TO_FIRST)
+        // /HudHudFM/Episode/1001/Episode/1001__1Rvj9DI6tzOL0G1E0c3j
         // Build the path reference
-        DocumentReference docRef = firestoreDbUtility.getCollectionReference("/Episode/Episode/1001__avBGai8epXkvuF4H2kms").document();  // Assuming "1001__avBGai8epXkvuF4H2kms" is the document ID
+        DocumentReference docRef = firestoreDbUtility.getCollectionReference("/Episode/Episode/1001__avBGai8epXkvuF4H2kms",radioId).document();  // Assuming "1001__avBGai8epXkvuF4H2kms" is the document ID
         Task<DocumentSnapshot> documentSnapshot = docRef.get();
 
         documentSnapshot.addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

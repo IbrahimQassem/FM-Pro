@@ -173,7 +173,7 @@ public class DailyEpisodeFragment extends BaseFragment {
 //                false
 //        ));
 
-        firestoreDbUtility.getMany(AppConstant.Firebase.EPISODE_TABLE, firestoreQueryList, new CallBack() {
+        firestoreDbUtility.getMany(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId), firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 List<Episode> episodeList = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);

@@ -324,7 +324,7 @@ public class AddProgramActivity extends BaseActivity {
                                     String pushKey = radioId + "__" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
                                     radioProgram.setProgramId(pushKey);
 
-                                    firestoreDbUtility.createOrMerge(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioProgram.getProgramId(), radioProgram, new CallBack() {
+                                    firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioId), radioProgram.getProgramId(), radioProgram, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
                                             showToast(getString(R.string.done_successfully));
@@ -350,7 +350,7 @@ public class AddProgramActivity extends BaseActivity {
             RadioProgram radioProgram = new RadioProgram(programId, radioId, prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
             String pushKey = radioId + "__" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
             radioProgram.setProgramId(pushKey);
-            firestoreDbUtility.createOrMerge(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioProgram.getProgramId(), radioProgram, new CallBack() {
+            firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioId), radioProgram.getProgramId(), radioProgram, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     hideProgress();

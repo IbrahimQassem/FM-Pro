@@ -132,7 +132,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 
             FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
 
-            firestoreDbUtility.getOne(AppConstant.Firebase.RADIO_PROGRAM_TABLE, episode.getRadioId(), new CallBack() {
+            firestoreDbUtility.getOne(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, episode.getRadioId()), episode.getEpId(), new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
@@ -158,7 +158,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 //                false
 //        ));
 
-            firestoreDbUtility.getMany(AppConstant.Firebase.EPISODE_TABLE, firestoreQueryList, new CallBack() {
+            firestoreDbUtility.getMany(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, episode.getRadioId()), firestoreQueryList, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     List<Episode> episodeList = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);

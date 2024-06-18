@@ -1,7 +1,5 @@
 package com.sana.dev.fm.ui.activity;
 
-import static com.sana.dev.fm.utils.FmUtilize.showMessage;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -27,12 +25,12 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.RadioInfo;
-import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.IntentHelper;
@@ -41,7 +39,6 @@ import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmStationCRUDImpl;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
@@ -53,7 +50,6 @@ import java.util.List;
 public class SplashActivity extends AppCompatActivity {
     private static final String TAG = "SplashActivity";
     private final Integer START_DELAY = 1500;
-    private FmStationCRUDImpl rIRepo;
     public PreferencesManager prefMgr;
     protected FirebaseCrashlytics crashlytics;
 
@@ -147,7 +143,16 @@ public class SplashActivity extends AppCompatActivity {
                 false
         ));
 
-        firestoreDbUtility.getMany(AppConstant.Firebase.RADIO_INFO_TABLE, firestoreQueryList, new CallBack() {
+        // /HudHudFM_16/RadioInfo
+        // Assuming you have an initialized FirebaseFirestore instance called "db"
+
+        CollectionReference collectionRef = firestoreDbUtility.getTopLevelCollection()
+                .document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);  // Subcollection named "1001"
+
+// This reference points to the subcollection named "1001".
+
+//        CollectionReference reference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);
+        firestoreDbUtility.getMany(collectionRef, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 List<RadioInfo> radioInfoList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioInfo.class);

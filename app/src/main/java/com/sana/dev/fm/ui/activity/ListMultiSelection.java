@@ -116,7 +116,7 @@ public class ListMultiSelection extends BaseActivity {
 //                false
 //        ));
 
-        firestoreDbUtility.getMany(AppConstant.Firebase.EPISODE_TABLE, firestoreQueryList, new CallBack() {
+        firestoreDbUtility.getMany(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId), firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 List<Episode> episodes = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);

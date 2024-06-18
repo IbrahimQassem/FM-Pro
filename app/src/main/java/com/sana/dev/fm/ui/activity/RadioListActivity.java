@@ -30,7 +30,7 @@ import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.DragItemTouchHelper;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmStationCRUDImpl;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,7 +46,7 @@ public class RadioListActivity extends BaseActivity {
 
     List<RadioInfo> items = new ArrayList<>();
 
-    private FmStationCRUDImpl fmStationCRUD;
+    private FirestoreDbUtility firestoreDbUtility;
 
     private BottomSheetDialog mBottomSheetDialog;
     private BottomSheetBehavior mBehavior;
@@ -65,7 +65,7 @@ public class RadioListActivity extends BaseActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-        fmStationCRUD = new FmStationCRUDImpl(this, AppConstant.Firebase.RADIO_INFO_TABLE);
+        firestoreDbUtility = new FirestoreDbUtility();
 
         initToolbar();
         initComponent();
@@ -174,31 +174,31 @@ public class RadioListActivity extends BaseActivity {
 
     private void loadData() {
         //         items = ShardDate.getInstance().getRadioInfoList();
-        fmStationCRUD.queryAll(new CallBack() {
-            @Override
-            public void onSuccess(Object object) {
-                if (isCollection(object)) {
-                    ArrayList<RadioInfo> stationList = (ArrayList<RadioInfo>) object;
+//        fmStationCRUD.queryAll(new CallBack() {
+//            @Override
+//            public void onSuccess(Object object) {
+//                if (isCollection(object)) {
+//                    ArrayList<RadioInfo> stationList = (ArrayList<RadioInfo>) object;
+////                    items.addAll(stationList);
+////                    mAdapter.notifyDataSetChanged();
+//
+//                    // ... (data model with priority field)
+//
+//// Sort data:
+//                    Collections.sort(stationList, (item1, item2) -> Integer.compare(item2.getPriority(), item1.getPriority()));
 //                    items.addAll(stationList);
+//
+//// Set sorted data to adapter:
+////                    mAdapter.setData(yourDataList);
 //                    mAdapter.notifyDataSetChanged();
-
-                    // ... (data model with priority field)
-
-// Sort data:
-                    Collections.sort(stationList, (item1, item2) -> Integer.compare(item2.getPriority(), item1.getPriority()));
-                    items.addAll(stationList);
-
-// Set sorted data to adapter:
-//                    mAdapter.setData(yourDataList);
-                    mAdapter.notifyDataSetChanged();
-
-                }
-            }
-
-            @Override
-            public void onFailure(Object object) {
-            }
-        });
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Object object) {
+//            }
+//        });
     }
 
 /*
@@ -331,31 +331,31 @@ public class RadioListActivity extends BaseActivity {
 
 
     private void changePriority(boolean radioState, RadioInfo model) {
-        fmStationCRUD.toggleRadioAvailability(radioState, model, new CallBack() {
-            @Override
-            public void onSuccess(Object object) {
-                showToast(object.toString());
-            }
-
-            @Override
-            public void onFailure(Object object) {
-                showToast(object.toString());
-            }
-        });
+//        fmStationCRUD.toggleRadioAvailability(radioState, model, new CallBack() {
+//            @Override
+//            public void onSuccess(Object object) {
+//                showToast(object.toString());
+//            }
+//
+//            @Override
+//            public void onFailure(Object object) {
+//                showToast(object.toString());
+//            }
+//        });
     }
 
     private void changePriority(RadioInfo model) {
-        fmStationCRUD.changePriority(model, new CallBack() {
-            @Override
-            public void onSuccess(Object object) {
-                showToast(object.toString());
-            }
-
-            @Override
-            public void onFailure(Object object) {
-                showToast(object.toString());
-            }
-        });
+//        fmStationCRUD.changePriority(model, new CallBack() {
+//            @Override
+//            public void onSuccess(Object object) {
+//                showToast(object.toString());
+//            }
+//
+//            @Override
+//            public void onFailure(Object object) {
+//                showToast(object.toString());
+//            }
+//        });
     }
 
 

@@ -17,9 +17,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
-import com.sana.dev.fm.model.RadioInfo;
-import com.sana.dev.fm.model.RadioProgram;
-import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference;
@@ -31,7 +28,7 @@ import java.util.Map;
 
 public class FirestoreDbUtility {
     //https://github.com/varunon9/firestore-database-utility/tree/master
-    private static final String TOP_LEVEL_COLLECTION = BASE_FB_DB;
+    private static final String TOP_LEVEL_COLLECTION = BASE_FB_DB + "_16";
 //    private static final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private FirebaseFirestore db;
@@ -41,7 +38,7 @@ public class FirestoreDbUtility {
         db = FirebaseFirestore.getInstance();
     }
 
-    private CollectionReference getTopLevelCollection() {
+    public CollectionReference getTopLevelCollection() {
         return db.collection(TOP_LEVEL_COLLECTION);
     }
 
@@ -59,22 +56,58 @@ public class FirestoreDbUtility {
 //        return collectionRef;
 //    }
 
-    public CollectionReference getCollectionReference(String collectionPath) {
-        String[] pathSegments = collectionPath.split("/");
+    public CollectionReference getCollectionReferenceZ(String collectionPath, String docId) {
+//        String[] pathSegments = collectionPath.split("/");
 //        CollectionReference collectionRef = db.collection(TOP_LEVEL_COLLECTION).document(collectionPath).collection(collectionPath);
+//        CollectionReference collectionRef = getTopLevelCollection().document(docId).collection(collectionPath);
+//        CollectionReference collectionRef = getTopLevelCollection().getFirestore().collection(collectionPath);
+//        CollectionReference collectionRef = getTopLevelCollection().getParent().collection(collectionPath);
+//        CollectionReference collectionRef = getTopLevelCollection().document(docId).collection(collectionPath);
+//        CollectionReference collectionRef = getTopLevelCollection().document(collectionPath).getParent();
+//        CollectionReference collectionRef = getTopLevelCollection().document(collectionPath).collection(docId);
+//        CollectionReference collectionRef = getTopLevelCollection().document(collectionPath).collection(docId).getParent().collection(collectionPath);
+//        CollectionReference collectionRef = getTopLevelCollection().document(collectionPath).collection(docId).document().getParent();
+        // Assuming you have an initialized FirebaseFirestore instance called "db"
+
+
+        // Assuming you have an initialized FirebaseFirestore instance called "db"
+
+
+        // Assuming you have an initialized FirebaseFirestore instance called "db"
+
+//        CollectionReference collectionRef = getTopLevelCollection().document(collectionPath).collection(docId);
+        CollectionReference collectionRef = getTopLevelCollection().document(collectionPath).collection(docId);
+
+
+// This reference points to the specific subcollection within the nested structure.
+
+
+// This reference points to the collection containing the document, not the document itself.
+
+
+// This reference points to the collection containing the document, not the document itself.
+
+        return collectionRef;
+    }
+
+    public CollectionReference getCollectionReference(String collectionPath, String docId) {
+//        String[] pathSegments = collectionPath.split("/");
         CollectionReference collectionRef = getTopLevelCollection();
-        for (String segment : pathSegments) {
-            if (!segment.isEmpty()) {
-//                collectionRef = collectionRef.document(collectionPath).collection(segment);
-                collectionRef = collectionRef.document().collection(segment);
-            }
-        }
+        collectionRef = collectionRef.document(collectionPath).collection(docId);
+
+//        for (String segment : pathSegments) {
+//            if (!segment.isEmpty()) {
+////                collectionRef = collectionRef.collection(segment);
+//                collectionRef = collectionRef.document(collectionPath).collection(docId);
+//            }
+//        }
         return collectionRef;
     }
 
     //    // Get a document by its ID from a specific collection
     public DocumentReference getDocument(String collectionPath, String documentId) {
-        return getCollectionReference(collectionPath).document(documentId);
+//        DocumentReference washingtonRef = db.collection("cities").document("DC");
+        return getCollectionReference(collectionPath, documentId).document(documentId);
     }
 
 
@@ -84,16 +117,17 @@ public class FirestoreDbUtility {
     }
 
 
-    public void createOrMerge(final String collectionName, final String documentName,
+    public void createOrMerge(final CollectionReference collectionReference,
+                              final String documentName,
                               Object object, final CallBack callback) {
         try {
-            getCollectionReference(collectionName).document(documentName)
+            collectionReference.document(documentName)
                     .set(object, SetOptions.merge())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             Log.i(TAG, "createOrMerge success: "
-                                    + collectionName
+                                    + collectionReference.getParent()
                                     + " "
                                     + documentName);
                             callback.onSuccess(null);
@@ -103,7 +137,7 @@ public class FirestoreDbUtility {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Log.e(TAG, "createOrMerge failure: "
-                                    + collectionName
+                                    + collectionReference.getParent()
                                     + " "
                                     + documentName);
                             callback.onFailure(e.getMessage());
@@ -111,11 +145,11 @@ public class FirestoreDbUtility {
                     });
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, "createOrMerge Exception: " + collectionName + " " + documentName + " " + e);
+            Log.e(TAG, "createOrMerge Exception: " + collectionReference.getParent() + " " + documentName + " " + e);
         }
     }
 
-    public void update(final String collectionName, final String documentName,
+    public void update(final CollectionReference collectionReference, final String documentName,
                        final Map<String, Object> hashMap,
                        final CallBack callback) {
 
@@ -123,13 +157,13 @@ public class FirestoreDbUtility {
             // overriding updatedAt column to hashMap for all collections
             hashMap.put("updatedAt", new Date());
 
-            getCollectionReference(collectionName).document(documentName)
+            collectionReference.document(documentName)
                     .update(hashMap)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             Log.i(TAG, "update success: "
-                                    + collectionName
+                                    + collectionReference.getParent()
                                     + " "
                                     + documentName
                                     + " "
@@ -142,7 +176,7 @@ public class FirestoreDbUtility {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Log.e(TAG, "update failure: "
-                                    + collectionName
+                                    + collectionReference.getParent()
                                     + " "
                                     + documentName);
                             callback.onFailure(null);
@@ -150,7 +184,7 @@ public class FirestoreDbUtility {
                     });
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, "update Exception: " + collectionName + " " + documentName + " " + e);
+            Log.e(TAG, "update Exception: " + collectionReference.getParent() + " " + documentName + " " + e);
         }
     }
 
@@ -165,10 +199,11 @@ public class FirestoreDbUtility {
                 });
     }
 
-    public void getOne(final String collectionName, final String documentName,
+    public void getOne(final CollectionReference collectionReference,
+                       final String documentName,
                        final CallBack callback) {
         try {
-            getCollectionReference(collectionName).document(documentName)
+            collectionReference.document(documentName)
                     .get()
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
@@ -185,17 +220,18 @@ public class FirestoreDbUtility {
         } catch (Exception e) {
             e.printStackTrace();
 //            Log.d(TAG, document.getId() + " => " + document.getData());
-            Log.e(TAG, "getOne Exception: " + collectionName + " " + documentName + " " + e);
+            Log.e(TAG, "getOne Exception: " + collectionReference.getParent() + " " + documentName + " " + e);
+            callback.onFailure(e.getMessage());
 
         }
     }
 
-    public void getMany(final String collectionName,
+    public void getMany(final CollectionReference reference,
                         final List<FirestoreQuery> queryList,
                         final CallBack callback) {
 
         try {
-            CollectionReference collectionReference = getCollectionReference(collectionName);
+            CollectionReference collectionReference = reference;
             Query query = null;
             for (FirestoreQuery firestoreQuery : queryList) {
                 switch (firestoreQuery.getConditionCode()) {
@@ -326,7 +362,8 @@ public class FirestoreDbUtility {
                     });
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtility.e(TAG, " getMany: " + collectionName, e);
+            LogUtility.e(TAG, " getMany: " + reference.getParent(), e);
+            callback.onFailure(e.getMessage());
         }
     }
 

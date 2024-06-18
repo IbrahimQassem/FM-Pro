@@ -189,7 +189,7 @@ public class ProgramsFragment extends BaseFragment {
                     false
             ));
 
-            firestoreDbUtility.getMany(AppConstant.Firebase.RADIO_PROGRAM_TABLE, firestoreQueryList, new CallBack() {
+            firestoreDbUtility.getMany(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE,selectedRadio.getRadioId()), firestoreQueryList, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);

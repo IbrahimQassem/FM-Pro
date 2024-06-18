@@ -221,7 +221,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
 
                 try {
-                    FirestoreDbUtility firestoreHelper = new FirestoreDbUtility();
+                    FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
 
                     // Example: Add a document with generated ID
                     Map<String, Object> data = new HashMap<>();
@@ -229,7 +229,8 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
                     data.put("name", "John Doe");
                     RadioInfo radio1 = RadioInfo.newInstance("1001", "يمن", "", "http://93.190.141.15:7183/live", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1001%2F1001.jpg?alt=media&token=41d7cab7-d1cf-4d10-840a-dd576c04871a", "@yemen_fm", "صنعاء", "99,9", "Yemen Fm", prefMgr.getUserSession().userId, false);
 
-                    firestoreHelper.createOrMerge(AppConstant.Firebase.RADIO_INFO_TABLE, radio1.getRadioId(), FmUtilize.classToMap(radio1), new CallBack() {
+                    firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_INFO_TABLE, AppConstant.Firebase.RADIO_INFO_TABLE),radio1.getRadioId(), radio1, new CallBack() {
+//                    firestoreDbUtility.createOrMerge(AppConstant.Firebase.RADIO_INFO_TABLE, radio1.getRadioId(), FmUtilize.classToMap(radio1), new CallBack() {
                         @Override
                         public void onSuccess(Object object) {
                             showToast(getString(R.string.done_successfully));

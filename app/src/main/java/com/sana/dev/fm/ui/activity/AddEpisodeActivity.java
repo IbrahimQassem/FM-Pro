@@ -340,7 +340,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                                     String pushKey = radioId + "__" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
                                     episode.setEpId(pushKey);
 
-                                    firestoreDbUtility.createOrMerge(AppConstant.Firebase.EPISODE_TABLE, episode.getEpId(), episode, new CallBack() {
+                                    firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId), episode.getEpId(), episode, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
                                             showToast(getString(R.string.done_successfully));
@@ -367,10 +367,10 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
             String pushKey = radioId + "__" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
             episode.setEpId(pushKey);
 
-            firestoreDbUtility.createOrMerge(AppConstant.Firebase.EPISODE_TABLE, episode.getEpId(), episode, new CallBack() {
+            firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId), episode.getEpId(), episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    DocumentReference pRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE).document(episode.getRadioId()).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE).document(episode.getProgramId());
+                    DocumentReference pRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE,radioId).document(episode.getRadioId()).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE).document(episode.getProgramId());
                     incrementCounter("episodeCount", pRef);
                     hideProgress();
                     showToast(getString(R.string.done_successfully));
@@ -670,7 +670,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                 false
         ));
 
-        firestoreDbUtility.getMany(AppConstant.Firebase.RADIO_PROGRAM_TABLE, firestoreQueryList, new CallBack() {
+        firestoreDbUtility.getMany(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioId), firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
