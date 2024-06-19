@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.Query;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListDrag;
 import com.sana.dev.fm.databinding.ActivityListDragBinding;
@@ -183,6 +184,12 @@ public class RadioListActivity extends BaseActivity {
         FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
 
         List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.Query_Direction_DESCENDING,
+                "priority",
+                Query.Direction.DESCENDING
+        ));
 //        firestoreQueryList.add(new FirestoreQuery(
 //                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
 //                "disabled",
@@ -196,11 +203,9 @@ public class RadioListActivity extends BaseActivity {
             @Override
             public void onSuccess(Object object) {
                 List<RadioInfo> stationList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioInfo.class);
-                Collections.sort(stationList, (item1, item2) -> Integer.compare(item2.getPriority(), item1.getPriority()));
+                // Set sorted data to adapter:
+                // Collections.sort(stationList, (item1, item2) -> Integer.compare(item2.getPriority(), item1.getPriority()));
                 items.addAll(stationList);
-
-// Set sorted data to adapter:
-//                    mAdapter.setData(yourDataList);
                 mAdapter.notifyDataSetChanged();
             }
 
