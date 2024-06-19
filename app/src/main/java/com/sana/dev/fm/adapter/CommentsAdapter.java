@@ -29,7 +29,6 @@ import com.sana.dev.fm.ui.activity.CommentsActivity;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference;
-import com.sana.dev.fm.utils.my_firebase.FmUserCRUDImpl;
 
 
 /**
@@ -37,9 +36,7 @@ import com.sana.dev.fm.utils.my_firebase.FmUserCRUDImpl;
  */
 public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsAdapter.CommentViewHolder> {
     private final String TAG = CommentsAdapter.class.getName();
-
     private final Context ctx;
-    FmUserCRUDImpl fmRepo;
     private int lastAnimatedPosition = -1;
     private boolean animationsLocked = false;
     private boolean delayEnterAnimation = true;
@@ -47,7 +44,6 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
     public CommentsAdapter(@NonNull FirestoreRecyclerOptions<Comment> options, Context ctx) {
         super(options);
         this.ctx = ctx;
-        fmRepo = new FmUserCRUDImpl((CommentsActivity) this.ctx, USERS_TABLE);
     }
 
     @NonNull
@@ -74,7 +70,7 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
 
     @Override
     protected void onBindViewHolder(@NonNull CommentViewHolder holder, int position, @NonNull Comment model) {
-        LogUtility.e(TAG," Comment : " + model.toString());
+        LogUtility.e(TAG, " Comment : " + model.toString());
         holder.binding.tvComment.setText(model.getCommentText());
         holder.binding.tvFrom.setText(model.getCommentUser());
         String timeAgo = getTimeAgo(Long.parseLong(model.getCommentTime()), ctx);
@@ -92,15 +88,15 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
                     LogUtility.e(TAG, "getAllUsers :  " + new Gson().toJson(userModel));
 
                     if (!isEmpty(userModel.getName()))
-                    holder.binding.tvFrom.setText(userModel.getName());
+                        holder.binding.tvFrom.setText(userModel.getName());
 
                     if (URLUtil.isValidUrl(userModel.getPhotoUrl()))
-                    holder.binding.civLogo.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Tools.displayUserProfile(ctx, holder.binding.civLogo, userModel.getPhotoUrl());
-                        }
-                    });
+                        holder.binding.civLogo.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Tools.displayUserProfile(ctx, holder.binding.civLogo, userModel.getPhotoUrl());
+                            }
+                        });
                 }
 //                LogUtility.e(TAG, "getAllUsers :  " + documentSnapshot.getData());
             }

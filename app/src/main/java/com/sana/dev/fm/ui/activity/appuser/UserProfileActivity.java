@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.OnProgressListener;
@@ -49,10 +50,11 @@ import com.sana.dev.fm.utils.AESCrypt;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
+import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmUserCRUDImpl;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
 
 public class UserProfileActivity extends BaseActivity {
@@ -66,7 +68,7 @@ public class UserProfileActivity extends BaseActivity {
 
     //    private Uri imageUri = null;
 //    private UserModel _userModel;
-    private FmUserCRUDImpl fmRepo;
+    private FirestoreDbUtility firestoreDbUtility;
 
 //    private ProfileImageHelper profileImageHelper;
 
@@ -81,7 +83,7 @@ public class UserProfileActivity extends BaseActivity {
 
         hideKeyboard();
 
-        fmRepo = new FmUserCRUDImpl(this, AppConstant.Firebase.USERS_TABLE);
+        firestoreDbUtility = new FirestoreDbUtility();
         mAuth = FirebaseAuth.getInstance();
         mAuth.setLanguageCode(PreferencesManager.getInstance().getPrefLange());
         // [END initialize_auth]
@@ -221,7 +223,7 @@ public class UserProfileActivity extends BaseActivity {
                         binding.etPassword.setTransformationMethod(new PasswordTransformationMethod());
                     }
                 } catch (Exception e) {
-                   e.printStackTrace();
+                    e.printStackTrace();
                 }
             }
         });
@@ -290,8 +292,9 @@ public class UserProfileActivity extends BaseActivity {
     }
 
     private void deleteMyAccount() {
-        if (isAccountSignedIn())
-            fmRepo.delete(prefMgr.getUserSession(), new CallBack() {
+        if (isAccountSignedIn()) {
+            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
+            firestoreDbUtility.deleteDocument(collectionReference, prefMgr.getUserSession().userId, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     deleteFirebaseUser();
@@ -304,6 +307,7 @@ public class UserProfileActivity extends BaseActivity {
                     showToast(getString(R.string.unkon_error_please_try_again_later));
                 }
             });
+        }
     }
 
     void deleteFirebaseUser() {
@@ -344,8 +348,10 @@ public class UserProfileActivity extends BaseActivity {
 
     private void saveUserData() {
 
+        try {
         UserModel user = prefMgr.getUserSession();
-        // set privilege
+        if (user == null) return;
+            // set privilege
 //        List<String> per = new ArrayList<>();
 //        per.add("ALL");
 //        for (RadioInfo obj : prefMgr.getRadioList()) {
@@ -353,65 +359,53 @@ public class UserProfileActivity extends BaseActivity {
 //        }
 //        user.setAllowedPermissions(per);
 
-        Gender gender = Gender.UNKNOWN;
-        int checkedRadioButtonId = binding.rgGender.getCheckedRadioButtonId();
-        if (binding.rgGender.getCheckedRadioButtonId() != -1) {
-            // radio buttons  checked
-            AppCompatRadioButton checkedRadioButton = (AppCompatRadioButton) findViewById(checkedRadioButtonId);
-            switch (checkedRadioButton.getId()) {
-                case R.id.radio_male:
-                    // do operations specific to this selection
-                    gender = Gender.MALE;
-                    break;
-                case R.id.radio_female:
-                    // do operations specific to this selection
-                    gender = Gender.FEMALE;
-                    break;
+            Gender gender = Gender.UNKNOWN;
+            int checkedRadioButtonId = binding.rgGender.getCheckedRadioButtonId();
+            if (binding.rgGender.getCheckedRadioButtonId() != -1) {
+                // radio buttons  checked
+                AppCompatRadioButton checkedRadioButton = (AppCompatRadioButton) findViewById(checkedRadioButtonId);
+                switch (checkedRadioButton.getId()) {
+                    case R.id.radio_male:
+                        // do operations specific to this selection
+                        gender = Gender.MALE;
+                        break;
+                    case R.id.radio_female:
+                        // do operations specific to this selection
+                        gender = Gender.FEMALE;
+                        break;
+                }
             }
-        }
 
 //            }
 //        });
 
-        String name = binding.etFullName.getText().toString().trim();
-        String mobile = binding.etMobile.getText().toString().trim();
-        String email = binding.etEmail.getText().toString().trim();
-        String pass = AESCrypt.encrypt(Tools.toString(binding.etPassword));
+            String name = Tools.isEmpty(binding.etFullName) ? "" : binding.etFullName.getText().toString().trim();
+            String mobile = Tools.isEmpty(binding.etMobile) ? "" : binding.etMobile.getText().toString().trim();
+            String email = Tools.isEmpty(binding.etEmail) ? "" : binding.etEmail.getText().toString().trim();
+            String pass = Tools.isEmpty(binding.etPassword) ? "" : AESCrypt.encrypt(Tools.toString(binding.etPassword));
 
-        boolean isUserNameEdite = user.getName().equals(name);
-        boolean isGenderEdited = user.getGender() == gender;
-        if (isUserNameEdite && isGenderEdited) {
-            startMainActivity();
-        } else {
-            user.setName(name);
-            user.setMobile(mobile);
-            user.setEmail(email);
-            user.setPassword(pass);
+            boolean isUserNameEdite = Tools.isEmpty(user.getName()) && name.equalsIgnoreCase(user.getName());
+            boolean isGenderEdited = user.getGender() == gender;
+            if (isUserNameEdite && isGenderEdited) {
+                startMainActivity();
+            } else {
+                user.setName(name);
+                user.setMobile(mobile);
+                user.setEmail(email);
+                user.setPassword(pass);
 
-            user.setGender(gender);
-            user.setDeviceToken(FmUtilize.getIMEIDeviceId(this));
-            user.setNotificationToken(FmUtilize.getFirebaseToken(this));
+                user.setGender(gender);
+                user.setDeviceToken(FmUtilize.getIMEIDeviceId(this));
+                user.setNotificationToken(FmUtilize.getFirebaseToken(this));
 //            updateUser(user);
-            Log.d(TAG, "before submit : " + user.toString());
-
-            fmRepo.create(user.getUserId(), user, new CallBack() {
-                @Override
-                public void onSuccess(Object object) {
-                    Log.d(TAG, "after submit : " + object);
-
-                    prefMgr.setUserSession((UserModel) object);
-                    showToast(getString(R.string.saved_successfully));
-                    startMainActivity();
-                }
-
-                @Override
-                public void onFailure(Object object) {
-                    Log.d(TAG, "onError : " + object);
-                    showToast(getString(R.string.unkon_error_please_try_again_later));
-                }
-            });
+                Log.d(TAG, "before submit : " + user.toString());
+                updateUser(user);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d(TAG, "Error saveUserData : " + e.getMessage());
+            showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
         }
-
     }
 
     private void uploadUserProfile(Uri uriImage) {
@@ -485,19 +479,22 @@ public class UserProfileActivity extends BaseActivity {
 
 
     void updateUser(UserModel model) {
-        fmRepo.create(prefMgr.getUserSession().getUserId(), model, new CallBack() {
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
+        firestoreDbUtility.createOrMerge(collectionReference, model.userId, model, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                prefMgr.setUserSession((UserModel) object);
-                showToast(getString(R.string.done_successfully));
+                prefMgr.setUserSession(model);
+                showToast(getString(R.string.login_successfully));
+                startMainActivity();
             }
 
             @Override
             public void onFailure(Object object) {
-                Log.d(TAG, "onError : " + object);
+                LogUtility.e(LogUtility.TAG, "onError : " + object);
+//                    showToast(getString(R.string.label_error_occurred_with_val, object.toString()));
+                showToast(getString(R.string.unkon_error_please_try_again_later));
             }
         });
-
     }
 
     @Override

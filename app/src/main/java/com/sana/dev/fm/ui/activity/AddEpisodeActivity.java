@@ -376,7 +376,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
 //                    Map<String, Object> docData = new HashMap<>();
 //                    docData.put("disabled", obj.isDisabled());
 
-                    CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE,episode.getRadioId());
+                    CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, episode.getRadioId());
                     DocumentReference pRef = collectionRef.document(episode.getProgramId());
 
                     incrementCounter("episodeCount", pRef);

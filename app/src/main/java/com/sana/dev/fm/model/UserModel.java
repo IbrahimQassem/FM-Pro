@@ -12,7 +12,7 @@ import java.util.List;
  */
 
 public class UserModel extends UserId {
-    private String name, email, mobile, password, photoUrl, nickNme, bio, tag, deviceId, stopNote, country, city, deviceToken,notificationToken,otherDate;
+    private String name, email, mobile, password, photoUrl, nickNme, bio, tag, deviceId, stopNote, country, city, deviceToken,notificationToken,otherData;
     private boolean isVerified, isOnline, disabled;
     private long lastSignInTimestamp;
     private Gender gender;
@@ -24,7 +24,7 @@ public class UserModel extends UserId {
     public UserModel() {
     }
 
-    public UserModel(String userId, String name, String email, String mobile, String password, String photoUrl, String deviceToken, String nickNme, String bio, String tag, boolean isVerified, boolean isOnline, boolean disabled, String deviceId, String stopNote, Gender gender, String country, String city, long lastSignInTimestamp, UserType userType,AuthMethod authMethod,String createdAt,String notificationToken,String otherDate,List<String> allowedPermissions) {
+    public UserModel(String userId, String name, String email, String mobile, String password, String photoUrl, String deviceToken, String nickNme, String bio, String tag, boolean isVerified, boolean isOnline, boolean disabled, String deviceId, String stopNote, Gender gender, String country, String city, long lastSignInTimestamp, UserType userType,AuthMethod authMethod,String createdAt,String notificationToken,String otherData,List<String> allowedPermissions) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -48,7 +48,7 @@ public class UserModel extends UserId {
         this.authMethod = authMethod;
         this.createdAt = createdAt;
         this.notificationToken = notificationToken;
-        this.otherDate = otherDate;
+        this.otherData = otherData;
         this.allowedPermissions = allowedPermissions;
     }
 
@@ -175,12 +175,12 @@ public class UserModel extends UserId {
         this.notificationToken = notificationToken;
     }
 
-    public String getOtherDate() {
-        return otherDate;
+    public String getOtherData() {
+        return otherData;
     }
 
-    public void setOtherDate(String otherDate) {
-        this.otherDate = otherDate;
+    public void setOtherData(String otherData) {
+        this.otherData = otherData;
     }
 
     public boolean isVerified() {

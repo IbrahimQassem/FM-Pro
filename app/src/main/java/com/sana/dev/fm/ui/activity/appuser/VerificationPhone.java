@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.firestore.CollectionReference;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AuthMethod;
 import com.sana.dev.fm.model.ButtonConfig;
@@ -36,8 +37,12 @@ import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.FmUserCRUDImpl;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class VerificationPhone extends BaseActivity {
@@ -117,38 +122,43 @@ public class VerificationPhone extends BaseActivity {
                 });
     }
 
-    void checkUserAuth(FirebaseUser user) {
+    void checkUserAuth(FirebaseUser firebaseUser) {
         Intent intent = IntentHelper.userProfileActivity(VerificationPhone.this, true);
-        FmUserCRUDImpl fmRepo = new FmUserCRUDImpl(this, USERS_TABLE);
-        fmRepo.queryAllBy(phoneNumber, null, new CallBack() {
+
+        FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
+        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                "mobile",
+                phoneNumber
+        ));
+
+
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
+        firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                LogUtility.d(LogUtility.TAG, "onSuccess : " + object);
-                UserModel _userModel = (UserModel) object;
-                // cause user logged with phone auth
-                _userModel.setVerified(true);
-                _userModel.setAuthMethod(AuthMethod.SMS);
-                prefMgr.setUserSession(_userModel);
-                showToast(getString(R.string.login_successfully));
-                startActivity(intent);
-            }
+                LogUtility.d(LogUtility.TAG, "Success checkUserAuth: " + object);
 
-            @Override
-            public void onFailure(Object object) {
-                LogUtility.e(LogUtility.TAG, "onError : " + object);
-                if (object == null) {
-                    // create new user
-                    String uid = user.getUid();
-                    String name = user.getDisplayName();
-//                String email = user.getEmail();
-//                   String mobile = TextUtils.isEmpty(user.getPhoneNumber()) ? user.getPhoneNumber() : prefMgr.read(FirebaseConstants.USER_MOBILE,"");
-//                    Users obUser =  new Users(uid, name, phoneNumber,prefMgr.read(FirebaseConstants.USER_IMAGE_Profile,null), getToken(VerificationPhone.this), Gender.UNKNOWN, new Date(),null,null,null,null);
+                List<UserModel> userModelList = FirestoreDbUtility.getDataFromQuerySnapshot(object, UserModel.class);
+
+                if (userModelList != null && userModelList.size() > 0) {
+                    UserModel user = userModelList.get(0);
+                    // cause user logged with auth
+                    user.setVerified(true);
+                    user.setAuthMethod(AuthMethod.SMS);
+                    prefMgr.setUserSession(user);
+                    showToast(getString(R.string.login_successfully));
+                    startActivity(intent);
+                } else {
+                    String uid = firebaseUser.getUid();
+                    String name = firebaseUser.getDisplayName();
                     UserModel obUser = new UserModel(uid, name, null, phoneNumber, null, null, FmUtilize.getIMEIDeviceId(VerificationPhone.this), null, null, null, true, false, false, FmUtilize.deviceId(VerificationPhone.this), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.SMS,  Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(VerificationPhone.this), null, new ArrayList<>());
 
-                    fmRepo.create(uid, obUser, new CallBack() {
+                    firestoreDbUtility.createOrMerge(collectionReference, obUser.userId, obUser, new CallBack() {
                         @Override
                         public void onSuccess(Object object) {
-                            prefMgr.setUserSession((UserModel) object);
+                            prefMgr.setUserSession(obUser);
                             showToast(getString(R.string.login_successfully));
                             startActivity(intent);
                         }
@@ -156,14 +166,20 @@ public class VerificationPhone extends BaseActivity {
                         @Override
                         public void onFailure(Object object) {
                             LogUtility.e(LogUtility.TAG, "onError : " + object);
-                            showToast(object.toString());
+                            showToast(getString(R.string.label_error_occurred_with_val, object.toString()));
                         }
                     });
                 }
             }
-        });
 
+            @Override
+            public void onFailure(Object object) {
+                LogUtility.d(LogUtility.TAG, "Failure checkUserAuth: " + object);
+                showToast(getString(R.string.label_error_occurred_with_val,object));
+            }
+        });
     }
+
 
     private void sendVerificationCode(String phoneNumber) {
 

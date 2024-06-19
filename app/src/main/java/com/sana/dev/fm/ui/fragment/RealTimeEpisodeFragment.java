@@ -326,15 +326,17 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
                                     CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,radioId);
 
-                                    firestoreDbUtility.createOrMerge(collectionRef, model.getEpId(), docData, new CallBack() {
+                                    firestoreDbUtility.update(collectionRef, model.getEpId(), docData, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
 //                                            showToast(getString(R.string.done_successfully));
+                                            LogUtility.d(LogUtility.TAG, "success set episodeLikes radioId : " + radioId + " docData is  : " + docData);
                                         }
 
                                         @Override
                                         public void onFailure(Object object) {
 //                                            showToast(getString(R.string.label_error_occurred_with_val,object));
+                                            LogUtility.d(LogUtility.TAG, "failure set episodeLikes radioId : " + radioId + " docData is  : " + object);
                                         }
                                     });
                                 }

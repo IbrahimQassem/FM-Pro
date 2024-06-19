@@ -70,7 +70,7 @@ public class GoogleSignInHelper {
             try {
                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-                listener.onSignInSuccess(account);
+//                listener.onSignInSuccess(account);
                 firebaseAuthWithGoogle(account, listener); // Handle Firebase Authentication
             } catch (Exception e) {
                 listener.onSignInFailure(e);

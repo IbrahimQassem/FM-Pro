@@ -1,7 +1,6 @@
 package com.sana.dev.fm.ui.activity.appuser;
 
 import static android.view.View.VISIBLE;
-import static com.sana.dev.fm.utils.AppConstant.Firebase.USERS_TABLE;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,6 +24,7 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.firestore.CollectionReference;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityLoginByBinding;
 import com.sana.dev.fm.model.AuthMethod;
@@ -34,12 +34,15 @@ import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.ui.activity.BaseActivity;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmUserCRUDImpl;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -341,15 +344,17 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
 
                 for (UserInfo userInfo : providerData) {
                     String providerId = userInfo.getProviderId();
-                    userModel.setOtherDate(providerId);
+                    userModel.setOtherData(providerId);
 
                     if (providerId.equals("facebook.com")) {
                         // User signed in using Facebook
                         userModel.setAuthMethod(AuthMethod.FACEBOOK);
+                        userModel.setVerified(true);
                         checkUserAuth(userModel);
                     } else if (providerId.equals("google.com")) {
                         // User signed in using Google
                         userModel.setAuthMethod(AuthMethod.GOOGLE);
+                        userModel.setVerified(true);
                         checkUserAuth(userModel);
                     } else if (providerId.equals("password")) {
                         // User signed in using email and password
@@ -369,28 +374,39 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
     //FirebaseUser
     void checkUserAuth(UserModel userModel) {
         Intent intent = IntentHelper.userProfileActivity(LoginByActivity.this, true);
-        FmUserCRUDImpl fmRepo = new FmUserCRUDImpl(this, USERS_TABLE);
-        fmRepo.queryAllByFbEmail(userModel.getEmail(), null, new CallBack() {
+
+        FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
+        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                "email",
+                userModel.getEmail()
+        ));
+
+//        firestoreQueryList.add(new FirestoreQuery(
+//                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+//                "disabled",
+//                false
+//        ));
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
+        firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                LogUtility.d(LogUtility.TAG, "onSuccess : " + object);
-                UserModel _userModel = (UserModel) object;
-                // cause user logged with auth
-                _userModel.setVerified(true);
-                prefMgr.setUserSession(_userModel);
-                showToast(getString(R.string.login_successfully));
-                startActivity(intent);
-            }
+                LogUtility.d(LogUtility.TAG, "Success checkUserAuth: " + object);
 
-            @Override
-            public void onFailure(Object object) {
-                LogUtility.e(LogUtility.TAG, "onError : " + object);
-                if (object == null) {
-                    // create new user
-                    fmRepo.create(userModel.getUserId(), userModel, new CallBack() {
+                List<UserModel> userModelList = FirestoreDbUtility.getDataFromQuerySnapshot(object, UserModel.class);
+
+                if (userModelList != null && userModelList.size() > 0) {
+                    UserModel user = userModelList.get(0);
+                    // cause user logged with auth
+                    prefMgr.setUserSession(user);
+                    showToast(getString(R.string.login_successfully));
+                    startActivity(intent);
+                } else {
+                    firestoreDbUtility.createOrMerge(collectionReference, userModel.userId, userModel, new CallBack() {
                         @Override
                         public void onSuccess(Object object) {
-                            prefMgr.setUserSession((UserModel) object);
+                            prefMgr.setUserSession(userModel);
                             showToast(getString(R.string.login_successfully));
                             startActivity(intent);
                         }
@@ -403,8 +419,13 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
                     });
                 }
             }
-        });
 
+            @Override
+            public void onFailure(Object object) {
+                LogUtility.d(LogUtility.TAG, "Failure checkUserAuth: " + object);
+                showToast(getString(R.string.label_error_occurred_with_val,object));
+            }
+        });
     }
 
 
