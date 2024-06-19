@@ -60,7 +60,7 @@ public class MainDialog {
             public void onClick(View v) {
                 String review = et_post.getText().toString().trim();
                 if (review.isEmpty()) {
-                    Toast.makeText(context.getApplicationContext(), "Please fill review text", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context.getApplicationContext(),context.getString( R.string.msg_please_fill_review_text), Toast.LENGTH_SHORT).show();
                 } else {
 //                    items.add("(" + rating_bar.getRating() + ") " + review);
 //                    adapter.notifyDataSetChanged();
@@ -69,7 +69,7 @@ public class MainDialog {
 //                    txt_no_item.setVisibility(View.GONE);
 //                }
                 dialog.dismiss();
-                Toast.makeText(context.getApplicationContext(), "Submitted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context.getApplicationContext(), context.getString( R.string.label_submitted), Toast.LENGTH_SHORT).show();
             }
         });
 

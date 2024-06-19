@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="TypographyDashes">
     <string name="app_name">هدهد اف ام</string>
-    <string name="app_slogan">Yemen\'s first application for radio channels</string>
+    <string name="app_slogan">The ideal destination for fans of radio and audio programs in Yemen</string>
+    <string name="label_app_description">With “Hudhud FM”, the limits of space and time are no longer an obstacle between you and the pulse of life in Yemen. With the push of a button, your phone becomes a window to a wide ocean of Yemeni radio channels, taking you on a journey through rich cultures, ancient history, and inexhaustible creativity.</string>
+
     <string name="app_version">Version</string>
     <string name="version_unknown">Unknown</string>
     <string name="app_gmail" translatable="false">hudhudfm.ye@gmail.com</string>
@@ -142,7 +144,6 @@
     <string name="add_episode">Add Episode</string>
     <string name="goto_login">In order to use the application services you must log in \n \nDo you want to go to the login window?</string>
     <string name="main_program_for">Main programs</string>
-    <string name="label_app_description">Hodhud FM: is an Android application that enables userModel to access Yemeni radio channels from anywhere and at any time with the click of a button.</string>
     <string name="update_episode">Update episode data</string>
     <!--    <string name="powered_by">Powered By &#x2665; Sana&apos;a Dev</string>-->
     <string name="powered_by">Powered By &#x2665; Sana\'a Dev</string>
@@ -248,6 +249,31 @@
     <string name="ex_city">Yemen - Sana\'a</string>
     <string name="ex_address">Tahrir - 26 Sep .ST</string>
     <string name="label_address">Address</string>
+    <string name="msg_you_cannot_change_the_radio_channel_if_the_program_data_is_updated">You cannot change the radio channel if the program data is updated</string>
+    <string name="msg_you_cannot_change_the_program_name_if_you_update_the_program_data">You cannot change the program name if you update the program data</string>
+    <string name="msg_you_must_select_a_programme">You must select a programme</string>
+    <string name="msg_make_sure_you_add_all_the_data_correctly">Make sure you add all the data correctly!</string>
+    <string name="label_add">Add</string>
+    <string name="label_episode_info">Episode info</string>
+    <string name="label_episode_announcer">Episode announcer</string>
+    <string name="ex_announcer_name">Example: Ali Najm</string>
+    <string name="label_episode_description">Episode description</string>
+    <string name="ex_episode_desc">Example: a youth entertainment episode.</string>
+    <string name="label_episode_url_stream">Episode url stream</string>
+    <string name="label_program_info">Program Info</string>
+    <string name="label_radio_station_name">Radio station name</string>
+    <string name="label_show_time">show time</string>
+    <string name="label_add_show_time">Add show time</string>
+    <string name="label_episode_image_profile">Episode image profile</string>
+    <string name="label_add_episode_image_profile">Add episode image profile</string>
+    <string name="label_add_comment_as_val">Add comment as %s ..</string>
+    <string name="label_enter_new_priority">Enter new Priority</string>
+    <string name="label_enable">Enable</string>
+    <string name="label_disable">Disable</string>
+    <string name="msg_are_you_sure_you_want_to">Are you sure you want to %s ?</string>
+    <string name="label_write_review">Write review ...</string>
+    <string name="msg_please_fill_review_text">Please fill review text</string>
+    <string name="label_submitted">Submitted</string>
     <!--label_weke_days-->
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

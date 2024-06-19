@@ -94,8 +94,8 @@ public class FmGeneralDialog extends Dialog {
 
             }
 
-            Tools.setTextOrHideIfEmpty( binding.tvTitle,config.getTitle());
-            Tools.setTextOrHideIfEmpty( binding.tvDesc,config.getDesc());
+            Tools.setTextOrHideIfEmpty(binding.tvTitle, config.getTitle());
+            Tools.setTextOrHideIfEmpty(binding.tvDesc, config.getDesc());
 
             boolean isBtConfirm = (config.getBtnConfirm() != null ? config.getBtnConfirm().getName() : null) != null;
             binding.btConfirm.setVisibility(isBtConfirm ? VISIBLE : View.GONE);
@@ -133,8 +133,8 @@ public class FmGeneralDialog extends Dialog {
 
             }
 
-            Tools.setTextOrHideIfEmpty( binding.tvTitle,config.getTitle());
-            Tools.setTextOrHideIfEmpty( binding.tvDesc,config.getDesc());
+            Tools.setTextOrHideIfEmpty(binding.tvTitle, config.getTitle());
+            Tools.setTextOrHideIfEmpty(binding.tvDesc, config.getDesc());
 
             boolean isBtConfirm = (config.getBtnConfirm() != null ? config.getBtnConfirm().getName() : null) != null;
             binding.btConfirm.setVisibility(isBtConfirm ? VISIBLE : View.GONE);

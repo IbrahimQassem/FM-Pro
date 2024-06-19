@@ -40,7 +40,7 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginStart="15dp"
                         android:layout_weight="1"
-                        android:text="Name"
+                        android:text="@string/label_title"
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:textColor="@android:color/white" />
 
@@ -98,7 +98,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="15dp"
                             android:layout_weight="1"
-                            android:text="user name"
+                            android:text="@string/user_name"
                             android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
                     </LinearLayout>
@@ -150,7 +150,7 @@
                                         android:id="@+id/typeOfNumber1"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="Mobile"
+                                        android:text="@string/label_mobile"
                                         android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
                                 </LinearLayout>
@@ -188,7 +188,7 @@
                                         android:id="@+id/typeOfNumber2"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="Work"
+                                        android:text="@string/label_desc"
                                         android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
                                 </LinearLayout>
@@ -264,14 +264,14 @@
                                     android:id="@+id/address1"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="ABC Street Sector 1/2"
+                                    android:text="@string/label_address"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
                                 <TextView
                                     android:id="@+id/country1"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="XYZ Country"
+                                    android:text="@string/ex_city"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
                             </LinearLayout>
@@ -287,14 +287,14 @@
                                     android:id="@+id/addres2"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="ABC Street Sector 1/2"
+                                    android:text="@string/ex_address"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
                                 <TextView
                                     android:id="@+id/country2"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="XYZ Country"
+                                    android:text="@string/ex_city"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
                             </LinearLayout>

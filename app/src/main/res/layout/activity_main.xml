@@ -80,10 +80,10 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/app_slogan"
                             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                             android:textColor="@color/white"
-                            android:visibility="gone" />
+                            android:visibility="gone"
+                            tools:text="@string/label_label" />
 
                         <TextView
                             android:id="@+id/tv_user_state"

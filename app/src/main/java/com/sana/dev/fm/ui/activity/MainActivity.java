@@ -660,7 +660,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 //        http://edge.mixlr.com/channel/kijwr
             }
         } else {
-            showToast(String.format(" %s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
+            showToast(String.format("%s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
         }
     }
 
@@ -686,7 +686,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
                 break;
             case PlaybackStatus.ERROR:
-                showToast(String.format(" %s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
+                showToast(String.format("%s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
                 radioManager.stopPlay();
                 fab_radio.setImageResource(R.drawable.ic_radio);
                 break;

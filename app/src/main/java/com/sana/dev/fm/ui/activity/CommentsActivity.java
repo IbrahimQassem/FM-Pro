@@ -245,7 +245,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                     binding.etComment.setText(null);
                     binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
                     binding.etComment.setHint(getString(R.string.add_comment));
-                    binding.etComment.setHint(String.format("تعليق كـ %s ..", currentUser.getName()));
+                    binding.etComment.setHint(String.format(getString(R.string.label_add_comment_as_val), currentUser.getName()));
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override

@@ -79,7 +79,6 @@ import java.util.Stack;
 
 
 public class AddEpisodeActivity extends BaseActivity implements SharedAction {
-
     private final String TAG = AddEpisodeActivity.class.getSimpleName();
     private ActivityAddEpisodeBinding binding;
 
@@ -226,7 +225,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
             binding.etStation.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير القناة الإذاعية في حالة تحديث بيانات البرنامج", new ButtonConfig(getString(R.string.label_cancel)), null);
+                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), getString(R.string.msg_you_cannot_change_the_radio_channel_if_the_program_data_is_updated), new ButtonConfig(getString(R.string.label_cancel)), null);
                     showWarningDialog(config);
                 }
             });
@@ -234,7 +233,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
             binding.etProgram.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير إسم البرنامج في حالة تحديث بيانات البرنامج", new ButtonConfig(getString(R.string.label_cancel)), null);
+                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), getString(R.string.msg_you_cannot_change_the_program_name_if_you_update_the_program_data), new ButtonConfig(getString(R.string.label_cancel)), null);
                     showWarningDialog(config);
                 }
             });
@@ -435,7 +434,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                 } else if (binding.etProgram.getText().toString().trim().isEmpty()) {
                     binding.etProgram.setError(getString(R.string.error_empty_field_not_allowed));
                     binding.etProgram.requestFocus();
-                    showSnackBar("يجب تحديد برنامج");
+                    showSnackBar(getString(R.string.msg_you_must_select_a_programme));
                     return;
                 }
 
@@ -443,9 +442,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                 break;
             case R.id.bt_continue_three:
                 // validate input user here
-
                 if (!checkIfValidAndRead()) {
-//                    showSnackBar("يجب تحديد وقت بدء البرنامج");
                     return;
                 }
 
@@ -741,7 +738,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
 
         binding.imgLogo.setColorFilter(ContextCompat.getColor(this, R.color.grey_10));
         // Displaying the Stack after the Operation
-        System.out.println("Final stackImg: " + stackImg);
+        Log.d(TAG, "Final stackImg: " + stackImg);
     }
 
     public void clearImg() {
@@ -855,9 +852,9 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
 
         if (showTimeList.size() == 0) {
             result = false;
-            showToast("  تأكد من إضافة جميع البيانات بشكل صحيح ! " + getEmojiByUnicode(unicode));
+            showToast(getString(R.string.msg_make_sure_you_add_all_the_data_correctly) + getEmojiByUnicode(unicode));
         } else if (!result) {
-            showToast("تأكد من إدخال البيانات بشكل صحيح !");
+            showToast(getString(R.string.msg_make_sure_you_add_all_the_data_correctly));
         }
 
 //        dateTimeModel.setDisplayDays(translateWakeDaysEn(selectedDays));

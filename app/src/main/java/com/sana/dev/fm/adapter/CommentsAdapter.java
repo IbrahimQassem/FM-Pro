@@ -75,7 +75,7 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
         holder.binding.tvComment.setText(model.getCommentText());
         holder.binding.tvFrom.setText(model.getCommentUser());
         String timeAgo = getTimeAgo(Long.parseLong(model.getCommentTime()), ctx);
-        holder.binding.tvDate.setText(String.format(" %s", timeAgo));
+        holder.binding.tvDate.setText(String.format("%s", timeAgo));
         getListItems(holder, model.getCommentUserId());
     }
 

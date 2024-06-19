@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingQuantity,TypographyDashes">
     <string name="app_name">هدهد اف ام</string>
-    <string name="app_slogan">تطبيق اليمن الأول للقنوات الإذاعية</string>
+<!--    <string name="app_slogan">تطبيق اليمن الأول للقنوات الإذاعية</string>-->
+    <string name="app_slogan">الوجهةَ الأمثلَ لعشاقِ الراديوِ والبرامجِ الصوتيةِ في اليمنِ</string>
+<!--    <string name="label_app_description">هدهد اف ام : هو تطبيق أندرويد يُمكَن المستخدمين من الوصول للقنوات الإذاعية اليمنية من أي مكان وفي أي وقت بضغطة زر .</string>-->
+    <string name="label_app_description">معَ "هدهد إف إم"، لمْ تعُدْ حدودُ المكانِ والزمانِ عائقاً بينَكَ وبينَ نبضِ الحياةِ في اليمنِ. فبضغطةِ زرٍ، يُصبحُ هاتفكَ نافذةً على مُحيطٍ واسعٍ منْ القنواتِ الإذاعيةِ اليمنيةِ، حاملاً إيّاكَ في رحلةٍ عبرَ ثقافاتٍ غنيةٍ وتاريخٍ عريقٍ وإبداعٍ لا ينضبُ.</string>
+
     <string name="app_version">الإصـدار</string>
     <string name="version_unknown">غير معروف !</string>
 
@@ -114,7 +118,6 @@
     <string name="add_episode">إضافة حلقة</string>
     <string name="goto_login">لكي تتمكن من إستخدام خدمات التطبيق يجب عليك تسجيل الدخول \n \n هل تريد الإنتقال الى نافذة تسجيل الدخول؟</string>
     <string name="main_program_for">البرامج الرئيسية</string>
-    <string name="label_app_description">هدهد اف ام : هو تطبيق أندرويد يُمكَن المستخدمين من الوصول للقنوات الإذاعية اليمنية من أي مكان وفي أي وقت بضغطة زر .</string>
     <string name="update_episode">تحديث بيانات البرامج</string>
     <!--    <string name="powered_by">Powered By &#x2665; Sana&apos;a Dev</string>-->
     <string name="powered_by">Powered By &#x2665; Sana\'a Dev</string>
@@ -213,9 +216,34 @@
     <string name="label_week_days">أيام الأسبوع</string>
     <string name="label_set_time">تحديد الوقت</string>
     <string name="msg_you_must_select_radio_station">You must select radio station</string>
-    <string name="ex_name">Jhpne Doe</string>
-    <string name="ex_city">Yemen - Sana\'a</string>
-    <string name="ex_address">Tahrir - 26 Sep .ST</string>
+    <string name="ex_name">علي نجم</string>
+    <string name="ex_city">اليمن - صنعاء</string>
+    <string name="ex_address">التحرير – ش 26 سبتمبر </string>
     <string name="label_address">العنوان</string>
+    <string name="msg_you_cannot_change_the_radio_channel_if_the_program_data_is_updated">لا يمكنك تغيير القناة الإذاعية في حالة تحديث بيانات البرنامج</string>
+    <string name="msg_you_cannot_change_the_program_name_if_you_update_the_program_data">You cannot change the program name if you update the program data</string>
+    <string name="msg_you_must_select_a_programme">يجب تحديد برنامج</string>
+    <string name="msg_make_sure_you_add_all_the_data_correctly">تأكد من إضافة جميع البيانات بشكل صحيح !</string>
+    <string name="label_add">إضافة</string>
+    <string name="label_episode_info">بيانات الحلقة</string>
+    <string name="label_episode_announcer">مقدم البرنامج</string>
+    <string name="ex_announcer_name">مثال : علي نجم</string>
+    <string name="label_episode_description">مقدم البرنامج</string>
+    <string name="ex_episode_desc">مثال : برنامج شبابي ترفيهي ..</string>
+    <string name="label_episode_url_stream">رابط الحلقة الإذاعية</string>
+    <string name="label_program_info">بيانات البرنامج</string>
+    <string name="label_radio_station_name">إسم القناة الإذاعية</string>
+    <string name="label_show_time">وقت العرض</string>
+    <string name="label_add_show_time">إضافة وقت العرض</string>
+    <string name="label_episode_image_profile">صورة البرنامج</string>
+    <string name="label_add_episode_image_profile">إضافة صورة البرنامج</string>
+    <string name="label_add_comment_as_val">تعليق كـ %s ..</string>
+    <string name="label_enter_new_priority">Enter new Priority</string>
+    <string name="label_enable">تفعيل</string>
+    <string name="label_disable">إيقاف</string>
+    <string name="msg_are_you_sure_you_want_to">هل أنت متأكد أنك تريد %s ؟</string>
+    <string name="label_write_review">أكتب مراجعة ...</string>
+    <string name="msg_please_fill_review_text">يرجى ملء نص المراجعة</string>
+    <string name="label_submitted">إرسال</string>
 
 </resources>

@@ -134,7 +134,7 @@ public class ListMultiSelection extends BaseActivity {
                         Episode item = mAdapter.getItem(i);
                         Context applicationContext = getApplicationContext();
                         StringBuilder stringBuilder = new StringBuilder();
-                        stringBuilder.append("تعديل : ");
+                        stringBuilder.append(" : "+getString(R.string.label_edit));
                         stringBuilder.append(item.getEpName());
 
                         AddEpisodeActivity.startActivity(ListMultiSelection.this, episode);

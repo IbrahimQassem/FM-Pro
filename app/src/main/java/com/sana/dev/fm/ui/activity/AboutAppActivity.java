@@ -20,8 +20,6 @@ import com.sana.dev.fm.utils.Tools;
 
 
 public class AboutAppActivity extends AppCompatActivity {
-
-
     private LinearLayout lyt_parent_email;
     private LinearLayout lyt_parent_deal;
     private TextView txv_email;

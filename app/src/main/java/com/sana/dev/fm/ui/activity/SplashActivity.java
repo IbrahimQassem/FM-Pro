@@ -26,6 +26,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
@@ -67,8 +68,8 @@ public class SplashActivity extends AppCompatActivity {
         setFullScreen();
         startAnimation();
 //         Todo undo
-//        initRemoteConfig();
-        useDefaultConfig();
+        initRemoteConfig();
+//        useDefaultConfig();
 
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -136,6 +137,13 @@ public class SplashActivity extends AppCompatActivity {
         ));*/
 
         List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.Query_Direction_DESCENDING,
+                "priority",
+                Query.Direction.DESCENDING
+        ));
+
         firestoreQueryList.add(new FirestoreQuery(
                 FirestoreQueryConditionCode.WHERE_EQUAL_TO,
                 "disabled",

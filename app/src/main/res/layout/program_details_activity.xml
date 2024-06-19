@@ -248,7 +248,7 @@
                         android:layout_height="wrap_content"
                         android:background="?attr/colorPrimary"
                         app:tabGravity="fill"
-                        app:tabIndicatorColor="#5be5ad"
+                        app:tabIndicatorColor="@color/colorPrimaryLight"
                         app:tabIndicatorHeight="4dp"
                         app:tabMode="fixed">
 
@@ -283,7 +283,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentBottom="true"
-                android:layout_gravity="bottom|right"
+                android:layout_gravity="bottom|start"
                 android:layout_marginRight="@dimen/btn_fab_margins"
                 android:layout_marginBottom="@dimen/btn_fab_margins"
                 android:visibility="gone"

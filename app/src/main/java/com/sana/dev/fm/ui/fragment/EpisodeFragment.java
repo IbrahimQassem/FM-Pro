@@ -46,7 +46,6 @@ import co.mobiwise.materialintro.view.MaterialIntroView;
  * create an instance of this fragment.
  */
 public class EpisodeFragment extends BaseFragment {
-
     private static final String TAG = EpisodeFragment.class.getSimpleName();
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <LinearLayout
@@ -35,19 +35,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                tools:text="David Park"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/grey_90"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:text="@string/label_title" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_small"
                 android:gravity="center_vertical"
-                tools:text="Customer services"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                android:textColor="@color/grey_40" />
+                android:textColor="@color/grey_40"
+                tools:text="@string/label_desc" />
 
         </LinearLayout>
 
@@ -93,9 +93,9 @@
             android:layout_height="match_parent"
             android:background="@color/grey_3"
             android:gravity="top"
-            tools:hint="Write review ..."
             android:lines="4"
-            android:padding="@dimen/spacing_middle" />
+            android:padding="@dimen/spacing_middle"
+            tools:hint="@string/label_write_review" />
 
     </LinearLayout>
 
@@ -116,8 +116,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="@color/red_500"
-            android:text="@string/label_cancel" />
+            android:text="@string/label_cancel"
+            android:textColor="@color/red_500" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/bt_submit"
@@ -125,8 +125,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="@color/colorPrimary"
-            android:text="@string/label_send" />
+            android:text="@string/label_send"
+            android:textColor="@color/colorPrimary" />
 
     </LinearLayout>
 

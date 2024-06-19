@@ -130,7 +130,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         RadioInfo selectedRadio = prefMgr.selectedRadio();
         String primary = (selectedRadio != null && selectedRadio.getName() != null) ? selectedRadio.getName() : " ";
-        EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(context.getString(R.string.no_data_available), String.format(" %s", getResources().getString(R.string.empty_ep, primary)), null);
+        EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(context.getString(R.string.no_data_available), String.format("%s", getResources().getString(R.string.empty_ep, primary)), null);
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.replace(R.id.child_fragment_container, emptyViewFragment).commit();
         emptyViewFragment.setOnItemClickListener(new CallBackListener() {
@@ -428,7 +428,6 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                     public void onClick(View v) {
                         // Todo
                         CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
-
                         firestoreDbUtility.deleteDocument(collectionRef, obj.getEpId(), new CallBack() {
                             @Override
                             public void onSuccess(Object object) {

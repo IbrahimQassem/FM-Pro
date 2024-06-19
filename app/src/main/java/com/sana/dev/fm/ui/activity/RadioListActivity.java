@@ -111,7 +111,7 @@ public class RadioListActivity extends BaseActivity {
                 //showInfoDialog();
                 // Create an AlertDialog.Builder object
                 AlertDialog.Builder builder = new AlertDialog.Builder(RadioListActivity.this);
-                builder.setTitle("Enter new Priority");
+                builder.setTitle(R.string.label_enter_new_priority);
 
 // Create the input field
                 final EditText input = new EditText(RadioListActivity.this);
@@ -119,7 +119,7 @@ public class RadioListActivity extends BaseActivity {
                 builder.setView(input);
 
 // Set the positive button action
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton(getString(R.string.label_ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Get the input text when the user clicks OK
@@ -132,7 +132,7 @@ public class RadioListActivity extends BaseActivity {
                 });
 
 // Set the negative button action (optional)
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton(getString(R.string.label_cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
@@ -151,8 +151,8 @@ public class RadioListActivity extends BaseActivity {
             public void onItemLongClick(View view, Object model, int position) {
                 RadioInfo item = (RadioInfo) model;
                 // showToast("Item " + item.getName() + " position : " + position);
-                String state = item.isDisabled() ? "Enable" : "Disable";
-                ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_note), "Are you sure you want to " + state + " ? ", new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                String state = item.isDisabled() ? getString(R.string.label_enable) : getString(R.string.label_disable);
+                ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_note), getString(R.string.msg_are_you_sure_you_want_to, state), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         changePriority(!item.isDisabled(), item);

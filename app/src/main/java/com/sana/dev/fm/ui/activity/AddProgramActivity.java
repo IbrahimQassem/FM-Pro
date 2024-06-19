@@ -239,7 +239,7 @@ public class AddProgramActivity extends BaseActivity {
             showToast(getString(R.string.most_login));
             return;
         } else if (binding.etStation.getText().toString().trim().isEmpty()) {
-            showToast("يجب تحديد إسم القناة الإذاعية");
+            showSnackBar(getString(R.string.error_please_select_radio_station));
             return;
         } else if (binding.titPrName.getText().toString().trim().isEmpty()) {
             binding.titPrName.setError(getString(R.string.error_empty_field_not_allowed));
@@ -533,7 +533,7 @@ public class AddProgramActivity extends BaseActivity {
         datePicker.setAccentColor(getResources().getColor(R.color.colorPrimary));
 //        datePicker.setMinDate(cur_calender);
 //        datePicker.setMaxDate(cur_calender);
-        datePicker.show(getSupportFragmentManager(), "تحديد التاريخ");
+        datePicker.show(getSupportFragmentManager(),  getString(R.string.label_pick_date));
     }
 
 

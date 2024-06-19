@@ -192,6 +192,8 @@ public class ProgramsFragment extends BaseFragment {
                     false
             ));
 
+//             FirebaseFirestore DATABASE = FirebaseFirestore.getInstance();
+//            CollectionReference colRef =  DATABASE.collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE).document(selectedRadio.getRadioId()).collection(RADIO_PROGRAM_TABLE);
             firestoreDbUtility.getMany(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, selectedRadio.getRadioId()), firestoreQueryList, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
@@ -268,7 +270,6 @@ public class ProgramsFragment extends BaseFragment {
             });
         } else {
 //            showToast(getString(R.string.msg_you_must_select_radio_station));
-
             toggleView(true);
         }
 

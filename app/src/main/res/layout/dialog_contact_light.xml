@@ -61,24 +61,30 @@
                 android:text="@string/app_name"
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp"
+                app:fontFamily="@font/tj_light"
                 tools:text="@string/app_name" />
 
             <TextView
                 style="@style/TextRegular"
+                android:justificationMode="inter_word"
                 android:padding="@dimen/spacing_middle"
                 android:text="@string/app_slogan"
-                android:textColor="@color/grey_40" />
+                android:textAlignment="center"
+                android:textColor="@color/grey_40"
+                app:fontFamily="@font/tj_medium" />
 
             <TextView
                 style="@style/TextRegular"
+                android:layout_width="match_parent"
                 android:layout_marginTop="@dimen/spacing_mlarge"
                 android:gravity="center"
-                android:layout_width="match_parent"
                 android:justificationMode="inter_word"
-                android:lineSpacingExtra="3dp"
+                android:lineSpacingExtra="5dp"
                 android:text="@string/label_app_description"
+                android:textAlignment="center"
                 android:textColor="@color/grey_40"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                app:fontFamily="@font/tj_regular" />
 
 
         </LinearLayout>

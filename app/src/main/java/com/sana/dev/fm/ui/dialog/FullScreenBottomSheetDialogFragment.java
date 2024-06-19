@@ -22,7 +22,6 @@ import butterknife.ButterKnife;
 
 public class FullScreenBottomSheetDialogFragment extends BottomSheetDialogFragment implements View.OnClickListener  {
 
-
     @CallSuper
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
