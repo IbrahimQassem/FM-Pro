@@ -118,7 +118,6 @@ public class SplashActivity extends AppCompatActivity {
 
 
     private void loadRadios() {
-
         FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
 
 /*        GeoPoint lesserGeoPoint = new GeoPoint(12.1, 77.1); // latitude is 12.1 and longitude is 77.1
@@ -159,7 +158,7 @@ public class SplashActivity extends AppCompatActivity {
                 ShardDate.getInstance().setRadioInfoList(radioInfoList);
                 prefMgr.setRadioInfo(new ArrayList<>(radioInfoList));
 
-                if (prefMgr.selectedRadio() == null) {
+                if (prefMgr.selectedRadio() == null && radioInfoList != null && radioInfoList.size() > 0) {
                     prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, radioInfoList.get(0));
                 }
                 startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));

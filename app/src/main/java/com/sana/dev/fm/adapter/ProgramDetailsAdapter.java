@@ -27,7 +27,6 @@ import butterknife.ButterKnife;
  * Created by admin on 20.01.15.
  */
 public class ProgramDetailsAdapter extends RecyclerView.Adapter<ProgramDetailsAdapter.PhotoViewHolder> {
-
     private static final int PHOTO_ANIMATION_DELAY = 600;
     private static final Interpolator INTERPOLATOR = new DecelerateInterpolator();
     public static final int SPAN_COUNT_ONE = 1;
@@ -35,14 +34,10 @@ public class ProgramDetailsAdapter extends RecyclerView.Adapter<ProgramDetailsAd
 
     private static final int VIEW_TYPE_SMALL = 1;
     private static final int VIEW_TYPE_BIG = 2;
-
     private final Context context;
-
     private List<Episode> detailsList;
-
     private boolean lockedAnimations = false;
     private int lastAnimatedItem = -1;
-
     private GridLayoutManager mLayoutManager;
 
     private OnClickListener onClickListener = null;

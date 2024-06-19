@@ -56,11 +56,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
     private static final Interpolator INTERPOLATOR = new DecelerateInterpolator();
     private final String TAG = ProgramDetailsActivity.class.getSimpleName();
     ProgramDetailsActivityBinding binding;
-
-    //    StaggeredGridLayoutManager layoutManager;
     private GridLayoutManager gridLayoutManager;
-
-
     private ProgramDetailsAdapter itemAdapter;
     private List<Episode> detailsList = new ArrayList<>();
 
@@ -82,7 +78,6 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
         binding = ProgramDetailsActivityBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-        
 
 
         initToolbar();
@@ -134,7 +129,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                 @Override
                 public void onSuccess(Object object) {
                     List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
-                    if (!programList.isEmpty()){
+                    if (!programList.isEmpty()) {
                         RadioProgram radioProgram = programList.get(0);
                         TempEpModel tempEpModel = new TempEpModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), radioProgram.getPrCategoryList().toString(), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
                         updateInfoUI(tempEpModel);
@@ -150,11 +145,18 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
             });
 
             List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
-        firestoreQueryList.add(new FirestoreQuery(
-                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
-                "disabled",
-                false
-        ));
+
+            firestoreQueryList.add(new FirestoreQuery(
+                    FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                    "programId",
+                    episode.getProgramId()
+            ));
+
+            firestoreQueryList.add(new FirestoreQuery(
+                    FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                    "disabled",
+                    false
+            ));
 
 //            CollectionReference collectionRef = firestoreDbUtility.getTopLevelCollection()
 //                    .document(AppConstant.Firebase.EPISODE_TABLE).collection(episode.getRadioId());  // Subcollection named "1001"
@@ -164,7 +166,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                 public void onSuccess(Object object) {
                     List<Episode> episodeList = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);
                     ShardDate.getInstance().setEpisodeList(episodeList);
-                   detailsList = episodeList;
+                    detailsList = episodeList;
                     setupUserProfileGrid();
                 }
 
@@ -173,7 +175,6 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                     LogUtility.e(TAG, " loadDailyEpisode :  " + object);
                 }
             });
-
 
 
         } else {
@@ -190,21 +191,22 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
     private void updateInfoUI(TempEpModel model) {
 //        TempEpModel _temp = new TempEpModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), radioProgram.getPrCategoryList().toString(), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
         String imgUrl = model.getImgProfile();
-        Tools.displayImageRound(this, binding.ivProfilePhoto, imgUrl);
-//        Tools.displayImageOriginal(this, binding.ivProfilePhoto, imgUrl);
+//        Tools.displayImageRound(this, binding.imgProfile, imgUrl);
+//        Tools.displayImageOriginal(this, binding.imgProfile, imgUrl);
+        Tools.displayUserProfile(this, binding.imgProfile,imgUrl,R.mipmap.ic_launcher_foreground);
 
-        binding. tvName.setText(model.getName());
+        binding.tvName.setText(model.getName());
         binding.tvDesc.setText(model.getDesc());
         binding.tvCategory.setText(model.getCategory());
 //      tvTag.setText(getResources().getString(R.string.tag_format, _temp.tag));
         if (!TextUtils.isEmpty(model.getTag()))
-            binding. tvTag.setText(String.format("@%s", model.getTag()));
+            binding.tvTag.setText(String.format("@%s", model.getTag()));
         if (model.getLikesCount() >= 1)
             binding.tvLikesCount.setText(Integer.toString(model.getLikesCount()));
         if (model.getSubScribeCount() >= 1)
-            binding. tvSubscribers.setText(Integer.toString(model.getSubScribeCount()));
+            binding.tvSubscribers.setText(Integer.toString(model.getSubScribeCount()));
         if (model.getPostCount() >= 1)
-            binding. tvPostCount.setText(Integer.toString(model.getPostCount()));
+            binding.tvPostCount.setText(Integer.toString(model.getPostCount()));
         binding.lynStats.setVisibility(View.VISIBLE);
 
         binding.btnFollow.setVisibility(View.GONE);
@@ -303,9 +305,9 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
             @Override
             public void onItemClick(View view, Episode model, int position) {
 //                showNotCancelableWarningDialog(String.valueOf((Episode) model));
-                if (URLUtil.isValidUrl(model.getEpStreamUrl())){
+                if (URLUtil.isValidUrl(model.getEpStreamUrl())) {
                     showFragment();
-                }else {
+                } else {
                     showToast(getString(R.string.error_episode_audio_not_available));
                 }
 //                BottomSheet bottomSheet = new BottomSheet();
@@ -358,16 +360,15 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 
     private void animateUserProfileHeader() {
         binding.lynProfileRoot.setTranslationY(-binding.lynProfileRoot.getHeight());
-         binding.ivProfilePhoto.setTranslationY(-binding.ivProfilePhoto.getHeight());
-         binding.lynDetails.setTranslationY(-binding.lynDetails.getHeight());
-       binding.lynStats.setAlpha(0);
+        binding.imgProfile.setTranslationY(-binding.imgProfile.getHeight());
+        binding.lynDetails.setTranslationY(-binding.lynDetails.getHeight());
+        binding.lynStats.setAlpha(0);
 
         binding.lynProfileRoot.animate().translationY(0).setDuration(300).setInterpolator(INTERPOLATOR);
-        binding.ivProfilePhoto.animate().translationY(0).setDuration(300).setStartDelay(100).setInterpolator(INTERPOLATOR);
+        binding.imgProfile.animate().translationY(0).setDuration(300).setStartDelay(100).setInterpolator(INTERPOLATOR);
         binding.lynDetails.animate().translationY(0).setDuration(300).setStartDelay(200).setInterpolator(INTERPOLATOR);
         binding.lynStats.animate().alpha(1).setDuration(200).setStartDelay(400).setInterpolator(INTERPOLATOR).start();
     }
-
 
 
     private final static String TAG_FRAGMENT = SongPlayerFragment.class.getSimpleName();

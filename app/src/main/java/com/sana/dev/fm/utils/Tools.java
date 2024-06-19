@@ -225,13 +225,14 @@ public class Tools {
 //                }
 //            });
         } catch (Exception e) {
+            e.printStackTrace();
             LogUtility.d(TAG + " displayImageRound :", e.toString());
         }
     }
 
-    public static void displayUserProfile(final Context ctx, final ImageView img, String imgUrl) {
+    public static void displayUserProfile(final Context ctx, final ImageView img, String imgUrl,@DrawableRes int resId) {
         try {
-            VectorDrawableCompat vector = VectorDrawableCompat.create(ctx.getResources(), R.drawable.ic_person, null);
+            VectorDrawableCompat vector = VectorDrawableCompat.create(ctx.getResources(), resId, null);
 
 //            Glide.with(ctx)
 //                    .load(imgUrl)
@@ -268,6 +269,8 @@ public class Tools {
 //                }
 //            });
         } catch (Exception e) {
+            e.printStackTrace();
+            LogUtility.d(TAG + " displayUserProfile :", e.toString());
         }
     }
 

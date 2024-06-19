@@ -3,7 +3,6 @@ package com.sana.dev.fm.adapter;
 
 import static com.sana.dev.fm.utils.FmUtilize.safeList;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
-import static com.sana.dev.fm.utils.Tools.getFormattedDateOnly;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -129,13 +128,14 @@ public class AdapterListProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 
             if (program.getProgramScheduleTime() != null) {
-                String dt = getFormattedDateOnly(program.getProgramScheduleTime().getDateStart(),FmUtilize.arabicFormat) + " - " + getFormattedDateOnly(program.getProgramScheduleTime().getDateEnd(),FmUtilize.arabicFormat);
+                String dt = Tools.getFormattedDateOnly(program.getProgramScheduleTime().getDateStart(),FmUtilize.arabicFormat) + " - " + Tools.getFormattedDateOnly(program.getProgramScheduleTime().getDateEnd(),FmUtilize.arabicFormat);
                 holder.binding.tvDayPeriod.setText(dt);
             } else {
                 holder.binding.lytParentDayPeriod.setVisibility(View.GONE);
             }
 
             Tools.displayImageOriginal(this.ctx, holder.binding.ivBanner, program.getPrProfile());
+            Tools.displayUserProfile(this.ctx, holder.binding.civLogo,program.getPrProfile(),R.mipmap.ic_launcher_foreground);
 
             holder.binding.btToggle.setOnClickListener(new OnClickListener() {
                 @Override

@@ -10,6 +10,7 @@ import android.text.Html;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.TimeLineAdapter;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.TempEpisodeModel;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.MainActivity;
@@ -101,8 +103,7 @@ public class DailyEpisodeFragment extends BaseFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_radio_map, container, false);
         ButterKnife.bind(this, view);
@@ -113,8 +114,11 @@ public class DailyEpisodeFragment extends BaseFragment {
 //            episodeList = (List<Episode>) getArguments().getSerializable(ARG_PARAM2);
 //        }
 
-        if (isRadioSelected())
+        if (isRadioSelected()) {
             loadDailyEpisode(prefMgr.selectedRadio().getRadioId());
+        } else {
+
+        }
 
 
         return view;
@@ -132,36 +136,38 @@ public class DailyEpisodeFragment extends BaseFragment {
                     ((MainActivity) getActivity()).selectTab(R.id.navigation_home);
             }
         });
-        recyclerView.setVisibility(View.GONE);
-        cf_container.setVisibility(View.VISIBLE);
+
+        toggleView(true);
+
     }
 
 
     private void loadDailyEpisode(String radioId) {
         try {
 
-        SpannableStringBuilder builder = new SpannableStringBuilder();
+            SpannableStringBuilder builder = new SpannableStringBuilder();
+            RadioInfo selectedRadio = prefMgr.selectedRadio();
+            String primary = (selectedRadio != null && selectedRadio.getName() != null) ? selectedRadio.getName() : " ";
+            SpannableString primarySpannable = new SpannableString(Html.fromHtml("<b>" + primary + "</b>"));
+            primarySpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
+            builder.append(primarySpannable);
 
-        String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : " ";
-         SpannableString primarySpannable = new SpannableString(Html.fromHtml("<b>" + primary + "</b>"));
-        primarySpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
-        builder.append(primarySpannable);
+            String black = ctx.getResources().getString(R.string.episode_daily, "");
+            SpannableString whiteSpannable = new SpannableString(black);
+            whiteSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.grey_40)), 0, black.length(), 0);
+            builder.append(whiteSpannable);
 
-        String black = ctx.getResources().getString(R.string.episode_daily, "");
-        SpannableString whiteSpannable = new SpannableString(black);
-        whiteSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.grey_40)), 0, black.length(), 0);
-        builder.append(whiteSpannable);
-
-        String blue = " " + FmUtilize.getDayName(new Date());
-        SpannableString blueSpannable = new SpannableString(blue);
-        blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.grey_700)), 0, blue.length(), 0);
-        builder.append(blueSpannable);
+            String blue = " " + FmUtilize.getDayName(new Date());
+            SpannableString blueSpannable = new SpannableString(blue);
+            blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.grey_700)), 0, blue.length(), 0);
+            builder.append(blueSpannable);
 
 //        tvTittle.setText(String.format(" %s", ctx.getResources().getString(R.string.episode_daily,blue )));
-        tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
+            tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
 
-        }catch (Exception e){
-
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "Error parsing remote config JSON: " + e.getMessage());
         }
 
 
@@ -189,9 +195,8 @@ public class DailyEpisodeFragment extends BaseFragment {
                 }
 
                 List<TempEpisodeModel> filtered = new ArrayList<TempEpisodeModel>();
-                for(TempEpisodeModel article : modelList)
-                {
-                    if(article.getDisplayDayName().matches(FmUtilize.getShortEnDayName()))
+                for (TempEpisodeModel article : modelList) {
+                    if (article.getDisplayDayName().matches(FmUtilize.getShortEnDayName()))
                         filtered.add(article);
                 }
 
@@ -202,8 +207,7 @@ public class DailyEpisodeFragment extends BaseFragment {
                 mAdapter = adapterPeople;
                 recyclerView.setAdapter(adapterPeople);
 
-                recyclerView.setVisibility(isToday ? View.VISIBLE : View.GONE);
-                cf_container.setVisibility(!isToday ? View.VISIBLE : View.GONE);
+                toggleView(!isToday);
             }
 
             @Override
@@ -272,10 +276,13 @@ public class DailyEpisodeFragment extends BaseFragment {
     }
 
     public void refresh() {
-        if (isRadioSelected())
-            loadDailyEpisode(prefMgr.selectedRadio().getRadioId());
+        if (isRadioSelected()) loadDailyEpisode(prefMgr.selectedRadio().getRadioId());
     }
 
+    void toggleView(boolean hide) {
+        recyclerView.setVisibility(!hide ? View.VISIBLE : View.GONE);
+        cf_container.setVisibility(hide ? View.VISIBLE : View.GONE);
+    }
 
 }
 

@@ -33,6 +33,7 @@ import com.sana.dev.fm.databinding.ItemGridBinding;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.ModelConfig;
+import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.AddEpisodeActivity;
@@ -127,7 +128,8 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : "";
+        RadioInfo selectedRadio = prefMgr.selectedRadio();
+        String primary = (selectedRadio != null && selectedRadio.getName() != null) ? selectedRadio.getName() : " ";
         EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(context.getString(R.string.no_data_available), String.format(" %s", getResources().getString(R.string.empty_ep, primary)), null);
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.replace(R.id.child_fragment_container, emptyViewFragment).commit();
@@ -138,10 +140,10 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                     ((MainActivity) getActivity()).selectTab(R.id.navigation_home);
             }
         });
+        toggleView(true);
     }
 
     void init() {
-
         LinearLayoutManager manager = new LinearLayoutManager(context);
         manager.setReverseLayout(true);
         manager.setStackFromEnd(true);
@@ -243,7 +245,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 //                .document(AppConstant.Firebase.EPISODE_TABLE).collection(radioId);  // Subcollection named "1001"
 
 
-        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,radioId);
+        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
 
         Query populationQuery = collectionRef;
         populationQuery = populationQuery.whereGreaterThanOrEqualTo("programScheduleTime.dateEnd", System.currentTimeMillis());
@@ -324,7 +326,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                                     Map<String, Object> docData = new HashMap<>();
                                     docData.put("episodeLikes", model.getEpisodeLikes());
 
-                                    CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,radioId);
+                                    CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
 
                                     firestoreDbUtility.update(collectionRef, model.getEpId(), docData, new CallBack() {
                                         @Override
@@ -350,12 +352,14 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                     }
                 });
 
+                toggleView(adapter.getItemCount() == 0);
+
             }
 
             @Override
             public void onDataChanged() {
                 // If there are no chat messages, show a view that invites the user to add a message.
-                cf_container.setVisibility(getItemCount() == 0 ? View.VISIBLE : View.GONE);
+                toggleView(getItemCount() == 0);
             }
         };
     }
@@ -397,7 +401,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                         Map<String, Object> docData = new HashMap<>();
                         docData.put("disabled", obj.isDisabled());
 
-                        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,radioId);
+                        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
 
                         firestoreDbUtility.createOrMerge(collectionRef, obj.getEpId(), docData, new CallBack() {
                             @Override
@@ -423,9 +427,9 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                     @Override
                     public void onClick(View v) {
                         // Todo
-                        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,radioId);
+                        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
 
-                        firestoreDbUtility.deleteDocument(collectionRef,obj.getEpId(), new CallBack() {
+                        firestoreDbUtility.deleteDocument(collectionRef, obj.getEpId(), new CallBack() {
                             @Override
                             public void onSuccess(Object object) {
                                 showToast(getString(R.string.deleted_successfully_with_param, obj.getEpName()));
@@ -464,5 +468,8 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         });
     }
 
-
+    void toggleView(boolean hide) {
+        recyclerView.setVisibility(!hide ? View.VISIBLE : View.GONE);
+        cf_container.setVisibility(hide ? View.VISIBLE : View.GONE);
+    }
 }

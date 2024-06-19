@@ -19,7 +19,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,9 +27,8 @@ import java.util.Map;
 
 public class FirestoreDbUtility {
     //https://github.com/varunon9/firestore-database-utility/tree/master
-    private static final String TOP_LEVEL_COLLECTION = BASE_FB_DB + "_16";
-//    private static final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
+    private static final String TOP_LEVEL_COLLECTION = BASE_FB_DB ;//+ "_16";
+    //    private static final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseFirestore db;
     private static String TAG = "FirestoreDbUtility"; // FirestoreDbUtility.class.getSimpleName();
 
@@ -40,56 +38,10 @@ public class FirestoreDbUtility {
 
     public CollectionReference getTopLevelCollection() {
         return db.collection(TOP_LEVEL_COLLECTION);
+//        return db.collection(TOP_LEVEL_COLLECTION).getFirestore().collection(TOP_LEVEL_COLLECTION).document().getParent();
     }
 
     // Get a reference to a specific collection
-//    public CollectionReference getCollectionReference(String collectionPath) {
-//        String[] pathSegments = collectionPath.split("/");
-////        CollectionReference collectionRef = db.collection(TOP_LEVEL_COLLECTION).document(collectionPath).collection(collectionPath);
-//        CollectionReference collectionRef = getTopLevelCollection();
-//        for (String segment : pathSegments) {
-//            if (!segment.isEmpty()) {
-////                collectionRef = collectionRef.document(collectionPath).collection(segment);
-//                collectionRef = collectionRef.document().collection(segment);
-//            }
-//        }
-//        return collectionRef;
-//    }
-
-    public CollectionReference getCollectionReferenceZ(String collectionPath, String docId) {
-//        String[] pathSegments = collectionPath.split("/");
-//        CollectionReference collectionRef = db.collection(TOP_LEVEL_COLLECTION).document(collectionPath).collection(collectionPath);
-//        CollectionReference collectionRef = getTopLevelCollection().document(docId).collection(collectionPath);
-//        CollectionReference collectionRef = getTopLevelCollection().getFirestore().collection(collectionPath);
-//        CollectionReference collectionRef = getTopLevelCollection().getParent().collection(collectionPath);
-//        CollectionReference collectionRef = getTopLevelCollection().document(docId).collection(collectionPath);
-//        CollectionReference collectionRef = getTopLevelCollection().document(collectionPath).getParent();
-//        CollectionReference collectionRef = getTopLevelCollection().document(collectionPath).collection(docId);
-//        CollectionReference collectionRef = getTopLevelCollection().document(collectionPath).collection(docId).getParent().collection(collectionPath);
-//        CollectionReference collectionRef = getTopLevelCollection().document(collectionPath).collection(docId).document().getParent();
-        // Assuming you have an initialized FirebaseFirestore instance called "db"
-
-
-        // Assuming you have an initialized FirebaseFirestore instance called "db"
-
-
-        // Assuming you have an initialized FirebaseFirestore instance called "db"
-
-//        CollectionReference collectionRef = getTopLevelCollection().document(collectionPath).collection(docId);
-        CollectionReference collectionRef = getTopLevelCollection().document(collectionPath).collection(docId);
-
-
-// This reference points to the specific subcollection within the nested structure.
-
-
-// This reference points to the collection containing the document, not the document itself.
-
-
-// This reference points to the collection containing the document, not the document itself.
-
-        return collectionRef;
-    }
-
     public CollectionReference getCollectionReference(String collectionPath, String docId) {
 //        String[] pathSegments = collectionPath.split("/");
         CollectionReference collectionRef = getTopLevelCollection();
@@ -112,7 +64,7 @@ public class FirestoreDbUtility {
 
 
     public CollectionReference getKeyId(String collectionPath) {
-        CollectionReference colRef = FirebaseDatabaseReference.getTopLevelCollection().getFirestore().collection(collectionPath);
+        CollectionReference colRef = getTopLevelCollection().getFirestore().collection(collectionPath);
         return colRef;
     }
 
@@ -387,15 +339,24 @@ public class FirestoreDbUtility {
                     dataList.add(dataObject);
 //                    }
                 }
-            } else {
-                // Handle unexpected object type (log error, throw exception, etc.)
-                Log.e(TAG, "Unexpected object type: " + object.getClass().getName());
             }
-        } catch (Exception e) {
-            LogUtility.e(TAG, " getDataFromQuerySnapshot: ", e);
+            if (object instanceof DocumentSnapshot) {
+                DocumentSnapshot documentSnapshot = (DocumentSnapshot) object;
+                T dataObject = documentSnapshot.toObject(targetClass);
+                dataList.add(dataObject);
+
+        } else{
+            // Handle unexpected object type (log error, throw exception, etc.)
+            Log.e(TAG, "Unexpected object type: " + object.getClass().getName());
         }
-        return dataList;
+    } catch(
+    Exception e)
+
+    {
+        LogUtility.e(TAG, " getDataFromQuerySnapshot: ", e);
     }
+        return dataList;
+}
 
 
 }

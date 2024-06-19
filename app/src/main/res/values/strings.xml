@@ -244,6 +244,10 @@
     <string name="label_week_days">أيام الأسبوع</string>
     <string name="label_set_time">تحديد الوقت</string>
     <string name="msg_you_must_select_radio_station">You must select radio station</string>
+    <string name="ex_name">Jhpne Doe</string>
+    <string name="ex_city">Yemen - Sana\'a</string>
+    <string name="ex_address">Tahrir - 26 Sep .ST</string>
+    <string name="label_address">Address</string>
     <!--label_weke_days-->
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

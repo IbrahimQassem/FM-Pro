@@ -186,7 +186,7 @@ public class UserProfileActivity extends BaseActivity {
             }
 
             if (URLUtil.isValidUrl(_userModel.getPhotoUrl()))
-                Tools.displayUserProfile(this, binding.imgProfile, _userModel.getPhotoUrl());
+                Tools.displayUserProfile(this, binding.imgProfile, _userModel.getPhotoUrl(),R.drawable.ic_person);
         }
 
 
@@ -541,7 +541,7 @@ public class UserProfileActivity extends BaseActivity {
 //        String dd = FmUtilize.getFileName(imageUri, this);
 //        binding.tieFilename.setText(dd);
 
-        Tools.displayUserProfile(this, binding.imgProfile, imageUri.toString());
+        Tools.displayUserProfile(this, binding.imgProfile, imageUri.toString(),R.drawable.ic_person);
         binding.imgProfile.setColorFilter(ContextCompat.getColor(this, android.R.color.transparent));
     }
 

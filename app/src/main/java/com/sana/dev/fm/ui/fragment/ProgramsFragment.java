@@ -1,8 +1,6 @@
 package com.sana.dev.fm.ui.fragment;
 
 
-import static com.sana.dev.fm.utils.FmUtilize.isCollection;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Html;
@@ -23,7 +21,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.CollectionReference;
-import com.google.gson.Gson;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListProgram;
@@ -33,7 +30,6 @@ import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
-import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.MainActivity;
@@ -47,7 +43,6 @@ import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +57,6 @@ import butterknife.ButterKnife;
  * create an instance of this fragment.
  */
 public class ProgramsFragment extends BaseFragment {
-
     private static final String TAG = ProgramsFragment.class.getSimpleName();
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -101,7 +95,7 @@ public class ProgramsFragment extends BaseFragment {
 
     View parent_fragment_view;
     private AdapterListProgram mAdapter;
-    private List<RadioProgram> itemList;
+    private List<RadioProgram> itemList = new ArrayList<>();
     private FirestoreDbUtility firestoreDbUtility;
 
     @Override
@@ -154,28 +148,36 @@ public class ProgramsFragment extends BaseFragment {
                     ((MainActivity) mActivity).selectTab(R.id.navigation_home);
             }
         });
+
+        toggleView(true);
     }
 
     private void initComponent() {
         RadioInfo selectedRadio = prefMgr.selectedRadio();
-        if (selectedRadio != null || !isRadioSelected()) {
+        if (selectedRadio != null) {
+            try {
 
-            SpannableStringBuilder builder = new SpannableStringBuilder();
+                SpannableStringBuilder builder = new SpannableStringBuilder();
 
-            String primary = selectedRadio.getName() != null ? selectedRadio.getName() : " ";
-            SpannableString blueSpannable = new SpannableString(Html.fromHtml(" <b>" + primary + "</b> "));
+                String primary = (selectedRadio != null && selectedRadio.getName() != null) ? selectedRadio.getName() : " ";
+                SpannableString blueSpannable = new SpannableString(Html.fromHtml(" <b>" + primary + "</b> "));
 //        StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
 //        blueSpannable.setSpan(boldSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
-            builder.append(blueSpannable);
+                blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
+                builder.append(blueSpannable);
 
-            String black = requireActivity().getResources().getString(R.string.main_program_for);
-            SpannableString whiteSpannable = new SpannableString(black);
-            whiteSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.grey_40)), 0, black.length(), 0);
-            builder.append(whiteSpannable);
+                String black = requireActivity().getResources().getString(R.string.main_program_for);
+                SpannableString whiteSpannable = new SpannableString(black);
+                whiteSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.grey_40)), 0, black.length(), 0);
+                builder.append(whiteSpannable);
 
 
-            tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
+                tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e(TAG, "Error parsing remote config JSON: " + e.getMessage());
+            }
 
             List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
             firestoreQueryList.add(new FirestoreQuery(
@@ -190,7 +192,7 @@ public class ProgramsFragment extends BaseFragment {
                     false
             ));
 
-            firestoreDbUtility.getMany(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE,selectedRadio.getRadioId()), firestoreQueryList, new CallBack() {
+            firestoreDbUtility.getMany(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, selectedRadio.getRadioId()), firestoreQueryList, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
@@ -230,8 +232,8 @@ public class ProgramsFragment extends BaseFragment {
                                         @Override
                                         public void onClick(View v) {
 
-                                            CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE,selectedRadio.getRadioId());
-                                            firestoreDbUtility.deleteDocument(collectionRef,obj.getProgramId(), new CallBack() {
+                                            CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, selectedRadio.getRadioId());
+                                            firestoreDbUtility.deleteDocument(collectionRef, obj.getProgramId(), new CallBack() {
                                                 @Override
                                                 public void onSuccess(Object object) {
                                                     showToast(getString(R.string.deleted_successfully_with_param, obj.getPrName()));
@@ -252,16 +254,10 @@ public class ProgramsFragment extends BaseFragment {
                             }
                         });
 
-                        if (itemList.isEmpty()) {
-                            recyclerView.setVisibility(View.GONE);
-                            cf_container.setVisibility(View.VISIBLE);
-                        } else {
-                            recyclerView.setVisibility(View.VISIBLE);
-                            cf_container.setVisibility(View.GONE);
-                        }
+                        toggleView(itemList.isEmpty());
+
                     } else {
-                        recyclerView.setVisibility(View.GONE);
-                        cf_container.setVisibility(View.VISIBLE);
+                        toggleView(true);
                     }
                 }
 
@@ -270,8 +266,10 @@ public class ProgramsFragment extends BaseFragment {
                     LogUtility.e(TAG, " loadRadioProgram :  " + object);
                 }
             });
-        }else {
-            showToast(getString(R.string.msg_you_must_select_radio_station));
+        } else {
+//            showToast(getString(R.string.msg_you_must_select_radio_station));
+
+            toggleView(true);
         }
 
     }
@@ -387,6 +385,11 @@ public class ProgramsFragment extends BaseFragment {
             map.put(s.get("value"), photos);
         }
         Log.d(TAG, "map " + map.toString());
-
     }
+
+    void toggleView(boolean hide) {
+        recyclerView.setVisibility(!hide ? View.VISIBLE : View.GONE);
+        cf_container.setVisibility(hide ? View.VISIBLE : View.GONE);
+    }
+
 }

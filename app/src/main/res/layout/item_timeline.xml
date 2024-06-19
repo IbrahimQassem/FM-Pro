@@ -69,7 +69,8 @@
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+                            android:padding="@dimen/spacing_small">
 
                             <TextView
                                 android:id="@+id/tvTitle"
@@ -77,7 +78,7 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                                android:textColor="@color/light_blue_400"
+                                android:textColor="@color/colorPrimaryDark"
                                 android:textStyle="bold"
                                 tools:text="@string/label_title" />
 
@@ -97,48 +98,47 @@
 
 
                         <LinearLayout
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_margin="5dp">
+                            android:padding="@dimen/spacing_small">
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
+                            <TextView
+                                android:id="@+id/tevTimeShow"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_margin="1dp">
+                                android:layout_weight="1"
+                                android:fontFamily="@font/tj_bold"
+                                android:gravity="end"
+                                android:textColor="@color/grey_500"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                tools:text="@string/ex_date" />
 
-                                <TextView
-                                    android:id="@+id/tevTimeShow"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:gravity="end"
-                                    android:textColor="@color/grey_400"
-                                    android:textSize="@dimen/spacing_middle"
-                                    tools:text="@string/ex_date" />
+                            <!--                            <TextView-->
+                            <!--                                android:layout_width="0dp"-->
+                            <!--                                android:layout_height="wrap_content"-->
+                            <!--                                android:layout_weight="1"-->
+                            <!--                                android:gravity="center_horizontal"-->
+                            <!--                                android:text="\u2022"-->
+                            <!--                                />-->
+                            <View
+                                android:layout_width="@dimen/spacing_small"
+                                android:layout_height="match_parent" />
 
-                                <!--                            <TextView-->
-                                <!--                                android:layout_width="0dp"-->
-                                <!--                                android:layout_height="wrap_content"-->
-                                <!--                                android:layout_weight="1"-->
-                                <!--                                android:gravity="center_horizontal"-->
-                                <!--                                android:text="\u2022"-->
-                                <!--                                />-->
-
-                                <TextView
-                                    android:id="@+id/tevDate"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:gravity="start"
-                                    android:textColor="@color/grey_500"
-                                    android:textSize="@dimen/spacing_middle"
-                                    android:textStyle="bold"
-                                    tools:text="@string/ex_date" />
-
-                            </LinearLayout>
-
+                            <TextView
+                                android:id="@+id/tevDate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/tj_bold"
+                                android:gravity="start"
+                                android:textColor="@color/grey_500"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                tools:text="@string/ex_date" />
 
                         </LinearLayout>
+
 
 
                     </LinearLayout>

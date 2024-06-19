@@ -39,7 +39,7 @@ import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
-import com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
 /**
  * Created by ibrahim
@@ -55,6 +55,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     private PreferencesManager prefMgr;
     private CommentsAdapter commentsAdapter;
     private int drawingStartLocation;
+    private FirestoreDbUtility firestoreDbUtility;
 
     public static void startActivity(Context context, Episode episode) {
         Intent intent = new Intent(context, CommentsActivity.class);
@@ -73,6 +74,8 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         setContentView(view);
 
         prefMgr = PreferencesManager.getInstance();
+        firestoreDbUtility = new FirestoreDbUtility();
+
 
         initToolbar();
         setupComments();
@@ -128,9 +131,10 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         binding.rvComments.setLayoutManager(linearLayoutManager);
 //        binding.rvComments.setHasFixedSize(true);
-        query = FirebaseDatabaseReference.getTopLevelCollection().getFirestore().collection(AppConstant.Firebase.EPISODE_TABLE)
-                .document(radioId)
-                .collection(AppConstant.Firebase.EPISODE_TABLE)
+        CollectionReference colRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,radioId);
+        query = colRef
+//                .document(radioId)
+//                .collection(AppConstant.Firebase.EPISODE_TABLE)
                 .document(epId)
                 .collection(AppConstant.Firebase.COMMENT_TABLE)
                 .orderBy("commentTime", Query.Direction.ASCENDING);
@@ -140,7 +144,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                 .setQuery(query, Comment.class)
                 .build();
 
-        commentsAdapter = new CommentsAdapter(options, this);
+        commentsAdapter = new CommentsAdapter(options, this,firestoreDbUtility);
         commentsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -228,9 +232,9 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 //            binding.etComment.setText(null);
 //            binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
 
-            CollectionReference colRef = FirebaseDatabaseReference.getTopLevelCollection().getFirestore().collection(AppConstant.Firebase.EPISODE_TABLE)
-                    .document(radioId)
-                    .collection(AppConstant.Firebase.EPISODE_TABLE)
+            CollectionReference colRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,radioId)
+//                    .document(radioId)
+//                    .collection(AppConstant.Firebase.EPISODE_TABLE)
                     .document(epId)
                     .collection(AppConstant.Firebase.COMMENT_TABLE);
             String pushKey = colRef.document().getId();
@@ -246,6 +250,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
+                    e.printStackTrace();
                     Log.e(TAG, "Error send comment " + e.getMessage());
                 }
             });

@@ -56,7 +56,7 @@
                     <TextView
                         android:id="@+id/tv_announcer"
                         style="@style/TextLight"
-                        android:textColor="@color/quantum_light_blue700"
+                        android:textColor="@color/colorPrimaryDark"
                         android:textStyle="bold"
                         tools:text="@string/label_announcer_name" />
 

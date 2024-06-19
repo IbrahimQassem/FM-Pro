@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,6 +56,9 @@ public class EpisodeFragment extends BaseFragment {
 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+
+    @BindView(R.id.lyt_parent_stations)
+    LinearLayout lytParentStation;
 
     View view;
     Context ctx;
@@ -123,12 +127,14 @@ public class EpisodeFragment extends BaseFragment {
         recyclerView.setLayoutManager(layoutManager);
 
 
-        if (isCollection(prefMgr.getRadioList())) {
+        stationList = prefMgr.getRadioList();
+
+        if (stationList != null && stationList.size() > 0) {
+            lytParentStation.setVisibility(View.VISIBLE);
 //        if (isCollection(ShardDate.getInstance().getInfoList())) {
 //            stationList = (ArrayList<RadioInfo>) ShardDate.getInstance().getInfoList();
             int indexToScrollTo = prefMgr.read("ScrollToPosition", 0);
 
-            stationList = prefMgr.getRadioList();
             ShardDate.getInstance().setRadioInfoList(stationList);
             RadiosAdapter adapter = new RadiosAdapter(ctx, stationList, recyclerView, indexToScrollTo);
 
@@ -194,6 +200,7 @@ public class EpisodeFragment extends BaseFragment {
 
         } else {
             // Todo check radio is empty call it again
+            lytParentStation.setVisibility(View.GONE);
         }
 
 

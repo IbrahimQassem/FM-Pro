@@ -1,8 +1,6 @@
 package com.sana.dev.fm.ui.activity.appuser;
 
 
-import static com.sana.dev.fm.utils.AppConstant.Firebase.USERS_TABLE;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -36,7 +34,6 @@ import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmUserCRUDImpl;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
@@ -99,10 +96,9 @@ public class VerificationPhone extends BaseActivity {
     }
 
 
-
     private void signInWithCredential(PhoneAuthCredential credential) {
-        if (!isFinishing())
-            showProgress("");
+//        if (!isFinishing())
+        showProgress("");
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -111,7 +107,7 @@ public class VerificationPhone extends BaseActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = task.getResult().getUser();
                             user.updatePhoneNumber(credential);
-                            checkUserAuth(user);
+                            checkUserAuth(user, phoneNumber);
                         } else {
 //                            showToast(task.getException().getLocalizedMessage());
                             LogUtility.e(LogUtility.tag(VerificationPhone.class), task.getException().getLocalizedMessage());
@@ -122,7 +118,8 @@ public class VerificationPhone extends BaseActivity {
                 });
     }
 
-    void checkUserAuth(FirebaseUser firebaseUser) {
+    void checkUserAuth(FirebaseUser firebaseUser, String userMobile) {
+        showProgress(getString(R.string.please_wait));
         Intent intent = IntentHelper.userProfileActivity(VerificationPhone.this, true);
 
         FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
@@ -130,7 +127,7 @@ public class VerificationPhone extends BaseActivity {
         firestoreQueryList.add(new FirestoreQuery(
                 FirestoreQueryConditionCode.WHERE_EQUAL_TO,
                 "mobile",
-                phoneNumber
+                FmUtilize.trimMobileCode(userMobile)
         ));
 
 
@@ -139,6 +136,7 @@ public class VerificationPhone extends BaseActivity {
             @Override
             public void onSuccess(Object object) {
                 LogUtility.d(LogUtility.TAG, "Success checkUserAuth: " + object);
+                hideProgress();
 
                 List<UserModel> userModelList = FirestoreDbUtility.getDataFromQuerySnapshot(object, UserModel.class);
 
@@ -153,7 +151,7 @@ public class VerificationPhone extends BaseActivity {
                 } else {
                     String uid = firebaseUser.getUid();
                     String name = firebaseUser.getDisplayName();
-                    UserModel obUser = new UserModel(uid, name, null, phoneNumber, null, null, FmUtilize.getIMEIDeviceId(VerificationPhone.this), null, null, null, true, false, false, FmUtilize.deviceId(VerificationPhone.this), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.SMS,  Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(VerificationPhone.this), null, new ArrayList<>());
+                    UserModel obUser = new UserModel(uid, name, null, userMobile, null, null, FmUtilize.getIMEIDeviceId(VerificationPhone.this), null, null, null, true, false, false, FmUtilize.deviceId(VerificationPhone.this), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.SMS, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(VerificationPhone.this), null, new ArrayList<>());
 
                     firestoreDbUtility.createOrMerge(collectionReference, obUser.userId, obUser, new CallBack() {
                         @Override
@@ -174,8 +172,9 @@ public class VerificationPhone extends BaseActivity {
 
             @Override
             public void onFailure(Object object) {
+                hideProgress();
                 LogUtility.d(LogUtility.TAG, "Failure checkUserAuth: " + object);
-                showToast(getString(R.string.label_error_occurred_with_val,object));
+                showToast(getString(R.string.label_error_occurred_with_val, object));
             }
         });
     }

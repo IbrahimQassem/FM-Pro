@@ -4,281 +4,294 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <com.sana.dev.fm.ui.view.RevealBackgroundView
             android:id="@+id/rbv"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/co_content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <!--
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/spacing_medium"
-                    android:layout_alignParentBottom="true"
-                    android:background="@drawable/bg_gradient_very_soft" />
-        -->
-
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/co_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/spacing_middle"
-            android:visibility="visible"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:listitem="@layout/item_photo" />
+            android:orientation="vertical">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+            <!--
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/spacing_medium"
+                        android:layout_alignParentBottom="true"
+                        android:background="@drawable/bg_gradient_very_soft" />
+            -->
 
-            <androidx.coordinatorlayout.widget.CoordinatorLayout
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:contentScrim="?attr/colorPrimary"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed">
+                android:layout_marginTop="@dimen/spacing_middle"
+                android:visibility="visible"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                tools:listitem="@layout/item_photo" />
 
-                <LinearLayout
-                    android:id="@+id/lyn_profile_root"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/colorPrimary"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:orientation="vertical"
-                    android:paddingLeft="24dp"
-                    android:paddingTop="64dp"
-                    android:paddingRight="24dp"
-                    android:paddingBottom="24dp"
-                    app:layout_collapseMode="parallax">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:clipChildren="false">
-
-                        <ImageView
-                            android:id="@+id/iv_profile_photo"
-                            android:layout_width="@dimen/user_profile_avatar_size"
-                            android:layout_height="@dimen/user_profile_avatar_size"
-                            android:layout_margin="@dimen/spacing_large"
-                            app:srcCompat="@drawable/img_circle_placeholder" />
-
-                        <LinearLayout
-                            android:id="@+id/lyn_details"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tv_name"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textColor="#ffffff"
-                                android:textSize="24sp"
-                                tools:text="@string/label_program_name" />
-
-                            <TextView
-                                android:id="@+id/tv_tag"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="start"
-                                android:textColor="@color/white"
-                                android:textSize="12sp"
-                                tools:text="@string/label_tag" />
-                            <!--                            \@fm-->
-                            <TextView
-                                android:id="@+id/tv_category"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text=""
-                                android:textColor="#ffffff"
-                                android:textSize="12sp"
-                                tools:text="@string/label_category" />
-
-                            <TextView
-                                android:id="@+id/tv_desc"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textColor="#ffffff"
-                                android:textSize="12sp"
-                                tools:text="@string/label_desc" />
-
-                            <Button
-                                android:id="@+id/btn_follow"
-                                android:layout_width="match_parent"
-                                android:layout_height="24dp"
-                                android:layout_marginTop="8dp"
-                                android:layout_marginStart="@dimen/spacing_mxlarge"
-                                android:layout_marginEnd="@dimen/spacing_mxlarge"
-                                android:background="@drawable/btn_following"
-                                android:text="@string/following"
-                                android:textColor="#ffffff"
-                                android:textSize="12sp"
-                                android:visibility="visible" />
-
-                        </LinearLayout>
-
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/lyn_stats"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="16dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginRight="16dp"
-                        android:visibility="visible">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tv_post_count"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="#ffffff"
-                                android:textSize="20sp"
-                                android:text="1"
-                                tools:text="@string/ex_no" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/post"
-                                android:textColor="@color/white"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tv_subscribers"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="#ffffff"
-                                android:textSize="20sp"
-                                android:text="1"
-                                tools:text="@string/ex_no" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/subscribers"
-                                android:textColor="@color/white"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tv_likes_count"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="#ffffff"
-                                android:textSize="20sp"
-                                android:text="1"
-                                tools:text="@string/ex_no" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/likes"
-                                android:textColor="@color/white"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <include
-                    android:id="@+id/toolbar"
-                    layout="@layout/view_feed_toolbar" />
-
-            </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-            <FrameLayout
+            <com.google.android.material.appbar.AppBarLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/tl_profile_tabs"
+                <androidx.coordinatorlayout.widget.CoordinatorLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/colorPrimary"
-                    app:tabGravity="fill"
-                    app:tabIndicatorColor="#5be5ad"
-                    app:tabIndicatorHeight="4dp"
-                    app:tabMode="fixed"
-                    >
+                    android:layout_height="match_parent"
+                    app:contentScrim="?attr/colorPrimary"
+                    app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-               <!--     <com.google.android.material.tabs.TabItem
-                        android:id="@+id/exercise_menu_exerciseTabItem"
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:icon="@drawable/ic_grid_on_white"
-                        android:text="Exercises"
-                        android:layout_margin="@dimen/spacing_medium"/>
--->
-                </com.google.android.material.tabs.TabLayout>
+                    <LinearLayout
+                        android:id="@+id/lyn_profile_root"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/colorPrimary"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:orientation="vertical"
+                        android:paddingLeft="24dp"
+                        android:paddingTop="64dp"
+                        android:paddingRight="24dp"
+                        android:paddingBottom="24dp"
+                        app:layout_collapseMode="parallax">
 
-                <!--
-                    android:padding="@dimen/spacing_medium"
-                    app:tabBackground="@android:color/transparent"
-                    app:tabIndicator="@drawable/shadow_top"
-                    app:tabIndicatorGravity="top"
-                    app:tabMinWidth="100dp"
-                    app:tabRippleColor="@android:color/transparent"
-                    app:tabSelectedTextColor="@color/white"
-                    app:tabTextAppearance="@style/TextAppearance.AppCompat.Body2"
-                    app:tabTextColor="@color/green_500"
-                -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:clipChildren="false">
 
-            </FrameLayout>
 
-        </com.google.android.material.appbar.AppBarLayout>
+                            <com.mikhaellopez.circularimageview.CircularImageView
+                                android:id="@+id/img_profile"
+                                android:layout_width="@dimen/user_profile_avatar_size"
+                                android:layout_height="@dimen/user_profile_avatar_size"
+                                android:layout_margin="@dimen/spacing_middle"
+                                android:scaleType="centerInside"
+                                android:tint="@color/colorPrimary"
+                                app:civ_border="true"
+                                app:civ_border_color="@color/colorPrimaryDark"
+                                app:civ_border_width="1px"
+                                app:srcCompat="@mipmap/ic_launcher_foreground" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_gravity="bottom|right"
-            android:layout_marginRight="@dimen/btn_fab_margins"
-            android:layout_marginBottom="@dimen/btn_fab_margins"
-            android:visibility="gone"
-            app:borderWidth="0dp"
-            app:elevation="6dp"
-            app:pressedTranslationZ="12dp"
-            app:srcCompat="@drawable/ic_radio" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-</RelativeLayout>
+                            <!--                        <ImageView-->
+                            <!--                            android:visibility="gone"-->
+                            <!--                            android:id="@+id/iv_profile_photo"-->
+                            <!--                            android:layout_width="@dimen/user_profile_avatar_size"-->
+                            <!--                            android:layout_height="@dimen/user_profile_avatar_size"-->
+                            <!--                            android:layout_margin="@dimen/spacing_large"-->
+                            <!--                            app:srcCompat="@drawable/img_circle_placeholder" />-->
+
+                            <LinearLayout
+                                android:id="@+id/lyn_details"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tv_name"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="#ffffff"
+                                    android:textSize="24sp"
+                                    tools:text="@string/label_program_name" />
+
+                                <TextView
+                                    android:id="@+id/tv_tag"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="start"
+                                    android:textColor="@color/white"
+                                    android:textSize="12sp"
+                                    tools:text="@string/label_tag" />
+                                <!--                            \@fm-->
+                                <TextView
+                                    android:id="@+id/tv_category"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text=""
+                                    android:textColor="#ffffff"
+                                    android:textSize="12sp"
+                                    tools:text="@string/label_category" />
+
+                                <TextView
+                                    android:id="@+id/tv_desc"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="#ffffff"
+                                    android:textSize="12sp"
+                                    tools:text="@string/label_desc" />
+
+                                <Button
+                                    android:id="@+id/btn_follow"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="24dp"
+                                    android:layout_marginStart="@dimen/spacing_mxlarge"
+                                    android:layout_marginTop="8dp"
+                                    android:layout_marginEnd="@dimen/spacing_mxlarge"
+                                    android:background="@drawable/btn_following"
+                                    android:text="@string/following"
+                                    android:textColor="#ffffff"
+                                    android:textSize="12sp"
+                                    android:visibility="visible" />
+
+                            </LinearLayout>
+
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/lyn_stats"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="16dp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginRight="16dp"
+                            android:visibility="visible">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tv_post_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="1"
+                                    android:textColor="#ffffff"
+                                    android:textSize="20sp"
+                                    tools:text="@string/ex_no" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/post"
+                                    android:textColor="@color/white"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tv_subscribers"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="1"
+                                    android:textColor="#ffffff"
+                                    android:textSize="20sp"
+                                    tools:text="@string/ex_no" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/subscribers"
+                                    android:textColor="@color/white"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tv_likes_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="1"
+                                    android:textColor="#ffffff"
+                                    android:textSize="20sp"
+                                    tools:text="@string/ex_no" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/likes"
+                                    android:textColor="@color/white"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <include
+                        android:id="@+id/toolbar"
+                        layout="@layout/view_feed_toolbar" />
+
+                </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.tabs.TabLayout
+                        android:id="@+id/tl_profile_tabs"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/colorPrimary"
+                        app:tabGravity="fill"
+                        app:tabIndicatorColor="#5be5ad"
+                        app:tabIndicatorHeight="4dp"
+                        app:tabMode="fixed">
+
+                        <!--     <com.google.android.material.tabs.TabItem
+                                 android:id="@+id/exercise_menu_exerciseTabItem"
+                                 android:layout_width="12dp"
+                                 android:layout_height="12dp"
+                                 android:icon="@drawable/ic_grid_on_white"
+                                 android:text="Exercises"
+                                 android:layout_margin="@dimen/spacing_medium"/>
+         -->
+                    </com.google.android.material.tabs.TabLayout>
+
+                    <!--
+                        android:padding="@dimen/spacing_medium"
+                        app:tabBackground="@android:color/transparent"
+                        app:tabIndicator="@drawable/shadow_top"
+                        app:tabIndicatorGravity="top"
+                        app:tabMinWidth="100dp"
+                        app:tabRippleColor="@android:color/transparent"
+                        app:tabSelectedTextColor="@color/white"
+                        app:tabTextAppearance="@style/TextAppearance.AppCompat.Body2"
+                        app:tabTextColor="@color/green_500"
+                    -->
+
+                </FrameLayout>
+
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_gravity="bottom|right"
+                android:layout_marginRight="@dimen/btn_fab_margins"
+                android:layout_marginBottom="@dimen/btn_fab_margins"
+                android:visibility="gone"
+                app:borderWidth="0dp"
+                app:elevation="6dp"
+                app:pressedTranslationZ="12dp"
+                app:srcCompat="@drawable/ic_radio" />
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </RelativeLayout>
 
 </layout>
