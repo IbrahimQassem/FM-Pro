@@ -53,8 +53,6 @@ import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
-import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.radio_player.PlaybackStatus;
 import com.sana.dev.fm.utils.radio_player.RadioManager;
 import com.sana.dev.fm.utils.radio_player.StaticEventDistributor;
@@ -62,9 +60,6 @@ import com.sana.dev.fm.utils.radio_player.metadata.Metadata;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import co.mobiwise.materialintro.animation.MaterialIntroListener;
 import co.mobiwise.materialintro.shape.Focus;
@@ -500,6 +495,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         LinearLayout lyt_add_program = inflate.findViewById(R.id.lyt_add_program);
         LinearLayout lyt_add_episode = inflate.findViewById(R.id.lyt_add_episode);
         LinearLayout lyt_update_episode = inflate.findViewById(R.id.lyt_update_episode);
+        LinearLayout lyt_update_program = inflate.findViewById(R.id.lyt_update_program);
         LinearLayout lyt_update_radio = inflate.findViewById(R.id.lyt_update_radio);
         //lyt_update_radio.setVisibility(View.GONE);
 
@@ -508,11 +504,13 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             lyt_add_program.setVisibility(View.VISIBLE);
             lyt_add_episode.setVisibility(View.VISIBLE);
             lyt_update_episode.setVisibility(View.VISIBLE);
+            lyt_update_program.setVisibility(View.VISIBLE);
             lyt_update_radio.setVisibility(View.VISIBLE);
         } else {
             lyt_add_program.setVisibility(View.GONE);
             lyt_add_episode.setVisibility(View.GONE);
             lyt_update_episode.setVisibility(View.GONE);
+            lyt_update_program.setVisibility(View.GONE);
             lyt_update_radio.setVisibility(View.GONE);
         }
 
@@ -521,6 +519,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 //            lyt_add_program.setVisibility(View.VISIBLE);
 //            lyt_add_episode.setVisibility(View.VISIBLE);
 //            lyt_update_episode.setVisibility(View.VISIBLE);
+//            lyt_update_program.setVisibility(View.VISIBLE);
 //            if (isAccountSignedIn()) {
 //                UserModel user = prefMgr.getUserSession();
 //                user.setUserType(UserType.SuperADMIN);
@@ -582,7 +581,15 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         lyt_update_episode.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 if (checkPrivilegeAdmin())
-                    ListMultiSelection.startActivity(MainActivity.this);
+                    ListEpisodeActivity.startActivity(MainActivity.this);
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
+        lyt_update_program.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                if (checkPrivilegeAdmin())
+                    ListProgramActivity.startActivity(MainActivity.this);
                 mBottomSheetDialog.dismiss();
             }
         });

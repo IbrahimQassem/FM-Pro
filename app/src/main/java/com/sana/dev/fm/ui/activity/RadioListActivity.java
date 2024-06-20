@@ -1,8 +1,6 @@
 package com.sana.dev.fm.ui.activity;
 
 
-import static com.sana.dev.fm.utils.FmUtilize.isCollection;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,16 +21,13 @@ import com.google.firebase.firestore.Query;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListDrag;
 import com.sana.dev.fm.databinding.ActivityListDragBinding;
-import com.sana.dev.fm.databinding.ActivityListMultiSelectionBinding;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
-import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.DragItemTouchHelper;
-import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
@@ -40,7 +35,6 @@ import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class RadioListActivity extends BaseActivity {
@@ -311,7 +305,7 @@ public class RadioListActivity extends BaseActivity {
 
         lyt_update_episode.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                ListMultiSelection.startActivity(MainActivity.this);
+                ListEpisodeActivity.startActivity(MainActivity.this);
                 mBottomSheetDialog.dismiss();
             }
         });

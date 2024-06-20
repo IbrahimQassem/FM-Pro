@@ -274,7 +274,26 @@
     <string name="label_write_review">Write review ...</string>
     <string name="msg_please_fill_review_text">Please fill review text</string>
     <string name="label_submitted">Submitted</string>
-    <!--label_weke_days-->
+    <string name="label_start_at">Start At : %s</string>
+    <string name="label_end_at">End At : %s</string>
+    <string name="label_show_period">Show Period : %s</string>
+    <string name="label_date_from_to">From %s1 To %s2</string>
+    <string name="label_time_from_to">From %s1 To %s2</string>
+    <string name="update_program">Update Program</string>
+    <string name="ex_program_name">Ex: Morning of the capital</string>
+    <string name="label_program_logo">Program logo</string>
+    <string name="label_add_image">Add Image</string>
+    <string name="ex_program_category">Ex: social, youth ..</string>
+    <string name="label_time_period_for_displaying_program">The time period for displaying the program</string>
+    <string name="ex_days">Ex: Saturday, Sunday, Monday</string>
+    <string name="label_episode_name">Episode title</string>
+    <string name="label_set_start_time">Set start time</string>
+    <string name="label_set_end_time">Set end time</string>
+    <string name="label_set_day">Set day</string>
+    <string name="label_sub_main">Secondary</string>
+    <string name="label_main">Primary</string>
+    <string name="label_day">Day</string>
+    <!--label_weak_days-->
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 
 </resources>

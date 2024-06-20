@@ -67,24 +67,23 @@ public class DateTimeModel {
             TimePeriod vv = new TimePeriod();
             vv.start = before;
             vv.end = after;
-            idd =  vv.isIn(toCheck);
+            idd = vv.isIn(toCheck);
             //is toCheck between the two?
             isTimeAvailable = (before.getTime() < toCheck.getTime()) && after.getTime() > toCheck.getTime();
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
-        idd  = idd;
+        idd = idd;
         return isTimeAvailable;
     }
 
 
-
     // Todo
-    public static long findMainShowTime( List<DateTimeModel> list){
+    public static long findMainShowTime(List<DateTimeModel> list) {
 //        DateTimeModel timeModel = new DateTimeModel();
         long time = 0;
-        if (!Tools.isEmpty(list)){
+        if (!Tools.isEmpty(list)) {
             for (DateTimeModel dateTimeModel : list) {
                 if (dateTimeModel.isAsMainTime()) {
 //                timeModel = dateTimeModel;
@@ -93,13 +92,12 @@ public class DateTimeModel {
                 }
             }
         }
-        return  time;
+        return time;
     }
 
 
-
     public static boolean useLoop(String[] arr, String targetValue) {
-        for (String s: arr) {
+        for (String s : arr) {
             if (s.equals(targetValue))
                 return true;
         }
@@ -155,7 +153,7 @@ public class DateTimeModel {
     }
 }
 
-class TimePeriod implements Comparable<TimePeriod>{
+class TimePeriod implements Comparable<TimePeriod> {
 
     Date start;
     Date end;

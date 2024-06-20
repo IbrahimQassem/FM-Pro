@@ -17,6 +17,8 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemGridBinding;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.model.interfaces.OnClickListener;
+import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
 
@@ -27,8 +29,8 @@ import java.util.Map;
 public class ChatHolder extends RecyclerView.ViewHolder {
     public static final String TAG = ChatHolder.class.getSimpleName();
     private Context ctx;
-    private OnItemClickListener mOnItemClickListener;
-    private OnLongItemClickListener mOnLongItemClickListener;
+    private OnClickListener mOnItemClickListener;
+    private OnItemLongClick mOnLongItemClickListener;
     private int position;
 
 
@@ -139,7 +141,7 @@ public class ChatHolder extends RecyclerView.ViewHolder {
             @Override
             public boolean onLongClick(View v) {
                 if (mOnLongItemClickListener != null) {
-                    mOnLongItemClickListener.onLongItemClick(v, episode, position);
+                    mOnLongItemClickListener.onItemLongClick(v, episode, position);
                 }
                 return false;
             }
@@ -186,19 +188,12 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 //                .setColorFilter(color, PorterDuff.Mode.SRC);
     }
 
-    public interface OnItemClickListener {
-        void onItemClick(View view, Episode obj, int position);
-    }
 
-    public interface OnLongItemClickListener {
-        void onLongItemClick(View view, Episode obj, int position);
-    }
-
-    public void setOnItemClickListener(final OnItemClickListener mItemClickListener) {
+    public void setOnItemClickListener(final OnClickListener mItemClickListener) {
         this.mOnItemClickListener = mItemClickListener;
     }
 
-    public void setOnLongItemClickListener(final OnLongItemClickListener mItemLongClickListener) {
+    public void setOnLongItemClickListener(final OnItemLongClick mItemLongClickListener) {
         this.mOnLongItemClickListener = mItemLongClickListener;
     }
 }

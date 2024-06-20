@@ -1,6 +1,7 @@
 package com.sana.dev.fm.adapter;
 
 
+import static com.sana.dev.fm.utils.Tools.getFormattedDateOnly;
 import static com.sana.dev.fm.utils.Tools.getFormattedTimeEvent;
 
 import android.annotation.SuppressLint;
@@ -20,7 +21,9 @@ import androidx.recyclerview.widget.RecyclerView.Adapter;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemInboxBinding;
 import com.sana.dev.fm.databinding.ItemProgramsBinding;
+import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
 
 import java.util.ArrayList;
@@ -34,9 +37,9 @@ public class AdapterListInbox extends Adapter<AdapterListInbox.MyViewHolder> {
     private SparseBooleanArray selected_items;
 
     public interface OnClickListener {
-        void onItemClick(View view, Episode episode, int i);
+        void onItemClick(View view, Episode model, int i);
 
-        void onItemLongClick(View view, Episode episode, int i);
+        void onItemLongClick(View view, Episode model, int i);
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
@@ -65,13 +68,19 @@ public class AdapterListInbox extends Adapter<AdapterListInbox.MyViewHolder> {
     }
 
 
-
     public void onBindViewHolder(MyViewHolder viewHolder, @SuppressLint("RecyclerView") final int i) {
         final Episode model = (Episode) this.items.get(i);
         viewHolder.binding.tvTitle.setText(model.getEpName());
         viewHolder.binding.tvSubtitle.setText(model.getEpAnnouncer());
         viewHolder.binding.tvDesc.setText(model.getEpDesc());
-//        viewHolder.binding.tvDate.setText(getFormattedTimeEvent(model.getDateTimeModel().getTimeStart()));
+
+        if (model.getProgramScheduleTime() != null) {
+            String dt = ctx.getString(R.string.label_date_from_to, getFormattedDateOnly(model.getProgramScheduleTime().getDateStart(), FmUtilize.arabicFormat), getFormattedDateOnly(model.getProgramScheduleTime().getDateEnd(), FmUtilize.arabicFormat));
+            viewHolder.binding.tvDate.setText(dt);
+        } else {
+//            binding.tvState.setVisibility(View.GONE);
+        }
+
         viewHolder.binding.imageLetter.setText(model.getEpName().substring(0, 1));
         viewHolder.binding.lytParent.setActivated(this.selected_items.get(i, false));
 

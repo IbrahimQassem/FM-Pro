@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.firestore.CollectionReference;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.adapter.AdapterListProgram;
+import com.sana.dev.fm.adapter.AdapterMainProgram;
 import com.sana.dev.fm.adapter.SimpleSectionedRecyclerViewAdapter;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Episode;
@@ -32,6 +32,8 @@ import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
+import com.sana.dev.fm.model.interfaces.OnClickListener;
+import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
 import com.sana.dev.fm.utils.AppConstant;
@@ -94,7 +96,7 @@ public class ProgramsFragment extends BaseFragment {
     TextView tvTittle;
 
     View parent_fragment_view;
-    private AdapterListProgram mAdapter;
+    private AdapterMainProgram mAdapter;
     private List<RadioProgram> itemList = new ArrayList<>();
     private FirestoreDbUtility firestoreDbUtility;
 
@@ -120,7 +122,7 @@ public class ProgramsFragment extends BaseFragment {
 ////        List<Episode> list = DataGenerator.getEpisodeData(ctx);
 //////        AdapterListInbox adapterListInbox = new AdapterListInbox(ctx, list);
 ////
-//        mAdapter = new AdapterListProgram(ctx, itemList, R.layout.item_programs);
+//        mAdapter = new AdapterMainProgram(ctx, itemList, R.layout.item_programs);
 ////        recyclerView.setAdapter(mAdapter);
 ////        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 //
@@ -203,15 +205,18 @@ public class ProgramsFragment extends BaseFragment {
                         itemList = programList;
 //                      itemList =  DataGenerator.getProgramData(ctx);
                         initAdapter();
-                        mAdapter.setOnItemClickListener(new AdapterListProgram.OnItemClickListener() {
-                            public void onItemClick(View v, RadioProgram radioProgram, int i) {
+
+                        mAdapter.setOnItemClickListener(new OnClickListener() {
+                            @Override
+                            public void onItemClick(View view, Object obj, int position) {
+                                RadioProgram item = (RadioProgram) obj;
                                 if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhud_fm") || (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
                                     Episode episode = new Episode();
-                                    episode.setRadioId(radioProgram.getRadioId());
-                                    episode.setProgramId(radioProgram.getProgramId());
+                                    episode.setRadioId(item.getRadioId());
+                                    episode.setProgramId(item.getProgramId());
                                     int[] startingLocation = new int[2];
-                                    v.getLocationOnScreen(startingLocation);
-                                    startingLocation[0] += v.getWidth() / 2;
+                                    view.getLocationOnScreen(startingLocation);
+                                    startingLocation[0] += view.getWidth() / 2;
                                     ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, mActivity, episode);
                                     mActivity.overridePendingTransition(0, 0);
 //                                showToast("is : "+radioProgram.getPrName());
@@ -226,19 +231,20 @@ public class ProgramsFragment extends BaseFragment {
                             }
                         });
 
-                        mAdapter.setOnLongItemClickListener(new AdapterListProgram.OnLongItemClickListener() {
+                        mAdapter.setOnLongItemClickListener(new OnItemLongClick() {
                             @Override
-                            public void onLongItemClick(View view, RadioProgram obj, int position) {
+                            public void onItemLongClick(View view, Object obj, int position) {
+                                RadioProgram item = (RadioProgram) obj;
                                 if (ProgramsFragment.this.isAccountSignedIn() && prefMgr.getUserSession().getUserType() == UserType.SuperADMIN) {
-                                    ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_warning), getString(R.string.confirm_delete, obj.getPrName()), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                                    ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_warning), getString(R.string.confirm_delete, item.getPrName()), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
 
                                             CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, selectedRadio.getRadioId());
-                                            firestoreDbUtility.deleteDocument(collectionRef, obj.getProgramId(), new CallBack() {
+                                            firestoreDbUtility.deleteDocument(collectionRef, item.getProgramId(), new CallBack() {
                                                 @Override
                                                 public void onSuccess(Object object) {
-                                                    showToast(getString(R.string.deleted_successfully_with_param, obj.getPrName()));
+                                                    showToast(getString(R.string.deleted_successfully_with_param, item.getPrName()));
 //                                                    mAdapter.removeAt(position);
                                                     mAdapter.notifyItemRangeRemoved(0, itemList.size());
                                                 }
@@ -314,7 +320,7 @@ public class ProgramsFragment extends BaseFragment {
         }
 
 
-        mAdapter = new AdapterListProgram(requireActivity(), itemList, R.layout.item_programs);
+        mAdapter = new AdapterMainProgram(requireActivity(), itemList, R.layout.item_programs);
 //        recyclerView.setAdapter(mAdapter);
 
         //  showToast(itemList.size() + "");

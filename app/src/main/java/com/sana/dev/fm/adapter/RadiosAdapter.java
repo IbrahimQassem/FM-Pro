@@ -1,73 +1,99 @@
 package com.sana.dev.fm.adapter;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.databinding.ItemDragBinding;
+import com.sana.dev.fm.databinding.ItemRadioSelectBinding;
 import com.sana.dev.fm.databinding.RadiosItemBinding;
 import com.sana.dev.fm.model.RadioInfo;
-import com.sana.dev.fm.model.UserModel;
-import com.sana.dev.fm.utils.Helper;
-import com.sana.dev.fm.utils.PreferencesManager;
+import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
 
 
 import java.util.ArrayList;
 
-public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.MyViewHolder> {
-
-
+public class RadiosAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     Context context;
     ArrayList<RadioInfo> list;
     RecyclerView recyclerView;
     private OnClickListener onClickListener = null;
     private int selectedItem = -1;
+    private int adapterView = -1;
     protected UserGuide userGuide;
+    public static final int VIEW_TYPE_MAIN = 1;
+    public static final int VIEW_TYPE_DIALOG = 2;
 
-
-    public RadiosAdapter(Context context, ArrayList<RadioInfo> list, RecyclerView recyclerView, int selectedItem) {
+    public RadiosAdapter(int adapterView, Context context, ArrayList<RadioInfo> list, RecyclerView recyclerView, int selectedItem) {
+        this.adapterView = adapterView;
         this.context = context;
         this.list = list;
         this.recyclerView = recyclerView;
         this.selectedItem = selectedItem;
         userGuide = new UserGuide(context);
-
     }
+
+//    @Override
+//    public MainViewHolder onCreateViewHolder(ViewGroup parent, int type) {
+//        RadiosItemBinding inflate = RadiosItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+//        return new MainViewHolder(inflate);
+//    }
+
 
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int type) {
-        RadiosItemBinding inflate = RadiosItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        return new RadiosAdapter.MyViewHolder(inflate);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        RecyclerView.ViewHolder vh;
+        if (adapterView == VIEW_TYPE_DIALOG) {
+            ItemRadioSelectBinding inflate = ItemRadioSelectBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+            vh = new DialogViewHolder(inflate);
+        } else {
+            RadiosItemBinding inflate = RadiosItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+            vh = new MainViewHolder(inflate);
+        }
+        return vh;
     }
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
+    public static class MainViewHolder extends RecyclerView.ViewHolder {
         private final RadiosItemBinding binding;
 
-        public MyViewHolder(RadiosItemBinding binding) {
+        public MainViewHolder(RadiosItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+    }
+
+    public static class DialogViewHolder extends RecyclerView.ViewHolder {
+        private final ItemRadioSelectBinding binding;
+
+        public DialogViewHolder(ItemRadioSelectBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, @SuppressLint("RecyclerView") final int position) {
-
+    public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, @SuppressLint("RecyclerView") final int position) {
         RadioInfo model = list.get(position);
 
-        holder.binding.tvTitle.setText(model.getName());
-        holder.binding.tvFreq.setText(model.getChannelFreq());
+        if (viewHolder instanceof MainViewHolder) {
+            final MainViewHolder holder = (MainViewHolder) viewHolder;
+            holder.binding.tvTitle.setText(model.getName());
+            holder.binding.tvFreq.setText(model.getChannelFreq());
 //        holder.title.setText(model.getName() +" : "+ (model.isActive() ? "active" : "inactive"));
-        Tools.displayImageOriginal(context, holder.binding.civLogo, model.getLogo());
+            Tools.displayImageOriginal(context, holder.binding.civLogo, model.getLogo());
 
-        holder.binding.ivInternet.setVisibility(View.GONE);
+            holder.binding.ivInternet.setVisibility(View.GONE);
 ////        boolean isInternetAvailable = Helper.isOnline(context);
 //        boolean isInternetAvailable = Helper.isInternetUrlConnected(context,model.getStreamUrl());
 //        if (isInternetAvailable) {
@@ -94,20 +120,20 @@ public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.MyViewHold
 //            holder.binding.ivInternet.setColorFilter(ContextCompat.getColor(context, R.color.yellow_500), android.graphics.PorterDuff.Mode.MULTIPLY);
 //        }
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onClickListener != null) {
-                    onClickListener.onItemClick(v, model, position);
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onClickListener != null) {
+                        onClickListener.onItemClick(v, model, position);
+                    }
                 }
-            }
-        });
+            });
 
-        if (selectedItem == position) {
-            holder.binding.cvParent.setCardBackgroundColor(context.getResources().getColor(R.color.colorAccentLight));
-        } else {
-            holder.binding.cvParent.setCardBackgroundColor(context.getResources().getColor(R.color.white));
-        }
+            if (selectedItem == position) {
+                holder.binding.cvParent.setCardBackgroundColor(context.getResources().getColor(R.color.colorAccentLight));
+            } else {
+                holder.binding.cvParent.setCardBackgroundColor(context.getResources().getColor(R.color.white));
+            }
 
 //        if ( d.getRadioId().equals(model.getRadioId())) {
 //            holder.cardView.setCardBackgroundColor(context.getResources().getColor(R.color.colorPrimaryLight));
@@ -116,10 +142,23 @@ public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.MyViewHold
 //        }
 
 
-        // Highlight the item if it's selected
+            // Highlight the item if it's selected
 //        holder.selectedOverlay.setVisibility(isSelected(position) ? View.VISIBLE : View.INVISIBLE);
 
 
+        } else if (viewHolder instanceof DialogViewHolder) {
+            final DialogViewHolder holder = (DialogViewHolder) viewHolder;
+            holder.binding.tvTitle.setText(model.getName());
+            Tools.displayImageOriginal(context, holder.binding.civLogo, model.getLogo());
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onClickListener != null) {
+                        onClickListener.onItemClick(v, model, position);
+                    }
+                }
+            });
+        }
     }
 
 
@@ -142,9 +181,9 @@ public class RadiosAdapter extends RecyclerView.Adapter<RadiosAdapter.MyViewHold
     }
 
     public interface OnClickListener {
-        void onItemClick(View view, RadioInfo radioInfo, int i);
+        void onItemClick(View view, RadioInfo model, int position);
 
-        void onItemLongClick(View view, RadioInfo radioInfo, int i);
+        void onItemLongClick(View view, RadioInfo model, int position);
     }
 
 

@@ -1,6 +1,8 @@
 package com.sana.dev.fm.ui.fragment;
 
 
+import static com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl.DATABASE;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,8 +25,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firestore.admin.v1.Index;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.ChatHolder;
@@ -36,8 +40,10 @@ import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
-import com.sana.dev.fm.ui.activity.AddEpisodeActivity;
+import com.sana.dev.fm.model.interfaces.OnClickListener;
+import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.ui.activity.CommentsActivity;
+import com.sana.dev.fm.ui.activity.AddEpisodeActivity;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
 import com.sana.dev.fm.utils.AppConstant;
@@ -45,8 +51,6 @@ import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
-import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
-import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,13 +67,6 @@ import butterknife.ButterKnife;
  */
 public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAuth.AuthStateListener {
     private static final String TAG = RealTimeEpisodeFragment.class.getSimpleName();
-
-//    private static final CollectionReference sChatCollection =
-//            FirebaseFirestore.getInstance().collection("chats");
-
-    /** Get the last 50 chat messages ordered by timestamp . */
-//    private static final Query sChatQuery =
-//            sChatCollection.orderBy("timestamp", Query.Direction.DESCENDING).limit(50);
 
     static {
         FirebaseFirestore.setLoggingEnabled(true);
@@ -96,7 +93,6 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
      *
      * @return A new instance of fragment FirestoreChatFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static RealTimeEpisodeFragment newInstance() {
         RealTimeEpisodeFragment fragment = new RealTimeEpisodeFragment();
         Bundle args = new Bundle();
@@ -108,7 +104,6 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        if (getArguments() != null) {
-//            mParam1 = getArguments().getString(ARG_PARAM1);
 //        }
     }
 
@@ -128,9 +123,8 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        RadioInfo selectedRadio = prefMgr.selectedRadio();
-        String primary = (selectedRadio != null && selectedRadio.getName() != null) ? selectedRadio.getName() : " ";
-        EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(context.getString(R.string.no_data_available), String.format("%s", getResources().getString(R.string.empty_ep, primary)), null);
+        String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : "";
+        EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(context.getString(R.string.no_data_available), String.format(" %s", getResources().getString(R.string.empty_ep, primary)), null);
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.replace(R.id.child_fragment_container, emptyViewFragment).commit();
         emptyViewFragment.setOnItemClickListener(new CallBackListener() {
@@ -140,10 +134,12 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                     ((MainActivity) getActivity()).selectTab(R.id.navigation_home);
             }
         });
+
         toggleView(true);
     }
 
     void init() {
+
         LinearLayoutManager manager = new LinearLayoutManager(context);
         manager.setReverseLayout(true);
         manager.setStackFromEnd(true);
@@ -220,41 +216,23 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         recyclerView.setAdapter(mSectionedAdapter);
     }
 
-
     @NonNull
     private RecyclerView.Adapter newAdapter() {
 
         String radioId = prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null ? prefMgr.selectedRadio().getRadioId() : "";
         LogUtility.d(LogUtility.TAG, " radioId : " + radioId + " time is  : " + String.valueOf(System.currentTimeMillis()));
 
-        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
-        firestoreQueryList.add(new FirestoreQuery(
-                FirestoreQueryConditionCode.WHERE_GREATER_THAN_OR_EQUAL_TO,
-                "programScheduleTime.dateEnd",
-                System.currentTimeMillis()
-        ));
-
-        firestoreQueryList.add(new FirestoreQuery(
-                FirestoreQueryConditionCode.Query_Direction_DESCENDING,
-                "programScheduleTime.dateEnd",
-                Query.Direction.DESCENDING
-        ));
-
-
-//        CollectionReference collectionRef = firestoreDbUtility.getTopLevelCollection()
-//                .document(AppConstant.Firebase.EPISODE_TABLE).collection(radioId);  // Subcollection named "1001"
-
-
         CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
+        Query episodeQuery = collectionRef.whereGreaterThanOrEqualTo("programScheduleTime.dateEnd", /*"1662054250043"*/System.currentTimeMillis()).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+//        LogUtility.d(LogUtility.TAG, " episodeQuery : " + episodeQuery.get());
 
-        Query populationQuery = collectionRef;
-        populationQuery = populationQuery.whereGreaterThanOrEqualTo("programScheduleTime.dateEnd", System.currentTimeMillis());
-        populationQuery = populationQuery.whereEqualTo("disabled", false);
-        populationQuery.orderBy("programScheduleTime.dateEnd", Query.Direction.DESCENDING);
+        //    /** Get the last 50 chat messages ordered by timestamp . */
+        ////    private static final Query sChatQuery =
+        ////            sChatCollection.orderBy("timestamp", Query.Direction.DESCENDING).limit(50);
 
         FirestoreRecyclerOptions<Episode> options =
                 new FirestoreRecyclerOptions.Builder<Episode>()
-                        .setQuery(populationQuery, Episode.class)
+                        .setQuery(episodeQuery, Episode.class)
                         .setLifecycleOwner(this)
                         .build();
 
@@ -278,23 +256,26 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 if (model != null && !model.isDisabled())
                     viewHolder.bind(model, position);
 
-                viewHolder.setOnLongItemClickListener(new ChatHolder.OnLongItemClickListener() {
+                viewHolder.setOnLongItemClickListener(new OnItemLongClick() {
                     @Override
-                    public void onLongItemClick(View view, Episode obj, int position) {
+                    public void onItemLongClick(View view, Object obj, int position) {
+                        Episode item = (Episode) obj;
+
                         if (RealTimeEpisodeFragment.this.isAccountSignedIn() && prefMgr.getUserSession().getUserType() == UserType.SuperADMIN)
-                            showBottomSheetDialog(obj, position, radioId);
+                            showBottomSheetDialog(item, radioId);
                     }
                 });
 
-                viewHolder.setOnItemClickListener(new ChatHolder.OnItemClickListener() {
+                viewHolder.setOnItemClickListener(new OnClickListener() {
                     @Override
-                    public void onItemClick(View view, Episode obj, int position) {
+                    public void onItemClick(View view, Object obj, int position) {
+                        Episode item = (Episode) obj;
                         int[] startingLocation = new int[2];
                         switch (view.getId()) {
                             case R.id.civ_logo:
                                 if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhud_fm") || (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
                                     view.getLocationOnScreen(startingLocation);
-                                    ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, context, obj);
+                                    ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, context, item);
                                     getActivity().overridePendingTransition(0, 0);
                                 }
 
@@ -302,7 +283,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                             case R.id.lyt_comment_parent:
                             case R.id.imv_comment:
                                 view.getLocationOnScreen(startingLocation);
-                                CommentsActivity.startActivity(context, obj);
+                                CommentsActivity.startActivity(context, item);
                                 getActivity().overridePendingTransition(0, 0);
                                 break;
                             case R.id.imv_like:
@@ -322,11 +303,11 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                                     likeMap.put(prefMgr.getUserSession().getUserId(), isLik);
                                     model.setEpisodeLikes(likeMap);
 
-                                    // Todo
                                     Map<String, Object> docData = new HashMap<>();
                                     docData.put("episodeLikes", model.getEpisodeLikes());
 
                                     CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
+//                                    DocumentReference documentReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(model.getEpId());
 
                                     firestoreDbUtility.update(collectionRef, model.getEpId(), docData, new CallBack() {
                                         @Override
@@ -353,7 +334,6 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 });
 
                 toggleView(adapter.getItemCount() == 0);
-
             }
 
             @Override
@@ -366,7 +346,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
     private BottomSheetDialog mBottomSheetDialog;
 
-    private void showBottomSheetDialog(Episode obj, int position, String radioId) {
+    private void showBottomSheetDialog(Episode obj, String radioId) {
         View findViewById = view.findViewById(R.id.bottom_sheet);
         View bottom_sheet = findViewById;
         BottomSheetBehavior mBehavior = BottomSheetBehavior.from(findViewById);
@@ -396,8 +376,6 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                     @Override
                     public void onClick(View v) {
                         obj.setDisabled(true);
-
-                        // Todo
                         Map<String, Object> docData = new HashMap<>();
                         docData.put("disabled", obj.isDisabled());
 
@@ -426,7 +404,6 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_delete, obj.getEpName()), null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // Todo
                         CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
                         firestoreDbUtility.deleteDocument(collectionRef, obj.getEpId(), new CallBack() {
                             @Override
@@ -471,4 +448,5 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         recyclerView.setVisibility(!hide ? View.VISIBLE : View.GONE);
         cf_container.setVisibility(hide ? View.VISIBLE : View.GONE);
     }
+
 }

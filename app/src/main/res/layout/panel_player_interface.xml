@@ -239,7 +239,7 @@
         android:elevation="100dp"
         app:layout_constraintBottom_toTopOf="@+id/sb_pn_player"
         app:layout_constraintStart_toStartOf="@+id/sb_pn_player"
-        tools:text="5:20" />
+        tools:text="@string/ex_time" />
 
     <TextView
         android:id="@+id/tv_pn_remain_time"
@@ -249,6 +249,6 @@
         android:elevation="100dp"
         app:layout_constraintBottom_toTopOf="@+id/sb_pn_player"
         app:layout_constraintEnd_toEndOf="@+id/sb_pn_player"
-        tools:text="1:20:00" />
+        tools:text="@string/ex_time" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,22 +8,13 @@
     <uses-permission
         android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
         tools:ignore="ProtectedPermissions" />
-
     <uses-permission android:name="android.permission.CAMERA" />
-
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
-<!--    <uses-feature-->
-<!--        android:name="android.hardware.camera2"-->
-<!--        android:required="false" />-->
-<!--    <uses-feature-->
-<!--        android:name="android.hardware.camera.autofocus"-->
-<!--        android:required="false" />-->
-
 
     <application
         android:name=".FmApplication"
@@ -40,7 +31,6 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:supportsRtl"
         tools:targetApi="31">
-
         <activity
             android:name=".ui.activity.SplashActivity"
             android:exported="true"
@@ -52,20 +42,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.activity.appuser.LoginByActivity"
-            android:screenOrientation="portrait"
-            android:exported="false">
+            android:exported="false"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-
         <activity
             android:name=".ui.activity.RadioListActivity"
-            android:screenOrientation="portrait"
-            android:exported="false">
+            android:exported="false"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -77,7 +65,10 @@
             android:name=".ui.activity.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.activity.ListMultiSelection"
+            android:name=".ui.activity.ListEpisodeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.ListProgramActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.ImagePickerActivity"
@@ -117,12 +108,10 @@
             android:name=".ui.activity.NoInternetActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name" />
-
         <activity
             android:name="com.facebook.CustomTabActivity"
             android:exported="true">
@@ -134,9 +123,7 @@
 
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
-        </activity>
-
-        <!-- <activity android:name=".ui.activity.player.MusicServiceActivity" /> -->
+        </activity> <!-- <activity android:name=".ui.activity.player.MusicServiceActivity" /> -->
         <!-- <activity android:name=".ui.activity.player.PlayerActivity" /> -->
         <!-- <activity android:name=".ui.activity.player.PermitActivity" /> -->
         <service

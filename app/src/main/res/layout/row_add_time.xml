@@ -38,7 +38,7 @@
                 android:drawablePadding="@dimen/spacing_small"
                 android:drawableTint="@color/colorPrimaryLight"
                 android:gravity="center_vertical"
-                android:hint="تحديد وقت البدء"
+                android:hint="@string/label_set_start_time"
                 android:text=""
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/colorPrimary"
@@ -55,7 +55,7 @@
                 android:drawablePadding="@dimen/spacing_small"
                 android:drawableTint="@color/colorPrimaryLight"
                 android:gravity="center_vertical"
-                android:hint="تحديد وقت الإنتهاء"
+                android:hint="@string/label_set_end_time"
                 android:text=""
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/colorPrimary"
@@ -73,7 +73,7 @@
                 android:drawablePadding="@dimen/spacing_small"
                 android:drawableTint="@color/colorPrimaryLight"
                 android:gravity="center_vertical"
-                android:hint="تحديد اليوم"
+                android:hint="@string/label_set_day"
                 android:text=""
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/colorPrimary"
@@ -94,7 +94,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginRight="@dimen/spacing_medium"
                     android:buttonTint="@color/colorPrimary"
-                    android:text="فرعي"
+                    android:text="@string/label_sub_main"
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                     android:textColor="@color/colorPrimary"
                     android:textColorHint="@color/grey_40" />
@@ -107,7 +107,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:buttonTint="@color/colorPrimary"
-                    android:text="رئيسي"
+                    android:text="@string/label_main"
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                     android:textColor="@color/colorPrimary"
                     android:textColorHint="@color/grey_40" />
@@ -136,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_medium"
                 android:gravity="center_vertical"
-                android:text="وقت البدء"
+                android:text="@string/label_start_at"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
                 android:textColor="@color/grey_40" />
 
@@ -145,7 +145,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_medium"
                 android:gravity="center_vertical"
-                android:text="وقت الإنتهاء"
+                android:text="@string/label_end_at"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
                 android:textColor="@color/grey_40" />
 
@@ -154,7 +154,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_medium"
                 android:gravity="center_vertical"
-                android:text="يوم"
+                android:text="@string/label_day"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
                 android:textColor="@color/grey_40" />
 
@@ -163,7 +163,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_medium"
                 android:gravity="center_vertical"
-                android:text="وقت البث البرنامج ؟"
+                android:text="@string/label_show_time"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
                 android:textColor="@color/grey_40" />
         </LinearLayout>

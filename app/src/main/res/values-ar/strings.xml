@@ -118,7 +118,7 @@
     <string name="add_episode">إضافة حلقة</string>
     <string name="goto_login">لكي تتمكن من إستخدام خدمات التطبيق يجب عليك تسجيل الدخول \n \n هل تريد الإنتقال الى نافذة تسجيل الدخول؟</string>
     <string name="main_program_for">البرامج الرئيسية</string>
-    <string name="update_episode">تحديث بيانات البرامج</string>
+    <string name="update_episode">تحديث بيانات الحلقات</string>
     <!--    <string name="powered_by">Powered By &#x2665; Sana&apos;a Dev</string>-->
     <string name="powered_by">Powered By &#x2665; Sana\'a Dev</string>
     <string name="empty_ep">المعذرة , بيانات البرامج لإذاعة  %s غير متوفره حالياً</string>
@@ -215,13 +215,13 @@
     <string name="label_login_via_google">قوقل</string>
     <string name="label_week_days">أيام الأسبوع</string>
     <string name="label_set_time">تحديد الوقت</string>
-    <string name="msg_you_must_select_radio_station">You must select radio station</string>
+    <string name="msg_you_must_select_radio_station">يجب عليك تحديد محطة الراديو</string>
     <string name="ex_name">علي نجم</string>
     <string name="ex_city">اليمن - صنعاء</string>
     <string name="ex_address">التحرير – ش 26 سبتمبر </string>
     <string name="label_address">العنوان</string>
     <string name="msg_you_cannot_change_the_radio_channel_if_the_program_data_is_updated">لا يمكنك تغيير القناة الإذاعية في حالة تحديث بيانات البرنامج</string>
-    <string name="msg_you_cannot_change_the_program_name_if_you_update_the_program_data">You cannot change the program name if you update the program data</string>
+    <string name="msg_you_cannot_change_the_program_name_if_you_update_the_program_data">لا يمكنك تغيير اسم البرنامج إذا قمت بتحديث بيانات البرنامج</string>
     <string name="msg_you_must_select_a_programme">يجب تحديد برنامج</string>
     <string name="msg_make_sure_you_add_all_the_data_correctly">تأكد من إضافة جميع البيانات بشكل صحيح !</string>
     <string name="label_add">إضافة</string>
@@ -238,12 +238,31 @@
     <string name="label_episode_image_profile">صورة البرنامج</string>
     <string name="label_add_episode_image_profile">إضافة صورة البرنامج</string>
     <string name="label_add_comment_as_val">تعليق كـ %s ..</string>
-    <string name="label_enter_new_priority">Enter new Priority</string>
+    <string name="label_enter_new_priority">أدخل أولوية جديدة</string>
     <string name="label_enable">تفعيل</string>
     <string name="label_disable">إيقاف</string>
     <string name="msg_are_you_sure_you_want_to">هل أنت متأكد أنك تريد %s ؟</string>
     <string name="label_write_review">أكتب مراجعة ...</string>
     <string name="msg_please_fill_review_text">يرجى ملء نص المراجعة</string>
     <string name="label_submitted">إرسال</string>
+    <string name="label_start_at">يبدأ الساعة : %s</string>
+    <string name="label_end_at">ينتهي الساعة : %s</string>
+    <string name="label_show_period">مدة العرض : %s</string>
+    <string name="label_date_from_to">من %s1 الى %s2</string>
+    <string name="label_time_from_to">من %s1 الى %s2</string>
+    <string name="update_program">تحديث البرامج</string>
+    <string name="ex_program_name">مثال : صباح العاصمة</string>
+    <string name="label_program_logo">شعار البرنامج</string>
+    <string name="label_add_image">إضافة صورة</string>
+    <string name="ex_program_category">مثال : إجتماعي , شبابي ..</string>
+    <string name="label_time_period_for_displaying_program">الفترة الزمنية لعرض البرنامج</string>
+    <string name="ex_days">مثال : سبت , أحد , إثنين</string>
+    <string name="label_episode_name">عنوان البرنامج</string>
+    <string name="label_set_start_time">تحديد وقت البدء</string>
+    <string name="label_set_end_time">تحديد وقت الإنتهاء</string>
+    <string name="label_set_day">تحديد اليوم</string>
+    <string name="label_sub_main">فرعي</string>
+    <string name="label_main">رئيسي</string>
+    <string name="label_day">يوم</string>
 
 </resources>

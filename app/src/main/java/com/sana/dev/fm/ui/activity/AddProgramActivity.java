@@ -6,6 +6,7 @@ import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysEn;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -15,9 +16,11 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.core.content.ContextCompat;
 
@@ -31,9 +34,15 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.adapter.AdapterRadioDialog;
+import com.sana.dev.fm.adapter.RadiosAdapter;
 import com.sana.dev.fm.databinding.ActivityAddProgramBinding;
+import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.DateTimeModel;
+import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
@@ -63,12 +72,21 @@ public class AddProgramActivity extends BaseActivity {
 
     Uri imageUri;
     PreferencesManager prefMgr;
-    private String programId, radioId, prName, prDesc, prTag, prProfile, createBy, stopNote;
+    private String programId, radioId, prName, prDesc, prTag, prProfile, createBy, stopNote, timestamp;
+    private DateTimeModel programScheduleTime;
     private FirestoreDbUtility firestoreDbUtility;
     private RadioInfo radioInfo;
     private long dateStart, dateEnd;
     private List<String> prCategoryList;
     private List<String> displayDay;
+
+
+    public static void startActivity(Context context, RadioProgram item) {
+        Intent intent = new Intent(context, AddProgramActivity.class);
+        String obj = (new Gson().toJson(item));
+        intent.putExtra("radioProgram", obj);
+        context.startActivity(intent);
+    }
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -93,7 +111,7 @@ public class AddProgramActivity extends BaseActivity {
 
         setCategoryChips();
         setDisplayDayChips();
-
+        initEditView();
     }
 
     private void initClickEvent() {
@@ -227,6 +245,59 @@ public class AddProgramActivity extends BaseActivity {
         });
 
     }
+
+    private void initEditView() {
+        String s = getIntent().getStringExtra("radioProgram");
+        if (s != null) {
+//            binding.toolbar.tvTitle.setText(getString(R.string.label_edit));
+
+            RadioProgram _episode = new Gson().fromJson(s, RadioProgram.class);
+            showSnackBar(_episode.getPrName());
+
+            binding.etStation.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), getString(R.string.msg_you_cannot_change_the_radio_channel_if_the_program_data_is_updated), new ButtonConfig(getString(R.string.label_cancel)), null);
+                    showWarningDialog(config);
+                }
+            });
+
+//            binding.etProgram.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), getString(R.string.msg_you_cannot_change_the_program_name_if_you_update_the_program_data), new ButtonConfig(getString(R.string.label_cancel)), null);
+//                    showWarningDialog(config);
+//                }
+//            });
+
+
+            radioId = _episode.getRadioId();
+            prName = _episode.getPrName();
+            prDesc = _episode.getPrDesc();
+//            epAnnouncer = _episode.getEpAnnouncer();
+            programId = _episode.getProgramId();
+            prProfile = _episode.getPrProfile();
+//            stackImg.push(epProfile);
+            timestamp = _episode.getTimestamp();
+            createBy = _episode.getCreateBy();
+            stopNote = _episode.getStopNote();
+            radioInfo = prefMgr.selectedRadio();
+            radioId = radioInfo.getRadioId();
+            programScheduleTime = _episode.getProgramScheduleTime() != null ? _episode.getProgramScheduleTime() : new DateTimeModel();
+            displayDay = programScheduleTime.getDisplayDays() != null ? programScheduleTime.getDisplayDays() : new ArrayList<>();
+//            program = program.findRadioProgram(programId, ShardDate.getInstance().getProgramList());
+//            programId = program.getProgramId();
+
+
+            binding.titPrName.setText(prName);
+            binding.titPrDesc.setText(prDesc);
+            binding.etStation.setText(radioInfo.getName());
+            binding.tieDisplayDay.setText(android.text.TextUtils.join(" , ", displayDay));
+
+            loadProfile(Uri.parse(prProfile));
+        }
+    }
+
 
     public void send() {
 
@@ -372,8 +443,9 @@ public class AddProgramActivity extends BaseActivity {
 
     // البرنامج العام
     public void showStationDialog() {
-//        List<RadioInfo> items = ShardDate.getInstance().getAllowedRadioInfoList(prefMgr.getUserSession());
         List<RadioInfo> items = ShardDate.getInstance().getRadioInfoList();
+
+//        List<RadioInfo> items = ShardDate.getInstance().getAllowedRadioInfoList(prefMgr.getUserSession());
 
         String[] charSequence = new String[items.size()];
         for (int i = 0; i < items.size(); i++) {
@@ -392,6 +464,29 @@ public class AddProgramActivity extends BaseActivity {
             }
         });
         builder.show();
+
+
+/*
+// Create the adapter
+        AdapterRadioDialog adapter = new AdapterRadioDialog(this, items);
+
+// Build the AlertDialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.add_station));
+        builder.setSingleChoiceItems(adapter, stSelected, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                stSelected = which;
+                // Handle item selection (e.g., display a toast with the selected item name)
+                String selectedItemName = items.get(which).getName();
+                radioInfo = items.get(which);
+                binding.etStation.setText(radioInfo.getName());
+                loadProfile(Uri.parse(radioInfo.getLogo()));
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();*/
+
     }
 
 
@@ -533,7 +628,7 @@ public class AddProgramActivity extends BaseActivity {
         datePicker.setAccentColor(getResources().getColor(R.color.colorPrimary));
 //        datePicker.setMinDate(cur_calender);
 //        datePicker.setMaxDate(cur_calender);
-        datePicker.show(getSupportFragmentManager(),  getString(R.string.label_pick_date));
+        datePicker.show(getSupportFragmentManager(), getString(R.string.label_pick_date));
     }
 
 

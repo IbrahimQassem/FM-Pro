@@ -11,14 +11,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.view.ActionMode.Callback;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListInbox;
-import com.sana.dev.fm.databinding.ActivityListMultiSelectionBinding;
+import com.sana.dev.fm.databinding.ActivityListEpisodeBinding;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.ui.view.LineItemDecoration;
@@ -33,35 +32,34 @@ import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListMultiSelection extends BaseActivity {
-    private static final String TAG = ListMultiSelection.class.getSimpleName();
-    ActivityListMultiSelectionBinding binding;
+public class ListEpisodeActivity extends BaseActivity {
+    private static final String TAG = ListEpisodeActivity.class.getSimpleName();
+    ActivityListEpisodeBinding binding;
     private ActionMode actionMode;
     private ActionModeCallback actionModeCallback;
     private AdapterListInbox mAdapter;
     private RecyclerView recyclerView;
-    private Toolbar toolbar;
     private ArrayList<Episode> episodeList = new ArrayList<>();
     private FirestoreDbUtility firestoreDbUtility;
 
     public static void startActivity(Context context, Episode episode) {
-        Intent intent = new Intent(context, ListMultiSelection.class);
+        Intent intent = new Intent(context, ListEpisodeActivity.class);
         String obj = (new Gson().toJson(episode));
         intent.putExtra("episode", obj);
         context.startActivity(intent);
     }
 
     public static void startActivity(Context context) {
-        Intent intent = new Intent(context, ListMultiSelection.class);
+        Intent intent = new Intent(context, ListEpisodeActivity.class);
         context.startActivity(intent);
     }
 
     /* Access modifiers changed, original: protected */
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        setContentView((int) R.layout.activity_list_multi_selection);
+        setContentView((int) R.layout.activity_list_episode);
 
-        binding = ActivityListMultiSelectionBinding.inflate(getLayoutInflater());
+        binding = ActivityListEpisodeBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
 
@@ -84,7 +82,7 @@ public class ListMultiSelection extends BaseActivity {
 
 
     private void initToolbar() {
-        binding.toolbar.tvTitle.setText(getString(R.string.main_program_for));
+        binding.toolbar.tvTitle.setText(getString(R.string.update_episode));
         binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,7 +119,7 @@ public class ListMultiSelection extends BaseActivity {
             public void onSuccess(Object object) {
                 List<Episode> episodes = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);
                 episodeList = new ArrayList<>(episodes);
-                AdapterListInbox adapterListInbox = new AdapterListInbox(ListMultiSelection.this, episodeList);
+                AdapterListInbox adapterListInbox = new AdapterListInbox(ListEpisodeActivity.this, episodeList);
 //        AdapterListInbox adapterListInbox = new AdapterListInbox(this, DataGenerator.getEpisodeData(this));
                 mAdapter = adapterListInbox;
                 recyclerView.setAdapter(adapterListInbox);
@@ -137,7 +135,7 @@ public class ListMultiSelection extends BaseActivity {
                         stringBuilder.append(" : "+getString(R.string.label_edit));
                         stringBuilder.append(item.getEpName());
 
-                        AddEpisodeActivity.startActivity(ListMultiSelection.this, episode);
+                        AddEpisodeActivity.startActivity(ListEpisodeActivity.this, episode);
 
 //                if (view.getId() == R.id.date) {
 ////                    EpisodeAddStepperVertical
@@ -155,7 +153,7 @@ public class ListMultiSelection extends BaseActivity {
                         enableActionMode(i);
                     }
                 });
-                actionModeCallback = new ActionModeCallback(ListMultiSelection.this, null);
+                actionModeCallback = new ActionModeCallback(ListEpisodeActivity.this, null);
 
             }
 
@@ -210,7 +208,7 @@ public class ListMultiSelection extends BaseActivity {
         private ActionModeCallback() {
         }
 
-        /* synthetic */ ActionModeCallback(ListMultiSelection listMultiSelection, String anonymousClass1) {
+        /* synthetic */ ActionModeCallback(ListEpisodeActivity listEpisodeActivity, String anonymousClass1) {
             this();
         }
 
@@ -219,7 +217,7 @@ public class ListMultiSelection extends BaseActivity {
         }
 
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-            Tools.setSystemBarColor(ListMultiSelection.this, R.color.blue_grey_700);
+            Tools.setSystemBarColor(ListEpisodeActivity.this, R.color.blue_grey_700);
             actionMode.getMenuInflater().inflate(R.menu.menu_delete, menu);
             return true;
         }
@@ -236,7 +234,7 @@ public class ListMultiSelection extends BaseActivity {
         public void onDestroyActionMode(ActionMode actionMode) {
             mAdapter.clearSelections();
             actionMode = null;
-            Tools.setSystemBarColor(ListMultiSelection.this, R.color.red_600);
+            Tools.setSystemBarColor(ListEpisodeActivity.this, R.color.red_600);
         }
     }
 }

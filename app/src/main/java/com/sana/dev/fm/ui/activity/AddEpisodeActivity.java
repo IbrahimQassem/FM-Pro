@@ -217,6 +217,8 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
     private void initEditView() {
         String s = getIntent().getStringExtra("episode");
         if (s != null) {
+            binding.toolbar.tvTitle.setText(getString(R.string.label_edit));
+
             Episode _episode = new Gson().fromJson(s, Episode.class);
             showSnackBar(_episode.getEpName());
 

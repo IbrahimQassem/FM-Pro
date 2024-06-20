@@ -17,6 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.gson.Gson;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 
@@ -27,7 +28,7 @@ import java.util.Map;
 
 public class FirestoreDbUtility {
     //https://github.com/varunon9/firestore-database-utility/tree/master
-    private static final String TOP_LEVEL_COLLECTION = BASE_FB_DB ;//+ "_16";
+    private static final String TOP_LEVEL_COLLECTION = BASE_FB_DB;//+ "_16";
     //    private static final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseFirestore db;
     private static String TAG = "FirestoreDbUtility"; // FirestoreDbUtility.class.getSimpleName();
@@ -346,18 +347,15 @@ public class FirestoreDbUtility {
                 T dataObject = documentSnapshot.toObject(targetClass);
                 dataList.add(dataObject);
 
-        } else{
-            // Handle unexpected object type (log error, throw exception, etc.)
-            Log.e(TAG, "Unexpected object type: " + object.getClass().getName());
+            } else {
+                // Handle unexpected object type (log error, throw exception, etc.)
+                Log.e(TAG, "Unexpected object type: " + object.getClass().getName() + "\n object: "+object);
+            }
+        } catch (Exception e) {
+            LogUtility.e(TAG, " getDataFromQuerySnapshot: ", e);
         }
-    } catch(
-    Exception e)
-
-    {
-        LogUtility.e(TAG, " getDataFromQuerySnapshot: ", e);
-    }
         return dataList;
-}
+    }
 
 
 }

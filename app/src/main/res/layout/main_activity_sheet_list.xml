@@ -264,6 +264,42 @@
         android:paddingRight="@dimen/spacing_middle">
 
         <LinearLayout
+            android:id="@+id/lyt_update_program"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="?attr/actionBarSize"
+                android:layout_height="?attr/actionBarSize"
+                android:padding="@dimen/spacing_large"
+                android:tint="@color/colorPrimary"
+                app:srcCompat="@drawable/ic_settings"
+                tools:ignore="UseAppTint" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/spacing_middle"
+                android:layout_marginRight="@dimen/spacing_middle"
+                android:text="@string/update_program"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/grey_90" />
+        </LinearLayout>
+
+    </com.balysv.materialripple.MaterialRippleLayout>
+
+    <com.balysv.materialripple.MaterialRippleLayout
+        style="@style/RippleStyleBlack"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/spacing_middle"
+        android:paddingRight="@dimen/spacing_middle">
+
+        <LinearLayout
             android:id="@+id/lyt_update_radio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
