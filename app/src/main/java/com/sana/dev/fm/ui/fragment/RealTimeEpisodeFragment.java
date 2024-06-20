@@ -224,7 +224,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
     @NonNull
     private RecyclerView.Adapter newAdapter() {
 
-        String radioId = prefMgr.selectedRadio().getRadioId();
+        String radioId = prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null ? prefMgr.selectedRadio().getRadioId() : "";
         LogUtility.d(LogUtility.TAG, " radioId : " + radioId + " time is  : " + String.valueOf(System.currentTimeMillis()));
 
         List<FirestoreQuery> firestoreQueryList = new ArrayList<>();

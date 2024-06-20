@@ -71,10 +71,8 @@ import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Stack;
 
 
@@ -339,7 +337,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                                     epProfile = uri.toString();
 
                                     Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
-                                    String pushKey = radioId + "__" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
+                                    String pushKey = radioId + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
                                     episode.setEpId(pushKey);
 
                                     firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId), episode.getEpId(), episode, new CallBack() {
@@ -366,7 +364,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
 
         } else {
             Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
-            String pushKey = radioId + "__" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
+            String pushKey = radioId + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
             episode.setEpId(pushKey);
 
             firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId), episode.getEpId(), episode, new CallBack() {

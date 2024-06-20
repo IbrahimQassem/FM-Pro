@@ -1,7 +1,6 @@
 package com.sana.dev.fm.ui.activity.appuser;
 
 import static android.app.Activity.RESULT_OK;
-
 import static com.sana.dev.fm.utils.LogUtility.TAG;
 
 import android.app.Activity;
@@ -9,8 +8,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.provider.MediaStore;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,20 +15,7 @@ import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnPausedListener;
-import com.google.firebase.storage.OnProgressListener;
-import com.google.firebase.storage.StorageMetadata;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.model.ButtonConfig;
-import com.sana.dev.fm.model.ModelConfig;
-import com.sana.dev.fm.model.UserModel;
-import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.yalantis.ucrop.UCrop;

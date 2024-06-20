@@ -28,12 +28,12 @@ public class ShardDate {
 
     public List<RadioInfo> getRadioInfoList() {
         // Sort the list using the custom comparator
-        Collections.sort(radioInfoList, new RadioInfo.RadioInfoPriorityComparator());
-//        Collections.reverse(radioInfoList);
+//        Collections.sort(radioInfoList, new RadioInfo.RadioInfoPriorityComparator());
+////        Collections.reverse(radioInfoList);
         return radioInfoList;
     }
 
-    public ArrayList<RadioInfo> getAllowedRadioInfoList(UserModel userModel) {
+/*    public ArrayList<RadioInfo> getAllowedRadioInfoList(UserModel userModel) {
         List<String> list = new ArrayList<>();
         if (!Tools.isEmpty(userModel.getAllowedPermissions())){
             list = userModel.getAllowedPermissions();
@@ -52,7 +52,7 @@ public class ShardDate {
         strings.clear();
         strings.addAll(set);
         return strings;
-    }
+    }*/
 
 
     public void setRadioInfoList(List<RadioInfo> radioInfoList) {

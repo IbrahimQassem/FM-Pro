@@ -74,7 +74,7 @@
 //    @Override
 //    public void create(String key, Object model, CallBack callBack) {
 //        Episode episode = (Episode) model;
-//        String pushKey = key + "__" + colRef.document().getId();
+//        String pushKey = key + "_" + colRef.document().getId();
 //        if (episode != null && !isEmpty(pushKey)) {
 //            episode.setEpId(pushKey);
 //            DocumentReference documentReference = colRef.document(key).collection(Firebase.EPISODE_TABLE).document(pushKey);

@@ -228,7 +228,7 @@
     <string name="label_episode_info">بيانات الحلقة</string>
     <string name="label_episode_announcer">مقدم البرنامج</string>
     <string name="ex_announcer_name">مثال : علي نجم</string>
-    <string name="label_episode_description">مقدم البرنامج</string>
+    <string name="label_episode_description">وصف البرنامج</string>
     <string name="ex_episode_desc">مثال : برنامج شبابي ترفيهي ..</string>
     <string name="label_episode_url_stream">رابط الحلقة الإذاعية</string>
     <string name="label_program_info">بيانات البرنامج</string>

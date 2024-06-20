@@ -1,5 +1,7 @@
 package com.sana.dev.fm.utils;
 
+import static com.sana.dev.fm.BuildConfig.BASE_FB_DB;
+
 /**
  * Created by alexey on 08.12.16.
  */
@@ -31,7 +33,7 @@ public class AppConstant {
     public static class General {
         public static final long DOUBLE_CLICK_TO_EXIT_INTERVAL = 3000; // in milliseconds
 
-        public static String FB_FM_FOLDER_PATH = "FM_Folder";
+        public static String FB_FM_FOLDER_PATH = BASE_FB_DB+"_Folder";
 //    public static String CREATED_DATE_TIME = "createdDateTime";
 
         public static final String CHANNEL_ID = "my_channel_01";
