@@ -475,7 +475,8 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             UserModel user = prefMgr.getUserSession();
             tv_user_name.setText(user.getName());
             tv_user_state.setText(isOnlineTxt);
-            Tools.displayUserProfile(this, civ, user.getPhotoUrl(),R.drawable.ic_person);
+            if (!Tools.isEmpty(user.getPhotoUrl()))
+                Tools.displayUserProfile(this, civ, user.getPhotoUrl(),R.drawable.ic_person);
             iv_internet.setColorFilter(ContextCompat.getColor(this, colorState), android.graphics.PorterDuff.Mode.MULTIPLY);
 
             firebaseCrashlytics.setUserId(user.getMobile());

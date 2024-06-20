@@ -92,6 +92,7 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
 
 //                    if (!isEmpty(userModel.getName()))
                         holder.binding.tvFrom.setText(userModel.getName());
+                        if (!Tools.isEmpty(userModel.getPhotoUrl()))
                     Tools.displayUserProfile(ctx, holder.binding.civLogo, userModel.getPhotoUrl(), R.drawable.ic_baseline_person);
 //                    Tools.displayImageRound(ctx, holder.binding.civLogo, userModel.getPhotoUrl());
 

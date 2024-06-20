@@ -98,6 +98,7 @@ public class FirestoreDbUtility {
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, "createOrMerge Exception: " + collectionReference.getParent() + " " + documentName + " " + e);
+            callback.onFailure(e.getMessage());
         }
     }
 
@@ -131,12 +132,13 @@ public class FirestoreDbUtility {
                                     + collectionReference.getParent()
                                     + " "
                                     + documentName);
-                            callback.onFailure(null);
+                            callback.onFailure(e.getMessage());
                         }
                     });
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, "update Exception: " + collectionReference.getParent() + " " + documentName + " " + e);
+            callback.onFailure(e.getMessage());
         }
     }
 
@@ -179,7 +181,6 @@ public class FirestoreDbUtility {
 //            Log.d(TAG, document.getId() + " => " + document.getData());
             Log.e(TAG, "getOne Exception: " + collectionReference.getParent() + " " + documentName + " " + e);
             callback.onFailure(e.getMessage());
-
         }
     }
 

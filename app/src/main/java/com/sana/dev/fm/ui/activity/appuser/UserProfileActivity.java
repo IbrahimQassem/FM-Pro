@@ -46,6 +46,7 @@ import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.ui.activity.ImagePickerActivity;
+import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.AESCrypt;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
@@ -55,6 +56,9 @@ import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class UserProfileActivity extends BaseActivity {
@@ -349,8 +353,8 @@ public class UserProfileActivity extends BaseActivity {
     private void saveUserData() {
 
         try {
-        UserModel user = prefMgr.getUserSession();
-        if (user == null) return;
+        UserModel userModel = prefMgr.getUserSession();
+        if (userModel == null) return;
             // set privilege
 //        List<String> per = new ArrayList<>();
 //        per.add("ALL");
@@ -384,22 +388,34 @@ public class UserProfileActivity extends BaseActivity {
             String email = Tools.isEmpty(binding.etEmail) ? "" : binding.etEmail.getText().toString().trim();
             String pass = Tools.isEmpty(binding.etPassword) ? "" : AESCrypt.encrypt(Tools.toString(binding.etPassword));
 
-            boolean isUserNameEdite = Tools.isEmpty(user.getName()) && name.equalsIgnoreCase(user.getName());
-            boolean isGenderEdited = user.getGender() == gender;
+            boolean isUserNameEdite = Tools.isEmpty(userModel.getName()) && name.equalsIgnoreCase(userModel.getName());
+            boolean isGenderEdited = userModel.getGender() == gender;
             if (isUserNameEdite && isGenderEdited) {
                 startMainActivity();
             } else {
-                user.setName(name);
-                user.setMobile(mobile);
-                user.setEmail(email);
-                user.setPassword(pass);
+                userModel.setName(name);
+                userModel.setMobile(mobile);
+                userModel.setEmail(email);
+                userModel.setPassword(pass);
 
-                user.setGender(gender);
-                user.setDeviceToken(FmUtilize.getIMEIDeviceId(this));
-                user.setNotificationToken(FmUtilize.getFirebaseToken(this));
+                userModel.setGender(gender);
+                userModel.setDeviceToken(FmUtilize.getIMEIDeviceId(this));
+                userModel.setNotificationToken(FmUtilize.getFirebaseToken(this));
 //            updateUser(user);
-                Log.d(TAG, "before submit : " + user.toString());
-                updateUser(user);
+                Log.d(TAG, "before submit : " + userModel.toString());
+                Map<String, Object> data = new HashMap<>();
+                data.put("name", userModel.getName());
+                data.put("email", userModel.getEmail());
+                data.put("mobile", userModel.getMobile());
+                data.put("password", userModel.getPassword());
+                data.put("deviceId", userModel.getDeviceId());
+                data.put("deviceToken", userModel.getDeviceToken());
+                data.put("notificationToken", userModel.getNotificationToken());
+                data.put("gender", userModel.getGender());
+
+                prefMgr.setUserSession(userModel);
+
+                updateUser(userModel.getUserId(),data);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -464,9 +480,12 @@ public class UserProfileActivity extends BaseActivity {
 //                                    showSnackBar(downloadUri);
 //                                prefMgr.write(FirebaseConstants.USER_IMAGE_Profile, downloadUri);
 //                                ------------------------------------
-                                UserModel user = prefMgr.getUserSession();
-                                user.setPhotoUrl(downloadUri);
-                                updateUser(user);
+                                UserModel userModel = prefMgr.getUserSession();
+                                userModel.setPhotoUrl(downloadUri);
+                                Map<String, Object> data = new HashMap<>();
+                                data.put("photoUrl", userModel.getPhotoUrl());
+                                prefMgr.setUserSession(userModel);
+                                updateUser(userModel.getUserId(),data);
                             }
                         });
                     }
@@ -478,12 +497,22 @@ public class UserProfileActivity extends BaseActivity {
     }
 
 
-    void updateUser(UserModel model) {
+    void updateUser(String userId,Map<String, Object> data) {
         CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
-        firestoreDbUtility.createOrMerge(collectionReference, model.userId, model, new CallBack() {
+
+//        Map<String, Object> data = new HashMap<>();
+//        data.put("name", model.getName());
+//        data.put("email", model.getEmail());
+//        data.put("mobile", model.getMobile());
+//        data.put("password", model.getPassword());
+//        data.put("photoUrl", model.getPhotoUrl());
+//        data.put("deviceId", model.getDeviceId());
+//        data.put("deviceToken", model.getDeviceToken());
+//        data.put("notificationToken", model.getNotificationToken());
+//        data.put("gender", model.getGender());
+        firestoreDbUtility.update(collectionReference, userId, data, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                prefMgr.setUserSession(model);
                 showToast(getString(R.string.login_successfully));
                 startMainActivity();
             }
