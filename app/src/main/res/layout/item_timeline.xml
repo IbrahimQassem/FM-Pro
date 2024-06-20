@@ -78,7 +78,7 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                                android:textColor="@color/colorPrimaryDark"
+                                android:textColor="?attr/colorPrimary"
                                 android:textStyle="bold"
                                 tools:text="@string/label_title" />
 

@@ -70,7 +70,7 @@
                             android:layout_alignBottom="@id/img_profile"
                             android:layout_alignParentStart="true"
                             android:layout_alignParentBottom="true"
-                            android:tint="@color/colorAccent"
+                            android:tint="?attr/colorSecondary"
                             app:srcCompat="@drawable/ic_photo_camera"
                             tools:ignore="UseAppTint" />
 

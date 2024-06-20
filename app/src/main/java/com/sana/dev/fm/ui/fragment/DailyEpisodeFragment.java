@@ -149,7 +149,7 @@ public class DailyEpisodeFragment extends BaseFragment {
             RadioInfo selectedRadio = prefMgr.selectedRadio();
             String primary = (selectedRadio != null && selectedRadio.getName() != null) ? selectedRadio.getName() : " ";
             SpannableString primarySpannable = new SpannableString(Html.fromHtml("<b>" + primary + "</b>"));
-            primarySpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
+            primarySpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimary)), 0, primary.length(), 0);
             builder.append(primarySpannable);
 
             String black = ctx.getResources().getString(R.string.episode_daily, "");

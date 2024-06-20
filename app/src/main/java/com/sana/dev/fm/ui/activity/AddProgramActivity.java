@@ -98,7 +98,7 @@ public class AddProgramActivity extends BaseActivity {
         firestoreDbUtility = new FirestoreDbUtility();
         prefMgr = PreferencesManager.getInstance();
 
-        Tools.setSystemBarColor(this, R.color.white);
+        Tools.setSystemBarColor(this, R.color.colorPrimary);
         Tools.setSystemBarLight(this);
 
         initClickEvent();

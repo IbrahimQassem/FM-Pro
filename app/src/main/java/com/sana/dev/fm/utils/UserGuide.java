@@ -32,7 +32,7 @@ public class UserGuide implements MaterialIntroListener {
                         .enableDotAnimation(false) //Shows dot animation center of focus area
                         .setMaskColor(context.getResources().getColor(R.color.mask_color))
                         .setTargetPadding(20) //add 30px padding to focus circle
-                        .setTextColor(context.getResources().getColor(R.color.colorPrimaryDark)) //Info dialog's text color is set to black
+                        .setTextColor(context.getResources().getColor(R.color.colorPrimary)) //Info dialog's text color is set to black
                         .setIdempotent(true)
                         .enableIcon(false) //Turn off helper icon, default is true
                         .performClick(true) //Trigger click operation when user click focused area.

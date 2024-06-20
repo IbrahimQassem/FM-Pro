@@ -165,7 +165,7 @@ public class ProgramsFragment extends BaseFragment {
                 SpannableString blueSpannable = new SpannableString(Html.fromHtml(" <b>" + primary + "</b> "));
 //        StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
 //        blueSpannable.setSpan(boldSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
+                blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimary)), 0, primary.length(), 0);
                 builder.append(blueSpannable);
 
                 String black = requireActivity().getResources().getString(R.string.main_program_for);

@@ -158,7 +158,7 @@ public class MediaNotificationManager {
                 .setAutoCancel(false)
                 .setOngoing(true) // Cant cancel your notification (except NotificationManger.cancel(); )
                 .setWhen(System.currentTimeMillis())
-                .setColor(ContextCompat.getColor(service, R.color.colorPrimaryDark))
+                .setColor(ContextCompat.getColor(service, R.color.colorPrimary))
                 .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                         .setMediaSession(service.getMediaSession().getSessionToken())
                         .setShowActionsInCompactView(0, 1)

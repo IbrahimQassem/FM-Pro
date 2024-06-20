@@ -35,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/tj_bold"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="?attr/colorPrimaryDark"
             tools:text="@string/label_title" />
 
         <!-- TextView for Body -->

@@ -77,7 +77,7 @@
                                 android:scaleType="centerInside"
                                 android:tint="@color/colorPrimary"
                                 app:civ_border="true"
-                                app:civ_border_color="@color/colorPrimaryDark"
+                                app:civ_border_color="?attr/colorSecondary"
                                 app:civ_border_width="1px"
                                 app:srcCompat="@mipmap/ic_launcher_foreground" />
 
@@ -98,9 +98,9 @@
 
                                 <TextView
                                     android:id="@+id/tv_name"
-                                    android:layout_width="match_parent"
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textColor="#ffffff"
+                                    android:textColor="@color/white"
                                     android:textSize="24sp"
                                     tools:text="@string/label_program_name" />
 
@@ -115,18 +115,18 @@
                                 <!--                            \@fm-->
                                 <TextView
                                     android:id="@+id/tv_category"
-                                    android:layout_width="match_parent"
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text=""
-                                    android:textColor="#ffffff"
+                                    android:textColor="@color/white"
                                     android:textSize="12sp"
                                     tools:text="@string/label_category" />
 
                                 <TextView
                                     android:id="@+id/tv_desc"
-                                    android:layout_width="match_parent"
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textColor="#ffffff"
+                                    android:textColor="@color/white"
                                     android:textSize="12sp"
                                     tools:text="@string/label_desc" />
 
@@ -139,7 +139,7 @@
                                     android:layout_marginEnd="@dimen/spacing_mxlarge"
                                     android:background="@drawable/btn_following"
                                     android:text="@string/following"
-                                    android:textColor="#ffffff"
+                                    android:textColor="@color/white"
                                     android:textSize="12sp"
                                     android:visibility="visible" />
 
@@ -169,7 +169,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="1"
-                                    android:textColor="#ffffff"
+                                    android:textColor="@color/white"
                                     android:textSize="20sp"
                                     tools:text="@string/ex_no" />
 
@@ -193,7 +193,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="1"
-                                    android:textColor="#ffffff"
+                                    android:textColor="@color/white"
                                     android:textSize="20sp"
                                     tools:text="@string/ex_no" />
 
@@ -217,7 +217,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="1"
-                                    android:textColor="#ffffff"
+                                    android:textColor="@color/white"
                                     android:textSize="20sp"
                                     tools:text="@string/ex_no" />
 
@@ -248,7 +248,7 @@
                         android:layout_height="wrap_content"
                         android:background="?attr/colorPrimary"
                         app:tabGravity="fill"
-                        app:tabIndicatorColor="@color/colorPrimaryLight"
+                        app:tabIndicatorColor="?attr/colorSecondary"
                         app:tabIndicatorHeight="4dp"
                         app:tabMode="fixed">
 

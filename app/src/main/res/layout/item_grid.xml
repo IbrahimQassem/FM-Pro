@@ -26,18 +26,15 @@
 
                 <com.mikhaellopez.circularimageview.CircularImageView
                     android:id="@+id/civ_logo"
-                    android:layout_width="@dimen/spacing_xxlarge"
-                    android:layout_height="@dimen/spacing_xxlarge"
-                    android:layout_marginStart="@dimen/spacing_medium"
-                    android:layout_marginEnd="@dimen/spacing_medium"
-                    android:paddingBottom="@dimen/spacing_small"
+                    android:layout_width="@dimen/global_card_avatar_size"
+                    android:layout_height="@dimen/global_card_avatar_size"
+                    android:layout_margin="@dimen/spacing_medium"
+                    android:padding="@dimen/spacing_small"
                     app:civ_border="true"
-                    app:civ_border_color="@color/quantum_blue_grey100"
-                    app:civ_border_width="0.5dp"
-                    app:civ_shadow="true"
-                    app:civ_shadow_radius="1"
+                    app:civ_border_color="@color/colorPrimaryLight"
+                    app:civ_border_width="1px"
                     app:elevation="@dimen/spacing_medium"
-                    app:srcCompat="@drawable/logo_app" />
+                    tools:srcCompat="@drawable/logo_app" />
 
 
                 <LinearLayout
@@ -56,7 +53,7 @@
                     <TextView
                         android:id="@+id/tv_announcer"
                         style="@style/TextLight"
-                        android:textColor="@color/colorPrimaryDark"
+                        android:textColor="?attr/colorPrimary"
                         android:textStyle="bold"
                         tools:text="@string/label_announcer_name" />
 
@@ -111,7 +108,7 @@
                     android:padding="@dimen/spacing_middle"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                     android:textColor="@color/grey_40"
-                    tools:text="@string/label_desc" />
+                    tools:text="@string/lorem_ipsum" />
 
 
                 <LinearLayout

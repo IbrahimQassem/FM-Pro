@@ -39,7 +39,7 @@
                 android:maxLines="1"
                 android:padding="@dimen/spacing_small"
                 android:textAlignment="center"
-                android:textColor="@color/colorPrimaryDark"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="16.2sp"
                 tools:text="@string/label_radio_station" />
 
@@ -51,7 +51,7 @@
                 android:lineSpacingExtra="1.8sp"
                 android:maxLines="1"
                 android:textAlignment="center"
-                android:textColor="@color/colorPrimaryDark"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="12.2sp"
                 tools:text="99.9" />
 

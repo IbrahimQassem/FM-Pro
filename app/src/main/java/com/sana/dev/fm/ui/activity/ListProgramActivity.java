@@ -72,10 +72,6 @@ public class ListProgramActivity extends BaseActivity {
 
         initToolbar();
 
-        String s = getIntent().getStringExtra("radioProgram");
-        if (s != null) {
-
-        }
 
         RadioInfo radioInfo = prefMgr.selectedRadio();
         if (radioInfo != null && radioInfo.getRadioId() != null) {

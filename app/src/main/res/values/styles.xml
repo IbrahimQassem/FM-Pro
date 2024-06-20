@@ -61,7 +61,7 @@
     </style>
 
     <style name="Button.Accent.Borderless" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
-        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textColor">?attr/colorSecondary</item>
     </style>
 
 
