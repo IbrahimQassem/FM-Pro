@@ -590,6 +590,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             public void onClick(View view) {
                 if (checkPrivilegeAdmin())
                     ListProgramActivity.startActivity(MainActivity.this);
+//                    ListUsersActivity.startActivity(MainActivity.this);
                 mBottomSheetDialog.dismiss();
             }
         });

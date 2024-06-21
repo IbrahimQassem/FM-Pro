@@ -218,8 +218,8 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         LogUtility.d(LogUtility.TAG, " radioId : " + radioId + " time is  : " + String.valueOf(System.currentTimeMillis()));
 
         CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
-//        Query episodeQuery = collectionRef.whereGreaterThanOrEqualTo("programScheduleTime.dateEnd", /*"1662054250043"*/System.currentTimeMillis()).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
-        Query episodeQuery = collectionRef;
+        Query episodeQuery = collectionRef.whereGreaterThanOrEqualTo("programScheduleTime.dateEnd", /*"1662054250043"*/System.currentTimeMillis()).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+//        Query episodeQuery = collectionRef;
 //        Query episodeQuery = collectionRef.orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
 //        LogUtility.d(LogUtility.TAG, " episodeQuery : " + episodeQuery.get());
 

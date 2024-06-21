@@ -12,6 +12,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
+import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 
@@ -83,7 +84,7 @@ public class FirestoreCollectionTransferHelper {
 
                     }
                 });
-            }else if (obj instanceof RadioProgram) {
+            } else if (obj instanceof RadioProgram) {
                 RadioProgram radioProgram = (RadioProgram) item;
                 firestoreDbUtility.createOrMerge(destinationFirestore, radioProgram.getProgramId(), radioProgram, new CallBack() {
                     @Override
@@ -96,9 +97,22 @@ public class FirestoreCollectionTransferHelper {
 
                     }
                 });
-            }else if (obj instanceof Episode) {
+            } else if (obj instanceof Episode) {
                 Episode episode = (Episode) item;
                 firestoreDbUtility.createOrMerge(destinationFirestore, episode.getEpId(), episode, new CallBack() {
+                    @Override
+                    public void onSuccess(Object object) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Object object) {
+
+                    }
+                });
+            } else if (obj instanceof UserModel) {
+                UserModel userModel = (UserModel) item;
+                firestoreDbUtility.createOrMerge(destinationFirestore, userModel.getUserId(), userModel, new CallBack() {
                     @Override
                     public void onSuccess(Object object) {
 

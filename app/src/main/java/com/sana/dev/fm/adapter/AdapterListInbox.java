@@ -81,6 +81,7 @@ public class AdapterListInbox extends Adapter<AdapterListInbox.MyViewHolder> {
 //            binding.tvState.setVisibility(View.GONE);
         }
 
+        if (!Tools.isEmpty(model.getEpName()))
         viewHolder.binding.imageLetter.setText(model.getEpName().substring(0, 1));
         viewHolder.binding.lytParent.setActivated(this.selected_items.get(i, false));
 

@@ -73,7 +73,7 @@ public class AddProgramActivity extends BaseActivity {
 
     Uri imageUri;
     PreferencesManager prefMgr;
-    private String programId, radioId, prName, prDesc, prTag, prProfile, createBy, stopNote, timestamp;
+    private String programId, prName, prDesc, prTag, prProfile, createBy, stopNote, timestamp;
     private DateTimeModel programScheduleTime;
     private FirestoreDbUtility firestoreDbUtility;
     private RadioInfo radioInfo;
@@ -256,7 +256,6 @@ public class AddProgramActivity extends BaseActivity {
                 RadioProgram _episode = new Gson().fromJson(s, RadioProgram.class);
                 showSnackBar(_episode.getPrName());
 
-                radioId = _episode.getRadioId();
                 prName = _episode.getPrName();
                 prDesc = _episode.getPrDesc();
 //            epAnnouncer = _episode.getEpAnnouncer();
@@ -267,7 +266,6 @@ public class AddProgramActivity extends BaseActivity {
                 createBy = _episode.getCreateBy();
                 stopNote = _episode.getStopNote();
                 radioInfo = prefMgr.selectedRadio();
-                radioId = radioInfo.getRadioId();
                 programScheduleTime = _episode.getProgramScheduleTime() != null ? _episode.getProgramScheduleTime() : new DateTimeModel();
                 displayDay = programScheduleTime.getDisplayDays() != null ? programScheduleTime.getDisplayDays() : new ArrayList<>();
 //            program = program.findRadioProgram(programId, ShardDate.getInstance().getProgramList());
@@ -353,8 +351,10 @@ public class AddProgramActivity extends BaseActivity {
             return;
         }
 
-        programId = radioInfo.getRadioId() + "ـــ" + FmUtilize.random();
-        radioId = radioInfo.getRadioId();
+//        if (programId == null){
+//            programId = radioInfo.getRadioId() + "_" + FmUtilize.random();
+//        }
+
         prName = binding.titPrName.getText().toString().trim();
         prDesc = binding.titPrDesc.getText().toString().trim();
         createBy = prefMgr.getUserSession().getUserId();
@@ -372,7 +372,7 @@ public class AddProgramActivity extends BaseActivity {
             StorageMetadata metadata = new StorageMetadata.Builder()
                     .setContentType("image/jpg")
                     .build();
-            StorageReference ref = FirebaseStorage.getInstance().getReference().child(General.FB_FM_FOLDER_PATH).child(radioId).child(programId + ".jpg");
+            StorageReference ref = FirebaseStorage.getInstance().getReference().child(General.FB_FM_FOLDER_PATH).child(radioInfo.getRadioId()).child(programId + ".jpg");
             // Upload file and metadata to the path 'images/mountains.jpg'
             UploadTask uploadTask = ref.putFile(imageUri, metadata);
 
@@ -410,11 +410,16 @@ public class AddProgramActivity extends BaseActivity {
                                 public void onSuccess(Uri uri) {
                                     prProfile = uri.toString();
                                     hud.dismiss();
-                                    RadioProgram radioProgram = new RadioProgram(programId, radioId, prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
-                                    String pushKey = radioId + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
-                                    radioProgram.setProgramId(pushKey);
+                                    RadioProgram radioProgram = new RadioProgram(programId, radioInfo.getRadioId(), prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
+                                    String pushKey = radioInfo.getRadioId() + "_" + firestoreDbUtility.getKeyId(RADIO_PROGRAM_TABLE).document().getId();
 
-                                    firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioId), radioProgram.getProgramId(), radioProgram, new CallBack() {
+                                    if (programId == null){
+                                        radioProgram.setProgramId(pushKey);
+                                    }else {
+                                        radioProgram.setProgramId(programId);
+                                    }
+
+                                    firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioInfo.getRadioId()), radioProgram.getProgramId(), radioProgram, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
                                             showToast(getString(R.string.done_successfully));
@@ -437,10 +442,15 @@ public class AddProgramActivity extends BaseActivity {
 
         } else {
             prProfile = radioInfo.getLogo();
-            RadioProgram radioProgram = new RadioProgram(programId, radioId, prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
-            String pushKey = radioId + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
-            radioProgram.setProgramId(pushKey);
-            firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioId), radioProgram.getProgramId(), radioProgram, new CallBack() {
+            RadioProgram radioProgram = new RadioProgram(programId, radioInfo.getRadioId(), prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
+            String pushKey = radioInfo.getRadioId() + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.RADIO_PROGRAM_TABLE).document().getId();
+
+            if (programId == null){
+                radioProgram.setProgramId(pushKey);
+            }else {
+                radioProgram.setProgramId(programId);
+            }
+            firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioInfo.getRadioId()), radioProgram.getProgramId(), radioProgram, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     hideProgress();

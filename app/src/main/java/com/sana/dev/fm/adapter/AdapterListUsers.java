@@ -2,7 +2,6 @@ package com.sana.dev.fm.adapter;
 
 
 import static com.sana.dev.fm.utils.Tools.getFormattedDateOnly;
-import static com.sana.dev.fm.utils.Tools.getFormattedTimeEvent;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -11,19 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemInboxBinding;
-import com.sana.dev.fm.databinding.ItemProgramsBinding;
-import com.sana.dev.fm.model.DateTimeModel;
-import com.sana.dev.fm.model.RadioProgram;
-import com.sana.dev.fm.model.RadioProgram;
+import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.utils.FmUtilize;
@@ -32,10 +25,10 @@ import com.sana.dev.fm.utils.Tools;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdapterListProgram extends Adapter<AdapterListProgram.MyViewHolder> {
+public class AdapterListUsers extends Adapter<AdapterListUsers.MyViewHolder> {
     private Context ctx;
     private int current_selected_idx = -1;
-    private List<RadioProgram> items;
+    private List<UserModel> items;
     private OnClickListener onClickListener = null;
     private OnItemLongClick onLongClickListener = null;
     private SparseBooleanArray selected_items;
@@ -57,7 +50,7 @@ public class AdapterListProgram extends Adapter<AdapterListProgram.MyViewHolder>
         this.onLongClickListener = onLongClickListener;
     }
 
-    public AdapterListProgram(Context context, List<RadioProgram> list) {
+    public AdapterListUsers(Context context, List<UserModel> list) {
         this.ctx = context;
         this.items = list;
         this.selected_items = new SparseBooleanArray();
@@ -71,19 +64,20 @@ public class AdapterListProgram extends Adapter<AdapterListProgram.MyViewHolder>
 
 
     public void onBindViewHolder(MyViewHolder viewHolder, @SuppressLint("RecyclerView") final int i) {
-        final RadioProgram model = (RadioProgram) this.items.get(i);
-        viewHolder.binding.tvTitle.setText(model.getPrName());
-//        viewHolder.binding.tvSubtitle.setText(model.getEpAnnouncer());
-        viewHolder.binding.tvDesc.setText(model.getPrDesc());
+        final UserModel model = (UserModel) this.items.get(i);
+        viewHolder.binding.tvTitle.setText(model.getName()+" -"+i);
+        viewHolder.binding.tvSubtitle.setText(model.getMobile());
+        viewHolder.binding.tvDesc.setText(model.getEmail());
 
-        if (model.getProgramScheduleTime() != null) {
-            String dt = ctx.getString(R.string.label_date_from_to, getFormattedDateOnly(model.getProgramScheduleTime().getDateStart(), FmUtilize.arabicFormat), getFormattedDateOnly(model.getProgramScheduleTime().getDateEnd(), FmUtilize.arabicFormat));
-            viewHolder.binding.tvDate.setText(dt);
+        if (model.getCreatedAt() != null) {
+//            String dt = ctx.getString(R.string.label_date_from_to, getFormattedDateOnly(model.getCreatedAt(), FmUtilize.arabicFormat), getFormattedDateOnly(model.getProgramScheduleTime().getDateEnd(), FmUtilize.arabicFormat));
+            viewHolder.binding.tvDate.setText(model.getCreatedAt());
         } else {
 //            binding.tvState.setVisibility(View.GONE);
         }
-        if (!Tools.isEmpty(model.getPrName()))
-        viewHolder.binding.imageLetter.setText(model.getPrName().substring(0, 1));
+
+        if (!Tools.isEmpty(model.getName()))
+        viewHolder.binding.imageLetter.setText(model.getName().substring(0, 1));
         viewHolder.binding.lytParent.setActivated(this.selected_items.get(i, false));
 
         viewHolder.binding.lytParent.setOnClickListener(new View.OnClickListener() {
@@ -108,9 +102,9 @@ public class AdapterListProgram extends Adapter<AdapterListProgram.MyViewHolder>
         displayImage(viewHolder, model);
     }
 
-    private void displayImage(MyViewHolder viewHolder, RadioProgram inbox) {
-        if (inbox.getPrProfile() != null) {
-            Tools.displayImageRound(this.ctx, viewHolder.binding.image, inbox.getPrProfile());
+    private void displayImage(MyViewHolder viewHolder, UserModel inbox) {
+        if (inbox.getPhotoUrl() != null) {
+            Tools.displayImageRound(this.ctx, viewHolder.binding.image, inbox.getPhotoUrl());
             viewHolder.binding.image.setColorFilter(null);
             viewHolder.binding.imageLetter.setVisibility(View.GONE);
             return;
@@ -137,8 +131,8 @@ public class AdapterListProgram extends Adapter<AdapterListProgram.MyViewHolder>
         }
     }
 
-    public RadioProgram getItem(int i) {
-        return (RadioProgram) this.items.get(i);
+    public UserModel getItem(int i) {
+        return (UserModel) this.items.get(i);
     }
 
     public int getItemCount() {

@@ -71,6 +71,9 @@
             android:name=".ui.activity.ListProgramActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".ui.activity.ListUsersActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".ui.activity.ImagePickerActivity"
             android:screenOrientation="portrait" />
         <activity

@@ -146,7 +146,7 @@ public class RadioListActivity extends BaseActivity {
                 RadioInfo item = (RadioInfo) model;
                 // showToast("Item " + item.getName() + " position : " + position);
                 String state = item.isDisabled() ? getString(R.string.label_enable) : getString(R.string.label_disable);
-                ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_note), getString(R.string.msg_are_you_sure_you_want_to, state), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                ModelConfig config = new ModelConfig(R.drawable.ic_info, getString(R.string.label_note), getString(R.string.msg_are_you_sure_you_want_to, state), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         changePriority(!item.isDisabled(), item);

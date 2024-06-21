@@ -236,7 +236,7 @@ public class ProgramsFragment extends BaseFragment {
                             public void onItemLongClick(View view, Object obj, int position) {
                                 RadioProgram item = (RadioProgram) obj;
                                 if (ProgramsFragment.this.isAccountSignedIn() && prefMgr.getUserSession().getUserType() == UserType.SuperADMIN) {
-                                    ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_warning), getString(R.string.confirm_delete, item.getPrName()), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                                    ModelConfig config = new ModelConfig(R.drawable.ic_info, getString(R.string.label_warning), getString(R.string.confirm_delete, item.getPrName()), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
 
