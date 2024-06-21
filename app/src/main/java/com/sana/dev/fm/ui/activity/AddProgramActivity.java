@@ -4,6 +4,7 @@ import static com.sana.dev.fm.utils.AppConstant.Firebase.RADIO_PROGRAM_TABLE;
 import static com.sana.dev.fm.utils.FmUtilize.getWeekDayNames;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
 import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysEn;
+import static com.sana.dev.fm.utils.Tools.getFormattedDateOnly;
 
 import android.app.Activity;
 import android.content.Context;
@@ -249,10 +250,53 @@ public class AddProgramActivity extends BaseActivity {
     private void initEditView() {
         String s = getIntent().getStringExtra("radioProgram");
         if (s != null) {
-//            binding.toolbar.tvTitle.setText(getString(R.string.label_edit));
+            binding.tvTitle.setText(getString(R.string.label_edit));
 
-            RadioProgram _episode = new Gson().fromJson(s, RadioProgram.class);
-            showSnackBar(_episode.getPrName());
+            try {
+                RadioProgram _episode = new Gson().fromJson(s, RadioProgram.class);
+                showSnackBar(_episode.getPrName());
+
+                radioId = _episode.getRadioId();
+                prName = _episode.getPrName();
+                prDesc = _episode.getPrDesc();
+//            epAnnouncer = _episode.getEpAnnouncer();
+                programId = _episode.getProgramId();
+                prProfile = _episode.getPrProfile();
+//            stackImg.push(epProfile);
+                timestamp = _episode.getTimestamp();
+                createBy = _episode.getCreateBy();
+                stopNote = _episode.getStopNote();
+                radioInfo = prefMgr.selectedRadio();
+                radioId = radioInfo.getRadioId();
+                programScheduleTime = _episode.getProgramScheduleTime() != null ? _episode.getProgramScheduleTime() : new DateTimeModel();
+                displayDay = programScheduleTime.getDisplayDays() != null ? programScheduleTime.getDisplayDays() : new ArrayList<>();
+//            program = program.findRadioProgram(programId, ShardDate.getInstance().getProgramList());
+//            programId = program.getProgramId();
+
+
+                binding.titPrName.setText(prName);
+                binding.titPrDesc.setText(prDesc);
+                binding.etStation.setText(radioInfo.getName());
+                binding.tieDisplayDay.setText(android.text.TextUtils.join(" , ", displayDay));
+
+                if (programScheduleTime != null) {
+                    String dtS = getFormattedDateOnly(FmUtilize._dateFormat, programScheduleTime.getDateStart(), FmUtilize.englishFormat);
+                    String dtE = getFormattedDateOnly(FmUtilize._dateFormat, programScheduleTime.getDateEnd(), FmUtilize.englishFormat);
+                    binding.etStart.setText(dtS);
+                    binding.etEnd.setText(dtE);
+                } else {
+//            binding.tvState.setVisibility(View.GONE);
+                }
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d(TAG, "Error saveUserData : " + e.getMessage());
+                showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
+            }
+
+
+            loadProfile(Uri.parse(prProfile));
 
             binding.etStation.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -269,33 +313,8 @@ public class AddProgramActivity extends BaseActivity {
 //                    showWarningDialog(config);
 //                }
 //            });
-
-
-            radioId = _episode.getRadioId();
-            prName = _episode.getPrName();
-            prDesc = _episode.getPrDesc();
-//            epAnnouncer = _episode.getEpAnnouncer();
-            programId = _episode.getProgramId();
-            prProfile = _episode.getPrProfile();
-//            stackImg.push(epProfile);
-            timestamp = _episode.getTimestamp();
-            createBy = _episode.getCreateBy();
-            stopNote = _episode.getStopNote();
-            radioInfo = prefMgr.selectedRadio();
-            radioId = radioInfo.getRadioId();
-            programScheduleTime = _episode.getProgramScheduleTime() != null ? _episode.getProgramScheduleTime() : new DateTimeModel();
-            displayDay = programScheduleTime.getDisplayDays() != null ? programScheduleTime.getDisplayDays() : new ArrayList<>();
-//            program = program.findRadioProgram(programId, ShardDate.getInstance().getProgramList());
-//            programId = program.getProgramId();
-
-
-            binding.titPrName.setText(prName);
-            binding.titPrDesc.setText(prDesc);
-            binding.etStation.setText(radioInfo.getName());
-            binding.tieDisplayDay.setText(android.text.TextUtils.join(" , ", displayDay));
-
-            loadProfile(Uri.parse(prProfile));
         }
+
     }
 
 

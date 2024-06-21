@@ -2,7 +2,9 @@ package com.sana.dev.fm.ui.activity;
 
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,11 +16,16 @@ import androidx.appcompat.view.ActionMode.Callback;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListInbox;
 import com.sana.dev.fm.databinding.ActivityListEpisodeBinding;
+import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.ui.view.LineItemDecoration;
 import com.sana.dev.fm.utils.AppConstant;
@@ -30,7 +37,9 @@ import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ListEpisodeActivity extends BaseActivity {
     private static final String TAG = ListEpisodeActivity.class.getSimpleName();
@@ -114,10 +123,16 @@ public class ListEpisodeActivity extends BaseActivity {
 //                false
 //        ));
 
-        firestoreDbUtility.getMany(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId), firestoreQueryList, new CallBack() {
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
+
+//        CollectionReference collectionRefOld = DATABASE.collection(AppConstant.Firebase.EPISODE_TABLE).document(radioId).collection(AppConstant.Firebase.EPISODE_TABLE);  // Subcollection named "1001"
+//        FirestoreCollectionTransferHelper transferHelper = new FirestoreCollectionTransferHelper(firestoreDbUtility);
+
+        firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 List<Episode> episodes = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);
+//                transferHelper.processCollection(collectionReference,episodes);
                 episodeList = new ArrayList<>(episodes);
                 AdapterListInbox adapterListInbox = new AdapterListInbox(ListEpisodeActivity.this, episodeList);
 //        AdapterListInbox adapterListInbox = new AdapterListInbox(this, DataGenerator.getEpisodeData(this));
@@ -150,7 +165,8 @@ public class ListEpisodeActivity extends BaseActivity {
                     }
 
                     public void onItemLongClick(View view, Episode episode, int i) {
-                        enableActionMode(i);
+//                        enableActionMode(i);
+                        showBottomSheetDialog(episode,radioId);
                     }
                 });
                 actionModeCallback = new ActionModeCallback(ListEpisodeActivity.this, null);
@@ -237,4 +253,105 @@ public class ListEpisodeActivity extends BaseActivity {
             Tools.setSystemBarColor(ListEpisodeActivity.this, R.color.red_600);
         }
     }
+
+    private BottomSheetDialog mBottomSheetDialog;
+
+    private void showBottomSheetDialog(Episode obj, String radioId) {
+        View findViewById = findViewById(R.id.bottom_sheet);
+        View bottom_sheet = findViewById;
+        BottomSheetBehavior mBehavior = BottomSheetBehavior.from(findViewById);
+
+        if (mBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            mBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+
+        View inflate = getLayoutInflater().inflate(R.layout.sheet_ep_options, null);
+
+
+        inflate.findViewById(R.id.lyt_edit).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(getString(R.string.label_edit) + " : ");
+                stringBuilder.append(obj.getEpName());
+
+                AddEpisodeActivity.startActivity(ListEpisodeActivity.this, obj);
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
+
+        inflate.findViewById(R.id.lyt_hide).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_hide, obj.getEpName()), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        obj.setDisabled(true);
+                        Map<String, Object> docData = new HashMap<>();
+                        docData.put("disabled", obj.isDisabled());
+
+                        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
+
+                        firestoreDbUtility.createOrMerge(collectionRef, obj.getEpId(), docData, new CallBack() {
+                            @Override
+                            public void onSuccess(Object object) {
+//                                            showToast(getString(R.string.done_successfully));
+                            }
+
+                            @Override
+                            public void onFailure(Object object) {
+//                                            showToast(getString(R.string.label_error_occurred_with_val,object));
+                            }
+                        });
+                    }
+                }));
+                showWarningDialog(config);
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
+        inflate.findViewById(R.id.lyt_delete).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_delete, obj.getEpName()), null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
+                        firestoreDbUtility.deleteDocument(collectionRef, obj.getEpId(), new CallBack() {
+                            @Override
+                            public void onSuccess(Object object) {
+                                showToast(getString(R.string.deleted_successfully_with_param, obj.getEpName()));
+                            }
+
+                            @Override
+                            public void onFailure(Object object) {
+                                showToast(getString(R.string.error_failure));
+                            }
+                        });
+                    }
+                }));
+                showWarningDialog(config);
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
+
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(ListEpisodeActivity.this);
+        this.mBottomSheetDialog = bottomSheetDialog;
+        bottomSheetDialog.setContentView(inflate);
+        if (Build.VERSION.SDK_INT >= 21) {
+            this.mBottomSheetDialog.getWindow().addFlags(67108864);
+        }
+        this.mBottomSheetDialog.show();
+        this.mBottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            public void onDismiss(DialogInterface dialogInterface) {
+                mBottomSheetDialog = null;
+            }
+        });
+
+        inflate.findViewById(R.id.lyt_make_close).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                bottomSheetDialog.dismiss();
+            }
+        });
+    }
+
 }

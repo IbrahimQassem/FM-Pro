@@ -37,6 +37,7 @@ import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -173,11 +174,11 @@ public class DailyEpisodeFragment extends BaseFragment {
 
         // Todo
         List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
-//        firestoreQueryList.add(new FirestoreQuery(
-//                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
-//                "disabled",
-//                false
-//        ));
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                "disabled",
+                false
+        ));
 
         firestoreDbUtility.getMany(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId), firestoreQueryList, new CallBack() {
             @Override

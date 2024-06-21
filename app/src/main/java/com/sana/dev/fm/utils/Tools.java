@@ -579,6 +579,11 @@ public class Tools {
         return new SimpleDateFormat("d MMM yyyy", locale).format(new Date(l.longValue()));
     }
 
+    public static String getFormattedDateOnly(String format,Long l, Locale locale) {
+//        return new SimpleDateFormat("dd MMM yy", FmUtilize._arabicFormat).format(new Date(l.longValue()));
+        return new SimpleDateFormat(format, locale).format(new Date(l.longValue()));
+    }
+
     public static void directLinkToBrowser(Activity activity, String str) {
         try {
             activity.startActivity(new Intent("android.intent.action.VIEW", Uri.parse(str)));

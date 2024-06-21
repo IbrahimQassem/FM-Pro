@@ -19,9 +19,8 @@ import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListProgram;
 import com.sana.dev.fm.databinding.ActivityListProgramBinding;
-import com.sana.dev.fm.model.Episode;
-import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.RadioInfo;
+import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.ui.view.LineItemDecoration;
@@ -82,7 +81,7 @@ public class ListProgramActivity extends BaseActivity {
 
 
     private void initToolbar() {
-        binding.toolbar.tvTitle.setText(getString(R.string.update_episode));
+        binding.toolbar.tvTitle.setText(getString(R.string.update_program));
         binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -114,13 +113,18 @@ public class ListProgramActivity extends BaseActivity {
 //                false
 //        ));
 
-        CollectionReference collectionReference =firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioId);
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioId);
+
+//        CollectionReference collectionRefOld = DATABASE.collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE).document(radioId).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);  // Subcollection named "1001"
+//        FirestoreCollectionTransferHelper transferHelper = new FirestoreCollectionTransferHelper(firestoreDbUtility);
 
         firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                List<RadioProgram> episodes = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
-                itemList = new ArrayList<>(episodes);
+                List<RadioProgram> radioProgramList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
+//                transferHelper.processCollection(collectionReference, radioProgramList);
+
+                itemList = new ArrayList<>(radioProgramList);
                 AdapterListProgram adapterListInbox = new AdapterListProgram(ListProgramActivity.this, itemList);
 //        AdapterListProgram adapterListInbox = new AdapterListProgram(this, DataGenerator.getEpisodeData(this));
                 mAdapter = adapterListInbox;
@@ -136,7 +140,7 @@ public class ListProgramActivity extends BaseActivity {
                         RadioProgram _item = mAdapter.getItem(position);
                         Context applicationContext = getApplicationContext();
                         StringBuilder stringBuilder = new StringBuilder();
-                        stringBuilder.append(" : "+getString(R.string.label_edit));
+                        stringBuilder.append(" : " + getString(R.string.label_edit));
                         stringBuilder.append(_item.getPrName());
 
                         AddProgramActivity.startActivity(ListProgramActivity.this, _item);

@@ -1,8 +1,6 @@
 package com.sana.dev.fm.ui.fragment;
 
 
-import static com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl.DATABASE;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,10 +23,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firestore.admin.v1.Index;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.ChatHolder;
@@ -37,13 +33,12 @@ import com.sana.dev.fm.databinding.ItemGridBinding;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.ModelConfig;
-import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
-import com.sana.dev.fm.ui.activity.CommentsActivity;
 import com.sana.dev.fm.ui.activity.AddEpisodeActivity;
+import com.sana.dev.fm.ui.activity.CommentsActivity;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
 import com.sana.dev.fm.utils.AppConstant;
@@ -223,7 +218,9 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         LogUtility.d(LogUtility.TAG, " radioId : " + radioId + " time is  : " + String.valueOf(System.currentTimeMillis()));
 
         CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
-        Query episodeQuery = collectionRef.whereGreaterThanOrEqualTo("programScheduleTime.dateEnd", /*"1662054250043"*/System.currentTimeMillis()).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+//        Query episodeQuery = collectionRef.whereGreaterThanOrEqualTo("programScheduleTime.dateEnd", /*"1662054250043"*/System.currentTimeMillis()).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+        Query episodeQuery = collectionRef;
+//        Query episodeQuery = collectionRef.orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
 //        LogUtility.d(LogUtility.TAG, " episodeQuery : " + episodeQuery.get());
 
         //    /** Get the last 50 chat messages ordered by timestamp . */

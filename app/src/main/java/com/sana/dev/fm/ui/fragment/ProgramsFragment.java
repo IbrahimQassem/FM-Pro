@@ -246,13 +246,14 @@ public class ProgramsFragment extends BaseFragment {
                                                 public void onSuccess(Object object) {
                                                     showToast(getString(R.string.deleted_successfully_with_param, item.getPrName()));
 //                                                    mAdapter.removeAt(position);
-                                                    mAdapter.notifyItemRangeRemoved(0, itemList.size());
+                                                    itemList.remove(position);
+                                                    mAdapter.notifyDataSetChanged();
+//                                                    mAdapter.notifyItemRangeRemoved(position, itemList.size());
                                                 }
 
                                                 @Override
                                                 public void onFailure(Object object) {
                                                     showToast(getString(R.string.label_error_occurred_with_val, object));
-
                                                 }
                                             });
                                         }

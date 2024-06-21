@@ -68,8 +68,8 @@ public class SplashActivity extends AppCompatActivity {
         setFullScreen();
         startAnimation();
 //         Todo undo
-        initRemoteConfig();
-//        useDefaultConfig();
+//        initRemoteConfig();
+        useDefaultConfig();
 
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -153,18 +153,19 @@ public class SplashActivity extends AppCompatActivity {
         // /HudHudFM_16/RadioInfo
         // Assuming you have an initialized FirebaseFirestore instance called "db"
 
-        CollectionReference collectionRef = firestoreDbUtility.getTopLevelCollection()
-                .document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);  // Subcollection named "1001"
-
-// This reference points to the subcollection named "1001".
+        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);  // Subcollection named "1001"
+//        CollectionReference collectionRefOld = DATABASE.collection(AppConstant.Firebase.RADIO_INFO_TABLE);  // Subcollection named "1001"
+//        FirestoreCollectionTransferHelper transferHelper = new FirestoreCollectionTransferHelper(firestoreDbUtility);
 
 //        CollectionReference reference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);
-        firestoreDbUtility.getMany(collectionRef, firestoreQueryList, new CallBack() {
+        firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 List<RadioInfo> radioInfoList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioInfo.class);
                 ShardDate.getInstance().setRadioInfoList(radioInfoList);
                 prefMgr.setRadioInfo(new ArrayList<>(radioInfoList));
+
+//                transferHelper.processCollection(collectionReference, radioInfoList);
 
                 if (prefMgr.selectedRadio() == null && radioInfoList != null && radioInfoList.size() > 0) {
                     prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, radioInfoList.get(0));

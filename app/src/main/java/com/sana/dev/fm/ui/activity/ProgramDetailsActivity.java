@@ -129,9 +129,9 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                 @Override
                 public void onSuccess(Object object) {
                     List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
-                    if (!programList.isEmpty()) {
+                    if (programList != null && programList.size() > 0) {
                         RadioProgram radioProgram = programList.get(0);
-                        TempEpModel tempEpModel = new TempEpModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), radioProgram.getPrCategoryList().toString(), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
+                        TempEpModel tempEpModel = new TempEpModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), String.valueOf(radioProgram.getPrCategoryList()), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
                         updateInfoUI(tempEpModel);
                     }
                     hideProgress();
@@ -189,7 +189,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 
     @SuppressLint("SetTextI18n")
     private void updateInfoUI(TempEpModel model) {
-//        TempEpModel _temp = new TempEpModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), radioProgram.getPrCategoryList().toString(), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
+//        TempEpModel _temp = new TempEpModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), radioProgram.getPrCategoryList(), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
         String imgUrl = model.getImgProfile();
 //        Tools.displayImageRound(this, binding.imgProfile, imgUrl);
 //        Tools.displayImageOriginal(this, binding.imgProfile, imgUrl);

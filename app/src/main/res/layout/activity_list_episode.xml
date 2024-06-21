@@ -25,6 +25,14 @@
             tools:listitem="@layout/item_inbox"/>
     </LinearLayout>
 
+
+    <FrameLayout
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/bottom_sheet_behavior" />
+
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,4 +44,6 @@
         app:fabSize="auto"
         app:rippleColor="@android:color/white"
         app:srcCompat="@drawable/ic_save" />
+
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

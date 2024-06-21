@@ -71,8 +71,10 @@ import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Stack;
 
 
@@ -132,12 +134,6 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
         initEditView();
 //        setDisplayDayChips();
 
-        binding.buttonAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addView();
-            }
-        });
     }
 
     private void initToolbar() {
@@ -178,6 +174,12 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
 
     private void initClickEvent() {
 
+        binding.buttonAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addView();
+            }
+        });
 
         View.OnClickListener onClickListenerImg = new View.OnClickListener() {
             @Override
@@ -222,21 +224,21 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
             Episode _episode = new Gson().fromJson(s, Episode.class);
             showSnackBar(_episode.getEpName());
 
-            binding.etStation.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), getString(R.string.msg_you_cannot_change_the_radio_channel_if_the_program_data_is_updated), new ButtonConfig(getString(R.string.label_cancel)), null);
-                    showWarningDialog(config);
-                }
-            });
-
-            binding.etProgram.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), getString(R.string.msg_you_cannot_change_the_program_name_if_you_update_the_program_data), new ButtonConfig(getString(R.string.label_cancel)), null);
-                    showWarningDialog(config);
-                }
-            });
+//            binding.etStation.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    ModelConfig config = new ModelConfig(R.drawable.ic_info, getString(R.string.label_warning), getString(R.string.msg_you_cannot_change_the_radio_channel_if_the_program_data_is_updated), new ButtonConfig(getString(R.string.label_cancel)), null);
+//                    showWarningDialog(config);
+//                }
+//            });
+//
+//            binding.etProgram.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    ModelConfig config = new ModelConfig(R.drawable.ic_info, getString(R.string.label_warning), getString(R.string.msg_you_cannot_change_the_program_name_if_you_update_the_program_data), new ButtonConfig(getString(R.string.label_cancel)), null);
+//                    showWarningDialog(config);
+//                }
+//            });
 
 
             radioId = _episode.getRadioId();
@@ -281,8 +283,6 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
         }
 
         radioId = radioInfo.getRadioId();
-//        programId = program.getProgramId();
-//        programName = program.getPrName();
         createBy = prefMgr.getUserSession().getUserId();
 
         epName = binding.titEpName.getText().toString().trim();
@@ -372,9 +372,6 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
             firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId), episode.getEpId(), episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-//                    Map<String, Object> docData = new HashMap<>();
-//                    docData.put("disabled", obj.isDisabled());
-
                     CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, episode.getRadioId());
                     DocumentReference pRef = collectionRef.document(episode.getProgramId());
 
@@ -382,19 +379,6 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                     hideProgress();
                     showToast(getString(R.string.done_successfully));
                     finish();
-//                    firestoreDbUtility.createOrMerge(collectionRef, obj.getEpId(), docData, new CallBack() {
-//                        @Override
-//                        public void onSuccess(Object object) {
-////                                            showToast(getString(R.string.done_successfully));
-//                        }
-//
-//                        @Override
-//                        public void onFailure(Object object) {
-////                                            showToast(getString(R.string.label_error_occurred_with_val,object));
-//                        }
-//                    });
-//
-
                 }
 
                 @Override

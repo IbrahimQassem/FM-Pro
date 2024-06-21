@@ -76,7 +76,7 @@
     <string name="label_ok">Yes</string>
     <string name="nav_home">Main</string>
     <string name="nav_about_us">About Us</string>
-    <string name="nav_episode_daily">Today\'s Episode</string>
+    <string name="nav_episode_daily">Today\'s</string>
     <string name="episode_daily">%s Radio broadcasts for today</string>
 
     <string name="please_wait">Please wait ..</string>
@@ -144,7 +144,7 @@
     <string name="add_episode">Add Episode</string>
     <string name="goto_login">In order to use the application services you must log in \n \nDo you want to go to the login window?</string>
     <string name="main_program_for">Main programs</string>
-    <string name="update_episode">Update episode data</string>
+    <string name="update_episode">Update episode</string>
     <!--    <string name="powered_by">Powered By &#x2665; Sana&apos;a Dev</string>-->
     <string name="powered_by">Powered By &#x2665; Sana\'a Dev</string>
     <string name="empty_ep">Sorry, program data for %s radio is currently unavailable</string>

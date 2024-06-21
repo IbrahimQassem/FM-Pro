@@ -18,6 +18,7 @@ import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.AppConstant.Firebase;
 import com.sana.dev.fm.utils.LogUtility;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreCollectionTransferHelper;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
 import java.util.ArrayList;
@@ -27,7 +28,6 @@ import java.util.Map;
 
 
 public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, SharedAction {
-    public static final FirebaseFirestore DATABASE = FirebaseFirestore.getInstance();
 
     private static final String TAG = FmEpisodeCRUDImpl.class.getSimpleName();
     private static FmEpisodeCRUDImpl instance;
@@ -72,7 +72,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
 
     public FmEpisodeCRUDImpl(Activity activity, String TableName) {
         this.activity = activity;
-        colRef = DATABASE.collection(TableName);
+        colRef = FirestoreCollectionTransferHelper.DATABASE.collection(TableName);
 //        colRef = new FirestoreDbUtility().getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,"1011");
 
     }
@@ -87,7 +87,7 @@ public class FmEpisodeCRUDImpl extends FirebaseRepository implements FmCRUD, Sha
             fireStoreCreateOrMerge(documentReference, episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    DocumentReference pRef = DATABASE.collection(Firebase.RADIO_PROGRAM_TABLE).document(episode.getRadioId()).collection(Firebase.RADIO_PROGRAM_TABLE).document(episode.getProgramId());
+                    DocumentReference pRef = FirestoreCollectionTransferHelper.DATABASE.collection(Firebase.RADIO_PROGRAM_TABLE).document(episode.getRadioId()).collection(Firebase.RADIO_PROGRAM_TABLE).document(episode.getProgramId());
                     incrementCounter("episodeCount", pRef);
                     callBack.onSuccess(AppGeneralMessage.SUCCESS);
                 }
