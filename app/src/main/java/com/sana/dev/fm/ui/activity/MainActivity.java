@@ -82,6 +82,11 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     private AdView adView;
 //    private GoogleMobileAdsConsentManager googleMobileAdsConsentManager;
 
+    CircularImageView civ ;
+    TextView tv_user_state ;
+    ImageView iv_internet ;
+    TextView tv_user_name ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,21 +105,25 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         radioManager = RadioManager.with();
 
         logRegToken();
+        initComponent();
+        initEvent();
+        initBottomNav();
+//        initAdMob();
+    }
 
-//        if (!isRadioSelected()) {
-//            RadioInfo radio = RadioInfo.newInstance("1002", "أصالة", "", "https://streamingv2.shoutcast.com/assala-fm", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1002%2Fmicar.jpg?alt=media&token=b568c461-9563-44e2-a091-e953471e42c4", "@asalah_fm", "صنعاء", "", "Asalah Fm", "usId", true);
-//            RadioInfo.setSelectedRadio(radio, this);
-//        }
+    private void initComponent() {
 
+         civ = (CircularImageView) findViewById(R.id.civ_logo);
+         tv_user_state = findViewById(R.id.tv_user_state);
+         iv_internet = findViewById(R.id.iv_internet);
+         tv_user_name = findViewById(R.id.tv_user_name);
+//        iv_internet.setVisibility(View.INVISIBLE);
 
+        // check if radio playing
         if (isPlaying()) {
             onAudioSessionId(RadioManager.getService().getAudioSessionId());
             fab_radio.setImageResource(R.drawable.ic_pause);
         }
-
-
-        initBottomNav();
-//        initAdMob();
 
         // setup addMod
         adView = findViewById(R.id.ad_view);
@@ -124,6 +133,15 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             adView.loadAd(adRequest);
         }
         adView.setVisibility(isAdMobEnable ? VISIBLE : View.GONE);
+    }
+
+    private void initEvent() {
+
+
+//        if (!isRadioSelected()) {
+//            RadioInfo radio = RadioInfo.newInstance("1002", "أصالة", "", "https://streamingv2.shoutcast.com/assala-fm", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1002%2Fmicar.jpg?alt=media&token=b568c461-9563-44e2-a091-e953471e42c4", "@asalah_fm", "صنعاء", "", "Asalah Fm", "usId", true);
+//            RadioInfo.setSelectedRadio(radio, this);
+//        }
 
 
         View lyt_profile = (View) findViewById(R.id.lyt_profile);
@@ -212,7 +230,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
                     showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
                 }*/
 
-              //        rotation.setRepeatCount(0);
+                //        rotation.setRepeatCount(0);
 
 //                v.clearAnimation();
 //                fab_radio.clearAnimation();
@@ -450,34 +468,40 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     }
 
     public void initToolbarProfile() {
-        CircularImageView civ = (CircularImageView) findViewById(R.id.civ_logo);
 //        int color = getResources().getColor(R.color.colorAccent);
 //        ColorFilter cf = new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY);
 //        civ.setColorFilter(cf);
 
-        TextView tv_user_name = findViewById(R.id.tv_user_name);
-        TextView tv_user_state = findViewById(R.id.tv_user_state);
-        ImageView iv_internet = findViewById(R.id.iv_internet);
 
-
-        boolean isOnline = hasInternetConnection();
-        String isOnlineTxt = isOnline ? getString(R.string.label_online) : getString(R.string.offline);
-        int colorState = isOnline ? R.color.green_500 : R.color.yellow_500;
 
         if (isAccountSignedIn()) {
             PreferencesManager prefMgr = PreferencesManager.getInstance();
 
             UserModel user = prefMgr.getUserSession();
             tv_user_name.setText(user.getName());
-            tv_user_state.setText(isOnlineTxt);
+//            tv_user_state.setText(isOnlineTxt);
             if (!Tools.isEmpty(user.getPhotoUrl()))
-                Tools.displayUserProfile(this, civ, user.getPhotoUrl(),R.drawable.ic_person);
-            iv_internet.setColorFilter(ContextCompat.getColor(this, colorState), android.graphics.PorterDuff.Mode.MULTIPLY);
+                Tools.displayUserProfile(this, civ, user.getPhotoUrl(), R.drawable.ic_person);
 
             firebaseCrashlytics.setUserId(user.getMobile());
             firebaseAnalytics.setUserId(user.getMobile());
+            updateOnlineFlag();
         }
 
+
+    }
+
+    private void updateOnlineFlag() {
+        if (isAccountSignedIn()) {
+            boolean isOnline = hasInternetConnection();
+            String isOnlineTxt = isOnline ? getString(R.string.label_online) : getString(R.string.offline);
+            int colorState = isOnline ? R.color.green_500 : R.color.yellow_500;
+            tv_user_state.setText(isOnlineTxt);
+            iv_internet.setColorFilter(ContextCompat.getColor(this, colorState), android.graphics.PorterDuff.Mode.MULTIPLY);
+            iv_internet.setVisibility(VISIBLE);
+        }else {
+            iv_internet.setVisibility(View.GONE);
+        }
 
     }
 
@@ -834,8 +858,9 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     @Override
     public void onNetworkChange(boolean status) {
 //        LogUtility.e(TAG, "chekInternetCon : " + status);
-        initToolbarProfile();
+        updateOnlineFlag();
     }
+
 
     @Override
     protected void onNewIntent(Intent intent) {
