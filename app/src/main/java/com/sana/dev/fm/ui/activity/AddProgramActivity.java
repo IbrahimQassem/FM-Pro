@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.OnProgressListener;
@@ -419,7 +420,9 @@ public class AddProgramActivity extends BaseActivity {
                                         radioProgram.setProgramId(programId);
                                     }
 
-                                    firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioInfo.getRadioId()), radioProgram.getProgramId(), radioProgram, new CallBack() {
+                                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioInfo.getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+
+                                    firestoreDbUtility.createOrMerge(collectionReference, radioProgram.getProgramId(), radioProgram, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
                                             showToast(getString(R.string.done_successfully));
@@ -450,7 +453,9 @@ public class AddProgramActivity extends BaseActivity {
             }else {
                 radioProgram.setProgramId(programId);
             }
-            firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioInfo.getRadioId()), radioProgram.getProgramId(), radioProgram, new CallBack() {
+            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioInfo.getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+
+            firestoreDbUtility.createOrMerge(collectionReference, radioProgram.getProgramId(), radioProgram, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     hideProgress();

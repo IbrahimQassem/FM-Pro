@@ -113,7 +113,7 @@ public class ListProgramActivity extends BaseActivity {
 //                false
 //        ));
 
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioId);
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioId).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
 
 //        CollectionReference collectionRefOld = DATABASE.collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE).document(radioId).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);  // Subcollection named "1001"
 //        FirestoreCollectionTransferHelper transferHelper = new FirestoreCollectionTransferHelper(firestoreDbUtility);

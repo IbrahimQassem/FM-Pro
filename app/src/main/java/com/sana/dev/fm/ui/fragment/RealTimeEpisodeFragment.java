@@ -21,6 +21,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -48,6 +49,7 @@ import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -217,15 +219,32 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         String radioId = prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null ? prefMgr.selectedRadio().getRadioId() : "";
         LogUtility.d(LogUtility.TAG, " radioId : " + radioId + " time is  : " + String.valueOf(System.currentTimeMillis()));
 
-        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
-        Query episodeQuery = collectionRef.whereGreaterThanOrEqualTo("programScheduleTime.dateEnd", /*"1662054250043"*/System.currentTimeMillis()).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
-//        Query episodeQuery = collectionRef;
-//        Query episodeQuery = collectionRef.orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+//        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+// Create a timestamp from the date object
+        Timestamp timestamp = new Timestamp(new Date());
+        // Get today's date in milliseconds since epoch
+        long today = System.currentTimeMillis();
+        LogUtility.d(LogUtility.TAG, "timestamp time is  : " + String.valueOf(timestamp) +" -"+today);
+
+//        Query episodeQuery = collectionReference.whereEqualTo("disabled", false).whereLessThanOrEqualTo("programScheduleTime.dateEnd", today).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+//        Query episodeQuery = collectionReference.whereEqualTo("disabled", false).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+//        Query episodeQuery = collectionReference.orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+//        Query episodeQuery = collectionReference;
+//        Query episodeQuery = collectionReference.orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+        Query episodeQuery = collectionReference.whereEqualTo("disabled", false).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+//        Query episodeQuery = collectionReference.whereLessThan("programScheduleTime.dateEnd", today);
 //        LogUtility.d(LogUtility.TAG, " episodeQuery : " + episodeQuery.get());
 
         //    /** Get the last 50 chat messages ordered by timestamp . */
         ////    private static final Query sChatQuery =
         ////            sChatCollection.orderBy("timestamp", Query.Direction.DESCENDING).limit(50);
+
+
+// Create a date object representing the desired date
+//        Date specificDate = new Date(yourYear, yourMonth - 1, yourDay); // Adjust year, month (0-based), and day
+
+
 
         FirestoreRecyclerOptions<Episode> options =
                 new FirestoreRecyclerOptions.Builder<Episode>()
@@ -241,17 +260,28 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 return new ChatHolder(inflate);
             }
 
+//            @Override
+//            public Query onCreateQuery() {
+//                return FirebaseFirestore.getInstance().collection("yourCollectionName")
+//                        .whereEqualTo("disabled", false); // Filter where disabled is false
+//            }
+
             @Override
             protected void onBindViewHolder(@NonNull ChatHolder holder, int position, @NonNull Episode model) {
 //                LogUtility.d(LogUtility.TAG, "res newAdapter : " + new Gson().toJson(model));
-
                 if (RealTimeEpisodeFragment.this.isAccountSignedIn()) {
                     model.userId = prefMgr.getUserSession().getUserId();
                 }
                 ChatHolder viewHolder = (ChatHolder) holder;
-
-                if (model != null && !model.isDisabled())
+//                if (model != null && !model.isDisabled())
                     viewHolder.bind(model, position);
+
+//                // Check the disabled field and update visibility
+//                if (model != null && model.isDisabled()) { // Assuming your MyItem class has a getter for disabled field
+////                    holder.itemView.setVisibility(View.GONE);
+//                } else {
+////                    holder.itemView.setVisibility(View.VISIBLE);
+//                }
 
                 viewHolder.setOnLongItemClickListener(new OnItemLongClick() {
                     @Override
@@ -303,10 +333,10 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                                     Map<String, Object> docData = new HashMap<>();
                                     docData.put("episodeLikes", model.getEpisodeLikes());
 
-                                    CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
+                                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
 //                                    DocumentReference documentReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(model.getEpId());
 
-                                    firestoreDbUtility.update(collectionRef, model.getEpId(), docData, new CallBack() {
+                                    firestoreDbUtility.update(collectionReference, model.getEpId(), docData, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
 //                                            showToast(getString(R.string.done_successfully));
@@ -376,9 +406,9 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                         Map<String, Object> docData = new HashMap<>();
                         docData.put("disabled", obj.isDisabled());
 
-                        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
+                        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
 
-                        firestoreDbUtility.createOrMerge(collectionRef, obj.getEpId(), docData, new CallBack() {
+                        firestoreDbUtility.createOrMerge(collectionReference, obj.getEpId(), docData, new CallBack() {
                             @Override
                             public void onSuccess(Object object) {
 //                                            showToast(getString(R.string.done_successfully));
@@ -401,8 +431,8 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_delete, obj.getEpName()), null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
-                        firestoreDbUtility.deleteDocument(collectionRef, obj.getEpId(), new CallBack() {
+                        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+                        firestoreDbUtility.deleteDocument(collectionReference, obj.getEpId(), new CallBack() {
                             @Override
                             public void onSuccess(Object object) {
                                 showToast(getString(R.string.deleted_successfully_with_param, obj.getEpName()));

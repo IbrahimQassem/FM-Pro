@@ -20,6 +20,7 @@ import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 
 import java.util.Collections;
@@ -70,19 +71,20 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         Tools.setTextOrHideIfEmpty(binding.tvState, null);
 //        Tools.setTextOrHideIfEmpty(binding.tvDate, null);
         try {
-            Tools.setTextOrHideIfEmpty(binding.tvTime, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
-            Tools.setTextOrHideIfEmpty(binding.tvDate, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
+//            Tools.setTextOrHideIfEmpty(binding.tvTime, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
+//            Tools.setTextOrHideIfEmpty(binding.tvDate, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
 //        binding.tvTime.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
 //        String st = "" +  getFormattedTimeEvent(episode.getDateTimeModel().getTimeStart(), FmUtilize.arabicFormat);
 //        binding.tvState.setText(st);
             if (episode.getProgramScheduleTime() != null) {
                 String dt = getFormattedDateOnly(episode.getProgramScheduleTime().getDateStart(),FmUtilize.arabicFormat) + " - " + getFormattedDateOnly(episode.getProgramScheduleTime().getDateEnd(),FmUtilize.arabicFormat);
-                binding.tvState.setText(dt);
+                binding.tvDate.setText(dt);
             } else {
 //            binding.tvState.setVisibility(View.GONE);
             }
         }catch (Exception e){
-
+            e.printStackTrace();
+            LogUtility.d(TAG, "Error getProgramScheduleTime : " + e.getMessage());
         }
 
 //        if (episode.getDateTimeModel() != null){

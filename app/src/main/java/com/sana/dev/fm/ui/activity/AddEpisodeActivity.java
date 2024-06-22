@@ -342,7 +342,8 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                                     String pushKey = radioId + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
                                     episode.setEpId(pushKey);
 
-                                    firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId), episode.getEpId(), episode, new CallBack() {
+                                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+                                    firestoreDbUtility.createOrMerge(collectionReference, episode.getEpId(), episode, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
                                             showToast(getString(R.string.done_successfully));
@@ -369,7 +370,9 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
             String pushKey = radioId + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
             episode.setEpId(pushKey);
 
-            firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId), episode.getEpId(), episode, new CallBack() {
+            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+
+            firestoreDbUtility.createOrMerge(collectionReference, episode.getEpId(), episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, episode.getRadioId());
@@ -672,7 +675,9 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                 false
         ));
 
-        firestoreDbUtility.getMany(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioId), firestoreQueryList, new CallBack() {
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioId).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+
+        firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
@@ -781,64 +786,72 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
 //    ------------------ Dynamic Show Time  -------------------------
 
     private boolean checkIfValidAndRead() {
-        showTimeList.clear();
-//        selectedDays.clear();
         boolean result = true;
 
-        for (int i = 0; i < binding.layoutList.getChildCount(); i++) {
-            View rowView = binding.layoutList.getChildAt(i);
-            DateTimeModel dateTimeModel = new DateTimeModel();
-            List<String> selectedDays = new ArrayList<>();
+        try {
 
-            TextView tvStartTime = (TextView) rowView.findViewById(R.id.tv_ep_start);
-            String _etStartTime = tvStartTime.getText().toString();
-            if (!_etStartTime.matches("")) {
-                dateTimeModel.setTimeStart(stringTimeToMillis(_etStartTime));
-            } else {
-                result = false;
-                break;
-            }
+            showTimeList.clear();
+//        selectedDays.clear();
+            for (int i = 0; i < binding.layoutList.getChildCount(); i++) {
+                View rowView = binding.layoutList.getChildAt(i);
+                DateTimeModel dateTimeModel = new DateTimeModel();
+                List<String> selectedDays = new ArrayList<>();
 
-            TextView tvEndTime = (TextView) rowView.findViewById(R.id.tv_ep_end);
-            String _etEndTime = tvEndTime.getText().toString();
+                TextView tvStartTime = (TextView) rowView.findViewById(R.id.tv_ep_start);
+                String _etStartTime = tvStartTime.getText().toString();
+                if (!_etStartTime.matches("")) {
+                    dateTimeModel.setTimeStart(stringTimeToMillis(_etStartTime));
+                } else {
+                    result = false;
+                    break;
+                }
 
-            if (!_etEndTime.matches("")) {
-                dateTimeModel.setTimeEnd(stringTimeToMillis(_etEndTime));
-            } else {
-                result = false;
-                break;
-            }
+                TextView tvEndTime = (TextView) rowView.findViewById(R.id.tv_ep_end);
+                String _etEndTime = tvEndTime.getText().toString();
 
-            TextView tv_day = (TextView) rowView.findViewById(R.id.tv_day);
-            String _tv_day = tv_day.getText().toString();
-            if (!_tv_day.matches("")) {
-                selectedDays.add(_tv_day);
-                dateTimeModel.setDisplayDays(translateWakeDaysEn(selectedDays));
-            } else {
-                result = false;
-                break;
-            }
+                if (!_etEndTime.matches("")) {
+                    dateTimeModel.setTimeEnd(stringTimeToMillis(_etEndTime));
+                } else {
+                    result = false;
+                    break;
+                }
+
+                TextView tv_day = (TextView) rowView.findViewById(R.id.tv_day);
+                String _tv_day = tv_day.getText().toString();
+                if (!_tv_day.matches("")) {
+                    selectedDays.add(_tv_day);
+                    dateTimeModel.setDisplayDays(translateWakeDaysEn(selectedDays));
+                } else {
+                    result = false;
+                    break;
+                }
 
 //            RadioButton rbMainTime = (RadioButton) rowView.findViewById(R.id.radio_main);
-            // get selected radio button from radioGroup
-            RadioGroup rgMainTime = (RadioGroup) rowView.findViewById(R.id.rg_type);
-            int selectedId = rgMainTime.getCheckedRadioButtonId();
+                // get selected radio button from radioGroup
+                RadioGroup rgMainTime = (RadioGroup) rowView.findViewById(R.id.rg_type);
+                int selectedId = rgMainTime.getCheckedRadioButtonId();
 
-            // find the radiobutton by returned id
-            RadioButton radioButton = (RadioButton) findViewById(selectedId);
-            dateTimeModel.setAsMainTime(radioButton.isChecked());
+                // find the radiobutton by returned id
+                RadioButton radioButton = (RadioButton) findViewById(selectedId);
+//                if (radioButton != null && dateTimeModel != null)
+                    dateTimeModel.setAsMainTime(radioButton.isChecked());
 
 //            Toast.makeText(EpisodeAddStepperVertical.this,
 //                    radioButton.getText(), Toast.LENGTH_SHORT).show();
 
-            showTimeList.add(dateTimeModel);
-        }
+                showTimeList.add(dateTimeModel);
+            }
 
-        if (showTimeList.size() == 0) {
-            result = false;
-            showToast(getString(R.string.msg_make_sure_you_add_all_the_data_correctly) + getEmojiByUnicode(unicode));
-        } else if (!result) {
-            showToast(getString(R.string.msg_make_sure_you_add_all_the_data_correctly));
+            if (showTimeList.size() == 0) {
+                result = false;
+                showToast(getString(R.string.msg_make_sure_you_add_all_the_data_correctly) + getEmojiByUnicode(unicode));
+            } else if (!result) {
+                showToast(getString(R.string.msg_make_sure_you_add_all_the_data_correctly));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d(TAG, "Error saveUserData : " + e.getMessage());
+            showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
         }
 
 //        dateTimeModel.setDisplayDays(translateWakeDaysEn(selectedDays));

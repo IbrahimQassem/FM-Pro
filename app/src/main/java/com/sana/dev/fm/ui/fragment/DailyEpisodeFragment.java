@@ -23,6 +23,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.Query;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.TimeLineAdapter;
 import com.sana.dev.fm.model.DateTimeModel;
@@ -175,12 +177,27 @@ public class DailyEpisodeFragment extends BaseFragment {
         // Todo
         List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
         firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.WHERE_LESS_THAN_OR_EQUAL_TO,
+                "programScheduleTime.dateEnd",
+                System.currentTimeMillis()
+        ));
+
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.Query_Direction_DESCENDING,
+                "programScheduleTime.dateStart",
+                Query.Direction.DESCENDING
+        ));
+
+        firestoreQueryList.add(new FirestoreQuery(
                 FirestoreQueryConditionCode.WHERE_EQUAL_TO,
                 "disabled",
                 false
         ));
 
-        firestoreDbUtility.getMany(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId), firestoreQueryList, new CallBack() {
+
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+
+        firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 List<Episode> episodeList = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);

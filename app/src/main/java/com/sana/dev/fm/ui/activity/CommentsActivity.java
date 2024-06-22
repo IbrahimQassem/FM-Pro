@@ -131,8 +131,8 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         binding.rvComments.setLayoutManager(linearLayoutManager);
 //        binding.rvComments.setHasFixedSize(true);
-        CollectionReference colRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,radioId);
-        query = colRef
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+        query = collectionReference
 //                .document(radioId)
 //                .collection(AppConstant.Firebase.EPISODE_TABLE)
                 .document(epId)
@@ -232,7 +232,9 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 //            binding.etComment.setText(null);
 //            binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
 
-            CollectionReference colRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,radioId)
+            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+
+            CollectionReference colRef = collectionReference
 //                    .document(radioId)
 //                    .collection(AppConstant.Firebase.EPISODE_TABLE)
                     .document(epId)

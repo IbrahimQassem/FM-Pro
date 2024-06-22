@@ -188,15 +188,24 @@ public class ProgramsFragment extends BaseFragment {
                     selectedRadio.getRadioId()
             ));
 
+//            firestoreQueryList.add(new FirestoreQuery(
+//                    FirestoreQueryConditionCode.WHERE_LESS_THAN_OR_EQUAL_TO,
+//                    "programScheduleTime.dateEnd",
+//                    System.currentTimeMillis()
+//            ));
+
+
             firestoreQueryList.add(new FirestoreQuery(
                     FirestoreQueryConditionCode.WHERE_EQUAL_TO,
                     "disabled",
                     false
             ));
 
+            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, selectedRadio.getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+
 //             FirebaseFirestore DATABASE = FirebaseFirestore.getInstance();
 //            CollectionReference colRef =  DATABASE.collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE).document(selectedRadio.getRadioId()).collection(RADIO_PROGRAM_TABLE);
-            firestoreDbUtility.getMany(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, selectedRadio.getRadioId()), firestoreQueryList, new CallBack() {
+            firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
@@ -240,8 +249,8 @@ public class ProgramsFragment extends BaseFragment {
                                         @Override
                                         public void onClick(View v) {
 
-                                            CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, selectedRadio.getRadioId());
-                                            firestoreDbUtility.deleteDocument(collectionRef, item.getProgramId(), new CallBack() {
+                                            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, selectedRadio.getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+                                            firestoreDbUtility.deleteDocument(collectionReference, item.getProgramId(), new CallBack() {
                                                 @Override
                                                 public void onSuccess(Object object) {
                                                     showToast(getString(R.string.deleted_successfully_with_param, item.getPrName()));

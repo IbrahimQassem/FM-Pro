@@ -180,10 +180,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="25dp"
-            android:contentDescription="TODO"
+            android:clickable="true"
+            android:contentDescription="Play"
+            android:focusable="true"
+            app:backgroundTint="?attr/colorPrimary"
             app:layout_anchor="@id/bottom_bar"
+            app:rippleColor="?attr/colorSecondary"
             app:srcCompat="@drawable/ic_radio"
-            app:tint="@android:color/white" />
+            app:tint="@color/white" />
 
 
         <FrameLayout

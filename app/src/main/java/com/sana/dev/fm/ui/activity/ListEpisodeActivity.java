@@ -123,7 +123,7 @@ public class ListEpisodeActivity extends BaseActivity {
 //                false
 //        ));
 
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
 
 //        CollectionReference collectionRefOld = DATABASE.collection(AppConstant.Firebase.EPISODE_TABLE).document(radioId).collection(AppConstant.Firebase.EPISODE_TABLE);  // Subcollection named "1001"
 //        FirestoreCollectionTransferHelper transferHelper = new FirestoreCollectionTransferHelper(firestoreDbUtility);
@@ -289,9 +289,9 @@ public class ListEpisodeActivity extends BaseActivity {
                         Map<String, Object> docData = new HashMap<>();
                         docData.put("disabled", obj.isDisabled());
 
-                        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
+                        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
 
-                        firestoreDbUtility.createOrMerge(collectionRef, obj.getEpId(), docData, new CallBack() {
+                        firestoreDbUtility.createOrMerge(collectionReference, obj.getEpId(), docData, new CallBack() {
                             @Override
                             public void onSuccess(Object object) {
 //                                            showToast(getString(R.string.done_successfully));
@@ -314,8 +314,8 @@ public class ListEpisodeActivity extends BaseActivity {
                 ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_delete, obj.getEpName()), null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
-                        firestoreDbUtility.deleteDocument(collectionRef, obj.getEpId(), new CallBack() {
+                        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+                        firestoreDbUtility.deleteDocument(collectionReference, obj.getEpId(), new CallBack() {
                             @Override
                             public void onSuccess(Object object) {
                                 showToast(getString(R.string.deleted_successfully_with_param, obj.getEpName()));

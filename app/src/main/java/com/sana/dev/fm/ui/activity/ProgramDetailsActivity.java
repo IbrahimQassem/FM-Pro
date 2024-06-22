@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.ProgramDetailsAdapter;
@@ -125,14 +126,20 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 
             FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
 
-            firestoreDbUtility.getOne(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, episode.getRadioId()), episode.getProgramId(), new CallBack() {
+            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, episode.getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+            firestoreDbUtility.getOne(collectionReference, episode.getProgramId(), new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
-                    if (programList != null && programList.size() > 0) {
-                        RadioProgram radioProgram = programList.get(0);
-                        TempEpModel tempEpModel = new TempEpModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), String.valueOf(radioProgram.getPrCategoryList()), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
-                        updateInfoUI(tempEpModel);
+                    try {
+                        List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
+                        if (programList != null && programList.size() > 0) {
+                            RadioProgram radioProgram = programList.get(0);
+                            TempEpModel tempEpModel = new TempEpModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), String.valueOf(radioProgram.getPrCategoryList()), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
+                            updateInfoUI(tempEpModel);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        LogUtility.d(TAG, "Error setupProgramProfile : " + e.getMessage());
                     }
                     hideProgress();
                 }
@@ -160,8 +167,9 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 
 //            CollectionReference collectionRef = firestoreDbUtility.getTopLevelCollection()
 //                    .document(AppConstant.Firebase.EPISODE_TABLE).collection(episode.getRadioId());  // Subcollection named "1001"
+            CollectionReference collectionReferenceE = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, episode.getRadioId()).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
 
-            firestoreDbUtility.getMany(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, episode.getRadioId()), firestoreQueryList, new CallBack() {
+            firestoreDbUtility.getMany(collectionReferenceE, firestoreQueryList, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     List<Episode> episodeList = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);
@@ -193,7 +201,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
         String imgUrl = model.getImgProfile();
 //        Tools.displayImageRound(this, binding.imgProfile, imgUrl);
 //        Tools.displayImageOriginal(this, binding.imgProfile, imgUrl);
-        Tools.displayUserProfile(this, binding.imgProfile,imgUrl,R.mipmap.ic_launcher_foreground);
+        Tools.displayUserProfile(this, binding.imgProfile, imgUrl, R.mipmap.ic_launcher_foreground);
 
         binding.tvName.setText(model.getName());
         binding.tvDesc.setText(model.getDesc());
