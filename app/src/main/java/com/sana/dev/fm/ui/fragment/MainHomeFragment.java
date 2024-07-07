@@ -1,8 +1,6 @@
 package com.sana.dev.fm.ui.fragment;
 
 
-import static com.sana.dev.fm.utils.FmUtilize.isCollection;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -45,8 +43,8 @@ import co.mobiwise.materialintro.view.MaterialIntroView;
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public class EpisodeFragment extends BaseFragment {
-    private static final String TAG = EpisodeFragment.class.getSimpleName();
+public class MainHomeFragment extends BaseFragment {
+    private static final String TAG = MainHomeFragment.class.getSimpleName();
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -69,7 +67,7 @@ public class EpisodeFragment extends BaseFragment {
     private View lyt_station;
     private CallBackListener callBackListener;
 
-    public EpisodeFragment() {
+    public MainHomeFragment() {
         // Required empty public constructor
     }
 
@@ -78,7 +76,7 @@ public class EpisodeFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_episode, container, false);
+        view = inflater.inflate(R.layout.fragment_main_home, container, false);
 
         ButterKnife.bind(this, view);
         sbHelp = new SnackBarUtility(getActivity());
@@ -87,7 +85,6 @@ public class EpisodeFragment extends BaseFragment {
         initRadios();
 
 //     updateRecycle();
-
 
         return view;
     }

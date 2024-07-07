@@ -48,12 +48,12 @@
                     android:id="@+id/civ_logo"
                     android:layout_width="@dimen/spacing_xmlarge"
                     android:layout_height="@dimen/spacing_xmlarge"
-                    app:civ_background_color="@color/colorPrimaryLight"
+                    app:civ_background_color="@color/white"
                     app:civ_border="true"
-                    app:civ_border_color="@color/colorPrimaryLight"
+                    app:civ_border_color="@color/colorPrimaryDark"
                     app:civ_border_width="1px"
                     app:srcCompat="@drawable/ic_baseline_person"
-                    app:tint="@color/white" />
+                    app:tint="@color/colorPrimary" />
 
 
                 <LinearLayout

@@ -12,7 +12,7 @@ public class AESCrypt {
     private static final String KEY = "1Hbfh667adfDEJ78";
 
     public static String encrypt(String value) {
-        String encryptedValue64 = null;
+        String encryptedValue64 = null; if (Tools.isEmpty(value)) return null;
         try {
             Key key = generateKey();
             Cipher cipher = Cipher.getInstance(AESCrypt.ALGORITHM);
@@ -26,7 +26,7 @@ public class AESCrypt {
     }
 
     public static String decrypt(String value) {
-        String decryptedValue = null;
+        String decryptedValue = null; if (Tools.isEmpty(value)) return null;
         try {
             Key key = generateKey();
             Cipher cipher = Cipher.getInstance(AESCrypt.ALGORITHM);

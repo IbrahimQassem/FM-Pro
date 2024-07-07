@@ -18,19 +18,16 @@
 
 <!--        <string name="facebook_app_id">811088116023852</string>-->
 
-
     <string name="url_profile">https://picsum.photos/200</string>
 
-
     <!--    <string name="no_stream">نعتذر , البث الإذاعي ل %s غير متوفر بعد</string>-->
-    <string name="no_stream">المعذرة , البث الإذاعي ل %s غير متوفر حالياً</string>
+    <string name="no_stream">المعذرة, البث الإذاعي ل %s غير متوفر حالياً</string>
 
     <string name="select_email_app">مشاركة</string>
 
     <string name="btn_continue">التالي</string>
 
     <!--Firebase Notification-->
-
     <!--
         This is the name that userModel will see when interacting with this channel.
         It should describe the category of notifications that will be sent through this channel
@@ -121,7 +118,7 @@
     <string name="update_episode">تحديث الحلقات</string>
     <!--    <string name="powered_by">Powered By &#x2665; Sana&apos;a Dev</string>-->
     <string name="powered_by">Powered By &#x2665; Sana\'a Dev</string>
-    <string name="empty_ep">المعذرة , بيانات البرامج لإذاعة  %s غير متوفره حالياً</string>
+    <string name="msg_no_data_for">المعذرة, بيانات البرامج لإذاعة <b><i>\'%s\'</i></b> غير متوفره حالياً</string>
     <string name="whatsapp_not_installed">تطبيق واتس آب غير مثبت لديك</string>
 
 
@@ -142,7 +139,7 @@
     <string name="label_list">عرض قائمة</string>
     <string name="label_comments">التعليقات</string>
     <string name="label_title">العنوان</string>
-    <string name="label_label">Label</string>
+    <string name="label_label">وسم</string>
     <string name="ex_date">22/سبتمبر/2022</string>
 
     <!-- TODO: Remove or change this placeholder text -->

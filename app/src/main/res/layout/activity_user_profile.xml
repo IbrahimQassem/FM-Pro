@@ -331,21 +331,23 @@
                             <androidx.appcompat.widget.AppCompatRadioButton
                                 android:id="@+id/radio_male"
                                 style="@style/TextMedium"
-                                android:layout_marginStart="@dimen/spacing_middle"
-                                android:layout_marginEnd="@dimen/spacing_middle"
+                                android:layout_marginStart="@dimen/spacing_medium"
+                                android:layout_marginEnd="@dimen/spacing_medium"
+                                android:padding="@dimen/spacing_middle"
                                 android:text="@string/male"
                                 android:textColor="@color/grey_90"
-                                android:textSize="15sp" />
+                                android:textSize="18sp" />
 
 
                             <androidx.appcompat.widget.AppCompatRadioButton
                                 android:id="@+id/radio_female"
                                 style="@style/TextMedium"
-                                android:layout_marginStart="@dimen/spacing_middle"
-                                android:layout_marginEnd="@dimen/spacing_middle"
+                                android:layout_marginStart="@dimen/spacing_medium"
+                                android:layout_marginEnd="@dimen/spacing_medium"
+                                android:padding="@dimen/spacing_middle"
                                 android:text="@string/female"
                                 android:textColor="@color/grey_90"
-                                android:textSize="15sp" />
+                                android:textSize="18sp" />
 
                         </RadioGroup>
                     </LinearLayout>

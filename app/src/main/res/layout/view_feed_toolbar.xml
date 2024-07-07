@@ -17,6 +17,7 @@
 
             <ImageButton
                 android:id="@+id/imb_event"
+                android:labelFor="@+id/imb_event"
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/selectableItemBackgroundBorderless"

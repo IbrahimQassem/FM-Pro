@@ -1,7 +1,6 @@
 package com.sana.dev.fm.utils.my_firebase.task;
 
 public class FirestoreQuery {
-
     private int conditionCode;
     private String field;
     private Object value;

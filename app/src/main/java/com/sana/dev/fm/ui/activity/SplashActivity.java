@@ -1,5 +1,7 @@
 package com.sana.dev.fm.ui.activity;
 
+import static com.sana.dev.fm.utils.my_firebase.task.FirestoreCollectionTransferHelper.DATABASE;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +42,7 @@ import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreCollectionTransferHelper;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
@@ -68,8 +71,8 @@ public class SplashActivity extends AppCompatActivity {
         setFullScreen();
         startAnimation();
 //         Todo undo
-//        initRemoteConfig();
-        useDefaultConfig();
+        initRemoteConfig();
+//        useDefaultConfig();
 
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -156,7 +159,7 @@ public class SplashActivity extends AppCompatActivity {
         CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);  // Subcollection named "1001"
 //        CollectionReference collectionRefOld = DATABASE.collection(AppConstant.Firebase.RADIO_INFO_TABLE);  // Subcollection named "1001"
 //        FirestoreCollectionTransferHelper transferHelper = new FirestoreCollectionTransferHelper(firestoreDbUtility);
-
+//
 //        CollectionReference reference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);
         firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override
@@ -356,42 +359,10 @@ public class SplashActivity extends AppCompatActivity {
 
     // Helper method to use default config
     private void useDefaultConfig() {
-        AppRemoteConfig remoteConfig = Tools.getDefAppRemoteConfig(SplashActivity.this);
+        AppRemoteConfig remoteConfig = Tools.getAppRemoteConfig();
         prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, remoteConfig.toString());
     }
 
-//    // [START on_start_check_user]
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//        // Check if user is signed in (non-null) and update UI accordingly.
-////        FirebaseUser currentUser = mAuth.getCurrentUser();
-////        updateUI(currentUser);
-//    }
-//    // [END on_start_check_user]
-
-/*    private void signInAnonymously() {
-        // [START signin_anonymously]
-        mAuth.signInAnonymously()
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInAnonymously:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInAnonymously:failure", task.getException());
-                            Toast.makeText(SplashActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
-                    }
-                });
-        // [END signin_anonymously]
-    }*/
 
 /*    private void linkAccount() {
         AuthCredential credential = EmailAuthProvider.getCredential("", "");
@@ -416,16 +387,7 @@ public class SplashActivity extends AppCompatActivity {
         // [END link_credential]
     }*/
 
-/*    private void updateUI(FirebaseUser user) {
-        if (user != null) {
-//            linkAccount();
-//            loadRadios();
-        } else {
 
-        }
-
-        Log.w(TAG, "linkWithCredential:failure" + user);
-    }*/
 
     private void checkFirstTime() {
         new Handler().postDelayed(new Runnable() {

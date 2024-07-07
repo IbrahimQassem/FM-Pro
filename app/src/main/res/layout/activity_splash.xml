@@ -46,7 +46,10 @@
         android:fontFamily="@font/tj_regular"
         android:text="@string/app_slogan"
         android:textColor="@color/colorPrimary"
-        android:textSize="14sp"
+        android:textAlignment="center"
+        android:padding="@dimen/spacing_middle"
+        android:minLines="2"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/introLogo" />

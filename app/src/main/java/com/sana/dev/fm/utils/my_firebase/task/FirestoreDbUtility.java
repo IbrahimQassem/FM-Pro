@@ -29,7 +29,7 @@ import java.util.Map;
 
 public class FirestoreDbUtility {
     //https://github.com/varunon9/firestore-database-utility/tree/master
-    private static final String TOP_LEVEL_COLLECTION = BASE_FB_DB + "_1";
+    private static final String TOP_LEVEL_COLLECTION = BASE_FB_DB ;//+ "_1";
     //    private static final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseFirestore db;
     private static String TAG = "FirestoreDbUtility"; // FirestoreDbUtility.class.getSimpleName();

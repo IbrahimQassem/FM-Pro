@@ -44,7 +44,7 @@ import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.dialog.MainDialog;
 import com.sana.dev.fm.ui.fragment.DailyEpisodeFragment;
-import com.sana.dev.fm.ui.fragment.EpisodeFragment;
+import com.sana.dev.fm.ui.fragment.MainHomeFragment;
 import com.sana.dev.fm.ui.fragment.ProgramsFragment;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
@@ -117,7 +117,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
          tv_user_state = findViewById(R.id.tv_user_state);
          iv_internet = findViewById(R.id.iv_internet);
          tv_user_name = findViewById(R.id.tv_user_name);
-//        iv_internet.setVisibility(View.INVISIBLE);
+        iv_internet.setVisibility(View.INVISIBLE);
 
         // check if radio playing
         if (isPlaying()) {
@@ -357,7 +357,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
     BottomNavigationView navigation;
     FragmentManager fm = getSupportFragmentManager();
-    Fragment fragment1 = new EpisodeFragment();
+    Fragment fragment1 = new MainHomeFragment();
     Fragment fragment2 = new DailyEpisodeFragment();
     Fragment fragment3 = new ProgramsFragment();
     Fragment active = fragment1;

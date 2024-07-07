@@ -130,7 +130,7 @@ public class RadiosAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             });
 
             if (selectedItem == position) {
-                holder.binding.cvParent.setCardBackgroundColor(context.getResources().getColor(R.color.colorAccentLight));
+                holder.binding.cvParent.setCardBackgroundColor(context.getResources().getColor(R.color.colorAccent));
             } else {
                 holder.binding.cvParent.setCardBackgroundColor(context.getResources().getColor(R.color.white));
             }

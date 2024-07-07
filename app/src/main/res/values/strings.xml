@@ -136,7 +136,7 @@
     <string name="more">More</string>
     <string name="share_app">Share the App</string>
     <string name="rate_app">Rate the App</string>
-    <string name="error_not_registered_yet">Not Registered yes=t</string>
+    <string name="error_not_registered_yet">Not Registered</string>
     <string name="label_hide">Hide</string>
     <string name="label_online">Online</string>
     <string name="offline">Not Online</string>
@@ -147,7 +147,7 @@
     <string name="update_episode">Update episode</string>
     <!--    <string name="powered_by">Powered By &#x2665; Sana&apos;a Dev</string>-->
     <string name="powered_by">Powered By &#x2665; Sana\'a Dev</string>
-    <string name="empty_ep">Sorry, program data for %s radio is currently unavailable</string>
+    <string name="msg_no_data_for">Sorry, program data for \'%s\' radio is currently unavailable</string>
     <string name="whatsapp_not_installed">You do not have WhatsApp installed</string>
 
 

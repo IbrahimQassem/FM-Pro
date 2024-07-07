@@ -69,23 +69,23 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 
         Tools.setTextOrHideIfEmpty(binding.tvDesc, episode.getEpDesc());
         Tools.setTextOrHideIfEmpty(binding.tvState, null);
-//        Tools.setTextOrHideIfEmpty(binding.tvDate, null);
-        try {
-//            Tools.setTextOrHideIfEmpty(binding.tvTime, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
-//            Tools.setTextOrHideIfEmpty(binding.tvDate, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
-//        binding.tvTime.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
-//        String st = "" +  getFormattedTimeEvent(episode.getDateTimeModel().getTimeStart(), FmUtilize.arabicFormat);
-//        binding.tvState.setText(st);
-            if (episode.getProgramScheduleTime() != null) {
-                String dt = getFormattedDateOnly(episode.getProgramScheduleTime().getDateStart(),FmUtilize.arabicFormat) + " - " + getFormattedDateOnly(episode.getProgramScheduleTime().getDateEnd(),FmUtilize.arabicFormat);
-                binding.tvDate.setText(dt);
-            } else {
-//            binding.tvState.setVisibility(View.GONE);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            LogUtility.d(TAG, "Error getProgramScheduleTime : " + e.getMessage());
-        }
+        Tools.setTextOrHideIfEmpty(binding.tvDate, null);
+//        try {
+////            Tools.setTextOrHideIfEmpty(binding.tvTime, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
+////            Tools.setTextOrHideIfEmpty(binding.tvDate, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
+////        binding.tvTime.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
+////        String st = "" +  getFormattedTimeEvent(episode.getDateTimeModel().getTimeStart(), FmUtilize.arabicFormat);
+////        binding.tvState.setText(st);
+//            if (episode.getProgramScheduleTime() != null) {
+//                String dt = getFormattedDateOnly(episode.getProgramScheduleTime().getDateStart(),FmUtilize.arabicFormat) + " - " + getFormattedDateOnly(episode.getProgramScheduleTime().getDateEnd(),FmUtilize.arabicFormat);
+//                binding.tvDate.setText(dt);
+//            } else {
+////            binding.tvState.setVisibility(View.GONE);
+//            }
+//        }catch (Exception e){
+//            e.printStackTrace();
+//            LogUtility.d(TAG, "Error getProgramScheduleTime : " + e.getMessage());
+//        }
 
 //        if (episode.getDateTimeModel() != null){
 //            LogUtility.d(TAG, "date  getDateStart : " + new Gson().toJson(FmUtilize.modifyDateLayout(episode.getDateTimeModel().getDateStart())));

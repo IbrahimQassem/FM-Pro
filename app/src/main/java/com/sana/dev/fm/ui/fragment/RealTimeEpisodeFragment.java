@@ -121,7 +121,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : "";
-        EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(context.getString(R.string.no_data_available), String.format(" %s", getResources().getString(R.string.empty_ep, primary)), null);
+        EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(context.getString(R.string.no_data_available), String.format("%s", getResources().getString(R.string.msg_no_data_for, primary)), null);
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.replace(R.id.child_fragment_container, emptyViewFragment).commit();
         emptyViewFragment.setOnItemClickListener(new CallBackListener() {
@@ -132,7 +132,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
             }
         });
 
-        toggleView(true);
+        toggleView(false);
     }
 
     void init() {

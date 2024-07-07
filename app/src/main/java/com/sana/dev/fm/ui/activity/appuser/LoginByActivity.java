@@ -55,7 +55,6 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
     // [START declare_auth]
     private FirebaseAuth mAuth;
     // [END declare_auth]
-
     private CallbackManager mCallbackManager;
     private static final String EMAIL = "email";
     ActivityLoginByBinding binding;

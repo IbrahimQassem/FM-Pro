@@ -7,17 +7,17 @@
 
 <!--    <color name="colorAccent">#E88D67</color>-->
 
-    <color name="colorPrimary">#8E3E63</color>
-    <color name="colorPrimaryDark">#76264A</color>
-    <color name="colorPrimaryLight">#D2649A</color>
-
-    <color name="colorAccent">#FFBABA</color>
-
-<!--    <color name="colorPrimary">#9D3C72</color>-->
-<!--    <color name="colorPrimaryDark">#7B2869</color>-->
-<!--    <color name="colorPrimaryLight">#C85C8E</color>-->
+<!--    <color name="colorPrimary">#8E3E63</color>-->
+<!--    <color name="colorPrimaryDark">#76264A</color>-->
+<!--    <color name="colorPrimaryLight">#D2649A</color>-->
 
 <!--    <color name="colorAccent">#FFBABA</color>-->
+
+    <color name="colorPrimary">#9D3C72</color>
+    <color name="colorPrimaryDark">#7B2869</color>
+    <color name="colorPrimaryLight">#C85C8E</color>
+
+    <color name="colorAccent">#FFBABA</color>
 
 <!--    <color name="colorPrimary">#850E35</color>-->
 <!--    <color name="colorPrimaryDark">#513252</color>-->
