@@ -117,11 +117,9 @@ public class MainHomeFragment extends BaseFragment {
 
         stationList = new ArrayList<>();
 
-//        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, true);
         recyclerView.setLayoutManager(layoutManager);
-
 
         stationList = prefMgr.getRadioList();
 
@@ -132,7 +130,7 @@ public class MainHomeFragment extends BaseFragment {
             int indexToScrollTo = prefMgr.read("ScrollToPosition", 0);
 
             ShardDate.getInstance().setRadioInfoList(stationList);
-            RadiosAdapter adapter = new RadiosAdapter(RadiosAdapter.VIEW_TYPE_MAIN,ctx, stationList, recyclerView, indexToScrollTo);
+            RadiosAdapter adapter = new RadiosAdapter(RadiosAdapter.VIEW_TYPE_MAIN, ctx, stationList, recyclerView, indexToScrollTo);
 
             if (!isRadioSelected() && !stationList.isEmpty()) {
                 prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, stationList.get(0));
@@ -150,7 +148,7 @@ public class MainHomeFragment extends BaseFragment {
                     if (callBackListener != null)
                         callBackListener.onCallBack();
 
-                    if (radioInfo != null && radioInfo.getName() != null){
+                    if (radioInfo != null && radioInfo.getName() != null) {
                         showToast(radioInfo.getName());
                     }
                 }
@@ -168,6 +166,7 @@ public class MainHomeFragment extends BaseFragment {
                     showIntro(recyclerView.getChildAt(0), UserGuide.INTRO_FOCUS_1, ctx.getString(R.string.label_radio_intro1));
                 }
             }, 3000);
+
             // Scroll the RecyclerView to the selected index
 //            recyclerView.scrollToPosition(indexToScrollTo);
             // Get the position of the first visible item
@@ -193,13 +192,10 @@ public class MainHomeFragment extends BaseFragment {
 //                }
 //            });
 
-
         } else {
             // Todo check radio is empty call it again
             lytParentStation.setVisibility(View.GONE);
         }
-
-
     }
 
     private void updateRecycle() {
@@ -236,7 +232,6 @@ public class MainHomeFragment extends BaseFragment {
         super.onResume();
         updateRecycle();
     }
-
 
     private void showIntro(View view, String id, String text) {
         userGuide.showIntro(view, id, text, Focus.ALL, ShapeType.RECTANGLE, new MaterialIntroListener() {

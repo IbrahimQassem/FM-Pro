@@ -7,9 +7,6 @@ import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.sana.dev.fm.FmApplication;
-import com.sana.dev.fm.R;
-import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
 

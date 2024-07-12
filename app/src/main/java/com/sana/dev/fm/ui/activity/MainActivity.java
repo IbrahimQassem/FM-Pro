@@ -82,10 +82,10 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     private AdView adView;
 //    private GoogleMobileAdsConsentManager googleMobileAdsConsentManager;
 
-    CircularImageView civ ;
-    TextView tv_user_state ;
-    ImageView iv_internet ;
-    TextView tv_user_name ;
+    CircularImageView civ;
+    TextView tv_user_state;
+    ImageView iv_internet;
+    TextView tv_user_name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,10 +113,10 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
     private void initComponent() {
 
-         civ = (CircularImageView) findViewById(R.id.civ_logo);
-         tv_user_state = findViewById(R.id.tv_user_state);
-         iv_internet = findViewById(R.id.iv_internet);
-         tv_user_name = findViewById(R.id.tv_user_name);
+        civ = (CircularImageView) findViewById(R.id.civ_logo);
+        tv_user_state = findViewById(R.id.tv_user_state);
+        iv_internet = findViewById(R.id.iv_internet);
+        tv_user_name = findViewById(R.id.tv_user_name);
         iv_internet.setVisibility(View.INVISIBLE);
 
         // check if radio playing
@@ -473,7 +473,6 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 //        civ.setColorFilter(cf);
 
 
-
         if (isAccountSignedIn()) {
             PreferencesManager prefMgr = PreferencesManager.getInstance();
 
@@ -499,7 +498,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             tv_user_state.setText(isOnlineTxt);
             iv_internet.setColorFilter(ContextCompat.getColor(this, colorState), android.graphics.PorterDuff.Mode.MULTIPLY);
             iv_internet.setVisibility(VISIBLE);
-        }else {
+        } else {
             iv_internet.setVisibility(View.GONE);
         }
 
@@ -680,20 +679,23 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
 
     private void startPlay(Metadata metadata) {
-
-        if (!FmUtilize.isEmpty(metadata.getUrl())) {
-            //Check the sound level
-            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            int volume_level = am.getStreamVolume(AudioManager.STREAM_MUSIC);
-            if (volume_level < 2) {
-                showSnackBar(getString(R.string.volume_low));
-            } else {
-                radioManager.playOrPause(metadata);
+        try {
+            if (!FmUtilize.isEmpty(metadata.getUrl())) {
+                //Check the sound level
+                AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                int volume_level = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+                if (volume_level < 2) {
+                    showSnackBar(getString(R.string.volume_low));
+                } else {
+                    radioManager.playOrPause(metadata);
 //        radioManager.playOrStop(streamURL);
 //        http://edge.mixlr.com/channel/kijwr
+                }
+            } else {
+                showToast(String.format("%s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
             }
-        } else {
-            showToast(String.format("%s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
+        } catch (Exception e) {
+            showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
         }
     }
 

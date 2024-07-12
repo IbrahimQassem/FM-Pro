@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="adminMobile">775617017</string>
-    <string name="developerReference">https://portfolio.sanaa-dev.com</string>
+    <string name="developerReference">https://sanaa-dev.web.app</string>
     <bool name="isAuthSmsEnable">false</bool>
     <bool name="isAuthGoogleEnable">true</bool>
     <bool name="isAuthEmailEnable">false</bool>
