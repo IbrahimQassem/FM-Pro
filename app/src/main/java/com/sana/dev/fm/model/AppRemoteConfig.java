@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 public class AppRemoteConfig {
     private String adminMobile;
     private String developerReference;
+    private String termsReference;
     private boolean isAuthSmsEnable;
     private boolean isAuthGoogleEnable;
     private boolean isAuthEmailEnable;
@@ -16,9 +17,10 @@ public class AppRemoteConfig {
     public AppRemoteConfig() {
     }
 
-    public AppRemoteConfig(String adminMobile, String developerReference, boolean isAuthSmsEnable, boolean isAuthGoogleEnable, boolean isAuthEmailEnable, boolean isAuthFacebookEnable, boolean isAdMobEnable, boolean isTrialMode) {
+    public AppRemoteConfig(String adminMobile, String developerReference, String termsReference, boolean isAuthSmsEnable, boolean isAuthGoogleEnable, boolean isAuthEmailEnable, boolean isAuthFacebookEnable, boolean isAdMobEnable, boolean isTrialMode) {
         this.adminMobile = adminMobile;
         this.developerReference = developerReference;
+        this.termsReference = termsReference;
         this.isAuthSmsEnable = isAuthSmsEnable;
         this.isAuthGoogleEnable = isAuthGoogleEnable;
         this.isAuthEmailEnable = isAuthEmailEnable;
@@ -52,6 +54,14 @@ public class AppRemoteConfig {
 
     public void setDeveloperReference(String developerReference) {
         this.developerReference = developerReference;
+    }
+
+    public String getTermsReference() {
+        return termsReference;
+    }
+
+    public void setTermsReference(String termsReference) {
+        this.termsReference = termsReference;
     }
 
     public boolean isAuthSmsEnable() {

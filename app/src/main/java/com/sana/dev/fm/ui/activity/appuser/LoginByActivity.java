@@ -4,8 +4,15 @@ import static android.view.View.VISIBLE;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ClickableSpan;
+import android.text.Spanned;
 
 import androidx.annotation.NonNull;
 
@@ -240,6 +247,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
 */
 
     private void initRemoteConfig() {
+
 //        if (/*BuildConfig.FLAVOR.equals("hudhudfm_google_play") && */!BuildConfig.DEBUG) {
         boolean isAuthFacebookEnable = remoteConfig != null && remoteConfig.isAuthFacebookEnable();
         boolean isAuthSmsEnable = remoteConfig != null && remoteConfig.isAuthSmsEnable();
@@ -253,6 +261,14 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
         binding.btMobileLogin.setVisibility(isAuthSmsEnable ? VISIBLE : View.GONE);
 //        }
 
+
+        TextView textView = binding.tvContent;
+//        remoteConfig.setTermsReference(getString(R.string.terms_reference));
+//        String textWithLinks = "By using this App, you agree to the <a href=\"" + remoteConfig.getTermsReference() + "\">Terms-Conditions &amp; Privacy-Policy</a>.";
+//        String textWithLinks = "باستخدام هذا التطبيق، فإنك توافق على <a href=\"" + remoteConfig.getTermsReference() + "\">الشروط و الأحكام &amp; سياسة الخصوصية</a>.";
+        String textWithLinks = "بالضغط على زر التسجيل، فإنك توافق على <a href=\"" + remoteConfig.getTermsReference() + "\">الشروط و الأحكام &amp; سياسة الخصوصية</a>.";
+        textView.setText(Html.fromHtml(textWithLinks));
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
 
@@ -422,7 +438,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
             @Override
             public void onFailure(Object object) {
                 LogUtility.d(LogUtility.TAG, "Failure checkUserAuth: " + object);
-                showToast(getString(R.string.label_error_occurred_with_val,object));
+                showToast(getString(R.string.label_error_occurred_with_val, object));
             }
         });
     }

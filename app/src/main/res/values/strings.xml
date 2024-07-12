@@ -13,6 +13,7 @@
     <string name="app_instagram" translatable="false">http://instagram.com/hudhudfm</string>
 
     <string name="developer_reference" translatable="false">https://sanaa-dev.web.app</string>
+    <string name="terms_reference" translatable="false">https://doc-hosting.flycricket.io/hudhud-fm-terms-policy/792dff13-4452-4693-978c-bfcfc1d7c8b0/privacy</string>
 
     <!-- This is an ad unit ID for a test ad. Replace with your own banner ad unit id. -->
     <!--    <string name="banner_ad_unit_id" translatable="false">ca-app-pub-3940256099942544/6300978111</string>-->
@@ -294,6 +295,10 @@
     <string name="label_main">Primary</string>
     <string name="label_day">Day</string>
     <string name="label_trail_version">Trail Version</string>
+<!--    <string name="gdpr_privacy_policy">-->
+<!--        By using this App, you agree to the <a href="%s">Terms-Conditions &amp; Privacy-Policy</a>.-->
+<!--    </string>-->
+
     <!--label_weak_days-->
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

@@ -64,11 +64,9 @@
         </LinearLayout>
 
 
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_middle"
             android:orientation="vertical">
 
             <TextView
@@ -83,7 +81,7 @@
                 android:text="@string/label_radio_map"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textColor="@color/grey_90"
-                tools:text="@string/label_label" />
+                tools:text="@string/label_radio_map" />
 
             <FrameLayout
                 android:id="@+id/child_fragment_container"

@@ -759,7 +759,7 @@ public class Tools {
     public static AppRemoteConfig getDefAppRemoteConfig(Context ctx) {
         Gson gson = new Gson();
         PreferencesManager preferences = PreferencesManager.getInstance();
-        AppRemoteConfig appRemoteConfig = new AppRemoteConfig(ctx.getString(R.string.app_mobile), ctx.getString(R.string.developer_reference), true, true, true, true, false,false);
+        AppRemoteConfig appRemoteConfig = new AppRemoteConfig(ctx.getString(R.string.app_mobile), ctx.getString(R.string.developer_reference), ctx.getString(R.string.terms_reference), true, true, true, true, false,false);
         String json = preferences.read(AppConstant.General.APP_REMOTE_CONFIG, appRemoteConfig.toString());
         return gson.fromJson(json, AppRemoteConfig.class);
     }
