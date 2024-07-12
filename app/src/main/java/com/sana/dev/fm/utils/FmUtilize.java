@@ -948,7 +948,7 @@ public class FmUtilize {
 
     public static String getFirebaseToken(Context context) {
 //        return PreferencesManager.getInstance().write(FirebaseConstants.DEVICE_TOKEN,null);
-        String token = PreferencesManager.getInstance().read(AppConstant.General.FIREBASE_FCM_TOKEN, null).toString();
+        String token = PreferencesManager.getInstance().read(AppConstant.General.FIREBASE_FCM_TOKEN, null);
         return token;
 //        return context.getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(AppConstant.General.FIREBASE_FCM_TOKEN, null);
     }
