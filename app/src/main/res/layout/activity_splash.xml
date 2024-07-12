@@ -40,17 +40,38 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/tv_slogan"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_mxlarge"
         android:layout_marginTop="30dp"
+        android:layout_marginEnd="@dimen/spacing_mxlarge"
         android:fontFamily="@font/tj_regular"
-        android:text="@string/app_slogan"
-        android:textColor="@color/colorPrimary"
-        android:textAlignment="center"
-        android:padding="@dimen/spacing_middle"
         android:minLines="2"
+        android:padding="@dimen/spacing_middle"
+        android:text="@string/app_slogan"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/introLogo" />
+
+
+    <TextView
+        android:visibility="visible"
+        android:id="@+id/tv_trail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/spacing_medium"
+        android:fontFamily="@font/tj_regular"
+        android:minLines="2"
+        android:padding="@dimen/spacing_middle"
+        android:text="@string/label_trail_version"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_slogan" />
 </androidx.constraintlayout.widget.ConstraintLayout>

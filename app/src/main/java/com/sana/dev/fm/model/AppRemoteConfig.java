@@ -11,11 +11,12 @@ public class AppRemoteConfig {
     private boolean isAuthEmailEnable;
     private boolean isAuthFacebookEnable;
     private boolean isAdMobEnable;
+    private boolean isTrialMode;
 
     public AppRemoteConfig() {
     }
 
-    public AppRemoteConfig(String adminMobile, String developerReference, boolean isAuthSmsEnable, boolean isAuthGoogleEnable, boolean isAuthEmailEnable, boolean isAuthFacebookEnable, boolean isAdMobEnable) {
+    public AppRemoteConfig(String adminMobile, String developerReference, boolean isAuthSmsEnable, boolean isAuthGoogleEnable, boolean isAuthEmailEnable, boolean isAuthFacebookEnable, boolean isAdMobEnable, boolean isTrialMode) {
         this.adminMobile = adminMobile;
         this.developerReference = developerReference;
         this.isAuthSmsEnable = isAuthSmsEnable;
@@ -23,6 +24,7 @@ public class AppRemoteConfig {
         this.isAuthEmailEnable = isAuthEmailEnable;
         this.isAuthFacebookEnable = isAuthFacebookEnable;
         this.isAdMobEnable = isAdMobEnable;
+        this.isTrialMode = isTrialMode;
     }
 
     @Override
@@ -90,6 +92,14 @@ public class AppRemoteConfig {
 
     public void setAdMobEnable(boolean adMobEnable) {
         isAdMobEnable = adMobEnable;
+    }
+
+    public boolean isTrialMode() {
+        return isTrialMode;
+    }
+
+    public void setTrialMode(boolean trialMode) {
+        isTrialMode = trialMode;
     }
 
     //    private int count;

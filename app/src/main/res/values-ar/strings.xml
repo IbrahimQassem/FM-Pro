@@ -261,5 +261,6 @@
     <string name="label_sub_main">فرعي</string>
     <string name="label_main">رئيسي</string>
     <string name="label_day">يوم</string>
+    <string name="label_trail_version">النسخة التجربية</string>
 
 </resources>

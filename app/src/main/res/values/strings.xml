@@ -293,6 +293,7 @@
     <string name="label_sub_main">Secondary</string>
     <string name="label_main">Primary</string>
     <string name="label_day">Day</string>
+    <string name="label_trail_version">Trail Version</string>
     <!--label_weak_days-->
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 

@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -57,7 +58,8 @@ public class SplashActivity extends AppCompatActivity {
     public PreferencesManager prefMgr;
     protected FirebaseCrashlytics crashlytics;
 
-    //    private FirebaseUser currentUser;
+    private TextView tv_trail;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +67,7 @@ public class SplashActivity extends AppCompatActivity {
         prefMgr = PreferencesManager.getInstance();
         crashlytics = FirebaseCrashlytics.getInstance();
 
+        tv_trail = findViewById(R.id.tv_trail);
 //        Intent intent = new Intent(SplashActivity.this, GoogleSignInActivity.class);
 //        startActivity(intent);
 //        return;
@@ -73,7 +76,6 @@ public class SplashActivity extends AppCompatActivity {
 //         Todo undo
         initRemoteConfig();
 //        useDefaultConfig();
-
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
@@ -104,7 +106,6 @@ public class SplashActivity extends AppCompatActivity {
                         }
                     });
         }
-
 //        signInAnonymously();
     }
 
@@ -159,7 +160,6 @@ public class SplashActivity extends AppCompatActivity {
         CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);  // Subcollection named "1001"
 //        CollectionReference collectionRefOld = DATABASE.collection(AppConstant.Firebase.RADIO_INFO_TABLE);  // Subcollection named "1001"
 //        FirestoreCollectionTransferHelper transferHelper = new FirestoreCollectionTransferHelper(firestoreDbUtility);
-//
 //        CollectionReference reference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);
         firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override
@@ -280,7 +280,6 @@ public class SplashActivity extends AppCompatActivity {
                                     Log.w(TAG, "Remote config data is empty or null. Using default config.");
                                     crashlytics.setCustomKey(TAG, "Remote config data is empty or null. Using default config.");
                                     useDefaultConfig();
-//                                    return;
                                 }
 
                                 // Parse JSON using Gson
@@ -290,6 +289,12 @@ public class SplashActivity extends AppCompatActivity {
                                 // Access and use data from remoteConfigObject
                                 // Save the entire config as a String (optional, consider specific data access)
                                 prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, remoteConfigObject.toString());
+
+                                if (remoteConfigObject.isTrialMode()) {
+                                    tv_trail.setVisibility(View.VISIBLE);
+                                } else {
+                                    tv_trail.setVisibility(View.INVISIBLE);
+                                }
 
                             } catch (Exception e) {
                                 Log.e(TAG, "Error parsing remote config JSON: " + e.getMessage());
@@ -386,7 +391,6 @@ public class SplashActivity extends AppCompatActivity {
                 });
         // [END link_credential]
     }*/
-
 
 
     private void checkFirstTime() {
