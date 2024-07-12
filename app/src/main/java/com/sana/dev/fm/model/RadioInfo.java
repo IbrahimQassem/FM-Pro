@@ -27,14 +27,13 @@ public class RadioInfo implements Serializable {
     private String radioId;
     private String name, desc, streamUrl, logo, tag, city, channelFreq, enName, createBy, createAt;
     private int programsCount, followers, subscribers, rating, priority;
-    private boolean isOnline, disabled;
-
+    private boolean isOnline, disabled, isBlueBadge;
 
     public RadioInfo() {
 
     }
 
-    public RadioInfo(String radioId, String name, String desc, String streamUrl, String logo, String tag, int programs, int followers, int subscribers, int rating, int priority, boolean isOnline, boolean disabled, String city, String channelFreq, String enName, String createBy, String createAt) {
+    public RadioInfo(String radioId, String name, String desc, String streamUrl, String logo, String tag, int programs, int followers, int subscribers, int rating, int priority, boolean isOnline, boolean disabled,  boolean isBlueBadge, String city, String channelFreq, String enName, String createBy, String createAt) {
         this.radioId = radioId;
         this.name = name;
         this.desc = desc;
@@ -48,6 +47,7 @@ public class RadioInfo implements Serializable {
         this.priority = priority;
         this.isOnline = isOnline;
         this.disabled = disabled;
+        this.isBlueBadge = isBlueBadge;
         this.city = city;
         this.channelFreq = channelFreq;
         this.enName = enName;
@@ -56,7 +56,7 @@ public class RadioInfo implements Serializable {
     }
 
     public static RadioInfo newInstance(String radioId, String name, String desc, String streamUrl, String logo, String tag, String city, String channelFreq, String enName, String createBy, boolean disabled) {
-        return new RadioInfo(radioId, name, desc, streamUrl, logo, tag, 1, 1, 1, 1, 1, false, disabled, city, channelFreq, enName, createBy, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat));
+        return new RadioInfo(radioId, name, desc, streamUrl, logo, tag, 1, 1, 1, 1, 1, false,false, disabled, city, channelFreq, enName, createBy, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat));
     }
 
 
@@ -309,6 +309,14 @@ public class RadioInfo implements Serializable {
 
     public void setDisabled(boolean disabled) {
         this.disabled = disabled;
+    }
+
+    public boolean isBlueBadge() {
+        return isBlueBadge;
+    }
+
+    public void setBlueBadge(boolean blueBadge) {
+        isBlueBadge = blueBadge;
     }
 
     public String getCity() {

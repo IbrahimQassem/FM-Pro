@@ -3,24 +3,17 @@ package com.sana.dev.fm.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.databinding.ItemDragBinding;
 import com.sana.dev.fm.databinding.ItemRadioSelectBinding;
 import com.sana.dev.fm.databinding.RadiosItemBinding;
 import com.sana.dev.fm.model.RadioInfo;
-import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
-
 
 import java.util.ArrayList;
 
@@ -92,6 +85,12 @@ public class RadiosAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             holder.binding.tvFreq.setText(model.getChannelFreq());
 //        holder.title.setText(model.getName() +" : "+ (model.isActive() ? "active" : "inactive"));
             Tools.displayImageOriginal(context, holder.binding.civLogo, model.getLogo());
+
+            if (model.isBlueBadge()){
+                holder.binding.ivBadgeImage.setVisibility(View.VISIBLE);
+            }else {
+                holder.binding.ivBadgeImage.setVisibility(View.GONE);
+            }
 
             holder.binding.ivInternet.setVisibility(View.GONE);
 ////        boolean isInternetAvailable = Helper.isOnline(context);
