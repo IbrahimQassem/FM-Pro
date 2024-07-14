@@ -275,8 +275,8 @@
     <string name="label_write_review">Write review ...</string>
     <string name="msg_please_fill_review_text">Please fill review text</string>
     <string name="label_submitted">Submitted</string>
-    <string name="label_start_at">Start At : %s</string>
-    <string name="label_end_at">End At : %s</string>
+    <string name="label_start_at_with_val">Start At : %s</string>
+    <string name="label_end_at_with_val">End At : %s</string>
     <string name="label_show_period">Show Period : %s</string>
     <string name="label_date_from_to">From %s1 To %s2</string>
     <string name="label_time_from_to">From %s1 To %s2</string>
@@ -295,7 +295,11 @@
     <string name="label_main">Primary</string>
     <string name="label_day">Day</string>
     <string name="label_trail_version">Trail Version</string>
-<!--    <string name="gdpr_privacy_policy">-->
+    <string name="label_a_repeated_episode">A repeated episode</string>
+    <string name="label_new_episode">New Episode</string>
+    <string name="label_start">Start</string>
+    <string name="label_end">End</string>
+    <!--    <string name="gdpr_privacy_policy">-->
 <!--        By using this App, you agree to the <a href="%s">Terms-Conditions &amp; Privacy-Policy</a>.-->
 <!--    </string>-->
 

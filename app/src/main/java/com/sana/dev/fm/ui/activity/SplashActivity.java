@@ -244,6 +244,15 @@ public class SplashActivity extends AppCompatActivity {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
+
+        AppRemoteConfig remoteConfig = Tools.getAppRemoteConfig();
+        if (remoteConfig != null) {
+            if (remoteConfig.isTrialMode()) {
+                tv_trail.setVisibility(View.VISIBLE);
+            } else {
+                tv_trail.setVisibility(View.INVISIBLE);
+            }
+        }
     }
 
     private void startAnimation() {
@@ -290,11 +299,11 @@ public class SplashActivity extends AppCompatActivity {
                                 // Save the entire config as a String (optional, consider specific data access)
                                 prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, remoteConfigObject.toString());
 
-                                if (remoteConfigObject.isTrialMode()) {
-                                    tv_trail.setVisibility(View.VISIBLE);
-                                } else {
-                                    tv_trail.setVisibility(View.INVISIBLE);
-                                }
+//                                if (remoteConfigObject.isTrialMode()) {
+//                                    tv_trail.setVisibility(View.VISIBLE);
+//                                } else {
+//                                    tv_trail.setVisibility(View.INVISIBLE);
+//                                }
 
                             } catch (Exception e) {
                                 Log.e(TAG, "Error parsing remote config JSON: " + e.getMessage());

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Episode implements Serializable {
-
     @Exclude
     public boolean isLiked, isFavorite;
     private int likesCount, favCount;

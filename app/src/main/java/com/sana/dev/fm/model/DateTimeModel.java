@@ -14,7 +14,6 @@ public class DateTimeModel {
     List<String> displayDays;//= DateFormatSymbols.getInstance(Locale.getDefault()).getShortWeekdays();
     boolean asMainTime;
 
-
     public DateTimeModel() {
         super();
     }

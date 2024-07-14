@@ -81,8 +81,6 @@ import java.util.Stack;
 public class AddEpisodeActivity extends BaseActivity implements SharedAction {
     private final String TAG = AddEpisodeActivity.class.getSimpleName();
     private ActivityAddEpisodeBinding binding;
-
-
     int stSelected = 0;
     int prSelected = 0;
     PreferencesManager prefMgr;

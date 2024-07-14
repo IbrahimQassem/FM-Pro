@@ -59,7 +59,6 @@
 
 
     <TextView
-        android:visibility="visible"
         android:id="@+id/tv_trail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -71,6 +70,7 @@
         android:textAlignment="center"
         android:textColor="@color/colorPrimary"
         android:textSize="16sp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_slogan" />

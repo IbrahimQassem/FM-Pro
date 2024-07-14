@@ -87,7 +87,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 //            DateTimeModel timeModel = episode.showTimeObj;
 //            for (int i = 0; i < _showTimeList.size(); i++) {
-                String st = context.getString(R.string.label_start_at,getFormattedTimeEvent(episode.getProgramScheduleTime().getTimeStart(), FmUtilize.arabicFormat));
+                String st = context.getString(R.string.label_start_at_with_val,getFormattedTimeEvent(episode.getProgramScheduleTime().getTimeStart(), FmUtilize.arabicFormat));
                 viewHolder.tevDate.setText(st);
 //            String ts = "Start : " + getFormattedTimeEvent(timeModel.getTimeStart()) + "End : " + getFormattedTimeEvent(timeModel.getTimeEnd());
                 String period = context.getString(R.string.label_show_period,timeDifference(episode.getProgramScheduleTime().getTimeStart(), episode.getProgramScheduleTime().getTimeEnd(), FmUtilize.arabicFormat));
