@@ -8,8 +8,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -21,7 +19,7 @@ import com.kaopiz.kprogresshud.KProgressHUD;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.ModelConfig;
-import com.sana.dev.fm.model.UserType;
+import com.sana.dev.fm.model.enums.UserType;
 import com.sana.dev.fm.model.interfaces.BaseView;
 import com.sana.dev.fm.ui.dialog.FmGeneralDialog;
 import com.sana.dev.fm.utils.AppConstant;
@@ -34,9 +32,6 @@ import com.sana.dev.fm.utils.UserGuide;
 import com.sana.dev.fm.utils.my_firebase.AppGeneralMessage;
 import com.sana.dev.fm.utils.network.CheckInternetConnection;
 import com.sana.dev.fm.utils.network.ConnectionChangeListener;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * Created by  on 19.01.15.

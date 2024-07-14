@@ -299,6 +299,7 @@
     <string name="label_new_episode">New Episode</string>
     <string name="label_start">Start</string>
     <string name="label_end">End</string>
+    <string name="label_select_weekdays">Select Weekdays</string>
     <!--    <string name="gdpr_privacy_policy">-->
 <!--        By using this App, you agree to the <a href="%s">Terms-Conditions &amp; Privacy-Policy</a>.-->
 <!--    </string>-->

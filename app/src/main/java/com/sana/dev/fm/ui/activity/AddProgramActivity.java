@@ -1,9 +1,6 @@
 package com.sana.dev.fm.ui.activity;
 
 import static com.sana.dev.fm.utils.AppConstant.Firebase.RADIO_PROGRAM_TABLE;
-import static com.sana.dev.fm.utils.FmUtilize.getWeekDayNames;
-import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
-import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysEn;
 import static com.sana.dev.fm.utils.Tools.getFormattedDateOnly;
 
 import android.app.Activity;
@@ -12,16 +9,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.core.content.ContextCompat;
 
@@ -38,17 +34,15 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.adapter.AdapterRadioDialog;
-import com.sana.dev.fm.adapter.RadiosAdapter;
 import com.sana.dev.fm.databinding.ActivityAddProgramBinding;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.DateTimeModel;
-import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.WakeTranslate;
+import com.sana.dev.fm.model.enums.Weekday;
 import com.sana.dev.fm.model.interfaces.OnCallbackDate;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.AppConstant.General;
@@ -56,6 +50,7 @@ import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
+import com.sana.dev.fm.utils.WeekdayUtils;
 import com.sana.dev.fm.utils.my_firebase.AppGeneralMessage;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
@@ -80,7 +75,7 @@ public class AddProgramActivity extends BaseActivity {
     private RadioInfo radioInfo;
     private long dateStart, dateEnd;
     private List<String> prCategoryList;
-    private List<String> displayDay;
+    private List<Weekday> displayDay;
 
 
     public static void startActivity(Context context, RadioProgram item) {
@@ -200,15 +195,20 @@ public class AddProgramActivity extends BaseActivity {
     public void onChipDisplayDayClick(View view) {
         int chipsCount = binding.cgDisplayDay.getChildCount();
         int i = 0;
-        ArrayList<String> mList = new ArrayList<>();
+        List<String> mList = new ArrayList<>();
         while (i < chipsCount) {
             Chip chip = (Chip) binding.cgDisplayDay.getChildAt(i);
             if (chip.isChecked()) {
-                mList.add(chip.getText().toString());
+                String selectedDay = (String) chip.getText();
+                mList.add(selectedDay);
             }
             i++;
-            displayDay = translateWakeDaysEn(mList);
+
+            String joinedString = TextUtils.join(",", mList);
+            displayDay = WeekdayUtils.convertSeparatedWeekdays(joinedString, ",");
         }
+
+//        List<Weekday> convertSeparatedWeekdays = WeekdayUtils.convertSeparatedWeekdays(TextUtils.join(",", mList), ",");
 
         binding.tieDisplayDay.setText(android.text.TextUtils.join(" , ", mList));
         binding.tieDisplayDay.setError(null);
@@ -217,13 +217,11 @@ public class AddProgramActivity extends BaseActivity {
 
 
     public void setDisplayDayChips() {
-//        String[] displayDayList = DateFormatSymbols.getInstance(Locale.ENGLISH).getShortWeekdays();
-//        String[] displayDayList = getWeekDayNames();
-        ArrayList<WakeTranslate> displayDayList = translateWakeDaysAr(Arrays.asList(getWeekDayNames()));
-
-        for (WakeTranslate category : displayDayList) {
+        Weekday[] weekdays = Weekday.values();
+        for (Weekday category : weekdays) {
             Chip mChip = (Chip) this.getLayoutInflater().inflate(R.layout.item_chip_display_days, null, false);
-            mChip.setText(category.getDayName());
+            String dayName = WeekdayUtils.getLocalizedDayName(category, "en");
+            mChip.setText(dayName);
             int paddingDp = (int) TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP, 10,
                     getResources().getDisplayMetrics()
@@ -268,7 +266,7 @@ public class AddProgramActivity extends BaseActivity {
                 stopNote = _episode.getStopNote();
                 radioInfo = prefMgr.selectedRadio();
                 programScheduleTime = _episode.getProgramScheduleTime() != null ? _episode.getProgramScheduleTime() : new DateTimeModel();
-                displayDay = programScheduleTime.getDisplayDays() != null ? programScheduleTime.getDisplayDays() : new ArrayList<>();
+                displayDay = programScheduleTime.getWeekdays() != null ? programScheduleTime.getWeekdays() : new ArrayList<>();
 //            program = program.findRadioProgram(programId, ShardDate.getInstance().getProgramList());
 //            programId = program.getProgramId();
 
@@ -414,9 +412,9 @@ public class AddProgramActivity extends BaseActivity {
                                     RadioProgram radioProgram = new RadioProgram(programId, radioInfo.getRadioId(), prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
                                     String pushKey = radioInfo.getRadioId() + "_" + firestoreDbUtility.getKeyId(RADIO_PROGRAM_TABLE).document().getId();
 
-                                    if (programId == null){
+                                    if (programId == null) {
                                         radioProgram.setProgramId(pushKey);
-                                    }else {
+                                    } else {
                                         radioProgram.setProgramId(programId);
                                     }
 
@@ -448,9 +446,9 @@ public class AddProgramActivity extends BaseActivity {
             RadioProgram radioProgram = new RadioProgram(programId, radioInfo.getRadioId(), prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
             String pushKey = radioInfo.getRadioId() + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.RADIO_PROGRAM_TABLE).document().getId();
 
-            if (programId == null){
+            if (programId == null) {
                 radioProgram.setProgramId(pushKey);
-            }else {
+            } else {
                 radioProgram.setProgramId(programId);
             }
             CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioInfo.getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);

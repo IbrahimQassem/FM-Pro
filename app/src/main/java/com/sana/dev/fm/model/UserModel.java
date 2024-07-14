@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.sana.dev.fm.model.enums.Gender;
+import com.sana.dev.fm.model.enums.UserType;
 
 import java.util.List;
 

@@ -9,10 +9,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.text.Html;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.style.ClickableSpan;
-import android.text.Spanned;
 
 import androidx.annotation.NonNull;
 
@@ -36,10 +32,10 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityLoginByBinding;
 import com.sana.dev.fm.model.AuthMethod;
 import com.sana.dev.fm.model.ButtonConfig;
-import com.sana.dev.fm.model.Gender;
+import com.sana.dev.fm.model.enums.Gender;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserModel;
-import com.sana.dev.fm.model.UserType;
+import com.sana.dev.fm.model.enums.UserType;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;

@@ -1,4 +1,4 @@
-package com.sana.dev.fm.model;
+package com.sana.dev.fm.model.enums;
 
 //public enum Gender {
 //    MALE,

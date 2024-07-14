@@ -31,11 +31,13 @@ import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.TempEpisodeModel;
+import com.sana.dev.fm.model.enums.Weekday;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
+import com.sana.dev.fm.utils.WeekdayUtils;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
@@ -207,7 +209,8 @@ public class DailyEpisodeFragment extends BaseFragment {
                     for (int i2 = 0; i2 < safeList(shTimeList).size(); i2++) {
                         DateTimeModel timeModel = shTimeList.get(i2);
                         Episode ep = episodeList.get(i1);
-                        String _displayDayName = isCollection(timeModel.getDisplayDays()) ? timeModel.getDisplayDays().get(0) : "";
+                        List<Weekday> weekdays = safeList(timeModel.getWeekdays());
+                        String _displayDayName = WeekdayUtils.toSeparatedString(weekdays);
                         modelList.add(new TempEpisodeModel(ep.getEpProfile(), ep.getEpName(), ep.getEpAnnouncer(), _displayDayName, timeModel));
                     }
                 }
@@ -233,50 +236,6 @@ public class DailyEpisodeFragment extends BaseFragment {
                 LogUtility.e(TAG, " loadDailyEpisode :  " + object);
             }
         });
-
-/*
-        ePiRepo.queryAllBy(radioId,null, new CallBack() {
-            @Override
-            public void onSuccess(Object object) {
-                List<Episode> episodeList = safeList((List<Episode>) object);
-                List<TempEpisodeModel> modelList = new ArrayList<>();
-                for (int i1 = 0; i1 < safeList(episodeList).size(); i1++) {
-                    List<DateTimeModel> shTimeList = episodeList.get(i1).getShowTimeList();
-                    for (int i2 = 0; i2 < safeList(shTimeList).size(); i2++) {
-                        DateTimeModel timeModel = shTimeList.get(i2);
-                        Episode ep = episodeList.get(i1);
-                        String _displayDayName = isCollection(timeModel.getDisplayDays()) ? timeModel.getDisplayDays().get(0) : "";
-                        modelList.add(new TempEpisodeModel(ep.getEpProfile(), ep.getEpName(), ep.getEpAnnouncer(), _displayDayName, timeModel));
-                    }
-                }
-
-
-
-                List<TempEpisodeModel> filtered = new ArrayList<TempEpisodeModel>();
-                for(TempEpisodeModel article : modelList)
-                {
-                    if(article.getDisplayDayName().matches(FmUtilize.getShortEnDayName()))
-                        filtered.add(article);
-                }
-
-                boolean isToday = filtered.size() > 0;
-
-                recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
-                TimeLineAdapter adapterPeople = new TimeLineAdapter(ctx, filtered);
-                mAdapter = adapterPeople;
-                recyclerView.setAdapter(adapterPeople);
-
-                recyclerView.setVisibility(isToday ? View.VISIBLE : View.GONE);
-                cf_container.setVisibility(!isToday ? View.VISIBLE : View.GONE);
-            }
-
-            @Override
-            public void onError(Object object) {
-                LogUtility.e(TAG, "reaDailyEpisodeByRadioId onError : " + object);
-            }
-        });
-*/
-
 
     }
 

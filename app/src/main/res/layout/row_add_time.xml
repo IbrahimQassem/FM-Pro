@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:paddingStart="@dimen/spacing_medium"
@@ -43,7 +44,7 @@
                 android:gravity="center_vertical"
                 android:hint="@string/label_set_start_time"
                 android:padding="@dimen/spacing_small"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/green_500"
                 android:textColorHint="@color/red_200"
                 app:drawableLeftCompat="@drawable/ic_access_time"
                 app:drawableStartCompat="@drawable/ic_access_time" />
@@ -81,7 +82,7 @@
                 android:gravity="center_vertical"
                 android:hint="@string/label_set_end_time"
                 android:padding="@dimen/spacing_small"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/green_500"
                 android:textColorHint="@color/red_200"
                 app:drawableLeftCompat="@drawable/ic_access_time"
                 app:drawableStartCompat="@drawable/ic_access_time" />
@@ -118,7 +119,8 @@
                 android:gravity="center_vertical"
                 android:hint="@string/label_set_day"
                 android:padding="@dimen/spacing_small"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/green_500"
+                tools:text="@string/label_label"
                 android:textColorHint="@color/red_200"
                 app:drawableLeftCompat="@drawable/ic_date_range"
                 app:drawableStartCompat="@drawable/ic_date_range" />
@@ -145,10 +147,12 @@
             android:orientation="horizontal">
 
             <RadioButton
+                android:id="@+id/rb_new"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:buttonTint="@color/colorPrimary"
                 android:text="@string/label_new_episode"
+                android:checked="true"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/colorPrimary"
                 android:textColorHint="@color/grey_40" />
@@ -158,6 +162,7 @@
                 android:layout_height="0dp" />
 
             <RadioButton
+                android:id="@+id/rb_repeat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:buttonTint="@color/colorPrimary"

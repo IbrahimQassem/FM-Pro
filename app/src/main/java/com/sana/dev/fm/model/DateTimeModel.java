@@ -1,6 +1,7 @@
 package com.sana.dev.fm.model;
 
 
+import com.sana.dev.fm.model.enums.Weekday;
 import com.sana.dev.fm.utils.Tools;
 
 import java.text.ParseException;
@@ -11,8 +12,9 @@ import java.util.Locale;
 
 public class DateTimeModel {
     long dateStart, dateEnd, timeStart, timeEnd;
-    List<String> displayDays;//= DateFormatSymbols.getInstance(Locale.getDefault()).getShortWeekdays();
+    List<Weekday> weekdays;
     boolean asMainTime;
+
 
     public DateTimeModel() {
         super();
@@ -25,22 +27,10 @@ public class DateTimeModel {
         this.timeEnd = timeEnd;
     }
 
-
-    public DateTimeModel(long dateStart, long dateEnd, List<String> displayDay) {
+    public DateTimeModel(long dateStart, long dateEnd, List<Weekday> displayDay) {
         this.dateStart = dateStart;
         this.dateEnd = dateEnd;
-        this.displayDays = displayDay;
-    }
-
-//    public boolean contains(List<String> _displayDays, String dayName) {
-//        boolean isContain = _displayDays.contains(dayName);
-//        return isContain;
-//    }
-
-    public DateTimeModel(long timeStart, long timeEnd, boolean asMainTime) {
-        this.timeStart = timeStart;
-        this.timeEnd = timeEnd;
-        this.asMainTime = asMainTime;
+        this.weekdays = displayDay;
     }
 
     public boolean isWithinRange(DateTimeModel model) {
@@ -135,12 +125,12 @@ public class DateTimeModel {
         this.timeEnd = timeEnd;
     }
 
-    public List<String> getDisplayDays() {
-        return displayDays;
+    public List<Weekday> getWeekdays() {
+        return weekdays;
     }
 
-    public void setDisplayDays(List<String> displayDays) {
-        this.displayDays = displayDays;
+    public void setWeekdays(List<Weekday> weekdays) {
+        this.weekdays = weekdays;
     }
 
     public boolean isAsMainTime() {

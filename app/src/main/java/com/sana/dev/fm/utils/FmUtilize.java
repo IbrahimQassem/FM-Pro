@@ -1,6 +1,5 @@
 package com.sana.dev.fm.utils;
 
-import static android.content.Context.MODE_PRIVATE;
 import static com.sana.dev.fm.FmApplication.TAG;
 
 import android.Manifest;
@@ -40,11 +39,11 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sana.dev.fm.BuildConfig;
-import com.sana.dev.fm.FmApplication;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.WakeTranslate;
+import com.sana.dev.fm.model.enums.Weekday;
 
 import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
@@ -782,76 +781,45 @@ public class FmUtilize {
         return other == null ? Collections.EMPTY_LIST : other;
     }
 
-    private static ArrayList<WakeTranslate> arList() {
-        ArrayList<WakeTranslate> arList = new ArrayList<WakeTranslate>();
-        arList.add(new WakeTranslate("Sun", "الأحد"));
-        arList.add(new WakeTranslate("Mon", "الإثنين"));
-        arList.add(new WakeTranslate("Tue", "الثلاثاء"));
-        arList.add(new WakeTranslate("Wed", "الأربعاء"));
-        arList.add(new WakeTranslate("Thu", "الخميس"));
-        arList.add(new WakeTranslate("Fri", "الجمعة"));
-        arList.add(new WakeTranslate("Sat", "السبت"));
-        return arList;
-    }
+//    private static ArrayList<WakeTranslate> arList() {
+//        ArrayList<WakeTranslate> arList = new ArrayList<WakeTranslate>();
+//        arList.add(new WakeTranslate(Weekday.Saturday.name(), "السبت"));
+//        arList.add(new WakeTranslate(Weekday.Sunday.name(), "الأحد"));
+//        arList.add(new WakeTranslate(Weekday.Monday.name(), "الإثنين"));
+//        arList.add(new WakeTranslate(Weekday.Tuesday.name(), "الثلاثاء"));
+//        arList.add(new WakeTranslate(Weekday.Wednesday.name(), "الأربعاء"));
+//        arList.add(new WakeTranslate(Weekday.Thursday.name(), "الخميس"));
+//        arList.add(new WakeTranslate(Weekday.Friday.name(), "الجمعة"));
+//        return arList;
+//    }
 
 
-    public static ArrayList<WakeTranslate> translateWakeDaysAr(List<String> enList) {
-//        int itemIndex = enList.indexOf(item);
-//        if (itemIndex != -1) {
-//            enList.set(itemIndex, item);
-//        }
-
-//        ArrayList<String> enList = new ArrayList<>();
-//        enList.add("Sun");
-//        enList.add("Mon");
-//        enList.add("Thu");
-//        enList.add("Wed");
-//        enList.add("Thu");
-//        enList.add("Fri");
-//        enList.add("Sat");
-
-
-        ArrayList<WakeTranslate> results = new ArrayList<>();
-
-        // Loop arrayList2 items
-        for (String enName : enList) {
-            // Loop arrayList1 items
-//            boolean found = false;
-            for (WakeTranslate wt : arList()) {
-                if (enName.equals(wt.getDayKey())) {
-//                    found = true;
-                    results.add(wt);
-                }
-            }
-//            if (!found) {
-//                LogUtility.e("translateWakeDays not found : ",enName);
-//            }
-        }
-
-        return results;
-    }
-
-    public static ArrayList<String> translateWakeDaysEn(List<String> list) {
+//    public static ArrayList<WakeTranslate> translateWakeDaysAr(List<String> enList) {
 //        ArrayList<WakeTranslate> results = new ArrayList<>();
-        ArrayList<String> enList = new ArrayList<>();
-
-        // Loop arrayList2 items
-        for (String arName : list) {
-            // Loop arrayList1 items
-//            boolean found = false;
-            for (WakeTranslate wt : arList()) {
-                if (arName.equals(wt.getDayName())) {
-//                    found = true;
-                    enList.add(wt.getDayKey());
-                }
-            }
-//            if (!found) {
-//                LogUtility.e("translateWakeDays not found : ",enName);
+//        for (String enName : enList) {
+//            // Loop arrayList1 items
+//            for (WakeTranslate wt : arList()) {
+//                if (enName.equals(wt.getDayKey())) {
+//                    results.add(wt);
+//                }
 //            }
-        }
+//        }
+//        return results;
+//    }
 
-        return enList;
-    }
+//    public static ArrayList<String> translateWakeDaysEn(List<String> list) {
+//        ArrayList<String> enList = new ArrayList<>();
+//        // Loop arrayList2 items
+//        for (String arName : list) {
+//            // Loop arrayList1 items
+//            for (WakeTranslate wt : arList()) {
+//                if (arName.equals(wt.getDayName())) {
+//                    enList.add(wt.getDayKey());
+//                }
+//            }
+//        }
+//        return enList;
+//    }
 
 
     public static String[] getWeekDayNames() {

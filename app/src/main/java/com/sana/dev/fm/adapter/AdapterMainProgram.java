@@ -2,7 +2,6 @@ package com.sana.dev.fm.adapter;
 
 
 import static com.sana.dev.fm.utils.FmUtilize.safeList;
-import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
 import static com.sana.dev.fm.utils.Tools.getFormattedDateOnly;
 
 import android.annotation.SuppressLint;
@@ -25,11 +24,13 @@ import com.sana.dev.fm.databinding.ItemProgramsBinding;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.WakeTranslate;
+import com.sana.dev.fm.model.enums.Weekday;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.ViewAnimation;
+import com.sana.dev.fm.utils.WeekdayUtils;
 
 
 import java.util.ArrayList;
@@ -175,7 +176,7 @@ public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void initExpand(MyViewHolder holder, RadioProgram program) {
         if (program.getProgramScheduleTime() != null) {
             DateTimeModel dateTime = program.getProgramScheduleTime();
-            ArrayList<WakeTranslate> arDayList = translateWakeDaysAr(dateTime.getDisplayDays());
+            List<Weekday> arDayList = safeList(dateTime.getWeekdays());
             for (int i2 = 0; i2 < arDayList.size(); i2++) {
                 int pixels = Math.round(Tools.dip2px(ctx, 40));
 
@@ -185,7 +186,9 @@ public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                 Button btn = new Button(ctx);
                 btn.setId(i2);
-                btn.setText(arDayList.get(i2).getDayName());
+
+                String dayName =  WeekdayUtils.getLocalizedDayName(arDayList.get(i2),"ar");
+                btn.setText(dayName);
                 final int sdk = android.os.Build.VERSION.SDK_INT;
                 if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
                     btn.setBackgroundDrawable(ContextCompat.getDrawable(ctx, R.drawable.btn_rounded_darker));

@@ -4,8 +4,6 @@ package com.sana.dev.fm.ui.activity;
 import static com.sana.dev.fm.utils.FmUtilize.random;
 import static com.sana.dev.fm.utils.FmUtilize.setTimeFormat;
 import static com.sana.dev.fm.utils.FmUtilize.stringTimeToMillis;
-import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
-import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysEn;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -43,15 +42,14 @@ import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityAddEpisodeBinding;
-import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
-import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
-import com.sana.dev.fm.model.WakeTranslate;
+import com.sana.dev.fm.model.enums.Weekday;
 import com.sana.dev.fm.model.interfaces.OnCallbackDate;
+import com.sana.dev.fm.ui.dialog.WeekdayDialog;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.AppConstant.General;
 import com.sana.dev.fm.utils.FmUtilize;
@@ -59,6 +57,7 @@ import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.ViewAnimation;
+import com.sana.dev.fm.utils.WeekdayUtils;
 import com.sana.dev.fm.utils.my_firebase.AppGeneralMessage;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.SharedAction;
@@ -69,12 +68,9 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Stack;
 
 
@@ -783,6 +779,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
 
 //    ------------------ Dynamic Show Time  -------------------------
 
+
     private boolean checkIfValidAndRead() {
         boolean result = true;
 
@@ -793,7 +790,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
             for (int i = 0; i < binding.layoutList.getChildCount(); i++) {
                 View rowView = binding.layoutList.getChildAt(i);
                 DateTimeModel dateTimeModel = new DateTimeModel();
-                List<String> selectedDays = new ArrayList<>();
+//                List<String> selectedDays = new ArrayList<>();
 
                 TextView tvStartTime = (TextView) rowView.findViewById(R.id.tv_ep_start);
                 String _etStartTime = tvStartTime.getText().toString();
@@ -817,8 +814,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                 TextView tv_day = (TextView) rowView.findViewById(R.id.tv_day);
                 String _tv_day = tv_day.getText().toString();
                 if (!_tv_day.matches("")) {
-                    selectedDays.add(_tv_day);
-                    dateTimeModel.setDisplayDays(translateWakeDaysEn(selectedDays));
+                    dateTimeModel.setWeekdays(WeekdayUtils.convertSeparatedWeekdays(_tv_day,","));
                 } else {
                     result = false;
                     break;
@@ -863,11 +859,12 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
         return new String(Character.toChars(unicode));
     }
 
-//    private RadioButton mSelectedRB;
+    //    private RadioButton mSelectedRB;
 //    private int mSelectedPosition = -1;
+    List<Weekday> displayDays = new ArrayList<>();
 
     private void showWeekDialog(final View view) {
-        final ArrayList<WakeTranslate> displayDayList = translateWakeDaysAr(Arrays.asList(FmUtilize.getWeekDayNames()));
+/*        final ArrayList<WakeTranslate> displayDayList = FmUtilize.translateWakeDaysAr(Arrays.asList(FmUtilize.getWeekDayNames()));
         ArrayList<String> arList = new ArrayList<>();
         for (WakeTranslate o : displayDayList) {
             arList.add(o.getDayName());
@@ -882,7 +879,34 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                 dialogInterface.dismiss();
             }
         });
-        builder.show();
+        builder.show();*/
+
+        // In your activity or fragment:
+        Weekday[] weekdays = Weekday.values();
+
+        WeekdayDialog weekdayDialog = new WeekdayDialog(this);
+        weekdayDialog.showDialog(new WeekdayDialog.OnWeekdaySelectedListener() {
+
+            @Override
+            public void onWeekdaysSelected(boolean[] checkedItems) {
+                // Now you have the checked items in the checkedItems array
+                for (int i = 0; i < checkedItems.length; i++) {
+                    if (checkedItems[i]) {
+                        Weekday checkedDay = weekdays[i]; // Assuming weekdays is defined as in the previous response
+                        displayDays.add(checkedDay);
+                        // Do something with the checked day
+                        Log.d("CheckedDays", "Checked day: " + checkedDay);
+                    }
+                }
+
+
+                String joinedString =  WeekdayUtils.toSeparatedString(displayDays);
+//                String[] stringArray = joinedString.split(",\\s*"); // Split by comma and optional whitespace
+                ((TextView) view).setText(joinedString);
+                showToast(joinedString);
+            }
+        });
+
     }
 
     private void addView() {

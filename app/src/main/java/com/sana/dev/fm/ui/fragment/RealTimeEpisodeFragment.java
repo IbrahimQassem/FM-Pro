@@ -34,7 +34,7 @@ import com.sana.dev.fm.databinding.ItemGridBinding;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.ModelConfig;
-import com.sana.dev.fm.model.UserType;
+import com.sana.dev.fm.model.enums.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;

@@ -266,5 +266,6 @@
     <string name="label_new_episode">حلقه جديده</string>
     <string name="label_start">يبدأ</string>
     <string name="label_end">ينتهي</string>
+    <string name="label_select_weekdays">حدد أيام الأسبوع</string>
 
 </resources>

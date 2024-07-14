@@ -186,7 +186,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 
 
         } else {
-            detailsList = DataGenerator.getEpisodeData(this);
+//            detailsList = DataGenerator.getEpisodeData(this);
             itemAdapter.notifyDataSetChanged();
             // Todo show empty view
         }
