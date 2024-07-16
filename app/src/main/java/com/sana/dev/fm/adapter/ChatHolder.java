@@ -34,7 +34,6 @@ public class ChatHolder extends RecyclerView.ViewHolder {
     private OnItemLongClick mOnLongItemClickListener;
     private int position;
 
-
     private ItemGridBinding binding;
 
     public ChatHolder(ItemGridBinding binding) {

@@ -41,11 +41,11 @@ import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
-import com.sana.dev.fm.model.WakeTranslate;
 import com.sana.dev.fm.model.enums.Weekday;
 import com.sana.dev.fm.model.interfaces.OnCallbackDate;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.AppConstant.General;
+import com.sana.dev.fm.utils.DateTimePickerHelper;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
@@ -54,10 +54,8 @@ import com.sana.dev.fm.utils.WeekdayUtils;
 import com.sana.dev.fm.utils.my_firebase.AppGeneralMessage;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
-import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -135,27 +133,62 @@ public class AddProgramActivity extends BaseActivity {
             }
         });
 
+        DateTimePickerHelper dateTimePickerHelper = new DateTimePickerHelper(AddProgramActivity.this);
 
         binding.etStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialogDatePickerLight((TextView) v, new OnCallbackDate() {
+                dateTimePickerHelper.showDatePicker(new DateTimePickerHelper.OnDateSelectedListener() {
                     @Override
-                    public void getSelected(long _time) {
-                        dateStart = _time;
+                    public void onDateSelected(Calendar selectedDate) {
+                        dateStart = selectedDate.getTimeInMillis();
+                        binding.etStart.setText(Tools.getFormattedDateSimple(dateStart));
                         binding.etStart.setError(null);
                     }
                 });
+////                dialogDatePickerLight((TextView) v, new OnCallbackDate() {
+////                    @Override
+////                    public void getSelected(long _time) {
+////                        dateStart = _time;
+////                        binding.etStart.setError(null);
+////                    }
+////                });
+//
+//                DialogTimePickerHelper helper = new DialogTimePickerHelper(AddProgramActivity.this,Calendar.getInstance(), new DialogTimePickerHelper.OnDateTimeSelectedListener() {
+//                    @Override
+//                    public void onDateTimeSelected(Calendar selectedDateTime) {
+//                        // Handle the selected date and time
+//                        binding.etStart.setText(Tools.getFormattedDateSimple(selectedDateTime.getTimeInMillis()));
+//                        binding.etStart.setError(null);
+//                    }
+//                });
+//
+////                Calendar initialDateTime = Calendar.getInstance();
+//                helper.showDatePickerDialog(new DialogTimePickerHelper.OnDateSelectedListener() {
+//                    @Override
+//                    public void onDateSelected(Calendar selectedDate) {
+//                        binding.etStart.setText(Tools.getFormattedDateSimple(selectedDate.getTimeInMillis()));
+//                        binding.etStart.setError(null);
+//                    }
+//                });
+////                helper.displayCurrentTime(new DialogTimePickerHelper.OnTimeSelectedListener() {
+////                    @Override
+////                    public void onTimeSelected(int hour, int minute) {
+////
+////                    }
+////                });
+
             }
         });
 
         binding.etEnd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialogDatePickerLight((TextView) v, new OnCallbackDate() {
+                dateTimePickerHelper.showDatePicker(new DateTimePickerHelper.OnDateSelectedListener() {
                     @Override
-                    public void getSelected(long _time) {
-                        dateEnd = _time;
+                    public void onDateSelected(Calendar selectedDate) {
+                        dateEnd = selectedDate.getTimeInMillis();
+                        binding.etEnd.setText(Tools.getFormattedDateSimple(dateEnd));
                         binding.etEnd.setError(null);
                     }
                 });
@@ -631,36 +664,6 @@ public class AddProgramActivity extends BaseActivity {
                 }
             }
         }
-    }
-
-    private void dialogDatePickerLight(final TextView tv, OnCallbackDate clickListener) {
-        Calendar cur_calender = Calendar.getInstance();
-        long now = System.currentTimeMillis() - 1000;
-        cur_calender.setTimeInMillis(now);
-        DatePickerDialog datePicker = DatePickerDialog.newInstance(
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.set(Calendar.YEAR, year);
-                        calendar.set(Calendar.MONTH, monthOfYear);
-                        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        long date_ship_millis = calendar.getTimeInMillis();
-                        clickListener.getSelected(date_ship_millis);
-                        tv.setText(Tools.getFormattedDateSimple(date_ship_millis));
-                        tv.setError(null);
-                    }
-                },
-                cur_calender.get(Calendar.YEAR),
-                cur_calender.get(Calendar.MONTH),
-                cur_calender.get(Calendar.DAY_OF_MONTH)
-        );
-        //set dark light
-        datePicker.setThemeDark(false);
-        datePicker.setAccentColor(getResources().getColor(R.color.colorPrimary));
-//        datePicker.setMinDate(cur_calender);
-//        datePicker.setMaxDate(cur_calender);
-        datePicker.show(getSupportFragmentManager(), getString(R.string.label_pick_date));
     }
 
 

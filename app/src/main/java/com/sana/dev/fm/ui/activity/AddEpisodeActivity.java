@@ -13,7 +13,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -52,6 +51,7 @@ import com.sana.dev.fm.model.interfaces.OnCallbackDate;
 import com.sana.dev.fm.ui.dialog.WeekdayDialog;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.AppConstant.General;
+import com.sana.dev.fm.utils.DateTimePickerHelper;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
@@ -64,7 +64,6 @@ import com.sana.dev.fm.utils.my_firebase.SharedAction;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
-import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.util.ArrayList;
@@ -541,61 +540,6 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
         relative.addView(img);
     }
 
-    private void dialogTimePickerLight(final TextView tv, OnCallbackDate clickListener) {
-        Calendar cur_calender = Calendar.getInstance();
-        TimePickerDialog datePicker = TimePickerDialog.newInstance(new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
-//              String  time = (hourOfDay > 9 ? hourOfDay + "" : ("0" + hourOfDay)) + ":" + minute;
-//                Calendar calendar = Calendar.getInstance();
-                final Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                calendar.set(Calendar.MINUTE, minute);
-                calendar.set(Calendar.SECOND, 0);
-                calendar.set(Calendar.MILLISECOND, 0);
-                long millis = calendar.getTimeInMillis();
-                clickListener.getSelected(millis);
-                tv.setText(setTimeFormat(hourOfDay, minute, second));
-//                tv.setText(showTime(hourOfDay, minute, second));
-            }
-        }, cur_calender.get(Calendar.HOUR_OF_DAY), cur_calender.get(Calendar.MINUTE), false);
-        //set dark light
-        datePicker.setThemeDark(false);
-        datePicker.vibrate(true);
-        datePicker.setLocale(Locale.ENGLISH);
-        datePicker.setAccentColor(getResources().getColor(R.color.colorPrimary));
-        datePicker.show(getSupportFragmentManager(), getString(R.string.label_set_time));
-    }
-
-    private void dialogDatePickerLight(final TextView tv) {
-        Calendar cur_calender = Calendar.getInstance();
-        DatePickerDialog datePicker = DatePickerDialog.newInstance(
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.set(Calendar.YEAR, year);
-                        calendar.set(Calendar.MONTH, monthOfYear);
-                        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        long date_ship_millis = calendar.getTimeInMillis();
-//                        _selectDate = new Date(date_ship_millis);
-//                        epCastDateAt = stringToDate(); ;
-//                        broadcastDateAt = Tools.getFormattedDateSimple(date_ship_millis);
-                        tv.setText(Tools.getFormattedDateSimple(date_ship_millis));
-                        tv.setError(null);
-                    }
-                },
-                cur_calender.get(Calendar.YEAR),
-                cur_calender.get(Calendar.MONTH),
-                cur_calender.get(Calendar.DAY_OF_MONTH)
-        );
-        //set dark light
-        datePicker.setThemeDark(false);
-        datePicker.setAccentColor(getResources().getColor(R.color.colorPrimary));
-        datePicker.setMinDate(cur_calender);
-        datePicker.show(getSupportFragmentManager(), getString(R.string.label_pick_date));
-    }
-
     public void showStationDialog() {
 //        List<RadioInfo> items = ShardDate.getInstance().getAllowedRadioInfoList(prefMgr.getUserSession());
         List<RadioInfo> items = ShardDate.getInstance().getRadioInfoList();
@@ -919,16 +863,20 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
         RadioGroup rgMainTime = (RadioGroup) rowView.findViewById(R.id.rg_type);
         FloatingActionButton fab_remove = (FloatingActionButton) rowView.findViewById(R.id.fab_remove);
 
+        DateTimePickerHelper dateTimePickerHelper = new DateTimePickerHelper(AddEpisodeActivity.this);
 
         tvStartTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialogTimePickerLight((TextView) v, new OnCallbackDate() {
+                dateTimePickerHelper.showTimePicker(new DateTimePickerHelper.OnTimeSelectedListener() {
                     @Override
-                    public void getSelected(long _time) {
-                        timeStart = _time;
+                    public void onTimeSelected(Calendar selectedTime) {
+                        int hour = selectedTime.get(Calendar.HOUR_OF_DAY);
+                        int minute = selectedTime.get(Calendar.MINUTE);
+                        int second = selectedTime.get(Calendar.SECOND);
+                        timeStart = selectedTime.getTimeInMillis();
+                        tvStartTime.setText(setTimeFormat(hour, minute, second));
                         tvStartTime.setError(null);
-//                        LogUtility.e(TAG, String.valueOf(timeStart));
                     }
                 });
             }
@@ -938,14 +886,18 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
         tvEndTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialogTimePickerLight((TextView) v, new OnCallbackDate() {
+                dateTimePickerHelper.showTimePicker(new DateTimePickerHelper.OnTimeSelectedListener() {
                     @Override
-                    public void getSelected(long _time) {
-                        timeEnd = _time;
+                    public void onTimeSelected(Calendar selectedTime) {
+                        int hour = selectedTime.get(Calendar.HOUR_OF_DAY);
+                        int minute = selectedTime.get(Calendar.MINUTE);
+                        int second = selectedTime.get(Calendar.SECOND);
+                        timeEnd = selectedTime.getTimeInMillis();
+                        tvEndTime.setText(setTimeFormat(hour, minute, second));
                         tvEndTime.setError(null);
-//                        LogUtility.e(TAG, String.valueOf(timeEnd));
                     }
                 });
+
             }
         });
 
