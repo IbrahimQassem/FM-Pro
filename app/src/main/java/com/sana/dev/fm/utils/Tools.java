@@ -59,6 +59,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
+import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.FmApplication;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
@@ -759,7 +760,7 @@ public class Tools {
     public static AppRemoteConfig getDefAppRemoteConfig(Context ctx) {
         Gson gson = new Gson();
         PreferencesManager preferences = PreferencesManager.getInstance();
-        AppRemoteConfig appRemoteConfig = new AppRemoteConfig(ctx.getString(R.string.app_mobile), ctx.getString(R.string.developer_reference), ctx.getString(R.string.terms_reference), true, true, true, true, false,false);
+        AppRemoteConfig appRemoteConfig = new AppRemoteConfig(ctx.getString(R.string.app_mobile), ctx.getString(R.string.developer_reference), ctx.getString(R.string.terms_reference), true, true, true, true, false,false, BuildConfig.VERSION_CODE);
         String json = preferences.read(AppConstant.General.APP_REMOTE_CONFIG, appRemoteConfig.toString());
         return gson.fromJson(json, AppRemoteConfig.class);
     }

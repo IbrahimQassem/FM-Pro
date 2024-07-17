@@ -165,7 +165,7 @@
     <string name="label_radio_station">القناة الإذاعية</string>
     <string name="label_start_now">ابدأ الآن</string>
     <string name="label_your_favorite_station">إذاعتك المفضلة</string>
-    <string name="label_intro_1">مرحبا بك عزيزي المستخدم في تطبيق القنوات الإذاعية اليمنية هدهد اف ام,\n\nالوجهةَ الأمثلَ لعشاقِ الراديوِ والبرامجِ الصوتيةِ في اليمن</string>
+    <string name="label_intro_1">مرحبا بك عزيزي المستخدم في تطبيق القنوات الإذاعية اليمنية هدهد اف ام</string>
     <string name="label_intro_2">حدد إذاعتك المفضلة وتابع أحدث البرامج اليومية</string>
     <string name="label_intro_3">إستمتع بتصفح العديد من البرامج الإذاعية المختلفة على مدار اليوم</string>
     <string name="label_enjoy">إستمتع بالتجربة</string>
@@ -269,5 +269,8 @@
     <string name="label_select_weekdays">حدد أيام الأسبوع</string>
     <string name="label_hours">ساعة</string>
     <string name="label_minutes">دقيقة</string>
+    <string name="label_update_now">تحديث التطبيق</string>
+    <string name="label_force_update_title">التحديث الآن</string>
+    <string name="label_force_update_message">يرجى تحديث الإصدار الأخير من التطبيق.</string>
 
 </resources>

@@ -9,4 +9,5 @@
     <bool name="isAuthFacebookEnable">false</bool>
     <bool name="isAdMobEnable">false</bool>
     <bool name="isTrialMode">false</bool>
+    <integer name="requiredVersion">1</integer>
 </resources>

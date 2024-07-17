@@ -2,10 +2,12 @@ package com.sana.dev.fm.ui.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -16,6 +18,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -30,10 +33,14 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.gson.Gson;
+import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
+import com.sana.dev.fm.model.ButtonConfig;
+import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.ShardDate;
+import com.sana.dev.fm.ui.dialog.FmGeneralDialog;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
@@ -47,6 +54,7 @@ import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
@@ -107,14 +115,20 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void updateUI(FirebaseUser user) {
-        if (user != null) {
-            // User is signed in
-            // Display welcome message or allow access to user-specific content
-            checkFirstTime();
+        int requiredVersion = (int) Tools.getAppRemoteConfig().getRequiredVersion();
+        // Check for force update
+        if (isForceUpdateRequired(requiredVersion)) {
+            showDialogForForceUpdate();
         } else {
-            // User is not signed in
-            // Display sign-in prompt or redirect to sign-in page
-            startActivity(new Intent(IntentHelper.noInternetActivity(SplashActivity.this, false)));
+            if (user != null) {
+                // User is signed in
+                // Display welcome message or allow access to user-specific content
+                checkFirstTime();
+            } else {
+                // User is not signed in
+                // Display sign-in prompt or redirect to sign-in page
+                startActivity(new Intent(IntentHelper.noInternetActivity(SplashActivity.this, false)));
+            }
         }
     }
 
@@ -295,12 +309,14 @@ public class SplashActivity extends AppCompatActivity {
                                 // Access and use data from remoteConfigObject
                                 // Save the entire config as a String (optional, consider specific data access)
                                 prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, remoteConfigObject.toString());
+                                Log.d(TAG, "RemoteConfig Fetch Success: " + remoteConfigObject.toString());
 
 //                                if (remoteConfigObject.isTrialMode()) {
 //                                    tv_trail.setVisibility(View.VISIBLE);
 //                                } else {
 //                                    tv_trail.setVisibility(View.INVISIBLE);
 //                                }
+
 
                             } catch (Exception e) {
                                 Log.e(TAG, "Error parsing remote config JSON: " + e.getMessage());
@@ -374,6 +390,28 @@ public class SplashActivity extends AppCompatActivity {
         prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, remoteConfig.toString());
     }
 
+    private boolean isForceUpdateRequired(int requiredVersion) {
+        int currentVersion = BuildConfig.VERSION_CODE;
+//        String deviceLanguage = Locale.getDefault().getLanguage();
+        return currentVersion < requiredVersion /*&& forceUpdateLanguages.contains(deviceLanguage)*/;
+    }
+
+    private void showDialogForForceUpdate() {
+        ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_update_now), getString(R.string.label_force_update_message), null, new ButtonConfig(getString(R.string.label_force_update_title), new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Open app store to download the update
+                // You can use an Intent with the appropriate URI to open the app store for your app
+                Uri uri = Uri.parse("market://details?id=" + getPackageName());
+                startActivity(new Intent(Intent.ACTION_VIEW, uri));
+                finish(); // Close the activity after starting the update
+            }
+        }));
+        config.setViewType(FmGeneralDialog.VIEW_WARNING);
+        config.setCancellable(false);
+        FmGeneralDialog dialogWarning = new FmGeneralDialog(this, config);
+        dialogWarning.show();
+    }
 
 /*    private void linkAccount() {
         AuthCredential credential = EmailAuthProvider.getCredential("", "");

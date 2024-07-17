@@ -13,11 +13,12 @@ public class AppRemoteConfig {
     private boolean isAuthFacebookEnable;
     private boolean isAdMobEnable;
     private boolean isTrialMode;
+    private int requiredVersion;
 
     public AppRemoteConfig() {
     }
 
-    public AppRemoteConfig(String adminMobile, String developerReference, String termsReference, boolean isAuthSmsEnable, boolean isAuthGoogleEnable, boolean isAuthEmailEnable, boolean isAuthFacebookEnable, boolean isAdMobEnable, boolean isTrialMode) {
+    public AppRemoteConfig(String adminMobile, String developerReference, String termsReference, boolean isAuthSmsEnable, boolean isAuthGoogleEnable, boolean isAuthEmailEnable, boolean isAuthFacebookEnable, boolean isAdMobEnable, boolean isTrialMode,int requiredVersion) {
         this.adminMobile = adminMobile;
         this.developerReference = developerReference;
         this.termsReference = termsReference;
@@ -27,6 +28,7 @@ public class AppRemoteConfig {
         this.isAuthFacebookEnable = isAuthFacebookEnable;
         this.isAdMobEnable = isAdMobEnable;
         this.isTrialMode = isTrialMode;
+        this.requiredVersion = requiredVersion;
     }
 
     @Override
@@ -110,6 +112,14 @@ public class AppRemoteConfig {
 
     public void setTrialMode(boolean trialMode) {
         isTrialMode = trialMode;
+    }
+
+    public int getRequiredVersion() {
+        return requiredVersion;
+    }
+
+    public void setRequiredVersion(int requiredVersion) {
+        this.requiredVersion = requiredVersion;
     }
 
     //    private int count;
