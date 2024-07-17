@@ -167,6 +167,7 @@
                 android:layout_height="wrap_content"
                 android:buttonTint="@color/colorPrimary"
                 android:text="@string/label_a_repeated_episode"
+                android:checked="false"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/colorPrimary"
                 android:textColorHint="@color/grey_40" />

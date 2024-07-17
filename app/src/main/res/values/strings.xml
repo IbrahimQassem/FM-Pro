@@ -278,8 +278,8 @@
     <string name="label_start_at_with_val">Start At : %s</string>
     <string name="label_end_at_with_val">End At : %s</string>
     <string name="label_show_period">Show Period : %s</string>
-    <string name="label_date_from_to">From %s1 To %s2</string>
-    <string name="label_time_from_to">From %s1 To %s2</string>
+    <string name="label_date_from_to">From %1$s To %2$</string>
+    <string name="label_time_from_to">From %1$s To %2$</string>
     <string name="update_program">Update Program</string>
     <string name="ex_program_name">Ex: Morning of the capital</string>
     <string name="label_program_logo">Program logo</string>
@@ -300,6 +300,8 @@
     <string name="label_start">Start</string>
     <string name="label_end">End</string>
     <string name="label_select_weekdays">Select Weekdays</string>
+    <string name="label_hours">Hour</string>
+    <string name="label_minutes">Minutes</string>
     <!--    <string name="gdpr_privacy_policy">-->
 <!--        By using this App, you agree to the <a href="%s">Terms-Conditions &amp; Privacy-Policy</a>.-->
 <!--    </string>-->

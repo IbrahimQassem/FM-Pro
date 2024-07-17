@@ -18,8 +18,8 @@
             android:layout_margin="@dimen/spacing_middle"
             android:gravity="center_vertical"
             android:paddingStart="@dimen/spacing_middle"
-            android:paddingEnd="@dimen/spacing_middle"
             android:paddingTop="@dimen/spacing_middle"
+            android:paddingEnd="@dimen/spacing_middle"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:textColor="@color/grey_90"
             tools:text="@string/label_label" />

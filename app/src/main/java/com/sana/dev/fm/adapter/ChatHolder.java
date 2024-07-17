@@ -67,8 +67,21 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         Tools.setTextOrHideIfEmpty(binding.tvAnnouncer, episode.getEpAnnouncer());
 
         Tools.setTextOrHideIfEmpty(binding.tvDesc, episode.getEpDesc());
-        Tools.setTextOrHideIfEmpty(binding.tvState, null);
-        Tools.setTextOrHideIfEmpty(binding.tvDate, null);
+//        Tools.setTextOrHideIfEmpty(binding.tvState, null);
+//        Tools.setTextOrHideIfEmpty(binding.tvDate, null);
+
+        if (episode.getShowTimeList() != null && episode.getShowTimeList().size() > 0) {
+            //        binding.tvTime.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
+            DateTimeModel dateTimeModel = episode.getShowTimeList().get(0);
+            String st = "" + getFormattedTimeEvent(dateTimeModel.getTimeStart(), FmUtilize.arabicFormat);
+            Tools.setTextOrHideIfEmpty(binding.tvTime, st);
+        }
+
+        if (episode.getProgramScheduleTime() != null) {
+            String dt = getFormattedDateOnly(episode.getProgramScheduleTime().getDateStart(), FmUtilize.arabicFormat) + " - " + getFormattedDateOnly(episode.getProgramScheduleTime().getDateEnd(), FmUtilize.arabicFormat);
+//            String dt = episode.getProgramScheduleTime().getDateStart() + " - " + episode.getProgramScheduleTime().getDateEnd();
+            Tools.setTextOrHideIfEmpty(binding.tvDate, dt);
+        }
 //        try {
 ////            Tools.setTextOrHideIfEmpty(binding.tvTime, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
 ////            Tools.setTextOrHideIfEmpty(binding.tvDate, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
@@ -165,28 +178,6 @@ public class ChatHolder extends RecyclerView.ViewHolder {
                 }
             }
         });
-    }
-
-
-    private void setIsSender(boolean isSender) {
-        final int color;
-//        if (isSender) {
-//            color = mGreen300;
-//            mLeftArrow.setVisibility(View.GONE);
-//            mRightArrow.setVisibility(View.VISIBLE);
-//            mMessageContainer.setGravity(Gravity.END);
-//        } else {
-//            color = mGray300;
-//            mLeftArrow.setVisibility(View.VISIBLE);
-//            mRightArrow.setVisibility(View.GONE);
-//            mMessageContainer.setGravity(Gravity.START);
-//        }
-//
-//        ((GradientDrawable) mMessage.getBackground()).setColor(color);
-//        ((RotateDrawable) mLeftArrow.getBackground()).getDrawable()
-//                .setColorFilter(color, PorterDuff.Mode.SRC);
-//        ((RotateDrawable) mRightArrow.getBackground()).getDrawable()
-//                .setColorFilter(color, PorterDuff.Mode.SRC);
     }
 
 

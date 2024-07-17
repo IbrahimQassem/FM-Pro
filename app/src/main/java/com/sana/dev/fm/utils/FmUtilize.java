@@ -213,36 +213,6 @@ public class FmUtilize {
     }
 
     public static String timeDifference(long startTime, long endTime, Locale locale) {
-
-//        long period = 0;
-//        int days, hours, min;
-//        try {
-//            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(_timeFormat);
-//            String _startDate = simpleDateFormat.format(startTime);
-//            String _endDate = simpleDateFormat.format(endTime);
-//            Date date1 = simpleDateFormat.parse(_startDate);
-//            Date date2 = simpleDateFormat.parse(_endDate);
-//
-//            long difference = date2.getTime() - date1.getTime();
-//            days = (int) (difference / (1000 * 60 * 60 * 24));
-//            hours = (int) ((difference - (1000 * 60 * 60 * 24 * days)) / (1000 * 60 * 60));
-//            min = (int) (difference - (1000 * 60 * 60 * 24 * days) - (1000 * 60 * 60 * hours)) / (1000 * 60);
-//            hours = (hours < 0 ? -hours : hours);
-////            Log.i("======= Hours"," :: "+hours);
-////            period = (hours + ":" + min);
-//            final Calendar calendar = Calendar.getInstance();
-//            calendar.set(Calendar.HOUR_OF_DAY, hours);
-//            calendar.set(Calendar.MINUTE, min);
-//            calendar.set(Calendar.SECOND, 0);
-//            calendar.set(Calendar.MILLISECOND, 0);
-//            period = calendar.getTimeInMillis();
-////            period = setTimeFormat(hours, min, 00);
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return period;
-
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", locale);
             String _startDate = sdf.format(startTime);
@@ -257,8 +227,6 @@ public class FmUtilize {
 
             String formattedTime = String.format(locale, "%d:%02d",
                     Math.abs(hours), Math.abs(mins));
-//
-//             return Math.abs(hours) + ":" + Math.abs(mins);
             return formattedTime;
         } catch (ParseException e) {
             e.printStackTrace();
@@ -266,6 +234,41 @@ public class FmUtilize {
 
         return "";
     }
+
+    public static String calculateTimeDifference(Context ctx,long startTimeInMillis, long endTimeInMillis) {
+
+        long diffInMillis = endTimeInMillis - startTimeInMillis;
+
+        // Ensure non-negative difference (handle cases where start time might be in the future)
+        diffInMillis = Math.max(diffInMillis, 0);
+
+        long seconds = diffInMillis / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        minutes %= 60; // Remaining minutes after calculating hours
+
+        StringBuilder result = new StringBuilder();
+
+        if (hours > 0) {
+            result.append(hours).append(" "+ctx.getString(R.string.label_hours));
+//            if (hours > 1) {
+//                result.append('s'); // Add plural 's' for hours if more than 1
+//            }
+        }
+
+        if (minutes > 0) {
+            if (result.length() > 0) {
+                result.append(" "); // Add space if hours are already present
+            }
+            result.append(minutes).append(" "+ctx.getString(R.string.label_minutes));
+//            if (minutes > 1) {
+//                result.append('s'); // Add plural 's' for minutes if more than 1
+//            }
+        }
+
+        return result.toString().trim();
+    }
+
 
     public static String getTDateFormat(Date date) {
         SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat(_dateFormat, Locale.ENGLISH);

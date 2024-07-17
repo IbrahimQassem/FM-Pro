@@ -730,11 +730,9 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
         try {
 
             showTimeList.clear();
-//        selectedDays.clear();
             for (int i = 0; i < binding.layoutList.getChildCount(); i++) {
                 View rowView = binding.layoutList.getChildAt(i);
                 DateTimeModel dateTimeModel = new DateTimeModel();
-//                List<String> selectedDays = new ArrayList<>();
 
                 TextView tvStartTime = (TextView) rowView.findViewById(R.id.tv_ep_start);
                 String _etStartTime = tvStartTime.getText().toString();
@@ -758,24 +756,68 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                 TextView tv_day = (TextView) rowView.findViewById(R.id.tv_day);
                 String _tv_day = tv_day.getText().toString();
                 if (!_tv_day.matches("")) {
-                    dateTimeModel.setWeekdays(WeekdayUtils.convertSeparatedWeekdays(_tv_day,","));
+                    dateTimeModel.setWeekdays(WeekdayUtils.convertSeparatedWeekdays(_tv_day, ","));
                 } else {
                     result = false;
                     break;
                 }
 
-//            RadioButton rbMainTime = (RadioButton) rowView.findViewById(R.id.radio_main);
-                // get selected radio button from radioGroup
-                RadioGroup rgMainTime = (RadioGroup) rowView.findViewById(R.id.rg_type);
-                int selectedId = rgMainTime.getCheckedRadioButtonId();
 
-                // find the radiobutton by returned id
-                RadioButton radioButton = (RadioButton) findViewById(selectedId);
-//                if (radioButton != null && dateTimeModel != null)
-                    dateTimeModel.setAsMainTime(radioButton.isChecked());
+                // RadioGroup is Main/Repeat
+                RadioGroup radioGroup = rowView.findViewById(R.id.rg_type);
+                RadioButton trueButton = rowView.findViewById(R.id.rb_new);
+                RadioButton falseButton = rowView.findViewById(R.id.rb_repeat);
 
-//            Toast.makeText(EpisodeAddStepperVertical.this,
-//                    radioButton.getText(), Toast.LENGTH_SHORT).show();
+
+                int selectedId = radioGroup.getCheckedRadioButtonId();
+                RadioButton genderradioButton = (RadioButton) rowView.findViewById(selectedId);
+                if (selectedId == -1) {
+                    dateTimeModel.setAsMainTime(false);
+                } else {
+                    if (genderradioButton.getId() == trueButton.getId()) {
+//                            // Handle "True" selection
+                        dateTimeModel.setAsMainTime(true);
+                    } else {
+                        dateTimeModel.setAsMainTime(false);
+                    }
+//                    showToast(genderradioButton.getText().toString());
+                }
+
+
+//                RadioButton trueButton = findViewById(R.id.rb_new);
+////                RadioButton falseButton = findViewById(R.id.rb_repeat);
+//
+//                // Optional: Set a listener for selection changes
+//                int checkedRadioButtonId = radioGroup.getCheckedRadioButtonId();
+//                if (checkedRadioButtonId != -1) {
+//                    // A radio button is selected
+//                    RadioButton selectedButton = findViewById(checkedRadioButtonId);
+////                    String selectedText = selectedButton.getText().toString();
+//                    if (selectedButton.isChecked() == trueButton.isChecked()) {
+//                        dateTimeModel.setAsMainTime(true);
+//                    } else {
+//                        dateTimeModel.setAsMainTime(false);
+//                    }
+//                    // Handle selected button based on its text or ID
+//                } else {
+//                    // No radio button is selected
+//                    dateTimeModel.setAsMainTime(false);
+//                }
+
+                Log.d("asMainTime", "Checked : " + dateTimeModel.isAsMainTime());
+
+//                radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+//                    @Override
+//                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+//                        if (checkedId == R.id.rb_new) {
+//                            // Handle "True" selection
+//                            dateTimeModel.setAsMainTime(true);
+//                        } else {
+//                            dateTimeModel.setAsMainTime(false);
+//                        }
+//                    }
+//                });
+
 
                 showTimeList.add(dateTimeModel);
             }
@@ -792,7 +834,6 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
             showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
         }
 
-//        dateTimeModel.setDisplayDays(translateWakeDaysEn(selectedDays));
         return result;
     }
 
@@ -805,7 +846,6 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
 
     //    private RadioButton mSelectedRB;
 //    private int mSelectedPosition = -1;
-    List<Weekday> displayDays = new ArrayList<>();
 
     private void showWeekDialog(final View view) {
 /*        final ArrayList<WakeTranslate> displayDayList = FmUtilize.translateWakeDaysAr(Arrays.asList(FmUtilize.getWeekDayNames()));
@@ -827,13 +867,13 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
 
         // In your activity or fragment:
         Weekday[] weekdays = Weekday.values();
-
         WeekdayDialog weekdayDialog = new WeekdayDialog(this);
         weekdayDialog.showDialog(new WeekdayDialog.OnWeekdaySelectedListener() {
 
             @Override
             public void onWeekdaysSelected(boolean[] checkedItems) {
                 // Now you have the checked items in the checkedItems array
+                List<Weekday> displayDays = new ArrayList<>();
                 for (int i = 0; i < checkedItems.length; i++) {
                     if (checkedItems[i]) {
                         Weekday checkedDay = weekdays[i]; // Assuming weekdays is defined as in the previous response
@@ -843,8 +883,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                     }
                 }
 
-
-                String joinedString =  WeekdayUtils.toSeparatedString(displayDays);
+                String joinedString = WeekdayUtils.toSeparatedString(displayDays);
 //                String[] stringArray = joinedString.split(",\\s*"); // Split by comma and optional whitespace
                 ((TextView) view).setText(joinedString);
                 showToast(joinedString);

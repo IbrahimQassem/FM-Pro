@@ -3,6 +3,7 @@ package com.sana.dev.fm.adapter;
 
 import static com.sana.dev.fm.utils.FmUtilize.safeList;
 import static com.sana.dev.fm.utils.Tools.getFormattedDateOnly;
+import static com.sana.dev.fm.utils.Tools.getFormattedTimeEvent;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -68,7 +69,6 @@ public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         private final ItemProgramsBinding binding;
-
         public MyViewHolder(ItemProgramsBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
@@ -82,7 +82,6 @@ public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
 //        return viewHolder;
 ////        return new MainViewHolder(LayoutInflater.from(view.getContext()).inflate(this.layout_id, viewGroup, false));
 //    }
-
 
     @Override
     public int getItemCount() {
@@ -128,7 +127,6 @@ public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
             } else {
                 holder.binding.lytParentDesc.setVisibility(View.GONE);
             }
-
 
             if (program.getProgramScheduleTime() != null) {
                 String dt = ctx.getString(R.string.label_date_from_to, getFormattedDateOnly(program.getProgramScheduleTime().getDateStart(), FmUtilize.arabicFormat), getFormattedDateOnly(program.getProgramScheduleTime().getDateEnd(), FmUtilize.arabicFormat));

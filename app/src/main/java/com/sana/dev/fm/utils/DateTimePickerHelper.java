@@ -7,7 +7,6 @@ import android.content.Context;
 import java.util.Calendar;
 
 public class DateTimePickerHelper {
-
     private Context context;
     private OnDateSelectedListener dateListener;
     private OnTimeSelectedListener timeListener;

@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.sana.dev.fm.model.enums.Weekday;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class WeekdayUtils {
@@ -88,5 +89,42 @@ public class WeekdayUtils {
         }
     }
 
+    public static Weekday getCurrentDayOfWeek() {
+        Calendar calendar = Calendar.getInstance();
+        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+// Optional: Convert integer to String representation
+        Weekday dayString = Weekday.Saturday;
+        switch (dayOfWeek) {
+            case Calendar.SUNDAY:
+                dayString = Weekday.Sunday;
+                break;
+            case Calendar.MONDAY:
+                dayString = Weekday.Monday;
+                break;
+            case Calendar.TUESDAY:
+                dayString = Weekday.Tuesday;
+                break;
+            case Calendar.WEDNESDAY:
+                dayString = Weekday.Wednesday;
+                break;
+            case Calendar.THURSDAY:
+                dayString = Weekday.Thursday;
+                break;
+            case Calendar.FRIDAY:
+                dayString = Weekday.Friday;
+                break;
+            case Calendar.SATURDAY:
+//            default:
+//                dayString = Weekday.Saturday;
+        }
+
+        // Return the corresponding Weekday enum value
+        return dayString;
+    }
+
+
+    public static boolean isCurrentDay(Weekday dayToCheck) {
+        return getCurrentDayOfWeek() == dayToCheck;
+    }
 
 }

@@ -165,7 +165,7 @@
     <string name="label_radio_station">القناة الإذاعية</string>
     <string name="label_start_now">ابدأ الآن</string>
     <string name="label_your_favorite_station">إذاعتك المفضلة</string>
-    <string name="label_intro_1">مرحبا بك عزيزي المستخدم في تطبيق القنوات الإذاعية اليمنية هدهد اف ام الوجهةَ الأمثلَ لعشاقِ الراديوِ والبرامجِ الصوتيةِ في اليمن</string>
+    <string name="label_intro_1">مرحبا بك عزيزي المستخدم في تطبيق القنوات الإذاعية اليمنية هدهد اف ام,\n\nالوجهةَ الأمثلَ لعشاقِ الراديوِ والبرامجِ الصوتيةِ في اليمن</string>
     <string name="label_intro_2">حدد إذاعتك المفضلة وتابع أحدث البرامج اليومية</string>
     <string name="label_intro_3">إستمتع بتصفح العديد من البرامج الإذاعية المختلفة على مدار اليوم</string>
     <string name="label_enjoy">إستمتع بالتجربة</string>
@@ -191,7 +191,7 @@
     <string name="error_failure">فشل في تنفذ العملية</string>
     <string name="label_saving_in_progress">جاري الحفظ ..</string>
     <string name="label_comment_as">تعليق كـ %s ..</string>
-    <string name="error_episode_audio_not_available">المعذرة , التسجل الصوتي للبرنامج الإذاعي غير موجود !</string>
+    <string name="error_episode_audio_not_available">المعذرة, التسجل الصوتي للبرنامج الإذاعي غير موجود !</string>
     <string name="deleted_successfully_with_param"> تم حذف <b>[%s]</b> بنجاح </string>
     <string name="label_edit">تعديل</string>
     <string name="label_delete">حذف</string>
@@ -245,8 +245,8 @@
     <string name="label_start_at_with_val">يبدأ الساعة : %s</string>
     <string name="label_end_at_with_val">ينتهي الساعة : %s</string>
     <string name="label_show_period">مدة العرض : %s</string>
-    <string name="label_date_from_to">من %s1 الى %s2</string>
-    <string name="label_time_from_to">من %s1 الى %s2</string>
+    <string name="label_date_from_to">من %1$s الى %2$s</string>
+    <string name="label_time_from_to">من %1$s الى %2$s</string>
     <string name="update_program">تحديث البرامج</string>
     <string name="ex_program_name">مثال : صباح العاصمة</string>
     <string name="label_program_logo">شعار البرنامج</string>
@@ -267,5 +267,7 @@
     <string name="label_start">يبدأ</string>
     <string name="label_end">ينتهي</string>
     <string name="label_select_weekdays">حدد أيام الأسبوع</string>
+    <string name="label_hours">ساعة</string>
+    <string name="label_minutes">دقيقة</string>
 
 </resources>

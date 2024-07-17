@@ -577,7 +577,7 @@ public class Tools {
     public static String getFormattedDateOnly(Long l, Locale locale) {
 //        return new SimpleDateFormat("dd MMM yy", FmUtilize._arabicFormat).format(new Date(l.longValue()));
 //        return new SimpleDateFormat("d MMM yyyy", locale).format(new Date(l.longValue()));
-        return new SimpleDateFormat("dd MMM yy", locale).format(new Date(l.longValue()));
+        return new SimpleDateFormat("d MMM yy", locale).format(new Date(l.longValue()));
     }
 
     public static String getFormattedDateOnly(String format,Long l, Locale locale) {

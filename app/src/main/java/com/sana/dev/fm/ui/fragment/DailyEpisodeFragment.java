@@ -23,8 +23,10 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.TimeLineAdapter;
 import com.sana.dev.fm.model.DateTimeModel;
@@ -70,7 +72,7 @@ public class DailyEpisodeFragment extends BaseFragment {
     RecyclerView recyclerView;
     @BindView(R.id.tvTittle)
     TextView tvTittle;
-    private TimeLineAdapter mAdapter;
+    //    private TimeLineAdapter mAdapter;
     private FirestoreDbUtility firestoreDbUtility;
 
 
@@ -176,19 +178,8 @@ public class DailyEpisodeFragment extends BaseFragment {
         }
 
 
-        // Todo
+////        // Todo
         List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
-        firestoreQueryList.add(new FirestoreQuery(
-                FirestoreQueryConditionCode.WHERE_LESS_THAN_OR_EQUAL_TO,
-                "programScheduleTime.dateEnd",
-                System.currentTimeMillis()
-        ));
-
-        firestoreQueryList.add(new FirestoreQuery(
-                FirestoreQueryConditionCode.Query_Direction_DESCENDING,
-                "programScheduleTime.dateStart",
-                Query.Direction.DESCENDING
-        ));
 
         firestoreQueryList.add(new FirestoreQuery(
                 FirestoreQueryConditionCode.WHERE_EQUAL_TO,
@@ -196,12 +187,77 @@ public class DailyEpisodeFragment extends BaseFragment {
                 false
         ));
 
+//        firestoreQueryList.add(new FirestoreQuery(
+//                FirestoreQueryConditionCode.WHERE_LESS_THAN_OR_EQUAL_TO,
+//                "programScheduleTime.dateEnd",
+//                System.currentTimeMillis()
+//        ));
+//
+//        firestoreQueryList.add(new FirestoreQuery(
+//                FirestoreQueryConditionCode.Query_Direction_DESCENDING,
+//                "programScheduleTime.dateStart",
+//                Query.Direction.DESCENDING
+//        ));
 
         CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+/*        Query episodeQuery = collectionReference.whereEqualTo("disabled", false)
+                .whereLessThanOrEqualTo("programScheduleTime.dateEnd", System.currentTimeMillis())
+                .orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+
+        collectionReference
+                .whereEqualTo("disabled", false)
+                .whereLessThanOrEqualTo("programScheduleTime.dateEnd", System.currentTimeMillis())
+                .orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot object) {
+                        // Order results by `experience`
+                        LogUtility.d(TAG, " loadDailyEpisode :  " + object);
+
+                        List<Episode> episodeList = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);
+                        List<TempEpisodeModel> modelList = new ArrayList<>();
+                        for (int i1 = 0; i1 < safeList(episodeList).size(); i1++) {
+                            List<DateTimeModel> shTimeList = episodeList.get(i1).getShowTimeList();
+                            for (int i2 = 0; i2 < safeList(shTimeList).size(); i2++) {
+                                DateTimeModel timeModel = shTimeList.get(i2);
+                                Episode ep = episodeList.get(i1);
+                                List<Weekday> weekdays = safeList(timeModel.getWeekdays());
+                                for (Weekday item : weekdays) {
+//                            boolean isDisplayDay = WeekdayUtils.isCurrentDay(item);
+//                            if (isDisplayDay){
+                                    modelList.add(new TempEpisodeModel(ep.getEpProfile(), ep.getEpName(), ep.getEpAnnouncer(), timeModel, item));
+//                            }
+                                }
+                            }
+                        }
+
+                        boolean isToday = modelList.size() > 0;
+
+                        recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
+                        TimeLineAdapter adapterPeople = new TimeLineAdapter(ctx, modelList);
+//                mAdapter = adapterPeople;
+                        recyclerView.setAdapter(adapterPeople);
+
+                        toggleView(!isToday);
+                    }
+                });
+
+        episodeQuery
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        // Order results by `experience`
+                        LogUtility.e(LogUtility.tag(DailyEpisodeFragment.class), queryDocumentSnapshots.getMetadata().toString());
+                    }
+                });*/
 
         firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
+                LogUtility.d(TAG, " loadDailyEpisode :  " + object);
+
                 List<Episode> episodeList = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);
                 List<TempEpisodeModel> modelList = new ArrayList<>();
                 for (int i1 = 0; i1 < safeList(episodeList).size(); i1++) {
@@ -210,22 +266,27 @@ public class DailyEpisodeFragment extends BaseFragment {
                         DateTimeModel timeModel = shTimeList.get(i2);
                         Episode ep = episodeList.get(i1);
                         List<Weekday> weekdays = safeList(timeModel.getWeekdays());
-                        String _displayDayName = WeekdayUtils.toSeparatedString(weekdays);
-                        modelList.add(new TempEpisodeModel(ep.getEpProfile(), ep.getEpName(), ep.getEpAnnouncer(), _displayDayName, timeModel));
+                        for (Weekday item : weekdays) {
+                            boolean isDisplayDay = WeekdayUtils.isCurrentDay(item);
+                            if (isDisplayDay) {
+                                modelList.add(new TempEpisodeModel(ep.getEpProfile(), ep.getEpName(), ep.getEpAnnouncer(), timeModel, item));
+                            }
+                        }
                     }
                 }
 
-                List<TempEpisodeModel> filtered = new ArrayList<TempEpisodeModel>();
-                for (TempEpisodeModel article : modelList) {
-                    if (article.getDisplayDayName().matches(FmUtilize.getShortEnDayName()))
-                        filtered.add(article);
-                }
+                // Query(target=Query(HudHudFM/Episode/1011/Episode/Episode order by __name__);limitType=LIMIT_TO_FIRST)
+//                List<TempEpisodeModel> filtered = new ArrayList<TempEpisodeModel>();
+//                for (TempEpisodeModel article : modelList) {
+//                    if (article.getDisplayDayName().matches(FmUtilize.getShortEnDayName()))
+//                        filtered.add(article);
+//                }
 
-                boolean isToday = filtered.size() > 0;
+                boolean isToday = modelList.size() > 0;
 
                 recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
-                TimeLineAdapter adapterPeople = new TimeLineAdapter(ctx, filtered);
-                mAdapter = adapterPeople;
+                TimeLineAdapter adapterPeople = new TimeLineAdapter(ctx, modelList);
+//                mAdapter = adapterPeople;
                 recyclerView.setAdapter(adapterPeople);
 
                 toggleView(!isToday);
