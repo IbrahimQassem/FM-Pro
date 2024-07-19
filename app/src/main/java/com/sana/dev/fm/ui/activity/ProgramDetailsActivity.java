@@ -3,13 +3,11 @@ package com.sana.dev.fm.ui.activity;
 
 import static com.sana.dev.fm.adapter.ProgramDetailsAdapter.SPAN_COUNT_ONE;
 import static com.sana.dev.fm.adapter.ProgramDetailsAdapter.SPAN_COUNT_THREE;
-import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -25,6 +23,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.ProgramDetailsAdapter;
@@ -32,16 +31,18 @@ import com.sana.dev.fm.databinding.ProgramDetailsActivityBinding;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
+import com.sana.dev.fm.model.TempEpModel;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.ui.activity.player.SongPlayerFragment;
 import com.sana.dev.fm.ui.view.RevealBackgroundView;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.DataGenerator;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
-import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,20 +52,12 @@ import java.util.List;
  */
 public class ProgramDetailsActivity extends BaseActivity implements RevealBackgroundView.OnStateChangeListener {
     public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
-
     public static final String ARG_REVEAL_START_LOCATION = "reveal_start_location";
     private static final int USER_OPTIONS_ANIMATION_DELAY = 300;
     private static final Interpolator INTERPOLATOR = new DecelerateInterpolator();
     private final String TAG = ProgramDetailsActivity.class.getSimpleName();
-
     ProgramDetailsActivityBinding binding;
-
-    
-
-    //    StaggeredGridLayoutManager layoutManager;
     private GridLayoutManager gridLayoutManager;
-
-
     private ProgramDetailsAdapter itemAdapter;
     private List<Episode> detailsList = new ArrayList<>();
 
@@ -86,7 +79,6 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
         binding = ProgramDetailsActivityBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-        
 
 
         initToolbar();
@@ -127,69 +119,74 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
         if (s != null) {
             Episode episode = new Gson().fromJson(s, Episode.class);
 
-
-            TempModel tempModel = new TempModel(episode.getProgramName(), "", "", "", episode.getEpProfile(), episode.getLikesCount(), 1, 0);
-            updateInfoUI(tempModel);
-
-            FmProgramCRUDImpl rpRepo = new FmProgramCRUDImpl(this, FirebaseConstants.RADIO_PROGRAM_TABLE);
-            RadioProgram program = new RadioProgram();
-            program.setRadioId(episode.getRadioId());
-            program.setProgramId(episode.getProgramId());
+            TempEpModel tempEpModel = new TempEpModel(episode.getProgramName(), "", "", "", episode.getEpProfile(), episode.getLikesCount(), 1, 0);
+            updateInfoUI(tempEpModel);
 
             showProgress("");
-            rpRepo.queryAllBy(null,program, new CallBack() {
-                @SuppressLint("SetTextI18n")
+
+            FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
+
+            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, episode.getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+            firestoreDbUtility.getOne(collectionReference, episode.getProgramId(), new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     try {
-                        LogUtility.d(LogUtility.TAG, "program info : " + new Gson().toJson(object));
-                        if (isCollection(object)) {
-                            List<RadioProgram> programList = (List<RadioProgram>) object;
+                        List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
+                        if (programList != null && programList.size() > 0) {
                             RadioProgram radioProgram = programList.get(0);
-                            TempModel tempModel = new TempModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), radioProgram.getPrCategoryList().toString(), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
-                            updateInfoUI(tempModel);
+                            TempEpModel tempEpModel = new TempEpModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), String.valueOf(radioProgram.getPrCategoryList()), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
+                            updateInfoUI(tempEpModel);
                         }
                     } catch (Exception e) {
-                        LogUtility.e(TAG, " readProgramByRadioIdAndProgramId: " + object, e);
+                        e.printStackTrace();
+                        LogUtility.d(TAG, "Error setupProgramProfile : " + e.getMessage());
                     }
                     hideProgress();
                 }
 
                 @Override
-                public void onError(Object object) {
-                    LogUtility.e(TAG, "readProgramByRadioIdAndProgramId: " + object);
+                public void onFailure(Object object) {
+                    LogUtility.e(TAG, " loadRadioProgram :  " + object);
                     hideProgress();
                 }
             });
 
-            FmEpisodeCRUDImpl ePiRepo = new FmEpisodeCRUDImpl(this, FirebaseConstants.EPISODE_TABLE);
-            ePiRepo.queryAllBy(null,episode, new CallBack() {
+            List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+
+            firestoreQueryList.add(new FirestoreQuery(
+                    FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                    "programId",
+                    episode.getProgramId()
+            ));
+
+            firestoreQueryList.add(new FirestoreQuery(
+                    FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                    "disabled",
+                    false
+            ));
+
+//            CollectionReference collectionRef = firestoreDbUtility.getTopLevelCollection()
+//                    .document(AppConstant.Firebase.EPISODE_TABLE).collection(episode.getRadioId());  // Subcollection named "1001"
+            CollectionReference collectionReferenceE = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, episode.getRadioId()).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+
+            firestoreDbUtility.getMany(collectionReferenceE, firestoreQueryList, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    LogUtility.d(LogUtility.TAG, "program details : " + new Gson().toJson(object));
-
-                    if (isCollection(object)) {
-                        detailsList = (List<Episode>) object;
-                        ShardDate.getInstance().setEpisodeList(detailsList);
-                    } /*else {
-                        detailsList = DataGenerator.getEpisodeData(ProgramDetailsActivity.this);
-                    }*/
-
-//                    itemAdapter.notifyDataSetChanged();
-//                    itemAdapter.notifyItemRangeChanged(0,detailsList.size());
+                    List<Episode> episodeList = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);
+                    ShardDate.getInstance().setEpisodeList(episodeList);
+                    detailsList = episodeList;
                     setupUserProfileGrid();
-
                 }
 
                 @Override
-                public void onError(Object object) {
-                    LogUtility.e(TAG, "readAllEpisodeByRadioIdAndPgId: " + object);
+                public void onFailure(Object object) {
+                    LogUtility.e(TAG, " loadDailyEpisode :  " + object);
                 }
             });
 
 
         } else {
-            detailsList = DataGenerator.getEpisodeData(this);
+//            detailsList = DataGenerator.getEpisodeData(this);
             itemAdapter.notifyDataSetChanged();
             // Todo show empty view
         }
@@ -199,21 +196,25 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
     }
 
     @SuppressLint("SetTextI18n")
-    private void updateInfoUI(TempModel model) {
-//        TempModel _temp = new TempModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), radioProgram.getPrCategoryList().toString(), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
-        Tools.displayImageRound(ProgramDetailsActivity.this, binding.ivProfilePhoto, model.imgProfile);
-        binding. tvName.setText(model.name);
-        binding.tvDesc.setText(model.desc);
-        binding.tvCategory.setText(model.category);
+    private void updateInfoUI(TempEpModel model) {
+//        TempEpModel _temp = new TempEpModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), radioProgram.getPrCategoryList(), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
+        String imgUrl = model.getImgProfile();
+//        Tools.displayImageRound(this, binding.imgProfile, imgUrl);
+//        Tools.displayImageOriginal(this, binding.imgProfile, imgUrl);
+        Tools.displayUserProfile(this, binding.imgProfile, imgUrl, R.mipmap.ic_launcher_foreground);
+
+        binding.tvName.setText(model.getName());
+        binding.tvDesc.setText(model.getDesc());
+        binding.tvCategory.setText(model.getCategory());
 //      tvTag.setText(getResources().getString(R.string.tag_format, _temp.tag));
-        if (!TextUtils.isEmpty(model.tag))
-            binding. tvTag.setText(String.format("@%s", model.tag));
-        if (model.likesCount >= 1)
-            binding.tvLikesCount.setText(Integer.toString(model.likesCount));
-        if (model.subScribeCount >= 1)
-            binding. tvSubscribers.setText(Integer.toString(model.subScribeCount));
-        if (model.postCount >= 1)
-            binding. tvPostCount.setText(Integer.toString(model.postCount));
+        if (!TextUtils.isEmpty(model.getTag()))
+            binding.tvTag.setText(String.format("@%s", model.getTag()));
+        if (model.getLikesCount() >= 1)
+            binding.tvLikesCount.setText(Integer.toString(model.getLikesCount()));
+        if (model.getSubScribeCount() >= 1)
+            binding.tvSubscribers.setText(Integer.toString(model.getSubScribeCount()));
+        if (model.getPostCount() >= 1)
+            binding.tvPostCount.setText(Integer.toString(model.getPostCount()));
         binding.lynStats.setVisibility(View.VISIBLE);
 
         binding.btnFollow.setVisibility(View.GONE);
@@ -312,9 +313,9 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
             @Override
             public void onItemClick(View view, Episode model, int position) {
 //                showNotCancelableWarningDialog(String.valueOf((Episode) model));
-                if (URLUtil.isValidUrl(model.getEpStreamUrl())){
+                if (URLUtil.isValidUrl(model.getEpStreamUrl())) {
                     showFragment();
-                }else {
+                } else {
                     showToast(getString(R.string.error_episode_audio_not_available));
                 }
 //                BottomSheet bottomSheet = new BottomSheet();
@@ -367,35 +368,16 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 
     private void animateUserProfileHeader() {
         binding.lynProfileRoot.setTranslationY(-binding.lynProfileRoot.getHeight());
-         binding.ivProfilePhoto.setTranslationY(-binding.ivProfilePhoto.getHeight());
-         binding.lynDetails.setTranslationY(-binding.lynDetails.getHeight());
-       binding.lynStats.setAlpha(0);
+        binding.imgProfile.setTranslationY(-binding.imgProfile.getHeight());
+        binding.lynDetails.setTranslationY(-binding.lynDetails.getHeight());
+        binding.lynStats.setAlpha(0);
 
         binding.lynProfileRoot.animate().translationY(0).setDuration(300).setInterpolator(INTERPOLATOR);
-        binding.ivProfilePhoto.animate().translationY(0).setDuration(300).setStartDelay(100).setInterpolator(INTERPOLATOR);
+        binding.imgProfile.animate().translationY(0).setDuration(300).setStartDelay(100).setInterpolator(INTERPOLATOR);
         binding.lynDetails.animate().translationY(0).setDuration(300).setStartDelay(200).setInterpolator(INTERPOLATOR);
         binding.lynStats.animate().alpha(1).setDuration(200).setStartDelay(400).setInterpolator(INTERPOLATOR).start();
     }
 
-
-    public static class TempModel {
-        String name, desc, tag, category, imgProfile;
-        int likesCount, subScribeCount, postCount;
-
-        public TempModel() {
-        }
-
-        public TempModel(String name, String desc, String tag, String category, String imgProfile, int likesCount, int subScribeCount, int postCount) {
-            this.name = name;
-            this.desc = desc;
-            this.tag = tag;
-            this.category = category;
-            this.imgProfile = imgProfile;
-            this.likesCount = likesCount;
-            this.subScribeCount = subScribeCount;
-            this.postCount = postCount;
-        }
-    }
 
     private final static String TAG_FRAGMENT = SongPlayerFragment.class.getSimpleName();
 

@@ -1,27 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?><!--colors.xml-->
 <resources>
 
-
-
-
-
     <color name="colorPrimary">#4a148c</color>
     <color name="colorPrimaryDark">#12005e</color>
     <color name="colorPrimaryLight">#7c43bd</color>
 
-    <color name="colorAccent">#880e4f</color>
-    <color name="colorAccentDark">#560027</color>
-    <color name="colorAccentLight">#f8bbd0</color>
-<!--    <color name="colorAccentLight">#bc477b</color>-->
+<!--    <color name="colorAccent">#880e4f</color>-->
 
-
-    <color name="fab_color_pressed">#7c43bd</color>
-    <color name="fab_color_shadow">#bc477b</color>
-    <color name="text_like_counter">#7c43bd</color>
 
     <color name="mask_color">#66C2185B</color>
 
-    <color name="primaryTextColor">#4a148c</color>
-    <color name="secondaryTextColor">#880e4f</color>
 
 </resources>

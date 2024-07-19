@@ -87,7 +87,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="www.hudhudfm.com"
+                                tools:text="@string/app_slogan"
                                 android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
                                 android:textColor="@color/grey_40" />
                             <!--                            android:text="www.\u0040fm.com"-->
@@ -131,7 +131,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="الإصدار"
+                                android:text="@string/app_version"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                                 android:textColor="@color/grey_80"
                                 app:fontFamily="sans-serif-medium" />
@@ -264,7 +264,7 @@
                         android:orientation="horizontal"
                         android:paddingLeft="@dimen/spacing_medium"
                         android:paddingRight="@dimen/spacing_medium"
-                        android:visibility="gone">
+                        android:visibility="visible">
 
                         <View
                             android:layout_width="@dimen/spacing_mlarge"
@@ -289,7 +289,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="م. إبراهيم عبدالكريم قاسم"
+                                tools:text="@string/ex_name"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                                 android:textColor="@color/grey_80"
                                 android:textSize="18sp"
@@ -298,7 +298,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="مطور تطبيقات"
+                                tools:text="@string/label_desc"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                                 android:textColor="@color/grey_40" />
 
@@ -338,7 +338,7 @@
                             android:id="@+id/txv_email"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/app_gmail"
+                            tools:text="@string/app_gmail"
                             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                             android:textColor="@color/grey_90" />
 
@@ -375,7 +375,8 @@
                             android:id="@+id/txv_phone"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/app_mobile"
+                            android:textDirection="rtl"
+                            tools:text="@string/app_mobile"
                             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                             android:textColor="@color/grey_90" />
 
@@ -392,7 +393,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:cardCornerRadius="2dp"
                 app:cardElevation="2dp"
                 app:cardUseCompatPadding="true">
@@ -450,7 +451,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Sana'a Dev Inc."
+                                android:text="@string/app_name"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                                 android:textColor="@color/grey_80"
                                 app:fontFamily="sans-serif-medium" />
@@ -458,7 +459,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Android App Specialist"
+                                tools:text="@string/app_slogan"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                                 android:textColor="@color/grey_40" />
 
@@ -501,7 +502,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Yemen - Sana'a"
+                                tools:text="@string/label_address"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                                 android:textColor="@color/grey_80"
                                 app:fontFamily="sans-serif-medium" />
@@ -509,7 +510,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Tahrir - 26 Sep .ST"
+                                tools:text="@string/ex_address"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                                 android:textColor="@color/grey_40" />
 

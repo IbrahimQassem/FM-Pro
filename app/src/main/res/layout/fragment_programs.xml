@@ -8,37 +8,21 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/spacing_large" />
-
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
 
         <TextView
             android:id="@+id/tvTittle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_middle"
-            android:layout_marginEnd="@dimen/spacing_middle"
+            android:layout_margin="@dimen/spacing_middle"
             android:gravity="center_vertical"
+            android:paddingStart="@dimen/spacing_middle"
+            android:paddingTop="@dimen/spacing_middle"
+            android:paddingEnd="@dimen/spacing_middle"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:textColor="@color/grey_90" />
-
-
-        <!--        <TextView-->
-        <!--            android:id="@+id/tvTittle"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_marginStart="@dimen/spacing_middle"-->
-        <!--            android:layout_marginEnd="@dimen/spacing_middle"-->
-        <!--            android:text="البرامج الرئيسية للقناة"-->
-        <!--            android:textAppearance="@style/TextAppearance.AppCompat.Body1"-->
-        <!--            android:textColor="@color/grey_80" />-->
-
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/spacing_large" />
+            android:textColor="@color/grey_90"
+            tools:text="@string/label_label" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"

@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingQuantity,TypographyDashes">
     <string name="app_name">هدهد اف ام</string>
-    <string name="app_slogan">تطبيق اليمن الأول للقنوات الإذاعية</string>
+<!--    <string name="app_slogan">تطبيق اليمن الأول للقنوات الإذاعية</string>-->
+    <string name="app_slogan">الوجهةَ الأمثلَ لعشاقِ الراديوِ والبرامجِ الصوتيةِ في اليمنِ</string>
+<!--    <string name="label_app_description">هدهد اف ام : هو تطبيق أندرويد يُمكَن المستخدمين من الوصول للقنوات الإذاعية اليمنية من أي مكان وفي أي وقت بضغطة زر .</string>-->
+    <string name="label_app_description">معَ "هدهد إف إم"، لمْ تعُدْ حدودُ المكانِ والزمانِ عائقاً بينَكَ وبينَ نبضِ الحياةِ في اليمنِ. فبضغطةِ زرٍ، يُصبحُ هاتفكَ نافذةً على مُحيطٍ واسعٍ منْ القنواتِ الإذاعيةِ اليمنيةِ، حاملاً إيّاكَ في رحلةٍ عبرَ ثقافاتٍ غنيةٍ وتاريخٍ عريقٍ وإبداعٍ لا ينضبُ.</string>
+
     <string name="app_version">الإصـدار</string>
     <string name="version_unknown">غير معروف !</string>
-    <string name="app_gmail">hudhudfm.ye@gmail.com</string>
-    <string name="app_mobile">+967 775617017</string>
-    <string name="app_twitter">https://twitter.com/HudhudFm</string>
-    <string name="app_facebook">https://www.facebook.com/HudhudFm</string>
-    <string name="app_instagram">http://instagram.com/hudhudfm</string>
 
     <plurals name="likes_count">
         <item quantity="one">%d إعجاب</item>
@@ -17,21 +16,18 @@
         <!--        likes-->
     </plurals>
 
-    <!--    <string name="facebook_app_id">811088116023852</string>-->
-
+<!--        <string name="facebook_app_id">811088116023852</string>-->
 
     <string name="url_profile">https://picsum.photos/200</string>
 
-
     <!--    <string name="no_stream">نعتذر , البث الإذاعي ل %s غير متوفر بعد</string>-->
-    <string name="no_stream">المعذرة , البث الإذاعي ل %s غير متوفر حالياً</string>
+    <string name="no_stream">المعذرة, البث الإذاعي ل %s غير متوفر حالياً</string>
 
     <string name="select_email_app">مشاركة</string>
 
     <string name="btn_continue">التالي</string>
 
     <!--Firebase Notification-->
-
     <!--
         This is the name that userModel will see when interacting with this channel.
         It should describe the category of notifications that will be sent through this channel
@@ -77,7 +73,7 @@
     <string name="press_once_again_to_exit">إضفط مرة أخرى لتسجيل الخروج</string>
     <string name="password">كلمة المرور</string>
     <string name="user_name">إسم المستخدم</string>
-    <string name="mobile">موبايل</string>
+    <string name="mobile">الموبايل</string>
     <string name="email">الإيميل</string>
     <string name="country">الدولة</string>
     <string name="city">المدينة</string>
@@ -85,7 +81,6 @@
     <string name="female">أنثى</string>
     <string name="male">ذكر</string>
     <string name="phone_number">رقم الموبايل</string>
-    <string name="image_desc">fm_radio_post_%s.png</string>
     <string name="logout">تسجيل الخروج</string>
     <string name="saved_successfully">تم الحفظ بنجاح</string>
     <string name="no_data_available">البيانات غير متوفرة</string>
@@ -93,6 +88,9 @@
     <string name="stop">إيقاف</string>
     <string name="notification_playing">البث المباشر</string>
     <string name="pick_profile_image">تغيير صورة المستخدم</string>
+    <string name="delete_my_account">حذف حسابي</string>
+    <string name="confirm_delete_my_account">أنت على وشك حذف حسابك نهائيًا<br/>  تأكيد الحذف ؟ </string>
+    <string name="confirm_logout_my_account">تأكيد تسجيل الخروج من التطبيق ؟</string>
 
 
     <string name="lbl_take_camera_picture">إلقاط صورة</string>
@@ -117,11 +115,10 @@
     <string name="add_episode">إضافة حلقة</string>
     <string name="goto_login">لكي تتمكن من إستخدام خدمات التطبيق يجب عليك تسجيل الدخول \n \n هل تريد الإنتقال الى نافذة تسجيل الدخول؟</string>
     <string name="main_program_for">البرامج الرئيسية</string>
-    <string name="label_app_description">هدهد اف ام : هو تطبيق أندرويد يُمكَن المستخدمين من الوصول للقنوات الإذاعية اليمنية من أي مكان وفي أي وقت بضغطة زر .</string>
-    <string name="update_episode">تحديث بيانات البرامج</string>
+    <string name="update_episode">تحديث الحلقات</string>
     <!--    <string name="powered_by">Powered By &#x2665; Sana&apos;a Dev</string>-->
     <string name="powered_by">Powered By &#x2665; Sana\'a Dev</string>
-    <string name="empty_ep">المعذرة , بيانات البرامج لإذاعة  %s غير متوفره حالياً</string>
+    <string name="msg_no_data_for">المعذرة, بيانات البرامج لإذاعة <b><i>\'%s\'</i></b> غير متوفره حالياً</string>
     <string name="whatsapp_not_installed">تطبيق واتس آب غير مثبت لديك</string>
 
 
@@ -142,6 +139,7 @@
     <string name="label_list">عرض قائمة</string>
     <string name="label_comments">التعليقات</string>
     <string name="label_title">العنوان</string>
+    <string name="label_label">وسم</string>
     <string name="ex_date">22/سبتمبر/2022</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -167,7 +165,7 @@
     <string name="label_radio_station">القناة الإذاعية</string>
     <string name="label_start_now">ابدأ الآن</string>
     <string name="label_your_favorite_station">إذاعتك المفضلة</string>
-    <string name="label_intro_1">مرحبا بك عزيزي المستخدم في تطبيق اليمن الأول للقنوات الإذاعية هدهد اف ام</string>
+    <string name="label_intro_1">مرحبا بك عزيزي المستخدم في تطبيق القنوات الإذاعية اليمنية هدهد اف ام</string>
     <string name="label_intro_2">حدد إذاعتك المفضلة وتابع أحدث البرامج اليومية</string>
     <string name="label_intro_3">إستمتع بتصفح العديد من البرامج الإذاعية المختلفة على مدار اليوم</string>
     <string name="label_enjoy">إستمتع بالتجربة</string>
@@ -184,7 +182,8 @@
     <string name="error_no_comment">لايوجد نص</string>
     <string name="label_warning">تنبيه !</string>
     <string name="confirm_delete"> أنت على وشك حذف :  <b>[%s]</b>  \n هل أنت متأكد؟</string>
-    <string name="label_error_occurred">حدث خطأ !</string>
+    <string name="confirm_hide"> أنت على وشك اخفاء :  <b>[%s]</b>  \n هل أنت متأكد؟</string>
+    <string name="label_error_occurred">خطأ غير معروف !</string>
     <string name="label_close">إغلاق</string>
     <string name="please_wait_to_save_your_profile">جاري حفظ صورة البروفايل ..</string>
     <string name="label_about_us">من نحن</string>
@@ -192,12 +191,86 @@
     <string name="error_failure">فشل في تنفذ العملية</string>
     <string name="label_saving_in_progress">جاري الحفظ ..</string>
     <string name="label_comment_as">تعليق كـ %s ..</string>
-    <string name="error_episode_audio_not_available">المعذرة , التسجل الصوتي للبرنامج الإذاعي غير موجود !</string>
+    <string name="error_episode_audio_not_available">المعذرة, التسجل الصوتي للبرنامج الإذاعي غير موجود !</string>
     <string name="deleted_successfully_with_param"> تم حذف <b>[%s]</b> بنجاح </string>
     <string name="label_edit">تعديل</string>
     <string name="label_delete">حذف</string>
-    <string name="label_enter_you_re_mobile_number">أدخل رقم هاتفك المحمول</string>
-    <string name="label_please_enter_your_mobile">يرجى إدخال رقم الموبايل</string>
-    <string name="label_please_enter_valid_mobile">يرجى إدخال رقم موبايل صحيح</string>
+    <string name="update_radio_info">تحديث بيانات الإذاعة</string>
+    <string name="label_pick_date">تحديد التاريخ</string>
+    <string name="label_radio_list">قائمة القنوات الإذاعية</string>
+    <string name="label_priority">الأولوية %d</string>
+    <string name="login_via_mobile">رقم الموبايل</string>
+    <string name="label_login_by">تسجيل الدخول عبر</string>
+    <string name="login_via_facebook">فيسبوك</string>
+    <string name="label_index">رقم</string>
+    <string name="login_via_email">الإيميل</string>
+    <string name="label_please_enter_a_valid_mobile_number">يرجى إدخال رقم موبايل صحيح</string>
+    <string name="label_confirm">تأكيد</string>
+    <string name="label_verifying_code">رمز التحقق</string>
+    <string name="label_error_occurred_with_val">حدث خطأ (%s)</string>
+    <string name="label_login">تسجيل الدخول</string>
+    <string name="label_login_via_google">قوقل</string>
+    <string name="label_week_days">أيام الأسبوع</string>
+    <string name="label_set_time">تحديد الوقت</string>
+    <string name="msg_you_must_select_radio_station">يجب عليك تحديد محطة الراديو</string>
+    <string name="ex_name">علي نجم</string>
+    <string name="ex_city">اليمن - صنعاء</string>
+    <string name="ex_address">التحرير – ش 26 سبتمبر </string>
+    <string name="label_address">العنوان</string>
+    <string name="msg_you_cannot_change_the_radio_channel_if_the_program_data_is_updated">لا يمكنك تغيير القناة الإذاعية في حالة تحديث بيانات البرنامج</string>
+    <string name="msg_you_cannot_change_the_program_name_if_you_update_the_program_data">لا يمكنك تغيير اسم البرنامج إذا قمت بتحديث بيانات البرنامج</string>
+    <string name="msg_you_must_select_a_programme">يجب تحديد برنامج</string>
+    <string name="msg_make_sure_you_add_all_the_data_correctly">تأكد من إضافة جميع البيانات بشكل صحيح !</string>
+    <string name="label_add">إضافة</string>
+    <string name="label_episode_info">بيانات الحلقة</string>
+    <string name="label_episode_announcer">مقدم البرنامج</string>
+    <string name="ex_announcer_name">مثال : علي نجم</string>
+    <string name="label_episode_description">وصف البرنامج</string>
+    <string name="ex_episode_desc">مثال : برنامج شبابي ترفيهي ..</string>
+    <string name="label_episode_url_stream">رابط الحلقة الإذاعية</string>
+    <string name="label_program_info">بيانات البرنامج</string>
+    <string name="label_radio_station_name">إسم القناة الإذاعية</string>
+    <string name="label_show_time">وقت العرض</string>
+    <string name="label_add_show_time">إضافة وقت العرض</string>
+    <string name="label_episode_image_profile">صورة البرنامج</string>
+    <string name="label_add_episode_image_profile">إضافة صورة البرنامج</string>
+    <string name="label_add_comment_as_val">تعليق كـ %s ..</string>
+    <string name="label_enter_new_priority">أدخل أولوية جديدة</string>
+    <string name="label_enable">تفعيل</string>
+    <string name="label_disable">إيقاف</string>
+    <string name="msg_are_you_sure_you_want_to">هل أنت متأكد أنك تريد %s ؟</string>
+    <string name="label_write_review">أكتب مراجعة ...</string>
+    <string name="msg_please_fill_review_text">يرجى ملء نص المراجعة</string>
+    <string name="label_submitted">إرسال</string>
+    <string name="label_start_at_with_val">يبدأ الساعة : %s</string>
+    <string name="label_end_at_with_val">ينتهي الساعة : %s</string>
+    <string name="label_show_period">مدة العرض : %s</string>
+    <string name="label_date_from_to">من %1$s الى %2$s</string>
+    <string name="label_time_from_to">من %1$s الى %2$s</string>
+    <string name="update_program">تحديث البرامج</string>
+    <string name="ex_program_name">مثال : صباح العاصمة</string>
+    <string name="label_program_logo">شعار البرنامج</string>
+    <string name="label_add_image">إضافة صورة</string>
+    <string name="ex_program_category">مثال : إجتماعي , شبابي ..</string>
+    <string name="label_time_period_for_displaying_program">الفترة الزمنية لعرض البرنامج</string>
+    <string name="ex_days">مثال : سبت , أحد , إثنين</string>
+    <string name="label_episode_name">عنوان البرنامج</string>
+    <string name="label_set_start_time">تحديد وقت البدء</string>
+    <string name="label_set_end_time">تحديد وقت الإنتهاء</string>
+    <string name="label_set_day">تحديد اليوم</string>
+    <string name="label_sub_main">فرعي</string>
+    <string name="label_main">رئيسي</string>
+    <string name="label_day">يوم</string>
+    <string name="label_trail_version">النسخة التجربية</string>
+    <string name="label_a_repeated_episode">إعاده</string>
+    <string name="label_new_episode">حلقه جديده</string>
+    <string name="label_start">يبدأ</string>
+    <string name="label_end">ينتهي</string>
+    <string name="label_select_weekdays">حدد أيام الأسبوع</string>
+    <string name="label_hours">ساعة</string>
+    <string name="label_minutes">دقيقة</string>
+    <string name="label_update_now">تحديث التطبيق</string>
+    <string name="label_force_update_title">التحديث الآن</string>
+    <string name="label_force_update_message">يرجى تحديث الإصدار الأخير من التطبيق.</string>
 
 </resources>

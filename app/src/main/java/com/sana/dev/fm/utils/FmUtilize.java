@@ -1,8 +1,6 @@
 package com.sana.dev.fm.utils;
 
-import static android.content.Context.MODE_PRIVATE;
 import static com.sana.dev.fm.FmApplication.TAG;
-import static com.sana.dev.fm.model.AppConfig.RADIO_NAME;
 
 import android.Manifest;
 import android.app.Activity;
@@ -25,7 +23,6 @@ import android.os.Build;
 import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -33,7 +30,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.DatePicker;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -47,9 +43,10 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.WakeTranslate;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
+import com.sana.dev.fm.model.enums.Weekday;
 
 import java.io.FileNotFoundException;
+import java.lang.reflect.Field;
 import java.security.SecureRandom;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
@@ -61,6 +58,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -75,8 +73,9 @@ import java.util.UUID;
  */
 public class FmUtilize {
 
-    public static final Locale _arabicFormat = new Locale("ar", "SA");  // Arabic language. Saudi Arabia cultural norms.
-    public static final SimpleDateFormat month_date = new SimpleDateFormat("MMMM", _arabicFormat);
+    public static final Locale arabicFormat = new Locale("ar", "SA");  // Arabic language. Saudi Arabia cultural norms.
+    public static final Locale englishFormat = new Locale("en", "En"); // Locale.ENGLISH
+    public static final SimpleDateFormat month_date = new SimpleDateFormat("MMMM", arabicFormat);
     public static final String DATE_TIME_FORMAT = "MM/dd/yyyy HH:mm:ss a";
 
 //    public static final Locale _arabicFormat = new Locale("en", "US");  // Arabic language. Saudi Arabia cultural norms.
@@ -213,39 +212,9 @@ public class FmUtilize {
         return millis;
     }
 
-    public static String timeDifference(long startTime, long endTime) {
-
-//        long period = 0;
-//        int days, hours, min;
-//        try {
-//            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(_timeFormat);
-//            String _startDate = simpleDateFormat.format(startTime);
-//            String _endDate = simpleDateFormat.format(endTime);
-//            Date date1 = simpleDateFormat.parse(_startDate);
-//            Date date2 = simpleDateFormat.parse(_endDate);
-//
-//            long difference = date2.getTime() - date1.getTime();
-//            days = (int) (difference / (1000 * 60 * 60 * 24));
-//            hours = (int) ((difference - (1000 * 60 * 60 * 24 * days)) / (1000 * 60 * 60));
-//            min = (int) (difference - (1000 * 60 * 60 * 24 * days) - (1000 * 60 * 60 * hours)) / (1000 * 60);
-//            hours = (hours < 0 ? -hours : hours);
-////            Log.i("======= Hours"," :: "+hours);
-////            period = (hours + ":" + min);
-//            final Calendar calendar = Calendar.getInstance();
-//            calendar.set(Calendar.HOUR_OF_DAY, hours);
-//            calendar.set(Calendar.MINUTE, min);
-//            calendar.set(Calendar.SECOND, 0);
-//            calendar.set(Calendar.MILLISECOND, 0);
-//            period = calendar.getTimeInMillis();
-////            period = setTimeFormat(hours, min, 00);
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return period;
-
+    public static String timeDifference(long startTime, long endTime, Locale locale) {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", FmUtilize._arabicFormat);
+            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", locale);
             String _startDate = sdf.format(startTime);
             String _endDate = sdf.format(endTime);
 
@@ -256,10 +225,8 @@ public class FmUtilize {
             int hours = (int) (millis / (1000 * 60 * 60));
             int mins = (int) ((millis / (1000 * 60)) % 60);
 
-            String formattedTime = String.format(FmUtilize._arabicFormat, "%d:%02d",
+            String formattedTime = String.format(locale, "%d:%02d",
                     Math.abs(hours), Math.abs(mins));
-//
-//             return Math.abs(hours) + ":" + Math.abs(mins);
             return formattedTime;
         } catch (ParseException e) {
             e.printStackTrace();
@@ -268,6 +235,41 @@ public class FmUtilize {
         return "";
     }
 
+    public static String calculateTimeDifference(Context ctx,long startTimeInMillis, long endTimeInMillis) {
+
+        long diffInMillis = endTimeInMillis - startTimeInMillis;
+
+        // Ensure non-negative difference (handle cases where start time might be in the future)
+        diffInMillis = Math.max(diffInMillis, 0);
+
+        long seconds = diffInMillis / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        minutes %= 60; // Remaining minutes after calculating hours
+
+        StringBuilder result = new StringBuilder();
+
+        if (hours > 0) {
+            result.append(hours).append(" "+ctx.getString(R.string.label_hours));
+//            if (hours > 1) {
+//                result.append('s'); // Add plural 's' for hours if more than 1
+//            }
+        }
+
+        if (minutes > 0) {
+            if (result.length() > 0) {
+                result.append(" "); // Add space if hours are already present
+            }
+            result.append(minutes).append(" "+ctx.getString(R.string.label_minutes));
+//            if (minutes > 1) {
+//                result.append('s'); // Add plural 's' for minutes if more than 1
+//            }
+        }
+
+        return result.toString().trim();
+    }
+
+
     public static String getTDateFormat(Date date) {
         SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat(_dateFormat, Locale.ENGLISH);
         return ISO_8601_FORMAT.format(date);
@@ -275,8 +277,8 @@ public class FmUtilize {
     }
 
     public static String getDayName(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("EEEE", new Locale("ar"));
-//        DateFormat format = new SimpleDateFormat("EEEE yyyy/MM/dd", new Locale("ar"));
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE", arabicFormat);
+//        DateFormat format = new SimpleDateFormat("EEEE yyyy/MM/dd", arabicFormat);
         String dayOfTheWeek = sdf.format(date);
         return dayOfTheWeek;
     }
@@ -495,17 +497,18 @@ public class FmUtilize {
     }
 
     public static Date stringToDate(String string) {
-        final Locale locale = Locale.ENGLISH;
-        ThreadLocal formater = new ThreadLocal() {
-            protected SimpleDateFormat initialValue() {
-                return new SimpleDateFormat(_dateFormat, locale);
+        if (!FmUtilize.isEmpty(string))
+            try {
+                final Locale locale = Locale.ENGLISH;
+                ThreadLocal formater = new ThreadLocal() {
+                    protected SimpleDateFormat initialValue() {
+                        return new SimpleDateFormat(_dateFormat, locale);
+                    }
+                };
+                return ((SimpleDateFormat) formater.get()).parse(string);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        };
-        try {
-            return ((SimpleDateFormat) formater.get()).parse(string);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
         return null;
     }
 
@@ -618,6 +621,19 @@ public class FmUtilize {
         return result;
     }
 
+    public static Map<String, Object> classToMap(Object obj) throws IllegalAccessException {
+        Map<String, Object> map = new HashMap<>();
+        Class<?> c = obj.getClass();
+
+        for (Field field : c.getDeclaredFields()) {
+            field.setAccessible(true);
+            map.put(field.getName(), field.get(obj));
+        }
+
+        return map;
+    }
+
+
     public static String getSecret(int size) {
         byte[] secret = getSecretBytes(size);
         return secret.toString();// Base64.encodeBytes(secret);
@@ -634,24 +650,18 @@ public class FmUtilize {
     }
 
     public static String trimMobileCode(String mobile) {
-//        if (mobile != null && mobile.trim().length() >= 12)
-//            return mobile.substring(3);
-//        return mobile;
-
-        if (mobile.length() == 9) {
-            return mobile;
-        } else if (mobile.length() > 9) {
-            return mobile.substring(mobile.length() - 9);
+        String res;
+        if (!FmUtilize.isEmpty(mobile) && mobile.length() > 9) {
+            res = mobile.substring(mobile.length() - 9);
         } else {
-            // whatever is appropriate in this case
-            //throw new IllegalArgumentException("word has fewer than 3 characters!");
-            return mobile;
+            res = mobile;
         }
+        return res;
     }
 
     public String getLastThree(String myString) {
-        if(myString.length() > 3)
-            return myString.substring(myString.length()-3);
+        if (myString.length() > 3)
+            return myString.substring(myString.length() - 3);
         else
             return myString;
     }
@@ -762,7 +772,7 @@ public class FmUtilize {
         Intent contactUsIntent = new Intent(Intent.ACTION_SENDTO);
         contactUsIntent.setData(Uri.parse("mailto:"));
         contactUsIntent.putExtra(Intent.EXTRA_EMAIL, developerEmail);
-        contactUsIntent.putExtra(Intent.EXTRA_SUBJECT, RADIO_NAME);
+        contactUsIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.app_name));
         contactUsIntent.putExtra(Intent.EXTRA_TEXT, emailTemplate);
         Intent chooser = Intent.createChooser(contactUsIntent, context.getString(R.string
                 .select_email_app));
@@ -774,76 +784,45 @@ public class FmUtilize {
         return other == null ? Collections.EMPTY_LIST : other;
     }
 
-    private static ArrayList<WakeTranslate> arList() {
-        ArrayList<WakeTranslate> arList = new ArrayList<WakeTranslate>();
-        arList.add(new WakeTranslate("Sun", "الأحد"));
-        arList.add(new WakeTranslate("Mon", "الإثنين"));
-        arList.add(new WakeTranslate("Tue", "الثلاثاء"));
-        arList.add(new WakeTranslate("Wed", "الأربعاء"));
-        arList.add(new WakeTranslate("Thu", "الخميس"));
-        arList.add(new WakeTranslate("Fri", "الجمعة"));
-        arList.add(new WakeTranslate("Sat", "السبت"));
-        return arList;
-    }
+//    private static ArrayList<WakeTranslate> arList() {
+//        ArrayList<WakeTranslate> arList = new ArrayList<WakeTranslate>();
+//        arList.add(new WakeTranslate(Weekday.Saturday.name(), "السبت"));
+//        arList.add(new WakeTranslate(Weekday.Sunday.name(), "الأحد"));
+//        arList.add(new WakeTranslate(Weekday.Monday.name(), "الإثنين"));
+//        arList.add(new WakeTranslate(Weekday.Tuesday.name(), "الثلاثاء"));
+//        arList.add(new WakeTranslate(Weekday.Wednesday.name(), "الأربعاء"));
+//        arList.add(new WakeTranslate(Weekday.Thursday.name(), "الخميس"));
+//        arList.add(new WakeTranslate(Weekday.Friday.name(), "الجمعة"));
+//        return arList;
+//    }
 
 
-    public static ArrayList<WakeTranslate> translateWakeDaysAr(List<String> enList) {
-//        int itemIndex = enList.indexOf(item);
-//        if (itemIndex != -1) {
-//            enList.set(itemIndex, item);
-//        }
-
-//        ArrayList<String> enList = new ArrayList<>();
-//        enList.add("Sun");
-//        enList.add("Mon");
-//        enList.add("Thu");
-//        enList.add("Wed");
-//        enList.add("Thu");
-//        enList.add("Fri");
-//        enList.add("Sat");
-
-
-        ArrayList<WakeTranslate> results = new ArrayList<>();
-
-        // Loop arrayList2 items
-        for (String enName : enList) {
-            // Loop arrayList1 items
-//            boolean found = false;
-            for (WakeTranslate wt : arList()) {
-                if (enName.equals(wt.getDayKey())) {
-//                    found = true;
-                    results.add(wt);
-                }
-            }
-//            if (!found) {
-//                LogUtility.e("translateWakeDays not found : ",enName);
-//            }
-        }
-
-        return results;
-    }
-
-    public static ArrayList<String> translateWakeDaysEn(List<String> list) {
+//    public static ArrayList<WakeTranslate> translateWakeDaysAr(List<String> enList) {
 //        ArrayList<WakeTranslate> results = new ArrayList<>();
-        ArrayList<String> enList = new ArrayList<>();
-
-        // Loop arrayList2 items
-        for (String arName : list) {
-            // Loop arrayList1 items
-//            boolean found = false;
-            for (WakeTranslate wt : arList()) {
-                if (arName.equals(wt.getDayName())) {
-//                    found = true;
-                    enList.add(wt.getDayKey());
-                }
-            }
-//            if (!found) {
-//                LogUtility.e("translateWakeDays not found : ",enName);
+//        for (String enName : enList) {
+//            // Loop arrayList1 items
+//            for (WakeTranslate wt : arList()) {
+//                if (enName.equals(wt.getDayKey())) {
+//                    results.add(wt);
+//                }
 //            }
-        }
+//        }
+//        return results;
+//    }
 
-        return enList;
-    }
+//    public static ArrayList<String> translateWakeDaysEn(List<String> list) {
+//        ArrayList<String> enList = new ArrayList<>();
+//        // Loop arrayList2 items
+//        for (String arName : list) {
+//            // Loop arrayList1 items
+//            for (WakeTranslate wt : arList()) {
+//                if (arName.equals(wt.getDayName())) {
+//                    enList.add(wt.getDayKey());
+//                }
+//            }
+//        }
+//        return enList;
+//    }
 
 
     public static String[] getWeekDayNames() {
@@ -896,14 +875,6 @@ public class FmUtilize {
         }
     }
 
-    public static void hideEmptyElement(String s, View view) {
-        if (!TextUtils.isEmpty(s)) {
-            if (view instanceof TextView)
-                ((TextView) view).setText(s);
-        } else {
-            view.setVisibility(View.GONE);
-        }
-    }
 
     public static boolean isGooglePlayServicesAvailable(Activity activity) {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
@@ -921,8 +892,7 @@ public class FmUtilize {
 
         String deviceId;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-        {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         } else {
             final TelephonyManager mTelephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -932,12 +902,10 @@ public class FmUtilize {
                 }
             }
             assert mTelephony != null;
-            if (mTelephony.getDeviceId() != null)
-            {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                {
+            if (mTelephony.getDeviceId() != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     deviceId = mTelephony.getImei();
-                }else {
+                } else {
                     deviceId = mTelephony.getDeviceId();
                 }
             } else {
@@ -949,10 +917,43 @@ public class FmUtilize {
     }
 
 
-
     public static String getFirebaseToken(Context context) {
 //        return PreferencesManager.getInstance().write(FirebaseConstants.DEVICE_TOKEN,null);
-        return context.getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(FirebaseConstants.DEVICE_TOKEN, null);
+        String token = PreferencesManager.getInstance().read(AppConstant.General.FIREBASE_FCM_TOKEN, null);
+        return token;
+//        return context.getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(AppConstant.General.FIREBASE_FCM_TOKEN, null);
+    }
+
+    public static Bitmap resizeImage(Context context, int resourceId, int targetWidth, int targetHeight) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true; // Only decode bounds, not full image data
+        BitmapFactory.decodeResource(context.getResources(), resourceId, options);
+
+        // Calculate the sample size based on target dimensions
+        int sampleSize = calculateInSampleSize(options, targetWidth, targetHeight);
+
+        // Decode the image with the calculated sample size
+        options.inJustDecodeBounds = false;
+        options.inSampleSize = sampleSize;
+        return BitmapFactory.decodeResource(context.getResources(), resourceId, options);
+    }
+
+    public static int calculateInSampleSize(BitmapFactory.Options options, int targetWidth, int targetHeight) {
+        int originalWidth = options.outWidth;
+        int originalHeight = options.outHeight;
+
+        int inSampleSize = 1;
+
+        if (originalHeight > targetHeight || originalWidth > targetWidth) {
+            int halfWidth = originalWidth / 2;
+            int halfHeight = originalHeight / 2;
+
+            while ((halfWidth / inSampleSize) >= targetWidth && (halfHeight / inSampleSize) >= targetHeight) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 
 

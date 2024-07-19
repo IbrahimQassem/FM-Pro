@@ -9,6 +9,7 @@ import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.SectionImage;
+import com.sana.dev.fm.model.enums.Weekday;
 
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -69,8 +70,8 @@ public class DataGenerator {
             String _desc = ctx.getString(R.string.label_desc) + " " + name_arr[i] ;
             // Todo : Fix me
 //            Episode obj = new Episode("1000", "1000_" + index, "Name :" + index, "1000_" + index + "_" + index, name_arr[i], _desc, name_arr[i], Tools.getFormattedDateSimple(new Date().getTime()), setTimeFormat((i + 1), (i * 3), 33), setTimeFormat((i + 1), (i * 3), 33), "59", _img, "", 100 * i, 1, String.valueOf(System.currentTimeMillis()), "temp", "", false,new DateTimeModel(System.currentTimeMillis(),System.currentTimeMillis(),shortWeekDays));
-            Episode episode = new Episode(""+i, "1000_" + index, ctx.getString(R.string.label_program_name)+ " " + index, "1000_" + index, name_arr[i], _desc, ctx.getString(R.string.label_announcer_name) +" "+  name_arr[i], new DateTimeModel(System.currentTimeMillis(),System.currentTimeMillis(),shortWeekDays), _img, "http://www.dev2qa.com/demo/media/test.mp3", 1, 1, String.valueOf(System.currentTimeMillis()), "createBy", "", false, new ArrayList<DateTimeModel>(Collections.singleton(new DateTimeModel(System.currentTimeMillis(), System.currentTimeMillis(), shortWeekDays))));
-            items.add(episode);
+//            Episode episode = new Episode(""+i, "1000_" + index, ctx.getString(R.string.label_program_name)+ " " + index, "1000_" + index, name_arr[i], _desc, ctx.getString(R.string.label_announcer_name) +" "+  name_arr[i], new DateTimeModel(System.currentTimeMillis(),System.currentTimeMillis(), Weekday.), _img, "http://www.dev2qa.com/demo/media/test.mp3", 1, 1, String.valueOf(System.currentTimeMillis()), "createBy", "", false, new ArrayList<DateTimeModel>(Collections.singleton(new DateTimeModel(System.currentTimeMillis(), System.currentTimeMillis(), shortWeekDays))));
+//            items.add(episode);
         }
         Collections.shuffle(items);
         return items;

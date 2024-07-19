@@ -9,7 +9,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -103,13 +102,17 @@ public class PreferencesManager {
     }
 
     public String getPrefLange() {
-        String lang = read(FirebaseConstants.PREF_LANGUAGE, "ar");
+        String lang = read(AppConstant.General.PREF_LANGUAGE, "ar");
         return lang;
+    }
+
+    public void setUserSession(UserModel userModel) {
+        write(AppConstant.General.USER_INFO, userModel);
     }
 
     public UserModel getUserSession() {
         Gson gson = new Gson();
-        String json = read(FirebaseConstants.USER_INFO, null);
+        String json = read(AppConstant.General.USER_INFO, null);
         return gson.fromJson(json, UserModel.class);
     }
 
@@ -117,26 +120,33 @@ public class PreferencesManager {
         //Set the values
         Gson gson = new Gson();
         String jsonText = gson.toJson(arrayList);
-        write(FirebaseConstants.RADIO_INFO_LIST, jsonText);
+        write(AppConstant.General.RADIO_INFO_LIST, jsonText);
     }
 
 
-    public ArrayList<RadioInfo> getRadioList(){
-        Gson gson = new Gson();
-        String jstring = read(FirebaseConstants.RADIO_INFO_LIST, null);
-        Type type = new TypeToken<ArrayList<RadioInfo>>() {}.getType();
+    public ArrayList<RadioInfo> getRadioList() {
+        ArrayList<RadioInfo> list = new ArrayList<>();
+        try {
+            Gson gson = new Gson();
+            String json = read(AppConstant.General.RADIO_INFO_LIST, null);
+            Type type = new TypeToken<ArrayList<RadioInfo>>() {
+            }.getType();
 
 //        Type collectionType = new TypeToken<Collection<RadioInfo>>(){}.getType();
 //        Collection<RadioInfo> enums = gson.fromJson(jstring, collectionType);
 //        List<RadioInfo> lcs = (List<RadioInfo>) new Gson()
 //                .fromJson( jstring , collectionType);
 
-        return gson.fromJson(jstring, type);
+            list = gson.fromJson(json, type);
+        } catch (Exception e) {
+            LogUtility.e(LogUtility.tag(PreferencesManager.class), e.toString());
+        }
+        return list;
     }
 
     public RadioInfo selectedRadio() {
         Gson gson = new Gson();
-        String json = read(FirebaseConstants.RADIO_INFO_TABLE, null);
+        String json = read(AppConstant.Firebase.RADIO_INFO_TABLE, null);
         return gson.fromJson(json, RadioInfo.class);
 //        RadioInfo ob =  new RadioInfo();
 //        ob.setRadioId("1001");
@@ -145,7 +155,6 @@ public class PreferencesManager {
 //        RadioInfo radio = RadioInfo.newInstance("1002", "أصالة", "", "https://streamingv2.shoutcast.com/assala-fm", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1002%2Fmicar.jpg?alt=media&token=b568c461-9563-44e2-a091-e953471e42c4", "@asalah_fm", "صنعاء", "", "Asalah Fm", "usId", true);
 //        RadioInfo radio = RadioInfo.newInstance("", "", "", "", "", "@", "", "", "", "", true);
 //        String rdString = gson.toJson(radio);
-
     }
 
 

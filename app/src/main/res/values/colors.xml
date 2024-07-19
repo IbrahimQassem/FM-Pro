@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?><!--colors.xml-->
 <resources>
 
-    <color name="colorPrimary">#e91e63</color>
-    <color name="colorPrimaryDark">#c2185b</color>
-    <color name="colorPrimaryLight">#f8bbd0</color>
+<!--    <color name="colorPrimary">#e91e63</color>-->
+<!--    <color name="colorPrimaryDark">#c2185b</color>-->
+<!--    <color name="colorPrimaryLight">#f8bbd0</color>-->
 
-    <color name="colorAccent">#ff4081</color>
-    <color name="colorAccentDark">#f50057</color>
-    <color name="colorAccentLight">#f8bbd0</color>
+<!--    <color name="colorAccent">#ff4081</color>-->
+<!--    <color name="colorAccentDark">#f50057</color>-->
+<!--    <color name="colorAccentLight">#f8bbd0</color>-->
 
+<!--    <color name="colorPrimary">#9D3C72</color>-->
+<!--    <color name="colorPrimaryDark">#7B2869</color>-->
+<!--    <color name="colorPrimaryLight">#C85C8E</color>-->
+
+<!--    <color name="colorAccent">#FFBABA</color>-->
+
+
+
+    <color name="colorPrimary">#8E3E63</color>
+    <color name="colorPrimaryDark">#76264A</color>
+    <color name="colorPrimaryLight">#D2649A</color>
+
+    <color name="colorAccent">#f8bbd0</color>
 
     <color name="fab_color_pressed">#f8bbd0</color>
     <color name="fab_color_shadow">#f48fb1</color>
@@ -16,11 +29,11 @@
 
     <color name="mask_color">#66C2185B</color>
 
-    <color name="primaryTextColor">#4a148c</color>
-
 
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
+
+    <color name="ic_launcher_background">#FFFFFF</color>
 
     <!--    <color name="mbc">#ac201f</color>-->
 

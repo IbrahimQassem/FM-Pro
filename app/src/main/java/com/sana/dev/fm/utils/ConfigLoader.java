@@ -35,5 +35,5 @@ public class ConfigLoader {
     }
 }
 
-//ConfigLoader.load(Constants.class, "/path/to/constants.properties");
+//ConfigLoader.load(AppConstant.class, "/path/to/constants.properties");
 

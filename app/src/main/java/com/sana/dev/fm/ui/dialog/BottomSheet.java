@@ -19,8 +19,6 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.LayoutBottomSheetBinding;
 
 public class BottomSheet extends BottomSheetDialogFragment {
-
-
     BottomSheetBehavior bottomSheetBehavior;
     LayoutBottomSheetBinding bi;
 
@@ -38,7 +36,6 @@ public class BottomSheet extends BottomSheetDialogFragment {
         bottomSheet.setContentView(view);
 
         bottomSheetBehavior = BottomSheetBehavior.from((View) (view.getParent()));
-
 
         //setting Peek at the 16:9 ratio keyline of its parent.
         bottomSheetBehavior.setPeekHeight(BottomSheetBehavior.PEEK_HEIGHT_AUTO);
@@ -86,7 +83,7 @@ public class BottomSheet extends BottomSheetDialogFragment {
         bi.editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "Edit button clicked", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.label_ok), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -94,7 +91,7 @@ public class BottomSheet extends BottomSheetDialogFragment {
         bi.moreBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "More button clicked", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.label_cancel), Toast.LENGTH_SHORT).show();
             }
         });
 

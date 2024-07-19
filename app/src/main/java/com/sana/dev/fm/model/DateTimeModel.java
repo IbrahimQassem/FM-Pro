@@ -1,6 +1,9 @@
 package com.sana.dev.fm.model;
 
 
+import com.sana.dev.fm.model.enums.Weekday;
+import com.sana.dev.fm.utils.Tools;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,8 +12,8 @@ import java.util.Locale;
 
 public class DateTimeModel {
     long dateStart, dateEnd, timeStart, timeEnd;
-    List<String> displayDays;//= DateFormatSymbols.getInstance(Locale.getDefault()).getShortWeekdays();
-    boolean isItMainTime;
+    List<Weekday> weekdays;
+    boolean asMainTime;
 
 
     public DateTimeModel() {
@@ -24,22 +27,10 @@ public class DateTimeModel {
         this.timeEnd = timeEnd;
     }
 
-
-    public DateTimeModel(long dateStart, long dateEnd, List<String> displayDay) {
+    public DateTimeModel(long dateStart, long dateEnd, List<Weekday> displayDay) {
         this.dateStart = dateStart;
         this.dateEnd = dateEnd;
-        this.displayDays = displayDay;
-    }
-
-//    public boolean contains(List<String> _displayDays, String dayName) {
-//        boolean isContain = _displayDays.contains(dayName);
-//        return isContain;
-//    }
-
-    public DateTimeModel(long timeStart, long timeEnd, boolean isItMainTime) {
-        this.timeStart = timeStart;
-        this.timeEnd = timeEnd;
-        this.isItMainTime = isItMainTime;
+        this.weekdays = displayDay;
     }
 
     public boolean isWithinRange(DateTimeModel model) {
@@ -65,36 +56,37 @@ public class DateTimeModel {
             TimePeriod vv = new TimePeriod();
             vv.start = before;
             vv.end = after;
-            idd =  vv.isIn(toCheck);
+            idd = vv.isIn(toCheck);
             //is toCheck between the two?
             isTimeAvailable = (before.getTime() < toCheck.getTime()) && after.getTime() > toCheck.getTime();
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
-        idd  = idd;
+        idd = idd;
         return isTimeAvailable;
     }
 
 
-
-    public static long findMainShowTime( List<DateTimeModel> list){
+    // Todo
+    public static long findMainShowTime(List<DateTimeModel> list) {
 //        DateTimeModel timeModel = new DateTimeModel();
         long time = 0;
-        for (DateTimeModel dateTimeModel : list) {
-            if (dateTimeModel.isItMainTime()) {
+        if (!Tools.isEmpty(list)) {
+            for (DateTimeModel dateTimeModel : list) {
+                if (dateTimeModel.isAsMainTime()) {
 //                timeModel = dateTimeModel;
-                time = dateTimeModel.getTimeStart();
-                break;
+                    time = dateTimeModel.getTimeStart();
+                    break;
+                }
             }
         }
-        return  time;
+        return time;
     }
 
 
-
     public static boolean useLoop(String[] arr, String targetValue) {
-        for (String s: arr) {
+        for (String s : arr) {
             if (s.equals(targetValue))
                 return true;
         }
@@ -133,24 +125,24 @@ public class DateTimeModel {
         this.timeEnd = timeEnd;
     }
 
-    public List<String> getDisplayDays() {
-        return displayDays;
+    public List<Weekday> getWeekdays() {
+        return weekdays;
     }
 
-    public void setDisplayDays(List<String> displayDays) {
-        this.displayDays = displayDays;
+    public void setWeekdays(List<Weekday> weekdays) {
+        this.weekdays = weekdays;
     }
 
-    public boolean isItMainTime() {
-        return isItMainTime;
+    public boolean isAsMainTime() {
+        return asMainTime;
     }
 
-    public void setItMainTime(boolean itMainTime) {
-        isItMainTime = itMainTime;
+    public void setAsMainTime(boolean asMainTime) {
+        this.asMainTime = asMainTime;
     }
 }
 
-class TimePeriod implements Comparable<TimePeriod>{
+class TimePeriod implements Comparable<TimePeriod> {
 
     Date start;
     Date end;

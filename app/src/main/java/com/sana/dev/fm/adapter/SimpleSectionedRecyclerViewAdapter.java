@@ -20,7 +20,6 @@ public class SimpleSectionedRecyclerViewAdapter extends RecyclerView.Adapter<Rec
 
     private final Context mContext;
     private static final int SECTION_TYPE = 0;
-
     private boolean mValid = true;
     private int mSectionResourceId;
     private int mTextResourceId;

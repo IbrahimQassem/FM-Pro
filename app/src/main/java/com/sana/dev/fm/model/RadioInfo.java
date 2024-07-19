@@ -4,40 +4,36 @@ package com.sana.dev.fm.model;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentId;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
-import com.google.firebase.firestore.ServerTimestamp;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.sana.dev.fm.utils.AppConstant;
+import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
-import com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
+import java.util.Comparator;
 import java.util.List;
 
 public class RadioInfo implements Serializable {
 
     private int id;
-    @DocumentId
+//    @DocumentId
     private String radioId;
-    private String name, desc, streamUrl, logo, tag, city, channelFreq, enName, createBy, timestamp;
+    private String name, desc, streamUrl, logo, tag, city, channelFreq, enName, createBy, createAt;
     private int programsCount, followers, subscribers, rating, priority;
-
-    @ServerTimestamp
-    private Date createdDate;
-    private boolean isOnline, disabled;
-
+    private boolean isOnline, disabled, isBlueBadge;
 
     public RadioInfo() {
 
     }
 
-    public RadioInfo(String radioId, String name, String desc, String streamUrl, String logo, String tag, int programs, int followers, int subscribers, int rating, int priority, Date createdDate, boolean isOnline, boolean disabled, String city, String channelFreq, String enName, String createBy, String timestamp) {
+    public RadioInfo(String radioId, String name, String desc, String streamUrl, String logo, String tag, int programs, int followers, int subscribers, int rating, int priority, boolean isOnline, boolean disabled,  boolean isBlueBadge, String city, String channelFreq, String enName, String createBy, String createAt) {
         this.radioId = radioId;
         this.name = name;
         this.desc = desc;
@@ -49,25 +45,38 @@ public class RadioInfo implements Serializable {
         this.subscribers = subscribers;
         this.rating = rating;
         this.priority = priority;
-        this.createdDate = createdDate;
         this.isOnline = isOnline;
         this.disabled = disabled;
+        this.isBlueBadge = isBlueBadge;
         this.city = city;
         this.channelFreq = channelFreq;
         this.enName = enName;
         this.createBy = createBy;
-        this.timestamp = timestamp;
+        this.createAt = createAt;
     }
 
     public static RadioInfo newInstance(String radioId, String name, String desc, String streamUrl, String logo, String tag, String city, String channelFreq, String enName, String createBy, boolean disabled) {
-        return new RadioInfo(radioId, name, desc, streamUrl, logo, tag, 1, 1, 1, 1, 1, new Date(), false, disabled, city, channelFreq, enName, createBy, Tools.getFormattedDateSimple(new Date().getTime()));
+        return new RadioInfo(radioId, name, desc, streamUrl, logo, tag, 1, 1, 1, 1, 1, false,false, disabled, city, channelFreq, enName, createBy, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat));
     }
 
 
     @Exclude
     @Override
     public String toString() {
-        return name;
+        return new GsonBuilder().create().toJson(this, RadioInfo.class);
+    }
+
+    public String toJSON() {
+        Gson gson = new Gson();
+        String json = gson.toJson(this);
+        return json;
+    }
+
+    public static class RadioInfoPriorityComparator implements Comparator<RadioInfo> {
+        @Override
+        public int compare(RadioInfo person1, RadioInfo person2) {
+            return Integer.compare(person1.getPriority(), person2.getPriority());
+        }
     }
 
     public RadioInfo findRadio(String RadioId, List<RadioInfo> radios) {
@@ -101,11 +110,11 @@ public class RadioInfo implements Serializable {
         if (prefMgr.getUserSession() == null)
             return;
         String usId = prefMgr.getUserSession().getUserId();
-        RadioInfo radio1 = RadioInfo.newInstance("1001", "يمن", "", "http://93.190.141.15:7183/live", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1001%2F1001.jpg?alt=media&token=41d7cab7-d1cf-4d10-840a-dd576c04871a", "@yemen_fm", "صنعاء", "99,9", "Yemen Fm", usId, false);
-        RadioInfo radio2 = RadioInfo.newInstance("1002", "أصالة", "", "https://streamingv2.shoutcast.com/assala-fm", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1002%2Fmicar.jpg?alt=media&token=b568c461-9563-44e2-a091-e953471e42c4", "@asalah_fm", "صنعاء", "87.9", "Asalah Fm", usId, true);
-        RadioInfo radio3 = RadioInfo.newInstance("1003", "صوت اليمن", " إذاعة حرة ومستقله بقدرات وأصوات يمنية 100%", "", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1003%2F1003.jpg?alt=media&token=004920e1-edac-4b9f-9182-b670ecc3f9bc", "@yemenvoicefm", "صنعاء", "98.1", "Yemen Voice Fm", usId, false);
+        RadioInfo radio1 = RadioInfo.newInstance("1001", "يمن اف ام", "", "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1001%2F1001.jpg?alt=media&token=41d7cab7-d1cf-4d10-840a-dd576c04871a", "@yemen_fm", "صنعاء", "99,9", "Yemen Fm", usId, false);
+//        RadioInfo radio2 = RadioInfo.newInstance("1002", "أصالة", "", "https://streamingv2.shoutcast.com/assala-fm", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1002%2Fmicar.jpg?alt=media&token=b568c461-9563-44e2-a091-e953471e42c4", "@asalah_fm", "صنعاء", "87.9", "Asalah Fm", usId, true);
+//        RadioInfo radio3 = RadioInfo.newInstance("1003", "صوت اليمن", " إذاعة حرة ومستقله بقدرات وأصوات يمنية 100%", "", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1003%2F1003.jpg?alt=media&token=004920e1-edac-4b9f-9182-b670ecc3f9bc", "@yemenvoicefm", "صنعاء", "98.1", "Yemen Voice Fm", usId, false);
         RadioInfo radio4 = RadioInfo.newInstance("1004", "طيرمانة", "", "", "", "@tairmanah_fm", "صنعاء", "101.10", "Tayramana Fm", usId, true);
-        RadioInfo radio5 = RadioInfo.newInstance("1005", "سمارة", "", "https://l.facebook.com/l.php?u=https%3A%2F%2Feu2-centova.serverse.com%2Fproxy%2Fjgbhsvbc%3Fmp%3D%252Fstream%26fbclid%3DIwAR3hJ7WE0bkmPDbG2f5rloNYtj397px_W5dDlvmqj208WIsClSpmhf1cSs8&h=AT2zEq4uMVih-kAU688J-JUvuTgElJRGXW-t9sUlLVx095lTk0e_WuHBSqW7adckomMfLg4O3hyoyXrsFDvw9JvIzSA4RClokIQlbHxV7GHt82eQEKk2U2Ei5V2LVpHSgw0xuA", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1005%2F1005.jpg?alt=media&token=92224654-c283-4481-9abb-4bfe1f4c8ae8", "@somarafm", "إب", "100.3", "Somara Fm", usId, true);
+//        RadioInfo radio5 = RadioInfo.newInstance("1005", "سمارة", "", "https://l.facebook.com/l.php?u=https%3A%2F%2Feu2-centova.serverse.com%2Fproxy%2Fjgbhsvbc%3Fmp%3D%252Fstream%26fbclid%3DIwAR3hJ7WE0bkmPDbG2f5rloNYtj397px_W5dDlvmqj208WIsClSpmhf1cSs8&h=AT2zEq4uMVih-kAU688J-JUvuTgElJRGXW-t9sUlLVx095lTk0e_WuHBSqW7adckomMfLg4O3hyoyXrsFDvw9JvIzSA4RClokIQlbHxV7GHt82eQEKk2U2Ei5V2LVpHSgw0xuA", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1005%2F1005.jpg?alt=media&token=92224654-c283-4481-9abb-4bfe1f4c8ae8", "@somarafm", "إب", "100.3", "Somara Fm", usId, true);
 //        RadioInfo radio6 = RadioInfo.newInstance("1006", "دلتا", "", "http://108.61.34.50:7057/live", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1006%2F71.jpg?alt=media&token=3066d8c6-7b10-4abb-9ac8-18a33ca8ea9e", "@delta_fm", "صنعاء", "101.90", "Delta Fm", usId, false);
 //        RadioInfo radio7 = RadioInfo.newInstance("1007", "يمن تايمز", "", "https://mixlr.com/yemen-times-radio/?fbclid=IwAR3nMTVShHd5IUYobKfUy5nDZsuSZpyZuS8TUNmzx4InxV02RIBJX3x6KVs", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1007%2F.jpg?alt=media&token=ce075b57-0339-43ee-b330-14a00c4164f3", "@yemen_times_fm", "صنعاء", "91.90", "Yemen Times Fm", usId, false);
 //        RadioInfo radio8 = RadioInfo.newInstance("1008", "الهوية", "", "", "", "@hwiah_fm", "صنعاء", "100.70", "Alhwiah Fm", usId, true);
@@ -117,14 +126,13 @@ public class RadioInfo implements Serializable {
 //        RadioInfo radio14 = RadioInfo.newInstance("1014", "هوا اليمن", "", "", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1014%2F1014.png?alt=media&token=c91b04a4-592e-45a0-a8a3-3a0f45623954", "@hawaalyemen_fm", "صنعاء","88.3","Hawa Al Yemen Fm",usId,true);
 //        RadioInfo radio15 = RadioInfo.newInstance("1015", "بانوراما", "إذاعة بانوراما أف أم يمن ،، إذاعة ثقافية فنية إجتماعية ،، تبث ..على تردد 91.5 أف أم", "", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1015%2F1015.jpg?alt=media&token=a7bd3aec-d1f3-4256-8fb6-3c754a46d188", "@panorama_fm", "صنعاء", "91.5", "Panorama Fm", usId, true);
 //        RadioInfo radio16 = RadioInfo.newInstance("1016", "ألوان", "إذاعة مجتمعية فنية", "", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1016%2F1016.jpg?alt=media&token=ac855c80-9f3f-4a6b-858d-6d136c9092fb", "@alwan_fm", "صنعاء","88.7","Alwan Fm",usId,true);
-//        RadioInfo radio0 = RadioInfo.newInstance("0000", "يمن تايمز", "", "", "", "@yemen_times_fm", "صنعاء","91.90","Yemen Times Fm",usId,true);
 //        RadioInfo radio17 = RadioInfo.newInstance("1017", "temp", "", "", "", "@", "","","",usId,true);
 //        RadioInfo radio18 = RadioInfo.newInstance("1018", "temp", "", "", "", "@", "","","",usId,true);
-//        RadioInfo radio19 = RadioInfo.newInstance("1019", "temp", "", "", "", "@", "","","",usId,true);
-//        RadioInfo radio20 = RadioInfo.newInstance("1020", "temp", "", "", "", "@", "","","",usId,true);
-//        RadioInfo radio21 = RadioInfo.newInstance("1021", "temp", "", "", "", "@", "","","",usId,true);
-//        RadioInfo radio22 = RadioInfo.newInstance("1022", "temp", "", "", "", "@", "","","",usId,true);
-//        RadioInfo radio23 = RadioInfo.newInstance("1023", "temp", "", "", "", "@", "","","",usId,true);
+//        RadioInfo radio19 = RadioInfo.newInstance("1019", "بندر عدن", "بندر عدن (بندر عدن) هي محطة إذاعية تبث من عدن، اليمن، تقدم برامج الأخبار والحديث والمجتمع والترفيه والموسيقى.", "https://r.fm-radio.net/bndr", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1019%2Fbandr_aden-999.jpg?alt=media&token=9a4edc8b-9cc3-4b62-b00c-cf2a3df2cadf", "@bandaraden", "عدن","99.9","Bandaraden",usId,true);
+//        RadioInfo radio20 = RadioInfo.newInstance("1020", "الغد المشرق", "نافذة إعلامية تتمتع بالمصداقية، تحمل رسالة وطنية سامية بعيدة عن كل إعلام موجه أو ذو ميول سياسية أو جغرافية", "http://noasrv.caster.fm/proxy/seensvss/stream", "https://pbs.twimg.com/profile_images/1609218148263247883/B5COYn2P_400x400.png", "@alghaadye", "عدن", " 90.8", "alghad-almushreq", usId, true);
+//        RadioInfo radio21 = RadioInfo.newInstance("1021", "هنا عدن", "تقديم إعلام إذاعي مطور يخدم الجنوب ويسهل ترسيم صورة إيجابية لدى الآخر", "http://radio.garden/listen/huna-aden/TjjISZUd", "https://pbs.twimg.com/profile_images/1398698572162514952/pUo-XUtI_400x400.jpg", "@HunaAdenFM", "عدن", "92.9", "Huna Aden", usId, true);
+//        RadioInfo radio22 = RadioInfo.newInstance("1022", "لنا إف إم", "راديو لنا اف ام 91.9 هي اذاعة مجتمعية تاسست  في 2014 في عدن وتهدف برامجها الاذاعية لاحداث التغيير الاجتماعي  والثقافي مع التركيز على المبادىء الدولية لحقوق الانسان  والديمقراطية والتسامح", "https://r.fm-radio.net/lana?1693489667205", "https://lana.fm-radio.net/images/logo.png", "@lanafmaden", "عدن", "91.9", "Lana fm Aden", usId, true);
+//        RadioInfo radio23 = RadioInfo.newInstance("1023", "إذاعة المكلا", "إذاعة المكلا المحلية الرسمية الناطقة بصوت حضرموت", "https://cast4.my-control-panel.com/proxy/ecommer4/stream", "https://scontent.fsah2-1.fna.fbcdn.net/v/t39.30808-6/311473205_499263635548576_3620381670981847660_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=a2f6c7&_nc_ohc=mbKgGlR4N2sAX-so92D&_nc_ht=scontent.fsah2-1.fna&oh=00_AfB5tTgLm3QtQjxePfXgYqIhND-efT1iUsjHUU6xQkuqrw&oe=64F68603", "@MukallaRadiostation", "حضرموت", "91.5", "MukallaRadiostation", usId, true);
 //        RadioInfo radio24 = RadioInfo.newInstance("1024", "temp", "", "", "", "@", "","","",usId,true);
 //        RadioInfo radio25 = RadioInfo.newInstance("1025", "temp", "", "", "", "@", "","","",usId,true);
 //        RadioInfo radio26 = RadioInfo.newInstance("1026", "temp", "", "", "", "@", "","","",usId,true);
@@ -133,10 +141,10 @@ public class RadioInfo implements Serializable {
 
         List<RadioInfo> infos = new ArrayList<>();
         infos.add(radio1);
-        infos.add(radio2);
-        infos.add(radio3);
+//        infos.add(radio2);
+//        infos.add(radio3);
         infos.add(radio4);
-        infos.add(radio5);
+//        infos.add(radio5);
 //        infos.add(radio6);
 //        infos.add(radio7);
 //        infos.add(radio8);
@@ -160,18 +168,26 @@ public class RadioInfo implements Serializable {
 //        infos.add(radio26);
 //        infos.add(radio27);
 
+        FirestoreDbUtility firestoreHelperZ = new FirestoreDbUtility();
+
 
         if (!infos.isEmpty()) {
             for (int i = 0; i < infos.size(); i++) {
                 RadioInfo info = infos.get(i);
-                DocumentReference mFirestoreProfiles1 = FirebaseDatabaseReference.DATABASE.collection(FirebaseConstants.RADIO_INFO_TABLE).document(info.getRadioId());
-
-                mFirestoreProfiles1.set(info).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(context, info.getName() + " inserted successfully!", Toast.LENGTH_SHORT).show();
-                    }
-                });
+//
+//                try {
+////                    firestoreHelperZ.createOrMerge(AppConstant.Firebase.RADIO_INFO_TABLE, info.getRadioId(), FmUtilize.classToMap(info));
+//                } catch (IllegalAccessException e) {
+//                    throw new RuntimeException(e);
+//                }
+//                DocumentReference mFirestoreProfiles1 = FirebaseDatabaseReference.getTopLevelCollection().getFirestore().collection(AppConstant.Firebase.RADIO_INFO_TABLE).document(info.getRadioId());
+//
+//                mFirestoreProfiles1.set(info).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//                        Toast.makeText(context, info.getName() + " inserted successfully!", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
 
             }
         } else {
@@ -190,6 +206,7 @@ public class RadioInfo implements Serializable {
         this.id = id;
     }
 
+//    @Exclude
     public String getRadioId() {
         return radioId;
     }
@@ -278,14 +295,6 @@ public class RadioInfo implements Serializable {
         this.priority = priority;
     }
 
-    public Date getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
-    }
-
     public boolean isOnline() {
         return isOnline;
     }
@@ -300,6 +309,14 @@ public class RadioInfo implements Serializable {
 
     public void setDisabled(boolean disabled) {
         this.disabled = disabled;
+    }
+
+    public boolean isBlueBadge() {
+        return isBlueBadge;
+    }
+
+    public void setBlueBadge(boolean blueBadge) {
+        isBlueBadge = blueBadge;
     }
 
     public String getCity() {
@@ -334,13 +351,12 @@ public class RadioInfo implements Serializable {
         this.createBy = createBy;
     }
 
-    public String getTimestamp() {
-        return timestamp;
+    public String getCreateAt() {
+        return createAt;
     }
 
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
+    public void setCreateAt(String createAt) {
+        this.createAt = createAt;
     }
-
 }
 

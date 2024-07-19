@@ -1,6 +1,8 @@
 package com.sana.dev.fm.ui.activity;
 
 
+import static android.view.View.VISIBLE;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
@@ -10,6 +12,7 @@ import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -22,12 +25,17 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
@@ -36,8 +44,9 @@ import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.dialog.MainDialog;
 import com.sana.dev.fm.ui.fragment.DailyEpisodeFragment;
-import com.sana.dev.fm.ui.fragment.EpisodeFragment;
+import com.sana.dev.fm.ui.fragment.MainHomeFragment;
 import com.sana.dev.fm.ui.fragment.ProgramsFragment;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
@@ -57,24 +66,26 @@ import co.mobiwise.materialintro.shape.Focus;
 import co.mobiwise.materialintro.shape.ShapeType;
 
 public class MainActivity extends BaseActivity implements StaticEventDistributor.EventListener, CallBackListener, BaseActivity.NetworkCallback {
-
     private static final String TAG = MainActivity.class.getSimpleName();
-
     public static String FRAGMENT_DATA = "transaction_data";
     public static String FRAGMENT_CLASS = "transaction_target";
-
     public static final String ACTION_SHOW_LOADING_ITEM = "action_show_loading_item";
-
     FirebaseCrashlytics firebaseCrashlytics;
     FirebaseAnalytics firebaseAnalytics;
-
 
     //    ---------- Radio Player -----------
     RadioManager radioManager;
     FloatingActionButton fab_radio;
     private BottomSheetDialog mBottomSheetDialog;
     private BottomSheetBehavior mBehavior;
+    //    private final AtomicBoolean isMobileAdsInitializeCalled = new AtomicBoolean(false);
+    private AdView adView;
+//    private GoogleMobileAdsConsentManager googleMobileAdsConsentManager;
 
+    CircularImageView civ;
+    TextView tv_user_state;
+    ImageView iv_internet;
+    TextView tv_user_name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,20 +104,44 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         fab_radio = (FloatingActionButton) findViewById(R.id.fab_radio);
         radioManager = RadioManager.with();
 
+        logRegToken();
+        initComponent();
+        initEvent();
+        initBottomNav();
+//        initAdMob();
+    }
 
-//        if (!isRadioSelected()) {
-//            RadioInfo radio = RadioInfo.newInstance("1002", "أصالة", "", "https://streamingv2.shoutcast.com/assala-fm", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1002%2Fmicar.jpg?alt=media&token=b568c461-9563-44e2-a091-e953471e42c4", "@asalah_fm", "صنعاء", "", "Asalah Fm", "usId", true);
-//            RadioInfo.setSelectedRadio(radio, this);
-//        }
+    private void initComponent() {
 
+        civ = (CircularImageView) findViewById(R.id.civ_logo);
+        tv_user_state = findViewById(R.id.tv_user_state);
+        iv_internet = findViewById(R.id.iv_internet);
+        tv_user_name = findViewById(R.id.tv_user_name);
+        iv_internet.setVisibility(View.INVISIBLE);
 
+        // check if radio playing
         if (isPlaying()) {
             onAudioSessionId(RadioManager.getService().getAudioSessionId());
             fab_radio.setImageResource(R.drawable.ic_pause);
         }
 
+        // setup addMod
+        adView = findViewById(R.id.ad_view);
+        boolean isAdMobEnable = remoteConfig != null && remoteConfig.isAdMobEnable();
+        if (isAdMobEnable) {
+            AdRequest adRequest = new AdRequest.Builder().build();
+            adView.loadAd(adRequest);
+        }
+        adView.setVisibility(isAdMobEnable ? VISIBLE : View.GONE);
+    }
 
-        initBottomNav();
+    private void initEvent() {
+
+
+//        if (!isRadioSelected()) {
+//            RadioInfo radio = RadioInfo.newInstance("1002", "أصالة", "", "https://streamingv2.shoutcast.com/assala-fm", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1002%2Fmicar.jpg?alt=media&token=b568c461-9563-44e2-a091-e953471e42c4", "@asalah_fm", "صنعاء", "", "Asalah Fm", "usId", true);
+//            RadioInfo.setSelectedRadio(radio, this);
+//        }
 
 
         View lyt_profile = (View) findViewById(R.id.lyt_profile);
@@ -169,7 +204,33 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         fab_radio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//        rotation.setRepeatCount(0);
+
+/*                try {
+                    FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
+
+                    // Example: Add a document with generated ID
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("id", "123");
+                    data.put("name", "John Doe");
+                    RadioInfo radio1 = RadioInfo.newInstance("1001", "يمن", "", "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1001%2F1001.jpg?alt=media&token=41d7cab7-d1cf-4d10-840a-dd576c04871a", "@yemen_fm", "صنعاء", "99,9", "Yemen Fm", prefMgr.getUserSession().userId, false);
+
+                    firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_INFO_TABLE, AppConstant.Firebase.RADIO_INFO_TABLE),radio1.getRadioId(), radio1, new CallBack() {
+//                    firestoreDbUtility.createOrMerge(AppConstant.Firebase.RADIO_INFO_TABLE, radio1.getRadioId(), FmUtilize.classToMap(radio1), new CallBack() {
+                        @Override
+                        public void onSuccess(Object object) {
+                            showToast(getString(R.string.done_successfully));
+                        }
+
+                        @Override
+                        public void onFailure(Object object) {
+                            showToast(getString(R.string.label_error_occurred_with_val, object));
+                        }
+                    });
+                } catch (Exception e) {
+                    showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
+                }*/
+
+                //        rotation.setRepeatCount(0);
 
 //                v.clearAnimation();
 //                fab_radio.clearAnimation();
@@ -190,15 +251,95 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
                 if (prefMgr.read(UserGuide.INTRO_FOCUS_2, "").equals(UserGuide.INTRO_FOCUS_2)) {
                     showPlayIntro();
                 }
-
-//                RadioInfo info = new RadioInfo();
-//                info.createRadio(MainActivity.this);
             }
         });
-
-
     }
 
+    private void logRegToken() {
+        // [START log_reg_token]
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        // Log and toast
+                        String msg = "FCM Registration token: " + token;
+                        Log.d(TAG, msg);
+                        PreferencesManager.getInstance().write(AppConstant.General.FIREBASE_FCM_TOKEN, token);
+                    }
+                });
+        // [END log_reg_token]
+    }
+
+/*
+    private void initAdMob() {
+        // Log the Mobile Ads SDK version.
+        Log.d(TAG, "Google Mobile Ads SDK Version: " + MobileAds.getVersion());
+
+        // Set your test devices. Check your logcat output for the hashed device ID to
+        // get test ads on a physical device. e.g.
+        // "Use RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("ABCDEF012345"))
+        // to get test ads on this device."
+        //UserMessagingPlatform: Use new ConsentDebugSettings.Builder().addTestDeviceHashedId("A9E33D385BEC7E8EBB240261B32C2385") to set this as a debug device
+//        MobileAds.setRequestConfiguration(
+//                new RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("ABCDEF012345"))
+//                        .build());
+
+        // Gets the ad view defined in layout/ad_fragment.xml with ad unit ID set in
+        // values/strings.xml.
+        adView = findViewById(R.id.ad_view);
+
+        googleMobileAdsConsentManager = new GoogleMobileAdsConsentManager(this);
+
+        googleMobileAdsConsentManager.gatherConsent(
+                consentError -> {
+                    if (consentError != null) {
+                        // Consent not obtained in current session. This sample loads ads using
+                        // consent obtained in the previous session.
+                        Log.w(
+                                TAG,
+                                String.format(
+                                        "%s: %s",
+                                        consentError.getErrorCode(),
+                                        consentError.getMessage()));
+                    }
+
+                    if (googleMobileAdsConsentManager.canRequestAds()) {
+                        initializeMobileAdsSdk();
+                    }
+
+                    if (googleMobileAdsConsentManager.isFormAvailable()) {
+                        // Regenerate the options menu to include a privacy setting.
+                        invalidateOptionsMenu();
+                    }
+                }
+        );
+
+        if (googleMobileAdsConsentManager.canRequestAds()) {
+            initializeMobileAdsSdk();
+        }
+    }
+*/
+
+/*    private void initializeMobileAdsSdk() {
+        if (isMobileAdsInitializeCalled.getAndSet(true)) {
+            return;
+        }
+
+        // Initialize the Google Mobile Ads SDK.
+        MobileAds.initialize(this);
+
+        // Load an ad.
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+    }*/
 
     private void rotateImageAlbum() {
         fab_radio.setImageResource(R.drawable.ic_arrow_back);
@@ -216,13 +357,12 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
     BottomNavigationView navigation;
     FragmentManager fm = getSupportFragmentManager();
-    Fragment fragment1 = new EpisodeFragment();
+    Fragment fragment1 = new MainHomeFragment();
     Fragment fragment2 = new DailyEpisodeFragment();
     Fragment fragment3 = new ProgramsFragment();
     Fragment active = fragment1;
 
     public void initBottomNav() {
-
 
         BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
                 = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -248,8 +388,6 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
                         active = fragment3;
 //                        fm.beginTransaction().replace(R.id.main_container, active).commit();
 //                        fm.beginTransaction().setMaxLifecycle(active,"").commit();
-
-
                         return true;
 
                     case R.id.nav_more:
@@ -330,33 +468,39 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     }
 
     public void initToolbarProfile() {
-        CircularImageView civ = (CircularImageView) findViewById(R.id.civ_logo);
-//        int color = getResources().getColor(R.color.fab_color_shadow);
+//        int color = getResources().getColor(R.color.colorAccent);
 //        ColorFilter cf = new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY);
 //        civ.setColorFilter(cf);
 
-        TextView tv_user_name = findViewById(R.id.tv_user_name);
-        TextView tv_user_state = findViewById(R.id.tv_user_state);
-        ImageView iv_internet = findViewById(R.id.iv_internet);
-
-
-        boolean isOnline = hasInternetConnection();
-        String isOnlineTxt = isOnline ? getString(R.string.label_online) : getString(R.string.offline);
-        int colorState = isOnline ? R.color.green_500 : R.color.yellow_500;
 
         if (isAccountSignedIn()) {
             PreferencesManager prefMgr = PreferencesManager.getInstance();
 
             UserModel user = prefMgr.getUserSession();
             tv_user_name.setText(user.getName());
-            tv_user_state.setText(isOnlineTxt);
-            Tools.displayUserProfile(this, civ, user.getPhotoUrl());
-            iv_internet.setColorFilter(ContextCompat.getColor(this, colorState), android.graphics.PorterDuff.Mode.MULTIPLY);
+//            tv_user_state.setText(isOnlineTxt);
+            if (!Tools.isEmpty(user.getPhotoUrl()))
+                Tools.displayUserProfile(this, civ, user.getPhotoUrl(), R.drawable.ic_person);
 
             firebaseCrashlytics.setUserId(user.getMobile());
             firebaseAnalytics.setUserId(user.getMobile());
+            updateOnlineFlag();
         }
 
+
+    }
+
+    private void updateOnlineFlag() {
+        if (isAccountSignedIn()) {
+            boolean isOnline = hasInternetConnection();
+            String isOnlineTxt = isOnline ? getString(R.string.label_online) : getString(R.string.offline);
+            int colorState = isOnline ? R.color.green_500 : R.color.yellow_500;
+            tv_user_state.setText(isOnlineTxt);
+            iv_internet.setColorFilter(ContextCompat.getColor(this, colorState), android.graphics.PorterDuff.Mode.MULTIPLY);
+            iv_internet.setVisibility(VISIBLE);
+        } else {
+            iv_internet.setVisibility(View.GONE);
+        }
 
     }
 
@@ -369,16 +513,42 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             this.mBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
 
-        View inflate = getLayoutInflater().inflate(R.layout.sheet_list, null);
+        View inflate = getLayoutInflater().inflate(R.layout.main_activity_sheet_list, null);
 
         LinearLayout lyt_add_program = inflate.findViewById(R.id.lyt_add_program);
         LinearLayout lyt_add_episode = inflate.findViewById(R.id.lyt_add_episode);
         LinearLayout lyt_update_episode = inflate.findViewById(R.id.lyt_update_episode);
-        if (checkPrivilege()) {
+        LinearLayout lyt_update_program = inflate.findViewById(R.id.lyt_update_program);
+        LinearLayout lyt_update_radio = inflate.findViewById(R.id.lyt_update_radio);
+        //lyt_update_radio.setVisibility(View.GONE);
+
+
+        if (checkPrivilegeAdmin()) {
             lyt_add_program.setVisibility(View.VISIBLE);
             lyt_add_episode.setVisibility(View.VISIBLE);
-//            lyt_update_episode.setVisibility(View.VISIBLE);
+            lyt_update_episode.setVisibility(View.VISIBLE);
+            lyt_update_program.setVisibility(View.VISIBLE);
+            lyt_update_radio.setVisibility(View.VISIBLE);
+        } else {
+            lyt_add_program.setVisibility(View.GONE);
+            lyt_add_episode.setVisibility(View.GONE);
+            lyt_update_episode.setVisibility(View.GONE);
+            lyt_update_program.setVisibility(View.GONE);
+            lyt_update_radio.setVisibility(View.GONE);
         }
+
+//        if (checkPrivilegeAdmin() && (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
+//            lyt_update_radio.setVisibility(View.VISIBLE);
+//            lyt_add_program.setVisibility(View.VISIBLE);
+//            lyt_add_episode.setVisibility(View.VISIBLE);
+//            lyt_update_episode.setVisibility(View.VISIBLE);
+//            lyt_update_program.setVisibility(View.VISIBLE);
+//            if (isAccountSignedIn()) {
+//                UserModel user = prefMgr.getUserSession();
+//                user.setUserType(UserType.SuperADMIN);
+//                prefMgr.write(AppConstant.Firebase.USER_INFO, (UserModel) user);
+//            }
+//        }
 
         inflate.findViewById(R.id.lyt_user_acc).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -396,7 +566,6 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             public void onClick(View view) {
                 MainDialog mainDialog = new MainDialog(MainActivity.this);
                 mainDialog.showDialogRateUs();
-
                 mBottomSheetDialog.dismiss();
             }
         });
@@ -416,25 +585,44 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             }
         });
 
-        inflate.findViewById(R.id.lyt_add_program).setOnClickListener(new View.OnClickListener() {
+        lyt_add_program.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-
-                if (checkPrivilege())
+                if (checkPrivilegeAdmin())
                     startActivity(new Intent(MainActivity.this, AddProgramActivity.class));
                 mBottomSheetDialog.dismiss();
             }
         });
 
-        inflate.findViewById(R.id.lyt_add_episode).setOnClickListener(new View.OnClickListener() {
+        lyt_add_episode.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                AddEpisodeActivity.startActivity(MainActivity.this);
+                if (checkPrivilegeAdmin())
+                    AddEpisodeActivity.startActivity(MainActivity.this);
                 mBottomSheetDialog.dismiss();
             }
         });
 
-        inflate.findViewById(R.id.lyt_update_episode).setOnClickListener(new View.OnClickListener() {
+        lyt_update_episode.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                ListMultiSelection.startActivity(MainActivity.this);
+                if (checkPrivilegeAdmin())
+                    ListEpisodeActivity.startActivity(MainActivity.this);
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
+        lyt_update_program.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                if (checkPrivilegeAdmin())
+                    ListProgramActivity.startActivity(MainActivity.this);
+//                    ListUsersActivity.startActivity(MainActivity.this);
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
+
+        lyt_update_radio.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                if (checkPrivilegeAdmin())
+                    RadioListActivity.startActivity(MainActivity.this);
                 mBottomSheetDialog.dismiss();
             }
         });
@@ -477,7 +665,8 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
     private void checkUserLogin() {
         if (!isAccountSignedIn()) {
-            Intent intent = IntentHelper.phoneLoginActivity(MainActivity.this, false);
+//            Intent intent = IntentHelper.phoneLoginActivity(MainActivity.this, false);
+            Intent intent = IntentHelper.intentFormSignUp(MainActivity.this, false);
             startActivity(intent);
         } else {
             startActivity(new Intent(IntentHelper.userProfileActivity(MainActivity.this, false)));
@@ -490,20 +679,24 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
 
     private void startPlay(Metadata metadata) {
-
-        if (!FmUtilize.isEmpty(metadata.getUrl())) {
-            //Check the sound level
-            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            int volume_level = am.getStreamVolume(AudioManager.STREAM_MUSIC);
-            if (volume_level < 2) {
-                showSnackBar(getString(R.string.volume_low));
-            } else {
-                radioManager.playOrPause(metadata);
+        try {
+            if (!FmUtilize.isEmpty(metadata.getUrl())) {
+                //Check the sound level
+                AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                int volume_level = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+                if (volume_level < 2) {
+                    showSnackBar(getString(R.string.volume_low));
+                } else {
+                    radioManager.playOrPause(metadata);
 //        radioManager.playOrStop(streamURL);
 //        http://edge.mixlr.com/channel/kijwr
+                }
+            } else {
+                showToast(String.format("%s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
             }
-        }else {
-            showToast(String.format(" %s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
+        } catch (Exception e) {
+            Log.d(TAG, "Error startPlay : " + e.getMessage());
+            showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
         }
     }
 
@@ -519,13 +712,6 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         return (null != radioManager && null != RadioManager.getService() && RadioManager.getService().isPlaying());
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        radioManager.bind(getApplicationContext());
-        prefMgr = PreferencesManager.getInstance();
-        initToolbarProfile();
-    }
 
     @Subscribe
     public void onEvent(String status) {
@@ -536,7 +722,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
                 break;
             case PlaybackStatus.ERROR:
-                showToast(String.format(" %s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
+                showToast(String.format("%s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
                 radioManager.stopPlay();
                 fab_radio.setImageResource(R.drawable.ic_radio);
                 break;
@@ -585,7 +771,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(this, instanceIdResult -> {
             String newToken = instanceIdResult.getToken();
             Log.e("newToken", newToken);
-            getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(FirebaseConstants.DEVICE_TOKEN, newToken).apply();
+            getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(AppConstant.Firebase.DEVICE_TOKEN, newToken).apply();
 
         });
 
@@ -627,9 +813,40 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         StaticEventDistributor.unregisterAsListener(this);
     }
 
+    /**
+     * Called when leaving the activity
+     */
+    @Override
+    public void onPause() {
+        if (adView != null) {
+            adView.pause();
+        }
+        super.onPause();
+    }
 
+    /**
+     * Called when returning to the activity
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (adView != null) {
+            adView.resume();
+        }
+        radioManager.bind(getApplicationContext());
+        prefMgr = PreferencesManager.getInstance();
+        initToolbarProfile();
+    }
+
+
+    /**
+     * Called before the activity is destroyed
+     */
     @Override
     protected void onDestroy() {
+        if (adView != null) {
+            adView.destroy();
+        }
         super.onDestroy();
         if (!radioManager.isPlaying())
             radioManager.unbind(getApplicationContext());
@@ -644,8 +861,9 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     @Override
     public void onNetworkChange(boolean status) {
 //        LogUtility.e(TAG, "chekInternetCon : " + status);
-        initToolbarProfile();
+        updateOnlineFlag();
     }
+
 
     @Override
     protected void onNewIntent(Intent intent) {

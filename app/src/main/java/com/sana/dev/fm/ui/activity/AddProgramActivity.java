@@ -1,23 +1,15 @@
 package com.sana.dev.fm.ui.activity;
 
+import static com.sana.dev.fm.utils.AppConstant.Firebase.RADIO_PROGRAM_TABLE;
+import static com.sana.dev.fm.utils.Tools.getFormattedDateOnly;
 
-import static com.sana.dev.fm.model.AppConfig.RADIO_TAG;
-import static com.sana.dev.fm.ui.activity.ImagePickerActivity.REQUEST_IMAGE;
-import static com.sana.dev.fm.utils.FmUtilize.getWeekDayNames;
-import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
-import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysEn;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.FB_FM_FOLDER_PATH;
-import static com.sana.dev.fm.utils.my_firebase.FirebaseConstants.RADIO_PROGRAM_TABLE;
-
-import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -33,36 +25,37 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityAddProgramBinding;
+import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.DateTimeModel;
+import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
-import com.sana.dev.fm.model.WakeTranslate;
+import com.sana.dev.fm.model.enums.Weekday;
 import com.sana.dev.fm.model.interfaces.OnCallbackDate;
+import com.sana.dev.fm.utils.AppConstant;
+import com.sana.dev.fm.utils.AppConstant.General;
+import com.sana.dev.fm.utils.DateTimePickerHelper;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
-import com.sana.dev.fm.utils.my_firebase.AppConstant;
+import com.sana.dev.fm.utils.WeekdayUtils;
+import com.sana.dev.fm.utils.my_firebase.AppGeneralMessage;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
-import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -74,12 +67,21 @@ public class AddProgramActivity extends BaseActivity {
 
     Uri imageUri;
     PreferencesManager prefMgr;
-    private String programId, radioId, prName, prDesc, prTag, prProfile, createBy, stopNote;
-    private FmProgramCRUDImpl fmRepo;
+    private String programId, prName, prDesc, prTag, prProfile, createBy, stopNote, timestamp;
+    private DateTimeModel programScheduleTime;
+    private FirestoreDbUtility firestoreDbUtility;
     private RadioInfo radioInfo;
     private long dateStart, dateEnd;
     private List<String> prCategoryList;
-    private List<String> displayDay;
+    private List<Weekday> displayDay;
+
+
+    public static void startActivity(Context context, RadioProgram item) {
+        Intent intent = new Intent(context, AddProgramActivity.class);
+        String obj = (new Gson().toJson(item));
+        intent.putExtra("radioProgram", obj);
+        context.startActivity(intent);
+    }
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -88,10 +90,10 @@ public class AddProgramActivity extends BaseActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-        fmRepo = new FmProgramCRUDImpl(this, RADIO_PROGRAM_TABLE);
+        firestoreDbUtility = new FirestoreDbUtility();
         prefMgr = PreferencesManager.getInstance();
 
-        Tools.setSystemBarColor(this, R.color.white);
+        Tools.setSystemBarColor(this, R.color.colorPrimary);
         Tools.setSystemBarLight(this);
 
         initClickEvent();
@@ -104,7 +106,7 @@ public class AddProgramActivity extends BaseActivity {
 
         setCategoryChips();
         setDisplayDayChips();
-
+        initEditView();
     }
 
     private void initClickEvent() {
@@ -114,19 +116,15 @@ public class AddProgramActivity extends BaseActivity {
             }
         });
 
-        binding.imgLogo.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener onClickListenerImg = new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                onProfileImageClick();
+            public void onClick(View view) {
+                showImagePickerOptions();
             }
-        });
+        };
+        binding.imgLogo.setOnClickListener(onClickListenerImg);
 
-        binding.tvAddLogo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onProfileImageClick();
-            }
-        });
+        binding.tvAddLogo.setOnClickListener(onClickListenerImg);
 
         binding.ivClear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,27 +133,62 @@ public class AddProgramActivity extends BaseActivity {
             }
         });
 
+        DateTimePickerHelper dateTimePickerHelper = new DateTimePickerHelper(AddProgramActivity.this);
 
         binding.etStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialogDatePickerLight((TextView) v, new OnCallbackDate() {
+                dateTimePickerHelper.showDatePicker(new DateTimePickerHelper.OnDateSelectedListener() {
                     @Override
-                    public void getSelected(long _time) {
-                        dateStart = _time;
+                    public void onDateSelected(Calendar selectedDate) {
+                        dateStart = selectedDate.getTimeInMillis();
+                        binding.etStart.setText(Tools.getFormattedDateSimple(dateStart));
                         binding.etStart.setError(null);
                     }
                 });
+////                dialogDatePickerLight((TextView) v, new OnCallbackDate() {
+////                    @Override
+////                    public void getSelected(long _time) {
+////                        dateStart = _time;
+////                        binding.etStart.setError(null);
+////                    }
+////                });
+//
+//                DialogTimePickerHelper helper = new DialogTimePickerHelper(AddProgramActivity.this,Calendar.getInstance(), new DialogTimePickerHelper.OnDateTimeSelectedListener() {
+//                    @Override
+//                    public void onDateTimeSelected(Calendar selectedDateTime) {
+//                        // Handle the selected date and time
+//                        binding.etStart.setText(Tools.getFormattedDateSimple(selectedDateTime.getTimeInMillis()));
+//                        binding.etStart.setError(null);
+//                    }
+//                });
+//
+////                Calendar initialDateTime = Calendar.getInstance();
+//                helper.showDatePickerDialog(new DialogTimePickerHelper.OnDateSelectedListener() {
+//                    @Override
+//                    public void onDateSelected(Calendar selectedDate) {
+//                        binding.etStart.setText(Tools.getFormattedDateSimple(selectedDate.getTimeInMillis()));
+//                        binding.etStart.setError(null);
+//                    }
+//                });
+////                helper.displayCurrentTime(new DialogTimePickerHelper.OnTimeSelectedListener() {
+////                    @Override
+////                    public void onTimeSelected(int hour, int minute) {
+////
+////                    }
+////                });
+
             }
         });
 
         binding.etEnd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialogDatePickerLight((TextView) v, new OnCallbackDate() {
+                dateTimePickerHelper.showDatePicker(new DateTimePickerHelper.OnDateSelectedListener() {
                     @Override
-                    public void getSelected(long _time) {
-                        dateEnd = _time;
+                    public void onDateSelected(Calendar selectedDate) {
+                        dateEnd = selectedDate.getTimeInMillis();
+                        binding.etEnd.setText(Tools.getFormattedDateSimple(dateEnd));
                         binding.etEnd.setError(null);
                     }
                 });
@@ -195,15 +228,20 @@ public class AddProgramActivity extends BaseActivity {
     public void onChipDisplayDayClick(View view) {
         int chipsCount = binding.cgDisplayDay.getChildCount();
         int i = 0;
-        ArrayList<String> mList = new ArrayList<>();
+        List<String> mList = new ArrayList<>();
         while (i < chipsCount) {
             Chip chip = (Chip) binding.cgDisplayDay.getChildAt(i);
             if (chip.isChecked()) {
-                mList.add(chip.getText().toString());
+                String selectedDay = (String) chip.getText();
+                mList.add(selectedDay);
             }
             i++;
-            displayDay = translateWakeDaysEn(mList);
+
+            String joinedString = TextUtils.join(",", mList);
+            displayDay = WeekdayUtils.convertSeparatedWeekdays(joinedString, ",");
         }
+
+//        List<Weekday> convertSeparatedWeekdays = WeekdayUtils.convertSeparatedWeekdays(TextUtils.join(",", mList), ",");
 
         binding.tieDisplayDay.setText(android.text.TextUtils.join(" , ", mList));
         binding.tieDisplayDay.setError(null);
@@ -212,13 +250,11 @@ public class AddProgramActivity extends BaseActivity {
 
 
     public void setDisplayDayChips() {
-//        String[] displayDayList = DateFormatSymbols.getInstance(Locale.ENGLISH).getShortWeekdays();
-//        String[] displayDayList = getWeekDayNames();
-        ArrayList<WakeTranslate> displayDayList = translateWakeDaysAr(Arrays.asList(getWeekDayNames()));
-
-        for (WakeTranslate category : displayDayList) {
+        Weekday[] weekdays = Weekday.values();
+        for (Weekday category : weekdays) {
             Chip mChip = (Chip) this.getLayoutInflater().inflate(R.layout.item_chip_display_days, null, false);
-            mChip.setText(category.getDayName());
+            String dayName = WeekdayUtils.getLocalizedDayName(category, "en");
+            mChip.setText(dayName);
             int paddingDp = (int) TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP, 10,
                     getResources().getDisplayMetrics()
@@ -243,6 +279,75 @@ public class AddProgramActivity extends BaseActivity {
 
     }
 
+    private void initEditView() {
+        String s = getIntent().getStringExtra("radioProgram");
+        if (s != null) {
+            binding.tvTitle.setText(getString(R.string.label_edit));
+
+            try {
+                RadioProgram _episode = new Gson().fromJson(s, RadioProgram.class);
+                showSnackBar(_episode.getPrName());
+
+                prName = _episode.getPrName();
+                prDesc = _episode.getPrDesc();
+//            epAnnouncer = _episode.getEpAnnouncer();
+                programId = _episode.getProgramId();
+                prProfile = _episode.getPrProfile();
+//            stackImg.push(epProfile);
+                timestamp = _episode.getTimestamp();
+                createBy = _episode.getCreateBy();
+                stopNote = _episode.getStopNote();
+                radioInfo = prefMgr.selectedRadio();
+                programScheduleTime = _episode.getProgramScheduleTime() != null ? _episode.getProgramScheduleTime() : new DateTimeModel();
+                displayDay = programScheduleTime.getWeekdays() != null ? programScheduleTime.getWeekdays() : new ArrayList<>();
+//            program = program.findRadioProgram(programId, ShardDate.getInstance().getProgramList());
+//            programId = program.getProgramId();
+
+
+                binding.titPrName.setText(prName);
+                binding.titPrDesc.setText(prDesc);
+                binding.etStation.setText(radioInfo.getName());
+                binding.tieDisplayDay.setText(android.text.TextUtils.join(" , ", displayDay));
+
+                if (programScheduleTime != null) {
+                    String dtS = getFormattedDateOnly(FmUtilize._dateFormat, programScheduleTime.getDateStart(), FmUtilize.englishFormat);
+                    String dtE = getFormattedDateOnly(FmUtilize._dateFormat, programScheduleTime.getDateEnd(), FmUtilize.englishFormat);
+                    binding.etStart.setText(dtS);
+                    binding.etEnd.setText(dtE);
+                } else {
+//            binding.tvState.setVisibility(View.GONE);
+                }
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d(TAG, "Error saveUserData : " + e.getMessage());
+                showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
+            }
+
+
+            loadProfile(Uri.parse(prProfile));
+
+            binding.etStation.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), getString(R.string.msg_you_cannot_change_the_radio_channel_if_the_program_data_is_updated), new ButtonConfig(getString(R.string.label_cancel)), null);
+                    showWarningDialog(config);
+                }
+            });
+
+//            binding.etProgram.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), getString(R.string.msg_you_cannot_change_the_program_name_if_you_update_the_program_data), new ButtonConfig(getString(R.string.label_cancel)), null);
+//                    showWarningDialog(config);
+//                }
+//            });
+        }
+
+    }
+
+
     public void send() {
 
 //        Resources res = getResources();
@@ -254,7 +359,7 @@ public class AddProgramActivity extends BaseActivity {
             showToast(getString(R.string.most_login));
             return;
         } else if (binding.etStation.getText().toString().trim().isEmpty()) {
-            showToast("يجب تحديد إسم القناة الإذاعية");
+            showSnackBar(getString(R.string.error_please_select_radio_station));
             return;
         } else if (binding.titPrName.getText().toString().trim().isEmpty()) {
             binding.titPrName.setError(getString(R.string.error_empty_field_not_allowed));
@@ -278,8 +383,10 @@ public class AddProgramActivity extends BaseActivity {
             return;
         }
 
-        programId = radioInfo.getRadioId() + "ـــ" + FmUtilize.random();
-        radioId = radioInfo.getRadioId();
+//        if (programId == null){
+//            programId = radioInfo.getRadioId() + "_" + FmUtilize.random();
+//        }
+
         prName = binding.titPrName.getText().toString().trim();
         prDesc = binding.titPrDesc.getText().toString().trim();
         createBy = prefMgr.getUserSession().getUserId();
@@ -297,7 +404,7 @@ public class AddProgramActivity extends BaseActivity {
             StorageMetadata metadata = new StorageMetadata.Builder()
                     .setContentType("image/jpg")
                     .build();
-            StorageReference ref = FirebaseStorage.getInstance().getReference().child(FB_FM_FOLDER_PATH).child(radioId).child(programId + ".jpg");
+            StorageReference ref = FirebaseStorage.getInstance().getReference().child(General.FB_FM_FOLDER_PATH).child(radioInfo.getRadioId()).child(programId + ".jpg");
             // Upload file and metadata to the path 'images/mountains.jpg'
             UploadTask uploadTask = ref.putFile(imageUri, metadata);
 
@@ -335,17 +442,27 @@ public class AddProgramActivity extends BaseActivity {
                                 public void onSuccess(Uri uri) {
                                     prProfile = uri.toString();
                                     hud.dismiss();
-                                    RadioProgram radioProgram = new RadioProgram(programId, radioId, prName, prDesc, prCategoryList, RADIO_TAG, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
-                                    fmRepo.create(radioId, radioProgram, new CallBack() {
+                                    RadioProgram radioProgram = new RadioProgram(programId, radioInfo.getRadioId(), prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
+                                    String pushKey = radioInfo.getRadioId() + "_" + firestoreDbUtility.getKeyId(RADIO_PROGRAM_TABLE).document().getId();
+
+                                    if (programId == null) {
+                                        radioProgram.setProgramId(pushKey);
+                                    } else {
+                                        radioProgram.setProgramId(programId);
+                                    }
+
+                                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioInfo.getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+
+                                    firestoreDbUtility.createOrMerge(collectionReference, radioProgram.getProgramId(), radioProgram, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
-                                            showToast(object.toString());
+                                            showToast(getString(R.string.done_successfully));
                                             finish();
                                         }
 
                                         @Override
-                                        public void onError(Object object) {
-                                            showToast(AppConstant.ERROR);
+                                        public void onFailure(Object object) {
+                                            showToast(AppGeneralMessage.ERROR);
                                         }
                                     });
                                 }
@@ -359,19 +476,28 @@ public class AddProgramActivity extends BaseActivity {
 
         } else {
             prProfile = radioInfo.getLogo();
-            RadioProgram radioProgram = new RadioProgram(programId, radioId, prName, prDesc, prCategoryList, RADIO_TAG, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
-            fmRepo.create(radioId, radioProgram, new CallBack() {
+            RadioProgram radioProgram = new RadioProgram(programId, radioInfo.getRadioId(), prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
+            String pushKey = radioInfo.getRadioId() + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.RADIO_PROGRAM_TABLE).document().getId();
+
+            if (programId == null) {
+                radioProgram.setProgramId(pushKey);
+            } else {
+                radioProgram.setProgramId(programId);
+            }
+            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioInfo.getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+
+            firestoreDbUtility.createOrMerge(collectionReference, radioProgram.getProgramId(), radioProgram, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     hideProgress();
-                    showToast(object.toString());
+                    showToast(getString(R.string.done_successfully));
                     finish();
                 }
 
                 @Override
-                public void onError(Object object) {
+                public void onFailure(Object object) {
                     hideProgress();
-                    showToast(AppConstant.ERROR);
+                    showToast(AppGeneralMessage.ERROR);
                 }
             });
         }
@@ -380,8 +506,11 @@ public class AddProgramActivity extends BaseActivity {
 
     int stSelected = 0;
 
+    // البرنامج العام
     public void showStationDialog() {
-        List<RadioInfo> items = ShardDate.getInstance().getInfoList();
+        List<RadioInfo> items = ShardDate.getInstance().getRadioInfoList();
+
+//        List<RadioInfo> items = ShardDate.getInstance().getAllowedRadioInfoList(prefMgr.getUserSession());
 
         String[] charSequence = new String[items.size()];
         for (int i = 0; i < items.size(); i++) {
@@ -400,6 +529,29 @@ public class AddProgramActivity extends BaseActivity {
             }
         });
         builder.show();
+
+
+/*
+// Create the adapter
+        AdapterRadioDialog adapter = new AdapterRadioDialog(this, items);
+
+// Build the AlertDialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.add_station));
+        builder.setSingleChoiceItems(adapter, stSelected, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                stSelected = which;
+                // Handle item selection (e.g., display a toast with the selected item name)
+                String selectedItemName = items.get(which).getName();
+                radioInfo = items.get(which);
+                binding.etStation.setText(radioInfo.getName());
+                loadProfile(Uri.parse(radioInfo.getLogo()));
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();*/
+
     }
 
 
@@ -453,27 +605,6 @@ public class AddProgramActivity extends BaseActivity {
 
     }
 
-    void onProfileImageClick() {
-        Dexter.withContext(this)
-                .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .withListener(new MultiplePermissionsListener() {
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport report) {
-                        if (report.areAllPermissionsGranted()) {
-                            showImagePickerOptions();
-                        }
-
-                        if (report.isAnyPermissionPermanentlyDenied()) {
-                            showSettingsDialog();
-                        }
-                    }
-
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List<com.karumi.dexter.listener.PermissionRequest> list, PermissionToken permissionToken) {
-                        permissionToken.continuePermissionRequest();
-                    }
-                }).check();
-    }
 
     private void showImagePickerOptions() {
         ImagePickerActivity.showImagePickerOptions(this, new ImagePickerActivity.PickerOptionListener() {
@@ -503,7 +634,7 @@ public class AddProgramActivity extends BaseActivity {
         intent.putExtra(ImagePickerActivity.INTENT_BITMAP_MAX_WIDTH, 1000);
         intent.putExtra(ImagePickerActivity.INTENT_BITMAP_MAX_HEIGHT, 1000);
 
-        startActivityForResult(intent, REQUEST_IMAGE);
+        startActivityForResult(intent, ImagePickerActivity.REQUEST_IMAGE);
     }
 
     private void launchGalleryIntent() {
@@ -514,84 +645,25 @@ public class AddProgramActivity extends BaseActivity {
         intent.putExtra(ImagePickerActivity.INTENT_LOCK_ASPECT_RATIO, true);
         intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_X, 1); // 16x9, 1x1, 3:4, 3:2
         intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_Y, 1);
-        startActivityForResult(intent, REQUEST_IMAGE);
+        startActivityForResult(intent, ImagePickerActivity.REQUEST_IMAGE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE) {
+        if (requestCode == ImagePickerActivity.REQUEST_IMAGE) {
             if (resultCode == Activity.RESULT_OK) {
-                imageUri = data.getParcelableExtra("path");
+                imageUri = data.getParcelableExtra(ImagePickerActivity.INTENT_IMAGE_PATH);
                 try {
                     // You can update this bitmap to your server
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-
+//                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
                     // loading profile image from local cache
                     loadProfile(imageUri);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
-    }
-
-    /**
-     * Showing Alert Dialog with Settings option
-     * Navigates user to app settings
-     * NOTE: Keep proper title and message depending on your app
-     */
-    private void showSettingsDialog() {
-        Builder builder = new Builder(AddProgramActivity.this);
-        builder.setTitle(getString(R.string.dialog_permission_title));
-        builder.setMessage(getString(R.string.dialog_permission_message));
-        builder.setPositiveButton(getString(R.string.go_to_settings), (dialog, which) -> {
-            dialog.cancel();
-            openSettings();
-        });
-        builder.setNegativeButton(getString(android.R.string.cancel), (dialog, which) -> dialog.cancel());
-        builder.show();
-
-    }
-
-
-    // navigating user to app settings
-    private void openSettings() {
-        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        Uri uri = Uri.fromParts("package", getPackageName(), null);
-        intent.setData(uri);
-        startActivityForResult(intent, 101);
-    }
-
-
-    private void dialogDatePickerLight(final TextView tv, OnCallbackDate clickListener) {
-        Calendar cur_calender = Calendar.getInstance();
-        long now = System.currentTimeMillis() - 1000;
-        cur_calender.setTimeInMillis(now);
-        DatePickerDialog datePicker = DatePickerDialog.newInstance(
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.set(Calendar.YEAR, year);
-                        calendar.set(Calendar.MONTH, monthOfYear);
-                        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        long date_ship_millis = calendar.getTimeInMillis();
-                        clickListener.getSelected(date_ship_millis);
-                        tv.setText(Tools.getFormattedDateSimple(date_ship_millis));
-                        tv.setError(null);
-                    }
-                },
-                cur_calender.get(Calendar.YEAR),
-                cur_calender.get(Calendar.MONTH),
-                cur_calender.get(Calendar.DAY_OF_MONTH)
-        );
-        //set dark light
-        datePicker.setThemeDark(false);
-        datePicker.setAccentColor(getResources().getColor(R.color.colorPrimary));
-//        datePicker.setMinDate(cur_calender);
-//        datePicker.setMaxDate(cur_calender);
-        datePicker.show(getSupportFragmentManager(), "تحديد التاريخ");
     }
 
 

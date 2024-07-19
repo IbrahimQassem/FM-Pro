@@ -25,38 +25,45 @@ public class UserGuide implements MaterialIntroListener {
     }
 
     public void showIntro(View view, String id, String text, Focus focusType, ShapeType shape,MaterialIntroListener introListener) {
-        MaterialIntroView ss = new MaterialIntroView.Builder((Activity) context)
-                .enableDotAnimation(false) //Shows dot animation center of focus area
-//                .setMaskColor(context.getResources().getColor(R.color.fab_color_shadow))
-                .setMaskColor(context.getResources().getColor(R.color.mask_color))
-                .setTargetPadding(20) //add 30px padding to focus circle
-                .setTextColor(context.getResources().getColor(R.color.colorPrimaryDark)) //Info dialog's text color is set to black
-                .setIdempotent(true)
-                .enableIcon(false) //Turn off helper icon, default is true
-                .performClick(true) //Trigger click operation when user click focused area.
-                .setFocusGravity(FocusGravity.CENTER)
-                .setFocusType(focusType)
-                .setDelayMillis(DELAY_TIME) // delay the view
-                .enableFadeAnimation(true)
-                .setListener(introListener)
+
+        try {
+            if (view != null){
+                MaterialIntroView ss = new MaterialIntroView.Builder((Activity) context)
+                        .enableDotAnimation(false) //Shows dot animation center of focus area
+                        .setMaskColor(context.getResources().getColor(R.color.mask_color))
+                        .setTargetPadding(20) //add 30px padding to focus circle
+                        .setTextColor(context.getResources().getColor(R.color.colorPrimary)) //Info dialog's text color is set to black
+                        .setIdempotent(true)
+                        .enableIcon(false) //Turn off helper icon, default is true
+                        .performClick(true) //Trigger click operation when user click focused area.
+                        .setFocusGravity(FocusGravity.CENTER)
+                        .setFocusType(focusType)
+                        .setDelayMillis(DELAY_TIME) // delay the view
+                        .enableFadeAnimation(true)
+                        .setListener(introListener)
 //                .setListener(new MaterialIntroListener() {
 //                    @Override
 //                    public void onUserClicked(String materialIntroViewId) {
 //                        Toast.makeText(context, materialIntroViewId, Toast.LENGTH_SHORT).show();
 //                    }
 //                })
-                .performClick(true)
-                .dismissOnTouch(true)
-                .setInfoText(text)
-                .setTarget(view)
-                .setShape(shape)
-                .setUsageId(id) //THIS SHOULD BE UNIQUE ID
-                .show();
+                        .performClick(true)
+                        .dismissOnTouch(true)
+                        .setInfoText(text)
+                        .setTarget(view)
+                        .setShape(shape)
+                        .setUsageId(id) //THIS SHOULD BE UNIQUE ID
+                        .show();
 
 //        MaterialIntroConfiguration config = new MaterialIntroConfiguration();
 //        config.setDelayMillis(1000);
 //        config.setFadeAnimationEnabled(true);
 //        new PreferencesManager(getApplication()).remove(INTRO_FOCUS_1);
+            }
+        } catch (IllegalArgumentException e){
+            LogUtility.printStackTrace(e);
+        }
+
 
     }
 

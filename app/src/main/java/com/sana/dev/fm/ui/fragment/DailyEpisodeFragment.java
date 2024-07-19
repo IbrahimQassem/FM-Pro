@@ -1,7 +1,6 @@
 package com.sana.dev.fm.ui.fragment;
 
 
-
 import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 import static com.sana.dev.fm.utils.FmUtilize.safeList;
 
@@ -11,6 +10,7 @@ import android.text.Html;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,20 +23,27 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.sana.dev.fm.R;
-
 import com.sana.dev.fm.adapter.TimeLineAdapter;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.TempEpisodeModel;
+import com.sana.dev.fm.model.enums.Weekday;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.MainActivity;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
+import com.sana.dev.fm.utils.WeekdayUtils;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
-
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -52,7 +59,6 @@ import butterknife.ButterKnife;
  * create an instance of this fragment.
  */
 public class DailyEpisodeFragment extends BaseFragment {
-
     private static final String TAG = DailyEpisodeFragment.class.getSimpleName();
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -66,8 +72,8 @@ public class DailyEpisodeFragment extends BaseFragment {
     RecyclerView recyclerView;
     @BindView(R.id.tvTittle)
     TextView tvTittle;
-    private TimeLineAdapter mAdapter;
-    private FmEpisodeCRUDImpl ePiRepo;
+    //    private TimeLineAdapter mAdapter;
+    private FirestoreDbUtility firestoreDbUtility;
 
 
     public DailyEpisodeFragment() {
@@ -104,20 +110,22 @@ public class DailyEpisodeFragment extends BaseFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_radio_map, container, false);
         ButterKnife.bind(this, view);
 
-        ePiRepo = new FmEpisodeCRUDImpl((MainActivity) ctx, FirebaseConstants.EPISODE_TABLE);
+        firestoreDbUtility = new FirestoreDbUtility();
 
 //        if (getArguments() != null) {
 //            episodeList = (List<Episode>) getArguments().getSerializable(ARG_PARAM2);
 //        }
 
-        if (isRadioSelected())
+        if (isRadioSelected()) {
             loadDailyEpisode(prefMgr.selectedRadio().getRadioId());
+        } else {
+
+        }
 
 
         return view;
@@ -135,74 +143,160 @@ public class DailyEpisodeFragment extends BaseFragment {
                     ((MainActivity) getActivity()).selectTab(R.id.navigation_home);
             }
         });
-        recyclerView.setVisibility(View.GONE);
-        cf_container.setVisibility(View.VISIBLE);
+
+        toggleView(true);
+
     }
 
 
     private void loadDailyEpisode(String radioId) {
-        SpannableStringBuilder builder = new SpannableStringBuilder();
+        try {
 
-        String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : "";
-         SpannableString primarySpannable = new SpannableString(Html.fromHtml("<b>" + primary + "</b>"));
-        primarySpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, primary.length(), 0);
-        builder.append(primarySpannable);
+            SpannableStringBuilder builder = new SpannableStringBuilder();
+            RadioInfo selectedRadio = prefMgr.selectedRadio();
+            String primary = (selectedRadio != null && selectedRadio.getName() != null) ? selectedRadio.getName() : " ";
+            SpannableString primarySpannable = new SpannableString(Html.fromHtml("<b>" + primary + "</b>"));
+            primarySpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimary)), 0, primary.length(), 0);
+            builder.append(primarySpannable);
 
-        String black = ctx.getResources().getString(R.string.episode_daily, "");
-        SpannableString whiteSpannable = new SpannableString(black);
-        whiteSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.grey_40)), 0, black.length(), 0);
-        builder.append(whiteSpannable);
+            String black = ctx.getResources().getString(R.string.episode_daily, "");
+            SpannableString whiteSpannable = new SpannableString(black);
+            whiteSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.grey_40)), 0, black.length(), 0);
+            builder.append(whiteSpannable);
 
-        String blue = " " + FmUtilize.getDayName(new Date());
-        SpannableString blueSpannable = new SpannableString(blue);
-        blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.grey_700)), 0, blue.length(), 0);
-        builder.append(blueSpannable);
-
+            String blue = " " + FmUtilize.getDayName(new Date());
+            SpannableString blueSpannable = new SpannableString(blue);
+            blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.grey_700)), 0, blue.length(), 0);
+            builder.append(blueSpannable);
 
 //        tvTittle.setText(String.format(" %s", ctx.getResources().getString(R.string.episode_daily,blue )));
-        tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
+            tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
 
-        ePiRepo.queryAllBy(radioId,null, new CallBack() {
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "Error parsing remote config JSON: " + e.getMessage());
+        }
+
+
+////        // Todo
+        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                "disabled",
+                false
+        ));
+
+//        firestoreQueryList.add(new FirestoreQuery(
+//                FirestoreQueryConditionCode.WHERE_LESS_THAN_OR_EQUAL_TO,
+//                "programScheduleTime.dateEnd",
+//                System.currentTimeMillis()
+//        ));
+//
+//        firestoreQueryList.add(new FirestoreQuery(
+//                FirestoreQueryConditionCode.Query_Direction_DESCENDING,
+//                "programScheduleTime.dateStart",
+//                Query.Direction.DESCENDING
+//        ));
+
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+/*        Query episodeQuery = collectionReference.whereEqualTo("disabled", false)
+                .whereLessThanOrEqualTo("programScheduleTime.dateEnd", System.currentTimeMillis())
+                .orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+
+        collectionReference
+                .whereEqualTo("disabled", false)
+                .whereLessThanOrEqualTo("programScheduleTime.dateEnd", System.currentTimeMillis())
+                .orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot object) {
+                        // Order results by `experience`
+                        LogUtility.d(TAG, " loadDailyEpisode :  " + object);
+
+                        List<Episode> episodeList = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);
+                        List<TempEpisodeModel> modelList = new ArrayList<>();
+                        for (int i1 = 0; i1 < safeList(episodeList).size(); i1++) {
+                            List<DateTimeModel> shTimeList = episodeList.get(i1).getShowTimeList();
+                            for (int i2 = 0; i2 < safeList(shTimeList).size(); i2++) {
+                                DateTimeModel timeModel = shTimeList.get(i2);
+                                Episode ep = episodeList.get(i1);
+                                List<Weekday> weekdays = safeList(timeModel.getWeekdays());
+                                for (Weekday item : weekdays) {
+//                            boolean isDisplayDay = WeekdayUtils.isCurrentDay(item);
+//                            if (isDisplayDay){
+                                    modelList.add(new TempEpisodeModel(ep.getEpProfile(), ep.getEpName(), ep.getEpAnnouncer(), timeModel, item));
+//                            }
+                                }
+                            }
+                        }
+
+                        boolean isToday = modelList.size() > 0;
+
+                        recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
+                        TimeLineAdapter adapterPeople = new TimeLineAdapter(ctx, modelList);
+//                mAdapter = adapterPeople;
+                        recyclerView.setAdapter(adapterPeople);
+
+                        toggleView(!isToday);
+                    }
+                });
+
+        episodeQuery
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        // Order results by `experience`
+                        LogUtility.e(LogUtility.tag(DailyEpisodeFragment.class), queryDocumentSnapshots.getMetadata().toString());
+                    }
+                });*/
+
+        firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                List<Episode> episodeList = safeList((List<Episode>) object);
+                LogUtility.d(TAG, " loadDailyEpisode :  " + object);
+
+                List<Episode> episodeList = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);
                 List<TempEpisodeModel> modelList = new ArrayList<>();
                 for (int i1 = 0; i1 < safeList(episodeList).size(); i1++) {
                     List<DateTimeModel> shTimeList = episodeList.get(i1).getShowTimeList();
                     for (int i2 = 0; i2 < safeList(shTimeList).size(); i2++) {
                         DateTimeModel timeModel = shTimeList.get(i2);
                         Episode ep = episodeList.get(i1);
-                        String _displayDayName = isCollection(timeModel.getDisplayDays()) ? timeModel.getDisplayDays().get(0) : "";
-                        modelList.add(new TempEpisodeModel(ep.getEpProfile(), ep.getEpName(), ep.getEpAnnouncer(), _displayDayName, timeModel));
+                        List<Weekday> weekdays = safeList(timeModel.getWeekdays());
+                        for (Weekday item : weekdays) {
+                            boolean isDisplayDay = WeekdayUtils.isCurrentDay(item);
+                            if (isDisplayDay) {
+                                modelList.add(new TempEpisodeModel(ep.getEpProfile(), ep.getEpName(), ep.getEpAnnouncer(), timeModel, item));
+                            }
+                        }
                     }
                 }
 
+                // Query(target=Query(HudHudFM/Episode/1011/Episode/Episode order by __name__);limitType=LIMIT_TO_FIRST)
+//                List<TempEpisodeModel> filtered = new ArrayList<TempEpisodeModel>();
+//                for (TempEpisodeModel article : modelList) {
+//                    if (article.getDisplayDayName().matches(FmUtilize.getShortEnDayName()))
+//                        filtered.add(article);
+//                }
 
-
-                List<TempEpisodeModel> filtered = new ArrayList<TempEpisodeModel>();
-                for(TempEpisodeModel article : modelList)
-                {
-                    if(article.getDisplayDayName().matches(FmUtilize.getShortEnDayName()))
-                        filtered.add(article);
-                }
-
-                boolean isToday = filtered.size() > 0;
+                boolean isToday = modelList.size() > 0;
 
                 recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
-                TimeLineAdapter adapterPeople = new TimeLineAdapter(ctx, filtered);
-                mAdapter = adapterPeople;
+                TimeLineAdapter adapterPeople = new TimeLineAdapter(ctx, modelList);
+//                mAdapter = adapterPeople;
                 recyclerView.setAdapter(adapterPeople);
 
-                recyclerView.setVisibility(isToday ? View.VISIBLE : View.GONE);
-                cf_container.setVisibility(!isToday ? View.VISIBLE : View.GONE);
+                toggleView(!isToday);
             }
 
             @Override
-            public void onError(Object object) {
-                LogUtility.e(TAG, "reaDailyEpisodeByRadioId onError : " + object);
+            public void onFailure(Object object) {
+                LogUtility.e(TAG, " loadDailyEpisode :  " + object);
             }
         });
-
 
     }
 
@@ -220,10 +314,13 @@ public class DailyEpisodeFragment extends BaseFragment {
     }
 
     public void refresh() {
-        if (isRadioSelected())
-            loadDailyEpisode(prefMgr.selectedRadio().getRadioId());
+        if (isRadioSelected()) loadDailyEpisode(prefMgr.selectedRadio().getRadioId());
     }
 
+    void toggleView(boolean hide) {
+        recyclerView.setVisibility(!hide ? View.VISIBLE : View.GONE);
+        cf_container.setVisibility(hide ? View.VISIBLE : View.GONE);
+    }
 
 }
 

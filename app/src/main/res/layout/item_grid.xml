@@ -26,18 +26,16 @@
 
                 <com.mikhaellopez.circularimageview.CircularImageView
                     android:id="@+id/civ_logo"
-                    android:layout_width="@dimen/spacing_xxlarge"
-                    android:layout_height="@dimen/spacing_xxlarge"
-                    android:layout_marginStart="@dimen/spacing_medium"
-                    android:layout_marginEnd="@dimen/spacing_medium"
-                    android:paddingBottom="@dimen/spacing_small"
+                    android:layout_width="@dimen/global_card_avatar_size"
+                    android:layout_height="@dimen/global_card_avatar_size"
+                    android:layout_margin="@dimen/spacing_medium"
+                    android:labelFor="@+id/civ_logo"
+                    android:padding="@dimen/spacing_small"
                     app:civ_border="true"
-                    app:civ_border_color="@color/quantum_blue_grey100"
-                    app:civ_border_width="0.5dp"
-                    app:civ_shadow="true"
-                    app:civ_shadow_radius="1"
+                    app:civ_border_color="@color/colorPrimaryLight"
+                    app:civ_border_width="1px"
                     app:elevation="@dimen/spacing_medium"
-                    app:srcCompat="@drawable/logo_app" />
+                    tools:srcCompat="@drawable/logo_app" />
 
 
                 <LinearLayout
@@ -56,9 +54,9 @@
                     <TextView
                         android:id="@+id/tv_announcer"
                         style="@style/TextLight"
-                        android:textColor="@color/quantum_light_blue700"
+                        android:textColor="?attr/colorPrimary"
                         android:textStyle="bold"
-                        android:visibility="visible"
+                        android:padding="@dimen/spacing_small"
                         tools:text="@string/label_announcer_name" />
 
 
@@ -90,7 +88,7 @@
                 android:layout_height="320dp"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                app:srcCompat="@drawable/logo_app" />
+                app:srcCompat="@drawable/logo_app"/>
 
             <View
                 android:layout_width="match_parent"
@@ -101,36 +99,36 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/spacing_middle">
+                android:orientation="vertical">
 
                 <TextView
+                    android:visibility="visible"
                     android:id="@+id/tv_desc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="start"
                     android:lineSpacingExtra="4dp"
-                    android:paddingTop="@dimen/spacing_middle"
-                    android:paddingBottom="@dimen/spacing_middle"
+                    android:padding="@dimen/spacing_middle"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                     android:textColor="@color/grey_40"
-                    android:visibility="gone"
-                    tools:text="@string/label_desc" />
+                    tools:text="@string/lorem_ipsum" />
 
 
                 <LinearLayout
+                    android:id="@+id/lyt_parent_date_announcer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:visibility="visible">
+                    android:orientation="horizontal">
+
 
                     <TextView
-                        android:id="@+id/tv_sub_desc"
+                        android:id="@+id/tv_state"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                        android:textColor="@color/grey_40"
-                        tools:text="@string/label_announcer_name" />
+                        android:padding="@dimen/spacing_middle"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textColor="@color/colorPrimary"
+                        tools:text="@string/label_display_now" />
 
                     <View
                         android:layout_width="0dp"
@@ -138,9 +136,10 @@
                         android:layout_weight="1" />
 
                     <TextView
-                        android:id="@+id/tvTime"
+                        android:id="@+id/tv_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:padding="@dimen/spacing_middle"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                         android:textColor="@color/grey_40"
                         tools:text="@string/ex_date" />
@@ -194,8 +193,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
+                    android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/imv_comment"
@@ -216,31 +214,23 @@
                         android:text="@string/label_comments"
                         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                         android:textColor="@color/grey_40"
-                        android:visibility="visible"
                         tools:text="@string/ex_comment_count" />
                 </LinearLayout>
 
-                <View android:layout_width="0dp"
+                <View
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1" />
 
-                <TextView
-                    android:id="@+id/tv_state"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textColor="@color/colorPrimary"
-                    tools:text="@string/label_display_now" />
 
                 <ImageView
-                    android:id="@+id/bt_toggle"
+                    android:id="@+id/bt_more"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:focusable="true"
                     android:padding="@dimen/spacing_medium"
-                    android:visibility="gone"
                     app:srcCompat="@drawable/ic_more_dot"
                     app:tint="@color/grey_500" />
 

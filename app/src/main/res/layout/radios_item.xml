@@ -19,16 +19,51 @@
             android:paddingTop="@dimen/spacing_medium"
             android:paddingBottom="@dimen/spacing_medium">
 
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
-            <com.mikhaellopez.circularimageview.CircularImageView
-                android:id="@+id/civ_logo"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                app:civ_border="true"
-                app:civ_border_color="@color/fab_color_shadow"
-                app:civ_border_width="0.5dp"
-                app:elevation="@dimen/spacing_small"
-                app:srcCompat="@drawable/logo_app" />
+                <com.mikhaellopez.circularimageview.CircularImageView
+                    android:id="@+id/civ_logo"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="@dimen/spacing_small"
+                    app:civ_border="true"
+                    app:civ_border_color="@color/colorPrimaryLight"
+                    app:civ_border_width="0.5dp"
+                    app:elevation="@dimen/spacing_small"
+                    app:srcCompat="@drawable/logo_app" />
+
+
+                <com.mikhaellopez.circularimageview.CircularImageView
+                    android:id="@+id/iv_badge_image"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="end|bottom"
+                    android:layout_marginStart="@dimen/spacing_small"
+                    android:layout_marginTop="@dimen/spacing_small"
+                    android:layout_marginEnd="@dimen/spacing_small"
+                    android:layout_marginBottom="@dimen/spacing_small"
+                    app:civ_border="true"
+                    app:civ_border_color="@color/white"
+                    app:civ_border_width="0.2dp"
+                    app:srcCompat="@drawable/ic_verified"
+                    app:tint="?attr/colorPrimary" />
+
+
+                <!--                <View-->
+                <!--                    android:id="@+id/badge"-->
+                <!--                    android:layout_width="16dp"-->
+                <!--                    android:layout_height="16dp"-->
+                <!--                    android:layout_alignParentRight="true"-->
+                <!--                    android:layout_alignParentBottom="true"-->
+                <!--                    android:layout_marginBottom="6dp"-->
+                <!--                    android:layout_marginRight="8dp"-->
+                <!--                    android:background="@drawable/ic_verified"/>-->
+
+            </FrameLayout>
+
 
             <TextView
                 android:id="@+id/tv_title"
@@ -39,8 +74,7 @@
                 android:maxLines="1"
                 android:padding="@dimen/spacing_small"
                 android:textAlignment="center"
-                android:textColor="@color/colorPrimaryDark"
-                android:textSize="16.2sp"
+                android:textColor="?attr/colorPrimary"
                 tools:text="@string/label_radio_station" />
 
             <TextView
@@ -51,11 +85,20 @@
                 android:lineSpacingExtra="1.8sp"
                 android:maxLines="1"
                 android:textAlignment="center"
-                android:textColor="@color/colorAccent"
-                android:textSize="12.2sp"
+                android:textColor="?attr/colorPrimary"
                 tools:text="99.9" />
 
-
+            <ImageView
+                android:id="@+id/iv_internet"
+                android:layout_width="@dimen/spacing_medium"
+                android:layout_height="@dimen/spacing_medium"
+                android:layout_marginStart="@dimen/spacing_medium"
+                android:layout_marginTop="1dp"
+                android:layout_marginEnd="@dimen/spacing_medium"
+                android:tint="@color/transparent"
+                android:visibility="invisible"
+                app:srcCompat="@drawable/shape_circle"
+                tools:ignore="UseAppTint" />
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>

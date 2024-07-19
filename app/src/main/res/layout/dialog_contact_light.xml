@@ -30,7 +30,7 @@
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 app:srcCompat="@drawable/ic_close"
-                app:tint="@color/colorAccent" />
+                app:tint="@color/colorPrimary" />
         </LinearLayout>
 
 
@@ -48,7 +48,7 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 app:civ_border="true"
-                app:civ_border_color="@color/colorPrimaryDark"
+                app:civ_border_color="?attr/colorPrimary"
                 app:civ_border_width="1dp"
                 app:civ_shadow="true"
                 app:civ_shadow_radius="0"
@@ -59,26 +59,32 @@
                 android:layout_marginTop="@dimen/spacing_middle"
                 android:padding="@dimen/spacing_middle"
                 android:text="@string/app_name"
-                android:textColor="@color/colorAccent"
+                android:textColor="@color/colorPrimary"
                 android:textSize="18sp"
+                app:fontFamily="@font/tj_light"
                 tools:text="@string/app_name" />
 
             <TextView
                 style="@style/TextRegular"
+                android:justificationMode="inter_word"
                 android:padding="@dimen/spacing_middle"
                 android:text="@string/app_slogan"
-                android:textColor="@color/grey_40" />
+                android:textAlignment="center"
+                android:textColor="@color/grey_40"
+                app:fontFamily="@font/tj_medium" />
 
             <TextView
                 style="@style/TextRegular"
+                android:layout_width="match_parent"
                 android:layout_marginTop="@dimen/spacing_mlarge"
                 android:gravity="center"
-                android:layout_width="match_parent"
                 android:justificationMode="inter_word"
-                android:lineSpacingExtra="3dp"
+                android:lineSpacingExtra="5dp"
                 android:text="@string/label_app_description"
+                android:textAlignment="center"
                 android:textColor="@color/grey_40"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                app:fontFamily="@font/tj_regular" />
 
 
         </LinearLayout>
@@ -86,12 +92,12 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/colorAccentDark" />
+            android:background="?attr/colorPrimary" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimaryDark"
+            android:background="?attr/colorPrimary"
             android:gravity="center"
             android:orientation="vertical"
             android:padding="@dimen/spacing_middle">
@@ -182,7 +188,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginBottom="@dimen/spacing_medium"
-                android:background="@color/white" />
+                android:background="?attr/colorSecondary" />
 
             <com.balysv.materialripple.MaterialRippleLayout
                 android:id="@+id/bt_portfolio"

@@ -21,8 +21,11 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.ChatHolder;
@@ -31,21 +34,25 @@ import com.sana.dev.fm.databinding.ItemGridBinding;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.ModelConfig;
-import com.sana.dev.fm.model.UserType;
+import com.sana.dev.fm.model.enums.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
-import com.sana.dev.fm.ui.activity.CommentsActivity;
+import com.sana.dev.fm.model.interfaces.OnClickListener;
+import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.ui.activity.AddEpisodeActivity;
+import com.sana.dev.fm.ui.activity.CommentsActivity;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -56,24 +63,7 @@ import butterknife.ButterKnife;
  * create an instance of this fragment.
  */
 public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAuth.AuthStateListener {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private static final String TAG = RealTimeEpisodeFragment.class.getSimpleName();
-
-//    private static final CollectionReference sChatCollection =
-//            FirebaseFirestore.getInstance().collection("chats");
-
-    /** Get the last 50 chat messages ordered by timestamp . */
-//    private static final Query sChatQuery =
-//            sChatCollection.orderBy("timestamp", Query.Direction.DESCENDING).limit(50);
 
     static {
         FirebaseFirestore.setLoggingEnabled(true);
@@ -81,7 +71,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
     View view;
     Context context;
-    FmEpisodeCRUDImpl ePiRepo;
+    FirestoreDbUtility firestoreDbUtility;
 
     @BindView(R.id.rvFeed)
     RecyclerView recyclerView;
@@ -98,16 +88,11 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment FirestoreChatFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static RealTimeEpisodeFragment newInstance(String param1, String param2) {
+    public static RealTimeEpisodeFragment newInstance() {
         RealTimeEpisodeFragment fragment = new RealTimeEpisodeFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -115,10 +100,8 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+//        if (getArguments() != null) {
+//        }
     }
 
     @Override
@@ -129,7 +112,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         view = inflater.inflate(R.layout.fragment_real_time_episode, container, false);
         // Inflate the layout for this fragment
         ButterKnife.bind(this, view);
-        ePiRepo = new FmEpisodeCRUDImpl((MainActivity) context, FirebaseConstants.EPISODE_TABLE);
+        firestoreDbUtility = new FirestoreDbUtility();
 
         init();
         return view;
@@ -138,7 +121,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : "";
-        EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(context.getString(R.string.no_data_available),  String.format(" %s", getResources().getString(R.string.empty_ep, primary)),null);
+        EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(context.getString(R.string.no_data_available), String.format("%s", getResources().getString(R.string.msg_no_data_for, primary)), null);
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.replace(R.id.child_fragment_container, emptyViewFragment).commit();
         emptyViewFragment.setOnItemClickListener(new CallBackListener() {
@@ -148,6 +131,8 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                     ((MainActivity) getActivity()).selectTab(R.id.navigation_home);
             }
         });
+
+        toggleView(false);
     }
 
     void init() {
@@ -228,16 +213,42 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         recyclerView.setAdapter(mSectionedAdapter);
     }
 
-
     @NonNull
     private RecyclerView.Adapter newAdapter() {
 
-        String radioId = prefMgr.selectedRadio().getRadioId();
+        String radioId = prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null ? prefMgr.selectedRadio().getRadioId() : "";
         LogUtility.d(LogUtility.TAG, " radioId : " + radioId + " time is  : " + String.valueOf(System.currentTimeMillis()));
+
+//        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+// Create a timestamp from the date object
+        Timestamp timestamp = new Timestamp(new Date());
+        // Get today's date in milliseconds since epoch
+        long today = System.currentTimeMillis();
+        LogUtility.d(LogUtility.TAG, "timestamp time is  : " + String.valueOf(timestamp) +" -"+today);
+
+//        Query episodeQuery = collectionReference.whereEqualTo("disabled", false).whereLessThanOrEqualTo("programScheduleTime.dateEnd", today).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+//        Query episodeQuery = collectionReference.whereEqualTo("disabled", false).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+//        Query episodeQuery = collectionReference.orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+//        Query episodeQuery = collectionReference;
+//        Query episodeQuery = collectionReference.orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+        Query episodeQuery = collectionReference.whereEqualTo("disabled", false).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
+//        Query episodeQuery = collectionReference.whereLessThan("programScheduleTime.dateEnd", today);
+//        LogUtility.d(LogUtility.TAG, " episodeQuery : " + episodeQuery.get());
+
+        //    /** Get the last 50 chat messages ordered by timestamp . */
+        ////    private static final Query sChatQuery =
+        ////            sChatCollection.orderBy("timestamp", Query.Direction.DESCENDING).limit(50);
+
+
+// Create a date object representing the desired date
+//        Date specificDate = new Date(yourYear, yourMonth - 1, yourDay); // Adjust year, month (0-based), and day
+
+
 
         FirestoreRecyclerOptions<Episode> options =
                 new FirestoreRecyclerOptions.Builder<Episode>()
-                        .setQuery(ePiRepo.createSimpleQueries(radioId), Episode.class)
+                        .setQuery(episodeQuery, Episode.class)
                         .setLifecycleOwner(this)
                         .build();
 
@@ -249,35 +260,49 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 return new ChatHolder(inflate);
             }
 
+//            @Override
+//            public Query onCreateQuery() {
+//                return FirebaseFirestore.getInstance().collection("yourCollectionName")
+//                        .whereEqualTo("disabled", false); // Filter where disabled is false
+//            }
+
             @Override
             protected void onBindViewHolder(@NonNull ChatHolder holder, int position, @NonNull Episode model) {
 //                LogUtility.d(LogUtility.TAG, "res newAdapter : " + new Gson().toJson(model));
-
                 if (RealTimeEpisodeFragment.this.isAccountSignedIn()) {
                     model.userId = prefMgr.getUserSession().getUserId();
                 }
                 ChatHolder viewHolder = (ChatHolder) holder;
+//                if (model != null && !model.isDisabled())
+                    viewHolder.bind(model, position);
 
-                if (!model.isStopped())
-                viewHolder.bind(model, position);
+//                // Check the disabled field and update visibility
+//                if (model != null && model.isDisabled()) { // Assuming your MyItem class has a getter for disabled field
+////                    holder.itemView.setVisibility(View.GONE);
+//                } else {
+////                    holder.itemView.setVisibility(View.VISIBLE);
+//                }
 
-                viewHolder.setOnLongItemClickListener(new ChatHolder.OnLongItemClickListener() {
+                viewHolder.setOnLongItemClickListener(new OnItemLongClick() {
                     @Override
-                    public void onLongItemClick(View view, Episode obj, int position) {
+                    public void onItemLongClick(View view, Object obj, int position) {
+                        Episode item = (Episode) obj;
+
                         if (RealTimeEpisodeFragment.this.isAccountSignedIn() && prefMgr.getUserSession().getUserType() == UserType.SuperADMIN)
-                            showBottomSheetDialog(obj, position);
+                            showBottomSheetDialog(item, radioId);
                     }
                 });
 
-                viewHolder.setOnItemClickListener(new ChatHolder.OnItemClickListener() {
+                viewHolder.setOnItemClickListener(new OnClickListener() {
                     @Override
-                    public void onItemClick(View view, Episode obj, int position) {
+                    public void onItemClick(View view, Object obj, int position) {
+                        Episode item = (Episode) obj;
                         int[] startingLocation = new int[2];
                         switch (view.getId()) {
                             case R.id.civ_logo:
-                                if (BuildConfig.FLAVOR.equals("internews")) {
+                                if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhud_fm") || (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
                                     view.getLocationOnScreen(startingLocation);
-                                    ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, context, obj);
+                                    ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, context, item);
                                     getActivity().overridePendingTransition(0, 0);
                                 }
 
@@ -285,16 +310,16 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                             case R.id.lyt_comment_parent:
                             case R.id.imv_comment:
                                 view.getLocationOnScreen(startingLocation);
-                                CommentsActivity.startActivity(context, obj);
+                                CommentsActivity.startActivity(context, item);
                                 getActivity().overridePendingTransition(0, 0);
                                 break;
                             case R.id.imv_like:
                                 if (!RealTimeEpisodeFragment.this.isAccountSignedIn()) {
                                     if (context instanceof MainActivity) {
-                                        ModelConfig config = new ModelConfig(-1, getString(R.string.label_note), getString(R.string.goto_login),  new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                                        ModelConfig config = new ModelConfig(-1, getString(R.string.label_note), getString(R.string.goto_login), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                startActivity(new Intent(IntentHelper.phoneLoginActivity(context, false)));
+                                                startActivity(new Intent(IntentHelper.intentFormSignUp(context, false)));
                                             }
                                         }));
                                         showWarningDialog(config);
@@ -304,14 +329,24 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                                     HashMap<String, Boolean> likeMap = new HashMap<>();
                                     likeMap.put(prefMgr.getUserSession().getUserId(), isLik);
                                     model.setEpisodeLikes(likeMap);
-                                    ePiRepo.update("episodeLikes", model, new CallBack() {
+
+                                    Map<String, Object> docData = new HashMap<>();
+                                    docData.put("episodeLikes", model.getEpisodeLikes());
+
+                                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+//                                    DocumentReference documentReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(model.getEpId());
+
+                                    firestoreDbUtility.update(collectionReference, model.getEpId(), docData, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
+//                                            showToast(getString(R.string.done_successfully));
+                                            LogUtility.d(LogUtility.TAG, "success set episodeLikes radioId : " + radioId + " docData is  : " + docData);
                                         }
 
                                         @Override
-                                        public void onError(Object object) {
-                                            LogUtility.e("Error like", object.toString());
+                                        public void onFailure(Object object) {
+//                                            showToast(getString(R.string.label_error_occurred_with_val,object));
+                                            LogUtility.d(LogUtility.TAG, "failure set episodeLikes radioId : " + radioId + " docData is  : " + object);
                                         }
                                     });
                                 }
@@ -325,19 +360,20 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                     }
                 });
 
+                toggleView(adapter.getItemCount() == 0);
             }
 
             @Override
             public void onDataChanged() {
                 // If there are no chat messages, show a view that invites the user to add a message.
-                cf_container.setVisibility(getItemCount() == 0 ? View.VISIBLE : View.GONE);
+                toggleView(getItemCount() == 0);
             }
         };
     }
 
     private BottomSheetDialog mBottomSheetDialog;
 
-    private void showBottomSheetDialog(Episode obj, int position) {
+    private void showBottomSheetDialog(Episode obj, String radioId) {
         View findViewById = view.findViewById(R.id.bottom_sheet);
         View bottom_sheet = findViewById;
         BottomSheetBehavior mBehavior = BottomSheetBehavior.from(findViewById);
@@ -352,7 +388,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         inflate.findViewById(R.id.lyt_edit).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append("تعديل : ");
+                stringBuilder.append(context.getString(R.string.label_edit) + " : ");
                 stringBuilder.append(obj.getEpName());
 
                 AddEpisodeActivity.startActivity(context, obj);
@@ -360,19 +396,50 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
             }
         });
 
-        inflate.findViewById(R.id.lyt_delete).setOnClickListener(new View.OnClickListener() {
+
+        inflate.findViewById(R.id.lyt_hide).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_delete,obj.getEpName() ),  null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_hide, obj.getEpName()), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ePiRepo.delete(obj, new CallBack() {
+                        obj.setDisabled(true);
+                        Map<String, Object> docData = new HashMap<>();
+                        docData.put("disabled", obj.isDisabled());
+
+                        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+
+                        firestoreDbUtility.createOrMerge(collectionReference, obj.getEpId(), docData, new CallBack() {
                             @Override
                             public void onSuccess(Object object) {
-                                showToast(getString(R.string.deleted_successfully_with_param,obj.getEpName() ));
+//                                            showToast(getString(R.string.done_successfully));
                             }
 
                             @Override
-                            public void onError(Object object) {
+                            public void onFailure(Object object) {
+//                                            showToast(getString(R.string.label_error_occurred_with_val,object));
+                            }
+                        });
+                    }
+                }));
+                showWarningDialog(config);
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
+        inflate.findViewById(R.id.lyt_delete).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_delete, obj.getEpName()), null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+                        firestoreDbUtility.deleteDocument(collectionReference, obj.getEpId(), new CallBack() {
+                            @Override
+                            public void onSuccess(Object object) {
+                                showToast(getString(R.string.deleted_successfully_with_param, obj.getEpName()));
+                            }
+
+                            @Override
+                            public void onFailure(Object object) {
                                 showToast(getString(R.string.error_failure));
                             }
                         });
@@ -404,5 +471,9 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         });
     }
 
+    void toggleView(boolean hide) {
+        recyclerView.setVisibility(!hide ? View.VISIBLE : View.GONE);
+        cf_container.setVisibility(hide ? View.VISIBLE : View.GONE);
+    }
 
 }

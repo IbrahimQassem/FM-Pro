@@ -1,26 +1,18 @@
 package com.sana.dev.fm.ui.activity;
 
 
-import static com.sana.dev.fm.ui.activity.ImagePickerActivity.REQUEST_IMAGE;
-import static com.sana.dev.fm.utils.FmUtilize.isCollection;
 import static com.sana.dev.fm.utils.FmUtilize.random;
 import static com.sana.dev.fm.utils.FmUtilize.setTimeFormat;
 import static com.sana.dev.fm.utils.FmUtilize.stringTimeToMillis;
-import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysAr;
-import static com.sana.dev.fm.utils.FmUtilize.translateWakeDaysEn;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -28,7 +20,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,6 +30,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.OnProgressListener;
@@ -46,51 +39,43 @@ import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityAddEpisodeBinding;
-import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
-import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
-import com.sana.dev.fm.model.WakeTranslate;
+import com.sana.dev.fm.model.enums.Weekday;
 import com.sana.dev.fm.model.interfaces.OnCallbackDate;
+import com.sana.dev.fm.ui.dialog.WeekdayDialog;
+import com.sana.dev.fm.utils.AppConstant;
+import com.sana.dev.fm.utils.AppConstant.General;
+import com.sana.dev.fm.utils.DateTimePickerHelper;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.ViewAnimation;
-import com.sana.dev.fm.utils.my_firebase.AppConstant;
+import com.sana.dev.fm.utils.WeekdayUtils;
+import com.sana.dev.fm.utils.my_firebase.AppGeneralMessage;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
-import com.sana.dev.fm.utils.my_firebase.FmEpisodeCRUDImpl;
-import com.sana.dev.fm.utils.my_firebase.FmProgramCRUDImpl;
-import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
+import com.sana.dev.fm.utils.my_firebase.SharedAction;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Stack;
 
 
-
-
-public class AddEpisodeActivity extends BaseActivity {
-
+public class AddEpisodeActivity extends BaseActivity implements SharedAction {
     private final String TAG = AddEpisodeActivity.class.getSimpleName();
     private ActivityAddEpisodeBinding binding;
-    
-
     int stSelected = 0;
     int prSelected = 0;
     PreferencesManager prefMgr;
@@ -100,13 +85,13 @@ public class AddEpisodeActivity extends BaseActivity {
     private int success_step = 0;
     private int current_step = 0;
     private String radioId, epId, epName, epDesc, epAnnouncer, programId, epProfile, epStreamUrl, programName, timestamp, createBy, stopNote = null;
-    private DateTimeModel dateTimeModel;
+    private DateTimeModel programScheduleTime;
     private Uri imageUri = null;
     private RadioInfo radioInfo = new RadioInfo();
     private List<DateTimeModel> showTimeList = new ArrayList<>();
 
     private long timeStart, timeEnd;
-    private FmEpisodeCRUDImpl ePoRepo;
+    private FirestoreDbUtility firestoreDbUtility;
 
 
     public static void startActivity(Context context, Episode episode) {
@@ -124,13 +109,14 @@ public class AddEpisodeActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView((int) R.layout.activity_add_episode);
 
         binding = ActivityAddEpisodeBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-        
 
-        ePoRepo = new FmEpisodeCRUDImpl(this, FirebaseConstants.EPISODE_TABLE);
+        firestoreDbUtility = new FirestoreDbUtility();
+
         prefMgr = PreferencesManager.getInstance();
 
         initToolbar();
@@ -141,18 +127,10 @@ public class AddEpisodeActivity extends BaseActivity {
         initEditView();
 //        setDisplayDayChips();
 
-      binding.buttonAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addView();
-            }
-        });
-
-
     }
 
-
     private void initToolbar() {
+        binding.toolbar.tvTitle.setText(getString(R.string.add_episode));
         binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -189,20 +167,22 @@ public class AddEpisodeActivity extends BaseActivity {
 
     private void initClickEvent() {
 
-
-        binding.imgLogo.setOnClickListener(new View.OnClickListener() {
+        binding.buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onProfileImageClick();
+                addView();
             }
         });
 
-        binding.tvAddLogo.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener onClickListenerImg = new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                onProfileImageClick();
+            public void onClick(View view) {
+                showImagePickerOptions();
             }
-        });
+        };
+        binding.imgLogo.setOnClickListener(onClickListenerImg);
+
+        binding.tvAddLogo.setOnClickListener(onClickListenerImg);
 
         binding.ivClear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -232,24 +212,26 @@ public class AddEpisodeActivity extends BaseActivity {
     private void initEditView() {
         String s = getIntent().getStringExtra("episode");
         if (s != null) {
+            binding.toolbar.tvTitle.setText(getString(R.string.label_edit));
+
             Episode _episode = new Gson().fromJson(s, Episode.class);
             showSnackBar(_episode.getEpName());
 
-            binding.etStation.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير القناة الإاعية في حالة تحديث بيانات البرنامج",  new ButtonConfig(getString(R.string.label_cancel)), null);
-                    showWarningDialog(config);
-                }
-            });
-
-            binding.etProgram.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_warning), "لا يمكنك تغيير إسم البرنامج في حالة تحديث بيانات البرنامج",  new ButtonConfig(getString(R.string.label_cancel)), null);
-                    showWarningDialog(config);
-                }
-            });
+//            binding.etStation.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    ModelConfig config = new ModelConfig(R.drawable.ic_info, getString(R.string.label_warning), getString(R.string.msg_you_cannot_change_the_radio_channel_if_the_program_data_is_updated), new ButtonConfig(getString(R.string.label_cancel)), null);
+//                    showWarningDialog(config);
+//                }
+//            });
+//
+//            binding.etProgram.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    ModelConfig config = new ModelConfig(R.drawable.ic_info, getString(R.string.label_warning), getString(R.string.msg_you_cannot_change_the_program_name_if_you_update_the_program_data), new ButtonConfig(getString(R.string.label_cancel)), null);
+//                    showWarningDialog(config);
+//                }
+//            });
 
 
             radioId = _episode.getRadioId();
@@ -267,15 +249,15 @@ public class AddEpisodeActivity extends BaseActivity {
             stopNote = _episode.getStopNote();
             radioInfo = prefMgr.selectedRadio();
             radioId = radioInfo.getRadioId();
-            dateTimeModel = _episode.getDateTimeModel();
+            programScheduleTime = _episode.getProgramScheduleTime();
             showTimeList = _episode.getShowTimeList() != null ? _episode.getShowTimeList() : new ArrayList<>();
 //            program = program.findRadioProgram(programId, ShardDate.getInstance().getProgramList());
 //            programId = program.getProgramId();
 
 
-          binding.titEpName.setText(epName);
+            binding.titEpName.setText(epName);
             binding.titEpAnnouncer.setText(epAnnouncer);
-          binding.titEpDesc.setText(epDesc);
+            binding.titEpDesc.setText(epDesc);
 //           RadioInfo ri = radioInfo.findRadio(radioId,ShardDate.getInstance().getInfoList());
             binding.etStation.setText(radioInfo.getName());
             binding.etProgram.setText(programName);
@@ -294,8 +276,6 @@ public class AddEpisodeActivity extends BaseActivity {
         }
 
         radioId = radioInfo.getRadioId();
-//        programId = program.getProgramId();
-//        programName = program.getPrName();
         createBy = prefMgr.getUserSession().getUserId();
 
         epName = binding.titEpName.getText().toString().trim();
@@ -312,7 +292,7 @@ public class AddEpisodeActivity extends BaseActivity {
             StorageMetadata metadata = new StorageMetadata.Builder()
                     .setContentType("image/jpg")
                     .build();
-            StorageReference ref = FirebaseStorage.getInstance().getReference().child(FirebaseConstants.FB_FM_FOLDER_PATH).child(radioId).child(random() + ".jpg");
+            StorageReference ref = FirebaseStorage.getInstance().getReference().child(General.FB_FM_FOLDER_PATH).child(radioId).child(random() + ".jpg");
             // Upload file and metadata to the path 'images/mountains.jpg'
             UploadTask uploadTask = ref.putFile(imageUri, metadata);
 
@@ -351,17 +331,22 @@ public class AddEpisodeActivity extends BaseActivity {
                                 public void onSuccess(Uri uri) {
                                     epProfile = uri.toString();
 
-                                    Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, dateTimeModel, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
-                                    ePoRepo.create(radioId, episode, new CallBack() {
+                                    Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
+                                    String pushKey = radioId + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
+                                    episode.setEpId(pushKey);
+
+                                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+                                    firestoreDbUtility.createOrMerge(collectionReference, episode.getEpId(), episode, new CallBack() {
                                         @Override
                                         public void onSuccess(Object object) {
-                                            showToast(object.toString());
+                                            showToast(getString(R.string.done_successfully));
                                             finish();
                                         }
 
                                         @Override
-                                        public void onError(Object object) {
-                                            showToast(AppConstant.ERROR);
+                                        public void onFailure(Object object) {
+                                            hideProgress();
+                                            showToast(AppGeneralMessage.ERROR);
                                         }
                                     });
                                 }
@@ -374,21 +359,31 @@ public class AddEpisodeActivity extends BaseActivity {
             });
 
         } else {
-            Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, dateTimeModel, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
-            ePoRepo.create(radioId, episode, new CallBack() {
+            Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
+            String pushKey = radioId + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
+            episode.setEpId(pushKey);
+
+            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+
+            firestoreDbUtility.createOrMerge(collectionReference, episode.getEpId(), episode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
+                    CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, episode.getRadioId());
+                    DocumentReference pRef = collectionRef.document(episode.getProgramId());
+
+                    incrementCounter("episodeCount", pRef);
                     hideProgress();
-                    showToast(object.toString());
+                    showToast(getString(R.string.done_successfully));
                     finish();
                 }
 
                 @Override
-                public void onError(Object object) {
+                public void onFailure(Object object) {
                     hideProgress();
-                    showToast(AppConstant.ERROR);
+                    showToast(AppGeneralMessage.ERROR);
                 }
             });
+
 
         }
 
@@ -419,7 +414,7 @@ public class AddEpisodeActivity extends BaseActivity {
                 } else if (binding.etProgram.getText().toString().trim().isEmpty()) {
                     binding.etProgram.setError(getString(R.string.error_empty_field_not_allowed));
                     binding.etProgram.requestFocus();
-                    showSnackBar("يجب تحديد برنامج");
+                    showSnackBar(getString(R.string.msg_you_must_select_a_programme));
                     return;
                 }
 
@@ -427,9 +422,7 @@ public class AddEpisodeActivity extends BaseActivity {
                 break;
             case R.id.bt_continue_three:
                 // validate input user here
-
                 if (!checkIfValidAndRead()) {
-//                    showSnackBar("يجب تحديد وقت بدء البرنامج");
                     return;
                 }
 
@@ -547,63 +540,9 @@ public class AddEpisodeActivity extends BaseActivity {
         relative.addView(img);
     }
 
-    private void dialogTimePickerLight(final TextView tv, OnCallbackDate clickListener) {
-        Calendar cur_calender = Calendar.getInstance();
-        TimePickerDialog datePicker = TimePickerDialog.newInstance(new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
-//              String  time = (hourOfDay > 9 ? hourOfDay + "" : ("0" + hourOfDay)) + ":" + minute;
-//                Calendar calendar = Calendar.getInstance();
-                final Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                calendar.set(Calendar.MINUTE, minute);
-                calendar.set(Calendar.SECOND, 0);
-                calendar.set(Calendar.MILLISECOND, 0);
-                long millis = calendar.getTimeInMillis();
-                clickListener.getSelected(millis);
-                tv.setText(setTimeFormat(hourOfDay, minute, second));
-//                tv.setText(showTime(hourOfDay, minute, second));
-            }
-        }, cur_calender.get(Calendar.HOUR_OF_DAY), cur_calender.get(Calendar.MINUTE), false);
-        //set dark light
-        datePicker.setThemeDark(false);
-        datePicker.vibrate(true);
-        datePicker.setLocale(Locale.ENGLISH);
-        datePicker.setAccentColor(getResources().getColor(R.color.colorPrimary));
-        datePicker.show(getSupportFragmentManager(), "تحديد الوقت");
-    }
-
-    private void dialogDatePickerLight(final TextView tv) {
-        Calendar cur_calender = Calendar.getInstance();
-        DatePickerDialog datePicker = DatePickerDialog.newInstance(
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.set(Calendar.YEAR, year);
-                        calendar.set(Calendar.MONTH, monthOfYear);
-                        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        long date_ship_millis = calendar.getTimeInMillis();
-//                        _selectDate = new Date(date_ship_millis);
-//                        epCastDateAt = stringToDate(); ;
-//                        broadcastDateAt = Tools.getFormattedDateSimple(date_ship_millis);
-                        tv.setText(Tools.getFormattedDateSimple(date_ship_millis));
-                        tv.setError(null);
-                    }
-                },
-                cur_calender.get(Calendar.YEAR),
-                cur_calender.get(Calendar.MONTH),
-                cur_calender.get(Calendar.DAY_OF_MONTH)
-        );
-        //set dark light
-        datePicker.setThemeDark(false);
-        datePicker.setAccentColor(getResources().getColor(R.color.colorPrimary));
-        datePicker.setMinDate(cur_calender);
-        datePicker.show(getSupportFragmentManager(), "تحديد التاريخ");
-    }
-
     public void showStationDialog() {
-        List<RadioInfo> items = ShardDate.getInstance().getInfoList();
+//        List<RadioInfo> items = ShardDate.getInstance().getAllowedRadioInfoList(prefMgr.getUserSession());
+        List<RadioInfo> items = ShardDate.getInstance().getRadioInfoList();
 
         String[] charSequence = new String[items.size()];
         for (int i = 0; i < items.size(); i++) {
@@ -643,7 +582,7 @@ public class AddEpisodeActivity extends BaseActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 programId = items.get(i).getProgramId();
                 programName = items.get(i).getPrName();
-                dateTimeModel = items.get(i).getDateTimeModel();
+                programScheduleTime = items.get(i).getProgramScheduleTime();
 //                setDisplayDayChips();
                 prSelected = i;
                 binding.etProgram.setText(programName);
@@ -658,22 +597,35 @@ public class AddEpisodeActivity extends BaseActivity {
     }
 
 
-    private void loadRadioProgram(String RadioId) {
+    private void loadRadioProgram(String radioId) {
 
-        FmProgramCRUDImpl rpRepo = new FmProgramCRUDImpl(this, FirebaseConstants.RADIO_PROGRAM_TABLE);
-        rpRepo.queryAllBy(RadioId,null, new CallBack() {
+        FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
+        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                "radioId",
+                radioId
+        ));
+
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                "disabled",
+                false
+        ));
+
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioId).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+
+        firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                if (isCollection(object)) {
-                    List<RadioProgram> programList = (List<RadioProgram>) object;
-                    ShardDate.getInstance().setProgramList(programList);
-                    binding.etProgram.setText(null);
-                }
+                List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
+                ShardDate.getInstance().setProgramList(programList);
+                binding.etProgram.setText(null);
             }
 
             @Override
-            public void onError(Object object) {
-                LogUtility.d(TAG, "readAllProgramByRadioId: " + object);
+            public void onFailure(Object object) {
+                LogUtility.e(TAG, " loadRadioProgram :  " + object);
             }
         });
 
@@ -682,16 +634,15 @@ public class AddEpisodeActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE) {
+        if (requestCode == ImagePickerActivity.REQUEST_IMAGE) {
             if (resultCode == Activity.RESULT_OK) {
-                imageUri = data.getParcelableExtra("path");
+                imageUri = data.getParcelableExtra(ImagePickerActivity.INTENT_IMAGE_PATH);
                 try {
                     // You can update this bitmap to your server
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-
+//                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
                     // loading profile image from local cache
                     loadProfile(imageUri);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -699,14 +650,11 @@ public class AddEpisodeActivity extends BaseActivity {
     }
 
     private void loadProfile(Uri imageUri) {
-
-
         Log.d(TAG, "Image cache path: " + imageUri.toString());
-
-       binding.tvAddLogo.setVisibility(View.GONE);
+        binding.tvAddLogo.setVisibility(View.GONE);
         binding.linFile.setVisibility(View.VISIBLE);
         String dd = FmUtilize.getFileName(imageUri, this);
-      binding.tieFilename.setText(dd);
+        binding.tieFilename.setText(dd);
 
         Tools.displayImageOriginal(this, binding.imgLogo, imageUri.toString());
         binding.imgLogo.setColorFilter(ContextCompat.getColor(this, android.R.color.transparent));
@@ -717,39 +665,18 @@ public class AddEpisodeActivity extends BaseActivity {
 
         binding.imgLogo.setColorFilter(ContextCompat.getColor(this, R.color.grey_10));
         // Displaying the Stack after the Operation
-        System.out.println("Final stackImg: " + stackImg);
+        Log.d(TAG, "Final stackImg: " + stackImg);
     }
 
     public void clearImg() {
         binding.tvAddLogo.setVisibility(View.VISIBLE);
-       binding.linFile.setVisibility(View.GONE);
-       binding.imgLogo.setImageBitmap(null);
+        binding.linFile.setVisibility(View.GONE);
+        binding.imgLogo.setImageBitmap(null);
         imageUri = null;
         binding.tieFilename.setText(null);
         loadProfileDefault();
     }
 
-    void onProfileImageClick() {
-        Dexter.withContext(this)
-                .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .withListener(new MultiplePermissionsListener() {
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport report) {
-                        if (report.areAllPermissionsGranted()) {
-                            showImagePickerOptions();
-                        }
-
-                        if (report.isAnyPermissionPermanentlyDenied()) {
-                            showSettingsDialog();
-                        }
-                    }
-
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List<com.karumi.dexter.listener.PermissionRequest> list, PermissionToken permissionToken) {
-                        permissionToken.continuePermissionRequest();
-                    }
-                }).check();
-    }
 
     private void showImagePickerOptions() {
         ImagePickerActivity.showImagePickerOptions(this, new ImagePickerActivity.PickerOptionListener() {
@@ -763,32 +690,6 @@ public class AddEpisodeActivity extends BaseActivity {
                 launchGalleryIntent();
             }
         });
-    }
-
-    /**
-     * Showing Alert Dialog with Settings option
-     * Navigates user to app settings
-     * NOTE: Keep proper title and message depending on your app
-     */
-    private void showSettingsDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(AddEpisodeActivity.this);
-        builder.setTitle(getString(R.string.dialog_permission_title));
-        builder.setMessage(getString(R.string.dialog_permission_message));
-        builder.setPositiveButton(getString(R.string.go_to_settings), (dialog, which) -> {
-            dialog.cancel();
-            openSettings();
-        });
-        builder.setNegativeButton(getString(android.R.string.cancel), (dialog, which) -> dialog.cancel());
-        builder.show();
-
-    }
-
-    // navigating user to app settings
-    private void openSettings() {
-        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        Uri uri = Uri.fromParts("package", getPackageName(), null);
-        intent.setData(uri);
-        startActivityForResult(intent, 101);
     }
 
     private void launchCameraIntent() {
@@ -805,7 +706,7 @@ public class AddEpisodeActivity extends BaseActivity {
         intent.putExtra(ImagePickerActivity.INTENT_BITMAP_MAX_WIDTH, 1000);
         intent.putExtra(ImagePickerActivity.INTENT_BITMAP_MAX_HEIGHT, 1000);
 
-        startActivityForResult(intent, REQUEST_IMAGE);
+        startActivityForResult(intent, ImagePickerActivity.REQUEST_IMAGE);
     }
 
     private void launchGalleryIntent() {
@@ -816,74 +717,123 @@ public class AddEpisodeActivity extends BaseActivity {
         intent.putExtra(ImagePickerActivity.INTENT_LOCK_ASPECT_RATIO, true);
         intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_X, 1); // 16x9, 1x1, 3:4, 3:2
         intent.putExtra(ImagePickerActivity.INTENT_ASPECT_RATIO_Y, 1);
-        startActivityForResult(intent, REQUEST_IMAGE);
+        startActivityForResult(intent, ImagePickerActivity.REQUEST_IMAGE);
     }
 
 
 //    ------------------ Dynamic Show Time  -------------------------
 
+
     private boolean checkIfValidAndRead() {
-        showTimeList.clear();
-//        selectedDays.clear();
         boolean result = true;
 
-        for (int i = 0; i < binding.layoutList.getChildCount(); i++) {
-            View rowView = binding.layoutList.getChildAt(i);
-            DateTimeModel dateTimeModel = new DateTimeModel();
-            List<String> selectedDays = new ArrayList<>();
+        try {
 
-            TextView tvStartTime = (TextView) rowView.findViewById(R.id.tv_ep_start);
-            String _etStartTime = tvStartTime.getText().toString();
-            if (!_etStartTime.matches("")) {
-                dateTimeModel.setTimeStart(stringTimeToMillis(_etStartTime));
-            } else {
-                result = false;
-                break;
+            showTimeList.clear();
+            for (int i = 0; i < binding.layoutList.getChildCount(); i++) {
+                View rowView = binding.layoutList.getChildAt(i);
+                DateTimeModel dateTimeModel = new DateTimeModel();
+
+                TextView tvStartTime = (TextView) rowView.findViewById(R.id.tv_ep_start);
+                String _etStartTime = tvStartTime.getText().toString();
+                if (!_etStartTime.matches("")) {
+                    dateTimeModel.setTimeStart(stringTimeToMillis(_etStartTime));
+                } else {
+                    result = false;
+                    break;
+                }
+
+                TextView tvEndTime = (TextView) rowView.findViewById(R.id.tv_ep_end);
+                String _etEndTime = tvEndTime.getText().toString();
+
+                if (!_etEndTime.matches("")) {
+                    dateTimeModel.setTimeEnd(stringTimeToMillis(_etEndTime));
+                } else {
+                    result = false;
+                    break;
+                }
+
+                TextView tv_day = (TextView) rowView.findViewById(R.id.tv_day);
+                String _tv_day = tv_day.getText().toString();
+                if (!_tv_day.matches("")) {
+                    dateTimeModel.setWeekdays(WeekdayUtils.convertSeparatedWeekdays(_tv_day, ","));
+                } else {
+                    result = false;
+                    break;
+                }
+
+
+                // RadioGroup is Main/Repeat
+                RadioGroup radioGroup = rowView.findViewById(R.id.rg_type);
+                RadioButton trueButton = rowView.findViewById(R.id.rb_new);
+                RadioButton falseButton = rowView.findViewById(R.id.rb_repeat);
+
+
+                int selectedId = radioGroup.getCheckedRadioButtonId();
+                RadioButton genderradioButton = (RadioButton) rowView.findViewById(selectedId);
+                if (selectedId == -1) {
+                    dateTimeModel.setAsMainTime(false);
+                } else {
+                    if (genderradioButton.getId() == trueButton.getId()) {
+//                            // Handle "True" selection
+                        dateTimeModel.setAsMainTime(true);
+                    } else {
+                        dateTimeModel.setAsMainTime(false);
+                    }
+//                    showToast(genderradioButton.getText().toString());
+                }
+
+
+//                RadioButton trueButton = findViewById(R.id.rb_new);
+////                RadioButton falseButton = findViewById(R.id.rb_repeat);
+//
+//                // Optional: Set a listener for selection changes
+//                int checkedRadioButtonId = radioGroup.getCheckedRadioButtonId();
+//                if (checkedRadioButtonId != -1) {
+//                    // A radio button is selected
+//                    RadioButton selectedButton = findViewById(checkedRadioButtonId);
+////                    String selectedText = selectedButton.getText().toString();
+//                    if (selectedButton.isChecked() == trueButton.isChecked()) {
+//                        dateTimeModel.setAsMainTime(true);
+//                    } else {
+//                        dateTimeModel.setAsMainTime(false);
+//                    }
+//                    // Handle selected button based on its text or ID
+//                } else {
+//                    // No radio button is selected
+//                    dateTimeModel.setAsMainTime(false);
+//                }
+
+                Log.d("asMainTime", "Checked : " + dateTimeModel.isAsMainTime());
+
+//                radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+//                    @Override
+//                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+//                        if (checkedId == R.id.rb_new) {
+//                            // Handle "True" selection
+//                            dateTimeModel.setAsMainTime(true);
+//                        } else {
+//                            dateTimeModel.setAsMainTime(false);
+//                        }
+//                    }
+//                });
+
+
+                showTimeList.add(dateTimeModel);
             }
 
-            TextView tvEndTime = (TextView) rowView.findViewById(R.id.tv_ep_end);
-            String _etEndTime = tvEndTime.getText().toString();
-
-            if (!_etEndTime.matches("")) {
-                dateTimeModel.setTimeEnd(stringTimeToMillis(_etEndTime));
-            } else {
+            if (showTimeList.size() == 0) {
                 result = false;
-                break;
+                showToast(getString(R.string.msg_make_sure_you_add_all_the_data_correctly) + getEmojiByUnicode(unicode));
+            } else if (!result) {
+                showToast(getString(R.string.msg_make_sure_you_add_all_the_data_correctly));
             }
-
-            TextView tv_day = (TextView) rowView.findViewById(R.id.tv_day);
-            String _tv_day = tv_day.getText().toString();
-            if (!_tv_day.matches("")) {
-                selectedDays.add(_tv_day);
-                dateTimeModel.setDisplayDays(translateWakeDaysEn(selectedDays));
-            } else {
-                result = false;
-                break;
-            }
-
-//            RadioButton rbMainTime = (RadioButton) rowView.findViewById(R.id.radio_main);
-            // get selected radio button from radioGroup
-            RadioGroup rgMainTime = (RadioGroup) rowView.findViewById(R.id.rg_type);
-            int selectedId = rgMainTime.getCheckedRadioButtonId();
-
-            // find the radiobutton by returned id
-            RadioButton radioButton = (RadioButton) findViewById(selectedId);
-            dateTimeModel.setItMainTime(radioButton.isChecked());
-
-//            Toast.makeText(EpisodeAddStepperVertical.this,
-//                    radioButton.getText(), Toast.LENGTH_SHORT).show();
-
-            showTimeList.add(dateTimeModel);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d(TAG, "Error saveUserData : " + e.getMessage());
+            showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
         }
 
-        if (showTimeList.size() == 0) {
-            result = false;
-            Toast.makeText(this, "  تأكد من إضافة جميع البيانات بشكل صحيح ! " + getEmojiByUnicode(unicode), Toast.LENGTH_SHORT).show();
-        } else if (!result) {
-            Toast.makeText(this, "تأكد من إدخال البيانات بشكل صحيح !", Toast.LENGTH_SHORT).show();
-        }
-
-//        dateTimeModel.setDisplayDays(translateWakeDaysEn(selectedDays));
         return result;
     }
 
@@ -894,11 +844,11 @@ public class AddEpisodeActivity extends BaseActivity {
         return new String(Character.toChars(unicode));
     }
 
-//    private RadioButton mSelectedRB;
+    //    private RadioButton mSelectedRB;
 //    private int mSelectedPosition = -1;
 
     private void showWeekDialog(final View view) {
-        final ArrayList<WakeTranslate> displayDayList = translateWakeDaysAr(Arrays.asList(FmUtilize.getWeekDayNames()));
+/*        final ArrayList<WakeTranslate> displayDayList = FmUtilize.translateWakeDaysAr(Arrays.asList(FmUtilize.getWeekDayNames()));
         ArrayList<String> arList = new ArrayList<>();
         for (WakeTranslate o : displayDayList) {
             arList.add(o.getDayName());
@@ -906,14 +856,40 @@ public class AddEpisodeActivity extends BaseActivity {
         CharSequence[] charSequenceArr = arList.toArray(new CharSequence[arList.size()]);
 //        final CharSequence[] charSequenceArr = new String[]{"Arizona", "California", "Florida", "Massachusetts", "New York", "Washington"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle((CharSequence) "أيام الأسبوع");
+        builder.setTitle((CharSequence) getString(R.string.label_week_days));
         builder.setSingleChoiceItems(charSequenceArr, -1, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialogInterface, int i) {
                 ((TextView) view).setText(charSequenceArr[i]);
                 dialogInterface.dismiss();
             }
         });
-        builder.show();
+        builder.show();*/
+
+        // In your activity or fragment:
+        Weekday[] weekdays = Weekday.values();
+        WeekdayDialog weekdayDialog = new WeekdayDialog(this);
+        weekdayDialog.showDialog(new WeekdayDialog.OnWeekdaySelectedListener() {
+
+            @Override
+            public void onWeekdaysSelected(boolean[] checkedItems) {
+                // Now you have the checked items in the checkedItems array
+                List<Weekday> displayDays = new ArrayList<>();
+                for (int i = 0; i < checkedItems.length; i++) {
+                    if (checkedItems[i]) {
+                        Weekday checkedDay = weekdays[i]; // Assuming weekdays is defined as in the previous response
+                        displayDays.add(checkedDay);
+                        // Do something with the checked day
+                        Log.d("CheckedDays", "Checked day: " + checkedDay);
+                    }
+                }
+
+                String joinedString = WeekdayUtils.toSeparatedString(displayDays);
+//                String[] stringArray = joinedString.split(",\\s*"); // Split by comma and optional whitespace
+                ((TextView) view).setText(joinedString);
+                showToast(joinedString);
+            }
+        });
+
     }
 
     private void addView() {
@@ -926,16 +902,20 @@ public class AddEpisodeActivity extends BaseActivity {
         RadioGroup rgMainTime = (RadioGroup) rowView.findViewById(R.id.rg_type);
         FloatingActionButton fab_remove = (FloatingActionButton) rowView.findViewById(R.id.fab_remove);
 
+        DateTimePickerHelper dateTimePickerHelper = new DateTimePickerHelper(AddEpisodeActivity.this);
 
         tvStartTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialogTimePickerLight((TextView) v, new OnCallbackDate() {
+                dateTimePickerHelper.showTimePicker(new DateTimePickerHelper.OnTimeSelectedListener() {
                     @Override
-                    public void getSelected(long _time) {
-                        timeStart = _time;
+                    public void onTimeSelected(Calendar selectedTime) {
+                        int hour = selectedTime.get(Calendar.HOUR_OF_DAY);
+                        int minute = selectedTime.get(Calendar.MINUTE);
+                        int second = selectedTime.get(Calendar.SECOND);
+                        timeStart = selectedTime.getTimeInMillis();
+                        tvStartTime.setText(setTimeFormat(hour, minute, second));
                         tvStartTime.setError(null);
-//                        LogUtility.e(TAG, String.valueOf(timeStart));
                     }
                 });
             }
@@ -945,14 +925,18 @@ public class AddEpisodeActivity extends BaseActivity {
         tvEndTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialogTimePickerLight((TextView) v, new OnCallbackDate() {
+                dateTimePickerHelper.showTimePicker(new DateTimePickerHelper.OnTimeSelectedListener() {
                     @Override
-                    public void getSelected(long _time) {
-                        timeEnd = _time;
+                    public void onTimeSelected(Calendar selectedTime) {
+                        int hour = selectedTime.get(Calendar.HOUR_OF_DAY);
+                        int minute = selectedTime.get(Calendar.MINUTE);
+                        int second = selectedTime.get(Calendar.SECOND);
+                        timeEnd = selectedTime.getTimeInMillis();
+                        tvEndTime.setText(setTimeFormat(hour, minute, second));
                         tvEndTime.setError(null);
-//                        LogUtility.e(TAG, String.valueOf(timeEnd));
                     }
                 });
+
             }
         });
 

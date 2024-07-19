@@ -22,11 +22,12 @@
                 app:srcCompat="@drawable/ic_arrow_back_" />
 
             <TextView
+                android:id="@+id/tv_title"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="إضافة برنامج جديد"
+                android:text="@string/add_program"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/grey_80"
                 app:fontFamily="@font/tj_light" />
@@ -36,7 +37,7 @@
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:tint="@color/grey_60"
+                android:tint="?attr/colorPrimary"
                 app:srcCompat="@drawable/ic_done" />
         </LinearLayout>
 
@@ -69,7 +70,7 @@
                         android:layout_width="@dimen/spacing_middle"
                         android:layout_height="@dimen/spacing_middle"
                         android:layout_margin="@dimen/spacing_medium"
-                        android:tint="@color/colorPrimary"
+                        android:tint="?attr/colorPrimary"
                         app:srcCompat="@drawable/shape_circle" />
 
                     <View
@@ -79,7 +80,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="إسم القناة الإذاعية"
+                        android:text="@string/label_radio_station_name"
                         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                         android:textColor="@color/grey_95" />
                 </LinearLayout>
@@ -113,7 +114,7 @@
                         android:layout_width="@dimen/spacing_middle"
                         android:layout_height="@dimen/spacing_middle"
                         android:layout_margin="@dimen/spacing_medium"
-                        android:tint="@color/colorPrimary"
+                        android:tint="?attr/colorPrimary"
                         app:srcCompat="@drawable/shape_circle" />
 
                     <View
@@ -123,7 +124,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="إسم البرنامج"
+                        android:text="@string/label_program_name"
                         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                         android:textColor="@color/grey_95" />
                 </LinearLayout>
@@ -141,7 +142,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/edit_text_round_bg_outline"
-                        android:hint="مثال :  صباح العاصمة"
+                        android:hint="@string/ex_program_name"
                         android:textColorHint="@color/grey_20" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -149,7 +150,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_mlarge"
-                    android:text="شعار البرنامج"
+                    android:text="@string/label_program_logo"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                     android:textColor="@color/grey_95" />
 
@@ -186,7 +187,7 @@
                             android:id="@+id/tv_add_logo"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="إضافة شعار"
+                            android:text="@string/label_add_image"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                             android:textColor="@color/grey_40" />
 
@@ -247,7 +248,7 @@
                             android:layout_width="@dimen/spacing_middle"
                             android:layout_height="@dimen/spacing_middle"
                             android:layout_margin="@dimen/spacing_medium"
-                            android:tint="@color/colorPrimary"
+                            android:tint="?attr/colorPrimary"
                             app:srcCompat="@drawable/shape_circle" />
 
                         <View
@@ -257,7 +258,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="نوع البرنامج"
+                            android:text="@string/label_program_category"
                             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                             android:textColor="@color/grey_95" />
                     </LinearLayout>
@@ -309,7 +310,7 @@
                         android:layout_height="match_parent"
                         android:background="@drawable/edit_text_round_bg_outline"
                         android:editable="false"
-                        android:hint="مثال : إجتماعي , شبابي , ديني"
+                        android:hint="@string/ex_program_category"
                         android:maxLines="3"
                         android:textColorHint="@color/grey_20" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -318,7 +319,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_mlarge"
-                    android:text="وصف البرنامج"
+                    android:text="@string/label_desc"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                     android:textColor="@color/grey_95" />
 
@@ -335,7 +336,7 @@
                         android:layout_height="match_parent"
                         android:background="@drawable/edit_text_round_bg_outline"
                         android:gravity="start"
-                        android:hint="مثال : برنامج صباحي يومي"
+                        android:hint="@string/ex_episode_desc"
                         android:inputType="textMultiLine"
                         android:lines="4"
                         android:textColor="@color/grey_60"
@@ -353,7 +354,7 @@
                         android:layout_width="@dimen/spacing_middle"
                         android:layout_height="@dimen/spacing_middle"
                         android:layout_margin="@dimen/spacing_medium"
-                        android:tint="@color/colorPrimary"
+                        android:tint="?attr/colorPrimary"
                         app:srcCompat="@drawable/shape_circle" />
 
                     <View
@@ -363,7 +364,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="الفترة الزمنية لعرض البرنامج"
+                        android:text="@string/label_time_period_for_displaying_program"
                         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                         android:textColor="@color/grey_95" />
                 </LinearLayout>
@@ -385,19 +386,18 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_marginBottom="@dimen/spacing_medium"
-                            android:text="@string/label_to"
+                            android:text="@string/label_from"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                             android:textColor="@color/grey_60" />
 
-
                         <EditText
-                            android:id="@+id/et_end"
+                            android:id="@+id/et_start"
                             style="@style/EditText_Flat_Grey"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/spacing_xmlarge"
                             android:background="@drawable/edit_text_round_bg_outline"
                             android:drawablePadding="@dimen/spacing_small"
-                            android:drawableTint="@color/colorAccent"
+                            android:drawableTint="?attr/colorPrimary"
                             android:editable="false"
                             android:focusable="false"
                             android:gravity="center"
@@ -425,18 +425,19 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_marginBottom="@dimen/spacing_medium"
-                            android:text="@string/label_from"
+                            android:text="@string/label_to"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                             android:textColor="@color/grey_60" />
 
+
                         <EditText
-                            android:id="@+id/et_start"
+                            android:id="@+id/et_end"
                             style="@style/EditText_Flat_Grey"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/spacing_xmlarge"
                             android:background="@drawable/edit_text_round_bg_outline"
                             android:drawablePadding="@dimen/spacing_small"
-                            android:drawableTint="@color/colorAccent"
+                            android:drawableTint="?attr/colorPrimary"
                             android:editable="false"
                             android:focusable="false"
                             android:gravity="center"
@@ -447,6 +448,7 @@
                             app:drawableEndCompat="@drawable/ic_date_range"
                             app:drawableRightCompat="@drawable/ic_date_range" />
                     </LinearLayout>
+
 
                 </LinearLayout>
 
@@ -468,7 +470,7 @@
                             android:layout_height="@dimen/spacing_middle"
                             android:layout_margin="@dimen/spacing_medium"
                             app:srcCompat="@drawable/shape_circle"
-                            app:tint="@color/colorPrimary" />
+                            app:tint="?attr/colorPrimary" />
 
                         <View
                             android:layout_width="@dimen/spacing_middle"
@@ -477,7 +479,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="أيام العرض"
+                            android:text="@string/label_show_days"
                             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                             android:textColor="@color/grey_95" />
                     </LinearLayout>
@@ -512,7 +514,7 @@
                         android:layout_height="match_parent"
                         android:background="@drawable/edit_text_round_bg_outline"
                         android:editable="false"
-                        android:hint="مثال : سبت , أحد , إثنين"
+                        android:hint="@string/ex_days"
                         android:maxLines="3"
                         android:textColorHint="@color/grey_20" />
                 </com.google.android.material.textfield.TextInputLayout>

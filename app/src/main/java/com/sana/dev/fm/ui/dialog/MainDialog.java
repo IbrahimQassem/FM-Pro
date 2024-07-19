@@ -1,5 +1,7 @@
 package com.sana.dev.fm.ui.dialog;
 
+import static android.view.View.VISIBLE;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -17,8 +19,11 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.AppCompatRatingBar;
 
+import com.google.android.gms.ads.AdRequest;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 
 
@@ -55,7 +60,7 @@ public class MainDialog {
             public void onClick(View v) {
                 String review = et_post.getText().toString().trim();
                 if (review.isEmpty()) {
-                    Toast.makeText(context.getApplicationContext(), "Please fill review text", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context.getApplicationContext(),context.getString( R.string.msg_please_fill_review_text), Toast.LENGTH_SHORT).show();
                 } else {
 //                    items.add("(" + rating_bar.getRating() + ") " + review);
 //                    adapter.notifyDataSetChanged();
@@ -64,7 +69,7 @@ public class MainDialog {
 //                    txt_no_item.setVisibility(View.GONE);
 //                }
                 dialog.dismiss();
-                Toast.makeText(context.getApplicationContext(), "Submitted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context.getApplicationContext(), context.getString( R.string.label_submitted), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -117,7 +122,11 @@ public class MainDialog {
 
         dialog.findViewById(R.id.iv_whats).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                String contact = context.getString(R.string.app_mobile); // use country code with your phone number
+                String contact = context.getString(R.string.app_mobile);
+                AppRemoteConfig remoteConfig = Tools.getAppRemoteConfig();
+                if (remoteConfig != null) {
+                     contact = remoteConfig.getAdminMobile();
+                }
                 String url = "https://api.whatsapp.com/send?phone=" + contact;
                 try {
                     PackageManager pm = context.getPackageManager();
@@ -135,9 +144,13 @@ public class MainDialog {
 
         dialog.findViewById(R.id.iv_mobile).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                String phone = context.getString(R.string.app_mobile);
+                String contact = context.getString(R.string.app_mobile);
+                AppRemoteConfig remoteConfig = Tools.getAppRemoteConfig();
+                if (remoteConfig != null) {
+                    contact = remoteConfig.getAdminMobile();
+                }
                 Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:" + phone + ""));
+                intent.setData(Uri.parse("tel:" + contact + ""));
                 context.startActivity(intent);
                 dialog.dismiss();
             }
@@ -147,7 +160,11 @@ public class MainDialog {
         dialog.findViewById(R.id.bt_portfolio).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 FmUtilize.getOpenFacebookIntent(context);
-                String YourPageURL = "https://www.linkedin.com/in/parhima";
+                String YourPageURL = context.getString(R.string.developer_reference);
+                AppRemoteConfig remoteConfig =  Tools.getAppRemoteConfig();
+                if (remoteConfig != null){
+                    YourPageURL = remoteConfig.getDeveloperReference();
+                }
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(YourPageURL));
                 context.startActivity(browserIntent);
                 dialog.dismiss();

@@ -1,8 +1,6 @@
 package com.sana.dev.fm.ui.activity;
 
 
-import static com.sana.dev.fm.utils.my_firebase.FirebaseDatabaseReference.DATABASE;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
@@ -36,10 +34,12 @@ import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.ui.view.SendCommentButton;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.PreferencesManager;
-import com.sana.dev.fm.utils.my_firebase.FirebaseConstants;
+import com.sana.dev.fm.utils.Tools;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
 /**
  * Created by ibrahim
@@ -55,6 +55,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     private PreferencesManager prefMgr;
     private CommentsAdapter commentsAdapter;
     private int drawingStartLocation;
+    private FirestoreDbUtility firestoreDbUtility;
 
     public static void startActivity(Context context, Episode episode) {
         Intent intent = new Intent(context, CommentsActivity.class);
@@ -73,6 +74,8 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         setContentView(view);
 
         prefMgr = PreferencesManager.getInstance();
+        firestoreDbUtility = new FirestoreDbUtility();
+
 
         initToolbar();
         setupComments();
@@ -120,7 +123,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         }
 
 
-        FmUtilize.hideEmptyElement(episode.getEpName(),binding.toolbar.tvTitle);
+        Tools.setTextOrHideIfEmpty(binding.toolbar.tvTitle,episode.getEpName());
 
 //        getComments();
 
@@ -128,12 +131,12 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         binding.rvComments.setLayoutManager(linearLayoutManager);
 //        binding.rvComments.setHasFixedSize(true);
-
-        query = DATABASE.collection(FirebaseConstants.EPISODE_TABLE)
-                .document(radioId)
-                .collection(FirebaseConstants.EPISODE_TABLE)
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+        query = collectionReference
+//                .document(radioId)
+//                .collection(AppConstant.Firebase.EPISODE_TABLE)
                 .document(epId)
-                .collection(FirebaseConstants.COMMENT_TABLE)
+                .collection(AppConstant.Firebase.COMMENT_TABLE)
                 .orderBy("commentTime", Query.Direction.ASCENDING);
 
 //        Query query = notebookRef.orderBy("priority", Query.Direction.DESCENDING);
@@ -141,7 +144,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                 .setQuery(query, Comment.class)
                 .build();
 
-        commentsAdapter = new CommentsAdapter(options, this);
+        commentsAdapter = new CommentsAdapter(options, this,firestoreDbUtility);
         commentsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -229,11 +232,13 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 //            binding.etComment.setText(null);
 //            binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
 
-            CollectionReference colRef = DATABASE.collection(FirebaseConstants.EPISODE_TABLE)
-                    .document(radioId)
-                    .collection(FirebaseConstants.EPISODE_TABLE)
+            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+
+            CollectionReference colRef = collectionReference
+//                    .document(radioId)
+//                    .collection(AppConstant.Firebase.EPISODE_TABLE)
                     .document(epId)
-                    .collection(FirebaseConstants.COMMENT_TABLE);
+                    .collection(AppConstant.Firebase.COMMENT_TABLE);
             String pushKey = colRef.document().getId();
             Comment comment = new Comment(pushKey, epId, currentUser.getName(), binding.etComment.getText().toString().trim(), currentUser.getUserId(), String.valueOf(System.currentTimeMillis()), 0, null);
             colRef.add(comment).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -242,11 +247,12 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                     binding.etComment.setText(null);
                     binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
                     binding.etComment.setHint(getString(R.string.add_comment));
-                    binding.etComment.setHint(String.format("تعليق كـ %s ..", currentUser.getName()));
+                    binding.etComment.setHint(String.format(getString(R.string.label_add_comment_as_val), currentUser.getName()));
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
+                    e.printStackTrace();
                     Log.e(TAG, "Error send comment " + e.getMessage());
                 }
             });
@@ -266,7 +272,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
             ModelConfig config = new ModelConfig(-1, getString(R.string.label_note), getString(R.string.goto_login), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = IntentHelper.phoneLoginActivity(getApplicationContext(), false);
+                    Intent intent = IntentHelper.intentFormSignUp(getApplicationContext(), false);
                     startActivity(intent);
                 }
             }));

@@ -8,8 +8,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -19,41 +17,30 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.snackbar.Snackbar;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.ModelConfig;
-import com.sana.dev.fm.model.UserType;
+import com.sana.dev.fm.model.enums.UserType;
 import com.sana.dev.fm.model.interfaces.BaseView;
 import com.sana.dev.fm.ui.dialog.FmGeneralDialog;
-import com.sana.dev.fm.utils.Constants;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.SnackBarUtility;
+import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
-import com.sana.dev.fm.utils.my_firebase.AppConstant;
+import com.sana.dev.fm.utils.my_firebase.AppGeneralMessage;
 import com.sana.dev.fm.utils.network.CheckInternetConnection;
 import com.sana.dev.fm.utils.network.ConnectionChangeListener;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * Created by  on 19.01.15.
  */
 public class BaseActivity extends AppCompatActivity implements BaseView {
-
-    private static final String TAG = BaseActivity.class.getSimpleName();
+//    private static final String TAG = BaseActivity.class.getSimpleName();
 
     public PreferencesManager prefMgr;
-
-    @Nullable
-    @BindView(R.id.tv_title)
-    TextView txvLogo;
-
-    @Nullable
-    @BindView(R.id.imb_event)
-    ImageButton imb_event;
-
-    private MenuItem inboxMenuItem;
+    public AppRemoteConfig remoteConfig;
 
     SnackBarUtility sbHelp;
 
@@ -98,16 +85,18 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     }
 
     protected void bindViews() {
-        ButterKnife.bind(this);
+//        ButterKnife.bind(this);
         PreferencesManager.initializeInstance(this);
-        AppConstant.initializeInstance(this);
+        AppGeneralMessage.initializeInstance(this);
         connectionChecker = new CheckInternetConnection();
         prefMgr = PreferencesManager.getInstance();
         userGuide = new UserGuide(this);
+        remoteConfig = Tools.getAppRemoteConfig();
+
         setupToolbar();
     }
 
-    void chekInternetCon() {
+    void checkInternetCon() {
         if (connectionChecker == null)
             connectionChecker = new CheckInternetConnection();
 
@@ -138,20 +127,6 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 //    public Toolbar getToolbar() {
 //        return toolbar;
 //    }
-
-    public MenuItem getInboxMenuItem() {
-        return inboxMenuItem;
-    }
-
-    public TextView getIvLogo() {
-        return txvLogo;
-    }
-
-    public ImageButton getToolbarArrow() {
-        return imb_event;
-    }
-
-
 /*
     public void startTour(View view, String id, String text, Focus focusType, ShapeType shape) {
         userGuide.showIntro(view, id, text, focusType, shape);
@@ -192,18 +167,28 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     @Override
     public void showProgress(String message) {
-        hud = KProgressHUD.create(this)
-                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                .setLabel(getString(R.string.please_wait))
-                .setDetailsLabel(message)
-                .setCancellable(true)
-                .setAnimationSpeed(2)
-                .setDimAmount(0.5f)
-                .show();
-
+        if (hud != null && hud.isShowing()) {
+            hud.dismiss();
+            hud = KProgressHUD.create(this)
+                    .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                    .setLabel(getString(R.string.please_wait))
+                    .setDetailsLabel(message)
+                    .setCancellable(true)
+                    .setAnimationSpeed(2)
+                    .setDimAmount(0.5f)
+                    .show();
+        }
 //        hideProgress();
 //        ProgressHUD.getInstance(this).showDialog( message, true, false, null);
     }
+
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//        if (hud != null && hud.isShowing()) {
+//            hud.dismiss();
+//        }
+//    }
 
     @Override
     public void hideProgress() {
@@ -213,7 +198,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 //        }
 //        ProgressHUD.getInstance(this).dismissWithFailure("");
 
-        if (hud != null){
+        if (hud != null && hud.isShowing()) {
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
@@ -230,7 +215,6 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     public void hideKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
-
 
     public static void hideKeyboard(Context context) {
         InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -282,7 +266,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     public void attemptToExitIfRoot(@Nullable View anchorView) {
         if (isTaskRoot()) {
-            if (backPressedTime + Constants.General.DOUBLE_CLICK_TO_EXIT_INTERVAL > System.currentTimeMillis()) {
+            if (backPressedTime + AppConstant.General.DOUBLE_CLICK_TO_EXIT_INTERVAL > System.currentTimeMillis()) {
                 super.onBackPressed();
             } else {
                 if (anchorView != null) {
@@ -308,7 +292,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     }
 
 
-    boolean checkPrivilege() {
+    boolean checkPrivilegeAdmin() {
         if (prefMgr.getUserSession() == null) {
             return false;
         } else
@@ -344,7 +328,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     @Override
     protected void onResume() {
         super.onResume();
-        chekInternetCon();
+        checkInternetCon();
     }
 
 

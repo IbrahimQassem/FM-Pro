@@ -1,181 +1,177 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.activity.appuser.PhoneLoginActivity">
 
-    <RelativeLayout
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/view_feed_toolbar" />
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/white"
-        android:fitsSystemWindows="true"
-        tools:context=".ui.activity.appuser.PhoneLoginActivity">
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
 
 
-        <LinearLayout
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            app:srcCompat="@drawable/img_number_verification" />
+
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:gravity="center"
-            android:orientation="vertical"
-            tools:ignore="UselessParent">
+            android:scrollbars="none"
+            android:scrollingCache="true">
 
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="220dp"
-                android:visibility="visible"
-                app:srcCompat="@drawable/img_number_verification" />
-
-            <androidx.core.widget.NestedScrollView
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:scrollbars="none"
-                android:scrollingCache="true">
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/spacing_large"
+                android:paddingEnd="@dimen/spacing_large">
+
+
+                <TextView
+                    style="@style/TextBold"
+                    android:padding="@dimen/spacing_medium"
+                    android:text="@string/verify_your_number"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
+                    android:textColor="@color/grey_80" />
+
+                <TextView
+                    style="@style/TextRegular"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:gravity="center"
+                    android:letterSpacing=".3"
+                    android:lineSpacingExtra="5dp"
+                    android:minLines="2"
+                    android:padding="@dimen/spacing_medium"
+                    android:text="@string/please_enter_your_mobile_number_to_receive_a_verification_code_carrier_rates_may_apply"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/grey_60" />
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
                     android:layout_gravity="center"
+                    android:layout_margin="@dimen/spacing_xlarge"
                     android:gravity="center"
-                    android:orientation="vertical"
-                    android:paddingStart="@dimen/spacing_large"
-                    android:paddingEnd="@dimen/spacing_large">
+                    android:orientation="horizontal">
 
 
-                    <TextView
-                        style="@style/TextBold"
-                        android:padding="@dimen/spacing_medium"
-                        android:text="@string/verify_your_number"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editTextPhone"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:hint="@string/phone_number"
+                        android:imeOptions="actionDone"
+                        android:inputType="phone"
+                        android:maxLines="1"
+                        android:singleLine="true"
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-                        android:textColor="@color/grey_80" />
+                        android:textColor="@color/grey_90"
+                        tools:text="@string/app_mobile">
 
-                    <TextView
-                        style="@style/TextRegular"
-                        android:layout_marginTop="@dimen/spacing_medium"
-                        android:gravity="center"
-                        android:letterSpacing=".3"
-                        android:lineSpacingExtra="5dp"
-                        android:minLines="2"
-                        android:padding="@dimen/spacing_medium"
-                        android:text="@string/please_enter_your_mobile_number_to_receive_a_verification_code_carrier_rates_may_apply"
-                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                        android:textColor="@color/grey_60" />
+                        <requestFocus />
+
+                    </com.google.android.material.textfield.TextInputEditText>
 
 
-                    <!--  <LinearLayout
-                          android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:layout_margin="@dimen/spacing_xlarge"
-                          android:layout_gravity="center"
-                          android:gravity="center"
-                          android:orientation="horizontal">
-
-
-
-
-                          <com.google.android.material.textfield.TextInputEditText
-                              android:id="@+id/editTextPhone"
-                              android:layout_weight="1"
-                              android:layout_width="0dp"
-                              android:layout_height="wrap_content"
-                              android:hint="@string/phone_number"
-                              android:imeOptions="actionDone"
-                              android:inputType="phone"
-                              android:gravity="end"
-                              tools:text="777777777"
-                              android:maxLines="1"
-                              android:singleLine="true"
-                              android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-                              android:textColor="@color/grey_90">
-
-                              <requestFocus />
-
-                          </com.google.android.material.textfield.TextInputEditText>
-
-
-                          <com.hbb20.CountryCodePicker
-                              android:id="@+id/country_code"
-                              android:layout_width="wrap_content"
-                              android:layout_height="match_parent"
-                              android:layout_marginEnd="@dimen/spacing_medium"
-                              android:paddingTop="@dimen/spacing_medium"
-                              app:ccp_autoDetectLanguage="true"
-                              app:ccp_defaultNameCode="YE"
-                              app:ccp_showFlag="false"
-                              app:ccp_showNameCode="true" />
-
-                      </LinearLayout>-->
-
-                    <LinearLayout
-                        android:id="@+id/linearLayout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_margin="@dimen/spacing_large"
-                        android:gravity="center"
-                        android:orientation="horizontal">
-
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:theme="@style/Theme.HudHudFM.NoActionBar"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:hint="@string/phone_number"
-                            android:paddingStart="@dimen/spacing_middle"
-                            android:paddingEnd="@dimen/spacing_middle"
-                            android:textColorHint="@color/grey_5"
-                            app:errorEnabled="false"
-                            app:hintEnabled="true">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/editTextPhone"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:drawablePadding="16dp"
-                                android:hint="@string/label_enter_you_re_mobile_number"
-                                android:imeOptions="actionDone"
-                                android:inputType="phone"
-                                android:singleLine="true"
-                                android:layout_gravity="center"
-                                android:textColor="@color/colorAccentDark"
-                                android:textColorHint="@color/colorAccentLight"
-                                />
-
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.hbb20.CountryCodePicker
-                            android:id="@+id/country_code"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:ccp_autoDetectCountry="true"
-                            app:ccp_autoDetectLanguage="true"
-                            app:ccp_autoFormatNumber="true"
-                            app:ccp_contentColor="@color/grey_95"
-                            app:ccp_defaultNameCode="YE"
-                            app:ccp_countryPreference="ye,sa,us"
-                            app:ccp_showNameCode="false"
-                            app:ccp_textSize="12sp" />
-                    </LinearLayout>
-
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/buttonContinue"
-                        android:layout_width="200dp"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/btn_rounded_accent"
-                        android:fontFamily="@font/tj_bold"
-                        android:text="@string/label_send"
-                        android:textColor="@android:color/white" />
-
+                    <com.hbb20.CountryCodePicker
+                        android:id="@+id/country_code"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="@dimen/spacing_medium"
+                        android:paddingTop="@dimen/spacing_medium"
+                        app:ccp_autoDetectLanguage="true"
+                        app:ccp_defaultNameCode="YE"
+                        app:ccp_showFlag="false"
+                        app:ccp_showNameCode="true" />
 
                 </LinearLayout>
 
-            </androidx.core.widget.NestedScrollView>
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/buttonContinue"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/btn_rounded_accent"
+                    android:fontFamily="@font/tj_bold"
+                    android:text="@string/label_send"
+                    android:textColor="@android:color/white" />
+
+                <!--  <LinearLayout
+                      android:id="@+id/linearLayout"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_marginStart="16dp"
+                      android:layout_marginTop="32dp"
+                      android:layout_marginEnd="16dp"
+                      android:layout_marginBottom="32dp"
+                      android:gravity="center"
+                      android:layout_gravity="center"
+                      android:orientation="horizontal">
+
+                      <com.hbb20.CountryCodePicker
+                          android:id="@+id/activity_verify_phone_number_ccp"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_gravity="center_vertical"
+                          android:layout_marginTop="12dp"
+                          app:ccp_textSize="12sp"
+                          app:ccp_autoDetectCountry="true"
+                          app:ccp_autoDetectLanguage="true"
+                          app:ccp_autoFormatNumber="true"
+                          app:ccp_contentColor="@color/grey_50"
+                          app:ccp_countryPreference="us,ca,cm"
+                          app:ccp_showNameCode="false" />
+
+                      <com.google.android.material.textfield.TextInputLayout
+                          android:id="@+id/activity_verify_phone_number_phone_TextInputLayout"
+                          style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:hint="@string/label_title"
+                          android:textColorHint="@color/grey_5"
+                          app:errorEnabled="false"
+                          app:hintEnabled="true">
+
+                          <com.google.android.material.textfield.TextInputEditText
+                              android:id="@+id/activity_verify_phone_number_phone_EditText"
+                              android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:drawablePadding="16dp"
+                              android:hint="@string/mobile"
+                              android:inputType="phone"
+                              android:imeOptions="actionDone"
+                              android:singleLine="true"
+                              android:textColor="@color/colorPrimaryDark"
+                              android:textColorHint="@color/colorPrimaryLight" />
+
+                      </com.google.android.material.textfield.TextInputLayout>
+
+                  </LinearLayout>-->
 
 
-        </LinearLayout>
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
 
 
-    </RelativeLayout>
-</layout>
+    </LinearLayout>
+
+
+</RelativeLayout>

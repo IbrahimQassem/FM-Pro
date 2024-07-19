@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.sana.dev.fm">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-
-    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
+    <uses-permission
+        android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
         tools:ignore="ProtectedPermissions" />
-
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-<!--    Todo Remove or Check those permission-->
-<!--    <uses-permission android:name="android.permission.WAKE_LOCK" />-->
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"
+        android:minSdkVersion="34" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:name=".FmApplication"
@@ -25,13 +28,14 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.HudHudFM"
         android:usesCleartextTraffic="true"
         tools:replace="android:supportsRtl"
-        tools:targetApi="31">
+        tools:targetApi="33">
 
         <activity
             android:name=".ui.activity.SplashActivity"
@@ -45,13 +49,35 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".ui.activity.appuser.LoginByActivity"
+            android:exported="false"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".ui.activity.RadioListActivity"
+            android:exported="false"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".ui.activity.ProgramDetailsActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.activity.ListMultiSelection"
+            android:name=".ui.activity.ListEpisodeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.ListProgramActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.ListUsersActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.ImagePickerActivity"
@@ -91,16 +117,32 @@
             android:name=".ui.activity.NoInternetActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name" />
+        <activity
+            android:name="com.facebook.CustomTabActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
-        <!-- <activity android:name=".ui.activity.player.MusicServiceActivity" /> -->
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="@string/fb_login_protocol_scheme" />
+            </intent-filter>
+        </activity> <!-- <activity android:name=".ui.activity.player.MusicServiceActivity" /> -->
         <!-- <activity android:name=".ui.activity.player.PlayerActivity" /> -->
         <!-- <activity android:name=".ui.activity.player.PermitActivity" /> -->
         <service
             android:name=".utils.radio_player.PlaybackService"
-            android:exported="true" />
+            android:exported="true"
+            android:foregroundServiceType="specialUse"/>
         <service
             android:name=".utils.radio_player.RadioService"
-            android:exported="true" /> <!-- <service android:name=".attachmentviewer.MusicService" /> -->
+            android:exported="true"
+            android:foregroundServiceType="specialUse"/> <!-- <service android:name=".attachmentviewer.MusicService" /> -->
         <!-- <service android:name="com.sana.dev.fm.ui.activity.test.MusicService" /> -->
         <receiver
             android:name="androidx.media.session.MediaButtonReceiver"
@@ -150,7 +192,17 @@
 
         <meta-data
             android:name="firebase_performance_logcat_enabled"
-            android:value="true" />
+            android:value="true" /> <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
+        <!-- Hudhud FM AdMob app ID: ca-app-pub-8921334057686979~6893968687 -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8921334057686979~6893968687" />
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+        <meta-data
+            android:name="com.facebook.sdk.ClientToken"
+            android:value="@string/facebook_client_token" />
     </application>
 
 </manifest>

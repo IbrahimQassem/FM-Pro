@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import com.sana.dev.fm.databinding.FragmentNoiternetViewBinding;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.Tools;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -73,8 +74,8 @@ public class EmptyViewFragment extends Fragment {
 
         binding.linearlayout.setVisibility(View.VISIBLE);
 
-        FmUtilize.hideEmptyElement(title_label, binding.tvNoteTitle);
-        FmUtilize.hideEmptyElement(details_label, binding.tvNoteDetails);
+        Tools.setTextOrHideIfEmpty( binding.tvNoteTitle,title_label);
+        Tools.setTextOrHideIfEmpty( binding.tvNoteDetails,details_label);
 
         if (!TextUtils.isEmpty(btn_label)) {
             binding.btnClick.setText(btn_label);

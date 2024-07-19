@@ -3,171 +3,176 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:padding="@dimen/spacing_large">
+    android:paddingStart="@dimen/spacing_medium"
+    android:paddingTop="@dimen/spacing_large"
+    android:paddingEnd="@dimen/spacing_medium">
 
 
     <View
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="1dp"
-        android:layout_margin="@dimen/spacing_small"
-        android:background="@color/grey_500" />
+        android:layout_marginStart="@dimen/spacing_xxxlarge"
+        android:layout_marginEnd="@dimen/spacing_xxxlarge"
+        android:background="@color/colorPrimaryLight" />
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_mlarge"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:padding="@dimen/spacing_middle">
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="@dimen/spacing_middle">
 
             <TextView
                 android:id="@+id/tv_ep_start"
-                android:layout_width="wrap_content"
+                style="@style/TextMedium"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_medium"
+                android:layout_weight="1"
                 android:drawablePadding="@dimen/spacing_small"
-                android:drawableTint="@color/colorAccentLight"
+                android:drawableTint="@color/colorPrimaryLight"
                 android:gravity="center_vertical"
-                android:hint="تحديد وقت البدء"
-                android:text=""
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/colorPrimary"
+                android:hint="@string/label_set_start_time"
+                android:padding="@dimen/spacing_small"
+                android:textColor="@color/green_500"
                 android:textColorHint="@color/red_200"
-                android:textStyle="bold"
-                app:drawableLeftCompat="@drawable/ic_access_time"
-                app:drawableStartCompat="@drawable/ic_access_time" />
-
-            <TextView
-                android:id="@+id/tv_ep_end"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_medium"
-                android:drawablePadding="@dimen/spacing_small"
-                android:drawableTint="@color/colorAccentLight"
-                android:gravity="center_vertical"
-                android:hint="تحديد وقت الإنتهاء"
-                android:text=""
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/colorPrimary"
-                android:textColorHint="@color/red_200"
-                android:textStyle="bold"
                 app:drawableLeftCompat="@drawable/ic_access_time"
                 app:drawableStartCompat="@drawable/ic_access_time" />
 
 
             <TextView
-                android:id="@+id/tv_day"
-                android:layout_width="wrap_content"
+                style="@style/TextMedium"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_medium"
-                android:drawablePadding="@dimen/spacing_small"
-                android:drawableTint="@color/colorAccentLight"
+                android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:hint="تحديد اليوم"
-                android:text=""
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/colorPrimary"
-                android:textColorHint="@color/red_200"
-                android:textStyle="bold"
-                app:drawableLeftCompat="@drawable/ic_date_range"
-                app:drawableStartCompat="@drawable/ic_date_range" />
-
-            <RadioGroup
-                android:id="@+id/rg_type"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:orientation="vertical">
-
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="@dimen/spacing_medium"
-                    android:buttonTint="@color/colorPrimary"
-                    android:text="فرعي"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                    android:textColor="@color/colorPrimary"
-                    android:textColorHint="@color/grey_40" />
-
-                <View
-                    android:layout_width="@dimen/spacing_mlarge"
-                    android:layout_height="0dp" />
-
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:buttonTint="@color/colorPrimary"
-                    android:text="رئيسي"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                    android:textColor="@color/colorPrimary"
-                    android:textColorHint="@color/grey_40" />
-
-            </RadioGroup>
+                android:padding="@dimen/spacing_small"
+                android:text="@string/label_start"
+                android:textColor="@color/grey_40" />
 
 
         </LinearLayout>
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:layout_margin="@dimen/spacing_middle"
-            android:background="@color/grey_500" />
 
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="end"
-            android:orientation="vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="@dimen/spacing_middle">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/tv_ep_end"
+                style="@style/TextMedium"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_medium"
+                android:layout_weight="1"
+                android:drawablePadding="@dimen/spacing_small"
+                android:drawableTint="@color/colorPrimaryLight"
                 android:gravity="center_vertical"
-                android:text="وقت البدء"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
-                android:textColor="@color/grey_40" />
+                android:hint="@string/label_set_end_time"
+                android:padding="@dimen/spacing_small"
+                android:textColor="@color/green_500"
+                android:textColorHint="@color/red_200"
+                app:drawableLeftCompat="@drawable/ic_access_time"
+                app:drawableStartCompat="@drawable/ic_access_time" />
+
 
             <TextView
-                android:layout_width="wrap_content"
+                style="@style/TextMedium"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_medium"
+                android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="وقت الإنتهاء"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
+                android:padding="@dimen/spacing_small"
+                android:text="@string/label_end"
                 android:textColor="@color/grey_40" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_medium"
-                android:gravity="center_vertical"
-                android:text="يوم"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
-                android:textColor="@color/grey_40" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_medium"
-                android:gravity="center_vertical"
-                android:text="وقت البث البرنامج ؟"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
-                android:textColor="@color/grey_40" />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="@dimen/spacing_middle">
+
+            <TextView
+                android:id="@+id/tv_day"
+                style="@style/TextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawablePadding="@dimen/spacing_small"
+                android:drawableTint="@color/colorPrimaryLight"
+                android:gravity="center_vertical"
+                android:hint="@string/label_set_day"
+                android:padding="@dimen/spacing_small"
+                android:textColor="@color/green_500"
+                tools:text="@string/label_label"
+                android:textColorHint="@color/red_200"
+                app:drawableLeftCompat="@drawable/ic_date_range"
+                app:drawableStartCompat="@drawable/ic_date_range" />
+
+
+            <TextView
+                style="@style/TextMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:padding="@dimen/spacing_small"
+                android:text="@string/label_day"
+                android:textColor="@color/grey_40" />
+
+
+        </LinearLayout>
+
+        <RadioGroup
+            android:id="@+id/rg_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_new"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/colorPrimary"
+                android:text="@string/label_new_episode"
+                android:checked="true"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textColor="@color/colorPrimary"
+                android:textColorHint="@color/grey_40" />
+
+            <View
+                android:layout_width="@dimen/spacing_mlarge"
+                android:layout_height="0dp" />
+
+            <RadioButton
+                android:id="@+id/rb_repeat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/colorPrimary"
+                android:text="@string/label_a_repeated_episode"
+                android:checked="false"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textColor="@color/colorPrimary"
+                android:textColorHint="@color/grey_40" />
+
+        </RadioGroup>
 
     </LinearLayout>
 
@@ -175,8 +180,8 @@
         android:id="@+id/fab_remove"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/spacing_middle"
-        app:backgroundTint="@color/colorAccentLight"
+        android:layout_margin="@dimen/spacing_middle"
+        app:backgroundTint="@color/colorPrimaryLight"
         app:elevation="0dp"
         app:fabSize="normal"
         app:srcCompat="@drawable/ic_close" />

@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class ButtonConfig implements Serializable {
     private String name;
     private int textColor = -1;
-    private View.OnClickListener onClickListener;
+    private transient View.OnClickListener onClickListener;
 
     public ButtonConfig(String name) {
         this.name = name;

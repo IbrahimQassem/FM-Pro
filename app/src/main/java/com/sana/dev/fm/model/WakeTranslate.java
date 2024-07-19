@@ -1,11 +1,12 @@
 package com.sana.dev.fm.model;
 
 public class WakeTranslate {
-    String dayKey,dayName;
+    String dayKey, dayName;
+
     public WakeTranslate() {
     }
 
-    public WakeTranslate( String dayKey,String dayName) {
+    public WakeTranslate(String dayKey, String dayName) {
         this.dayKey = dayKey;
         this.dayName = dayName;
     }

@@ -1,15 +1,20 @@
 package com.sana.dev.fm.model;
 
-public class TempEpisodeModel {
-    private String epProfile,epName,epAnnouncer,displayDayName;
-    private DateTimeModel dateTimeModel;
+import com.sana.dev.fm.model.enums.Weekday;
 
-    public TempEpisodeModel(String epProfile, String epName, String epAnnouncer, String displayDayName, DateTimeModel dateTimeModel) {
+import java.util.List;
+
+public class TempEpisodeModel {
+    private String epProfile,epName,epAnnouncer;
+    private DateTimeModel showTime;
+    private Weekday displayDay;
+
+    public TempEpisodeModel(String epProfile, String epName, String epAnnouncer, DateTimeModel showTime, Weekday displayDay) {
         this.epProfile = epProfile;
         this.epName = epName;
         this.epAnnouncer = epAnnouncer;
-        this.displayDayName = displayDayName;
-        this.dateTimeModel = dateTimeModel;
+        this.showTime = showTime;
+        this.displayDay = displayDay;
     }
 
     public String getEpProfile() {
@@ -36,19 +41,19 @@ public class TempEpisodeModel {
         this.epAnnouncer = epAnnouncer;
     }
 
-    public DateTimeModel getDateTimeModel() {
-        return dateTimeModel;
+    public DateTimeModel getShowTime() {
+        return showTime;
     }
 
-    public void setDateTimeModel(DateTimeModel dateTimeModel) {
-        this.dateTimeModel = dateTimeModel;
+    public void setShowTime(DateTimeModel showTime) {
+        this.showTime = showTime;
     }
 
-    public String getDisplayDayName() {
-        return displayDayName;
+    public Weekday getDisplayDay() {
+        return displayDay;
     }
 
-    public void setDisplayDayName(String displayDayName) {
-        this.displayDayName = displayDayName;
+    public void setDisplayDay(Weekday displayDay) {
+        this.displayDay = displayDay;
     }
 }

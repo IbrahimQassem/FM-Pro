@@ -34,7 +34,7 @@
                     android:layout_width="@dimen/spacing_xmlarge"
                     android:layout_height="@dimen/spacing_xmlarge"
                      app:srcCompat="@drawable/shape_circle"
-                    android:tint="@color/colorAccentLight" />
+                    android:tint="@color/colorPrimaryLight" />
 
                 <ImageView
                     android:layout_width="25dp"
@@ -49,7 +49,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:id="@+id/civ_logo"
+                    android:id="@+id/image"
                     android:layout_width="@dimen/spacing_xmlarge"
                     android:layout_height="@dimen/spacing_xmlarge" />
 
@@ -78,30 +78,30 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/from"
+                    android:id="@+id/tv_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:maxLines="1"
                     android:singleLine="true"
-                    tools:text="@string/user_name"
+                    tools:text="@string/label_title"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="@color/grey_90"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/email"
+                    android:id="@+id/tv_subtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_small"
                     android:maxLines="1"
                     android:singleLine="true"
-                    tools:text="@string/email"
+                    tools:text="@string/label_label"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textColor="@color/grey_90"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/message"
+                    android:id="@+id/tv_desc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:maxLines="1"
@@ -112,7 +112,7 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/tv_day_period"
+                android:id="@+id/tv_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"

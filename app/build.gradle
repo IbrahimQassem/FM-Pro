@@ -3,37 +3,52 @@ plugins {
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
 //    id 'com.google.firebase:perf-plugin'
+}
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
 android {
 
-    compileSdk 32
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.sana.dev.fm"
         minSdk 21
-        targetSdk 32
+        targetSdk 34
         versionCode 15
         versionName "1.0.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        signingConfig signingConfigs.debug
-
+//        signingConfig signingConfigs.debug
+        archivesBaseName = "hudhudfm-v($versionName)" // to name generated apk
     }
 
 
     buildTypes {
 
-        debug {
-            minifyEnabled true
-            shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
+//        debug {
+//            minifyEnabled true
+//            shrinkResources false
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//        }
 
         release {
             shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 
@@ -46,7 +61,7 @@ android {
         enabled = true
     }
 
-    dataBinding{
+    dataBinding {
         enabled true
     }
 
@@ -57,46 +72,53 @@ android {
     productFlavors {
 
 
-
-        hudhud {
+        hudhud_fm {
             dimension 'fm_flavor'
-            applicationId 'com.sanaadev.fm'
-            applicationIdSuffix '.hudhud'
+            applicationId 'com.sanaadev'
+            applicationIdSuffix '.hudhudfm'
             versionCode 1
             versionName '0.0.1'
             versionNameSuffix 'dev'
-            signingConfig signingConfigs.debug
-            buildConfigField "String", "BASE_FB_DB" , '"HudHud"'
+//            signingConfig signingConfigs.debug
+            buildConfigField "String", "BASE_FB_DB", '"HudHudFM"'
         }
 
         hudhudfm_google_play {
             dimension 'fm_flavor'
             applicationId "com.sana.dev.fm"
-            versionCode 18
-            versionName "1.0.8"
-            signingConfig signingConfigs.debug
-            buildConfigField "String", "BASE_FB_DB" , '"HudHudFmGooglePlay"'
+            versionCode 25
+            versionName "2.0.5"
+//            signingConfig signingConfigs.debug
+            buildConfigField "String", "BASE_FB_DB", '"HudHudFmGooglePlay"'
         }
 
         internews {
             manifestPlaceholders app_name: 'Inter News'
             dimension 'fm_flavor'
-            applicationId 'com.sanaadev.fm'
+            applicationId 'com.sanaadev'
             applicationIdSuffix '.internews'
             versionCode 1
             versionName '0.0.1'
             versionNameSuffix 'dev'
-            signingConfig signingConfigs.debug
+//            signingConfig signingConfigs.debug
             proguardFiles
             resourceConfigurations += []
 
-            buildConfigField "String", "BASE_FB_DB" , '"InterNews"'
+            buildConfigField "String", "BASE_FB_DB", '"InterNews"'
 
         }
 
     }
+    namespace 'com.sana.dev.fm'
 
-
+//    signingConfigs {
+//        release {
+//            keyAlias keystoreProperties['keyAlias']
+//            keyPassword keystoreProperties['keyPassword']
+//            storeFile file(keystoreProperties['storeFile'])
+//            storePassword keystoreProperties['storePassword']
+//        }
+//    }
 }
 
 
@@ -105,6 +127,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.android.gms:play-services-ads-lite:21.5.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
@@ -115,7 +138,7 @@ dependencies {
     implementation 'com.jakewharton:butterknife:10.2.3'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
 
-    implementation 'com.hbb20:ccp:2.1.9'                            // country code
+    implementation 'com.hbb20:ccp:2.5.0'                            // country code
 
     implementation 'com.mikhaellopez:circularimageview:3.2.0'          // circle image view
 
@@ -148,19 +171,26 @@ dependencies {
 
 //    https://github.com/Kaopiz/KProgressHUD/blob/master/demo/src/main/java/com/kaopiz/progresshud/demo/MainActivity.java
     implementation 'com.kaopiz:kprogresshud:1.2.0'
+    implementation 'androidx.browser:browser:1.7.0'
 
+    implementation 'com.facebook.android:facebook-login:latest.release'
 
+    implementation 'com.google.android.play:integrity:1.3.0'
 //    -----------------------------------------------------------------------
 
-    implementation platform('com.google.firebase:firebase-bom:31.0.2')
+    implementation(platform("com.google.firebase:firebase-bom:32.6.0"))
     implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-perf'
+
+//    implementation 'com.google.firebase:firebase-app-check'
+//    implementation 'com.google.firebase:firebase-appcheck-safetynet'
 
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-storage'
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.firebase:firebase-messaging'
+
 
     // FirebaseUI for Cloud Firestore
     implementation 'com.firebaseui:firebase-ui-firestore:8.0.1'
@@ -168,4 +198,6 @@ dependencies {
     // FirebaseUI for Cloud Storage
     implementation 'com.firebaseui:firebase-ui-storage:8.0.1'
 
+    // Also add the dependency for the Google Play services library and specify its version
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 }

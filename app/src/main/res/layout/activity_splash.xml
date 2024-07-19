@@ -8,10 +8,18 @@
     tools:context="com.sana.dev.fm.ui.activity.SplashActivity">
 
 
-    <ImageView
+    <com.mikhaellopez.circularimageview.CircularImageView
         android:id="@+id/introLogo"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/spacing_small"
+        android:layout_marginBottom="@dimen/spacing_small"
+        android:scaleType="centerInside"
+        android:tint="@color/colorPrimary"
+        app:civ_border="true"
+        app:civ_border_color="?attr/colorPrimaryDark"
+        app:civ_border_width="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,6 +31,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="30dp"
+        android:fontFamily="@font/tj_medium"
         android:text="@string/app_name"
         android:textColor="@color/colorPrimary"
         android:textSize="34sp"
@@ -31,14 +40,38 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/tv_slogan"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_mxlarge"
         android:layout_marginTop="30dp"
+        android:layout_marginEnd="@dimen/spacing_mxlarge"
         android:fontFamily="@font/tj_regular"
+        android:minLines="2"
+        android:padding="@dimen/spacing_middle"
         android:text="@string/app_slogan"
-        android:textColor="@color/colorAccent"
-        android:textSize="14sp"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/introLogo" />
+
+
+    <TextView
+        android:id="@+id/tv_trail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/spacing_medium"
+        android:fontFamily="@font/tj_regular"
+        android:minLines="2"
+        android:padding="@dimen/spacing_middle"
+        android:text="@string/label_trail_version"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textSize="16sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_slogan" />
 </androidx.constraintlayout.widget.ConstraintLayout>

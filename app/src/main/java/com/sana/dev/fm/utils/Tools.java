@@ -34,7 +34,9 @@ import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
@@ -55,9 +57,14 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.gson.Gson;
+import com.sana.dev.fm.BuildConfig;
+import com.sana.dev.fm.FmApplication;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.model.AppConfig;
+import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.DeviceInfo;
+import com.sana.dev.fm.ui.activity.SplashActivity;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -65,6 +72,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
@@ -146,28 +154,26 @@ public class Tools {
 //        GlideApp.with(ctx).load(resDrawable)
 //                .into(img);
             //        }
-        } catch(
-    Exception e)
+        } catch (
+                Exception e) {
+            LogUtility.d(TAG + " displayImageOriginal :", e.toString());
+        }
 
-    {
-        LogUtility.d(TAG + " displayImageOriginal :", e.toString());
     }
-
-}
 
 
     public static void displayImageOriginal(Context ctx, ImageView img, String imgUrl) {
         try {
             if (imgUrl.equals("no_image")) {
-                GlideApp.with(ctx).load(AppConfig.RADIO_IMG)
+                GlideApp.with(ctx).load(ctx.getDrawable(R.drawable.logo_app))
                         .centerCrop()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(img);
             } else {
                 GlideApp.with(ctx).load(imgUrl)
                         .fitCenter()
-                        .placeholder(AppConfig.RADIO_IMG)
-                        .error(AppConfig.RADIO_IMG)
+                        .placeholder(ctx.getDrawable(R.drawable.logo_app))
+                        .error(ctx.getDrawable(R.drawable.logo_app))
                         .centerCrop()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(img);
@@ -175,7 +181,7 @@ public class Tools {
 
 //            Glide.with(ctx).load(Uri.parse(imgUrl))
 //                    .fitCenter()
-//                    .placeholder(AppConfig.RADIO_IMG)
+//                    .placeholder(AppRemoteConfig.RADIO_IMG)
 //                    .error(BaseDrawerActivity.APP_CONFIG.getCount())
 //                    .crossFade()
 //                    .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -185,7 +191,7 @@ public class Tools {
 
 //            Picasso.get()
 //                    .load(url)
-//                    .placeholder(AppConfig.RADIO_IMG)
+//                    .placeholder(AppRemoteConfig.RADIO_IMG)
 //                    .networkPolicy(NetworkPolicy.OFFLINE)
 //                    .into(img);
         } catch (Exception e) {
@@ -202,16 +208,16 @@ public class Tools {
                     .load(imgUrl)
                     .apply(requestOptions)
                     .placeholder(R.drawable.bg_comment_avatar)
-                    .error(AppConfig.RADIO_LOGO)
+                    .error(ctx.getDrawable(R.drawable.logo_app))
                     .into(img);
 //            Glide.with(ctx)
 //                    .load(imgUrl)
 //                    .apply(RequestOptions.bitmapTransform(new RoundedCorners(50)))
 //                    .placeholder(R.drawable.bg_comment_avatar)
-//                    .error(AppConfig.RADIO_LOGO)
+//                    .error(AppRemoteConfig.RADIO_LOGO)
 //                     .into(img);
 
-//            Glide.with(ctx).load(imgUrl).asBitmap().placeholder(R.drawable.bg_comment_avatar).error(AppConfig.RADIO_LOGO).centerCrop().into(new BitmapImageViewTarget(img) {
+//            Glide.with(ctx).load(imgUrl).asBitmap().placeholder(R.drawable.bg_comment_avatar).error(AppRemoteConfig.RADIO_LOGO).centerCrop().into(new BitmapImageViewTarget(img) {
 //                @Override
 //                protected void setResource(Bitmap resource) {
 //                    RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(ctx.getResources(), resource);
@@ -220,13 +226,14 @@ public class Tools {
 //                }
 //            });
         } catch (Exception e) {
+            e.printStackTrace();
             LogUtility.d(TAG + " displayImageRound :", e.toString());
         }
     }
 
-    public static void displayUserProfile(final Context ctx, final ImageView img, String imgUrl) {
+    public static void displayUserProfile(final Context ctx, final ImageView img, String imgUrl,@DrawableRes int resId) {
         try {
-            VectorDrawableCompat vector = VectorDrawableCompat.create(ctx.getResources(), R.drawable.ic_person, null);
+            VectorDrawableCompat vector = VectorDrawableCompat.create(ctx.getResources(), resId, null);
 
 //            Glide.with(ctx)
 //                    .load(imgUrl)
@@ -263,6 +270,8 @@ public class Tools {
 //                }
 //            });
         } catch (Exception e) {
+            e.printStackTrace();
+            LogUtility.d(TAG + " displayUserProfile :", e.toString());
         }
     }
 
@@ -271,8 +280,8 @@ public class Tools {
         return newFormat.format(new Date(dateTime));
     }
 
-    public static String getFormattedDateTimeSimple(Long dateTime) {
-        SimpleDateFormat newFormat = new SimpleDateFormat(DATE_TIME_FORMAT);
+    public static String getFormattedDateTimeSimple(Long dateTime, Locale locale) {
+        SimpleDateFormat newFormat = new SimpleDateFormat(DATE_TIME_FORMAT, locale);
         return newFormat.format(new Date(dateTime));
     }
 
@@ -291,15 +300,9 @@ public class Tools {
         return newFormat.format(new Date(dateTime));
     }
 
-    public static String getFormattedDateEvent(Date dateTime) {
-//        SimpleDateFormat newFormat = new SimpleDateFormat("EEE,"+FmUtilize._dateFormat);
-//        SimpleDateFormat newFormat = new SimpleDateFormat("E, dd MMM yyyy ", FmUtilize._arabicFormat);
-        SimpleDateFormat newFormat = new SimpleDateFormat("E dd MMM yyyy ", FmUtilize._arabicFormat);
-        return newFormat.format(dateTime);
-    }
 
-    public static String getFormattedTimeEvent(Long time) {
-        SimpleDateFormat newFormat = new SimpleDateFormat(FmUtilize._timeFormat, FmUtilize._arabicFormat);
+    public static String getFormattedTimeEvent(Long time, Locale locale) {
+        SimpleDateFormat newFormat = new SimpleDateFormat(FmUtilize._timeFormat, locale);
         return newFormat.format(new Date(time));
     }
 
@@ -572,9 +575,15 @@ public class Tools {
         }
     }
 
-    public static String getFormattedDateOnly(Long l) {
+    public static String getFormattedDateOnly(Long l, Locale locale) {
 //        return new SimpleDateFormat("dd MMM yy", FmUtilize._arabicFormat).format(new Date(l.longValue()));
-        return new SimpleDateFormat("d MMM yyyy", FmUtilize._arabicFormat).format(new Date(l.longValue()));
+//        return new SimpleDateFormat("d MMM yyyy", locale).format(new Date(l.longValue()));
+        return new SimpleDateFormat("d MMM yy", locale).format(new Date(l.longValue()));
+    }
+
+    public static String getFormattedDateOnly(String format,Long l, Locale locale) {
+//        return new SimpleDateFormat("dd MMM yy", FmUtilize._arabicFormat).format(new Date(l.longValue()));
+        return new SimpleDateFormat(format, locale).format(new Date(l.longValue()));
     }
 
     public static void directLinkToBrowser(Activity activity, String str) {
@@ -649,7 +658,7 @@ public class Tools {
         String strMinute = Integer.toString(minute);
         String strSecond = Integer.toString(second);
         String strHour;
-        if (strMinute.length()< 2){
+        if (strMinute.length() < 2) {
             strMinute = "0" + minute;
         }
         if (strSecond.length() < 2) {
@@ -669,5 +678,90 @@ public class Tools {
         Configuration config = resources.getConfiguration();
         config.setLocale(locale);
         resources.updateConfiguration(config, resources.getDisplayMetrics());
+    }
+
+    public static boolean isEmpty(EditText editText) {
+        if (editText.getText().toString().trim().length() > 0)
+            return false;
+        return true;
+    }
+
+    public static String toString(View view) {
+        if (view instanceof EditText) {
+            EditText editText = (EditText) view;
+            if (editText.getText().toString().trim().length() > 0)
+                return editText.getText().toString().trim();
+        } else if (view instanceof TextView) {
+            TextView textView = (TextView) view;
+            if (textView.getText().toString().trim().length() > 0)
+                return textView.getText().toString().trim();
+        } else if (view instanceof TextInputEditText) {
+            TextInputEditText textView = (TextInputEditText) view;
+            if (textView.getText().toString().trim().length() > 0)
+                return textView.getText().toString().trim();
+        }
+
+        return "";
+    }
+
+    public static void setTextOrHideIfEmpty(View view, String val) {
+        if (Tools.isEmpty(val)) {
+            view.setVisibility(View.GONE);
+        } else {
+            view.setVisibility(View.VISIBLE);
+            if (view instanceof EditText) {
+                EditText editText = (EditText) view;
+                editText.setText(val);
+            } else if (view instanceof TextView) {
+                TextView textView = (TextView) view;
+                textView.setText(val);
+            } else if (view instanceof TextInputEditText) {
+                TextInputEditText textView = (TextInputEditText) view;
+                textView.setText(val);
+            }
+        }
+    }
+
+    public static void disableEditText(EditText editText) {
+        editText.setFocusable(false);
+        editText.setEnabled(false);
+        editText.setCursorVisible(false);
+        editText.setKeyListener(null);
+        editText.setBackgroundColor(Color.TRANSPARENT);
+    }
+
+    public static boolean isEmpty(Collection coll) {
+        return (coll == null || coll.isEmpty());
+    }
+
+    public static boolean isEmpty(@androidx.annotation.Nullable CharSequence str) {
+        return str == null || str.length() == 0;
+    }
+
+    public static void emptyEditText(EditText editText, String hint) {
+        editText.setError(hint);
+        editText.requestFocus();
+        editText.setFocusable(true);
+    }
+
+    public static AppRemoteConfig getAppRemoteConfig() {
+        AppRemoteConfig model = new AppRemoteConfig();
+        PreferencesManager preferences = PreferencesManager.getInstance();
+        String json = preferences.read(AppConstant.General.APP_REMOTE_CONFIG, getDefAppRemoteConfig(FmApplication.getInstance()).toString());
+        if (!isEmpty(json)) {
+            Gson gson = new Gson();
+            model = gson.fromJson(json, AppRemoteConfig.class);
+        }
+//        Log.d(TAG, " getAppRemoteConfig : " + new Gson().toJson(model));
+        return model;
+    }
+
+
+    public static AppRemoteConfig getDefAppRemoteConfig(Context ctx) {
+        Gson gson = new Gson();
+        PreferencesManager preferences = PreferencesManager.getInstance();
+        AppRemoteConfig appRemoteConfig = new AppRemoteConfig(ctx.getString(R.string.app_mobile), ctx.getString(R.string.developer_reference), ctx.getString(R.string.terms_reference), true, true, true, true, false,false, BuildConfig.VERSION_CODE);
+        String json = preferences.read(AppConstant.General.APP_REMOTE_CONFIG, appRemoteConfig.toString());
+        return gson.fromJson(json, AppRemoteConfig.class);
     }
 }

@@ -1,14 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="TypographyDashes">
     <string name="app_name">هدهد اف ام</string>
-    <string name="app_slogan">Yemen\'s first application for radio channels</string>
+    <string name="app_slogan">The ideal destination for fans of radio and audio programs in Yemen</string>
+    <string name="label_app_description">With “Hudhud FM”, the limits of space and time are no longer an obstacle between you and the pulse of life in Yemen. With the push of a button, your phone becomes a window to a wide ocean of Yemeni radio channels, taking you on a journey through rich cultures, ancient history, and inexhaustible creativity.</string>
+
     <string name="app_version">Version</string>
     <string name="version_unknown">Unknown</string>
-    <string name="app_gmail">hudhudfm.ye@gmail.com</string>
-    <string name="app_mobile">+967 775617017</string>
-    <string name="app_twitter">https://twitter.com/HudhudFm</string>
-    <string name="app_facebook">https://www.facebook.com/HudhudFm</string>
-    <string name="app_instagram">http://instagram.com/hudhudfm</string>
+    <string name="app_gmail" translatable="false">hudhudfm.ye@gmail.com</string>
+    <string name="app_mobile" translatable="false">+967 775617017</string>
+    <string name="app_twitter" translatable="false">https://twitter.com/HudhudFm</string>
+    <string name="app_facebook" translatable="false">https://www.facebook.com/HudhudFm</string>
+    <string name="app_instagram" translatable="false">http://instagram.com/hudhudfm</string>
+
+    <string name="developer_reference" translatable="false">https://sanaa-dev.web.app</string>
+    <string name="terms_reference" translatable="false">https://doc-hosting.flycricket.io/hudhud-fm-terms-policy/792dff13-4452-4693-978c-bfcfc1d7c8b0/privacy</string>
+
+    <!-- This is an ad unit ID for a test ad. Replace with your own banner ad unit id. -->
+    <!--    <string name="banner_ad_unit_id" translatable="false">ca-app-pub-3940256099942544/6300978111</string>-->
+    <!--   Hudhud FM Ad Unit ID -->
+    <string name="banner_ad_unit_id" translatable="false">ca-app-pub-8921334057686979/6618636515</string>
+
+    <string name="label_remote_config_key" translatable="false">hudhudFmAppConfig</string>
+
+    <!--    <string name="facebook_app_id" translatable="false">811088116023852</string>-->
+    <!--    <string name="fb_login_protocol_scheme" translatable="false">fb1234</string>-->
+    <!--    <string name="facebook_client_token" translatable="false">170e1661cdcf6358ee03ac6ef53278c3</string>-->
+    <!--&lt;!&ndash;    afe4eb099e9ad5f32fd9b17ce8ca50ea &ndash;&gt;-->
+
+    <string name="facebook_app_id" translatable="false">811088116023852</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb1234</string>
+    <string name="facebook_client_token" translatable="false">afe4eb099e9ad5f32fd9b17ce8ca50ea</string>
+
+
+    <!--    test app-->
+    <!--    <string name="facebook_app_id" translatable="false">1018585879216952</string>-->
+    <!--    <string name="fb_login_protocol_scheme" translatable="false">fb1234</string>-->
+    <!--    <string name="facebook_client_token" translatable="false">fad23c664feb985b0804395215f5495b</string>-->
+
 
     <plurals name="likes_count">
         <item quantity="one">%d like</item>
@@ -16,9 +44,6 @@
         <item quantity="other">%d likes</item>
         <!--        likes-->
     </plurals>
-
-    <!--    <string name="facebook_app_id">811088116023852</string>-->
-
 
     <string name="url_profile">https://picsum.photos/200</string>
 
@@ -52,7 +77,7 @@
     <string name="label_ok">Yes</string>
     <string name="nav_home">Main</string>
     <string name="nav_about_us">About Us</string>
-    <string name="nav_episode_daily">Today\'s Episode</string>
+    <string name="nav_episode_daily">Today\'s</string>
     <string name="episode_daily">%s Radio broadcasts for today</string>
 
     <string name="please_wait">Please wait ..</string>
@@ -85,7 +110,7 @@
     <string name="female">Female</string>
     <string name="male">Male</string>
     <string name="phone_number">Mobile nomber</string>
-    <string name="image_desc">fm_radio_post_%s.png</string>
+    <string name="image_desc" translatable="false">fm_radio_post_%s.png</string>
     <string name="logout">Logout</string>
     <string name="saved_successfully">Saved successfully</string>
     <string name="no_data_available">No available data</string>
@@ -93,6 +118,9 @@
     <string name="stop">Stop</string>
     <string name="notification_playing">Live broadcast</string>
     <string name="pick_profile_image">Change user picture</string>
+    <string name="delete_my_account">Delete my account</string>
+    <string name="confirm_delete_my_account">You\'re about to delete your account permanently <br />  Are you sure ?</string>
+    <string name="confirm_logout_my_account">You\'re about to logout from the app <br />  Confirm ?</string>
 
 
     <string name="lbl_take_camera_picture">Take picture</string>
@@ -109,7 +137,7 @@
     <string name="more">More</string>
     <string name="share_app">Share the App</string>
     <string name="rate_app">Rate the App</string>
-    <string name="error_not_registered_yet">Not Registered yes=t</string>
+    <string name="error_not_registered_yet">Not Registered</string>
     <string name="label_hide">Hide</string>
     <string name="label_online">Online</string>
     <string name="offline">Not Online</string>
@@ -117,11 +145,10 @@
     <string name="add_episode">Add Episode</string>
     <string name="goto_login">In order to use the application services you must log in \n \nDo you want to go to the login window?</string>
     <string name="main_program_for">Main programs</string>
-    <string name="label_app_description">Hodhud FM: is an Android application that enables userModel to access Yemeni radio channels from anywhere and at any time with the click of a button.</string>
-    <string name="update_episode">Update episode data</string>
+    <string name="update_episode">Update episode</string>
     <!--    <string name="powered_by">Powered By &#x2665; Sana&apos;a Dev</string>-->
     <string name="powered_by">Powered By &#x2665; Sana\'a Dev</string>
-    <string name="empty_ep">Sorry, program data for %s radio is currently unavailableً</string>
+    <string name="msg_no_data_for">Sorry, program data for \'%s\' radio is currently unavailable</string>
     <string name="whatsapp_not_installed">You do not have WhatsApp installed</string>
 
 
@@ -142,6 +169,7 @@
     <string name="label_list">List</string>
     <string name="label_comments">Comments</string>
     <string name="label_title">Title</string>
+    <string name="label_label">Label</string>
     <string name="ex_date">22/Sep/2022</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -183,7 +211,8 @@
     <string name="label_try_again">Try Again</string>
     <string name="error_no_comment">No text</string>
     <string name="label_warning">Warning</string>
-    <string name="confirm_delete">You\'re about to delete <br/>  <b>[%s]</b> \n Are you sure ?</string>
+    <string name="confirm_delete">You\'re about to delete <br />  <b>[%s]</b> \n Are you sure ?</string>
+    <string name="confirm_hide">You\'re about to hide <br />  <b>[%s]</b> \n Are you sure ?</string>
     <string name="label_error_occurred">Error Occurred !</string>
     <string name="label_close">Close</string>
     <string name="please_wait_to_save_your_profile">Saving image profile in progress ..</string>
@@ -200,6 +229,90 @@
     <string name="label_please_enter_your_mobile">please enter you\'re mobile</string>
     <string name="label_please_enter_valid_mobile">please enter valid mobile number </string>
 
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="notification_channel_name" translatable="false">Channel human readable title</string>
+    <string name="update_radio_info">update radio info</string>
+    <string name="label_pick_date">Pick Date</string>
+    <string name="label_radio_list">Radio List</string>
+    <string name="label_priority">Priority %d</string>
+    <string name="login_via_mobile">Login via Mobile</string>
+    <string name="label_login_by">Login By</string>
+    <string name="login_via_facebook">Login via Facebook</string>
+    <string name="label_index">Index\n</string>
+    <string name="login_via_email">Login via Email</string>
+    <string name="label_please_enter_a_valid_mobile_number">Please enter a valid mobile number</string>
+    <string name="label_confirm">Confirm</string>
+    <string name="label_verifying_code">Verifying Code</string>
+    <string name="label_error_occurred_with_val">Error occurred (%s)</string>
+    <string name="label_login">Login</string>
+    <string name="label_login_via_google">Login via Google</string>
+    <string name="label_week_days">أيام الأسبوع</string>
+    <string name="label_set_time">تحديد الوقت</string>
+    <string name="msg_you_must_select_radio_station">You must select radio station</string>
+    <string name="ex_name">Jhpne Doe</string>
+    <string name="ex_city">Yemen - Sana\'a</string>
+    <string name="ex_address">Tahrir - 26 Sep .ST</string>
+    <string name="label_address">Address</string>
+    <string name="msg_you_cannot_change_the_radio_channel_if_the_program_data_is_updated">You cannot change the radio channel if the program data is updated</string>
+    <string name="msg_you_cannot_change_the_program_name_if_you_update_the_program_data">You cannot change the program name if you update the program data</string>
+    <string name="msg_you_must_select_a_programme">You must select a programme</string>
+    <string name="msg_make_sure_you_add_all_the_data_correctly">Make sure you add all the data correctly!</string>
+    <string name="label_add">Add</string>
+    <string name="label_episode_info">Episode info</string>
+    <string name="label_episode_announcer">Episode announcer</string>
+    <string name="ex_announcer_name">Example: Ali Najm</string>
+    <string name="label_episode_description">Episode description</string>
+    <string name="ex_episode_desc">Example: a youth entertainment episode.</string>
+    <string name="label_episode_url_stream">Episode url stream</string>
+    <string name="label_program_info">Program Info</string>
+    <string name="label_radio_station_name">Radio station name</string>
+    <string name="label_show_time">show time</string>
+    <string name="label_add_show_time">Add show time</string>
+    <string name="label_episode_image_profile">Episode image profile</string>
+    <string name="label_add_episode_image_profile">Add episode image profile</string>
+    <string name="label_add_comment_as_val">Add comment as %s ..</string>
+    <string name="label_enter_new_priority">Enter new Priority</string>
+    <string name="label_enable">Enable</string>
+    <string name="label_disable">Disable</string>
+    <string name="msg_are_you_sure_you_want_to">Are you sure you want to %s ?</string>
+    <string name="label_write_review">Write review ...</string>
+    <string name="msg_please_fill_review_text">Please fill review text</string>
+    <string name="label_submitted">Submitted</string>
+    <string name="label_start_at_with_val">Start At : %s</string>
+    <string name="label_end_at_with_val">End At : %s</string>
+    <string name="label_show_period">Show Period : %s</string>
+    <string name="label_date_from_to">From %1$s To %2$</string>
+    <string name="label_time_from_to">From %1$s To %2$</string>
+    <string name="update_program">Update Program</string>
+    <string name="ex_program_name">Ex: Morning of the capital</string>
+    <string name="label_program_logo">Program logo</string>
+    <string name="label_add_image">Add Image</string>
+    <string name="ex_program_category">Ex: social, youth ..</string>
+    <string name="label_time_period_for_displaying_program">The time period for displaying the program</string>
+    <string name="ex_days">Ex: Saturday, Sunday, Monday</string>
+    <string name="label_episode_name">Episode title</string>
+    <string name="label_set_start_time">Set start time</string>
+    <string name="label_set_end_time">Set end time</string>
+    <string name="label_set_day">Set day</string>
+    <string name="label_sub_main">Secondary</string>
+    <string name="label_main">Primary</string>
+    <string name="label_day">Day</string>
+    <string name="label_trail_version">Trail Version</string>
+    <string name="label_a_repeated_episode">A repeated episode</string>
+    <string name="label_new_episode">New Episode</string>
+    <string name="label_start">Start</string>
+    <string name="label_end">End</string>
+    <string name="label_select_weekdays">Select Weekdays</string>
+    <string name="label_hours">Hour</string>
+    <string name="label_minutes">Minutes</string>
+    <string name="label_update_now">Update Now</string>
+    <string name="label_force_update_title">Requierd Update</string>
+    <string name="label_force_update_message">Kindle update to last version</string>
+    <!--    <string name="gdpr_privacy_policy">-->
+<!--        By using this App, you agree to the <a href="%s">Terms-Conditions &amp; Privacy-Policy</a>.-->
+<!--    </string>-->
+
+    <!--label_weak_days-->
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
 
 </resources>
