@@ -13,6 +13,10 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"
+        android:minSdkVersion="34" />
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -133,10 +137,12 @@
         <!-- <activity android:name=".ui.activity.player.PermitActivity" /> -->
         <service
             android:name=".utils.radio_player.PlaybackService"
-            android:exported="true" />
+            android:exported="true"
+            android:foregroundServiceType="specialUse"/>
         <service
             android:name=".utils.radio_player.RadioService"
-            android:exported="true" /> <!-- <service android:name=".attachmentviewer.MusicService" /> -->
+            android:exported="true"
+            android:foregroundServiceType="specialUse"/> <!-- <service android:name=".attachmentviewer.MusicService" /> -->
         <!-- <service android:name="com.sana.dev.fm.ui.activity.test.MusicService" /> -->
         <receiver
             android:name="androidx.media.session.MediaButtonReceiver"

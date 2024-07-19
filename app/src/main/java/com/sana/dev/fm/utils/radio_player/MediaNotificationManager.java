@@ -8,6 +8,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -169,7 +170,18 @@ public class MediaNotificationManager {
         Notification notification = builder.build();
 
 
-        service.startForeground(NOTIFICATION_ID, notification);
+//        service.startForeground(NOTIFICATION_ID, notification);
+
+        if (Build.VERSION.SDK_INT >= 34) {
+            service.startForeground(
+                    NOTIFICATION_ID,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+        }else {
+            service.startForeground(
+                    NOTIFICATION_ID,
+                    notification);
+        }
 
     }
 

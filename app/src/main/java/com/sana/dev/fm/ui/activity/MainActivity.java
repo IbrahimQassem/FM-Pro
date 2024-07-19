@@ -695,6 +695,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
                 showToast(String.format("%s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
             }
         } catch (Exception e) {
+            Log.d(TAG, "Error startPlay : " + e.getMessage());
             showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
         }
     }

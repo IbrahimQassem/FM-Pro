@@ -69,6 +69,7 @@ public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         private final ItemProgramsBinding binding;
+
         public MyViewHolder(ItemProgramsBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
@@ -114,13 +115,13 @@ public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
 
 
-            Tools.setTextOrHideIfEmpty( holder.binding.title,program.getPrName());
+            Tools.setTextOrHideIfEmpty(holder.binding.title, program.getPrName());
 
             // Todo
 //            originalViewHolder.tvCategory.setText(android.text.TextUtils.join(" , ", program.getPrCategoryList()));
 //            originalViewHolder.tag.setText(String.format("@%s", program.getPrTag()));
 //            holder.binding.tvTag.setText(program.getPrTag());
-            Tools.setTextOrHideIfEmpty( holder.binding.tvTag,null);
+            Tools.setTextOrHideIfEmpty(holder.binding.tvTag, null);
 
             if (!TextUtils.isEmpty(program.getPrDesc())) {
                 holder.binding.tvDesc.setText(program.getPrDesc());
@@ -136,7 +137,7 @@ public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
 
             Tools.displayImageOriginal(this.ctx, holder.binding.ivBanner, program.getPrProfile());
-            Tools.displayUserProfile(this.ctx, holder.binding.civLogo,program.getPrProfile(),R.mipmap.ic_launcher_foreground);
+            Tools.displayUserProfile(this.ctx, holder.binding.civLogo, program.getPrProfile(), R.mipmap.ic_launcher_foreground);
 
             holder.binding.btToggle.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -175,29 +176,33 @@ public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
         if (program.getProgramScheduleTime() != null) {
             DateTimeModel dateTime = program.getProgramScheduleTime();
             List<Weekday> arDayList = safeList(dateTime.getWeekdays());
-            for (int i2 = 0; i2 < arDayList.size(); i2++) {
-                int pixels = Math.round(Tools.dip2px(ctx, 40));
+//            if (arDayList.size() > 0) {
+                for (int i2 = 0; i2 < arDayList.size(); i2++) {
+                    int pixels = Math.round(Tools.dip2px(ctx, 40));
 
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        pixels);
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            pixels);
 
-                Button btn = new Button(ctx);
-                btn.setId(i2);
+                    Button btn = new Button(ctx);
+                    btn.setId(i2);
 
-                String dayName =  WeekdayUtils.getLocalizedDayName(arDayList.get(i2),"ar");
-                btn.setText(dayName);
-                final int sdk = android.os.Build.VERSION.SDK_INT;
-                if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-                    btn.setBackgroundDrawable(ContextCompat.getDrawable(ctx, R.drawable.btn_rounded_darker));
-                } else {
-                    btn.setBackground(ContextCompat.getDrawable(ctx, R.drawable.btn_rounded_darker));
+                    String dayName = WeekdayUtils.getLocalizedDayName(arDayList.get(i2), "ar");
+                    btn.setText(dayName);
+                    final int sdk = android.os.Build.VERSION.SDK_INT;
+                    if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                        btn.setBackgroundDrawable(ContextCompat.getDrawable(ctx, R.drawable.btn_rounded_darker));
+                    } else {
+                        btn.setBackground(ContextCompat.getDrawable(ctx, R.drawable.btn_rounded_darker));
+                    }
+                    btn.setTextColor(ctx.getResources().getColor(R.color.grey_60));
+                    Typeface typeface = ResourcesCompat.getFont(ctx, R.font.tj_regular);
+                    btn.setTypeface(typeface);
+                    holder.binding.flexDayShow.addView(btn, params);
                 }
-                btn.setTextColor(ctx.getResources().getColor(R.color.grey_60));
-                Typeface typeface = ResourcesCompat.getFont(ctx, R.font.tj_regular);
-                btn.setTypeface(typeface);
-                holder.binding.flexDayShow.addView(btn, params);
-            }
+//            } else {
+//                holder.binding.lytParentShowDays.setVisibility(View.GONE);
+//            }
         } else {
             holder.binding.lytParentShowDays.setVisibility(View.GONE);
         }
@@ -230,9 +235,9 @@ public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
         } else {
             holder.binding.lytParentCategory.setVisibility(View.GONE);
         }
-        
+
     }
-    
+
     public void removeAt(int position) {
         items.remove(position);
         notifyItemRemoved(position);
