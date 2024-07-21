@@ -281,8 +281,9 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
                         PreferencesManager.getInstance().write(AppConstant.General.FIREBASE_FCM_TOKEN, token);
                         if (isAccountSignedIn()) {
                             UserModel userModel = prefMgr.getUserSession();
+//                            LogUtility.w(TAG, "FCM UserModel : " + new Gson().toJson(userModel));
                             if (!userModel.getNotificationToken().equals(token)) {
-                                updateUserFcmToken(userModel.getUserId(), token);
+                                updateUserFcmToken(userModel, token);
                             }
                         }
                     }
@@ -290,24 +291,24 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         // [END log_reg_token]
     }
 
-    void updateUserFcmToken(String userId, String token) {
+    void updateUserFcmToken(UserModel userModel , String token) {
         FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
 
         CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
 
         Map<String, Object> data = new HashMap<>();
         data.put("notificationToken", token);
-        firestoreDbUtility.update(collectionReference, userId, data, new CallBack() {
+        firestoreDbUtility.update(collectionReference, userModel.getUserId(), data, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                LogUtility.e(TAG, "FCM token updated successfully : " + token);
+                LogUtility.w(TAG, "FCM token updated successfully : " + token);
+                userModel.setNotificationToken(token);
+                prefMgr.setUserSession(userModel);
             }
 
             @Override
             public void onFailure(Object object) {
                 LogUtility.e(TAG, "onError : " + object);
-//                    showToast(getString(R.string.label_error_occurred_with_val, object.toString()));
-                showToast(getString(R.string.unkon_error_please_try_again_later));
             }
         });
     }
