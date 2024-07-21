@@ -172,17 +172,16 @@ public class MediaNotificationManager {
 
 //        service.startForeground(NOTIFICATION_ID, notification);
 
-        if (Build.VERSION.SDK_INT >= 34) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             service.startForeground(
                     NOTIFICATION_ID,
                     notification,
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
         }else {
             service.startForeground(
                     NOTIFICATION_ID,
                     notification);
         }
-
     }
 
 

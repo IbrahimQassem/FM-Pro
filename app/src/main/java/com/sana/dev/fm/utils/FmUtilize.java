@@ -46,7 +46,11 @@ import com.sana.dev.fm.model.WakeTranslate;
 import com.sana.dev.fm.model.enums.Weekday;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.SecureRandom;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
@@ -381,6 +385,61 @@ public class FmUtilize {
         o2.inSampleSize = scale;
         return BitmapFactory.decodeStream(c.getContentResolver().openInputStream(uri), null, o2);
     }
+
+    public static Bitmap downloadImage(String imageUrl) {
+        try {
+            URL url = new URL(imageUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+
+            // Check for successful connection
+            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                Log.w("DownloadImage", "Error downloading image: " + connection.getResponseMessage());
+                return null;
+            }
+
+            InputStream inputStream = connection.getInputStream();
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true; // Only decode bounds for efficiency
+            BitmapFactory.decodeStream(inputStream, null, options);
+            inputStream.close();
+
+            // Calculate inSampleSize to avoid memory issues with large images
+            int inSampleSize = calculateInSampleSize(options, 100, 100); // Adjust width and height as needed
+
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            inputStream = connection.getInputStream();
+            options.inSampleSize = inSampleSize;
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
+            inputStream.close();
+            return bitmap;
+        } catch (IOException e) {
+            Log.w("DownloadImage", "Error downloading image: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
+
 
     public static boolean isEmpty(String value) {
         return value == null || value.trim().length() == 0;
@@ -938,23 +997,7 @@ public class FmUtilize {
         return BitmapFactory.decodeResource(context.getResources(), resourceId, options);
     }
 
-    public static int calculateInSampleSize(BitmapFactory.Options options, int targetWidth, int targetHeight) {
-        int originalWidth = options.outWidth;
-        int originalHeight = options.outHeight;
 
-        int inSampleSize = 1;
-
-        if (originalHeight > targetHeight || originalWidth > targetWidth) {
-            int halfWidth = originalWidth / 2;
-            int halfHeight = originalHeight / 2;
-
-            while ((halfWidth / inSampleSize) >= targetWidth && (halfHeight / inSampleSize) >= targetHeight) {
-                inSampleSize *= 2;
-            }
-        }
-
-        return inSampleSize;
-    }
 
 
 //    public boolean checkFieldsIsNull(Object instance, List<String> fieldNames) {

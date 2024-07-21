@@ -130,7 +130,7 @@ public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
 
             if (program.getProgramScheduleTime() != null) {
-                String dt = ctx.getString(R.string.label_date_from_to, getFormattedDateOnly(program.getProgramScheduleTime().getDateStart(), FmUtilize.arabicFormat), getFormattedDateOnly(program.getProgramScheduleTime().getDateEnd(), FmUtilize.arabicFormat));
+                String dt =  String.format(ctx.getResources().getString(R.string.label_date_from_to),  getFormattedDateOnly(program.getProgramScheduleTime().getDateStart(), FmUtilize.arabicFormat),getFormattedDateOnly(program.getProgramScheduleTime().getDateEnd(), FmUtilize.arabicFormat));
                 holder.binding.tvDayPeriod.setText(dt);
             } else {
                 holder.binding.lytParentDayPeriod.setVisibility(View.GONE);

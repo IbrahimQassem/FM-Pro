@@ -77,7 +77,7 @@ public class AdapterListProgram extends Adapter<AdapterListProgram.MyViewHolder>
         viewHolder.binding.tvDesc.setText(model.getPrDesc());
 
         if (model.getProgramScheduleTime() != null) {
-            String dt = ctx.getString(R.string.label_date_from_to, getFormattedDateOnly(model.getProgramScheduleTime().getDateStart(), FmUtilize.arabicFormat), getFormattedDateOnly(model.getProgramScheduleTime().getDateEnd(), FmUtilize.arabicFormat));
+            String dt =  String.format(ctx.getResources().getString(R.string.label_date_from_to),  getFormattedDateOnly(model.getProgramScheduleTime().getDateStart(), FmUtilize.arabicFormat),getFormattedDateOnly(model.getProgramScheduleTime().getDateEnd(), FmUtilize.arabicFormat));
             viewHolder.binding.tvDate.setText(dt);
         } else {
 //            binding.tvState.setVisibility(View.GONE);

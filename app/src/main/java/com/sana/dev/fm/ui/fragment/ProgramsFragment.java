@@ -235,8 +235,6 @@ public class ProgramsFragment extends BaseFragment {
 //                                        break;
 //                                    default:return;
 //                                }
-
-
                             }
                         });
 

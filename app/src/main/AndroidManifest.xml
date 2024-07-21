@@ -13,9 +13,15 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <uses-permission android:name="com.google.firebase.messaging.permission.FCM_SEND" />
+
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission
-        android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"
+        android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
         android:minSdkVersion="34" />
+    <!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>-->
+
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -132,18 +138,8 @@
 
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
-        </activity> <!-- <activity android:name=".ui.activity.player.MusicServiceActivity" /> -->
-        <!-- <activity android:name=".ui.activity.player.PlayerActivity" /> -->
-        <!-- <activity android:name=".ui.activity.player.PermitActivity" /> -->
-        <service
-            android:name=".utils.radio_player.PlaybackService"
-            android:exported="true"
-            android:foregroundServiceType="specialUse"/>
-        <service
-            android:name=".utils.radio_player.RadioService"
-            android:exported="true"
-            android:foregroundServiceType="specialUse"/> <!-- <service android:name=".attachmentviewer.MusicService" /> -->
-        <!-- <service android:name="com.sana.dev.fm.ui.activity.test.MusicService" /> -->
+        </activity>
+
         <receiver
             android:name="androidx.media.session.MediaButtonReceiver"
             android:exported="true">
@@ -179,13 +175,30 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <!-- <activity android:name=".ui.activity.player.MusicServiceActivity" /> -->
+        <!-- <activity android:name=".ui.activity.player.PlayerActivity" /> -->
+        <!-- <activity android:name=".ui.activity.player.PermitActivity" /> -->
+        <!--        <service-->
+        <!--            android:name=".utils.radio_player.PlaybackService"-->
+        <!--            android:exported="true"/>-->
+        <service
+            android:name=".utils.radio_player.RadioService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id" />
+
         <service
             android:name=".utils.my_firebase.notification.FcmMessagingService"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.firebase.messaging.RECEIVE_ERROR" />
             </intent-filter>
         </service>
+
         <service
             android:name=".ui.activity.player.MusicService"
             android:exported="true" />

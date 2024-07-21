@@ -31,6 +31,9 @@
     <string name="fb_login_protocol_scheme" translatable="false">fb1234</string>
     <string name="facebook_client_token" translatable="false">afe4eb099e9ad5f32fd9b17ce8ca50ea</string>
 
+    <string name="default_notification_channel_id" translatable="false">app_notification_channel</string>
+    <string name="default_notification_channel_name" translatable="false">App Updates</string>
+    <string name="default_notification_channel_description" translatable="false">Receive notifications about app updates and new features.</string>
 
     <!--    test app-->
     <!--    <string name="facebook_app_id" translatable="false">1018585879216952</string>-->
@@ -225,12 +228,6 @@
     <string name="deleted_successfully_with_param">Deleted <b>[%s]</b> successfully</string>
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>
-    <string name="label_enter_you_re_mobile_number">Enter your mobile number</string>
-    <string name="label_please_enter_your_mobile">please enter you\'re mobile</string>
-    <string name="label_please_enter_valid_mobile">please enter valid mobile number </string>
-
-    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
-    <string name="notification_channel_name" translatable="false">Channel human readable title</string>
     <string name="update_radio_info">update radio info</string>
     <string name="label_pick_date">Pick Date</string>
     <string name="label_radio_list">Radio List</string>
@@ -281,8 +278,8 @@
     <string name="label_start_at_with_val">Start At : %s</string>
     <string name="label_end_at_with_val">End At : %s</string>
     <string name="label_show_period">Show Period : %s</string>
-    <string name="label_date_from_to">From %1$s To %2$</string>
-    <string name="label_time_from_to">From %1$s To %2$</string>
+    <string name="label_date_from_to">From %1$s To %2$s</string>
+    <string name="label_time_from_to">From %1$s To %2$s</string>
     <string name="update_program">Update Program</string>
     <string name="ex_program_name">Ex: Morning of the capital</string>
     <string name="label_program_logo">Program logo</string>

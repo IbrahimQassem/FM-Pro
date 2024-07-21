@@ -35,6 +35,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.mikhaellopez.circularimageview.CircularImageView;
@@ -53,6 +54,8 @@ import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
+import com.sana.dev.fm.utils.my_firebase.CallBack;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.radio_player.PlaybackStatus;
 import com.sana.dev.fm.utils.radio_player.RadioManager;
 import com.sana.dev.fm.utils.radio_player.StaticEventDistributor;
@@ -60,6 +63,9 @@ import com.sana.dev.fm.utils.radio_player.metadata.Metadata;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import co.mobiwise.materialintro.animation.MaterialIntroListener;
 import co.mobiwise.materialintro.shape.Focus;
@@ -273,11 +279,38 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
                         String msg = "FCM Registration token: " + token;
                         Log.d(TAG, msg);
                         PreferencesManager.getInstance().write(AppConstant.General.FIREBASE_FCM_TOKEN, token);
+                        if (isAccountSignedIn()) {
+                            UserModel userModel = prefMgr.getUserSession();
+                            if (!userModel.getNotificationToken().equals(token)) {
+                                updateUserFcmToken(userModel.getUserId(), token);
+                            }
+                        }
                     }
                 });
         // [END log_reg_token]
     }
 
+    void updateUserFcmToken(String userId, String token) {
+        FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
+
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("notificationToken", token);
+        firestoreDbUtility.update(collectionReference, userId, data, new CallBack() {
+            @Override
+            public void onSuccess(Object object) {
+                LogUtility.e(TAG, "FCM token updated successfully : " + token);
+            }
+
+            @Override
+            public void onFailure(Object object) {
+                LogUtility.e(TAG, "onError : " + object);
+//                    showToast(getString(R.string.label_error_occurred_with_val, object.toString()));
+                showToast(getString(R.string.unkon_error_please_try_again_later));
+            }
+        });
+    }
 /*
     private void initAdMob() {
         // Log the Mobile Ads SDK version.
