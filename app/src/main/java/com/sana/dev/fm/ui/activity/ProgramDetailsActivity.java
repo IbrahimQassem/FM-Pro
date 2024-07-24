@@ -81,7 +81,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
         binding = ProgramDetailsActivityBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-        kProgressHUDHelper = KProgressHUDHelper.getInstance(this);
+        kProgressHUDHelper = new KProgressHUDHelper(this);
 
 
         initToolbar();

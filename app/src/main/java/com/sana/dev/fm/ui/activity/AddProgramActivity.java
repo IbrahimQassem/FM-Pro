@@ -82,7 +82,7 @@ public class AddProgramActivity extends BaseActivity {
 
         firestoreDbUtility = new FirestoreDbUtility();
         prefMgr = PreferencesManager.getInstance();
-        kProgressHUDHelper = KProgressHUDHelper.getInstance(this);
+        kProgressHUDHelper = new KProgressHUDHelper(this);
         Tools.setSystemBarColor(this, R.color.colorPrimary);
         Tools.setSystemBarLight(this);
 

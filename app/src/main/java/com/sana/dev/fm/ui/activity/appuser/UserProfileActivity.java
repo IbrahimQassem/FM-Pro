@@ -97,7 +97,7 @@ public class UserProfileActivity extends BaseActivity {
         mAuth.setLanguageCode(PreferencesManager.getInstance().getPrefLange());
         // [END initialize_auth]
         prefMgr = PreferencesManager.getInstance();
-        kProgressHUDHelper = KProgressHUDHelper.getInstance(this);
+        kProgressHUDHelper = new KProgressHUDHelper(this);
 
 //        profileImageHelper = new ProfileImageHelper(this);
 

@@ -59,7 +59,7 @@ public class VerificationPhone extends BaseActivity {
 
         mAuth = FirebaseAuth.getInstance();
         prefMgr = PreferencesManager.getInstance();
-        kProgressHUDHelper = KProgressHUDHelper.getInstance(this);
+        kProgressHUDHelper = new KProgressHUDHelper(this);
 
 //        progressBar = findViewById(R.id.progressbar);
         editText = findViewById(R.id.editTextCode);

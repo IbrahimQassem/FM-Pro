@@ -106,7 +106,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
 
         firestoreDbUtility = new FirestoreDbUtility();
         prefMgr = PreferencesManager.getInstance();
-        kProgressHUDHelper = KProgressHUDHelper.getInstance(this);
+        kProgressHUDHelper = new KProgressHUDHelper(this);
 
         initToolbar();
         initComponent();
@@ -275,9 +275,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
         // Show loading dialog
         kProgressHUDHelper.showLoading(getString(R.string.please_wait), false);
 
-
         if (imageUri != null) {
-
             //-------------------------   submit image task    ---------------------------
             StorageHelper storageHelper = new StorageHelper(FirebaseStorage.getInstance());
 
@@ -844,7 +842,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                 String joinedString = WeekdayUtils.toSeparatedString(displayDays);
 //                String[] stringArray = joinedString.split(",\\s*"); // Split by comma and optional whitespace
                 ((TextView) view).setText(joinedString);
-                showToast(joinedString);
+//                showToast(joinedString);
             }
         });
 

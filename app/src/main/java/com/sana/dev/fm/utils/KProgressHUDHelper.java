@@ -7,23 +7,25 @@ import com.kaopiz.kprogresshud.KProgressHUD;
 import com.sana.dev.fm.R;
 
 public class KProgressHUDHelper {
+    private Activity activity;
     private static volatile KProgressHUDHelper instance;
     private KProgressHUD hud;
 
-    private KProgressHUDHelper(Activity activity) {
+    public KProgressHUDHelper(Activity activity) {
         hud = KProgressHUD.create(activity);
     }
 
-    public static KProgressHUDHelper getInstance(Activity activity) {
-        if (instance == null) {
-            synchronized (KProgressHUDHelper.class) {
-                if (instance == null) {
-                    instance = new KProgressHUDHelper(activity);
-                }
-            }
-        }
-        return instance;
-    }
+//    public static KProgressHUDHelper getInstance(Activity activity) {
+//        this.activity = activity;
+//        if (instance == null) {
+//            synchronized (KProgressHUDHelper.class) {
+//                if (instance == null) {
+//                    instance = new KProgressHUDHelper(activity);
+//                }
+//            }
+//        }
+//        return instance;
+//    }
 
     public void showLoading(String message,boolean isCancellable) {
         hud.setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
@@ -33,6 +35,11 @@ public class KProgressHUDHelper {
                 .setAnimationSpeed(2)
                 .setDimAmount(0.5f)
                 .show();
+
+//        if(!((Activity) instance).isFinishing())
+//        {
+//            //show dialog
+//        }
     }
 
     public void showSuccess(String message) {
@@ -56,6 +63,7 @@ public class KProgressHUDHelper {
             hud.dismiss();
         }
     }
+
 
     public void setProgress(float progress) {
         if (hud.isShowing() /*&& hud.hasIndeterminate()*/) {
