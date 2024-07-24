@@ -142,14 +142,6 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     }
 
     private void initEvent() {
-
-
-//        if (!isRadioSelected()) {
-//            RadioInfo radio = RadioInfo.newInstance("1002", "أصالة", "", "https://streamingv2.shoutcast.com/assala-fm", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1002%2Fmicar.jpg?alt=media&token=b568c461-9563-44e2-a091-e953471e42c4", "@asalah_fm", "صنعاء", "", "Asalah Fm", "usId", true);
-//            RadioInfo.setSelectedRadio(radio, this);
-//        }
-
-
         View lyt_profile = (View) findViewById(R.id.lyt_profile);
         lyt_profile.setOnClickListener(new View.OnClickListener() {
             @Override

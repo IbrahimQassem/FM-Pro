@@ -21,6 +21,7 @@ import com.sana.dev.fm.utils.LogUtility;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
+import java.util.UUID;
 
 public class ProfileImageHelper {
     private static final int PICK_IMAGE_REQUEST_CODE = 100;
@@ -68,8 +69,7 @@ public class ProfileImageHelper {
         options.setCompressionQuality(80);
 //        options.setAspectRatio(1, 1); // Set desired aspect ratio (optional)
 
-//        UCrop uCrop = UCrop.of(selectedImageUri, Uri.fromFile(new File(activity.getCacheDir(), "profile_temp.jpg"))); // Set output path
-        UCrop uCrop = UCrop.of(selectedImageUri, Uri.fromFile(new File(activity.getCacheDir(), activity.getResources().getString(R.string.image_desc, FmUtilize.random()))));
+        UCrop uCrop = UCrop.of(selectedImageUri, Uri.fromFile(new File(activity.getCacheDir(), activity.getResources().getString(R.string.image_desc, UUID.randomUUID().toString()))));
 
 //        UCrop.of(selectedImageUri, Uri.fromFile(new File(activity.getCacheDir(), activity.getResources().getString(R.string.image_desc, FmUtilize.random()))))
 //                .withAspectRatio(1, 1)

@@ -25,10 +25,12 @@ import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.utils.FmUtilize;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 
 public class ImagePickerActivity extends AppCompatActivity {
@@ -121,7 +123,8 @@ public class ImagePickerActivity extends AppCompatActivity {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
                         if (report.areAllPermissionsGranted()) {
-                            fileName = System.currentTimeMillis() + ".jpg";
+//                            fileName = System.currentTimeMillis() + ".jpg";
+                            fileName = getResources().getString(R.string.image_desc, UUID.randomUUID().toString());
                             openCamera();
                         }
                     }

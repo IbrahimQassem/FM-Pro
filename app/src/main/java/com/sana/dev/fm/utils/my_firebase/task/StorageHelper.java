@@ -14,6 +14,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.sana.dev.fm.R;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 
@@ -54,7 +55,10 @@ public class StorageHelper {
             resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
             byte[] data = baos.toByteArray();
 
-            String imageName = parentDocId + "_" + UUID.randomUUID().toString() + ".jpg";
+//            String imageName = parentDocId + "_" + UUID.randomUUID().toString() + ".png";
+            String pth = parentDocId + "_" + UUID.randomUUID().toString();
+            String imageName = activity.getString(R.string.image_desc, pth);
+
             StorageReference profileImageRef = storage.getReference().child(AppConstant.General.FB_FM_FOLDER_PATH).child(parentDocId).child(imageName);// Add ".png" extension
 //            StorageReference profileImageRef = storage.getReference().child("profile_images/" + UUID.randomUUID().toString());
             profileImageRef.putBytes(data)

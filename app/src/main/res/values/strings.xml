@@ -113,7 +113,7 @@
     <string name="female">Female</string>
     <string name="male">Male</string>
     <string name="phone_number">Mobile nomber</string>
-    <string name="image_desc" translatable="false">fm_radio_post_%s.png</string>
+    <string name="image_desc" translatable="false">fm_%s.png</string>
     <string name="logout">Logout</string>
     <string name="saved_successfully">Saved successfully</string>
     <string name="no_data_available">No available data</string>

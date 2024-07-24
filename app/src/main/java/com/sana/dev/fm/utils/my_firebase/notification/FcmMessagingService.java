@@ -191,7 +191,7 @@ public class FcmMessagingService extends FirebaseMessagingService {
         if (imageUri != null) {
             try {
                 Log.w(TAG, "Image  : " + imageUri);
-//                String imageUrl = "https://www.example.com/image.jpg";
+//                String imageUrl = "";
 //                ImageView imageView = new ImageView();
 //                new DownloadImageTask(imageView).execute(imageUrl);
 
