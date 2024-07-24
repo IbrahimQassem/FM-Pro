@@ -41,20 +41,25 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityUserProfileBinding;
 import com.sana.dev.fm.model.AuthMethod;
 import com.sana.dev.fm.model.ButtonConfig;
+import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.enums.Gender;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserModel;
+import com.sana.dev.fm.ui.activity.AddEpisodeActivity;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.ui.activity.ImagePickerActivity;
 import com.sana.dev.fm.utils.AESCrypt;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
+import com.sana.dev.fm.utils.KProgressHUDHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
+import com.sana.dev.fm.utils.my_firebase.AppGeneralMessage;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.my_firebase.task.StorageHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,6 +81,7 @@ public class UserProfileActivity extends BaseActivity {
 //    private ProfileImageHelper profileImageHelper;
 
     private Uri imageUri = null;
+    private KProgressHUDHelper kProgressHUDHelper;
 
     /* Access modifiers changed, original: protected */
     public void onCreate(Bundle bundle) {
@@ -91,6 +97,8 @@ public class UserProfileActivity extends BaseActivity {
         mAuth.setLanguageCode(PreferencesManager.getInstance().getPrefLange());
         // [END initialize_auth]
         prefMgr = PreferencesManager.getInstance();
+        kProgressHUDHelper = KProgressHUDHelper.getInstance(this);
+
 //        profileImageHelper = new ProfileImageHelper(this);
 
 
@@ -424,75 +432,33 @@ public class UserProfileActivity extends BaseActivity {
     }
 
     private void uploadUserProfile(Uri uriImage) {
-//        if (imageUri != null) {
-        showProgress(getString(R.string.please_wait_to_save_your_profile));
-        // Create file metadata including the content type
-        StorageMetadata metadata = new StorageMetadata.Builder()
-                .setContentType("image/jpg")
-                .build();
-        final StorageReference ref = FirebaseStorage.getInstance().getReference().child(AppConstant.General.FB_FM_FOLDER_PATH).child(AppConstant.Firebase.USERS_TABLE).child(mAuth.getUid() + ".jpg");
+        // Show loading dialog
+        kProgressHUDHelper.showLoading(getString(R.string.please_wait_to_save_your_profile), false);
 
-        // Upload file and metadata to the path 'images/mountains.jpg'
-        UploadTask uploadTask = ref.putFile(uriImage, metadata);
+        //-------------------------   submit image task    ---------------------------
+        StorageHelper storageHelper = new StorageHelper(FirebaseStorage.getInstance());
 
-        // Listen for state changes, errors, and completion of the upload.
-        uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+        storageHelper.submitUserInfo(UserProfileActivity.this, AppConstant.Firebase.USERS_TABLE, imageUri, new StorageHelper.UserSubmittedCallback() {
             @Override
-            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                Log.d(TAG, "Upload is " + progress + "% done");
-                showProgress(String.valueOf((int) progress));
-                if (hud != null) {
-//                hud.setMessage(getString(R.string.please_wait) + " % " + (int) progress);
-//                hud.setProgress((int) progress);
-                    hud.setCancellable(false);
-
-                }
-
+            public void onSuccess( String mId, String profileImageUrl) {
+                kProgressHUDHelper.dismiss();
+                //------------------------------------
+                UserModel userModel = prefMgr.getUserSession();
+                userModel.setPhotoUrl(profileImageUrl);
+                Map<String, Object> data = new HashMap<>();
+                data.put("photoUrl", userModel.getPhotoUrl());
+                prefMgr.setUserSession(userModel);
+                updateUser(userModel.getUserId(),data);
             }
-        }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                Log.d(TAG, "Upload is paused");
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e(TAG, e.toString());
-                // Handle unsuccessful uploads
-//                showToast("نعتذر لم يتم الحفظ !" + e);
-                ModelConfig config = new ModelConfig(R.drawable.ic_cloud_off, getString(R.string.label_error_occurred), e.toString(), new ButtonConfig(getString(R.string.label_close)), null);
-                showWarningDialog(config);
-                hideProgress();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // Handle successful uploads on complete
-                if (taskSnapshot.getMetadata() != null) {
-                    if (taskSnapshot.getMetadata().getReference() != null) {
-                        Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
-                        result.addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                String downloadUri = uri.toString();
-//                                    showSnackBar(downloadUri);
-//                                prefMgr.write(FirebaseConstants.USER_IMAGE_Profile, downloadUri);
-//                                ------------------------------------
-                                UserModel userModel = prefMgr.getUserSession();
-                                userModel.setPhotoUrl(downloadUri);
-                                Map<String, Object> data = new HashMap<>();
-                                data.put("photoUrl", userModel.getPhotoUrl());
-                                prefMgr.setUserSession(userModel);
-                                updateUser(userModel.getUserId(),data);
-                            }
-                        });
-                    }
-                }
-                hideProgress();
 
+            @Override
+            public void onFailure(Exception e) {
+                kProgressHUDHelper.dismiss();
+                showToast(AppGeneralMessage.ERROR);
             }
         });
+
+        //-------------------------   submit image task    ---------------------------
     }
 
 

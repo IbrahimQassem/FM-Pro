@@ -39,7 +39,7 @@ import java.util.List;
 
 public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context ctx;
-    private List<RadioProgram> items;
+    private List<RadioProgram> items = new ArrayList<>();
     @LayoutRes
     private int layout_id;
     private OnClickListener mOnItemClickListener;
@@ -95,80 +95,83 @@ public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
             MyViewHolder holder = (MyViewHolder) viewHolder;
             holder.setIsRecyclable(false);
 
-            RadioProgram program = (RadioProgram) this.items.get(position);
-            initExpand(holder, program);
+            if (!Tools.isEmpty(items)) {
 
-            final boolean isExpanded = position == mExpandedPosition;
+                RadioProgram program = (RadioProgram) items.get(position);
+                initExpand(holder, program);
+
+                final boolean isExpanded = position == mExpandedPosition;
 //            holder.lyt_more.setVisibility(isExpanded?View.VISIBLE:View.GONE);
 //            holder.itemView.setActivated(isExpanded);
-            if (isExpanded) {
-                Tools.toggleArrow(holder.binding.btToggle);
+                if (isExpanded) {
+                    Tools.toggleArrow(holder.binding.btToggle);
 
-                ViewAnimation.expand(holder.binding.lytMore);
+                    ViewAnimation.expand(holder.binding.lytMore);
 //                ViewAnimation.expand(holder.binding.lytMore, new ViewAnimation.AnimListener() {
 //                    public void onFinish() {
 ////                        Tools.nestedScrollTo(holder.nested_scroll_view, holder.lyt_more);
 //                    }
 //                });
-            } else {
-                ViewAnimation.collapse(holder.binding.lytMore);
-            }
+                } else {
+                    ViewAnimation.collapse(holder.binding.lytMore);
+                }
 
 
-            Tools.setTextOrHideIfEmpty(holder.binding.title, program.getPrName());
+                Tools.setTextOrHideIfEmpty(holder.binding.title, program.getPrName());
 
-            // Todo
+                // Todo
 //            originalViewHolder.tvCategory.setText(android.text.TextUtils.join(" , ", program.getPrCategoryList()));
 //            originalViewHolder.tag.setText(String.format("@%s", program.getPrTag()));
 //            holder.binding.tvTag.setText(program.getPrTag());
-            Tools.setTextOrHideIfEmpty(holder.binding.tvTag, null);
+                Tools.setTextOrHideIfEmpty(holder.binding.tvTag, null);
 
-            if (!TextUtils.isEmpty(program.getPrDesc())) {
-                holder.binding.tvDesc.setText(program.getPrDesc());
-            } else {
-                holder.binding.lytParentDesc.setVisibility(View.GONE);
-            }
+                if (!TextUtils.isEmpty(program.getPrDesc())) {
+                    holder.binding.tvDesc.setText(program.getPrDesc());
+                } else {
+                    holder.binding.lytParentDesc.setVisibility(View.GONE);
+                }
 
-            if (program.getProgramScheduleTime() != null) {
-                String dt =  String.format(ctx.getResources().getString(R.string.label_date_from_to),  getFormattedDateOnly(program.getProgramScheduleTime().getDateStart(), FmUtilize.arabicFormat),getFormattedDateOnly(program.getProgramScheduleTime().getDateEnd(), FmUtilize.arabicFormat));
-                holder.binding.tvDayPeriod.setText(dt);
-            } else {
-                holder.binding.lytParentDayPeriod.setVisibility(View.GONE);
-            }
+                if (program.getProgramScheduleTime() != null) {
+                    String dt = String.format(ctx.getResources().getString(R.string.label_date_from_to), getFormattedDateOnly(program.getProgramScheduleTime().getDateStart(), FmUtilize.arabicFormat), getFormattedDateOnly(program.getProgramScheduleTime().getDateEnd(), FmUtilize.arabicFormat));
+                    holder.binding.tvDayPeriod.setText(dt);
+                } else {
+                    holder.binding.lytParentDayPeriod.setVisibility(View.GONE);
+                }
 
-            Tools.displayImageOriginal(this.ctx, holder.binding.ivBanner, program.getPrProfile());
-            Tools.displayUserProfile(this.ctx, holder.binding.civLogo, program.getPrProfile(), R.mipmap.ic_launcher_foreground);
+                Tools.displayImageOriginal(this.ctx, holder.binding.ivBanner, program.getPrProfile());
+                Tools.displayUserProfile(this.ctx, holder.binding.civLogo, program.getPrProfile(), R.mipmap.ic_launcher_foreground);
 
-            holder.binding.btToggle.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mExpandedPosition = isExpanded ? -1 : position;
+                holder.binding.btToggle.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mExpandedPosition = isExpanded ? -1 : position;
 //                    TransitionManager.beginDelayedTransition(holder);
 //                    toggleSection(holder.binding.btToggle, holder);
-                    Tools.toggleArrow(holder.binding.btToggle);
-                    notifyDataSetChanged();
-                }
-            });
-
-            holder.binding.lytParent.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (mOnItemClickListener != null) {
-                        mOnItemClickListener.onItemClick(view, (RadioProgram) items.get(position), position);
+                        Tools.toggleArrow(holder.binding.btToggle);
+                        notifyDataSetChanged();
                     }
-                }
-            });
+                });
 
-
-            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (mOnLongItemClickListener != null) {
-                        mOnLongItemClickListener.onItemLongClick(v, (RadioProgram) items.get(position), position);
+                holder.binding.lytParent.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (mOnItemClickListener != null) {
+                            mOnItemClickListener.onItemClick(view, (RadioProgram) items.get(position), position);
+                        }
                     }
-                    return false;
-                }
-            });
+                });
+
+
+                holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        if (mOnLongItemClickListener != null) {
+                            mOnLongItemClickListener.onItemLongClick(v, (RadioProgram) items.get(position), position);
+                        }
+                        return false;
+                    }
+                });
+            }
         }
     }
 
@@ -177,29 +180,29 @@ public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
             DateTimeModel dateTime = program.getProgramScheduleTime();
             List<Weekday> arDayList = safeList(dateTime.getWeekdays());
 //            if (arDayList.size() > 0) {
-                for (int i2 = 0; i2 < arDayList.size(); i2++) {
-                    int pixels = Math.round(Tools.dip2px(ctx, 40));
+            for (int i2 = 0; i2 < arDayList.size(); i2++) {
+                int pixels = Math.round(Tools.dip2px(ctx, 40));
 
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            pixels);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        pixels);
 
-                    Button btn = new Button(ctx);
-                    btn.setId(i2);
+                Button btn = new Button(ctx);
+                btn.setId(i2);
 
-                    String dayName = WeekdayUtils.getLocalizedDayName(arDayList.get(i2), "ar");
-                    btn.setText(dayName);
-                    final int sdk = android.os.Build.VERSION.SDK_INT;
-                    if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-                        btn.setBackgroundDrawable(ContextCompat.getDrawable(ctx, R.drawable.btn_rounded_darker));
-                    } else {
-                        btn.setBackground(ContextCompat.getDrawable(ctx, R.drawable.btn_rounded_darker));
-                    }
-                    btn.setTextColor(ctx.getResources().getColor(R.color.grey_60));
-                    Typeface typeface = ResourcesCompat.getFont(ctx, R.font.tj_regular);
-                    btn.setTypeface(typeface);
-                    holder.binding.flexDayShow.addView(btn, params);
+                String dayName = WeekdayUtils.getLocalizedDayName(arDayList.get(i2), "ar");
+                btn.setText(dayName);
+                final int sdk = android.os.Build.VERSION.SDK_INT;
+                if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                    btn.setBackgroundDrawable(ContextCompat.getDrawable(ctx, R.drawable.btn_rounded_darker));
+                } else {
+                    btn.setBackground(ContextCompat.getDrawable(ctx, R.drawable.btn_rounded_darker));
                 }
+                btn.setTextColor(ctx.getResources().getColor(R.color.grey_60));
+                Typeface typeface = ResourcesCompat.getFont(ctx, R.font.tj_regular);
+                btn.setTypeface(typeface);
+                holder.binding.flexDayShow.addView(btn, params);
+            }
 //            } else {
 //                holder.binding.lytParentShowDays.setVisibility(View.GONE);
 //            }

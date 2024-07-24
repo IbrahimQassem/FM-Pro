@@ -37,6 +37,7 @@ import com.sana.dev.fm.ui.activity.player.SongPlayerFragment;
 import com.sana.dev.fm.ui.view.RevealBackgroundView;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.DataGenerator;
+import com.sana.dev.fm.utils.KProgressHUDHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
@@ -60,6 +61,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
     private GridLayoutManager gridLayoutManager;
     private ProgramDetailsAdapter itemAdapter;
     private List<Episode> detailsList = new ArrayList<>();
+    private KProgressHUDHelper kProgressHUDHelper;
 
 
     public static void startUserProfileFromLocation(int[] startingLocation, Context context, Episode episode) {
@@ -79,6 +81,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
         binding = ProgramDetailsActivityBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+        kProgressHUDHelper = KProgressHUDHelper.getInstance(this);
 
 
         initToolbar();
@@ -122,7 +125,8 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
             TempEpModel tempEpModel = new TempEpModel(episode.getProgramName(), "", "", "", episode.getEpProfile(), episode.getLikesCount(), 1, 0);
             updateInfoUI(tempEpModel);
 
-            showProgress("");
+            // Show loading dialog
+            kProgressHUDHelper.showLoading(getString(R.string.please_wait), false);
 
             FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
 
@@ -141,13 +145,13 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                         e.printStackTrace();
                         LogUtility.d(TAG, "Error setupProgramProfile : " + e.getMessage());
                     }
-                    hideProgress();
+                    kProgressHUDHelper.dismiss();
                 }
 
                 @Override
                 public void onFailure(Object object) {
                     LogUtility.e(TAG, " loadRadioProgram :  " + object);
-                    hideProgress();
+                    kProgressHUDHelper.dismiss();
                 }
             });
 

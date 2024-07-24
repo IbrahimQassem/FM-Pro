@@ -42,7 +42,6 @@ import java.util.Objects;
  */
 
 public abstract class BaseFragment extends Fragment implements BaseFragmentView {
-
     protected FragmentActivity mActivity;
     protected UserGuide userGuide;
     protected PreferencesManager prefMgr;
@@ -54,20 +53,19 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentView 
         getResources().updateConfiguration(context.getResources().getConfiguration(), context.getResources().getDisplayMetrics());
     }
 
-    @Override
-    public void showProgress(String message) {
-        ((BaseActivity) mActivity).showProgress(message);
-    }
-
-    public void hideProgress() {
-        ((BaseActivity) mActivity).hideProgress();
-    }
+//    @Override
+//    public void showProgress(String message) {
+//        ((BaseActivity) mActivity).showProgress(message);
+//    }
+//
+//    public void hideProgress() {
+//        ((BaseActivity) mActivity).hideProgress();
+//    }
 
     @Override
     public void showSnackBar(String message) {
         ((BaseActivity) Objects.requireNonNull(mActivity)).showSnackBar(message);
     }
-
 
     @Override
     public void showSnackBar(View view, int messageId) {
@@ -79,14 +77,13 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentView 
         ((BaseActivity) mActivity).showToast(message);
     }
 
-
     @Override
-   public void showWarningDialog(ModelConfig config){
+    public void showWarningDialog(ModelConfig config) {
         ((BaseActivity) getActivity()).showWarningDialog(config);
     }
 
     @Override
-    public void showInfoDialog(ModelConfig config){
+    public void showInfoDialog(ModelConfig config) {
         ((BaseActivity) getActivity()).showInfoDialog(config);
     }
 

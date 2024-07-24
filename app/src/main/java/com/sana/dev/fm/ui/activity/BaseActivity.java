@@ -2,7 +2,6 @@ package com.sana.dev.fm.ui.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,7 +14,6 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.kaopiz.kprogresshud.KProgressHUD;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.ModelConfig;
@@ -41,16 +39,13 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     public PreferencesManager prefMgr;
     public AppRemoteConfig remoteConfig;
-
     SnackBarUtility sbHelp;
 
     protected CheckInternetConnection connectionChecker;
     UserGuide userGuide;
     protected NetworkCallback networkCallback;
-    protected KProgressHUD hud;
     private boolean connectionAvailable = true;
     private long backPressedTime;
-
 
     @Override
     public void setContentView(int layoutResID) {
@@ -92,7 +87,6 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
         prefMgr = PreferencesManager.getInstance();
         userGuide = new UserGuide(this);
         remoteConfig = Tools.getAppRemoteConfig();
-
         setupToolbar();
     }
 
@@ -163,53 +157,6 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
         Intent intent = IntentHelper.mainActivity(getApplicationContext(), true);
         startActivity(intent);
     }
-
-
-    @Override
-    public void showProgress(String message) {
-        if (hud != null && hud.isShowing()) {
-            hud.dismiss();
-            hud = KProgressHUD.create(this)
-                    .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                    .setLabel(getString(R.string.please_wait))
-                    .setDetailsLabel(message)
-                    .setCancellable(true)
-                    .setAnimationSpeed(2)
-                    .setDimAmount(0.5f)
-                    .show();
-        }
-//        hideProgress();
-//        ProgressHUD.getInstance(this).showDialog( message, true, false, null);
-    }
-
-//    @Override
-//    public void onDestroy() {
-//        super.onDestroy();
-//        if (hud != null && hud.isShowing()) {
-//            hud.dismiss();
-//        }
-//    }
-
-    @Override
-    public void hideProgress() {
-//        ProgressHUD mProgressHUD  = ProgressHUD.getInstance(this);
-//        if (mProgressHUD != null && mProgressHUD.isShowing()) {
-//            mProgressHUD.dismissWithFailure();
-//        }
-//        ProgressHUD.getInstance(this).dismissWithFailure("");
-
-        if (hud != null && hud.isShowing()) {
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    hud.dismiss();
-                }
-            }, 2000);
-        }
-
-    }
-
 
     @Override
     public void hideKeyboard() {

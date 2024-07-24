@@ -30,6 +30,7 @@ import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
+import com.sana.dev.fm.utils.KProgressHUDHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
@@ -48,6 +49,7 @@ public class VerificationPhone extends BaseActivity {
     TextInputEditText editText;
     AppCompatButton buttonSignIn;
     String phoneNumber = "";
+    private KProgressHUDHelper kProgressHUDHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +59,7 @@ public class VerificationPhone extends BaseActivity {
 
         mAuth = FirebaseAuth.getInstance();
         prefMgr = PreferencesManager.getInstance();
+        kProgressHUDHelper = KProgressHUDHelper.getInstance(this);
 
 //        progressBar = findViewById(R.id.progressbar);
         editText = findViewById(R.id.editTextCode);
@@ -97,13 +100,13 @@ public class VerificationPhone extends BaseActivity {
 
 
     private void signInWithCredential(PhoneAuthCredential credential) {
-//        if (!isFinishing())
-        showProgress("");
+        // Show loading dialog
+        kProgressHUDHelper.showLoading(getString(R.string.please_wait), false);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        hideProgress();
+                        kProgressHUDHelper.dismiss();
                         if (task.isSuccessful()) {
                             FirebaseUser user = task.getResult().getUser();
                             user.updatePhoneNumber(credential);
@@ -119,7 +122,8 @@ public class VerificationPhone extends BaseActivity {
     }
 
     void checkUserAuth(FirebaseUser firebaseUser, String userMobile) {
-        showProgress(getString(R.string.please_wait));
+        // Show loading dialog
+        kProgressHUDHelper.showLoading(getString(R.string.please_wait), false);
         Intent intent = IntentHelper.userProfileActivity(VerificationPhone.this, true);
 
         FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
@@ -136,7 +140,7 @@ public class VerificationPhone extends BaseActivity {
             @Override
             public void onSuccess(Object object) {
                 LogUtility.d(LogUtility.TAG, "Success checkUserAuth: " + object);
-                hideProgress();
+                kProgressHUDHelper.dismiss();
 
                 List<UserModel> userModelList = FirestoreDbUtility.getDataFromQuerySnapshot(object, UserModel.class);
 
@@ -172,7 +176,7 @@ public class VerificationPhone extends BaseActivity {
 
             @Override
             public void onFailure(Object object) {
-                hideProgress();
+                kProgressHUDHelper.dismiss();
                 LogUtility.d(LogUtility.TAG, "Failure checkUserAuth: " + object);
                 showToast(getString(R.string.label_error_occurred_with_val, object));
             }
@@ -231,7 +235,7 @@ public class VerificationPhone extends BaseActivity {
             LogUtility.e(LogUtility.tag(VerificationPhone.class), e.toString());
             ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_error_occurred), e.getLocalizedMessage(), new ButtonConfig(getString(R.string.label_cancel)), null);
             showWarningDialog(config);
-            hideProgress();
+            kProgressHUDHelper.dismiss();
         }
     };
 

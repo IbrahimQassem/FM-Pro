@@ -1,7 +1,6 @@
 package com.sana.dev.fm.ui.activity;
 
 
-import static com.sana.dev.fm.utils.FmUtilize.random;
 import static com.sana.dev.fm.utils.FmUtilize.setTimeFormat;
 import static com.sana.dev.fm.utils.FmUtilize.stringTimeToMillis;
 
@@ -21,23 +20,14 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnPausedListener;
-import com.google.firebase.storage.OnProgressListener;
-import com.google.firebase.storage.StorageMetadata;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityAddEpisodeBinding;
@@ -47,12 +37,11 @@ import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.enums.Weekday;
-import com.sana.dev.fm.model.interfaces.OnCallbackDate;
 import com.sana.dev.fm.ui.dialog.WeekdayDialog;
 import com.sana.dev.fm.utils.AppConstant;
-import com.sana.dev.fm.utils.AppConstant.General;
 import com.sana.dev.fm.utils.DateTimePickerHelper;
 import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.KProgressHUDHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
@@ -64,12 +53,11 @@ import com.sana.dev.fm.utils.my_firebase.SharedAction;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
-import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
+import com.sana.dev.fm.utils.my_firebase.task.StorageHelper;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 import java.util.Stack;
 
 
@@ -92,6 +80,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
 
     private long timeStart, timeEnd;
     private FirestoreDbUtility firestoreDbUtility;
+    private KProgressHUDHelper kProgressHUDHelper;
 
 
     public static void startActivity(Context context, Episode episode) {
@@ -116,8 +105,8 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
         setContentView(view);
 
         firestoreDbUtility = new FirestoreDbUtility();
-
         prefMgr = PreferencesManager.getInstance();
+        kProgressHUDHelper = KProgressHUDHelper.getInstance(this);
 
         initToolbar();
         initComponent();
@@ -283,80 +272,49 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
         epDesc = binding.titEpDesc.getText().toString().trim();
         epStreamUrl = binding.titEpStreamUrl.getText().toString().trim();
 
-        showProgress(getString(R.string.label_saving_in_progress));
+        // Show loading dialog
+        kProgressHUDHelper.showLoading(getString(R.string.please_wait), false);
+
 
         if (imageUri != null) {
 
+            //-------------------------   submit image task    ---------------------------
+            StorageHelper storageHelper = new StorageHelper(FirebaseStorage.getInstance());
 
-            // Create file metadata including the content type
-            StorageMetadata metadata = new StorageMetadata.Builder()
-                    .setContentType("image/jpg")
-                    .build();
-            StorageReference ref = FirebaseStorage.getInstance().getReference().child(General.FB_FM_FOLDER_PATH).child(radioId).child(random() + ".jpg");
-            // Upload file and metadata to the path 'images/mountains.jpg'
-            UploadTask uploadTask = ref.putFile(imageUri, metadata);
-
-            // Listen for state changes, errors, and completion of the upload.
-            uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            storageHelper.submitUserInfo(AddEpisodeActivity.this, radioInfo.getRadioId(), imageUri, new StorageHelper.UserSubmittedCallback() {
                 @Override
-                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                    double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-//                    Log.d(TAG, "Upload is " + progress + "% done");
-                    hud.setCancellable(false);
-                    hud.setProgress((int) progress);
+                public void onSuccess(String imageName, String profileImageUrl) {
+                    epProfile = profileImageUrl;
 
-                }
-            }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                    Log.d(TAG, "Upload is paused");
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    LogUtility.e(LogUtility.tag(AddEpisodeActivity.class), e.toString());
-                    // Handle unsuccessful uploads
-//                    showSnackBar("لم يتم حفظ الصورة !" + e.toString());
-                    hideProgress();
-                }
-            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    // Handle successful uploads on complete
-                    if (taskSnapshot.getMetadata() != null) {
-                        if (taskSnapshot.getMetadata().getReference() != null) {
-                            Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
-                            result.addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    epProfile = uri.toString();
+                    Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
+                    String pushKey = radioId + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
+                    episode.setEpId(pushKey);
 
-                                    Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
-                                    String pushKey = radioId + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
-                                    episode.setEpId(pushKey);
-
-                                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
-                                    firestoreDbUtility.createOrMerge(collectionReference, episode.getEpId(), episode, new CallBack() {
-                                        @Override
-                                        public void onSuccess(Object object) {
-                                            showToast(getString(R.string.done_successfully));
-                                            finish();
-                                        }
-
-                                        @Override
-                                        public void onFailure(Object object) {
-                                            hideProgress();
-                                            showToast(AppGeneralMessage.ERROR);
-                                        }
-                                    });
-                                }
-                            });
+                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+                    firestoreDbUtility.createOrMerge(collectionReference, episode.getEpId(), episode, new CallBack() {
+                        @Override
+                        public void onSuccess(Object object) {
+                            kProgressHUDHelper.dismiss();
+                            showToast(getString(R.string.done_successfully));
+                            finish();
                         }
-                    }
-                    hideProgress();
 
+                        @Override
+                        public void onFailure(Object object) {
+                            kProgressHUDHelper.dismiss();
+                            showToast(AppGeneralMessage.ERROR);
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    kProgressHUDHelper.dismiss();
+                    showToast(AppGeneralMessage.ERROR);
                 }
             });
+
+            //-------------------------   submit image task    ---------------------------
 
         } else {
             Episode episode = new Episode(radioId, programId, programName, "", epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
@@ -372,14 +330,14 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                     DocumentReference pRef = collectionRef.document(episode.getProgramId());
 
                     incrementCounter("episodeCount", pRef);
-                    hideProgress();
+                    kProgressHUDHelper.dismiss();
                     showToast(getString(R.string.done_successfully));
                     finish();
                 }
 
                 @Override
                 public void onFailure(Object object) {
-                    hideProgress();
+                    kProgressHUDHelper.dismiss();
                     showToast(AppGeneralMessage.ERROR);
                 }
             });

@@ -31,33 +31,18 @@ import com.sana.dev.fm.model.ModelConfig;
  */
 
 public interface BaseView {
-
-    void showProgress(String message);
-
-    void hideProgress();
-
+//    void showProgress(String message);
+//    void hideProgress();
     void showSnackBar(String message);
-
     void showSnackBar(View view, int messageId);
-
     void showToast(String message);
-
-
     void showWarningDialog(ModelConfig config);
-
     void showInfoDialog(ModelConfig config);
-
-
     void startMainActivity();
-
     void hideKeyboard();
-
     void finish();
-
     boolean isAccountSignedIn();
-
     boolean isRadioSelected();
-
     boolean hasInternetConnection();
 
 }

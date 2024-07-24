@@ -14,24 +14,14 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnPausedListener;
-import com.google.firebase.storage.OnProgressListener;
-import com.google.firebase.storage.StorageMetadata;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityAddProgramBinding;
@@ -42,18 +32,17 @@ import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.enums.Weekday;
-import com.sana.dev.fm.model.interfaces.OnCallbackDate;
 import com.sana.dev.fm.utils.AppConstant;
-import com.sana.dev.fm.utils.AppConstant.General;
 import com.sana.dev.fm.utils.DateTimePickerHelper;
 import com.sana.dev.fm.utils.FmUtilize;
-import com.sana.dev.fm.utils.LogUtility;
+import com.sana.dev.fm.utils.KProgressHUDHelper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.WeekdayUtils;
 import com.sana.dev.fm.utils.my_firebase.AppGeneralMessage;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.my_firebase.task.StorageHelper;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -74,7 +63,8 @@ public class AddProgramActivity extends BaseActivity {
     private long dateStart, dateEnd;
     private List<String> prCategoryList;
     private List<Weekday> displayDay;
-
+    // Get the KProgressHUDHelper instance
+    private KProgressHUDHelper kProgressHUDHelper;
 
     public static void startActivity(Context context, RadioProgram item) {
         Intent intent = new Intent(context, AddProgramActivity.class);
@@ -92,7 +82,7 @@ public class AddProgramActivity extends BaseActivity {
 
         firestoreDbUtility = new FirestoreDbUtility();
         prefMgr = PreferencesManager.getInstance();
-
+        kProgressHUDHelper = KProgressHUDHelper.getInstance(this);
         Tools.setSystemBarColor(this, R.color.colorPrimary);
         Tools.setSystemBarLight(this);
 
@@ -391,16 +381,57 @@ public class AddProgramActivity extends BaseActivity {
         prDesc = binding.titPrDesc.getText().toString().trim();
         createBy = prefMgr.getUserSession().getUserId();
 
-        showProgress("");
+        // Show loading dialog
+        kProgressHUDHelper.showLoading(getString(R.string.please_wait), false);
 
         if (imageUri != null) {
-//            hud = KProgressHUD.create(this)
-//                    .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-//                    .setLabel("Please wait")
-//                    .setDetailsLabel("Downloading data");
 
+            //-------------------------   submit image task    ---------------------------
+            StorageHelper storageHelper = new StorageHelper(FirebaseStorage.getInstance());
 
-            // Create file metadata including the content type
+            storageHelper.submitUserInfo(AddProgramActivity.this, radioInfo.getRadioId(), imageUri, new StorageHelper.UserSubmittedCallback() {
+                @Override
+                public void onSuccess(String imageName, String profileImageUrl) {
+                    prProfile = profileImageUrl;
+                    RadioProgram radioProgram = new RadioProgram(programId, radioInfo.getRadioId(), prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
+                    String pushKey = radioInfo.getRadioId() + "_" + firestoreDbUtility.getKeyId(RADIO_PROGRAM_TABLE).document().getId();
+
+                    if (programId == null) {
+                        radioProgram.setProgramId(pushKey);
+                    } else {
+                        radioProgram.setProgramId(programId);
+                    }
+
+                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioInfo.getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+
+                    firestoreDbUtility.createOrMerge(collectionReference, radioProgram.getProgramId(), radioProgram, new CallBack() {
+                        @Override
+                        public void onSuccess(Object object) {
+                            // After data is loaded
+                            kProgressHUDHelper.dismiss();
+//                            kProgressHUDHelper.showSuccess(getString(R.string.done_successfully));
+                            showToast(getString(R.string.done_successfully));
+                            finish();
+                        }
+
+                        @Override
+                        public void onFailure(Object object) {
+                            kProgressHUDHelper.dismiss();
+                            showToast(AppGeneralMessage.ERROR);
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    kProgressHUDHelper.dismiss();
+                    showToast(AppGeneralMessage.ERROR);
+                }
+            });
+
+            //-------------------------   submit image task    ---------------------------
+
+/*            // Create file metadata including the content type
             StorageMetadata metadata = new StorageMetadata.Builder()
                     .setContentType("image/jpg")
                     .build();
@@ -415,7 +446,7 @@ public class AddProgramActivity extends BaseActivity {
                     double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                     Log.d(TAG, "Upload is " + progress + "% done");
 //                    hud.setDetailsLabel(" جار الإرسال " + " % " + (int) progress);
-                    hud.setProgress((int) progress);
+                    kProgressHUDHelper.setProgress((int) progress);
                 }
             }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -428,7 +459,8 @@ public class AddProgramActivity extends BaseActivity {
                     LogUtility.e(LogUtility.tag(AddProgramActivity.class), e.toString());
                     // Handle unsuccessful uploads
 //                    showSnackBar("لم يتم حفظ الصورة !" + e.toString());
-                    hideProgress();
+                    // After data is loaded
+                    kProgressHUDHelper.dismiss();
                 }
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -441,7 +473,8 @@ public class AddProgramActivity extends BaseActivity {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     prProfile = uri.toString();
-                                    hud.dismiss();
+                                    // After data is loaded
+                                    kProgressHUDHelper.dismiss();
                                     RadioProgram radioProgram = new RadioProgram(programId, radioInfo.getRadioId(), prName, prDesc, prCategoryList, prTag, prProfile, 1, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, false, stopNote, new DateTimeModel(dateStart, dateEnd, displayDay));
                                     String pushKey = radioInfo.getRadioId() + "_" + firestoreDbUtility.getKeyId(RADIO_PROGRAM_TABLE).document().getId();
 
@@ -469,10 +502,11 @@ public class AddProgramActivity extends BaseActivity {
                             });
                         }
                     }
-                    hideProgress();
+                    // After data is loaded
+                    kProgressHUDHelper.dismiss();
 
                 }
-            });
+            });*/
 
         } else {
             prProfile = radioInfo.getLogo();
@@ -489,14 +523,16 @@ public class AddProgramActivity extends BaseActivity {
             firestoreDbUtility.createOrMerge(collectionReference, radioProgram.getProgramId(), radioProgram, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    hideProgress();
+                    // After data is loaded
+                    kProgressHUDHelper.dismiss();
                     showToast(getString(R.string.done_successfully));
                     finish();
                 }
 
                 @Override
                 public void onFailure(Object object) {
-                    hideProgress();
+                    // After data is loaded
+                    kProgressHUDHelper.dismiss();
                     showToast(AppGeneralMessage.ERROR);
                 }
             });
@@ -665,37 +701,5 @@ public class AddProgramActivity extends BaseActivity {
             }
         }
     }
-
-
-    private void putImageInStorage(StorageReference storageReference, Uri uri, final String key) {
-        // First upload the image to Cloud Storage
-        storageReference.putFile(uri)
-                .addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        // After the image loads, get a public downloadUrl for the image
-                        // and add it to the message.
-                        taskSnapshot.getMetadata().getReference().getDownloadUrl()
-                                .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-//                                        FriendlyMessage friendlyMessage = new FriendlyMessage(
-//                                                null, getUserName(), getUserPhotoUrl(), uri.toString());
-//                                        mDatabase.getReference()
-//                                                .child(MESSAGES_CHILD)
-//                                                .child(key)
-//                                                .setValue(friendlyMessage);
-                                    }
-                                });
-                    }
-                })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Image upload task was not successful.", e);
-                    }
-                });
-    }
-
 
 }

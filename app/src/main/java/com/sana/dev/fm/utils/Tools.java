@@ -319,11 +319,6 @@ public class Tools {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.getDisplayMetrics());
     }
 
-    public static int dpToPx(Context c, int dp) {
-        Resources r = c.getResources();
-        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
-    }
-
 //    public static GoogleMap configActivityMaps(GoogleMap googleMap) {
 //        // set map type
 //        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
