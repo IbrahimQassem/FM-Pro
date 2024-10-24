@@ -23,6 +23,9 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -33,10 +36,16 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.adapter.DestinationSliderAdapter;
+import com.sana.dev.fm.model.DestinationModel;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
@@ -54,16 +63,21 @@ import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
+import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 import com.sana.dev.fm.utils.playerpro.RadioPlayerService;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import co.mobiwise.materialintro.animation.MaterialIntroListener;
 import co.mobiwise.materialintro.shape.Focus;
 import co.mobiwise.materialintro.shape.ShapeType;
 
-public class MainActivity extends BaseActivity implements CallBackListener, BaseActivity.NetworkCallback {
+public class MainActivity extends BaseActivity implements CallBackListener, BaseActivity.NetworkCallback , DestinationSliderAdapter.OnDestinationClickListener  {
     private static final String TAG = MainActivity.class.getSimpleName();
     public static String FRAGMENT_DATA = "transaction_data";
     public static String FRAGMENT_CLASS = "transaction_target";
@@ -82,6 +96,8 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     ImageView iv_internet;
     TextView tv_user_name;
 
+    private RecyclerView sliderRecyclerView;
+    private DestinationSliderAdapter adapter;
     //    ---------- Radio Player -----------
     private RadioPlayerService radioPlayerService;
     private boolean isBound = false;
@@ -123,6 +139,9 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
 
         initializeViews();
         bindRadioService();
+
+        setupSlider();
+        loadDestinations();
 
         logRegToken();
         initComponent();
@@ -926,4 +945,132 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         });
     }
 
+
+    private void setupSlider() {
+        sliderRecyclerView = findViewById(R.id.sliderRecyclerView);
+        adapter = new DestinationSliderAdapter(this, this);
+
+        // Set up RecyclerView with horizontal scrolling
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this,
+                LinearLayoutManager.HORIZONTAL, false);
+        sliderRecyclerView.setLayoutManager(layoutManager);
+        sliderRecyclerView.setAdapter(adapter);
+
+        // Add page transformer for animation
+        ViewPager2 viewPager = findViewById(R.id.viewPager);
+        viewPager.setPageTransformer((page, position) -> {
+            float r = 1 - Math.abs(position);
+            page.setScaleY(0.85f + r * 0.15f);
+        });
+    }
+
+    private void addDummyDestinations() {
+        CollectionReference destinationsRef = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.ADVERTISEMENT_TABLE).collection(AppConstant.Firebase.ADVERTISEMENT_TABLE);  // Subcollection named "1001"
+
+        List<DestinationModel> dummyDestinations = Arrays.asList(
+                new DestinationModel(
+                        "alaskan_mountain",
+                        "Alaskan Mountain",
+                        "Alaska, USA",
+                        "https://picsum.photos/seed/picsum/200/300", // Replace with actual URLs
+                        "Experience the majestic beauty of Alaska's mountain ranges. Home to diverse wildlife and stunning glaciers, this destination offers unforgettable hiking and photography opportunities.",
+                        4.9f,
+                        599.99,
+                        7,
+                        Arrays.asList("hiking", "nature", "adventure"),
+                        "North America"
+                ),
+                new DestinationModel(
+                        "northern_mountain",
+                        "Northern Mountain",
+                        "Himalayas, India",
+                        "https://picsum.photos/seed/picsum/200/300",
+                        "Discover the spiritual and natural wonder of the Himalayas. Trek through ancient paths, visit traditional villages, and witness breathtaking sunrise views over snow-capped peaks.",
+                        5.0f,
+                        799.99,
+                        10,
+                        Arrays.asList("trekking", "culture", "spiritual"),
+                        "Asia"
+                ),
+                new DestinationModel(
+                        "mt_fuji",
+                        "Mt Fuji, Hakone",
+                        "Japan",
+                        "https://picsum.photos/seed/picsum/200/300",
+                        "Join a full-day guided tour from Tokyo that travels to Mt Fuji, Japan's iconic mountain. Experience traditional Japanese culture and breathtaking natural beauty.",
+                        4.8f,
+                        350.00,
+                        5,
+                        Arrays.asList("culture", "nature", "sightseeing"),
+                        "Asia"
+                )
+        );
+
+        for (DestinationModel destination : dummyDestinations) {
+            destinationsRef.document(destination.getId()).set(destination);
+        }
+    }
+    FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
+
+    private void loadDestinations() {
+//        addDummyDestinations();
+        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.Query_Direction_DESCENDING,
+                "rating",
+                Query.Direction.DESCENDING
+        ));
+        
+//     db.collection("destinations")
+//                .orderBy("rating", Query.Direction.DESCENDING)
+//                .limit(10)
+        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.ADVERTISEMENT_TABLE).collection(AppConstant.Firebase.ADVERTISEMENT_TABLE);  // Subcollection named "1001"
+        firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
+            @Override
+            public void onSuccess(Object object) {
+//                Map<String, Object> resultMap = new Gson().fromJson(object.toString(), Map.class);
+                LogUtility.w(TAG, " loadDestinations onSuccess:  " + object.toString());
+                List<DestinationModel> destinationList = FirestoreDbUtility.getDataFromQuerySnapshot(object, DestinationModel.class);
+                String obj = new Gson().toJson(destinationList);
+                LogUtility.w(TAG, " loadDestinations onSuccess data:  " + obj);
+
+                adapter.setDestinations(destinationList);
+            }
+
+            @Override
+            public void onFailure(Object object) {
+                LogUtility.e(TAG, " loadDestinations onFailure:  " + object);
+            }
+        });
+    }
+
+    @Override
+    public void onDestinationClick(DestinationModel destination) {
+        // Handle destination click - navigate to details
+        Intent intent = new Intent(this, DestinationDetailActivity.class);
+        intent.putExtra("destination_id", destination.getId());
+        startActivity(intent);
+    }
+
+    @Override
+    public void onFavoriteClick(DestinationModel destination) {
+        // Handle favorite click - update Firestore
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.USERS_TABLE).collection(AppConstant.Firebase.USERS_TABLE);
+        DocumentReference userFavorites = collectionReference
+                .document(userId)
+                .collection("favorites")
+                .document(destination.getId());
+
+        userFavorites.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (task.getResult().exists()) {
+                    userFavorites.delete();
+                } else {
+                    userFavorites.set(destination);
+                }
+            }
+        });
+    }
 }

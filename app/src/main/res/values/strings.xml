@@ -306,8 +306,8 @@
     <string name="label_force_update_title">Requierd Update</string>
     <string name="label_force_update_message">Kindle update to last version</string>
     <!--    <string name="gdpr_privacy_policy">-->
-<!--        By using this App, you agree to the <a href="%s">Terms-Conditions &amp; Privacy-Policy</a>.-->
-<!--    </string>-->
+    <!--        By using this App, you agree to the <a href="%s">Terms-Conditions &amp; Privacy-Policy</a>.-->
+    <!--    </string>-->
 
     <!--label_weak_days-->
     <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->

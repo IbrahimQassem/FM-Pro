@@ -8,23 +8,15 @@
     <uses-permission
         android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
         tools:ignore="ProtectedPermissions" />
-
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="com.google.firebase.messaging.permission.FCM_SEND" />
-
-
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
-        android:minSdkVersion="34" />
-    <!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>-->
-
-
+        android:minSdkVersion="34" /> <!-- <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/> -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -56,6 +48,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.activity.DestinationDetailActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.appuser.LoginByActivity"
             android:exported="false"
@@ -175,9 +171,7 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
-        </provider>
-
-        <!-- Add this service declaration -->
+        </provider> <!-- Add this service declaration -->
         <service
             android:name=".utils.playerpro.RadioPlayerService"
             android:enabled="true"
@@ -196,7 +190,6 @@
                 <action android:name="com.google.firebase.messaging.RECEIVE_ERROR" />
             </intent-filter>
         </service>
-
         <service
             android:name=".ui.activity.player.MusicService"
             android:exported="true" />

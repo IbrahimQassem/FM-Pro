@@ -54,6 +54,7 @@ public class AppConstant {
         public static final String EPISODE_TABLE = "Episode";
         public static final String USERS_TABLE = "Users";
         public static final String COMMENT_TABLE = "Comment";
+        public static final String ADVERTISEMENT_TABLE = "Advertisement";
         //    public static String LIKED_USERS = "Liked_Users";
 //    public static String FAVORITE_USERS = "Favorite_Users";
 

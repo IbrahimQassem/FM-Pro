@@ -22,16 +22,6 @@
             android:layout_height="wrap_content"
             android:theme="@style/AppTheme.Main">
 
-            <!--            <androidx.appcompat.widget.Toolbar-->
-            <!--                android:id="@+id/toolbar"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="?attr/actionBarSize"-->
-            <!--                android:background="@android:color/white"-->
-            <!--                app:contentInsetStartWithNavigation="0dp"-->
-            <!--                app:layout_scrollFlags="snap"-->
-            <!--                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"-->
-            <!--                app:theme="@style/Toolbar_Light">-->
-
             <LinearLayout
                 android:id="@+id/lyt_profile"
                 android:layout_width="match_parent"
@@ -128,35 +118,26 @@
             app:layout_constraintBottom_toTopOf="@+id/cor_bottom"
             app:layout_constraintVertical_bias="0.2">
 
-<!--            <TextView-->
-<!--                android:id="@+id/metadataTextView"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginStart="16dp"-->
-<!--                android:layout_marginEnd="16dp"-->
-<!--                android:ellipsize="marquee"-->
-<!--                android:gravity="center"-->
-<!--                android:marqueeRepeatLimit="marquee_forever"-->
-<!--                android:padding="16dp"-->
-<!--                android:singleLine="true"-->
-<!--                android:text="No track information"-->
-<!--                android:textSize="16sp"-->
-<!--                app:layout_constraintBottom_toTopOf="@id/playPauseButton"-->
-<!--                app:layout_constraintEnd_toEndOf="parent"-->
-<!--                app:layout_constraintStart_toStartOf="parent" />-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-      <!--      <ImageButton
-                android:id="@+id/playPauseButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Play/Pause"
-                android:src="@drawable/ic_play"
-                app:tint="@color/colorPrimary"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />-->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/sliderRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollbars="vertical"
+                    android:scrollingCache="true"
+                    tools:listitem="@layout/item_destination_slider"/>
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/viewPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+            </LinearLayout>
 
             <com.google.android.gms.ads.AdView
                 android:id="@+id/ad_view"
