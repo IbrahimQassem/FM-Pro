@@ -43,26 +43,25 @@
                 android:orientation="horizontal"
                 android:padding="@dimen/spacing_middle">
 
-<!--                <com.sana.dev.fm.ui.view.CustomCircularImageView-->
-<!--                    android:id="@+id/civ_logo"-->
-<!--                    android:layout_width="@dimen/spacing_xmlarge"-->
-<!--                    android:layout_height="@dimen/spacing_xmlarge"-->
-<!--                    app:srcCompat="@drawable/ic_baseline_person"-->
-<!--                    app:tint="@color/colorPrimary"-->
-<!--                    android:scaleType="centerCrop" />-->
+                <!--                <com.sana.dev.fm.ui.view.CustomCircularImageView-->
+                <!--                    android:id="@+id/civ_logo"-->
+                <!--                    android:layout_width="@dimen/spacing_xmlarge"-->
+                <!--                    android:layout_height="@dimen/spacing_xmlarge"-->
+                <!--                    app:srcCompat="@drawable/ic_baseline_person"-->
+                <!--                    app:tint="@color/colorPrimary"-->
+                <!--                    android:scaleType="centerCrop" />-->
 
-<!--                <com.sana.dev.fm.ui.view.CustomCircularImageView-->
-<!--                    android:layout_width="24dp"-->
-<!--                    android:layout_height="24dp"-->
-<!--                    android:src="@drawable/ic_baseline_person"-->
-<!--                    android:scaleType="centerCrop" />-->
+                <!--                <com.sana.dev.fm.ui.view.CustomCircularImageView-->
+                <!--                    android:layout_width="24dp"-->
+                <!--                    android:layout_height="24dp"-->
+                <!--                    android:src="@drawable/ic_baseline_person"-->
+                <!--                    android:scaleType="centerCrop" />-->
 
                 <ImageView
                     android:id="@+id/civ_logo"
                     android:layout_width="@dimen/spacing_xmlarge"
                     android:layout_height="@dimen/spacing_xmlarge"
-                    app:srcCompat="@drawable/ic_baseline_person"
-                   />
+                    app:srcCompat="@drawable/ic_baseline_person" />
 
 
                 <LinearLayout
@@ -129,6 +128,36 @@
             app:layout_constraintBottom_toTopOf="@+id/cor_bottom"
             app:layout_constraintVertical_bias="0.2">
 
+<!--            <TextView-->
+<!--                android:id="@+id/metadataTextView"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginStart="16dp"-->
+<!--                android:layout_marginEnd="16dp"-->
+<!--                android:ellipsize="marquee"-->
+<!--                android:gravity="center"-->
+<!--                android:marqueeRepeatLimit="marquee_forever"-->
+<!--                android:padding="16dp"-->
+<!--                android:singleLine="true"-->
+<!--                android:text="No track information"-->
+<!--                android:textSize="16sp"-->
+<!--                app:layout_constraintBottom_toTopOf="@id/playPauseButton"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent" />-->
+
+      <!--      <ImageButton
+                android:id="@+id/playPauseButton"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Play/Pause"
+                android:src="@drawable/ic_play"
+                app:tint="@color/colorPrimary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />-->
+
             <com.google.android.gms.ads.AdView
                 android:id="@+id/ad_view"
                 android:layout_width="wrap_content"
@@ -185,13 +214,14 @@
 
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_radio"
+            android:id="@+id/playPauseButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="25dp"
             android:clickable="true"
             android:contentDescription="Play"
             android:focusable="true"
+            android:visibility="visible"
             app:backgroundTint="?attr/colorPrimary"
             app:layout_anchor="@id/bottom_bar"
             app:rippleColor="?attr/colorSecondary"

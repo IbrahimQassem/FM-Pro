@@ -3,15 +3,14 @@ package com.sana.dev.fm.ui.activity;
 
 import static android.view.View.VISIBLE;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.media.AudioManager;
+import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,11 +36,11 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
+import com.sana.dev.fm.model.interfaces.MetadataListener;
 import com.sana.dev.fm.ui.dialog.MainDialog;
 import com.sana.dev.fm.ui.fragment.DailyEpisodeFragment;
 import com.sana.dev.fm.ui.fragment.MainHomeFragment;
@@ -55,13 +54,7 @@ import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
-import com.sana.dev.fm.utils.radio_player.PlaybackStatus;
-import com.sana.dev.fm.utils.radio_player.RadioManager;
-import com.sana.dev.fm.utils.radio_player.StaticEventDistributor;
-import com.sana.dev.fm.utils.radio_player.metadata.Metadata;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
+import com.sana.dev.fm.utils.playerpro.RadioPlayerService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -70,7 +63,7 @@ import co.mobiwise.materialintro.animation.MaterialIntroListener;
 import co.mobiwise.materialintro.shape.Focus;
 import co.mobiwise.materialintro.shape.ShapeType;
 
-public class MainActivity extends BaseActivity implements StaticEventDistributor.EventListener, CallBackListener, BaseActivity.NetworkCallback {
+public class MainActivity extends BaseActivity implements CallBackListener, BaseActivity.NetworkCallback {
     private static final String TAG = MainActivity.class.getSimpleName();
     public static String FRAGMENT_DATA = "transaction_data";
     public static String FRAGMENT_CLASS = "transaction_target";
@@ -78,9 +71,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     FirebaseCrashlytics firebaseCrashlytics;
     FirebaseAnalytics firebaseAnalytics;
 
-    //    ---------- Radio Player -----------
-    RadioManager radioManager;
-    FloatingActionButton fab_radio;
+    FloatingActionButton playPauseButton;
     private BottomSheetDialog mBottomSheetDialog;
     private BottomSheetBehavior mBehavior;
     //    private final AtomicBoolean isMobileAdsInitializeCalled = new AtomicBoolean(false);
@@ -90,6 +81,31 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     TextView tv_user_state;
     ImageView iv_internet;
     TextView tv_user_name;
+
+    //    ---------- Radio Player -----------
+    private RadioPlayerService radioPlayerService;
+    private boolean isBound = false;
+//    private TextView metadataTextView;
+    private String currentStreamUrl = "https://c30.radioboss.fm:18267/stream"; // Replace with your stream URL
+    private String currentStreamTitle;
+
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            RadioPlayerService.LocalBinder binder = (RadioPlayerService.LocalBinder) service;
+            radioPlayerService = binder.getService();
+            isBound = true;
+
+            // Initialize the service with the current stream
+            setupRadioService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            radioPlayerService = null;
+            isBound = false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,8 +121,8 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 //        navController.navigateUp();
 //        navController.navigate(R.id.myHomeFragment);
 
-        fab_radio = (FloatingActionButton) findViewById(R.id.fab_radio);
-        radioManager = RadioManager.with();
+        initializeViews();
+        bindRadioService();
 
         logRegToken();
         initComponent();
@@ -123,10 +139,6 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         iv_internet.setVisibility(View.INVISIBLE);
 
         // check if radio playing
-        if (isPlaying()) {
-            onAudioSessionId(RadioManager.getService().getAudioSessionId());
-            fab_radio.setImageResource(R.drawable.ic_pause);
-        }
 
         // setup addMod
         adView = findViewById(R.id.ad_view);
@@ -147,26 +159,26 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             }
         });
 
-        fab_radio.setOnLongClickListener(new View.OnLongClickListener() {
-
-            @Override
-            public boolean onLongClick(View v) {
-//                showToast("Stop radio");
-//                radioManager.stop();
-//                v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-//                startActivity(new Intent(MainBottomNav.this, BottomNavigationShifting.class));
-//                startActivity(new Intent(MainBottomNav.this, TabsSimpleProduct.class));
-
-//                if (isPlaying()) {
-//                StopPlaying();
-//                }
-
-//                initFirebaseNote();
-
-
-                return true;
-            }
-        });
+//        fab_radio.setOnLongClickListener(new View.OnLongClickListener() {
+//
+//            @Override
+//            public boolean onLongClick(View v) {
+////                showToast("Stop radio");
+////                radioManager.stop();
+////                v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+////                startActivity(new Intent(MainBottomNav.this, BottomNavigationShifting.class));
+////                startActivity(new Intent(MainBottomNav.this, TabsSimpleProduct.class));
+//
+////                if (isPlaying()) {
+////                StopPlaying();
+////                }
+//
+////                initFirebaseNote();
+//
+//
+//                return true;
+//            }
+//        });
 
 //        RotateAnimation rotate = new RotateAnimation(0, 360,
 //                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
@@ -196,10 +208,12 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
 //        rotateImageAlbum();
 
+/*
         fab_radio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+*/
 /*                try {
                     FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
 
@@ -223,7 +237,8 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
                     });
                 } catch (Exception e) {
                     showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
-                }*/
+                }*//*
+
 
                 //        rotation.setRepeatCount(0);
 
@@ -248,6 +263,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
                 }
             }
         });
+*/
     }
 
     private void logRegToken() {
@@ -271,16 +287,17 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
                         if (isAccountSignedIn()) {
                             UserModel userModel = prefMgr.getUserSession();
 //                            LogUtility.w(TAG, "FCM UserModel : " + new Gson().toJson(userModel));
-                            if (!userModel.getNotificationToken().equals(token)) {
-                                updateUserFcmToken(userModel, token);
-                            }
+                            if (userModel.getNotificationToken() != null)
+                                if (!userModel.getNotificationToken().equals(token)) {
+                                    updateUserFcmToken(userModel, token);
+                                }
                         }
                     }
                 });
         // [END log_reg_token]
     }
 
-    void updateUserFcmToken(UserModel userModel , String token) {
+    void updateUserFcmToken(UserModel userModel, String token) {
         FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
 
         CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
@@ -363,20 +380,6 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         AdRequest adRequest = new AdRequest.Builder().build();
         adView.loadAd(adRequest);
     }*/
-
-    private void rotateImageAlbum() {
-        fab_radio.setImageResource(R.drawable.ic_arrow_back);
-
-//        if (isPlaying()) {
-        this.fab_radio.animate().setDuration(100).rotation(this.fab_radio.getRotation() + 2.0f).setListener(new AnimatorListenerAdapter() {
-            public void onAnimationEnd(Animator animator) {
-                rotateImageAlbum();
-                super.onAnimationEnd(animator);
-            }
-        });
-//        }
-    }
-
 
     BottomNavigationView navigation;
     FragmentManager fm = getSupportFragmentManager();
@@ -679,9 +682,8 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         _dailyEpisodeFragment.refresh();
 
 
-        if (isPlaying()) {
-            radioManager.stopPlay();
-            fab_radio.setImageResource(R.drawable.ic_radio);
+        if (radioPlayerService.isPlaying()) {
+            radioPlayerService.stop();
         }
     }
 
@@ -701,16 +703,16 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     }
 
 
-    private void startPlay(Metadata metadata) {
+/*    private void startPlay(String streamUrl) {
         try {
-            if (!FmUtilize.isEmpty(metadata.getUrl())) {
+            if (!FmUtilize.isEmpty(streamUrl)) {
                 //Check the sound level
                 AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
                 int volume_level = am.getStreamVolume(AudioManager.STREAM_MUSIC);
                 if (volume_level < 2) {
                     showSnackBar(getString(R.string.volume_low));
                 } else {
-                    radioManager.playOrPause(metadata);
+                    radioPlayerService.playOrPause(streamUrl, "...");
 //        radioManager.playOrStop(streamURL);
 //        http://edge.mixlr.com/channel/kijwr
                 }
@@ -721,71 +723,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             Log.d(TAG, "Error startPlay : " + e.getMessage());
             showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
         }
-    }
-
-
-    private void StopPlaying() {
-        // Click this button to pause the audio played in background service.
-        radioManager.stopPlay();
-//        radioManager.playOrStop(streamURL);
-    }
-
-
-    private boolean isPlaying() {
-        return (null != radioManager && null != RadioManager.getService() && RadioManager.getService().isPlaying());
-    }
-
-
-    @Subscribe
-    public void onEvent(String status) {
-
-        switch (status) {
-            case PlaybackStatus.LOADING:
-                // loading
-
-                break;
-            case PlaybackStatus.ERROR:
-                showToast(String.format("%s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
-                radioManager.stopPlay();
-                fab_radio.setImageResource(R.drawable.ic_radio);
-                break;
-
-            case PlaybackStatus.PAUSED:
-                fab_radio.setImageResource(R.drawable.ic_play);
-                break;
-            case PlaybackStatus.PLAYING:
-//                showToast("PlaybackStatus.IDLE");
-                fab_radio.setImageResource(R.drawable.ic_pause);
-                break;//                showToast("PlaybackStatus.IDLE");
-            case PlaybackStatus.IDLE:
-//                showToast("PlaybackStatus.IDLE");
-            default:
-                fab_radio.setImageResource(R.drawable.ic_radio);
-
-        }
-//        fab_radio.setImageResource(status.equals(PlaybackStatus.PLAYING)
-//                ? R.drawable.ic_pause
-//                : R.drawable.ic_radio);
-
-    }
-
-    @Override
-    public void onAudioSessionId(Integer i) {
-
-    }
-
-    @Override
-    public void onMetaDataReceived(Metadata meta, Bitmap image) {
-        //Update the mediainfo shown above the controls
-//        String artistAndSong = null;
-//        if (meta != null &&  meta.getArtist() != null)
-//            artistAndSong = meta.getArtist() + " - " + meta.getSong();
-//        showToast(artistAndSong);
-//        updateMediaInfoFromBackground(artistAndSong, image);
-//        onMetaDataReceived(RadioManager.getService().getMetaData(), null);
-        LogUtility.e(TAG, "onMetaDataReceived: " + new Gson().toJson(meta));
-
-    }
+    }*/
 
 
 /*
@@ -821,19 +759,102 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     }
 */
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-        StaticEventDistributor.registerAsListener(this);
+    private void initializeViews() {
+        currentStreamTitle = getString(R.string.app_name);
+        playPauseButton = findViewById(R.id.playPauseButton);
 
+        playPauseButton.setOnClickListener(v -> handlePlayPauseClick());
+    }
+
+    private void bindRadioService() {
+        Intent intent = new Intent(this, RadioPlayerService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void setupRadioService() {
+        if (radioPlayerService != null) {
+            // Set up the play/pause button
+            radioPlayerService.setPlayPauseButton(playPauseButton);
+
+            // Initialize the media player with current stream
+            radioPlayerService.initializeMediaPlayer(currentStreamUrl, currentStreamTitle);
+
+            // Set up metadata listener
+            radioPlayerService.setMetadataListener(new MetadataListener() {
+                @Override
+                public void onMetadataReceived(String title, String artist) {
+                    updateMetadataUI(title, artist);
+                }
+            });
+        }
+    }
+
+    private void handlePlayPauseClick() {
+        if (isBound && radioPlayerService != null) {
+            if (prefMgr.selectedRadio() != null) {
+                RadioInfo info = prefMgr.selectedRadio();
+//                Metadata metadata = new Metadata(info.getName(), info.getName(), info.getChannelFreq(), info.getName(), info.getStreamUrl());
+                changeStation(info.getStreamUrl() ,info.getName() + " " + info.getChannelFreq());
+            } else {
+                showToast(getString(R.string.error_please_select_radio_station));
+            }
+        } else {
+            showToast("Service not bound");
+        }
+    }
+
+    public void updateMetadataUI(String title, String artist) {
+//        runOnUiThread(() -> {
+//            String displayText = title;
+//            if (artist != null && !artist.isEmpty()) {
+//                displayText += " - " + artist;
+//            }
+////            metadataTextView.setText(displayText);
+//        });
+    }
+
+    // Method to change the radio station
+    public void changeStation(String newStreamUrl, String newTitle) {
+        currentStreamUrl = newStreamUrl;
+        currentStreamTitle = newTitle;
+
+        try {
+            if (isBound && radioPlayerService != null) {
+                // This will update the stream and start playing
+                radioPlayerService.playOrPause(newStreamUrl, newTitle);
+            } else {
+                showToast(String.format("%s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Error startPlay : " + e.getMessage());
+            showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
+        }
     }
 
     @Override
-    public void onStop() {
+    protected void onStart() {
+        super.onStart();
+        if (!isBound) {
+            bindRadioService();
+        }
+    }
+
+    @Override
+    protected void onStop() {
         super.onStop();
-        EventBus.getDefault().unregister(this);
-        StaticEventDistributor.unregisterAsListener(this);
+        // Don't unbind if you want the service to continue playing in the background
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (adView != null) {
+            adView.destroy();
+        }
+        super.onDestroy();
+        if (isBound) {
+            unbindService(serviceConnection);
+            isBound = false;
+        }
     }
 
     /**
@@ -856,23 +877,8 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
         if (adView != null) {
             adView.resume();
         }
-        radioManager.bind(getApplicationContext());
         prefMgr = PreferencesManager.getInstance();
         initToolbarProfile();
-    }
-
-
-    /**
-     * Called before the activity is destroyed
-     */
-    @Override
-    protected void onDestroy() {
-        if (adView != null) {
-            adView.destroy();
-        }
-        super.onDestroy();
-        if (!radioManager.isPlaying())
-            radioManager.unbind(getApplicationContext());
     }
 
 
@@ -908,7 +914,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
 
     public void showPlayIntro() {
-        showIntro(fab_radio, UserGuide.INTRO_FOCUS_2, getString(R.string.label_play_intro2));
+        showIntro(playPauseButton, UserGuide.INTRO_FOCUS_2, getString(R.string.label_play_intro2));
     }
 
     private void showIntro(View view, String id, String text) {
