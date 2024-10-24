@@ -24,16 +24,13 @@
                 android:orientation="horizontal"
                 android:padding="@dimen/spacing_middle">
 
-                <com.mikhaellopez.circularimageview.CircularImageView
+                <ImageView
                     android:id="@+id/civ_logo"
                     android:layout_width="@dimen/global_card_avatar_size"
                     android:layout_height="@dimen/global_card_avatar_size"
                     android:layout_margin="@dimen/spacing_medium"
                     android:labelFor="@+id/civ_logo"
                     android:padding="@dimen/spacing_small"
-                    app:civ_border="true"
-                    app:civ_border_color="@color/colorPrimaryLight"
-                    app:civ_border_width="1px"
                     app:elevation="@dimen/spacing_medium"
                     tools:srcCompat="@drawable/logo_app" />
 

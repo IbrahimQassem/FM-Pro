@@ -43,15 +43,10 @@
             android:orientation="vertical"
             android:padding="@dimen/spacing_mlarge">
 
-            <com.mikhaellopez.circularimageview.CircularImageView
+            <ImageView
                 android:id="@+id/civ_logo"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                app:civ_border="true"
-                app:civ_border_color="?attr/colorPrimary"
-                app:civ_border_width="1dp"
-                app:civ_shadow="true"
-                app:civ_shadow_radius="0"
                 app:srcCompat="@drawable/logo_app" />
 
             <TextView

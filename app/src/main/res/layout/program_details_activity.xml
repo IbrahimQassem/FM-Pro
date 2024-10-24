@@ -69,16 +69,13 @@
                             android:clipChildren="false">
 
 
-                            <com.mikhaellopez.circularimageview.CircularImageView
+                            <ImageView
                                 android:id="@+id/img_profile"
                                 android:layout_width="@dimen/user_profile_avatar_size"
                                 android:layout_height="@dimen/user_profile_avatar_size"
                                 android:layout_margin="@dimen/spacing_middle"
                                 android:scaleType="centerInside"
                                 android:tint="@color/colorPrimary"
-                                app:civ_border="true"
-                                app:civ_border_color="?attr/colorSecondary"
-                                app:civ_border_width="1px"
                                 app:srcCompat="@mipmap/ic_launcher_foreground" />
 
                             <!--                        <ImageView-->

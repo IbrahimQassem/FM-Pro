@@ -11,10 +11,16 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         jcenter()
+        maven {
+            url = "https://repo1.maven.org/maven2/"
+        }
         maven { url "https://jitpack.io" }
         maven {
             url "https://s3.amazonaws.com/repo.commonsware.com"
         }
+        maven{ url = 'https://repo.maven.apache.org/maven2'}
+        maven{ url = 'https://mvnrepository.com/artifact/com.google.android.exoplayer'}
+
     }
 }
 rootProject.name = "HudHud FM"

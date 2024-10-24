@@ -51,17 +51,13 @@
                         android:clickable="true"
                         android:focusable="true">
 
-                        <com.mikhaellopez.circularimageview.CircularImageView
+                        <ImageView
                             android:id="@+id/img_profile"
                             android:layout_width="@dimen/user_profile_avatar_size"
                             android:layout_height="@dimen/user_profile_avatar_size"
                             android:layout_marginTop="@dimen/spacing_small"
                             android:layout_marginBottom="@dimen/spacing_small"
-                            android:scaleType="centerInside"
-                            android:tint="@color/colorPrimary"
-                            app:civ_border="true"
-                            app:civ_border_color="@color/colorPrimaryLight"
-                            app:civ_border_width="1dp"
+                            android:scaleType="fitCenter"
                             app:srcCompat="@drawable/ic_person" />
 
                         <ImageView

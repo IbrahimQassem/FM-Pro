@@ -101,7 +101,7 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
 //                        holder.binding.civLogo.post(new Runnable() {
 //                            @Override
 //                            public void run() {
-//                                Tools.displayUserProfile(ctx, holder.binding.civLogo, userModel.getPhotoUrl(), R.drawable.ic_person);
+//                                Tools.displayUserProfile(ctx, holder.binding.civLogo, userModel.getPhotoUrl(), R.drawable.ic_baseline_person);
 //                            }
 //                        });
                 }

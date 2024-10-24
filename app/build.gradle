@@ -140,9 +140,7 @@ dependencies {
 
     implementation 'com.hbb20:ccp:2.5.0'                            // country code
 
-    implementation 'com.mikhaellopez:circularimageview:3.2.0'          // circle image view
-
-    implementation 'com.google.android.exoplayer:exoplayer:2.8.2'       // full exoplayer library
+    implementation 'com.google.android.exoplayer:exoplayer:2.19.1'       // full exoplayer library
 
     implementation 'org.greenrobot:eventbus:3.0.0'                      // event bus
 
@@ -170,7 +168,10 @@ dependencies {
     implementation 'androidx.work:work-runtime:2.7.1'
 
 //    https://github.com/Kaopiz/KProgressHUD/blob/master/demo/src/main/java/com/kaopiz/progresshud/demo/MainActivity.java
-    implementation 'com.kaopiz:kprogresshud:1.2.0'
+//    implementation 'com.kaopiz:kprogresshud:1.2.0'
+    implementation 'com.github.harrisonsj:KProgressHUD:1.1'
+
+
     implementation 'androidx.browser:browser:1.7.0'
 
     implementation 'com.facebook.android:facebook-login:latest.release'

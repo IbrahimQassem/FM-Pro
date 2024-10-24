@@ -23,20 +23,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
-                <com.mikhaellopez.circularimageview.CircularImageView
+                <ImageView
                     android:id="@+id/civ_logo"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:layout_centerHorizontal="true"
                     android:layout_marginBottom="@dimen/spacing_small"
-                    app:civ_border="true"
-                    app:civ_border_color="@color/colorPrimaryLight"
-                    app:civ_border_width="0.5dp"
                     app:elevation="@dimen/spacing_small"
                     app:srcCompat="@drawable/logo_app" />
 
 
-                <com.mikhaellopez.circularimageview.CircularImageView
+                <ImageView
                     android:id="@+id/iv_badge_image"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
@@ -45,9 +42,6 @@
                     android:layout_marginTop="@dimen/spacing_small"
                     android:layout_marginEnd="@dimen/spacing_small"
                     android:layout_marginBottom="@dimen/spacing_small"
-                    app:civ_border="true"
-                    app:civ_border_color="@color/white"
-                    app:civ_border_width="0.2dp"
                     app:srcCompat="@drawable/ic_verified"
                     app:tint="?attr/colorPrimary" />
 

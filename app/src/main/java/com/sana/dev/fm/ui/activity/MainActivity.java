@@ -38,7 +38,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
-import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
@@ -88,7 +87,6 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
     private AdView adView;
 //    private GoogleMobileAdsConsentManager googleMobileAdsConsentManager;
 
-    CircularImageView civ;
     TextView tv_user_state;
     ImageView iv_internet;
     TextView tv_user_name;
@@ -119,7 +117,6 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
 
     private void initComponent() {
 
-        civ = (CircularImageView) findViewById(R.id.civ_logo);
         tv_user_state = findViewById(R.id.tv_user_state);
         iv_internet = findViewById(R.id.iv_internet);
         tv_user_name = findViewById(R.id.tv_user_name);
@@ -506,7 +503,7 @@ public class MainActivity extends BaseActivity implements StaticEventDistributor
             tv_user_name.setText(user.getName());
 //            tv_user_state.setText(isOnlineTxt);
             if (!Tools.isEmpty(user.getPhotoUrl()))
-                Tools.displayUserProfile(this, civ, user.getPhotoUrl(), R.drawable.ic_person);
+                Tools.displayUserProfile(this, findViewById(R.id.civ_logo), user.getPhotoUrl(), R.drawable.ic_baseline_person);
 
             firebaseCrashlytics.setUserId(user.getMobile());
             firebaseAnalytics.setUserId(user.getMobile());

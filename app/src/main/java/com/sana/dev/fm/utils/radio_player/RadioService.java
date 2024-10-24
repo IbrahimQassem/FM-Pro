@@ -1,27 +1,5 @@
 package com.sana.dev.fm.utils.radio_player;
 
-//import android.app.Service;
-//import android.content.BroadcastReceiver;
-//import android.content.ComponentName;
-//import android.content.Context;
-//import android.content.Intent;
-//import android.content.IntentFilter;
-//import android.graphics.Bitmap;
-//import android.media.AudioManager;
-//import android.net.Uri;
-//import android.net.wifi.WifiManager;
-//import android.os.Binder;
-//import android.os.Handler;
-//import android.os.IBinder;
-//import android.support.v4.media.MediaMetadataCompat;
-//import android.support.v4.media.session.MediaControllerCompat;
-//import android.support.v4.media.session.MediaSessionCompat;
-//import android.telephony.PhoneStateListener;
-//import android.telephony.TelephonyManager;
-//import android.text.TextUtils;
-
-
-
 import android.Manifest;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -33,7 +11,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Build;
@@ -50,38 +27,18 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.media.session.MediaButtonReceiver;
 
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.audio.AudioRendererEventListener;
-import com.google.android.exoplayer2.decoder.DecoderCounters;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.util.Util;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.utils.radio_player.metadata.Metadata;
-import com.sana.dev.fm.utils.radio_player.metadata.ShoutcastDataSourceFactory;
 import com.sana.dev.fm.utils.radio_player.metadata.ShoutcastMetadataListener;
 import com.sana.dev.fm.utils.radio_player.parser.AlbumArtGetter;
 
 
-import java.io.IOException;
-
-import okhttp3.OkHttpClient;
-
-
 /*https://github.com/tutsplus/background-audio-in-android-with-mediasessioncompat/blob/master/app/src/main/java/com/tutsplus/backgroundaudio/BackgroundAudioService.java*/
-public class RadioService extends Service implements Player.EventListener, AudioManager.OnAudioFocusChangeListener, ShoutcastMetadataListener {
+public class RadioService extends Service implements Player.Listener, AudioManager.OnAudioFocusChangeListener, ShoutcastMetadataListener {
 
     public static final String ACTION_PLAY = "com.sana.dev.fm.utils.radio_player.ACTION_PLAY";
     public static final String ACTION_PAUSE = "com.sana.dev.fm.utils.radio_player.ACTION_PAUSE";
@@ -90,7 +47,7 @@ public class RadioService extends Service implements Player.EventListener, Audio
     private final IBinder iBinder = new LocalBinder();
 
     private Handler handler;
-    private SimpleExoPlayer exoPlayer;
+    private ExoPlayer exoPlayer;
     private MediaSessionCompat mediaSession;
     private MediaControllerCompat.TransportControls transportControls;
 
@@ -241,43 +198,11 @@ public class RadioService extends Service implements Player.EventListener, Audio
             telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
         handler = new Handler();
-        DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        AdaptiveTrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwidthMeter);
-        DefaultTrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-        exoPlayer = ExoPlayerFactory.newSimpleInstance(getApplicationContext(), trackSelector);
+        DefaultTrackSelector trackSelector = new DefaultTrackSelector(this);
+//        exoPlayer = ExoPlayerFactory.newSimpleInstance(getApplicationContext(), trackSelector);
+        exoPlayer = new ExoPlayer.Builder(this).build();
+
         exoPlayer.addListener(this);
-        exoPlayer.setAudioDebugListener(new AudioRendererEventListener() {
-
-            @Override
-            public void onAudioEnabled(DecoderCounters counters) {
-            }
-
-            @Override
-            public void onAudioSessionId(int audioSessionId) {
-                StaticEventDistributor.onAudioSessionId(getAudioSessionId());
-            }
-
-            @Override
-            public void onAudioDecoderInitialized(String decoderName, long initializedTimestampMs, long initializationDurationMs) {
-
-            }
-
-            @Override
-            public void onAudioInputFormatChanged(Format format) {
-
-            }
-
-            @Override
-            public void onAudioSinkUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-
-            }
-
-
-            @Override
-            public void onAudioDisabled(DecoderCounters counters) {
-//                Toast.makeText(RadioService.this, "يرجى تفعيل الصوت", Toast.LENGTH_SHORT).show();
-            }
-        });
         exoPlayer.setPlayWhenReady(true);
 
         registerReceiver(becomingNoisyReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
@@ -429,25 +354,13 @@ public class RadioService extends Service implements Player.EventListener, Audio
     }
 
 
-    @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
-
-    }
-
-    @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-
-    }
 
     @Override
     public void onLoadingChanged(boolean isLoading) {
 
     }
 
-    @Override
-    public void onPlayerError(ExoPlaybackException error) {
-        StaticEventDistributor.onEvent(PlaybackStatus.ERROR);
-    }
+
 
     @Override
     public void onPositionDiscontinuity(int reason) {
@@ -460,10 +373,7 @@ public class RadioService extends Service implements Player.EventListener, Audio
 
     }
 
-    @Override
-    public void onSeekProcessed() {
 
-    }
 
 
     public Metadata getStreamUrl() {
@@ -476,18 +386,7 @@ public class RadioService extends Service implements Player.EventListener, Audio
             wifiLock.acquire();
         }
 
-        DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        ShoutcastDataSourceFactory dataSourceFactory = new ShoutcastDataSourceFactory(new OkHttpClient.Builder().build(), Util.getUserAgent(this, getClass().getSimpleName()), bandwidthMeter, this);
-        DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-        ExtractorMediaSource mediaSource = new ExtractorMediaSource(Uri.parse(url), dataSourceFactory, extractorsFactory, handler, new ExtractorMediaSource.EventListener() {
-            @Override
-            public void onLoadError(IOException error) {
-                StaticEventDistributor.onEvent(PlaybackStatus.ERROR);
-//                    Toast.makeText(RadioService.this, "error : "+error.toString() , Toast.LENGTH_SHORT).show();
-            }
-        });
 
-        exoPlayer.prepare(mediaSource);
         exoPlayer.setPlayWhenReady(true);
     }
 

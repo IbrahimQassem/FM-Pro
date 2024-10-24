@@ -49,15 +49,11 @@
                         android:orientation="horizontal"
                         android:padding="@dimen/spacing_large">
 
-                        <com.mikhaellopez.circularimageview.CircularImageView
+                        <ImageView
                             android:id="@+id/civ_logo"
                             android:layout_width="@dimen/spacing_xlarge"
                             android:layout_height="@dimen/spacing_xlarge"
                             android:foreground="@color/overlay_light_20"
-                            app:civ_border_color="@color/pink_50"
-                            app:civ_border_width="1dp"
-                            app:civ_shadow="false"
-                            app:civ_shadow_radius="1"
                             app:srcCompat="@mipmap/ic_launcher" />
 
                         <View

@@ -2,7 +2,6 @@ package com.sana.dev.fm.ui.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -18,7 +17,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -54,7 +52,6 @@ import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
@@ -393,7 +390,8 @@ public class SplashActivity extends AppCompatActivity {
     private boolean isForceUpdateRequired(int requiredVersion) {
         int currentVersion = BuildConfig.VERSION_CODE;
 //        String deviceLanguage = Locale.getDefault().getLanguage();
-        return currentVersion < requiredVersion /*&& forceUpdateLanguages.contains(deviceLanguage)*/;
+//        return currentVersion < requiredVersion /*&& forceUpdateLanguages.contains(deviceLanguage)*/;
+        return false;
     }
 
     private void showDialogForForceUpdate() {

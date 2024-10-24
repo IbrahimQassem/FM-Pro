@@ -1,30 +1,22 @@
 package com.sana.dev.fm.adapter;
 
 
-import static com.sana.dev.fm.utils.FmUtilize.timeDifference;
-import static com.sana.dev.fm.utils.Tools.getFormattedDateOnly;
 import static com.sana.dev.fm.utils.Tools.getFormattedTimeEvent;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.vipulasri.timelineview.TimelineView;
-import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.databinding.ItemProgramsBinding;
 import com.sana.dev.fm.databinding.ItemTimelineBinding;
 import com.sana.dev.fm.model.DateTimeModel;
-import com.sana.dev.fm.model.enums.Weekday;
+import com.sana.dev.fm.model.TempEpisodeModel;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
-import com.sana.dev.fm.model.TempEpisodeModel;
-import com.sana.dev.fm.utils.WeekdayUtils;
 
 import java.util.List;
 
@@ -213,7 +205,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 //    private class ViewHolder extends RecyclerView.ViewHolder {
 //        TimelineView timelineView;
-//        CircularImageView circularImage;
+//        ImageView circularImage;
 //        TextView tvTitle, tvSubTitle, tevDate, tevTimeShow, tevEpState;
 //
 //        ViewHolder(View itemView, int viewType) {

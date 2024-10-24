@@ -13,12 +13,9 @@
         android:orientation="horizontal"
         android:padding="@dimen/spacing_large">
 
-        <com.mikhaellopez.circularimageview.CircularImageView
+        <ImageView
             android:layout_width="@dimen/spacing_xmlarge"
             android:layout_height="@dimen/spacing_xmlarge"
-            app:civ_border="false"
-            app:civ_shadow="true"
-            app:civ_shadow_radius="0"
             app:srcCompat="@drawable/ic_account_circle" />
 
         <View

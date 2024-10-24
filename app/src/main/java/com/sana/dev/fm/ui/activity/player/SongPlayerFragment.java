@@ -23,7 +23,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.mikhaellopez.circularimageview.CircularImageView;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
@@ -44,7 +43,7 @@ public class SongPlayerFragment extends MusicServiceFragment {
     private TextView remainingTime;
 
     private AppBarLayout appBarLayout;
-    private CircularImageView currentCoverArt;
+    private ImageView currentCoverArt;
     private ImageView currentCoverArtShadow;
     private ImageView actionBtn;
     private ImageView panelPlayBtn;

@@ -4,7 +4,6 @@ package com.sana.dev.fm.model;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.Exclude;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,6 +11,7 @@ import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
+import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
 import java.io.Serializable;
@@ -137,13 +137,21 @@ public class RadioInfo implements Serializable {
 //        RadioInfo radio25 = RadioInfo.newInstance("1025", "temp", "", "", "", "@", "","","",usId,true);
 //        RadioInfo radio26 = RadioInfo.newInstance("1026", "temp", "", "", "", "@", "","","",usId,true);
 //        RadioInfo radio27 = RadioInfo.newInstance("1027", "temp", "", "", "", "@", "","","",usId,true);
+//        RadioInfo radio28 = RadioInfo.newInstance("1028", "temp", "", "", "", "@", "","","",usId,true);
+//        RadioInfo radio29 = RadioInfo.newInstance("1029", "temp", "", "", "", "@", "","","",usId,true);
+//        RadioInfo radio30 = RadioInfo.newInstance("1030", "temp", "", "", "", "@", "","","",usId,true);
+//        RadioInfo radio31 = RadioInfo.newInstance("1031", "temp", "", "", "", "@", "","","",usId,true);
+//        RadioInfo radio32 = RadioInfo.newInstance("1032", "temp", "", "", "", "@", "","","",usId,true);
+//        RadioInfo radio33 = RadioInfo.newInstance("1033", "temp", "", "", "", "@", "","","",usId,true);
+//        RadioInfo radio34 = RadioInfo.newInstance("1034", "temp", "", "", "", "@", "","","",usId,true);
+//        RadioInfo radio35 = RadioInfo.newInstance("1035", "temp", "", "", "", "@", "","","",usId,true);
 
 
         List<RadioInfo> infos = new ArrayList<>();
-        infos.add(radio1);
+//        infos.add(radio1);
 //        infos.add(radio2);
 //        infos.add(radio3);
-        infos.add(radio4);
+//        infos.add(radio4);
 //        infos.add(radio5);
 //        infos.add(radio6);
 //        infos.add(radio7);
@@ -167,19 +175,55 @@ public class RadioInfo implements Serializable {
 //        infos.add(radio25);
 //        infos.add(radio26);
 //        infos.add(radio27);
+//        infos.add(radio28);
+//        infos.add(radio29);
+//        infos.add(radio30);
+//        infos.add(radio31);
+//        infos.add(radio32);
+//        infos.add(radio33);
+//        infos.add(radio34);
+//        infos.add(radio35);
 
-        FirestoreDbUtility firestoreHelperZ = new FirestoreDbUtility();
 
+        FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
 
         if (!infos.isEmpty()) {
             for (int i = 0; i < infos.size(); i++) {
                 RadioInfo info = infos.get(i);
+
+                try {
+
+                    firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_INFO_TABLE, AppConstant.Firebase.RADIO_INFO_TABLE),info.getRadioId(), info, new CallBack() {
+//                    firestoreDbUtility.createOrMerge(AppConstant.Firebase.RADIO_INFO_TABLE, radio1.getRadioId(), FmUtilize.classToMap(radio1), new CallBack() {
+                        @Override
+                        public void onSuccess(Object object) {
+//                            showToast(getString(R.string.done_successfully));
+                        }
+
+                        @Override
+                        public void onFailure(Object object) {
+//                            showToast(getString(R.string.label_error_occurred_with_val, object));
+                        }
+                    });
+
+//                    firestoreHelperZ.createOrMerge(AppConstant.Firebase.RADIO_INFO_TABLE, info.getRadioId(), FmUtilize.classToMap(info));
+//                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_INFO_TABLE, AppConstant.Firebase.RADIO_INFO_TABLE).document(info.getRadioId()).collection(AppConstant.Firebase.RADIO_INFO_TABLE);
 //
-//                try {
-////                    firestoreHelperZ.createOrMerge(AppConstant.Firebase.RADIO_INFO_TABLE, info.getRadioId(), FmUtilize.classToMap(info));
-//                } catch (IllegalAccessException e) {
-//                    throw new RuntimeException(e);
-//                }
+//                    firestoreDbUtility.createOrMerge(collectionReference, info.getRadioId(), info, new CallBack() {
+//                        @Override
+//                        public void onSuccess(Object object) {
+//                            // After data is loaded
+////                            showToast(getString(R.string.done_successfully));
+//                        }
+//
+//                        @Override
+//                        public void onFailure(Object object) {
+////                            showToast(AppGeneralMessage.ERROR);
+//                        }
+//                    });
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
 //                DocumentReference mFirestoreProfiles1 = FirebaseDatabaseReference.getTopLevelCollection().getFirestore().collection(AppConstant.Firebase.RADIO_INFO_TABLE).document(info.getRadioId());
 //
 //                mFirestoreProfiles1.set(info).addOnSuccessListener(new OnSuccessListener<Void>() {
