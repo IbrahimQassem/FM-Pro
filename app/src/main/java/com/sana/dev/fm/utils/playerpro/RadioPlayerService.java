@@ -5,7 +5,9 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioAttributes;
@@ -13,10 +15,13 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sana.dev.fm.R;
@@ -33,7 +38,9 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
     private static final String TAG = RadioPlayerService.class.getSimpleName();
     private static final String CHANNEL_ID = "radio_channel";
     private static final int NOTIFICATION_ID = 1;
-
+    public static final String ACTION_PLAY = "com.sana.dev.fm.utils.playerpro.action.PLAY";
+    public static final String ACTION_PAUSE = "com.sana.dev.fm.utils.playerpro.action.PAUSE";
+    public static final String ACTION_STOP = "com.sana.dev.fm.utils.playerpro.action.STOP";
     private MediaPlayer mediaPlayer;
     private String streamUrl;
     private String streamTitle = "Radio Player";
@@ -43,6 +50,7 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
     private Timer metadataTimer;
     private FloatingActionButton playPauseButton;
     private PlayerState currentState = PlayerState.STOPPED;
+    private NotificationManager notificationManager;
 
     private enum PlayerState {
         PLAYING, PAUSED, STOPPED
@@ -71,6 +79,7 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
     @Override
     public void onCreate() {
         super.onCreate();
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         createNotificationChannel();
     }
 
@@ -78,19 +87,21 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getAction() != null) {
             switch (intent.getAction()) {
-                case "PLAY":
+                case ACTION_PLAY:
                     play();
                     break;
-                case "PAUSE":
+                case ACTION_PAUSE:
                     pause();
                     break;
-                case "STOP":
-                    stop();
+                case ACTION_STOP:
+//                    stop();
+                    stopRadio();
                     break;
             }
         }
         return START_NOT_STICKY;
     }
+
 
     public void initializeMediaPlayer(String url, String title) {
         this.streamUrl = url;
@@ -175,8 +186,28 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
             isPlaying = false;
             currentState = PlayerState.STOPPED;
             updatePlayPauseButton();
-            updateNotification();
+//            updateNotification();
+            clearNotification();
         }
+    }
+
+    public void stopRadio() {
+        stop();
+//        if (mediaPlayer != null) {
+//            mediaPlayer.stop();
+//            mediaPlayer.release();
+//            mediaPlayer = null;
+//        }
+//        isPlaying = false;
+//        currentState = PlayerState.STOPPED;
+//        updatePlayPauseButton();
+//        clearNotification();
+////        stopSelf();
+    }
+
+    private void clearNotification() {
+        notificationManager.cancel(NOTIFICATION_ID);
+        stopForeground(true);
     }
 
     private void updatePlayPauseButton() {
@@ -190,7 +221,7 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
                         playPauseButton.setImageResource(R.drawable.ic_play);
                         break;
                     case STOPPED:
-                        playPauseButton.setImageResource(R.drawable.ic_stop);
+                        playPauseButton.setImageResource(R.drawable.ic_radio);
                         break;
                 }
             });
@@ -229,6 +260,7 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
         isPlaying = false;
         currentState = PlayerState.STOPPED;
         updatePlayPauseButton();
+        clearNotification();
         LogUtility.e(TAG, "MediaPlayer Error: " + what + ", " + extra);
         return false;
     }
@@ -237,7 +269,7 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
-                    "Radio Player",
+                    streamTitle,
                     NotificationManager.IMPORTANCE_LOW
             );
             NotificationManager manager = getSystemService(NotificationManager.class);
@@ -245,7 +277,8 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
         }
     }
 
-    private void updateNotificationZ() {
+/*
+    private void updateNotification() {
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 notificationIntent, PendingIntent.FLAG_IMMUTABLE);
@@ -291,9 +324,9 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
 
         startForeground(NOTIFICATION_ID, builder.build());
     }
+*/
 
-
-    private void updateNotification() {
+    private void updateNotificationZ() {
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 notificationIntent, PendingIntent.FLAG_IMMUTABLE);
@@ -332,6 +365,168 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
         startForeground(NOTIFICATION_ID, notification);
     }
 
+    private void updateNotification() {
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        Intent playIntent = new Intent(this, RadioPlayerService.class);
+        playIntent.setAction(ACTION_PLAY);
+        PendingIntent playPendingIntent = PendingIntent.getService(this, 1,
+                playIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        Intent pauseIntent = new Intent(this, RadioPlayerService.class);
+        pauseIntent.setAction(ACTION_PAUSE);
+        PendingIntent pausePendingIntent = PendingIntent.getService(this, 2,
+                pauseIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        Intent stopIntent = new Intent(this, RadioPlayerService.class);
+        stopIntent.setAction(ACTION_STOP);
+        PendingIntent stopPendingIntent = PendingIntent.getService(this, 3,
+                stopIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round);
+
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle(streamTitle)
+//                .setContentText(isPlaying ? "Playing" : "Paused")
+                .setContentText(isPlaying ? getResources().getString(R.string.notification_playing) : getResources().getString(R.string.pause))
+                .setSmallIcon(R.drawable.ic_radio)
+                .setLargeIcon(largeIcon)
+                .setContentIntent(pendingIntent)
+                .addAction(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play,
+                        isPlaying ? getResources().getString(R.string.pause) : getResources().getString(R.string.play),
+                        isPlaying ? pausePendingIntent : playPendingIntent)
+                .addAction(R.drawable.ic_stop, getResources().getString(R.string.stop), stopPendingIntent)
+                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                        .setShowActionsInCompactView(0, 1))
+                .build();
+
+        startForeground(NOTIFICATION_ID, notification);
+    }
+
+    private void updateNotificationZS() {
+
+        Bitmap notifyIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round);
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            /// Create or update.
+
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
+                    getString(R.string.audio_notification),
+                    NotificationManager.IMPORTANCE_LOW);
+            channel.enableVibration(false);
+            channel.enableLights(true);
+            channel.setLightColor(R.color.white);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        int icon = R.drawable.ic_pause;
+        Intent playbackAction = new Intent(this, RadioPlayerService.class);
+        playbackAction.setAction(ACTION_PAUSE);
+//        PendingIntent action = PendingIntent.getService(service, 1, playbackAction, 0);
+        PendingIntent action;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            action = PendingIntent.getService(this, 1, playbackAction, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        } else {
+            action = PendingIntent.getService(this, 1, playbackAction, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+
+        if (currentState.equals(PlayerState.PAUSED)) {
+            icon = R.drawable.ic_play;
+            playbackAction.setAction(ACTION_PLAY);
+//            action = PendingIntent.getService(service, 2, playbackAction, 0);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                action = PendingIntent.getService(this, 2, playbackAction, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            } else {
+                action = PendingIntent.getService(this, 2, playbackAction, PendingIntent.FLAG_UPDATE_CURRENT);
+            }
+        }
+
+        Intent stopIntent = new Intent(this, RadioPlayerService.class);
+        stopIntent.setAction(ACTION_STOP);
+//        PendingIntent stopAction = PendingIntent.getService(service, 3, stopIntent, 0);
+        PendingIntent stopAction;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            stopAction = PendingIntent.getService(this, 3, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        } else {
+            stopAction = PendingIntent.getService(this, 3, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+
+        Intent intent = new Intent(this, MainActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putStringArray(MainActivity.FRAGMENT_DATA, new String[]{streamUrl});
+//        bundle.putSerializable(MainBottomNav.FRAGMENT_CLASS, MainBottomNav.class);
+        intent.putExtras(bundle);
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(service, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pendingIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        } else {
+            pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        }
+
+        NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
+
+
+//        String title = meta != null && meta.getArtist() != null ?
+//                meta.getArtist() : getMyContext().getResources().getString(R.string.notification_playing);
+//        String subTitle = meta != null && meta.getSong() != null ?
+//                meta.getSong() : getMyContext().getResources().getString(R.string.app_name);
+
+        builder.
+                setContentTitle(streamTitle)
+                .setContentText(getResources().getString(R.string.notification_playing))
+                .setLargeIcon(notifyIcon)
+                .setContentIntent(pendingIntent)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setSmallIcon(R.drawable.ic_radio)
+                .addAction(icon, getResources().getString(R.string.pause), action)
+                .addAction(R.drawable.ic_stop,getResources().getString(R.string.stop), stopAction)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(false)
+                .setOngoing(true) // Cant cancel your notification (except NotificationManger.cancel(); )
+                .setWhen(System.currentTimeMillis())
+                .setColor(ContextCompat.getColor(this, R.color.colorPrimary))
+                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+//                        .setMediaSession(service.getMediaSession().getSessionToken())
+                        .setShowActionsInCompactView(0, 1)
+                        .setShowCancelButton(true)
+                        .setCancelButtonIntent(stopAction));
+
+
+        Notification notification = builder.build();
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(
+                    NOTIFICATION_ID,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+        }else {
+            startForeground(
+                    NOTIFICATION_ID,
+                    notification);
+        }
+    }
+
+
+    public void cancelNotify() {
+        Intent buttonIntent = new Intent(this, MainActivity.class);
+        int notificationId = buttonIntent.getIntExtra(CHANNEL_ID, NOTIFICATION_ID);
+        NotificationManager manager = (NotificationManager) this. getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancel(notificationId);
+        stopForeground(true);
+    }
+
 
     @Override
     public void onDestroy() {
@@ -345,7 +540,7 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
         }
         isPlaying = false;
         currentState = PlayerState.STOPPED;
-        stopForeground(true);
+        clearNotification();
         super.onDestroy();
     }
 

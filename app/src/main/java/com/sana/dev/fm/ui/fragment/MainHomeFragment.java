@@ -2,7 +2,6 @@ package com.sana.dev.fm.ui.fragment;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,11 +9,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -22,18 +22,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Query;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.DestinationSliderAdapter;
 import com.sana.dev.fm.adapter.RadiosAdapter;
 import com.sana.dev.fm.model.DestinationModel;
 import com.sana.dev.fm.model.RadioInfo;
-import com.sana.dev.fm.model.ShardDate;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
-import com.sana.dev.fm.ui.activity.DestinationDetailActivity;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.LogUtility;
@@ -71,26 +67,29 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
-    @BindView(R.id.sliderRecyclerView)
-    RecyclerView sliderRecyclerView;
+//    @BindView(R.id.sliderRecyclerView)
+//    RecyclerView sliderRecyclerView;
 
     @BindView(R.id.lyt_parent_stations)
     LinearLayout lytParentStation;
     @BindView(R.id.viewPager)
     ViewPager2 viewPager;
 
-    @BindView(R.id.indicator)
-    LinearLayout indicator;
+    @BindView(R.id.dotsLayout)
+    LinearLayout dotsLayout;
 
     View view;
     Context ctx;
-    ArrayList<RadioInfo> stationList = new ArrayList<>();
     MaterialIntroView materialIntroView;
     private SnackBarUtility sbHelp;
     private CallBackListener callBackListener;
     private FirestoreDbUtility firestoreDbUtility;
     private DestinationSliderAdapter sliderAdapter;
+    private List<DestinationModel> destinationList = new ArrayList<>();
     private Handler sliderHandler = new Handler();
+    private TextView[] dots;
+    final private long delayMillis = 30000;
+
 
     public MainHomeFragment() {
         // Required empty public constructor
@@ -109,6 +108,8 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
         firestoreDbUtility = new FirestoreDbUtility();
 
         setupSlider();
+
+        // Initialize your destinations list
         loadDestinations();
 
         loadRadios();
@@ -129,38 +130,31 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
 
     private void loadRadios() {
 
-        stationList = new ArrayList<>();
 
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, true);
         recyclerView.setLayoutManager(layoutManager);
 
-        stationList = prefMgr.getRadioList();
+        ArrayList<RadioInfo> stationList = prefMgr.getRadioList();
 
         if (stationList != null && stationList.size() > 0) {
             lytParentStation.setVisibility(View.VISIBLE);
-//        if (isCollection(ShardDate.getInstance().getInfoList())) {
-//            stationList = (ArrayList<RadioInfo>) ShardDate.getInstance().getInfoList();
             int indexToScrollTo = prefMgr.read("ScrollToPosition", 0);
 
-            ShardDate.getInstance().setRadioInfoList(stationList);
-            // Sort destinations by priority
-            List<RadioInfo> sortedRadios = getSortedRadios(stationList);
-
-            RadiosAdapter adapter = new RadiosAdapter(RadiosAdapter.VIEW_TYPE_MAIN, ctx, new ArrayList<>(sortedRadios), recyclerView, indexToScrollTo);
+            RadiosAdapter radiosAdapter = new RadiosAdapter(RadiosAdapter.VIEW_TYPE_MAIN, ctx, stationList, recyclerView, indexToScrollTo);
 
             if (!isRadioSelected() && !stationList.isEmpty()) {
                 prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, stationList.get(0));
             }
 
-            recyclerView.setAdapter(adapter);
+            recyclerView.setAdapter(radiosAdapter);
             recyclerView.setItemAnimator(new DefaultItemAnimator());
-            adapter.setOnClickListener(new RadiosAdapter.OnClickListener() {
+            radiosAdapter.setOnClickListener(new RadiosAdapter.OnClickListener() {
                 @Override
                 public void onItemClick(View view, RadioInfo radioInfo, int i) {
                     prefMgr.write("ScrollToPosition", i);
                     prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, radioInfo);
-                    adapter.selectTaskListItem(i);
+                    radiosAdapter.selectTaskListItem(i);
                     updateRecycle();
                     if (callBackListener != null)
                         callBackListener.onCallBack();
@@ -198,40 +192,64 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
     }
 
     private void setupSlider() {
+        // Auto slide setup
         sliderAdapter = new DestinationSliderAdapter(mActivity, this);
-
-        // Set up RecyclerView with horizontal scrolling
-        LinearLayoutManager layoutManager = new LinearLayoutManager(mActivity,
-                LinearLayoutManager.HORIZONTAL, false);
-        sliderRecyclerView.setLayoutManager(layoutManager);
-        sliderRecyclerView.setAdapter(sliderAdapter);
+        viewPager.setAdapter(sliderAdapter);
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                sliderHandler.removeCallbacks(sliderRunnable);
+                sliderHandler.postDelayed(sliderRunnable, delayMillis); // Slide every 3 seconds
+                updateDots(position);
+            }
+        });
 
         // Add page transformer for animation
         viewPager.setPageTransformer((page, position) -> {
             float r = 1 - Math.abs(position);
             page.setScaleY(0.85f + r * 0.15f);
         });
+    }
 
-        // displaying selected image first
-        viewPager.setCurrentItem(0);
-        addBottomDots(indicator, sliderAdapter.getItemCount(), 0);
-
-        // Register page change callback
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                addBottomDots(indicator, sliderAdapter.getItemCount(), position);
-
-                // Reset auto-scroll timer
-                sliderHandler.removeCallbacks(sliderRunnable);
-                sliderHandler.postDelayed(sliderRunnable, 3000);
+    private Runnable sliderRunnable = new Runnable() {
+        @Override
+        public void run() {
+            int currentPosition = viewPager.getCurrentItem();
+            if (currentPosition == sliderAdapter.getItemCount() - 1) {
+                viewPager.setCurrentItem(0);
+            } else {
+                viewPager.setCurrentItem(currentPosition + 1);
             }
-        });
+        }
+    };
+
+    private void setupDots() {
+        dots = new TextView[destinationList.size()];
+
+        for (int i = 0; i < dots.length; i++) {
+            dots[i] = new TextView(mActivity);
+            dots[i].setText("•");
+            dots[i].setTextSize(35);
+            dots[i].setTextColor(ContextCompat.getColor(mActivity, android.R.color.darker_gray));
+            dotsLayout.addView(dots[i]);
+        }
+
+        // Set first dot to active
+        if (dots.length > 0) {
+            dots[0].setTextColor(ContextCompat.getColor(mActivity, android.R.color.white));
+        }
+    }
+
+    private void updateDots(int position) {
+        for (int i = 0; i < dots.length; i++) {
+            dots[i].setTextColor(ContextCompat.getColor(mActivity,
+                    i == position ? android.R.color.white : android.R.color.darker_gray));
+        }
     }
 
     private void addDummyDestinations() {
-        CollectionReference destinationsRef = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.ADVERTISEMENT_TABLE).collection(AppConstant.Firebase.ADVERTISEMENT_TABLE);  // Subcollection named "1001"
+        CollectionReference destinationsRef = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.ADVERTISEMENT_TABLE).collection(AppConstant.Firebase.ADVERTISEMENT_TABLE);
 
         List<DestinationModel> dummyDestinations = Arrays.asList(
                 new DestinationModel(
@@ -303,26 +321,21 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
                 Query.Direction.DESCENDING
         ));
 
-//     db.collection("destinations")
-//                .orderBy("rating", Query.Direction.DESCENDING)
-//                .limit(10)
-        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.ADVERTISEMENT_TABLE).collection(AppConstant.Firebase.ADVERTISEMENT_TABLE);  // Subcollection named "1001"
+//     db.collection("destinations").orderBy("rating", Query.Direction.DESCENDING).limit(10)
+        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.ADVERTISEMENT_TABLE).collection(AppConstant.Firebase.ADVERTISEMENT_TABLE);
         firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
 //                Map<String, Object> resultMap = new Gson().fromJson(object.toString(), Map.class);
                 LogUtility.w(TAG, " loadDestinations onSuccess:  " + object.toString());
-                List<DestinationModel> destinationList = FirestoreDbUtility.getDataFromQuerySnapshot(object, DestinationModel.class);
+                destinationList = FirestoreDbUtility.getDataFromQuerySnapshot(object, DestinationModel.class);
 //                String obj = new Gson().toJson(destinationList);
 //                LogUtility.w(TAG, " loadDestinations onSuccess data:  " + obj);
-
                 // Sort destinations by priority
                 List<DestinationModel> sortedDestinations = getSortedDestinations(destinationList);
-
                 sliderAdapter.setDestinations(sortedDestinations);
 
-                // Start auto-scrolling
-                startAutoSlide();
+                setupDots();
             }
 
             @Override
@@ -332,17 +345,9 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
         });
     }
 
-    private List<RadioInfo> getSortedRadios(List<RadioInfo> radioInfoList) {
-        // Sort by priority
-        Collections.sort(radioInfoList, (d1, d2) ->
-                Integer.compare(d2.getPriority(), d1.getPriority()));
-
-        return radioInfoList;
-    }
 
 
     private List<DestinationModel> getSortedDestinations(List<DestinationModel> destinations) {
-//        List<DestinationModel> destinations = new ArrayList<>();
         // Sort by priority
         Collections.sort(destinations, (d1, d2) ->
                 Integer.compare(d2.getPriority(), d1.getPriority()));
@@ -351,44 +356,11 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
     }
 
 
-    private void startAutoSlide() {
-        sliderHandler.postDelayed(sliderRunnable, 3000);
-    }
-
-    private final Runnable sliderRunnable = new Runnable() {
-        @Override
-        public void run() {
-            int currentItem = viewPager.getCurrentItem();
-            int totalItems = sliderAdapter.getItemCount();
-            int nextItem = (currentItem + 1) % totalItems;
-            viewPager.setCurrentItem(nextItem, true);
-        }
-    };
-
-    private void addBottomDots(LinearLayout layout_dots, int size, int current) {
-        ImageView[] dots = new ImageView[size];
-
-        layout_dots.removeAllViews();
-        for (int i = 0; i < dots.length; i++) {
-            dots[i] = new ImageView(mActivity);
-            int width_height = 15;
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(new ViewGroup.LayoutParams(width_height, width_height));
-            params.setMargins(10, 10, 10, 10);
-            dots[i].setLayoutParams(params);
-            dots[i].setImageResource(R.drawable.shape_circle_outline);
-            layout_dots.addView(dots[i]);
-        }
-
-        if (dots.length > 0) {
-            dots[current].setImageResource(R.drawable.shape_circle);
-        }
-    }
-
     @Override
     public void onResume() {
         super.onResume();
         updateRecycle();
-        sliderHandler.postDelayed(sliderRunnable, 3000);
+        sliderHandler.postDelayed(sliderRunnable, delayMillis);
         LogUtility.e(TAG, "task resume");
     }
 
@@ -397,7 +369,6 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
         super.onPause();
         sliderHandler.removeCallbacks(sliderRunnable);
         LogUtility.e(TAG, "task Pause");
-
     }
 
 
@@ -428,15 +399,15 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
 
     @Override
     public void onDestinationClick(DestinationModel destination) {
-        // Handle destination click - navigate to details
-        Intent intent = new Intent(mActivity, DestinationDetailActivity.class);
-        intent.putExtra("destination_id", destination.getId());
-        startActivity(intent);
+//        // Handle destination click - navigate to details
+//        Intent intent = new Intent(mActivity, DestinationDetailActivity.class);
+//        intent.putExtra("destination_id", destination.getId());
+//        startActivity(intent);
     }
 
     @Override
     public void onFavoriteClick(DestinationModel destination) {
-        // Handle favorite click - update Firestore
+/*        // Handle favorite click - update Firestore
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.USERS_TABLE).collection(AppConstant.Firebase.USERS_TABLE);
         DocumentReference userFavorites = collectionReference
@@ -452,7 +423,7 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
                     userFavorites.set(destination);
                 }
             }
-        });
+        });*/
     }
 }
 

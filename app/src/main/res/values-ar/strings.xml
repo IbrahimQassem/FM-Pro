@@ -84,6 +84,7 @@
     <string name="logout">تسجيل الخروج</string>
     <string name="saved_successfully">تم الحفظ بنجاح</string>
     <string name="no_data_available">البيانات غير متوفرة</string>
+    <string name="play">تشغيل</string>
     <string name="pause">إستئناف</string>
     <string name="stop">إيقاف</string>
     <string name="notification_playing">البث المباشر</string>

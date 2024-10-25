@@ -2,30 +2,28 @@ package com.sana.dev.fm.ui.activity;
 
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.View;
-import android.widget.EditText;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.Transaction;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListDrag;
 import com.sana.dev.fm.databinding.ActivityListDragBinding;
-import com.sana.dev.fm.model.ButtonConfig;
-import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
-import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.DragItemTouchHelper;
 import com.sana.dev.fm.utils.LogUtility;
@@ -35,7 +33,9 @@ import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RadioListActivity extends BaseActivity {
     private static final String TAG = RadioListActivity.class.getSimpleName();
@@ -101,7 +101,16 @@ public class RadioListActivity extends BaseActivity {
 //                Toast.makeText(ctx, "sss", Toast.LENGTH_SHORT).show();
                 RadioInfo item = (RadioInfo) model;
                 showToast("Item " + item.getName() + " position : " + position);
-//                mAdapter.notifyDataSetChanged();
+                switch (view.getId()) {
+                    case R.id.increase_priority_btn:
+                        updatePriority(item, true);
+                        break;
+                    case R.id.decrease_priority_btn:
+                        updatePriority(item, false);
+                        break;
+                }
+
+/*//                mAdapter.notifyDataSetChanged();
                 //showInfoDialog();
                 // Create an AlertDialog.Builder object
                 AlertDialog.Builder builder = new AlertDialog.Builder(RadioListActivity.this);
@@ -135,27 +144,27 @@ public class RadioListActivity extends BaseActivity {
 
 // Create and show the dialog
                 AlertDialog dialog = builder.create();
-                dialog.show();
+                dialog.show();*/
             }
         });
 
 
-        mAdapter.setOnLongClickListener(new OnItemLongClick() {
-            @Override
-            public void onItemLongClick(View view, Object model, int position) {
-                RadioInfo item = (RadioInfo) model;
-                // showToast("Item " + item.getName() + " position : " + position);
-                String state = item.isDisabled() ? getString(R.string.label_enable) : getString(R.string.label_disable);
-                ModelConfig config = new ModelConfig(R.drawable.ic_info, getString(R.string.label_note), getString(R.string.msg_are_you_sure_you_want_to, state), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        changePriority(!item.isDisabled(), item);
-                        loadRadios();
-                    }
-                }));
-                showWarningDialog(config);
-            }
-        });
+//        mAdapter.setOnLongClickListener(new OnItemLongClick() {
+//            @Override
+//            public void onItemLongClick(View view, Object model, int position) {
+////                RadioInfo item = (RadioInfo) model;
+////                // showToast("Item " + item.getName() + " position : " + position);
+////                String state = item.isDisabled() ? getString(R.string.label_enable) : getString(R.string.label_disable);
+////                ModelConfig config = new ModelConfig(R.drawable.ic_info, getString(R.string.label_note), getString(R.string.msg_are_you_sure_you_want_to, state), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+////                    @Override
+////                    public void onClick(View v) {
+//////                        changePriority(!item.isDisabled(), item);
+////                        loadRadios();
+////                    }
+////                }));
+////                showWarningDialog(config);
+//            }
+//        });
 
         mAdapter.setDragListener(new AdapterListDrag.OnStartDragListener() {
             @Override
@@ -174,11 +183,7 @@ public class RadioListActivity extends BaseActivity {
     }
 
     private void loadRadios() {
-
-        FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
-
         List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
-
         firestoreQueryList.add(new FirestoreQuery(
                 FirestoreQueryConditionCode.Query_Direction_DESCENDING,
                 "priority",
@@ -191,14 +196,12 @@ public class RadioListActivity extends BaseActivity {
 //        ));
 
         CollectionReference collectionRef = firestoreDbUtility.getTopLevelCollection()
-                .document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);  // Subcollection named "1001"
+                .document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);
 
         firestoreDbUtility.getMany(collectionRef, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 List<RadioInfo> stationList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioInfo.class);
-                // Set sorted data to adapter:
-                // Collections.sort(stationList, (item1, item2) -> Integer.compare(item2.getPriority(), item1.getPriority()));
                 items.addAll(stationList);
                 mAdapter.notifyDataSetChanged();
             }
@@ -340,32 +343,77 @@ public class RadioListActivity extends BaseActivity {
 */
 
 
-    private void changePriority(boolean radioState, RadioInfo model) {
-//        fmStationCRUD.toggleRadioAvailability(radioState, model, new CallBack() {
-//            @Override
-//            public void onSuccess(Object object) {
-//                showToast(object.toString());
-//            }
-//
-//            @Override
-//            public void onFailure(Object object) {
-//                showToast(object.toString());
-//            }
-//        });
-    }
+    private void updatePriority(RadioInfo destination, boolean increase) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference collectionRef = firestoreDbUtility.getTopLevelCollection()
+                .document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);
 
-    private void changePriority(RadioInfo model) {
-//        fmStationCRUD.changePriority(model, new CallBack() {
-//            @Override
-//            public void onSuccess(Object object) {
-//                showToast(object.toString());
+        db.runTransaction((Transaction.Function<Void>) transaction -> {
+            // Check if there's any destination with the new priority
+            int newPriority = increase ? destination.getPriority() + 1 : destination.getPriority() - 1;
+
+            // Don't allow negative priorities
+            if (newPriority < 0) {
+//                throw new Exception("Priority cannot be negative");
+            }
+
+            // Query for any destination with the new priority
+
+            // Update the current destination's priority
+            Map<String, Object> data = new HashMap<>();
+            data.put("priority", newPriority);
+            firestoreDbUtility.update(collectionRef, destination.getRadioId(), data, new CallBack() {
+                @Override
+                public void onSuccess(Object object) {
+                    LogUtility.w(TAG, "Priority updated successfully : " + object);
+                }
+
+                @Override
+                public void onFailure(Object object) {
+                    LogUtility.e(TAG, "onError : " + object);
+                }
+            });
+
+            // If there's a destination with the new priority, swap their priorities
+//            if (!querySnapshot.isEmpty()) {
+//                transaction.update(querySnapshot.getDocuments().get(0).getReference(),
+//                        "priority", destination.getPriority());
 //            }
-//
-//            @Override
-//            public void onFailure(Object object) {
-//                showToast(object.toString());
-//            }
-//        });
+
+            return null;
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // Update the local list
+                int position = items.indexOf(destination);
+                if (increase) {
+                    destination.setPriority(destination.getPriority() + 1);
+                } else {
+                    destination.setPriority(destination.getPriority() - 1);
+                }
+
+                // Find if there's any destination to swap with
+                for (RadioInfo d : items) {
+                    if (d.getPriority() == destination.getPriority() && d != destination) {
+                        d.setPriority(destination.getPriority() > d.getPriority() ?
+                                destination.getPriority() - 1 :
+                                destination.getPriority() + 1);
+                        mAdapter.notifyItemChanged(items.indexOf(d));
+                        break;
+                    }
+                }
+
+//                mAdapter.setNewList(position);
+                mAdapter.notifyItemChanged(position);
+                showToast(getString(R.string.done_successfully));
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
+//                showToast("Failed to update priority: " + e.getMessage());
+            }
+        });
     }
 
 

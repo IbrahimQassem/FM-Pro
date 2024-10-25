@@ -36,7 +36,6 @@ import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.ui.activity.player.SongPlayerFragment;
 import com.sana.dev.fm.ui.view.RevealBackgroundView;
 import com.sana.dev.fm.utils.AppConstant;
-import com.sana.dev.fm.utils.DataGenerator;
 import com.sana.dev.fm.utils.KProgressHUDHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
@@ -170,7 +169,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
             ));
 
 //            CollectionReference collectionRef = firestoreDbUtility.getTopLevelCollection()
-//                    .document(AppConstant.Firebase.EPISODE_TABLE).collection(episode.getRadioId());  // Subcollection named "1001"
+//                    .document(AppConstant.Firebase.EPISODE_TABLE).collection(episode.getRadioId());
             CollectionReference collectionReferenceE = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, episode.getRadioId()).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
 
             firestoreDbUtility.getMany(collectionReferenceE, firestoreQueryList, new CallBack() {

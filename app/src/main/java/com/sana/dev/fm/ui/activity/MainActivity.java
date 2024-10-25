@@ -676,7 +676,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
 
 
         if (radioPlayerService.isPlaying()) {
-            radioPlayerService.stop();
+            radioPlayerService.stopRadio();
         }
     }
 
@@ -792,7 +792,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
                 showToast(getString(R.string.error_please_select_radio_station));
             }
         } else {
-            showToast("Service not bound");
+            showToast(getString(com.hbb20.R.string.no_result_found));
         }
     }
 

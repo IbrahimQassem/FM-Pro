@@ -125,7 +125,7 @@ public class ListEpisodeActivity extends BaseActivity {
 
         CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
 
-//        CollectionReference collectionRefOld = DATABASE.collection(AppConstant.Firebase.EPISODE_TABLE).document(radioId).collection(AppConstant.Firebase.EPISODE_TABLE);  // Subcollection named "1001"
+//        CollectionReference collectionRefOld = DATABASE.collection(AppConstant.Firebase.EPISODE_TABLE).document(radioId).collection(AppConstant.Firebase.EPISODE_TABLE);
 //        FirestoreCollectionTransferHelper transferHelper = new FirestoreCollectionTransferHelper(firestoreDbUtility);
 
         firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {

@@ -33,20 +33,6 @@
                 android:orientation="horizontal"
                 android:padding="@dimen/spacing_middle">
 
-                <!--                <com.sana.dev.fm.ui.view.CustomCircularImageView-->
-                <!--                    android:id="@+id/civ_logo"-->
-                <!--                    android:layout_width="@dimen/spacing_xmlarge"-->
-                <!--                    android:layout_height="@dimen/spacing_xmlarge"-->
-                <!--                    app:srcCompat="@drawable/ic_baseline_person"-->
-                <!--                    app:tint="@color/colorPrimary"-->
-                <!--                    android:scaleType="centerCrop" />-->
-
-                <!--                <com.sana.dev.fm.ui.view.CustomCircularImageView-->
-                <!--                    android:layout_width="24dp"-->
-                <!--                    android:layout_height="24dp"-->
-                <!--                    android:src="@drawable/ic_baseline_person"-->
-                <!--                    android:scaleType="centerCrop" />-->
-
                 <ImageView
                     android:id="@+id/civ_logo"
                     android:layout_width="@dimen/spacing_xmlarge"

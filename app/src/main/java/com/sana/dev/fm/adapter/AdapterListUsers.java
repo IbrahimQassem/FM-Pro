@@ -1,8 +1,6 @@
 package com.sana.dev.fm.adapter;
 
 
-import static com.sana.dev.fm.utils.Tools.getFormattedDateOnly;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.SparseBooleanArray;
@@ -19,7 +17,6 @@ import com.sana.dev.fm.databinding.ItemInboxBinding;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
-import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
 
 import java.util.ArrayList;

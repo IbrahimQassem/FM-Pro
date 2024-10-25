@@ -2,23 +2,18 @@ package com.sana.dev.fm.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-
-import androidx.core.content.ContextCompat;
-import androidx.core.view.MotionEventCompat;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
+import androidx.core.view.MotionEventCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemDragBinding;
-import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
@@ -33,7 +28,7 @@ import java.util.List;
 public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements DragItemTouchHelper.MoveHelperAdapter {
 
     private List<RadioInfo> items = new ArrayList<>();
-
+    private FirebaseFirestore db;
     private final Context ctx;
     private OnClickListener onClickListener = null;
     private OnItemLongClick onLongClickListener = null;
@@ -54,10 +49,16 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public AdapterListDrag(Context context, List<RadioInfo> items) {
         this.items = items;
         ctx = context;
+        this.db = FirebaseFirestore.getInstance();
     }
 
     public void setDragListener(OnStartDragListener dragStartListener) {
         this.mDragStartListener = dragStartListener;
+    }
+
+    public void setNewList(List<RadioInfo> radioInfoList) {
+        this.items = radioInfoList;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -99,8 +100,9 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             final RadioInfo model = items.get(position);
             view.binding.tvTitle.setText(model.getName()+" - "+model.getRadioId());
-            Tools.setTextOrHideIfEmpty( view.binding.tvDesc, model.getChannelFreq() + "\n"+ model.getDesc() + "\n" + FmUtilize.stringToDate(model.getCreateAt()));
-            view.binding.tvPriority.setText(ctx.getString(R.string.label_priority,model.getPriority()));
+            Tools.setTextOrHideIfEmpty( view.binding.tvDesc, /*model.getChannelFreq() + "\n"+*/ model.getDesc() + "\n" + FmUtilize.stringToDate(model.getCreateAt()));
+            view.binding.tvPriority.setText(model.getChannelFreq());
+            view.binding.priorityText.setText(ctx.getString(R.string.label_priority,model.getPriority()));
             view.binding.tvDate.setText(ctx.getString(R.string.label_index)+ (position + 1));
             Tools.displayImageOriginal(ctx, view.binding.image, model.getLogo());
 
@@ -108,8 +110,27 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
             view.binding.ivInternet.setVisibility(View.VISIBLE);
             view.binding.ivInternet.setColorFilter(ContextCompat.getColor(ctx, colorState), android.graphics.PorterDuff.Mode.MULTIPLY);
 //
-
+//            view.binding.increasePriorityBtn.setOnClickListener(v -> updatePriority(destination, true));
+//            view.binding.decreasePriorityBtn.setOnClickListener(v -> updatePriority(destination, false));
             view.binding.lytParent.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onClickListener != null) {
+                        onClickListener.onItemClick(v, (RadioInfo) model , position);
+                    }
+                }
+            });
+
+            view.binding.increasePriorityBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onClickListener != null) {
+                        onClickListener.onItemClick(v, (RadioInfo) model , position);
+                    }
+                }
+            });
+
+            view.binding.decreasePriorityBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (onClickListener != null) {
@@ -141,6 +162,8 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
             });
 
         }
+
+
     }
 
     @Override
@@ -152,7 +175,7 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public boolean onItemMove(int fromPosition, int toPosition) {
         Collections.swap(items, fromPosition, toPosition);
         notifyItemMoved(fromPosition, toPosition);
+        notifyDataSetChanged();
         return true;
     }
-
 }

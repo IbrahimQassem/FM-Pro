@@ -165,8 +165,8 @@ public class SplashActivity extends AppCompatActivity {
         // /HudHudFM_16/RadioInfo
         // Assuming you have an initialized FirebaseFirestore instance called "db"
 
-        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);  // Subcollection named "1001"
-//        CollectionReference collectionRefOld = DATABASE.collection(AppConstant.Firebase.RADIO_INFO_TABLE);  // Subcollection named "1001"
+        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);
+//        CollectionReference collectionRefOld = DATABASE.collection(AppConstant.Firebase.RADIO_INFO_TABLE);
 //        FirestoreCollectionTransferHelper transferHelper = new FirestoreCollectionTransferHelper(firestoreDbUtility);
 //        CollectionReference reference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);
         firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
@@ -175,18 +175,10 @@ public class SplashActivity extends AppCompatActivity {
                 List<RadioInfo> radioInfoList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioInfo.class);
                 ShardDate.getInstance().setRadioInfoList(radioInfoList);
                 prefMgr.setRadioInfo(new ArrayList<>(radioInfoList));
-
-//                transferHelper.processCollection(collectionReference, radioInfoList);
-
                 if (prefMgr.selectedRadio() == null && radioInfoList != null && radioInfoList.size() > 0) {
                     prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, radioInfoList.get(0));
                 }
                 startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
-
-//                        QuerySnapshot querySnapshot = (QuerySnapshot) object;
-//                        for (DocumentSnapshot documentSnapshot: querySnapshot.getDocuments()) {
-//                            RadioInfo radioInfo = documentSnapshot.toObject(RadioInfo.class); // do something with user object
-//                        }
             }
 
             @Override

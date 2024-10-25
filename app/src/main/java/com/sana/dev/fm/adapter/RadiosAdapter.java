@@ -82,6 +82,7 @@ public class RadiosAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (viewHolder instanceof MainViewHolder) {
             final MainViewHolder holder = (MainViewHolder) viewHolder;
             holder.binding.tvTitle.setText(model.getName());
+//            holder.binding.tvFreq.setText(model.getChannelFreq()+"["+model.getPriority()+"]");
             holder.binding.tvFreq.setText(model.getChannelFreq());
 //        holder.title.setText(model.getName() +" : "+ (model.isActive() ? "active" : "inactive"));
             Tools.displayImageOriginal(context, holder.binding.civLogo, model.getLogo());

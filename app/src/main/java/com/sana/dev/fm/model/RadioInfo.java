@@ -17,6 +17,7 @@ import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -77,6 +78,15 @@ public class RadioInfo implements Serializable {
         public int compare(RadioInfo person1, RadioInfo person2) {
             return Integer.compare(person1.getPriority(), person2.getPriority());
         }
+    }
+
+    // Sort destinations by priority
+    private List<RadioInfo> getSortedRadios(List<RadioInfo> radioInfoList) {
+        // Sort by priority
+        Collections.sort(radioInfoList, (d1, d2) ->
+                Integer.compare(d2.getPriority(), d1.getPriority()));
+
+        return radioInfoList;
     }
 
     public RadioInfo findRadio(String RadioId, List<RadioInfo> radios) {

@@ -117,6 +117,7 @@
     <string name="logout">Logout</string>
     <string name="saved_successfully">Saved successfully</string>
     <string name="no_data_available">No available data</string>
+    <string name="play">Play</string>
     <string name="pause">Pause</string>
     <string name="stop">Stop</string>
     <string name="notification_playing">Live broadcast</string>

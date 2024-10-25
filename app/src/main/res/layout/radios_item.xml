@@ -23,15 +23,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
-                <ImageView
-                    android:id="@+id/civ_logo"
+                <!--                <ImageView-->
+                <!--                    android:id="@+id/civ_logo"-->
+                <!--                    android:layout_width="60dp"-->
+                <!--                    android:layout_height="60dp"-->
+                <!--                    android:layout_centerHorizontal="true"-->
+                <!--                    android:layout_marginBottom="@dimen/spacing_small"-->
+                <!--                    app:elevation="@dimen/spacing_small"-->
+                <!--                    app:srcCompat="@drawable/logo_app" />-->
+
+                <!-- Round corners -->
+                <com.sana.dev.fm.ui.view.RoundImageView
+                    android:id="@+id/civLogo"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginBottom="@dimen/spacing_small"
-                    app:elevation="@dimen/spacing_small"
-                    app:srcCompat="@drawable/logo_app" />
-
+                    app:srcCompat="@mipmap/ic_launcher"
+                    android:scaleType="centerCrop"
+                    app:cornerRadius="50dp"
+                    app:borderWidth="0.5dp"
+                    app:borderColor="?attr/colorPrimary"/>
 
                 <ImageView
                     android:id="@+id/iv_badge_image"

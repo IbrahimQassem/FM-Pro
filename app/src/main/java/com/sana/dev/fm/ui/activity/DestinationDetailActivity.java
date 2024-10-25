@@ -104,7 +104,7 @@ public class DestinationDetailActivity extends AppCompatActivity {
     private void loadDestinationDetails() {
         progressBar.setVisibility(View.VISIBLE);
 
-        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.ADVERTISEMENT_TABLE).collection(AppConstant.Firebase.ADVERTISEMENT_TABLE);  // Subcollection named "1001"
+        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.ADVERTISEMENT_TABLE).collection(AppConstant.Firebase.ADVERTISEMENT_TABLE);
 
         collectionReference
                 .document(destinationId)

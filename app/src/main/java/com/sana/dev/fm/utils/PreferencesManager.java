@@ -131,13 +131,12 @@ public class PreferencesManager {
             String json = read(AppConstant.General.RADIO_INFO_LIST, null);
             Type type = new TypeToken<ArrayList<RadioInfo>>() {
             }.getType();
+            list = gson.fromJson(json, type);
 
 //        Type collectionType = new TypeToken<Collection<RadioInfo>>(){}.getType();
 //        Collection<RadioInfo> enums = gson.fromJson(jstring, collectionType);
 //        List<RadioInfo> lcs = (List<RadioInfo>) new Gson()
 //                .fromJson( jstring , collectionType);
-
-            list = gson.fromJson(json, type);
         } catch (Exception e) {
             LogUtility.e(LogUtility.tag(PreferencesManager.class), e.toString());
         }
