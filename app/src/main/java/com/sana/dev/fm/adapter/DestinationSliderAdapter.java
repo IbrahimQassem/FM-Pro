@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.DestinationModel;
@@ -51,7 +52,7 @@ public class DestinationSliderAdapter extends RecyclerView.Adapter<DestinationSl
 
     @Override
     public int getItemCount() {
-        return destinations.size();
+        return destinations != null ? destinations.size() : 0;
     }
 
     public void setDestinations(List<DestinationModel> destinations) {
@@ -91,9 +92,16 @@ public class DestinationSliderAdapter extends RecyclerView.Adapter<DestinationSl
             destinationName.setText(destination.getName());
             ratingBar.setRating(destination.getRating());
 
-            // Load image using Glide
-            Glide.with(context)
+//            // Load image using Glide
+//            Glide.with(context)
+//                    .load(destination.getImageUrl())
+//                    .transition(DrawableTransitionOptions.withCrossFade())
+//                    .into(destinationImage);
+
+//            // Load image using Glide
+            Glide.with(itemView.getContext())
                     .load(destination.getImageUrl())
+                    .transform(new RoundedCorners(32))
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .into(destinationImage);
         }

@@ -1,96 +1,291 @@
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nested_scroll_view"
+    android:id="@+id/parent_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clipToPadding="false"
-    android:scrollbars="none"
-    android:scrollingCache="true">
+    android:background="@android:color/white">
+
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:contentScrim="?attr/colorPrimary"
+            app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Headline"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:titleEnabled="false">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toTopOf="@+id/cor_bottom"
+                app:layout_constraintVertical_bias="0.2">
+
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/sliderRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollbars="vertical"
+                    android:scrollingCache="true"
+                    tools:listitem="@layout/item_destination_slider" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/viewPager"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp" />
+
+                    <LinearLayout
+                      android:id="@+id/indicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_gravity="end"
+                        android:gravity="center"
+                        android:orientation="horizontal" />
+
+<!--                    <com.sana.dev.fm.ui.view.CarouselIndicator-->
+<!--                        android:id="@+id/indicator"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_below="@id/viewPager"-->
+<!--                        android:layout_centerHorizontal="true"-->
+<!--                        android:layout_marginTop="8dp"-->
+<!--                        android:background="@color/yellow_600" />-->
+
+                </RelativeLayout>
+
+
+                <com.google.android.gms.ads.AdView
+                    android:id="@+id/ad_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    app:adSize="BANNER"
+                    app:adUnitId="@string/banner_ad_unit_id" />
+            </LinearLayout>
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-
-        <LinearLayout
-            android:id="@+id/lyt_parent_stations"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_middle"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:visibility="visible">
-
-
-            <TextView
-                android:id="@+id/tvTittle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/spacing_middle"
-                android:gravity="center_vertical"
-                android:paddingStart="@dimen/spacing_middle"
-                android:paddingTop="@dimen/spacing_middle"
-                android:paddingEnd="@dimen/spacing_middle"
-                android:text="@string/label_radio_list"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                android:textColor="@color/grey_90"
-                tools:text="@string/label_label" />
-
+            android:layout_gravity="bottom"
+            android:background="@color/transparent"
+            app:contentInsetStartWithNavigation="0dp"
+            app:layout_collapseMode="pin"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
             <LinearLayout
+                android:id="@+id/lyt_parent_stations"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_marginTop="@dimen/spacing_middle"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:visibility="visible">
 
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerView"
+                <TextView
+                    android:id="@+id/tvTittle"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:clipToPadding="false"
-                    android:layoutDirection="ltr"
-                    android:minHeight="120dp"
-                    android:orientation="horizontal"
-                    android:scrollbarStyle="insideOverlay"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/radios_item" />
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/spacing_middle"
+                    android:gravity="center_vertical"
+                    android:paddingStart="@dimen/spacing_middle"
+                    android:paddingTop="@dimen/spacing_middle"
+                    android:paddingEnd="@dimen/spacing_middle"
+                    android:text="@string/label_radio_list"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                    android:textColor="@color/grey_90"
+                    tools:text="@string/label_label" />
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false"
+                        android:layoutDirection="ltr"
+                        android:minHeight="120dp"
+                        android:orientation="horizontal"
+                        android:scrollbarStyle="insideOverlay"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        tools:listitem="@layout/radios_item" />
+
+
+                </LinearLayout>
 
 
             </LinearLayout>
 
 
-        </LinearLayout>
+        </androidx.appcompat.widget.Toolbar>
 
-
-        <LinearLayout
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nested_scroll_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:scrollbars="none"
+            android:scrollingCache="true"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <TextView
-                android:id="@+id/tv_title_sec2"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/spacing_middle"
-                android:gravity="center_vertical"
-                android:paddingStart="@dimen/spacing_middle"
-                android:paddingTop="@dimen/spacing_middle"
-                android:paddingEnd="@dimen/spacing_middle"
-                android:text="@string/label_radio_map"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                android:textColor="@color/grey_90"
-                tools:text="@string/label_radio_map" />
+                android:orientation="vertical">
 
-            <FrameLayout
-                android:id="@+id/child_fragment_container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="visible" />
-        </LinearLayout>
+                <FrameLayout
+                    android:id="@+id/child_fragment_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="visible" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:background="@color/grey_20" />
+
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
 
 
     </LinearLayout>
 
-</androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <!--<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+    <!--    xmlns:tools="http://schemas.android.com/tools"-->
+    <!--    android:id="@+id/nested_scroll_view"-->
+    <!--    android:layout_width="match_parent"-->
+    <!--    android:layout_height="match_parent"-->
+    <!--    android:clipToPadding="false"-->
+    <!--    android:scrollbars="none"-->
+    <!--    android:scrollingCache="true">-->
+
+    <!--    <LinearLayout-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:orientation="vertical">-->
+
+
+    <!--        <LinearLayout-->
+    <!--            android:id="@+id/lyt_parent_stations"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_marginTop="@dimen/spacing_middle"-->
+    <!--            android:gravity="center_horizontal"-->
+    <!--            android:orientation="vertical"-->
+    <!--            android:visibility="visible">-->
+
+
+    <!--            <TextView-->
+    <!--                android:id="@+id/tvTittle"-->
+    <!--                android:layout_width="match_parent"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:layout_margin="@dimen/spacing_middle"-->
+    <!--                android:gravity="center_vertical"-->
+    <!--                android:paddingStart="@dimen/spacing_middle"-->
+    <!--                android:paddingTop="@dimen/spacing_middle"-->
+    <!--                android:paddingEnd="@dimen/spacing_middle"-->
+    <!--                android:text="@string/label_radio_list"-->
+    <!--                android:textAppearance="@style/TextAppearance.AppCompat.Body2"-->
+    <!--                android:textColor="@color/grey_90"-->
+    <!--                tools:text="@string/label_label" />-->
+
+
+    <!--            <LinearLayout-->
+    <!--                android:layout_width="match_parent"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:orientation="horizontal">-->
+
+
+    <!--                <androidx.recyclerview.widget.RecyclerView-->
+    <!--                    android:id="@+id/recyclerView"-->
+    <!--                    android:layout_width="match_parent"-->
+    <!--                    android:layout_height="match_parent"-->
+    <!--                    android:clipToPadding="false"-->
+    <!--                    android:layoutDirection="ltr"-->
+    <!--                    android:minHeight="120dp"-->
+    <!--                    android:orientation="horizontal"-->
+    <!--                    android:scrollbarStyle="insideOverlay"-->
+    <!--                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
+    <!--                    tools:listitem="@layout/radios_item" />-->
+
+
+    <!--            </LinearLayout>-->
+
+
+    <!--        </LinearLayout>-->
+
+
+    <!--        <LinearLayout-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:orientation="vertical">-->
+
+    <!--            <TextView-->
+    <!--                android:id="@+id/tv_title_sec2"-->
+    <!--                android:layout_width="match_parent"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:layout_margin="@dimen/spacing_middle"-->
+    <!--                android:gravity="center_vertical"-->
+    <!--                android:paddingStart="@dimen/spacing_middle"-->
+    <!--                android:paddingTop="@dimen/spacing_middle"-->
+    <!--                android:paddingEnd="@dimen/spacing_middle"-->
+    <!--                android:text="@string/label_radio_map"-->
+    <!--                android:textAppearance="@style/TextAppearance.AppCompat.Body2"-->
+    <!--                android:textColor="@color/grey_90"-->
+    <!--                tools:text="@string/label_radio_map" />-->
+
+    <!--            <FrameLayout-->
+    <!--                android:id="@+id/child_fragment_container"-->
+    <!--                android:layout_width="match_parent"-->
+    <!--                android:layout_height="match_parent"-->
+    <!--                android:visibility="gone" />-->
+    <!--        </LinearLayout>-->
+
+
+    <!--    </LinearLayout>-->
+
+    <!--</androidx.core.widget.NestedScrollView>-->

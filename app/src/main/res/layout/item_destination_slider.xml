@@ -32,7 +32,7 @@
             android:layout_marginBottom="16dp"
             android:background="@drawable/shape_circle"
             android:src="@drawable/ic_favorites"
-            app:tint="@color/colorAccent" />
+            app:tint="@color/colorPrimary" />
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -17,6 +17,7 @@ public class DestinationModel implements Parcelable {
     private float rating;
     private double price;
     private int duration;
+    private int priority;
     private List<String> tags;
     private String region;
     private List<String> images;
@@ -26,7 +27,7 @@ public class DestinationModel implements Parcelable {
     }
 
     public DestinationModel(String id, String name, String location, String imageUrl,
-                            String description, float rating, double price, int duration,
+                            String description, float rating, double price, int duration,int priority,
                             List<String> tags, String region) {
         this.id = id;
         this.name = name;
@@ -36,6 +37,7 @@ public class DestinationModel implements Parcelable {
         this.rating = rating;
         this.price = price;
         this.duration = duration;
+        this.priority = priority;
         this.tags = tags;
         this.region = region;
         this.images = new ArrayList<>();
@@ -52,6 +54,7 @@ public class DestinationModel implements Parcelable {
         rating = in.readFloat();
         price = in.readDouble();
         duration = in.readInt();
+        priority = in.readInt();
         tags = in.createStringArrayList();
         region = in.readString();
         images = in.createStringArrayList();
@@ -68,6 +71,7 @@ public class DestinationModel implements Parcelable {
         dest.writeFloat(rating);
         dest.writeDouble(price);
         dest.writeInt(duration);
+        dest.writeInt(priority);
         dest.writeStringList(tags);
         dest.writeString(region);
         dest.writeStringList(images);
@@ -154,6 +158,14 @@ public class DestinationModel implements Parcelable {
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 
     public List<String> getTags() {
