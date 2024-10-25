@@ -29,7 +29,6 @@ import com.sana.dev.fm.model.interfaces.MetadataListener;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.LogUtility;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -94,8 +93,8 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
                     pause();
                     break;
                 case ACTION_STOP:
-//                    stop();
-                    stopRadio();
+                    stop();
+//                    stopRadio();
                     break;
             }
         }
@@ -116,7 +115,7 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
             mediaPlayer.setOnPreparedListener(this);
             mediaPlayer.setOnErrorListener(this);
         }
-        startMetadataTimer();
+//        startMetadataTimer();
     }
 
     private void startMetadataTimer() {
@@ -162,9 +161,10 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
                     currentState = PlayerState.PLAYING;
                     updatePlayPauseButton();
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 LogUtility.d(TAG, "Error startPlay : " + e.getMessage());
                 e.printStackTrace();
+                clearNotification();
             }
         }
     }
@@ -191,19 +191,19 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
         }
     }
 
-    public void stopRadio() {
-        stop();
-//        if (mediaPlayer != null) {
-//            mediaPlayer.stop();
-//            mediaPlayer.release();
-//            mediaPlayer = null;
-//        }
-//        isPlaying = false;
-//        currentState = PlayerState.STOPPED;
-//        updatePlayPauseButton();
-//        clearNotification();
-////        stopSelf();
-    }
+//    public void stopRadio() {
+//        stop();
+////        if (mediaPlayer != null) {
+////            mediaPlayer.stop();
+////            mediaPlayer.release();
+////            mediaPlayer = null;
+////        }
+////        isPlaying = false;
+////        currentState = PlayerState.STOPPED;
+////        updatePlayPauseButton();
+////        clearNotification();
+//////        stopSelf();
+//    }
 
     private void clearNotification() {
         notificationManager.cancel(NOTIFICATION_ID);

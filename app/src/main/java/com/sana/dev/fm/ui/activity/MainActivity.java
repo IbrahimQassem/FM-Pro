@@ -676,7 +676,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
 
 
         if (radioPlayerService.isPlaying()) {
-            radioPlayerService.stopRadio();
+            radioPlayerService.stop();
         }
     }
 
