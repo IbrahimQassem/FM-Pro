@@ -20,11 +20,7 @@ import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.utils.FmUtilize;
-import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
-
-import java.util.Collections;
-import java.util.Map;
 
 
 public class ChatHolder extends RecyclerView.ViewHolder {
@@ -107,18 +103,17 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         Tools.displayImageRound(ctx, binding.civLogo, episode.getEpProfile());
         Tools.displayImageOriginal(ctx, binding.ivBanner, episode.getEpProfile());
 
-        Map<String, Boolean> likeStates = episode.getEpisodeLikes();
-        if (episode.userId != null) {
-            for (Map.Entry<String, Boolean> pair : likeStates.entrySet()) {
-//                    LogUtility.d("getEpisodeLikes", String.format("Key (name) is: %s, Value   is : %s", pair.getKey(), pair.getValue()));
-                if (Boolean.TRUE.equals(likeStates.get(episode.userId))) {
-                    episode.isLiked = pair.getValue();
-                    binding.imvLike.setColorFilter(ContextCompat.getColor(ctx, R.color.colorPrimary));
-                }
-            }
+
+        boolean isLikedBy = episode.isLikedBy(episode.userId);
+
+        if (isLikedBy) {
+            episode.isLiked = isLikedBy;
+            binding.imvLike.setColorFilter(ContextCompat.getColor(ctx, R.color.colorPrimary));
+        }else {
+            binding.imvLike.setColorFilter(ContextCompat.getColor(ctx, R.color.grey_400));
         }
 
-        int countLike = Collections.frequency(likeStates.values(), true);
+        int countLike = episode.getLikesCount();// Collections.frequency(likeStates.values(), true);
         binding.txtLikes.setText(ctx.getResources().getQuantityString(
                 R.plurals.likes_count, countLike, countLike
         ));

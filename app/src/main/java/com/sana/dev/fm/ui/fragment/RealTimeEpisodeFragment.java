@@ -1,6 +1,8 @@
 package com.sana.dev.fm.ui.fragment;
 
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,7 +11,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.BounceInterpolator;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -26,6 +30,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.Transaction;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.ChatHolder;
@@ -79,6 +84,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
     FrameLayout cf_container;
 
     RecyclerView.Adapter adapter;
+    private FirebaseFirestore db;
 
     public RealTimeEpisodeFragment() {
         // Required empty public constructor
@@ -113,6 +119,8 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         // Inflate the layout for this fragment
         ButterKnife.bind(this, view);
         firestoreDbUtility = new FirestoreDbUtility();
+        this.db = FirebaseFirestore.getInstance();
+
 
         init();
         return view;
@@ -160,6 +168,29 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         });
 
 
+    }
+
+
+    private void loadEpisodes() {
+//        db.collection("episodes")
+//                .orderBy("timestamp", Query.Direction.DESCENDING)
+//                .addSnapshotListener((value, error) -> {
+//                    if (error != null) {
+//                        Toast.makeText(this, "Error loading episodes: " + error.getMessage(),
+//                                Toast.LENGTH_SHORT).show();
+//                        return;
+//                    }
+//
+//                    episodes.clear();
+//                    for (DocumentSnapshot doc : value.getDocuments()) {
+//                        Episode episode = doc.toObject(Episode.class);
+//                        if (episode != null) {
+//                            episode.setId(doc.getId());
+//                            episodes.add(episode);
+//                        }
+//                    }
+//                    adapter.notifyDataSetChanged();
+//                });
     }
 
     @Override
@@ -225,7 +256,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         Timestamp timestamp = new Timestamp(new Date());
         // Get today's date in milliseconds since epoch
         long today = System.currentTimeMillis();
-        LogUtility.d(LogUtility.TAG, "timestamp time is  : " + String.valueOf(timestamp) +" -"+today);
+        LogUtility.d(LogUtility.TAG, "timestamp time is  : " + String.valueOf(timestamp) + " -" + today);
 
 //        Query episodeQuery = collectionReference.whereEqualTo("disabled", false).whereLessThanOrEqualTo("programScheduleTime.dateEnd", today).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
 //        Query episodeQuery = collectionReference.whereEqualTo("disabled", false).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
@@ -243,7 +274,6 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
 // Create a date object representing the desired date
 //        Date specificDate = new Date(yourYear, yourMonth - 1, yourDay); // Adjust year, month (0-based), and day
-
 
 
         FirestoreRecyclerOptions<Episode> options =
@@ -274,7 +304,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 }
                 ChatHolder viewHolder = (ChatHolder) holder;
 //                if (model != null && !model.isDisabled())
-                    viewHolder.bind(model, position);
+                viewHolder.bind(model, position);
 
 //                // Check the disabled field and update visibility
 //                if (model != null && model.isDisabled()) { // Assuming your MyItem class has a getter for disabled field
@@ -325,30 +355,31 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                                         showWarningDialog(config);
                                     }
                                 } else {
-                                    boolean isLik = !model.isLiked;
-                                    HashMap<String, Boolean> likeMap = new HashMap<>();
-                                    likeMap.put(prefMgr.getUserSession().getUserId(), isLik);
-                                    model.setEpisodeLikes(likeMap);
-
-                                    Map<String, Object> docData = new HashMap<>();
-                                    docData.put("episodeLikes", model.getEpisodeLikes());
-
-                                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
-//                                    DocumentReference documentReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(model.getEpId());
-
-                                    firestoreDbUtility.update(collectionReference, model.getEpId(), docData, new CallBack() {
-                                        @Override
-                                        public void onSuccess(Object object) {
-//                                            showToast(getString(R.string.done_successfully));
-                                            LogUtility.d(LogUtility.TAG, "success set episodeLikes radioId : " + radioId + " docData is  : " + docData);
-                                        }
-
-                                        @Override
-                                        public void onFailure(Object object) {
-//                                            showToast(getString(R.string.label_error_occurred_with_val,object));
-                                            LogUtility.d(LogUtility.TAG, "failure set episodeLikes radioId : " + radioId + " docData is  : " + object);
-                                        }
-                                    });
+                                    toggleLike((ImageView) view,model, item.userId, item.getRadioId());
+//                                    boolean isLik = !model.isLiked;
+//                                    HashMap<String, Boolean> likeMap = new HashMap<>();
+//                                    likeMap.put(prefMgr.getUserSession().getUserId(), isLik);
+//                                    model.setEpisodeLikes(likeMap);
+//
+//                                    Map<String, Object> docData = new HashMap<>();
+//                                    docData.put("episodeLikes", model.getEpisodeLikes());
+//
+//                                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+////                                    DocumentReference documentReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(model.getEpId());
+//
+//                                    firestoreDbUtility.update(collectionReference, model.getEpId(), docData, new CallBack() {
+//                                        @Override
+//                                        public void onSuccess(Object object) {
+////                                            showToast(getString(R.string.done_successfully));
+//                                            LogUtility.d(LogUtility.TAG, "success set episodeLikes radioId : " + radioId + " docData is  : " + docData);
+//                                        }
+//
+//                                        @Override
+//                                        public void onFailure(Object object) {
+////                                            showToast(getString(R.string.label_error_occurred_with_val,object));
+//                                            LogUtility.d(LogUtility.TAG, "failure set episodeLikes radioId : " + radioId + " docData is  : " + object);
+//                                        }
+//                                    });
                                 }
                                 break;
                             case R.id.bt_toggle:
@@ -474,6 +505,96 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
     void toggleView(boolean hide) {
         recyclerView.setVisibility(!hide ? View.VISIBLE : View.GONE);
         cf_container.setVisibility(hide ? View.VISIBLE : View.GONE);
+    }
+
+    private void toggleLike(ImageView likeButton , Episode episode, String currentUserId, String radioId) {
+        if (currentUserId == null) {
+//            Toast.makeText(context, "Please sign in to like episodes", Toast.LENGTH_SHORT).show();
+            showToast(getString(R.string.goto_login));
+            return;
+        }
+
+//        progressBar.setVisibility(View.VISIBLE);
+        likeButton.setEnabled(false);
+
+
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+
+        db.runTransaction((Transaction.Function<Void>) transaction -> {
+
+            Map<String, Boolean> likes = episode.getEpisodeLikes();
+            if (likes == null) {
+                likes = new HashMap<>();
+            }
+
+            int newLikesCount = episode.getLikesCount();
+
+            if (likes.containsKey(currentUserId) &&
+                    Boolean.TRUE.equals(likes.get(currentUserId))) {
+                // Unlike
+                likes.remove(currentUserId);
+                newLikesCount--;
+            } else {
+                // Like
+                likes.put(currentUserId, true);
+                newLikesCount++;
+            }
+
+            Map<String, Object> docData = new HashMap<>();
+            docData.put("episodeLikes", likes);
+            docData.put("likesCount", newLikesCount);
+            firestoreDbUtility.update(collectionReference, episode.getEpId(), docData, new CallBack() {
+                @Override
+                public void onSuccess(Object object) {
+//                    showToast(getString(R.string.done_successfully));
+                    LogUtility.d(LogUtility.TAG, "success set episodeLikes radioId : " + radioId + " docData is  : " + docData);
+                }
+
+                @Override
+                public void onFailure(Object object) {
+//                    showToast(getString(R.string.label_error_occurred_with_val, object));
+                    LogUtility.d(LogUtility.TAG, "failure set episodeLikes radioId : " + radioId + " docData is  : " + object);
+                }
+            });
+
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            // Update local data
+            boolean wasLiked = episode.isLikedBy(currentUserId);
+            if (wasLiked) {
+                episode.getEpisodeLikes().remove(currentUserId);
+                episode.setLikesCount(episode.getLikesCount() - 1);
+            } else {
+                episode.getEpisodeLikes().put(currentUserId, true);
+                episode.setLikesCount(episode.getLikesCount() + 1);
+            }
+
+            // Animate like button
+            animateLikeButton(likeButton);
+
+            // Update UI
+//            updateLikeButtonState(episode);
+//            likesCountText.setText(String.valueOf(episode.getLikesCount()));
+
+//            progressBar.setVisibility(View.GONE);
+            likeButton.setEnabled(true);
+
+        }).addOnFailureListener(e -> {
+//            showToast(getString(R.string.label_error_occurred_with_val, e.getMessage()));
+//            progressBar.setVisibility(View.GONE);
+            likeButton.setEnabled(true);
+        });
+    }
+
+    private void animateLikeButton(ImageView likeButton) {
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(likeButton, "scaleX", 1f, 1.2f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(likeButton, "scaleY", 1f, 1.2f, 1f);
+
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(scaleX, scaleY);
+        animatorSet.setDuration(300);
+        animatorSet.setInterpolator(new BounceInterpolator());
+        animatorSet.start();
     }
 
 }

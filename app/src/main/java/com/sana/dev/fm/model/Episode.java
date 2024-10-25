@@ -12,17 +12,13 @@ public class Episode implements Serializable {
     @Exclude
     public boolean isLiked, isFavorite;
     private int likesCount, favCount;
-    //    @Exclude
-//    private DateTimeModel showTimeObj;
     private boolean disabled;
     private String radioId, programId, epId, epName, epDesc, epAnnouncer,
             epProfile, epStreamUrl, programName,
             timestamp, createBy, stopNote;
     private DateTimeModel programScheduleTime;
     private List<DateTimeModel> showTimeList;
-
     private Map<String, Boolean> episodeLikes = new HashMap<>();
-
     @Exclude
     public String userId;
     @Exclude
@@ -30,6 +26,25 @@ public class Episode implements Serializable {
 
 //    @ServerTimestamp
 //    public Date getTimestamp() { return mTimestamp; }
+    public boolean isLikedByAnyUser(List<String> userIds) {
+        if (episodeLikes == null || userIds == null) return false;
+
+        for (String userId : userIds) {
+            if (Boolean.TRUE.equals(episodeLikes.get(userId))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isLikedBy(String userId) {
+        return episodeLikes != null && episodeLikes.containsKey(userId);
+    }
+
+    public int getTotalLikes() {
+        return episodeLikes != null ? episodeLikes.size() : 0;
+    }
+
 
     public Episode() {
         super();
