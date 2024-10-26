@@ -64,7 +64,6 @@ import com.sana.dev.fm.FmApplication;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.DeviceInfo;
-import com.sana.dev.fm.ui.activity.SplashActivity;
 
 import java.net.MalformedURLException;
 import java.net.URI;

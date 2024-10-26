@@ -28,8 +28,8 @@ android {
         applicationId "com.sana.dev.fm"
         minSdk 21
         targetSdk 34
-        versionCode 15
-        versionName "1.0.5"
+        versionCode 1
+        versionName "1.0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 //        signingConfig signingConfigs.debug
         archivesBaseName = "hudhudfm-v($versionName)" // to name generated apk
@@ -90,6 +90,7 @@ android {
             versionName "2.0.6"
 //            signingConfig signingConfigs.debug
             buildConfigField "String", "BASE_FB_DB", '"HudHudFmGooglePlay"'
+            archivesBaseName = "hudhudfm-google-play-v($versionName)" // to name generated apk
         }
 
         internews {

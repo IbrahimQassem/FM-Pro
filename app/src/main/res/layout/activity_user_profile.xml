@@ -51,14 +51,21 @@
                         android:clickable="true"
                         android:focusable="true">
 
-                        <ImageView
+                        <!-- Round corners -->
+                        <com.sana.dev.fm.ui.view.RoundImageView
                             android:id="@+id/img_profile"
                             android:layout_width="@dimen/user_profile_avatar_size"
                             android:layout_height="@dimen/user_profile_avatar_size"
                             android:layout_marginTop="@dimen/spacing_small"
                             android:layout_marginBottom="@dimen/spacing_small"
                             android:scaleType="fitCenter"
-                            app:srcCompat="@drawable/ic_person" />
+                            app:srcCompat="@drawable/ic_person"
+                            android:foreground="@color/overlay_light_20"
+                            app:borderColor="?attr/colorPrimary"
+                            app:borderWidth="0.5dp"
+                            app:cornerRadius="50dp" />
+
+
 
                         <ImageView
                             android:layout_width="30dp"

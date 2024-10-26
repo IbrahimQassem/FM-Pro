@@ -12,11 +12,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.DestinationModel;
+import com.sana.dev.fm.utils.Tools;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,18 +90,15 @@ public class DestinationSliderAdapter extends RecyclerView.Adapter<DestinationSl
             destinationName.setText(destination.getName());
             ratingBar.setRating(destination.getRating());
 
-//            // Load image using Glide
-//            Glide.with(context)
+
+            Tools.displayImageOriginal(context, destinationImage, destination.getImageUrl());
+
+////            // Load image using Glide
+//            Glide.with(itemView.getContext())
 //                    .load(destination.getImageUrl())
+//                    .transform(new RoundedCorners(32))
 //                    .transition(DrawableTransitionOptions.withCrossFade())
 //                    .into(destinationImage);
-
-//            // Load image using Glide
-            Glide.with(itemView.getContext())
-                    .load(destination.getImageUrl())
-                    .transform(new RoundedCorners(32))
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .into(destinationImage);
         }
     }
 }

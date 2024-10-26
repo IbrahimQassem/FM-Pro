@@ -68,15 +68,20 @@
                             android:layout_height="wrap_content"
                             android:clipChildren="false">
 
-
-                            <ImageView
+                            <!-- Round corners -->
+                            <com.sana.dev.fm.ui.view.RoundImageView
                                 android:id="@+id/img_profile"
                                 android:layout_width="@dimen/user_profile_avatar_size"
                                 android:layout_height="@dimen/user_profile_avatar_size"
                                 android:layout_margin="@dimen/spacing_middle"
                                 android:scaleType="centerInside"
-                                android:tint="@color/colorPrimary"
-                                app:srcCompat="@mipmap/ic_launcher_foreground" />
+                                android:tint="@color/transparent"
+                                app:srcCompat="@mipmap/ic_launcher"
+                                android:foreground="@color/overlay_light_20"
+                                app:borderColor="?attr/colorPrimary"
+                                app:borderWidth="0.5dp"
+                                app:cornerRadius="14dp" />
+
 
                             <!--                        <ImageView-->
                             <!--                            android:visibility="gone"-->
