@@ -306,6 +306,8 @@
     <string name="label_update_now">Update Now</string>
     <string name="label_force_update_title">Requierd Update</string>
     <string name="label_force_update_message">Kindle update to last version</string>
+    <string name="label_no">No</string>
+    <string name="label_yes">Yes</string>
     <!--    <string name="gdpr_privacy_policy">-->
     <!--        By using this App, you agree to the <a href="%s">Terms-Conditions &amp; Privacy-Policy</a>.-->
     <!--    </string>-->

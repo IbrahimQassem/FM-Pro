@@ -15,6 +15,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemDragBinding;
 import com.sana.dev.fm.model.RadioInfo;
+import com.sana.dev.fm.model.interfaces.OnCheckedChangeListener;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.utils.DragItemTouchHelper;
@@ -33,6 +34,7 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private OnClickListener onClickListener = null;
     private OnItemLongClick onLongClickListener = null;
     private OnStartDragListener mDragStartListener = null;
+    private OnCheckedChangeListener mCheckedChangeListener = null;
 
     public interface OnStartDragListener {
         void onStartDrag(RecyclerView.ViewHolder viewHolder, RadioInfo obj, int position);
@@ -44,6 +46,10 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
     public void setOnLongClickListener(OnItemLongClick onLongClickListener) {
         this.onLongClickListener = onLongClickListener;
+    }
+
+    public void setOnOnCheckedChangeListener(OnCheckedChangeListener mCheckedChangeListener) {
+        this.mCheckedChangeListener = mCheckedChangeListener;
     }
 
     public AdapterListDrag(Context context, List<RadioInfo> items) {
@@ -109,17 +115,30 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
             int colorState = !model.isDisabled() ? R.color.green_500 : R.color.red_500;
             view.binding.ivInternet.setVisibility(View.VISIBLE);
             view.binding.ivInternet.setColorFilter(ContextCompat.getColor(ctx, colorState), android.graphics.PorterDuff.Mode.MULTIPLY);
-//
-//            view.binding.increasePriorityBtn.setOnClickListener(v -> updatePriority(destination, true));
-//            view.binding.decreasePriorityBtn.setOnClickListener(v -> updatePriority(destination, false));
-            view.binding.lytParent.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (onClickListener != null) {
-                        onClickListener.onItemClick(v, (RadioInfo) model , position);
+
+            // Set initial switch state
+            view.binding.disableSwitch.setChecked(!model.isDisabled());
+
+            // Set switch listener
+            view.binding.disableSwitch.setOnCheckedChangeListener(null); // Clear previous listener
+            view.binding.disableSwitch.setChecked(model.isDisabled());
+            view.binding.disableSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (buttonView.isPressed()) { // Only proceed if user actually clicked
+                    if (mCheckedChangeListener != null) {
+                        mCheckedChangeListener.onCheckedChanged(buttonView, (RadioInfo) model ,isChecked, position);
                     }
                 }
             });
+//            view.binding.increasePriorityBtn.setOnClickListener(v -> updatePriority(destination, true));
+//            view.binding.decreasePriorityBtn.setOnClickListener(v -> updatePriority(destination, false));
+//            view.binding.lytParent.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if (onClickListener != null) {
+//                        onClickListener.onItemClick(v, (RadioInfo) model , position);
+//                    }
+//                }
+//            });
 
             view.binding.increasePriorityBtn.setOnClickListener(new View.OnClickListener() {
                 @Override

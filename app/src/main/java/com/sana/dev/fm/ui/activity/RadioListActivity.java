@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,6 +24,7 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListDrag;
 import com.sana.dev.fm.databinding.ActivityListDragBinding;
 import com.sana.dev.fm.model.RadioInfo;
+import com.sana.dev.fm.model.interfaces.OnCheckedChangeListener;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.DragItemTouchHelper;
@@ -100,7 +102,7 @@ public class RadioListActivity extends BaseActivity {
             public void onItemClick(View view, Object model, int position) {
 //                Toast.makeText(ctx, "sss", Toast.LENGTH_SHORT).show();
                 RadioInfo item = (RadioInfo) model;
-                showToast("Item " + item.getName() + " position : " + position);
+//                showToast("Item " + item.getName() + " position : " + position);
                 switch (view.getId()) {
                     case R.id.increase_priority_btn:
                         updatePriority(item, true);
@@ -145,6 +147,18 @@ public class RadioListActivity extends BaseActivity {
 // Create and show the dialog
                 AlertDialog dialog = builder.create();
                 dialog.show();*/
+            }
+        });
+
+        mAdapter.setOnOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(View view, Object model, boolean isChecked, int position) {
+                RadioInfo item = (RadioInfo) model;
+                switch (view.getId()) {
+                    case R.id.disable_switch:
+                        toggleDisableStatus((SwitchCompat) view,item);
+                        break;
+                }
             }
         });
 
@@ -416,5 +430,73 @@ public class RadioListActivity extends BaseActivity {
         });
     }
 
+    private void toggleDisableStatus(SwitchCompat disableSwitch, RadioInfo destination) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference collectionRef = firestoreDbUtility.getTopLevelCollection()
+                .document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);
+        // Check if there's any destination with the new priority
+        boolean newPriority = !destination.isDisabled();
+        db.runTransaction((Transaction.Function<Void>) transaction -> {
 
+            // Update the current destination's priority
+            Map<String, Object> data = new HashMap<>();
+            data.put("disabled", newPriority);
+            firestoreDbUtility.update(collectionRef, destination.getRadioId(), data, new CallBack() {
+                @Override
+                public void onSuccess(Object object) {
+                    LogUtility.w(TAG, "Priority updated successfully : " + object);
+                }
+
+                @Override
+                public void onFailure(Object object) {
+                    LogUtility.e(TAG, "onError : " + object);
+                }
+            });
+
+            // If there's a destination with the new priority, swap their priorities
+//            if (!querySnapshot.isEmpty()) {
+//                transaction.update(querySnapshot.getDocuments().get(0).getReference(),
+//                        "priority", destination.getPriority());
+//            }
+
+            return null;
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // Update the local list
+                int position = items.indexOf(destination);
+                destination.setDisabled(newPriority);
+
+//                // Find if there's any destination to swap with
+//                for (RadioInfo d : items) {
+//                    if (d.isDisabled() == destination.isDisabled() && d != destination) {
+//                        d.setDisabled(destination.isDisabled());
+//                        mAdapter.notifyItemChanged(items.indexOf(d));
+//                        break;
+//                    }
+//                }
+
+                // Update UI
+                disableSwitch.setChecked(newPriority);
+//                progressBar.setVisibility(View.GONE);
+                disableSwitch.setEnabled(true);
+
+                // Show feedback
+//                String message = newPriority ? "Episode disabled" : "Episode enabled";
+                mAdapter.notifyItemChanged(position);
+//                showToast(message);
+                showToast(getString(R.string.done_successfully));
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
+//                showToast("Failed to update status: " + e.getMessage());
+                // Revert switch state on failure
+                disableSwitch.setChecked(!newPriority);
+//                progressBar.setVisibility(View.GONE);
+                disableSwitch.setEnabled(true);
+            }
+        });
+    }
 }

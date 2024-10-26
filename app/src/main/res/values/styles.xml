@@ -7,7 +7,6 @@
     </style>
 
 
-
     <style name="ContextMenuButton">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -80,7 +79,7 @@
         <item name="colorButtonNormal">@color/colorPrimary</item>
         <item name="colorControlNormal">@color/colorPrimary</item>
         <item name="colorControlActivated">@color/colorPrimary</item>
-<!--        <item name="colorControlHighlight">@color/fab_color_pressed</item>-->
+        <!--        <item name="colorControlHighlight">@color/fab_color_pressed</item>-->
         -
 
         <!-- AppCompat Dialog Attributes -->
@@ -136,4 +135,12 @@
         <item name="android:windowExitAnimation">@anim/slide_out</item>
     </style>
 
+    <style name="SwitchTheme" parent="Theme.AppCompat.Light">
+        <!-- Active thumb color & Active track color -->
+        <item name="colorControlActivated">@color/design_default_color_error</item>
+        <!-- Inactive thumb color -->
+        <item name="colorSwitchThumbNormal">@color/green_500 </item>
+        <!-- Inactive track color -->
+        <item name="android:colorForeground">@color/grey_500</item>
+    </style>
 </resources>

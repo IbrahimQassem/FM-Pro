@@ -201,7 +201,6 @@
                         android:paddingEnd="@dimen/spacing_large"
                         android:visibility="visible">
 
-
                         <EditText
                             android:id="@+id/et_email"
                             style="@style/TextRegular"
@@ -266,6 +265,7 @@
                             app:tint="@color/colorPrimary" />
                     </LinearLayout>
 
+<!--
                     <LinearLayout
                         android:id="@+id/lyt_parent_pass"
                         android:layout_width="match_parent"
@@ -306,6 +306,7 @@
                             app:srcCompat="@drawable/ic_password"
                             app:tint="@color/colorPrimary" />
                     </LinearLayout>
+-->
 
                     <LinearLayout
                         android:id="@+id/lyt_parent_gender"

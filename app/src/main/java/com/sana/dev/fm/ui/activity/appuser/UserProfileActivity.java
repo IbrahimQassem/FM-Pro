@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,31 +23,21 @@ import androidx.core.content.ContextCompat;
 
 import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnPausedListener;
-import com.google.firebase.storage.OnProgressListener;
-import com.google.firebase.storage.StorageMetadata;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityUserProfileBinding;
 import com.sana.dev.fm.model.AuthMethod;
 import com.sana.dev.fm.model.ButtonConfig;
-import com.sana.dev.fm.model.Episode;
-import com.sana.dev.fm.model.enums.Gender;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserModel;
-import com.sana.dev.fm.ui.activity.AddEpisodeActivity;
+import com.sana.dev.fm.model.enums.Gender;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.ui.activity.ImagePickerActivity;
-import com.sana.dev.fm.utils.AESCrypt;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
@@ -161,7 +150,7 @@ public class UserProfileActivity extends BaseActivity {
         // Todo fix
         if (prefMgr.getUserSession() != null) {
 
-            binding.lytParentPass.setVisibility(View.GONE);
+//            binding.lytParentPass.setVisibility(View.GONE);
             binding.lytParentCity.setVisibility(View.GONE);
 
             UserModel _userModel = prefMgr.getUserSession();
@@ -174,11 +163,11 @@ public class UserProfileActivity extends BaseActivity {
             binding.etEmail.setText(_userModel.getEmail());
             binding.etMobile.setText(FmUtilize.trimMobileCode(_userModel.getMobile()));
 
-            try {
-                binding.etPassword.setText(AESCrypt.decrypt(_userModel.getPassword()));
-            } catch (Exception e) {
-                Log.e(TAG, e.toString());
-            }
+//            try {
+//                binding.etPassword.setText(AESCrypt.decrypt(_userModel.getPassword()));
+//            } catch (Exception e) {
+//                Log.e(TAG, e.toString());
+//            }
 
             Gender gender = _userModel.getGender() != null ? _userModel.getGender() : Gender.UNKNOWN;
             if (Gender.FEMALE == gender) {
@@ -214,7 +203,7 @@ public class UserProfileActivity extends BaseActivity {
         });
 
 
-        //assign the image in code (or you can do this in your layout xml with the src attribute)
+/*        //assign the image in code (or you can do this in your layout xml with the src attribute)
         binding.ibPass.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_visibility_off));
 
 //set the click listener
@@ -237,7 +226,7 @@ public class UserProfileActivity extends BaseActivity {
                     e.printStackTrace();
                 }
             }
-        });
+        });*/
 
         binding.btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -393,7 +382,7 @@ public class UserProfileActivity extends BaseActivity {
             String name = Tools.isEmpty(binding.etFullName) ? "" : binding.etFullName.getText().toString().trim();
             String mobile = Tools.isEmpty(binding.etMobile) ? "" : binding.etMobile.getText().toString().trim();
             String email = Tools.isEmpty(binding.etEmail) ? "" : binding.etEmail.getText().toString().trim();
-            String pass = Tools.isEmpty(binding.etPassword) ? "" : AESCrypt.encrypt(Tools.toString(binding.etPassword));
+//            String pass = Tools.isEmpty(binding.etPassword) ? "" : AESCrypt.encrypt(Tools.toString(binding.etPassword));
 
             boolean isUserNameEdite = Tools.isEmpty(userModel.getName()) && name.equalsIgnoreCase(userModel.getName());
             boolean isGenderEdited = userModel.getGender() == gender;
@@ -403,7 +392,7 @@ public class UserProfileActivity extends BaseActivity {
                 userModel.setName(name);
                 userModel.setMobile(mobile);
                 userModel.setEmail(email);
-                userModel.setPassword(pass);
+//                userModel.setPassword(pass);
 
                 userModel.setGender(gender);
                 userModel.setDeviceToken(FmUtilize.getIMEIDeviceId(this));

@@ -273,5 +273,7 @@
     <string name="label_update_now">تحديث التطبيق</string>
     <string name="label_force_update_title">التحديث الآن</string>
     <string name="label_force_update_message">يرجى تحديث الإصدار الأخير من التطبيق.</string>
+    <string name="label_no">لا</string>
+    <string name="label_yes">نعم</string>
 
 </resources>
