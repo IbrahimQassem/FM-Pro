@@ -198,29 +198,6 @@ public class TimeLineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return timeLineModelList.size();
     }
 
-    public void newAddeddata(TempEpisodeModel episode) {
-        timeLineModelList.add(episode);
-        notifyDataSetChanged();
-    }
-
-//    private class ViewHolder extends RecyclerView.ViewHolder {
-//        TimelineView timelineView;
-//        ImageView circularImage;
-//        TextView tvTitle, tvSubTitle, tevDate, tevTimeShow, tevEpState;
-//
-//        ViewHolder(View itemView, int viewType) {
-//            super(itemView);
-//            timelineView = itemView.findViewById(R.id.timeline);
-//            circularImage = itemView.findViewById(R.id.circularImage);
-//            tvTitle = itemView.findViewById(R.id.tvTitle);
-//            tvSubTitle = itemView.findViewById(R.id.tvSubTitle);
-//            tevDate = itemView.findViewById(R.id.tevDate);
-//            tevTimeShow = itemView.findViewById(R.id.tevTimeShow);
-//            tevEpState = itemView.findViewById(R.id.tevEpState);
-//
-//            timelineView.initLine(viewType);
-//        }
-//    }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         private final ItemTimelineBinding binding;

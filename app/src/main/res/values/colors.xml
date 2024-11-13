@@ -258,4 +258,8 @@
     <color name="yellow_600">#fdd835</color>
     <color name="kprogresshud_default_color">#b1000000</color>
 
+    <color name="refresh_color_1">#4285F4</color>
+    <color name="refresh_color_2">#EA4335</color>
+    <color name="refresh_color_3">#34A853</color>
+
 </resources>

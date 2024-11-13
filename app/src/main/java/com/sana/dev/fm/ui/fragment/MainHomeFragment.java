@@ -346,12 +346,12 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
     }
 
 
-
     private List<DestinationModel> getSortedDestinations(List<DestinationModel> destinations) {
-        // Sort by priority
-        Collections.sort(destinations, (d1, d2) ->
-                Integer.compare(d2.getPriority(), d1.getPriority()));
-
+        if ((destinations.size() % destinations.size()) > 0) {
+            // Sort by priority
+            Collections.sort(destinations, (d1, d2) -> Integer.compare(d2.getPriority(), d1.getPriority()));
+            return destinations;
+        }
         return destinations;
     }
 

@@ -2,7 +2,6 @@ package com.sana.dev.fm.adapter;
 
 
 import static com.sana.dev.fm.utils.Tools.getFormattedDateOnly;
-import static com.sana.dev.fm.utils.Tools.getFormattedTimeEvent;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -11,17 +10,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemInboxBinding;
-import com.sana.dev.fm.databinding.ItemProgramsBinding;
-import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;

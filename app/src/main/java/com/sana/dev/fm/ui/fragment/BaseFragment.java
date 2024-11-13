@@ -29,6 +29,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.dd.CircularProgressButton;
 import com.sana.dev.fm.model.ModelConfig;
+import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.interfaces.BaseFragmentView;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.utils.MyContextWrapper;
@@ -126,14 +127,18 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentView 
 
     @Override
     public boolean isAccountSignedIn() {
-        return prefMgr.getUserSession() != null && prefMgr.getUserSession().getUserId() != null /*&& FirebaseAuth.getInstance().getCurrentUser() != null*/;
+        return ((BaseActivity) getActivity()).isAccountSignedIn();
     }
 
     @Override
     public boolean isRadioSelected() {
-        return prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null;
+        return ((BaseActivity) getActivity()).isRadioSelected();
     }
 
+    @Override
+    public RadioInfo getSelectedRadio() {
+        return ((BaseActivity) getActivity()).getSelectedRadio();
+    }
 
     protected static void setSpinning(@Nullable CircularProgressButton button) {
         if (button != null) {

@@ -3,7 +3,6 @@ package com.sana.dev.fm.adapter;
 
 import static com.sana.dev.fm.utils.FmUtilize.safeList;
 import static com.sana.dev.fm.utils.Tools.getFormattedDateOnly;
-import static com.sana.dev.fm.utils.Tools.getFormattedTimeEvent;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -24,7 +23,6 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemProgramsBinding;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.RadioProgram;
-import com.sana.dev.fm.model.WakeTranslate;
 import com.sana.dev.fm.model.enums.Weekday;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
@@ -32,7 +30,6 @@ import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.ViewAnimation;
 import com.sana.dev.fm.utils.WeekdayUtils;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,22 +64,17 @@ public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
         return new MyViewHolder(inflate);
     }
 
+    public void updatePrograms(List<RadioProgram> newPrograms) {
+        this.items = newPrograms;
+        notifyDataSetChanged();
+    }
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         private final ItemProgramsBinding binding;
-
         public MyViewHolder(ItemProgramsBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
     }
-
-//    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int i) {
-//        View view = LayoutInflater.from(ctx).inflate(R.layout.item_programs, parent, false);
-//        binding = DataBindingUtil.bind(view);
-//        MainViewHolder viewHolder = new ViewHolder(view);
-//        return viewHolder;
-////        return new MainViewHolder(LayoutInflater.from(view.getContext()).inflate(this.layout_id, viewGroup, false));
-//    }
 
     @Override
     public int getItemCount() {

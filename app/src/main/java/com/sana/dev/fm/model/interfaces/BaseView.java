@@ -16,14 +16,10 @@
 
 package com.sana.dev.fm.model.interfaces;
 
-import android.content.DialogInterface;
 import android.view.View;
 
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-
-import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.ModelConfig;
+import com.sana.dev.fm.model.RadioInfo;
 
 
 /**
@@ -43,6 +39,7 @@ public interface BaseView {
     void finish();
     boolean isAccountSignedIn();
     boolean isRadioSelected();
+    RadioInfo getSelectedRadio();
     boolean hasInternetConnection();
 
 }

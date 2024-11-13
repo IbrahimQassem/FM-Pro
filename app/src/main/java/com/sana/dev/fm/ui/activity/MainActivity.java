@@ -1,6 +1,5 @@
 package com.sana.dev.fm.ui.activity;
 
-
 import static android.view.View.VISIBLE;
 
 import android.content.ComponentName;
@@ -12,7 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -68,24 +66,24 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     public static String FRAGMENT_DATA = "transaction_data";
     public static String FRAGMENT_CLASS = "transaction_target";
     public static final String ACTION_SHOW_LOADING_ITEM = "action_show_loading_item";
-    FirebaseCrashlytics firebaseCrashlytics;
-    FirebaseAnalytics firebaseAnalytics;
-    FloatingActionButton playPauseButton;
+
+    private FirebaseCrashlytics firebaseCrashlytics;
+    private FirebaseAnalytics firebaseAnalytics;
+    private FloatingActionButton playPauseButton;
     private BottomSheetDialog mBottomSheetDialog;
     private BottomSheetBehavior mBehavior;
-    //    private final AtomicBoolean isMobileAdsInitializeCalled = new AtomicBoolean(false);
     private AdView adView;
-//    private GoogleMobileAdsConsentManager googleMobileAdsConsentManager;
+    private TextView tv_user_state;
+    private ImageView iv_internet;
+    private TextView tv_user_name;
+    private BottomNavigationView navigation;
+    private FragmentManager fm;
+    private Fragment fragment1, fragment2, fragment3, active;
 
-    TextView tv_user_state;
-    ImageView iv_internet;
-    TextView tv_user_name;
-
-    //    ---------- Radio Player -----------
+    // Radio Player Service
     private RadioPlayerService radioPlayerService;
     private boolean isBound = false;
-    //    private TextView metadataTextView;
-    private String currentStreamUrl = "https://c30.radioboss.fm:18267/stream"; // Replace with your stream URL
+    private String currentStreamUrl = "";
     private String currentStreamTitle;
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -94,8 +92,6 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
             RadioPlayerService.LocalBinder binder = (RadioPlayerService.LocalBinder) service;
             radioPlayerService = binder.getService();
             isBound = true;
-
-            // Initialize the service with the current stream
             setupRadioService();
         }
 
@@ -111,29 +107,66 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        firebaseCrashlytics = FirebaseCrashlytics.getInstance();
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        initializeFirebaseServices();
 
         initializeViews();
+        initToolbarProfile();
+        initializeFragments();
         bindRadioService();
 
         logRegToken();
         initComponent();
         initEvent();
         initBottomNav();
-//        initAdMob();
+
+        if (savedInstanceState != null) {
+            restoreInstanceState(savedInstanceState);
+        }
     }
 
-    private void initComponent() {
+    private void initializeFirebaseServices() {
+        firebaseCrashlytics = FirebaseCrashlytics.getInstance();
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
+        if (isAccountSignedIn()) {
+            UserModel user =  PreferencesManager.getInstance().getUserSession();
+            firebaseCrashlytics.setUserId(user.getMobile());
+            firebaseAnalytics.setUserId(user.getMobile());
+        }
+    }
+
+    private void initializeViews() {
         tv_user_state = findViewById(R.id.tv_user_state);
         iv_internet = findViewById(R.id.iv_internet);
         tv_user_name = findViewById(R.id.tv_user_name);
+        playPauseButton = findViewById(R.id.playPauseButton);
+
         iv_internet.setVisibility(View.INVISIBLE);
 
-        // check if radio playing
+        playPauseButton.setOnClickListener(v -> handlePlayPauseClick());
+    }
 
-        // setup addMod
+
+    public void initToolbarProfile() {
+        if (isAccountSignedIn()) {
+            UserModel user =  PreferencesManager.getInstance().getUserSession();
+            tv_user_name.setText(user.getName());
+//            tv_user_state.setText(isOnlineTxt);
+            if (!Tools.isEmpty(user.getPhotoUrl()))
+                Tools.displayUserProfile(this, findViewById(R.id.civ_logo), user.getPhotoUrl(), R.drawable.ic_baseline_person);
+        }
+    }
+
+    private void initializeFragments() {
+        fm = getSupportFragmentManager();
+        fragment1 = new MainHomeFragment();
+        fragment2 = new DailyEpisodeFragment();
+        fragment3 = new ProgramsFragment();
+        active = fragment1;
+    }
+
+    private void initComponent() {
+        // Setup AdMob
         adView = findViewById(R.id.ad_view);
         boolean isAdMobEnable = remoteConfig != null && remoteConfig.isAdMobEnable();
         if (isAdMobEnable) {
@@ -144,123 +177,68 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     }
 
     private void initEvent() {
-        View lyt_profile = (View) findViewById(R.id.lyt_profile);
-        lyt_profile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkUserLogin();
+        View lyt_profile = findViewById(R.id.lyt_profile);
+        lyt_profile.setOnClickListener(v -> checkUserLogin());
+    }
+
+    private void checkUserLogin() {
+        if (!isAccountSignedIn()) {
+//            Intent intent = IntentHelper.phoneLoginActivity(MainActivity.this, false);
+            Intent intent = IntentHelper.intentFormSignUp(MainActivity.this, false);
+            startActivity(intent);
+        } else {
+            startActivity(new Intent(IntentHelper.userProfileActivity(MainActivity.this, false)));
+        }
+    }
+
+    private void initBottomNav() {
+        navigation = findViewById(R.id.nav_view);
+        navigation.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    switchFragment(fragment1);
+                    return true;
+                case R.id.nav_daily_epi:
+                    switchFragment(fragment2);
+                    return true;
+                case R.id.nav_radio_map:
+                    switchFragment(fragment3);
+                    return true;
+                case R.id.nav_more:
+                    showBottomSheetDialog();
+                    return true;
             }
+            return false;
         });
 
-//        fab_radio.setOnLongClickListener(new View.OnLongClickListener() {
-//
-//            @Override
-//            public boolean onLongClick(View v) {
-////                showToast("Stop radio");
-////                radioManager.stop();
-////                v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-////                startActivity(new Intent(MainBottomNav.this, BottomNavigationShifting.class));
-////                startActivity(new Intent(MainBottomNav.this, TabsSimpleProduct.class));
-//
-////                if (isPlaying()) {
-////                StopPlaying();
-////                }
-//
-////                initFirebaseNote();
-//
-//
-//                return true;
-//            }
-//        });
+        // Initialize fragments
+        fm.beginTransaction()
+                .add(R.id.main_container, fragment3, fragment3.getClass().getSimpleName())
+                .hide(fragment3)
+                .commit();
+        fm.beginTransaction()
+                .add(R.id.main_container, fragment2, fragment2.getClass().getSimpleName())
+                .hide(fragment2)
+                .commit();
+        fm.beginTransaction()
+                .add(R.id.main_container, fragment1, fragment1.getClass().getSimpleName())
+                .commit();
 
-//        RotateAnimation rotate = new RotateAnimation(0, 360,
-//                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-//                0.5f);
-//
-//        rotate.setDuration(4000);
-//        rotate.setRepeatCount(Animation.INFINITE);
-//        fab_radio.setAnimation(rotate);
-//        //How you start
-//        Animation rotation = AnimationUtils.loadAnimation(this, R.anim.rotate);
-//        rotation.setRepeatCount(Animation.INFINITE);
-//        fab_radio.startAnimation(rotation);
+        navigation.setSelectedItemId(R.id.navigation_home);
+    }
 
-//You tell it not to repeat again
-//        rotation.setRepeatCount(0);
-
-//        Animation connectingAnimation = AnimationUtils.loadAnimation(this, R.anim.alpha_scale_animation);
-//        fab_radio.startAnimation(connectingAnimation);
-//        buttonPlayerAction();
-//        OvershootInterpolator interpolator = new OvershootInterpolator();
-//        ViewCompat.animate(fab_radio).
-//                rotation(135f).
-//                withLayer().
-//                setDuration(300).
-//                setInterpolator(interpolator).
-//                start();
-
-//        rotateImageAlbum();
-
-/*
-        fab_radio.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-*/
-/*                try {
-                    FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
-
-                    // Example: Add a document with generated ID
-                    Map<String, Object> data = new HashMap<>();
-                    data.put("id", "123");
-                    data.put("name", "John Doe");
-                    RadioInfo radio1 = RadioInfo.newInstance("1001", "يمن", "", "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1001%2F1001.jpg?alt=media&token=41d7cab7-d1cf-4d10-840a-dd576c04871a", "@yemen_fm", "صنعاء", "99,9", "Yemen Fm", prefMgr.getUserSession().userId, false);
-
-                    firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_INFO_TABLE, AppConstant.Firebase.RADIO_INFO_TABLE),radio1.getRadioId(), radio1, new CallBack() {
-//                    firestoreDbUtility.createOrMerge(AppConstant.Firebase.RADIO_INFO_TABLE, radio1.getRadioId(), FmUtilize.classToMap(radio1), new CallBack() {
-                        @Override
-                        public void onSuccess(Object object) {
-                            showToast(getString(R.string.done_successfully));
-                        }
-
-                        @Override
-                        public void onFailure(Object object) {
-                            showToast(getString(R.string.label_error_occurred_with_val, object));
-                        }
-                    });
-                } catch (Exception e) {
-                    showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
-                }*//*
-
-
-                //        rotation.setRepeatCount(0);
-
-//                v.clearAnimation();
-//                fab_radio.clearAnimation();
-                if (hasInternetConnection()) {
-                    if (prefMgr.selectedRadio() != null) {
-                        RadioInfo info = prefMgr.selectedRadio();
-                        Metadata metadata = new Metadata(info.getName(), info.getName(), info.getChannelFreq(), info.getName(), info.getStreamUrl());
-                        startPlay(metadata);
-                    } else {
-                        showToast(getString(R.string.error_please_select_radio_station));
-                    }
-
-                } else {
-                    showToast(getString(R.string.check_internet_connection));
-                }
-
-
-                if (prefMgr.read(UserGuide.INTRO_FOCUS_2, "").equals(UserGuide.INTRO_FOCUS_2)) {
-                    showPlayIntro();
-                }
-            }
-        });
-*/
+    private void switchFragment(Fragment fragment) {
+        if (!isFinishing() && !isDestroyed()) {
+            fm.beginTransaction()
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                    .hide(active)
+                    .show(fragment)
+                    .commit();
+            active = fragment;
+        }
     }
 
     private void logRegToken() {
-        // [START log_reg_token]
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {
                     @Override
@@ -270,39 +248,41 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
                             return;
                         }
 
-                        // Get new FCM registration token
                         String token = task.getResult();
-
-                        // Log and toast
-                        String msg = "FCM Registration token: " + token;
-                        Log.d(TAG, msg);
                         PreferencesManager.getInstance().write(AppConstant.General.FIREBASE_FCM_TOKEN, token);
+
                         if (isAccountSignedIn()) {
-                            UserModel userModel = prefMgr.getUserSession();
-//                            LogUtility.w(TAG, "FCM UserModel : " + new Gson().toJson(userModel));
-                            if (userModel.getNotificationToken() != null)
-                                if (!userModel.getNotificationToken().equals(token)) {
-                                    updateUserFcmToken(userModel, token);
-                                }
+                            UserModel userModel =  PreferencesManager.getInstance().getUserSession();
+                            if (userModel.getNotificationToken() != null &&
+                                    !userModel.getNotificationToken().equals(token)) {
+                                updateUserFcmToken(userModel, token);
+                            }
                         }
                     }
                 });
-        // [END log_reg_token]
     }
 
-    void updateUserFcmToken(UserModel userModel, String token) {
+    private void updateUserFcmToken(UserModel userModel, String token) {
+//        try {
+//            Thread.sleep(2000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
-
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(
+                AppConstant.Firebase.USERS_TABLE,
+                AppConstant.Firebase.USERS_TABLE
+        );
 
         Map<String, Object> data = new HashMap<>();
         data.put("notificationToken", token);
+
         firestoreDbUtility.update(collectionReference, userModel.getUserId(), data, new CallBack() {
             @Override
             public void onSuccess(Object object) {
                 LogUtility.w(TAG, "FCM token updated successfully : " + token);
                 userModel.setNotificationToken(token);
-                prefMgr.setUserSession(userModel);
+                 PreferencesManager.getInstance().setUserSession(userModel);
             }
 
             @Override
@@ -311,202 +291,148 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
             }
         });
     }
-/*
-    private void initAdMob() {
-        // Log the Mobile Ads SDK version.
-        Log.d(TAG, "Google Mobile Ads SDK Version: " + MobileAds.getVersion());
 
-        // Set your test devices. Check your logcat output for the hashed device ID to
-        // get test ads on a physical device. e.g.
-        // "Use RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("ABCDEF012345"))
-        // to get test ads on this device."
-        //UserMessagingPlatform: Use new ConsentDebugSettings.Builder().addTestDeviceHashedId("A9E33D385BEC7E8EBB240261B32C2385") to set this as a debug device
-//        MobileAds.setRequestConfiguration(
-//                new RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("ABCDEF012345"))
-//                        .build());
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("currentStreamUrl", currentStreamUrl);
+        outState.putString("currentStreamTitle", currentStreamTitle);
+    }
 
-        // Gets the ad view defined in layout/ad_fragment.xml with ad unit ID set in
-        // values/strings.xml.
-        adView = findViewById(R.id.ad_view);
+    private void restoreInstanceState(Bundle savedInstanceState) {
+        currentStreamUrl = savedInstanceState.getString("currentStreamUrl");
+        currentStreamTitle = savedInstanceState.getString("currentStreamTitle");
+    }
 
-        googleMobileAdsConsentManager = new GoogleMobileAdsConsentManager(this);
-
-        googleMobileAdsConsentManager.gatherConsent(
-                consentError -> {
-                    if (consentError != null) {
-                        // Consent not obtained in current session. This sample loads ads using
-                        // consent obtained in the previous session.
-                        Log.w(
-                                TAG,
-                                String.format(
-                                        "%s: %s",
-                                        consentError.getErrorCode(),
-                                        consentError.getMessage()));
-                    }
-
-                    if (googleMobileAdsConsentManager.canRequestAds()) {
-                        initializeMobileAdsSdk();
-                    }
-
-                    if (googleMobileAdsConsentManager.isFormAvailable()) {
-                        // Regenerate the options menu to include a privacy setting.
-                        invalidateOptionsMenu();
-                    }
-                }
-        );
-
-        if (googleMobileAdsConsentManager.canRequestAds()) {
-            initializeMobileAdsSdk();
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!isBound) {
+            bindRadioService();
         }
     }
-*/
 
-/*    private void initializeMobileAdsSdk() {
-        if (isMobileAdsInitializeCalled.getAndSet(true)) {
-            return;
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        if (isBound) {
+//            unbindService(serviceConnection);
+//            isBound = false;
+//        }
+//    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Don't unbind if you want the service to continue playing in the background
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (adView != null) {
+            adView.destroy();
         }
+        if (isBound) {
+            unbindService(serviceConnection);
+            isBound = false;
+        }
+        super.onDestroy();
+    }
 
-        // Initialize the Google Mobile Ads SDK.
-        MobileAds.initialize(this);
 
-        // Load an ad.
-        AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);
-    }*/
+    /**
+     * Called when leaving the activity
+     */
+    @Override
+    public void onPause() {
+        if (adView != null) {
+            adView.pause();
+        }
+        super.onPause();
+    }
 
-    BottomNavigationView navigation;
-    FragmentManager fm = getSupportFragmentManager();
-    Fragment fragment1 = new MainHomeFragment();
-    Fragment fragment2 = new DailyEpisodeFragment();
-    Fragment fragment3 = new ProgramsFragment();
-    Fragment active = fragment1;
+    /**
+     * Called when returning to the activity
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (adView != null) {
+            adView.resume();
+        }
+        initToolbarProfile();
+    }
 
-    public void initBottomNav() {
 
-        BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-                = new BottomNavigationView.OnNavigationItemSelectedListener() {
+    private void bindRadioService() {
+        Intent intent = new Intent(this, RadioPlayerService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
 
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.navigation_home:
-                        fm.beginTransaction().hide(active).show(fragment1).commit();
-                        active = fragment1;
-//                        fm.beginTransaction().replace(R.id.main_container, active).commit();
+    private void setupRadioService() {
+        if (radioPlayerService != null) {
+            // Set up the play/pause button
+            radioPlayerService.setPlayPauseButton(playPauseButton);
 
-                        return true;
+            // Initialize the media player with current stream
+            radioPlayerService.initializeMediaPlayer(currentStreamUrl, currentStreamTitle);
 
-                    case R.id.nav_daily_epi:
-                        fm.beginTransaction().hide(active).show(fragment2).commit();
-                        active = fragment2;
-//                        fm.beginTransaction().replace(R.id.main_container, active).commit();
-                        return true;
-
-                    case R.id.nav_radio_map:
-                        fm.beginTransaction().hide(active).show(fragment3).commit();
-                        active = fragment3;
-//                        fm.beginTransaction().replace(R.id.main_container, active).commit();
-//                        fm.beginTransaction().setMaxLifecycle(active,"").commit();
-                        return true;
-
-                    case R.id.nav_more:
-                        showBottomSheetDialog();
-                        return true;
+            // Set up metadata listener
+            radioPlayerService.setMetadataListener(new MetadataListener() {
+                @Override
+                public void onMetadataReceived(String title, String artist) {
+                    updateMetadataUI(title, artist);
                 }
-                return false;
+            });
+        }
+    }
+
+
+    private void handlePlayPauseClick() {
+        if (isBound && radioPlayerService != null) {
+            if ( PreferencesManager.getInstance().selectedRadio() != null) {
+                RadioInfo info =  PreferencesManager.getInstance().selectedRadio();
+// Metadata metadata = new Metadata(info.getName(), info.getName(), info.getChannelFreq(), info.getName(), info.getStreamUrl());
+                changeStation(info.getStreamUrl(), info.getName() + " " + info.getChannelFreq());
+            } else {
+                showToast(getString(R.string.error_please_select_radio_station));
             }
-        };
-
-        navigation = (BottomNavigationView) findViewById(R.id.nav_view);
-//        disableShiftMode(navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        navigation.setSelectedItemId(R.id.navigation_home);
-
-        fm.beginTransaction().add(R.id.main_container, fragment3, fragment3.getClass().getSimpleName()).hide(fragment3).commit();
-        fm.beginTransaction().add(R.id.main_container, fragment2, fragment2.getClass().getSimpleName()).hide(fragment2).commit();
-        fm.beginTransaction().add(R.id.main_container, fragment1, fragment1.getClass().getSimpleName()).commit();
-
-
-//         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-//        NavigationUI.setupWithNavController(navigation, navHostFragment.getNavController());
-//
-
-
-//        // handle navigation selection
-//        navigation.setOnNavigationItemSelectedListener(
-//                new BottomNavigationView.OnNavigationItemSelectedListener() {
-//                    @Override
-//                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//                        Fragment fragment;
-//                        switch (item.getItemId()) {
-//                            case R.id.navigation_home:
-//                                fragment = fragment1;
-//                                break;
-//                            case R.id.nav_daily_epi:
-//                                fragment = fragment2;
-//                                break;
-//                            case R.id.nav_radio_map:
-//                            default:
-//                                fragment = fragment3;
-//                                break;
-//                        }
-//                        fm.beginTransaction().replace(R.id.main_container, fragment).commit();
-//                        return true;
-//                    }
-//                });
+        } else {
+            showToast(getString(com.hbb20.R.string.no_result_found));
+        }
     }
 
-/*
-    public void disableShiftMode(BottomNavigationView view) {
-        BottomNavigationMenuView menuView = (BottomNavigationMenuView) view.getChildAt(0);
+    public void updateMetadataUI(String title, String artist) {
+        runOnUiThread(() -> {
+            String displayText = title;
+            if (artist != null && !artist.isEmpty()) {
+                displayText += " - " + artist;
+            }
+// metadataTextView.setText(displayText);
+        });
+    }
+
+    // Method to change the radio station
+    public void changeStation(String newStreamUrl, String newTitle) {
+        currentStreamUrl = newStreamUrl;
+        currentStreamTitle = newTitle;
+
         try {
-            Field shiftingMode = menuView.getClass().getDeclaredField("mShiftingMode");
-            shiftingMode.setAccessible(true);
-            shiftingMode.setBoolean(menuView, false);
-            shiftingMode.setAccessible(false);
-            for (int i = 0; i < menuView.getChildCount(); i++) {
-                BottomNavigationItemView item = (BottomNavigationItemView) menuView.getChildAt(i);
-                //noinspection RestrictedApi
-                item.setShifting(false);
-                // set once again checked value, so view will be updated
-                //noinspection RestrictedApi
-                item.setChecked(item.getItemData().isChecked());
+            if (isBound && radioPlayerService != null) {
+                // This will update the stream and start playing
+                radioPlayerService.playOrPause(newStreamUrl, newTitle);
+            } else {
+                showToast(String.format("%s", getResources().getString(R.string.no_stream,  PreferencesManager.getInstance().selectedRadio().getName())));
             }
-        } catch (NoSuchFieldException e) {
-            Log.e("BNVHelper", "Unable to get shift mode field", e);
-        } catch (IllegalAccessException e) {
-            Log.e("BNVHelper", "Unable to change value of shift mode", e);
+        } catch (Exception e) {
+            Log.d(TAG, "Error startPlay : " + e.getMessage());
+            showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
         }
     }
-*/
 
     public void selectTab(@IdRes int itemId) {
-        fm.beginTransaction().hide(active).show(fragment1).commit();
-        active = fragment1;
+        switchFragment(fragment1);
         navigation.setSelectedItemId(itemId);
-    }
-
-    public void initToolbarProfile() {
-//        int color = getResources().getColor(R.color.colorAccent);
-//        ColorFilter cf = new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY);
-//        civ.setColorFilter(cf);
-
-
-        if (isAccountSignedIn()) {
-            PreferencesManager prefMgr = PreferencesManager.getInstance();
-
-            UserModel user = prefMgr.getUserSession();
-            tv_user_name.setText(user.getName());
-//            tv_user_state.setText(isOnlineTxt);
-            if (!Tools.isEmpty(user.getPhotoUrl()))
-                Tools.displayUserProfile(this, findViewById(R.id.civ_logo), user.getPhotoUrl(), R.drawable.ic_baseline_person);
-
-            firebaseCrashlytics.setUserId(user.getMobile());
-            firebaseAnalytics.setUserId(user.getMobile());
-            updateOnlineFlag();
-        }
-
-
     }
 
     private void updateOnlineFlag() {
@@ -514,13 +440,32 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
             boolean isOnline = hasInternetConnection();
             String isOnlineTxt = isOnline ? getString(R.string.label_online) : getString(R.string.offline);
             int colorState = isOnline ? R.color.green_500 : R.color.yellow_500;
+
             tv_user_state.setText(isOnlineTxt);
-            iv_internet.setColorFilter(ContextCompat.getColor(this, colorState), android.graphics.PorterDuff.Mode.MULTIPLY);
+            iv_internet.setColorFilter(ContextCompat.getColor(this, colorState),
+                    android.graphics.PorterDuff.Mode.MULTIPLY);
             iv_internet.setVisibility(VISIBLE);
         } else {
             iv_internet.setVisibility(View.GONE);
         }
+    }
 
+    private void showBottomSheetDialogZ() {
+        if (mBottomSheetDialog != null && mBottomSheetDialog.isShowing()) {
+            return;
+        }
+
+        View bottomSheetView = getLayoutInflater().inflate(R.layout.main_activity_sheet_list, null);
+        mBottomSheetDialog = new BottomSheetDialog(this);
+        mBottomSheetDialog.setContentView(bottomSheetView);
+
+        mBehavior = BottomSheetBehavior.from((View) bottomSheetView.getParent());
+        mBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+        initializeBottomSheetViews(bottomSheetView);
+
+        mBottomSheetDialog.setOnDismissListener(dialog -> mBottomSheetDialog = null);
+        mBottomSheetDialog.show();
     }
 
     private void showBottomSheetDialog() {
@@ -563,9 +508,9 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
 //            lyt_update_episode.setVisibility(View.VISIBLE);
 //            lyt_update_program.setVisibility(View.VISIBLE);
 //            if (isAccountSignedIn()) {
-//                UserModel user = prefMgr.getUserSession();
+//                UserModel user =  PreferencesManager.getInstance().getUserSession();
 //                user.setUserType(UserType.SuperADMIN);
-//                prefMgr.write(AppConstant.Firebase.USER_INFO, (UserModel) user);
+//                 PreferencesManager.getInstance().write(AppConstant.Firebase.USER_INFO, (UserModel) user);
 //            }
 //        }
 
@@ -667,6 +612,11 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     }
 
 
+    private void initializeBottomSheetViews(View bottomSheetView) {
+        // Initialize bottom sheet views and set click listeners
+        // Implementation depends on your layout and requirements
+    }
+
     private void restartActivity() {
         ProgramsFragment _programsFragment = (ProgramsFragment) fm.findFragmentByTag(ProgramsFragment.class.getSimpleName());
         _programsFragment.refresh();
@@ -681,230 +631,25 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     }
 
 
-    private void checkUserLogin() {
-        if (!isAccountSignedIn()) {
-//            Intent intent = IntentHelper.phoneLoginActivity(MainActivity.this, false);
-            Intent intent = IntentHelper.intentFormSignUp(MainActivity.this, false);
-            startActivity(intent);
-        } else {
-            startActivity(new Intent(IntentHelper.userProfileActivity(MainActivity.this, false)));
-        }
-//        Fragment fragment = new EnterPhoneNumberFragment();
-//        getSupportFragmentManager().beginTransaction()
-//                .replace(R.id.main_container, fragment, fragment.getClass().getSimpleName()).addToBackStack(null).commit();
-
-    }
-
-
-/*    private void startPlay(String streamUrl) {
-        try {
-            if (!FmUtilize.isEmpty(streamUrl)) {
-                //Check the sound level
-                AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                int volume_level = am.getStreamVolume(AudioManager.STREAM_MUSIC);
-                if (volume_level < 2) {
-                    showSnackBar(getString(R.string.volume_low));
-                } else {
-                    radioPlayerService.playOrPause(streamUrl, "...");
-//        radioManager.playOrStop(streamURL);
-//        http://edge.mixlr.com/channel/kijwr
-                }
-            } else {
-                showToast(String.format("%s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "Error startPlay : " + e.getMessage());
-            showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
-        }
-    }*/
-
-
-/*
-    private void initFirebaseNote(){
-
-        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(this, instanceIdResult -> {
-            String newToken = instanceIdResult.getToken();
-            Log.e("newToken", newToken);
-            getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(AppConstant.Firebase.DEVICE_TOKEN, newToken).apply();
-
-        });
-
-        Log.d("newToken",  getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(FirebaseConstants.DEVICE_TOKEN, null));
-
-        //If the device is having android oreo we will create a notification channel
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager mNotificationManager =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel mChannel = new NotificationChannel(FirebaseConstants.CHANNEL_ID, FirebaseConstants.CHANNEL_NAME, importance);
-            mChannel.setDescription(FirebaseConstants.CHANNEL_DESCRIPTION);
-            mChannel.enableLights(true);
-            mChannel.setLightColor(Color.RED);
-            mChannel.enableVibration(true);
-            mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-            mNotificationManager.createNotificationChannel(mChannel);
-        }
-
-        //Displaying a notification locally
-        MyNotificationManager.getInstance(getApplicationContext()).displayNotification("Hi","Where are you?");
-
-    }
-*/
-
-    private void initializeViews() {
-        currentStreamTitle = getString(R.string.app_name);
-        playPauseButton = findViewById(R.id.playPauseButton);
-
-        playPauseButton.setOnClickListener(v -> handlePlayPauseClick());
-    }
-
-    private void bindRadioService() {
-        Intent intent = new Intent(this, RadioPlayerService.class);
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    private void setupRadioService() {
-        if (radioPlayerService != null) {
-            // Set up the play/pause button
-            radioPlayerService.setPlayPauseButton(playPauseButton);
-
-            // Initialize the media player with current stream
-            radioPlayerService.initializeMediaPlayer(currentStreamUrl, currentStreamTitle);
-
-            // Set up metadata listener
-            radioPlayerService.setMetadataListener(new MetadataListener() {
-                @Override
-                public void onMetadataReceived(String title, String artist) {
-                    updateMetadataUI(title, artist);
-                }
-            });
-        }
-    }
-
-    private void handlePlayPauseClick() {
-        if (isBound && radioPlayerService != null) {
-            if (prefMgr.selectedRadio() != null) {
-                RadioInfo info = prefMgr.selectedRadio();
-//                Metadata metadata = new Metadata(info.getName(), info.getName(), info.getChannelFreq(), info.getName(), info.getStreamUrl());
-                changeStation(info.getStreamUrl(), info.getName() + " " + info.getChannelFreq());
-            } else {
-                showToast(getString(R.string.error_please_select_radio_station));
-            }
-        } else {
-            showToast(getString(com.hbb20.R.string.no_result_found));
-        }
-    }
-
-    public void updateMetadataUI(String title, String artist) {
-//        runOnUiThread(() -> {
-//            String displayText = title;
-//            if (artist != null && !artist.isEmpty()) {
-//                displayText += " - " + artist;
-//            }
-////            metadataTextView.setText(displayText);
-//        });
-    }
-
-    // Method to change the radio station
-    public void changeStation(String newStreamUrl, String newTitle) {
-        currentStreamUrl = newStreamUrl;
-        currentStreamTitle = newTitle;
-
-        try {
-            if (isBound && radioPlayerService != null) {
-                // This will update the stream and start playing
-                radioPlayerService.playOrPause(newStreamUrl, newTitle);
-            } else {
-                showToast(String.format("%s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "Error startPlay : " + e.getMessage());
-            showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (!isBound) {
-            bindRadioService();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        // Don't unbind if you want the service to continue playing in the background
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (adView != null) {
-            adView.destroy();
-        }
-        super.onDestroy();
-        if (isBound) {
-            unbindService(serviceConnection);
-            isBound = false;
-        }
-    }
-
-    /**
-     * Called when leaving the activity
-     */
-    @Override
-    public void onPause() {
-        if (adView != null) {
-            adView.pause();
-        }
-        super.onPause();
-    }
-
-    /**
-     * Called when returning to the activity
-     */
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (adView != null) {
-            adView.resume();
-        }
-        prefMgr = PreferencesManager.getInstance();
-        initToolbarProfile();
-    }
-
-
     @Override
     public void onCallBack() {
         restartActivity();
     }
 
+//    @Override
+//    public void onNetworkChanged(boolean status) {
+//        LogUtility.e(TAG, "CheckInternetCon : " + status);
+//        updateOnlineFlag();
+//    }
+
     @Override
-    public void onNetworkChange(boolean status) {
-//        LogUtility.e(TAG, "chekInternetCon : " + status);
+    public void onNetworkChanged(boolean isConnected) {
+        LogUtility.e(TAG, "CheckInternetCon : " + isConnected);
         updateOnlineFlag();
+        if (!isConnected) {
+            showToast(getString(R.string.check_internet_connection));
+        }
     }
-
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-//        if (ACTION_SHOW_LOADING_ITEM.equals(intent.getAction())) {
-//
-//        }
-//        Bundle extras = intent.getExtras();
-//        if(extras != null){
-//            if(extras.containsKey(FRAGMENT_DATA))
-//            {
-//                String[] extra = extras.getStringArray(MainActivity.FRAGMENT_DATA);
-//                String msg = extras.getString("NotificationMessage");
-//                Toast.makeText(this, extra[0], Toast.LENGTH_SHORT).show();
-//
-//            }
-//        }
-    }
-
 
     public void showPlayIntro() {
         showIntro(playPauseButton, UserGuide.INTRO_FOCUS_2, getString(R.string.label_play_intro2));
@@ -914,7 +659,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         userGuide.showIntro(view, id, text, Focus.ALL, ShapeType.CIRCLE, new MaterialIntroListener() {
             @Override
             public void onUserClicked(String materialIntroViewId) {
-                prefMgr.write(UserGuide.INTRO_FOCUS_2, "");
+                 PreferencesManager.getInstance().write(UserGuide.INTRO_FOCUS_2, "");
             }
         });
     }

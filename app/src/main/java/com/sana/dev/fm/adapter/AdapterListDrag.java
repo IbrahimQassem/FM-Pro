@@ -62,19 +62,11 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.mDragStartListener = dragStartListener;
     }
 
-    public void setNewList(List<RadioInfo> radioInfoList) {
-        this.items = radioInfoList;
-        notifyDataSetChanged();
-    }
-
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        RecyclerView.ViewHolder vh;
+    public OriginalViewHolder onCreateViewHolder(ViewGroup parent, int type) {
         ItemDragBinding inflate = ItemDragBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        vh = new OriginalViewHolder(inflate);
-        return vh;
+        return new OriginalViewHolder(inflate);
     }
-
 
 
     public class OriginalViewHolder extends RecyclerView.ViewHolder implements DragItemTouchHelper.TouchViewHolder {

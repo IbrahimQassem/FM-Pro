@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.balysv.materialripple.MaterialRippleLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/lyt_parent"
-    style="@style/RippleStyleBlack"
-    android:layout_width="match_parent"
-    android:layout_height="200dp"
-    android:background="@android:color/white"
-    android:focusable="true"
-    android:minHeight="?attr/actionBarSize">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
+        android:id="@+id/lyt_parent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="220dp"
+        android:baselineAligned="false"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/spacing_medium"
+        android:paddingTop="@dimen/spacing_middle"
+        android:paddingEnd="@dimen/spacing_medium"
+        android:paddingBottom="@dimen/spacing_middle">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -137,18 +138,18 @@
                         android:checked="true"
                         android:padding="5dp"
                         android:switchPadding="5dp"
+                        android:text="@string/label_disable"
                         android:textAllCaps="true"
                         android:textColor="@color/colorPrimary"
-                        android:text="@string/label_disable"
                         android:textOff="@string/label_no"
                         android:textOn="@string/label_yes"
                         android:theme="@style/SwitchTheme"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
                         app:showText="true"
                         app:switchPadding="@dimen/spacing_medium"
                         app:theme="@style/SwitchTheme"
-                        app:thumbTextPadding="5dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:thumbTextPadding="5dp" />
 
                 </LinearLayout>
 
@@ -182,5 +183,4 @@
             android:background="@color/grey_10" />
 
     </LinearLayout>
-
-</com.balysv.materialripple.MaterialRippleLayout>
+</layout>

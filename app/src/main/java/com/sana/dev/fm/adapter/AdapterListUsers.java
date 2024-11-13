@@ -31,15 +31,6 @@ public class AdapterListUsers extends Adapter<AdapterListUsers.MyViewHolder> {
     private SparseBooleanArray selected_items;
 
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
-        private final ItemInboxBinding binding;
-
-        public MyViewHolder(ItemInboxBinding binding) {
-            super(binding.getRoot());
-            this.binding = binding;
-        }
-    }
-
     public void setOnClickListener(OnClickListener onClickListener) {
         this.onClickListener = onClickListener;
     }
@@ -53,6 +44,14 @@ public class AdapterListUsers extends Adapter<AdapterListUsers.MyViewHolder> {
         this.selected_items = new SparseBooleanArray();
     }
 
+    public static class MyViewHolder extends RecyclerView.ViewHolder {
+        private final ItemInboxBinding binding;
+
+        public MyViewHolder(ItemInboxBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+    }
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int type) {
         ItemInboxBinding inflate = ItemInboxBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);

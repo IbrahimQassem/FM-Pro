@@ -17,6 +17,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.ModelConfig;
+import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.enums.UserType;
 import com.sana.dev.fm.model.interfaces.BaseView;
 import com.sana.dev.fm.ui.dialog.FmGeneralDialog;
@@ -108,7 +109,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
                 // Check just for MainBottomNav because the interface NetworkCallback
                 if (BaseActivity.this instanceof MainActivity) {
                     networkCallback = (NetworkCallback) BaseActivity.this;
-                    networkCallback.onNetworkChange(connectionAvailable);
+                    networkCallback.onNetworkChanged(connectionAvailable);
                 }
             }
         });
@@ -247,12 +248,12 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     }
 
     public interface NetworkCallback {
-        void onNetworkChange(boolean state);
+        void onNetworkChanged(boolean state);
     }
 
     @Override
     public boolean isAccountSignedIn() {
-        return prefMgr.getUserSession() != null && prefMgr.getUserSession().getUserId() != null /*&& FirebaseAuth.getInstance().getCurrentUser() != null*/;
+        return  PreferencesManager.getInstance().getUserSession() != null &&  PreferencesManager.getInstance().getUserSession().getUserId() != null /*&& FirebaseAuth.getInstance().getCurrentUser() != null*/;
     }
 
     @Override
@@ -260,6 +261,10 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
         return prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null;
     }
 
+    @Override
+    public RadioInfo getSelectedRadio() {
+        return prefMgr.selectedRadio();
+    }
 
     @Override
     protected void attachBaseContext(Context newBase) {

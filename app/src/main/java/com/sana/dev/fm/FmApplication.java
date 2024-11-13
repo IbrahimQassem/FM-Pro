@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
@@ -28,9 +29,11 @@ public class FmApplication extends Application {
         super.onCreate();
 //        Timber.plant(new Timber.DebugTree());
         mInstance = this;
+        PreferencesManager.initializeInstance(mInstance);
+
         setLocale();
 
-        FirebaseApp.initializeApp(/*context=*/ this);
+        FirebaseApp.initializeApp(/*context=*/ mInstance);
 
 //        FirebaseAppCheck firebaseAppCheck = FirebaseAppCheck.getInstance();
 ////        firebaseAppCheck.installAppCheckProviderFactory(
@@ -52,11 +55,10 @@ public class FmApplication extends Application {
 //                });
 
 
-        PreferencesManager.initializeInstance(this);
         // This flag should be set to true to enable VectorDrawable support for API < 21.
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         FacebookSdk.sdkInitialize(getApplicationContext());
-        AppEventsLogger.activateApp(this);
+        AppEventsLogger.activateApp(mInstance);
     }
 
     @Override
@@ -77,21 +79,26 @@ public class FmApplication extends Application {
     }
 
     private void setLocale() {
-        String languageToLoad = "ar";
-        Locale locale = new Locale(languageToLoad);
-        Locale.setDefault(locale);
+        try {
+            String languageToLoad = "ar";
+            Locale locale = new Locale(languageToLoad);
+            Locale.setDefault(locale);
 
-        Configuration config = getBaseContext().getResources().getConfiguration();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            config.setLayoutDirection(locale);
-        }
-        config.locale = locale;
+            Configuration config = getBaseContext().getResources().getConfiguration();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                config.setLayoutDirection(locale);
+            }
+            config.locale = locale;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            getApplicationContext().createConfigurationContext(config);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                getApplicationContext().createConfigurationContext(config);
+            }
+            getBaseContext().getResources().updateConfiguration(config,
+                    getBaseContext().getResources().getDisplayMetrics());
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d(TAG, "Error saveUserData : " + e.getMessage());
         }
-        getBaseContext().getResources().updateConfiguration(config,
-                getBaseContext().getResources().getDisplayMetrics());
     }
 
 }
