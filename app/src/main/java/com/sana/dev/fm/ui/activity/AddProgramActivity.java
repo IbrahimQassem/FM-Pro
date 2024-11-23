@@ -345,7 +345,7 @@ public class AddProgramActivity extends BaseActivity {
 //        showToast(Constant.SUCCESS);
 
 
-        if (prefMgr.getUserSession() == null || prefMgr.getUserSession().getUserId() == null) {
+        if (!isAccountSignedIn()) {
             showToast(getString(R.string.most_login));
             return;
         } else if (binding.etStation.getText().toString().trim().isEmpty()) {
