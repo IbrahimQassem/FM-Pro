@@ -118,10 +118,10 @@ public class CommentUGCAdapter extends RecyclerView.Adapter<CommentUGCAdapter.Co
 
             // Click listeners
             userPhotoView.setOnClickListener(v ->
-                    listener.onUserClick(comment.getUserId()));
+                    listener.onUserCommentClick(comment.getUserId()));
 
             userNameText.setOnClickListener(v ->
-                    listener.onUserClick(comment.getUserId()));
+                    listener.onUserCommentClick(comment.getUserId()));
 
             likeButton.setOnClickListener(v ->
                     listener.onLikeClick(comment));

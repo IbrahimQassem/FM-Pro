@@ -19,7 +19,7 @@
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="?attr/actionBarSize"
             android:theme="@style/AppTheme.Main">
 
             <LinearLayout
@@ -31,12 +31,21 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="@dimen/spacing_middle">
+                android:paddingTop="@dimen/spacing_medium"
+                android:paddingBottom="@dimen/spacing_medium">
 
-                <ImageView
+                <!-- Round corners -->
+                <com.sana.dev.fm.ui.view.RoundImageView
                     android:id="@+id/civ_logo"
-                    android:layout_width="@dimen/spacing_xmlarge"
-                    android:layout_height="@dimen/spacing_xmlarge"
+                    android:layout_width="@dimen/spacing_xlarge"
+                    android:layout_height="@dimen/spacing_xlarge"
+                    android:layout_marginStart="@dimen/spacing_large"
+                    android:layout_marginEnd="@dimen/spacing_medium"
+                    android:foreground="@color/overlay_light_20"
+                    android:scaleType="fitCenter"
+                    app:borderColor="?attr/colorSecondary"
+                    app:borderWidth="0.5dp"
+                    app:cornerRadius="50dp"
                     app:srcCompat="@drawable/ic_baseline_person" />
 
 

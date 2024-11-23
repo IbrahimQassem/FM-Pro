@@ -5,5 +5,5 @@ package com.sana.dev.fm.utils.ugc;
         REPORT,
         DELETE,
         BLOCK,
-        UNBLOCK
+        USER_PROFILE, UNBLOCK
     }

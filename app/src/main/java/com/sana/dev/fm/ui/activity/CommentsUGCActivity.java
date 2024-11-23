@@ -143,7 +143,7 @@ public class CommentsUGCActivity extends AppCompatActivity implements CommentCli
                     comments.clear();
                     for (DocumentSnapshot doc : value.getDocuments()) {
                         Comment comment = doc.toObject(Comment.class);
-                        comment.setId(doc.getId());
+                        comment.setCommentId(doc.getId());
                         comments.add(comment);
                     }
                     adapter.notifyDataSetChanged();
@@ -223,7 +223,7 @@ public class CommentsUGCActivity extends AppCompatActivity implements CommentCli
         DocumentReference commentRef = db.collection("posts")
                 .document(postId)
                 .collection("comments")
-                .document(comment.getId());
+                .document(comment.getCommentId());
 
         db.runTransaction(transaction -> {
             DocumentSnapshot snapshot = transaction.get(commentRef);
@@ -237,7 +237,7 @@ public class CommentsUGCActivity extends AppCompatActivity implements CommentCli
                 updatedComment.setReviewed(true);
                 // Move to moderation queue
                 db.collection("moderation")
-                        .document(comment.getId())
+                        .document(comment.getCommentId())
                         .set(updatedComment);
             }
 
@@ -251,11 +251,8 @@ public class CommentsUGCActivity extends AppCompatActivity implements CommentCli
     }
 
     @Override
-    public void onUserClick(String userId) {
-        // Navigate to user profile
-        Intent intent = new Intent(this, UserProfileActivity.class);
-        intent.putExtra("user_id", userId);
-        startActivity(intent);
+    public void onUserCommentClick(String userId) {
+        postComment();
     }
 
     @Override
@@ -364,6 +361,14 @@ public class CommentsUGCActivity extends AppCompatActivity implements CommentCli
     }
 
     @Override
+    public void onUserClickProfile(String userId) {
+        // Navigate to user profile
+        Intent intent = new Intent(this, UserProfileActivity.class);
+        intent.putExtra("user_id", userId);
+        startActivity(intent);
+    }
+
+    @Override
     public void onDeleteClick(Comment comment) {
         new AlertDialog.Builder(this)
                 .setTitle("Delete Comment")
@@ -377,7 +382,7 @@ public class CommentsUGCActivity extends AppCompatActivity implements CommentCli
         db.collection("posts")
                 .document(postId)
                 .collection("comments")
-                .document(comment.getId())
+                .document(comment.getCommentId())
                 .delete()
                 .addOnFailureListener(e -> showError("Failed to delete comment"));
     }

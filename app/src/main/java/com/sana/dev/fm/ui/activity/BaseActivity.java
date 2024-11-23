@@ -44,7 +44,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     protected CheckInternetConnection connectionChecker;
     UserGuide userGuide;
-    protected NetworkCallback networkCallback;
+    protected NetworkStatusCallback networkStatusCallback;
     private boolean connectionAvailable = true;
     private long backPressedTime;
 
@@ -106,10 +106,10 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 //                    showSnackBar("Internet is : "+connectionAvailable);
                 }
 
-                // Check just for MainBottomNav because the interface NetworkCallback
+                // Check just for MainBottomNav because the interface NetworkStatusCallback
                 if (BaseActivity.this instanceof MainActivity) {
-                    networkCallback = (NetworkCallback) BaseActivity.this;
-                    networkCallback.onNetworkChanged(connectionAvailable);
+                    networkStatusCallback = (NetworkStatusCallback) BaseActivity.this;
+                    networkStatusCallback.onNetworkChanged(connectionAvailable);
                 }
             }
         });
@@ -247,7 +247,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
             return prefMgr.getUserSession().getUserType() == UserType.ADMIN || prefMgr.getUserSession().getUserType() == UserType.SuperADMIN;
     }
 
-    public interface NetworkCallback {
+    public interface NetworkStatusCallback {
         void onNetworkChanged(boolean state);
     }
 

@@ -12,6 +12,7 @@ import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -97,18 +98,18 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
 
         // Set like status
 //        boolean isLiked = model.getLikedBy().contains(auth.getCurrentUser().getUid());
-        boolean isLiked = model.getLikedBy().contains(model.getUserId());
-        holder.binding.likeButton.setImageResource(isLiked ?
-                R.drawable.ic_favorites : R.drawable.ic_heart_outline_white);
+        boolean isLiked = model.getLikedBy().contains(userModel.getUserId());
+        holder.binding.imvLike.setImageResource(isLiked ? R.drawable.ic_favorites : R.drawable.ic_heart_outline_white);
+        holder.binding.imvLike.setColorFilter(ContextCompat.getColor(ctx,isLiked ? R.color.colorPrimary :  R.color.grey_400));
+        holder.binding.likeCountText.setTextColor(ContextCompat.getColor(ctx,isLiked ? R.color.colorPrimary :  R.color.grey_400));
         holder.binding.likeCountText.setText(String.valueOf(model.getLikedBy().size()));
 
         // Click listeners
-//        userPhotoView.setOnClickListener(v -> listener.onUserClick(model.getUserId()));
+        holder.binding.civLogo.setOnClickListener(v -> listener.onUserClickProfile(model.getUserId()));
 
 //        userNameText.setOnClickListener(v -> listener.onUserClick(model.getUserId()));
 
-        holder.binding.likeButton.setOnClickListener(v ->
-                listener.onLikeClick(model));
+        holder.binding.imvLike.setOnClickListener(v -> listener.onLikeClick(model));
 
         holder.binding.menuButton.setOnClickListener(v -> showPopupMenu(v, model));
 

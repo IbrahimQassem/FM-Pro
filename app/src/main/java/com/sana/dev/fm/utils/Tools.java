@@ -556,6 +556,19 @@ public class Tools {
         return deviceInfo;
     }
 
+    public static String getDeviceInfoName() {
+        return Build.MANUFACTURER + " " + Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")";
+    }
+
+    public static String getAppVersion(Context context) {
+        try {
+            PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            return pInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            return "unknown";
+        }
+    }
+
     public static String getDeviceID(Context context) {
         String str = Build.SERIAL;
         if (str != null && !str.trim().isEmpty() && !str.equals(EnvironmentCompat.MEDIA_UNKNOWN)) {

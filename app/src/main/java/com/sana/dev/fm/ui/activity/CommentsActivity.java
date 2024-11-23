@@ -47,7 +47,9 @@ import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.ugc.CommentAction;
 import com.sana.dev.fm.utils.ugc.CommentClickListener;
-import com.sana.dev.fm.utils.ugc.UserBlockManager;
+import com.sana.dev.fm.utils.ugc.NetworkCallback;
+import com.sana.dev.fm.utils.ugc.NetworkError;
+import com.sana.dev.fm.utils.ugc.UGCUserManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +70,8 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     private int drawingStartLocation;
     private FirestoreDbUtility firestoreDbUtility;
     private FirebaseFirestore db;
-    private UserBlockManager blockManager;
+//    private UserBlockManager blockManager;
+    private UGCUserManager ugcManager;
 
 
     public static void startActivity(Context context, Episode episode) {
@@ -90,7 +93,8 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         prefMgr = PreferencesManager.getInstance();
         firestoreDbUtility = new FirestoreDbUtility();
         db = FirebaseFirestore.getInstance();
-        this.blockManager = UserBlockManager.getInstance(this, this);
+//        this.blockManager = new UserBlockManager(this, this);
+        this.ugcManager = new UGCUserManager(this, this);
 
 
         initToolbar();
@@ -250,7 +254,8 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
             CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
             CollectionReference colRef = collectionReference.document(epId)
                     .collection(AppConstant.Firebase.COMMENT_TABLE);
-            String pushKey = colRef.document().getId();
+//            String pushKey = colRef.document().getId();
+            String pushKey = radioId + "_" + colRef.document().getId();
             String content = binding.etComment.getText().toString().trim();
             Comment comment = new Comment(
                     currentUser.getUserId(),
@@ -259,9 +264,12 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                     currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : "",
                     content
             );
-            comment.setId(pushKey);
+            comment.setCommentId(pushKey);
+            comment.setDeviceInfo(Tools.getDeviceInfoName());
+            comment.setAppVersion(Tools.getAppVersion(this));
 
-            colRef.document(comment.getId()).set(comment)
+
+            colRef.document(comment.getCommentId()).set(comment)
                     .addOnSuccessListener(aVoid -> {
                         binding.etComment.setText(null);
                         binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
@@ -341,36 +349,57 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 
     @Override
     public void onReportClick(Comment comment) {
-        ModelConfig config = new ModelConfig(R.drawable.ic_warning, "Report Comment", "Are you sure you want to report this comment?", new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_report), new View.OnClickListener() {
+        ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.lebel_report_comment), getString(R.string.confirm_report_comment), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_report), new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                reportComment(comment);
                 comment.setEpisodeId(epId);
-                blockManager.handleCommentAction(comment, CommentAction.REPORT,radioId);
+//                blockManager.handleCommentAction(comment, CommentAction.REPORT,radioId);
+                ugcManager.handleCommentAction(comment, CommentAction.REPORT, radioId, new NetworkCallback() {
+                    @Override
+                    public void onSuccess(Object result) {
+                        showToast(getString(R.string.done_successfully));
+                    }
+
+                    @Override
+                    public void onError(NetworkError error) {
+                      //  showToast(getString(R.string.label_error_occurred_with_val, error.getMessage()));
+                    }
+                });
             }
         }));
         showWarningDialog(config);
     }
 
     @Override
-    public void onUserClick(String userId) {
+    public void onUserCommentClick(String userId) {
         postComment();
     }
 
     @Override
     public void onLikeClick(Comment comment) {
         comment.setEpisodeId(epId);
-        blockManager.handleCommentAction(comment, CommentAction.LIKE,radioId);
+        ugcManager.handleCommentAction(comment, CommentAction.LIKE,radioId,null);
     }
 
     @Override
     public void onDeleteClick(Comment comment) {
-        ModelConfig config = new ModelConfig(R.drawable.ic_warning, "Delete Comment", "Are you sure you want to delete this comment?", new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_delete), new View.OnClickListener() {
+        ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.lebel_delete_comment), getString(R.string.confirm_delete_comment), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_delete), new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                deleteComment(comment);
                 comment.setEpisodeId(epId);
-                blockManager.handleCommentAction(comment, CommentAction.DELETE,radioId);
+                ugcManager.handleCommentAction(comment, CommentAction.DELETE, radioId, new NetworkCallback() {
+                    @Override
+                    public void onSuccess(Object result) {
+                        showToast(getString(R.string.done_successfully));
+                    }
+
+                    @Override
+                    public void onError(NetworkError error) {
+
+                    }
+                });
             }
         }));
         showWarningDialog(config);
@@ -382,30 +411,54 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 //            @Override
 //            public void onClick(View v) {
 //                comment.setEpisodeId(epId);
-//                blockManager.handleCommentAction(comment, CommentAction.BLOCK,radioId);
+//                ugcManager.handleCommentAction(comment, CommentAction.BLOCK, radioId, new NetworkCallback() {
+//                    @Override
+//                    public void onSuccess(Object result) {
+//                        showToast(getString(R.string.done_successfully));
+//                    }
+//
+//                    @Override
+//                    public void onError(NetworkError error) {
+//
+//                    }
+//                });
 //            }
 //        }));
-//        showWarningDialog(config);
-        if (blockManager.isUserBlocked(comment.getUserId())) {
-            showUnblockDialog(comment);
-        } else {
+//        //showWarningDialog(config);
+//        if (blockManager.isUserBlocked(comment.getUserId())) {
+//            showUnblockDialog(comment);
+//        } else {
+
             View dialogView = getLayoutInflater().inflate(R.layout.dialog_block_user, null);
             EditText reasonInput = dialogView.findViewById(R.id.reason_input);
 
             new AlertDialog.Builder(this)
-                    .setTitle("Block User")
+                    .setTitle(getString(R.string.label_block_user))
                     .setView(dialogView)
-                    .setPositiveButton("Block", (dialog, which) -> {
-                        String reason = reasonInput.getText().toString().trim();
-//                        blockUser(comment, reason);
-                        comment.setEpisodeId(epId);
-                        comment.setContent(reason);
-                        blockManager.handleCommentAction(comment, CommentAction.BLOCK,radioId);
+                    .setPositiveButton(getString(R.string.label_block), (dialog, which) -> {
+                        if (!Tools.isEmpty(reasonInput)){
+                            String reason = reasonInput.getText().toString().trim();
+                            comment.setEpisodeId(epId);
+                            comment.setContent(reason);
+
+                            ugcManager.handleCommentAction(comment, CommentAction.BLOCK, radioId, new NetworkCallback() {
+                                @Override
+                                public void onSuccess(Object result) {
+                                    showToast(getString(R.string.done_successfully));
+                                    dialog.dismiss();
+                                }
+
+                                @Override
+                                public void onError(NetworkError error) {
+
+                                }
+                            });
+                        }
 
                     })
-                    .setNegativeButton("Cancel", null)
+                    .setNegativeButton(getString(R.string.label_cancel), null)
                     .show();
-        }
+//        }
     }
 
     @Override
@@ -413,14 +466,40 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         showUnblockDialog(comment);
     }
 
+    @Override
+    public void onUserClickProfile(String userId) {
+        // Navigate to user profile
+//        ModelConfig config = new ModelConfig(R.drawable.ic_warning, "Navigate to user profile", "Would you like to navigate to user profile?", new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_confirm), new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Comment comment = new Comment();
+//                comment.setCommentId(userId);
+//                ugcManager.handleCommentAction(comment, CommentAction.USER_PROFILE, radioId, new NetworkCallback() {
+//                    @Override
+//                    public void onSuccess(Object result) {
+//                        // Navigate to user profile
+//                        Intent intent = IntentHelper.userProfileActivity(CommentsActivity.this, false);
+//                        intent.putExtra("user_id", userId);
+//                        startActivity(intent);                    }
+//
+//                    @Override
+//                    public void onError(NetworkError error) {
+//
+//                    }
+//                });
+//            }
+//        }));
+//        showWarningDialog(config);
+    }
+
     private void showUnblockDialog(Comment comment) {
         new AlertDialog.Builder(this)
-                .setTitle("Unblock User")
-                .setMessage("Would you like to unblock this user?")
-                .setPositiveButton("Unblock", (dialog, which) ->
-                        blockManager.handleCommentAction(comment, CommentAction.UNBLOCK,radioId)
+                .setTitle(R.string.label_unblock_user)
+                .setMessage(R.string.confirm_unblock_user)
+                .setPositiveButton(R.string.label_unblock, (dialog, which) ->
+                        ugcManager.handleCommentAction(comment, CommentAction.UNBLOCK,radioId,null)
                 )
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(getString(R.string.label_cancel), null)
                 .show();
     }
 
@@ -451,11 +530,11 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 
             LogUtility.i(LogUtility.TAG, "collectionReference is  : " + colRef.getParent());
 
-            firestoreDbUtility.update(colRef, comment.getId(), docData, new CallBack() {
+            firestoreDbUtility.update(colRef, comment.getCommentId(), docData, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
 //                    showToast(getString(R.string.done_successfully));
-                    LogUtility.d(LogUtility.TAG, "success set  : " + comment.getId() + " res is  : " + docData);
+                    LogUtility.d(LogUtility.TAG, "success set  : " + comment.getCommentId() + " res is  : " + docData);
                     // Auto-hide comment if report threshold reached
                     if (updatedComment.getReportCount() >= 5) {
                         updatedComment.setReviewed(true);
@@ -463,7 +542,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                         CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.ALERT_TABLE, AppConstant.Firebase.ALERT_TABLE);
                         CollectionReference colRef = collectionReference.document(epId)
                                 .collection(AppConstant.Firebase.MODERATION_TABLE);
-                        colRef.document(comment.getId())
+                        colRef.document(comment.getCommentId())
                                 .set(updatedComment);
                         /*      firestoreDbUtility.createOrMerge(collectionReference, comment.getId(), updatedComment, new CallBack() {
                             @Override
@@ -482,7 +561,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                 @Override
                 public void onFailure(Object object) {
 //                    showToast(getString(R.string.label_error_occurred_with_val, object));
-                    LogUtility.e(LogUtility.TAG, "failure  : " + comment.getId() + " res is  : " + object.toString());
+                    LogUtility.e(LogUtility.TAG, "failure  : " + comment.getCommentId() + " res is  : " + object.toString());
                 }
             });
 
@@ -514,16 +593,16 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 
             LogUtility.i(LogUtility.TAG, "collectionReference is  : " + colRef.getParent());
 
-            firestoreDbUtility.deleteDocument(colRef, comment.getId(), new CallBack() {
+            firestoreDbUtility.deleteDocument(colRef, comment.getCommentId(), new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
-                    LogUtility.d(LogUtility.TAG, "success delete  : " + comment.getId() + " res is  : " + object);
+                    LogUtility.d(LogUtility.TAG, "success delete  : " + comment.getCommentId() + " res is  : " + object);
                     showToast(getString(R.string.deleted_successfully_with_param, comment.getContent()));
                 }
 
                 @Override
                 public void onFailure(Object object) {
-                    LogUtility.e(LogUtility.TAG, "failure  : " + comment.getId() + " res is  : " + object.toString());
+                    LogUtility.e(LogUtility.TAG, "failure  : " + comment.getCommentId() + " res is  : " + object.toString());
                     showToast(getString(R.string.error_failure));
                 }
             });
@@ -571,7 +650,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                 updatedComment.setReviewed(true);
                 // Move to moderation queue
                 db.collection("moderation")
-                        .document(comment.getId())
+                        .document(comment.getCommentId())
                         .set(updatedComment);
             }
 

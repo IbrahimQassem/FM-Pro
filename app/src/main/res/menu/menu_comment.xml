@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_report"
-        android:title="Report" />
+        android:title="@string/label_report" />
     <item
         android:id="@+id/action_block"
-        android:title="Block" />
+        android:title="@string/label_block" />
     <item
         android:id="@+id/action_delete"
-        android:title="Delete" />
+        android:title="@string/label_delete" />
 </menu>

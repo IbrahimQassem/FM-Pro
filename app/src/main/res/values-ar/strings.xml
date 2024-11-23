@@ -191,7 +191,7 @@
     <string name="done_successfully">تمت العملية بنجاح</string>
     <string name="error_failure">فشل في تنفذ العملية</string>
     <string name="label_saving_in_progress">جاري الحفظ ..</string>
-    <string name="label_comment_as">تعليق كـ %s ..</string>
+    <string name="label_comment_as">إرسال تعليق كـ %s ..</string>
     <string name="error_episode_audio_not_available">المعذرة, التسجل الصوتي للبرنامج الإذاعي غير موجود !</string>
     <string name="deleted_successfully_with_param"> تم حذف <b>[%s]</b> بنجاح </string>
     <string name="label_edit">تعديل</string>
@@ -275,6 +275,27 @@
     <string name="label_force_update_message">يرجى تحديث الإصدار الأخير من التطبيق.</string>
     <string name="label_no">لا</string>
     <string name="label_yes">نعم</string>
-    <string name="label_report">Report</string>
+    <string name="label_report">إبلاغ</string>
+    <string name="label_block">حظر</string>
+    <string name="lebel_report_comment">الإبلاغ عن التعليق</string>
+    <string name="confirm_report_comment">هل أنت متأكد أنك تريد الإبلاغ عن هذا التعليق؟</string>
+    <string name="lebel_delete_comment">حذف التعليق</string>
+    <string name="confirm_delete_comment">هل أنت متأكد أنك تريد حذف التعليق؟</string>
+    <string name="label_block_user">حظر المستخدم</string>
+    <string name="label_unblock_user">إلغاء حظر المستخدم</string>
+    <string name="confirm_unblock_user">هل ترغب في إلغاء حظر هذا المستخدم؟</string>
+    <string name="label_unblock">إلغاء الحظر</string>
+    <string name="msg_please_provide_a_reason_for_blocking_this_user">يرجى تقديم سبب حظر هذا المستخدم:</string>
+    <string name="hint_reason_for_blocking">سبب الحظر</string>
+    <string name="msg_you_don_t_have_permission_to_delete_this_comment">ليس لديك إذن لحذف هذا التعليق</string>
+    <string name="msg_no_internet_connection">لا يوجد اتصال بالإنترنت</string>
+    <string name="msg_you_don_t_have_permission_to_perform_this_action">ليس لديك إذن لتنفيذ هذا الإجراء</string>
+    <string name="msg_server_error_please_try_again_later">خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقًا</string>
+    <string name="msg_content_not_found">لم يتم العثور على المحتوى</string>
+    <string name="msg_already_performed_this_action">تم تنفيذ هذا الإجراء بالفعل</string>
+    <string name="msg_you_have_already_reported_this_comment">لقد قمت بالفعل بالإبلاغ عن هذا التعليق</string>
+    <string name="msg_you_cannot_report_yourself">لا يمكنك الإبلاغ عن التعليق الخاص بك!</string>
+    <string name="msg_an_unexpected_error_occurred">حدث خطأ غير متوقع</string>
+    <string name="msg_you_cannot_block_yourself">لا يمكنك حظر نفسك</string>
 
 </resources>

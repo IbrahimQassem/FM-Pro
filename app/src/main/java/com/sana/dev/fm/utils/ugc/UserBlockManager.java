@@ -1,5 +1,6 @@
 package com.sana.dev.fm.utils.ugc;
 
+import android.app.Activity;
 import android.content.Context;
 import android.widget.Toast;
 
@@ -16,6 +17,7 @@ import com.sana.dev.fm.model.Comment;
 import com.sana.dev.fm.model.UserBlock;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.LogUtility;
+import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
 import java.util.HashSet;
@@ -27,7 +29,6 @@ public class UserBlockManager {
     private final FirebaseAuth auth;
     private FirestoreDbUtility firestoreDbUtility;
     private NetworkErrorHandler networkErrorHandler;
-    private PendingOperationQueue pendingQueue;
     private CommentClickListener listener;
     private Context context;
     private final Set<String> blockedUsers;
@@ -44,14 +45,13 @@ public class UserBlockManager {
 //        setupBlockListener();
 //    }
 
-    private UserBlockManager(Context context, CommentClickListener listener) {
+    public UserBlockManager(Context context, CommentClickListener listener) {
         this.context = context.getApplicationContext();
         this.listener = listener;
         this.db = FirebaseFirestore.getInstance();
         this.auth = FirebaseAuth.getInstance();
         this.firestoreDbUtility = new FirestoreDbUtility();
         this.networkErrorHandler = new NetworkErrorHandler(context);
-        this.pendingQueue = new PendingOperationQueue(context, networkErrorHandler);
         blockedUsers = new HashSet<>();
         setupBlockListener();
     }
@@ -117,9 +117,9 @@ public class UserBlockManager {
     private void toggleLike(Comment comment, String radioId) {
         String userId = getCurrentUserId();
 
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
-        CollectionReference colRef = collectionReference.document(comment.getEpisodeId())
-                .collection(AppConstant.Firebase.COMMENT_TABLE);
+//        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+//        CollectionReference colRef = collectionReference.document(comment.getEpisodeId())
+//                .collection(AppConstant.Firebase.COMMENT_TABLE);
 
 //        DocumentReference likeRef = colRef.document(comment.getId());
         networkErrorHandler.checkNetworkAndExecute(
@@ -129,7 +129,7 @@ public class UserBlockManager {
                         CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
                         CollectionReference colRef = collectionReference.document(comment.getEpisodeId())
                                 .collection(AppConstant.Firebase.COMMENT_TABLE);
-                        DocumentReference likeRef = colRef.document(comment.getId());
+                        DocumentReference likeRef = colRef.document(comment.getCommentId());
 
                         db.runTransaction(transaction -> {
                             DocumentSnapshot snapshot = transaction.get(likeRef);
@@ -150,7 +150,7 @@ public class UserBlockManager {
                     @Override
                     public void onSuccess(Object result) {
                         // Success already handled in the transaction listener
-                        LogUtility.d(LogUtility.TAG, "success set  : " + comment.getId() + " res is  : " + result);
+                        LogUtility.d(LogUtility.TAG, "success set  : " + comment.getCommentId() + " res is  : " + result);
                     }
 
                     @Override
@@ -164,17 +164,18 @@ public class UserBlockManager {
     private void reportComment(Comment comment, String radioId) {
         String userId = getCurrentUserId();
         String targetUserId = comment.getUserId();
-        if (userId.equals(targetUserId)) {
-            showError("You cannot report yourself");
-            return;
-        }
+//        if (userId.equals(targetUserId)) {
+//            showError("You cannot report yourself");
+//            return;
+//        }
+
 
         CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
         CollectionReference collRef = collectionReference
                 .document(comment.getEpisodeId())
                 .collection(AppConstant.Firebase.COMMENT_TABLE);
 
-        DocumentReference commentRef = collRef.document(comment.getId());
+        DocumentReference commentRef = collRef.document(comment.getCommentId());
 
 //        Map<String, Object> report = new HashMap<String, Object>() {{
 //            put("userId", userId);
@@ -189,22 +190,23 @@ public class UserBlockManager {
                 new NetworkOperation() {
                     @Override
                     public void execute(NetworkCallback callback) {
-//                        reportRef.set(report)
-//                                .addOnSuccessListener(aVoid -> {
-//                                    callback.onSuccess(null);
-//                                    if (listener != null) {
-//                                        listener.onReportClick(comment);
-//                                    }
-//                                })
-//                                .addOnFailureListener(e -> callback.onError(mapFirebaseException(e)));
-
                         db.runTransaction(transaction -> {
+                                    if (comment.getReportedBy().contains(userId)) {
+                                        callback.onError(new NetworkError(NetworkErrorType.ALREADY_REPORTED));
+                                        return null;
+                                    } else if (userId.equals(targetUserId)) {
+                                        callback.onError(new NetworkError(NetworkErrorType.ALREADY_EXISTS));
+                                        return null;
+                                    }
+
+
                                     DocumentSnapshot snapshot = transaction.get(commentRef);
                                     Comment updatedComment = snapshot.toObject(Comment.class);
 
                                     updatedComment.getReportedBy().add(userId);
                                     updatedComment.setReportCount(updatedComment.getReportCount() + 1);
-
+                                    updatedComment.setDeviceInfo(Tools.getDeviceInfoName());
+                                    updatedComment.setAppVersion(Tools.getAppVersion(context));
                                     // Auto-hide comment if report threshold reached
                                     if (updatedComment.getReportCount() >= 5) {
                                         updatedComment.setReviewed(true);
@@ -212,7 +214,7 @@ public class UserBlockManager {
                                         CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.ALERT_TABLE, AppConstant.Firebase.ALERT_TABLE);
                                         CollectionReference colRef = collectionReference.document(comment.getEpisodeId())
                                                 .collection(AppConstant.Firebase.MODERATION_TABLE);
-                                        colRef.document(comment.getId())
+                                        colRef.document(comment.getCommentId())
                                                 .set(updatedComment);
                                     }
 
@@ -258,7 +260,7 @@ public class UserBlockManager {
                                             .document(comment.getEpisodeId())
                                             .collection(AppConstant.Firebase.COMMENT_TABLE);
 
-                                    DocumentReference commentRef = colRef.document(comment.getId());
+                                    DocumentReference commentRef = colRef.document(comment.getCommentId());
 
                                     // Delete comment
                                     transaction.delete(commentRef);
@@ -416,6 +418,10 @@ public class UserBlockManager {
                     return new NetworkError(NetworkErrorType.PERMISSION_DENIED);
                 case UNAVAILABLE:
                     return new NetworkError(NetworkErrorType.SERVER_ERROR);
+                case NOT_FOUND:
+                    return new NetworkError(NetworkErrorType.NOT_FOUND);
+                case ALREADY_EXISTS:
+                    return new NetworkError(NetworkErrorType.ALREADY_EXISTS);
                 default:
                     return new NetworkError(NetworkErrorType.UNKNOWN);
             }
@@ -424,20 +430,31 @@ public class UserBlockManager {
     }
 
     private void handleNetworkError(NetworkError error) {
+        String errorMessage;
         switch (error.getType()) {
             case NO_CONNECTIVITY:
-                showError("No internet connection");
+                errorMessage = "No internet connection";
                 break;
             case PERMISSION_DENIED:
-                showError("You don't have permission to perform this action");
+                errorMessage = "You don't have permission to perform this action";
                 break;
             case SERVER_ERROR:
-                showError("Server error. Please try again later");
+                errorMessage = "Server error. Please try again later";
+                break;
+            case NOT_FOUND:
+                errorMessage = "Content not found";
+                break;
+            case ALREADY_EXISTS:
+                errorMessage = "Already performed this action";
+                break;
+            case ALREADY_REPORTED:
+                errorMessage = "You have already reported this comment";
                 break;
             default:
-                showError("An unexpected error occurred");
+                errorMessage = "An unexpected error occurred";
                 break;
         }
+        showError(errorMessage);
     }
 
     public void cleanup() {
@@ -448,7 +465,7 @@ public class UserBlockManager {
 
     public void navigateToUserProfile(String userId) {
         if (listener != null) {
-            listener.onUserClick(userId);
+            listener.onUserCommentClick(userId);
         }
     }
 
@@ -460,7 +477,6 @@ public class UserBlockManager {
         // Implement your moderator checking logic here
         return false;
     }
-
     private String getCurrentUserId() {
         FirebaseUser user = auth.getCurrentUser();
         return user != null ? user.getUid() : null;
@@ -476,30 +492,14 @@ public class UserBlockManager {
 
     private void showError(String message) {
         // Implement your error display logic here
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+        if (context instanceof Activity) {
+            ((Activity) context).runOnUiThread(() ->
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show());
+        }
     }
 
     public boolean isUserBlocked(String userId) {
         return blockedUsers.contains(userId);
-    }
-
-    private void handleFirebaseError(Exception e) {
-        if (e instanceof FirebaseFirestoreException) {
-            FirebaseFirestoreException firestoreException = (FirebaseFirestoreException) e;
-            switch (firestoreException.getCode()) {
-                case PERMISSION_DENIED:
-                    showError("You don't have permission to perform this action");
-                    break;
-                case UNAVAILABLE:
-                    showError("Service temporarily unavailable. Please try again later");
-                    break;
-                default:
-                    showError("An error occurred. Please try again");
-                    break;
-            }
-        } else {
-            showError("An unexpected error occurred");
-        }
     }
 
 }
@@ -533,14 +533,14 @@ public class UserBlockManager {
         networkErrorHandler.checkNetworkAndExecute(
                 new NetworkOperation() {
                     @Override
-                    public void execute(NetworkCallback networkCallback) {
+                    public void execute(NetworkStatusCallback networkStatusCallback) {
                         if (auth.getCurrentUser() == null) {
-                            networkCallback.onError(new NetworkError(NetworkErrorType.AUTHENTICATION_ERROR));
+                            networkStatusCallback.onError(new NetworkError(NetworkErrorType.AUTHENTICATION_ERROR));
                             return;
                         }
 
                         if (userId.equals(auth.getCurrentUser().getUid())) {
-                            networkCallback.onError(new NetworkError(NetworkErrorType.VALIDATION_ERROR));
+                            networkStatusCallback.onError(new NetworkError(NetworkErrorType.VALIDATION_ERROR));
                             return;
                         }
 
@@ -562,15 +562,15 @@ public class UserBlockManager {
                         batch.commit()
                                 .addOnSuccessListener(aVoid -> {
                                     blockedUsers.add(userId);
-                                    networkCallback.onSuccess(null);
+                                    networkStatusCallback.onSuccess(null);
                                 })
                                 .addOnFailureListener(e -> {
                                     NetworkError error = mapFirebaseException(e);
-                                    networkCallback.onError(error);
+                                    networkStatusCallback.onError(error);
                                 });
                     }
                 },
-                new NetworkCallback() {
+                new NetworkStatusCallback() {
                     @Override
                     public void onSuccess(Object result) {
                         callback.onSuccess();

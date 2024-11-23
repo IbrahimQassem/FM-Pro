@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Comment {
-    private String id;
+    private String commentId;
     private String episodeId;
     private String userId;
     private String userName;
@@ -15,7 +15,8 @@ public class Comment {
     private boolean isReviewed;
     private List<String> reportedBy;
     private List<String> likedBy;
-
+    private String deviceInfo;
+    private String appVersion;
     public Comment() {
         // Required empty constructor for Firestore
     }
@@ -36,12 +37,13 @@ public class Comment {
     // Getters and setters
     // ... (implement all getters and setters)
 
-    public String getId() {
-        return id;
+
+    public String getCommentId() {
+        return commentId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setCommentId(String commentId) {
+        this.commentId = commentId;
     }
 
     public String getEpisodeId() {
@@ -122,5 +124,21 @@ public class Comment {
 
     public void setLikedBy(List<String> likedBy) {
         this.likedBy = likedBy;
+    }
+
+    public String getDeviceInfo() {
+        return deviceInfo;
+    }
+
+    public void setDeviceInfo(String deviceInfo) {
+        this.deviceInfo = deviceInfo;
+    }
+
+    public String getAppVersion() {
+        return appVersion;
+    }
+
+    public void setAppVersion(String appVersion) {
+        this.appVersion = appVersion;
     }
 }

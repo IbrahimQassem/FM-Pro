@@ -61,7 +61,7 @@ import co.mobiwise.materialintro.animation.MaterialIntroListener;
 import co.mobiwise.materialintro.shape.Focus;
 import co.mobiwise.materialintro.shape.ShapeType;
 
-public class MainActivity extends BaseActivity implements CallBackListener, BaseActivity.NetworkCallback {
+public class MainActivity extends BaseActivity implements CallBackListener, BaseActivity.NetworkStatusCallback {
     private static final String TAG = MainActivity.class.getSimpleName();
     public static String FRAGMENT_DATA = "transaction_data";
     public static String FRAGMENT_CLASS = "transaction_target";

@@ -8,14 +8,14 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Please provide a reason for blocking this user:" />
+        android:text="@string/msg_please_provide_a_reason_for_blocking_this_user" />
 
     <EditText
         android:id="@+id/reason_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:hint="Reason for blocking"
+        android:hint="@string/hint_reason_for_blocking"
         android:inputType="textMultiLine"
         android:maxLines="3" />
 
