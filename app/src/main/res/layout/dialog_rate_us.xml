@@ -14,32 +14,45 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <ImageView
+        <View
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="@dimen/spacing_xlarge" />
+
+        <!-- Round corners -->
+        <com.sana.dev.fm.ui.view.RoundImageView
+            android:id="@+id/img_profile"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginVertical="@dimen/spacing_large"
+            android:foreground="@color/overlay_light_20"
             android:scaleType="centerCrop"
-             app:srcCompat="@drawable/logo_app" />
+            app:borderColor="?attr/colorPrimary"
+            app:borderWidth="0.5dp"
+            app:cornerRadius="150dp"
+            app:srcCompat="@drawable/logo_app" />
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:gravity="center"
+            android:orientation="vertical"
             android:padding="@dimen/spacing_large">
 
             <TextView
                 style="@style/TextRegular"
                 android:text="@string/label_like_the_app"
-                android:textSize="24sp"
-                android:textColor="@color/grey_90" />
+                android:textColor="@color/grey_90"
+                android:textSize="24sp" />
 
             <TextView
                 style="@style/TextLight"
-                android:textSize="16sp"
                 android:layout_marginTop="@dimen/spacing_middle"
                 android:padding="@dimen/spacing_medium"
                 android:text="@string/label_rate_us_now"
-                android:textColor="@color/colorPrimary" />
+                android:textColor="@color/colorPrimary"
+                android:textSize="16sp" />
 
         </LinearLayout>
 

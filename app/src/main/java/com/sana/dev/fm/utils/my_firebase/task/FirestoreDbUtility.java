@@ -38,8 +38,7 @@ public class FirestoreDbUtility {
     }
 
     public CollectionReference getTopLevelCollection() {
-//        return db.collection(TOP_LEVEL_COLLECTION);
-        return db.collection(TOP_LEVEL_COLLECTION).getFirestore().collection(TOP_LEVEL_COLLECTION).document().getParent();
+        return db.collection(TOP_LEVEL_COLLECTION);
     }
 
     // Get a reference to a specific collection

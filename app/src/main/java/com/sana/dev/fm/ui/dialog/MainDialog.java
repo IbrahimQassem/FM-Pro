@@ -1,13 +1,10 @@
 package com.sana.dev.fm.ui.dialog;
 
-import static android.view.View.VISIBLE;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.view.View;
@@ -19,12 +16,11 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.AppCompatRatingBar;
 
-import com.google.android.gms.ads.AdRequest;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.utils.FmUtilize;
-import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
+import com.sana.dev.fm.utils.WhatsAppHelper;
 
 
 public class MainDialog {
@@ -127,17 +123,21 @@ public class MainDialog {
                 if (remoteConfig != null) {
                      contact = remoteConfig.getAdminMobile();
                 }
-                String url = "https://api.whatsapp.com/send?phone=" + contact;
-                try {
-                    PackageManager pm = context.getPackageManager();
-                    pm.getPackageInfo("com.whatsapp", PackageManager.GET_ACTIVITIES);
-                    Intent whatsappIntent = new Intent(Intent.ACTION_VIEW);
-                    whatsappIntent.setData(Uri.parse(url));
-                    context.startActivity(whatsappIntent);
-                } catch (PackageManager.NameNotFoundException e) {
-                    Toast.makeText(context, context.getString(R.string.whatsapp_not_installed), Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                }
+//                String url = "https://api.whatsapp.com/send?phone=" + contact;
+//                try {
+//                    PackageManager pm = context.getPackageManager();
+//                    pm.getPackageInfo("com.whatsapp", PackageManager.GET_ACTIVITIES);
+//                    Intent whatsappIntent = new Intent(Intent.ACTION_VIEW);
+//                    whatsappIntent.setData(Uri.parse(url));
+//                    context.startActivity(whatsappIntent);
+//                } catch (PackageManager.NameNotFoundException e) {
+//                    Toast.makeText(context, context.getString(R.string.whatsapp_not_installed), Toast.LENGTH_SHORT).show();
+//                    e.printStackTrace();
+//                }
+
+                // Regular WhatsApp
+                String message = context.getResources().getString(R.string.label_hello);
+                WhatsAppHelper.openWhatsApp(context, contact,     message);
                 dialog.dismiss();
             }
         });

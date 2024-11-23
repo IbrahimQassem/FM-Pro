@@ -297,5 +297,10 @@
     <string name="msg_you_cannot_report_yourself">لا يمكنك الإبلاغ عن التعليق الخاص بك!</string>
     <string name="msg_an_unexpected_error_occurred">حدث خطأ غير متوقع</string>
     <string name="msg_you_cannot_block_yourself">لا يمكنك حظر نفسك</string>
+    <string name="label_hello">مرحبًا، هل يمكنني معرفة المزيد..</string>
+    <string name="label_share">مشاركة</string>
+    <string name="label_whatsapp_not_installed">واتساب غير مثبت</string>
+    <string name="msg_whatsapp_is_not_installed_on_your_device_would_you_like_to_install_it">WhatsApp غير مثبت على جهازك. هل ترغب في تثبيته؟</string>
+    <string name="label_install">تثبيت</string>
 
 </resources>

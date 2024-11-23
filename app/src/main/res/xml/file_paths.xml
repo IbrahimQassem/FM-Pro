@@ -3,4 +3,7 @@
     <external-cache-path
         name="cache"
         path="camera" />
+    <cache-path
+        name="shared_images"
+        path="images/"/>
 </paths>

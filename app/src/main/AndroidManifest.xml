@@ -50,6 +50,13 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- Add queries for package visibility on Android 11+ -->
+<!--            <queries>-->
+<!--                <package android:name="com.whatsapp" />-->
+<!--                <package android:name="com.whatsapp.w4b" />-->
+<!--            </queries>-->
+
         </activity>
         <activity
             android:name=".ui.activity.DestinationDetailActivity"
@@ -140,6 +147,7 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
+
 
         <receiver
             android:name="androidx.media.session.MediaButtonReceiver"

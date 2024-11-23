@@ -9,16 +9,17 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemGridBinding;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
+import com.sana.dev.fm.model.interfaces.OnMoreClickListener;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
 
@@ -27,6 +28,7 @@ public class ChatHolder extends RecyclerView.ViewHolder {
     public static final String TAG = ChatHolder.class.getSimpleName();
     private Context ctx;
     private OnClickListener mOnItemClickListener;
+    private OnMoreClickListener mOnMoreClickListener;
     private OnItemLongClick mOnLongItemClickListener;
     private int position;
 
@@ -45,11 +47,11 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 //        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 //        setIsSender(currentUser != null && chat.getUid().equals(currentUser.getUid()));
 
-        binding.btMore.setVisibility(View.GONE);
+        binding.btMore.setVisibility(View.VISIBLE);
 
-        if ((BuildConfig.FLAVOR.equals("hudhudfm_google_play"))) {
-            binding.lytCommentParent.setVisibility(View.GONE);
-        }
+//        if ((BuildConfig.FLAVOR.equals("hudhudfm_google_play"))) {
+            binding.lytCommentParent.setVisibility(View.VISIBLE);
+//        }
 
     }
 
@@ -173,6 +175,33 @@ public class ChatHolder extends RecyclerView.ViewHolder {
                 }
             }
         });
+
+        binding.btMore.setOnClickListener(v -> showPopupMenu(v, episode));
+    }
+
+    private void showPopupMenu(View view, Episode episode) {
+        PopupMenu popup = new PopupMenu(ctx, view);
+        popup.inflate(R.menu.menu_episode);
+
+        // Show delete option only for comment owner or admin
+//        popup.getMenu().findItem(R.id.nav_share).setVisible(comment.getUserId().equals(userModel.getUserId()));
+
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.nav_share) {
+                if (mOnMoreClickListener != null) {
+                    mOnMoreClickListener.onShareClick(view, episode, position);
+                }
+                return true;
+            } else if (item.getItemId() == R.id.action_block) {
+//                listener.onBlockClick(comment);
+                return true;
+            } else if (item.getItemId() == R.id.action_delete) {
+//                listener.onDeleteClick(comment);
+                return true;
+            }
+            return false;
+        });
+        popup.show();
     }
 
 
@@ -182,5 +211,8 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 
     public void setOnLongItemClickListener(final OnItemLongClick mItemLongClickListener) {
         this.mOnLongItemClickListener = mItemLongClickListener;
+    }
+    public void setOnMoreClickListener(final OnMoreClickListener mOnMoreClickListener) {
+        this.mOnMoreClickListener = mOnMoreClickListener;
     }
 }

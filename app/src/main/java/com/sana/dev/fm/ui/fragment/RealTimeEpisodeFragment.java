@@ -6,6 +6,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -43,6 +44,7 @@ import com.sana.dev.fm.model.enums.UserType;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
+import com.sana.dev.fm.model.interfaces.OnMoreClickListener;
 import com.sana.dev.fm.ui.activity.AddEpisodeActivity;
 import com.sana.dev.fm.ui.activity.CommentsActivity;
 import com.sana.dev.fm.ui.activity.MainActivity;
@@ -50,6 +52,7 @@ import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
+import com.sana.dev.fm.utils.WhatsAppHelper;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
@@ -320,6 +323,16 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
                         if (RealTimeEpisodeFragment.this.isAccountSignedIn() && prefMgr.getUserSession().getUserType() == UserType.SuperADMIN)
                             showBottomSheetDialog(item, radioId);
+                    }
+                });
+
+                viewHolder.setOnMoreClickListener(new OnMoreClickListener() {
+                    @Override
+                    public void onShareClick(View view, Object obj, int position) {
+                        Episode item = (Episode) obj;
+//                        WhatsAppHelper.openWhatsApp(context, item.getEpName(),     message);
+                        WhatsAppHelper.shareImageWithTextToWhatsApp(context,  Uri.parse(item.getEpProfile()),item.getEpName(),item.getEpDesc());
+//                        showToast("ddddd");
                     }
                 });
 
