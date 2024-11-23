@@ -36,7 +36,10 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:supportsRtl"
         tools:targetApi="33">
-
+        <activity
+            android:name=".ui.activity.CommentsUGCActivity"
+            android:screenOrientation="portrait"
+            android:exported="true" />
         <activity
             android:name=".ui.activity.SplashActivity"
             android:exported="true"

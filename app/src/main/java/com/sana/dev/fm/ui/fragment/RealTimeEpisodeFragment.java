@@ -341,6 +341,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                             case R.id.imv_comment:
                                 view.getLocationOnScreen(startingLocation);
                                 CommentsActivity.startActivity(context, item);
+//                                CommentsUGCActivity.startActivity(context, item);
                                 getActivity().overridePendingTransition(0, 0);
                                 break;
                             case R.id.imv_like:

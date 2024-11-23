@@ -275,5 +275,6 @@
     <string name="label_force_update_message">يرجى تحديث الإصدار الأخير من التطبيق.</string>
     <string name="label_no">لا</string>
     <string name="label_yes">نعم</string>
+    <string name="label_report">Report</string>
 
 </resources>

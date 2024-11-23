@@ -332,10 +332,17 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
 //                String obj = new Gson().toJson(destinationList);
 //                LogUtility.w(TAG, " loadDestinations onSuccess data:  " + obj);
                 // Sort destinations by priority
-                List<DestinationModel> sortedDestinations = getSortedDestinations(destinationList);
-                sliderAdapter.setDestinations(sortedDestinations);
+                if (destinationList != null && destinationList.size() > 0) {
+                    List<DestinationModel> sortedDestinations = getSortedDestinations(destinationList);
+                    sliderAdapter.setDestinations(sortedDestinations);
 
-                setupDots();
+                    setupDots();
+                }else {
+                    // Todo hide slider
+//                    collapsing_toolbar.setVisibility(View.GONE);
+                }
+
+
             }
 
             @Override
@@ -347,12 +354,13 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
 
 
     private List<DestinationModel> getSortedDestinations(List<DestinationModel> destinations) {
-        if ((destinations.size() % destinations.size()) > 0) {
+        List<DestinationModel> models = new ArrayList<>();
+        if (destinations != null && (destinations.size() % destinations.size()) > 0) {
             // Sort by priority
             Collections.sort(destinations, (d1, d2) -> Integer.compare(d2.getPriority(), d1.getPriority()));
             return destinations;
         }
-        return destinations;
+        return models;
     }
 
 

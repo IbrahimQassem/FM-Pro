@@ -308,10 +308,14 @@ public class SplashActivity extends AppCompatActivity {
 
     private boolean isForceUpdateRequired(int requiredVersion) {
         // Todo
-        int currentVersion = BuildConfig.VERSION_CODE;
+        if (BuildConfig.FLAVOR.equals("hudhudfm_google_play")) {
+            int currentVersion = BuildConfig.VERSION_CODE;
 //        String deviceLanguage = Locale.getDefault().getLanguage();
-        return currentVersion < requiredVersion /*&& forceUpdateLanguages.contains(deviceLanguage)*/;
-//        return false;
+            return currentVersion < requiredVersion /*&& forceUpdateLanguages.contains(deviceLanguage)*/;
+        } else {
+            return false;
+        }
+
     }
 
     private void showDialogForForceUpdate() {

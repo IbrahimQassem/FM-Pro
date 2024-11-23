@@ -68,6 +68,15 @@
                     android:textSize="12sp"
                     tools:text="@string/ex_time" />
 
+                <ImageButton
+                    android:id="@+id/menu_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_more_dot"
+                    android:tint="@color/grey_500" />
+
 
             </LinearLayout>
 
@@ -77,6 +86,28 @@
                 android:padding="@dimen/spacing_medium"
                 android:textColor="@color/grey_40"
                 tools:text="@string/ex_comment" />
+
+            <ImageButton
+                android:id="@+id/like_button"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_below="@id/timestamp"
+                android:layout_margin="@dimen/spacing_medium"
+                android:layout_toEndOf="@id/user_photo"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_heart_outline_grey"
+                android:tint="@color/grey_500" />
+
+            <TextView
+                android:id="@+id/like_count_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/timestamp"
+                android:layout_margin="@dimen/spacing_medium"
+                android:layout_marginStart="4dp"
+                android:layout_toEndOf="@id/like_button"
+                android:textSize="12sp"
+                tools:text="@string/ex_comment_count" />
 
         </LinearLayout>
 

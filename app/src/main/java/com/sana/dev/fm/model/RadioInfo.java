@@ -7,6 +7,7 @@ import android.widget.Toast;
 import com.google.firebase.firestore.Exclude;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.sana.dev.fm.R;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.PreferencesManager;
@@ -24,7 +25,7 @@ import java.util.List;
 public class RadioInfo implements Serializable {
 
     private int id;
-//    @DocumentId
+    //    @DocumentId
     private String radioId;
     private String name, desc, streamUrl, logo, tag, city, channelFreq, enName, createBy, createAt;
     private int programsCount, followers, subscribers, rating, priority;
@@ -34,7 +35,7 @@ public class RadioInfo implements Serializable {
 
     }
 
-    public RadioInfo(String radioId, String name, String desc, String streamUrl, String logo, String tag, int programs, int followers, int subscribers, int rating, int priority, boolean isOnline, boolean disabled,  boolean isBlueBadge, String city, String channelFreq, String enName, String createBy, String createAt) {
+    public RadioInfo(String radioId, String name, String desc, String streamUrl, String logo, String tag, int programs, int followers, int subscribers, int rating, int priority, boolean isOnline, boolean disabled, boolean isBlueBadge, String city, String channelFreq, String enName, String createBy, String createAt) {
         this.radioId = radioId;
         this.name = name;
         this.desc = desc;
@@ -57,7 +58,7 @@ public class RadioInfo implements Serializable {
     }
 
     public static RadioInfo newInstance(String radioId, String name, String desc, String streamUrl, String logo, String tag, String city, String channelFreq, String enName, String createBy, boolean disabled) {
-        return new RadioInfo(radioId, name, desc, streamUrl, logo, tag, 1, 1, 1, 1, 1, false,false, disabled, city, channelFreq, enName, createBy, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat));
+        return new RadioInfo(radioId, name, desc, streamUrl, logo, tag, 1, 1, 1, 1, 1, false, true, disabled, city, channelFreq, enName, createBy, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat));
     }
 
 
@@ -117,13 +118,13 @@ public class RadioInfo implements Serializable {
 
         PreferencesManager prefMgr = PreferencesManager.getInstance();
 
-        if (prefMgr.getUserSession() == null)
-            return;
-        String usId = prefMgr.getUserSession().getUserId();
-        RadioInfo radio1 = RadioInfo.newInstance("1001", "يمن اف ام", "", "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1001%2F1001.jpg?alt=media&token=41d7cab7-d1cf-4d10-840a-dd576c04871a", "@yemen_fm", "صنعاء", "99,9", "Yemen Fm", usId, false);
+        if (prefMgr.getUserSession() != null) {
+//            prefMgr.getUserSession().setUserId(FirebaseAuth.getInstance().getUid());
+            String usId = prefMgr.getUserSession().getUserId();
+//        RadioInfo radio1 = RadioInfo.newInstance("1001", "يمن اف ام", "", "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1001%2F1001.jpg?alt=media&token=41d7cab7-d1cf-4d10-840a-dd576c04871a", "@yemen_fm", "صنعاء", "99,9", "Yemen Fm", usId, false);
 //        RadioInfo radio2 = RadioInfo.newInstance("1002", "أصالة", "", "https://streamingv2.shoutcast.com/assala-fm", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1002%2Fmicar.jpg?alt=media&token=b568c461-9563-44e2-a091-e953471e42c4", "@asalah_fm", "صنعاء", "87.9", "Asalah Fm", usId, true);
 //        RadioInfo radio3 = RadioInfo.newInstance("1003", "صوت اليمن", " إذاعة حرة ومستقله بقدرات وأصوات يمنية 100%", "", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1003%2F1003.jpg?alt=media&token=004920e1-edac-4b9f-9182-b670ecc3f9bc", "@yemenvoicefm", "صنعاء", "98.1", "Yemen Voice Fm", usId, false);
-        RadioInfo radio4 = RadioInfo.newInstance("1004", "طيرمانة", "", "", "", "@tairmanah_fm", "صنعاء", "101.10", "Tayramana Fm", usId, true);
+//        RadioInfo radio4 = RadioInfo.newInstance("1004", "طيرمانة", "", "", "", "@tairmanah_fm", "صنعاء", "101.10", "Tayramana Fm", usId, true);
 //        RadioInfo radio5 = RadioInfo.newInstance("1005", "سمارة", "", "https://l.facebook.com/l.php?u=https%3A%2F%2Feu2-centova.serverse.com%2Fproxy%2Fjgbhsvbc%3Fmp%3D%252Fstream%26fbclid%3DIwAR3hJ7WE0bkmPDbG2f5rloNYtj397px_W5dDlvmqj208WIsClSpmhf1cSs8&h=AT2zEq4uMVih-kAU688J-JUvuTgElJRGXW-t9sUlLVx095lTk0e_WuHBSqW7adckomMfLg4O3hyoyXrsFDvw9JvIzSA4RClokIQlbHxV7GHt82eQEKk2U2Ei5V2LVpHSgw0xuA", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1005%2F1005.jpg?alt=media&token=92224654-c283-4481-9abb-4bfe1f4c8ae8", "@somarafm", "إب", "100.3", "Somara Fm", usId, true);
 //        RadioInfo radio6 = RadioInfo.newInstance("1006", "دلتا", "", "http://108.61.34.50:7057/live", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1006%2F71.jpg?alt=media&token=3066d8c6-7b10-4abb-9ac8-18a33ca8ea9e", "@delta_fm", "صنعاء", "101.90", "Delta Fm", usId, false);
 //        RadioInfo radio7 = RadioInfo.newInstance("1007", "يمن تايمز", "", "https://mixlr.com/yemen-times-radio/?fbclid=IwAR3nMTVShHd5IUYobKfUy5nDZsuSZpyZuS8TUNmzx4InxV02RIBJX3x6KVs", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1007%2F.jpg?alt=media&token=ce075b57-0339-43ee-b330-14a00c4164f3", "@yemen_times_fm", "صنعاء", "91.90", "Yemen Times Fm", usId, false);
@@ -155,9 +156,24 @@ public class RadioInfo implements Serializable {
 //        RadioInfo radio33 = RadioInfo.newInstance("1033", "temp", "", "", "", "@", "","","",usId,true);
 //        RadioInfo radio34 = RadioInfo.newInstance("1034", "temp", "", "", "", "@", "","","",usId,true);
 //        RadioInfo radio35 = RadioInfo.newInstance("1035", "temp", "", "", "", "@", "","","",usId,true);
+//            RadioInfo radio36 = RadioInfo.newInstance("1036", "temp", "", "", "", "@", "", "", "", usId, false);
+//            RadioInfo radio37 = RadioInfo.newInstance("1037", "temp", "", "", "", "@", "", "", "", usId, false);
+//            RadioInfo radio38 = RadioInfo.newInstance("1038", "temp", "", "", "", "@", "", "", "", usId, false);
+//            RadioInfo radio39 = RadioInfo.newInstance("1039", "temp", "", "", "", "@", "", "", "", usId, false);
+//            RadioInfo radi40 = RadioInfo.newInstance("1040", "temp", "", "", "", "@", "", "", "", usId, false);
+//            RadioInfo radi41 = RadioInfo.newInstance("1041", "temp", "", "", "", "@", "", "", "", usId, false);
+//            RadioInfo radi42 = RadioInfo.newInstance("1042", "temp", "", "", "", "@", "", "", "", usId, false);
+//            RadioInfo radi43 = RadioInfo.newInstance("1043", "temp", "", "", "", "@", "", "", "", usId, false);
+//            RadioInfo radi44 = RadioInfo.newInstance("1044", "temp", "", "", "", "@", "", "", "", usId, false);
+//            RadioInfo radi45 = RadioInfo.newInstance("1045", "temp", "", "", "", "@", "", "", "", usId, false);
+//            RadioInfo radi46 = RadioInfo.newInstance("1046", "temp", "", "", "", "@", "", "", "", usId, false);
+//            RadioInfo radi47 = RadioInfo.newInstance("1047", "temp", "", "", "", "@", "", "", "", usId, false);
+//            RadioInfo radi48 = RadioInfo.newInstance("1048", "temp", "", "", "", "@", "", "", "", usId, false);
+//            RadioInfo radi49 = RadioInfo.newInstance("1049", "temp", "", "", "", "@", "", "", "", usId, false);
+            RadioInfo radi50 = RadioInfo.newInstance("1050", "temp", "", "", "", "@", "", "", "", usId, false);
 
 
-        List<RadioInfo> infos = new ArrayList<>();
+            List<RadioInfo> infos = new ArrayList<>();
 //        infos.add(radio1);
 //        infos.add(radio2);
 //        infos.add(radio3);
@@ -193,28 +209,43 @@ public class RadioInfo implements Serializable {
 //        infos.add(radio33);
 //        infos.add(radio34);
 //        infos.add(radio35);
+//            infos.add(radio36);
+//            infos.add(radio37);
+//            infos.add(radio38);
+//            infos.add(radio39);
+//            infos.add(radi40);
+//            infos.add(radi41);
+//            infos.add(radi42);
+//            infos.add(radi43);
+//            infos.add(radi44);
+//            infos.add(radi45);
+//            infos.add(radi46);
+//            infos.add(radi47);
+//            infos.add(radi48);
+//            infos.add(radi49);
+//            infos.add(radi50);
 
 
-        FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
+            FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
 
-        if (!infos.isEmpty()) {
-            for (int i = 0; i < infos.size(); i++) {
-                RadioInfo info = infos.get(i);
+            if (!infos.isEmpty()) {
+                for (int i = 0; i < infos.size(); i++) {
+                    RadioInfo info = infos.get(i);
 
-                try {
+                    try {
 
-                    firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_INFO_TABLE, AppConstant.Firebase.RADIO_INFO_TABLE),info.getRadioId(), info, new CallBack() {
-//                    firestoreDbUtility.createOrMerge(AppConstant.Firebase.RADIO_INFO_TABLE, radio1.getRadioId(), FmUtilize.classToMap(radio1), new CallBack() {
-                        @Override
-                        public void onSuccess(Object object) {
-//                            showToast(getString(R.string.done_successfully));
-                        }
+                        firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_INFO_TABLE, AppConstant.Firebase.RADIO_INFO_TABLE), info.getRadioId(), info, new CallBack() {
+                            //                    firestoreDbUtility.createOrMerge(AppConstant.Firebase.RADIO_INFO_TABLE, radio1.getRadioId(), FmUtilize.classToMap(radio1), new CallBack() {
+                            @Override
+                            public void onSuccess(Object object) {
+                                Toast.makeText(context, context.getString(R.string.done_successfully) + " - " + info.getName(), Toast.LENGTH_SHORT).show();
+                            }
 
-                        @Override
-                        public void onFailure(Object object) {
-//                            showToast(getString(R.string.label_error_occurred_with_val, object));
-                        }
-                    });
+                            @Override
+                            public void onFailure(Object object) {
+                                Toast.makeText(context, context.getString(R.string.label_error_occurred_with_val, object) + " \n- " + info.getName(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
 
 //                    firestoreHelperZ.createOrMerge(AppConstant.Firebase.RADIO_INFO_TABLE, info.getRadioId(), FmUtilize.classToMap(info));
 //                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_INFO_TABLE, AppConstant.Firebase.RADIO_INFO_TABLE).document(info.getRadioId()).collection(AppConstant.Firebase.RADIO_INFO_TABLE);
@@ -231,9 +262,9 @@ public class RadioInfo implements Serializable {
 ////                            showToast(AppGeneralMessage.ERROR);
 //                        }
 //                    });
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
 //                DocumentReference mFirestoreProfiles1 = FirebaseDatabaseReference.getTopLevelCollection().getFirestore().collection(AppConstant.Firebase.RADIO_INFO_TABLE).document(info.getRadioId());
 //
 //                mFirestoreProfiles1.set(info).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -243,9 +274,14 @@ public class RadioInfo implements Serializable {
 //                    }
 //                });
 
+                }
+            } else {
+                Toast.makeText(context, " No Radio Info !", Toast.LENGTH_SHORT).show();
             }
+
         } else {
-            Toast.makeText(context, " No Radio Info !", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, " Not Logged in !", Toast.LENGTH_SHORT).show();
+
         }
 
 
@@ -260,7 +296,7 @@ public class RadioInfo implements Serializable {
         this.id = id;
     }
 
-//    @Exclude
+    //    @Exclude
     public String getRadioId() {
         return radioId;
     }

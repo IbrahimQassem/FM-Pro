@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <RelativeLayout
+        android:id="@+id/normal_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/user_photo"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/menu_button"
+            android:layout_toEndOf="@id/user_photo"
+            android:textStyle="bold"
+            tools:text="@string/label_title" />
+
+        <TextView
+            android:id="@+id/comment_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/user_name"
+            android:layout_toStartOf="@id/menu_button"
+            android:layout_toEndOf="@id/user_photo"
+            tools:text="@string/ex_comment" />
+
+        <TextView
+            android:id="@+id/timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/comment_content"
+            android:layout_toEndOf="@id/user_photo"
+            android:textSize="12sp"
+            tools:text="@string/ex_date" />
+
+        <ImageButton
+            android:id="@+id/menu_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_more_dot"
+            android:tint="@color/grey_500" />
+
+        <ImageButton
+            android:id="@+id/like_button"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_below="@id/timestamp"
+            android:layout_margin="@dimen/spacing_medium"
+            android:layout_toEndOf="@id/user_photo"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_heart_outline_grey"
+            android:tint="@color/grey_500" />
+
+        <TextView
+            android:id="@+id/like_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/timestamp"
+            android:layout_margin="@dimen/spacing_medium"
+            android:layout_marginStart="4dp"
+            android:layout_toEndOf="@id/like_button"
+            android:textSize="12sp"
+            tools:text="@string/ex_comment_count" />
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:id="@+id/blocked_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="This comment is from a blocked user"
+            android:textStyle="italic" />
+
+        <Button
+            android:id="@+id/unblock_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Unblock User" />
+
+    </LinearLayout>
+
+
+</RelativeLayout>

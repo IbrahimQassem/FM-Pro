@@ -252,6 +252,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
 
         //            binding.loginButtonFacebook.setVisibility(remoteConfig.isFacebookEnable() ? VISIBLE : View.GONE);
         binding.btFacebookLogin.setVisibility(isAuthFacebookEnable ? VISIBLE : View.GONE);
+//        binding.btFacebookLogin.setVisibility(true ? VISIBLE : View.GONE);
         binding.btGoogleLogin.setVisibility(isAuthGoogleEnable ? VISIBLE : View.GONE);
         binding.btEmailLogin.setVisibility(isAuthEmailEnable ? VISIBLE : View.GONE);
         binding.btMobileLogin.setVisibility(isAuthSmsEnable ? VISIBLE : View.GONE);

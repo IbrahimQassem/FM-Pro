@@ -92,7 +92,7 @@
     <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consecrated animistic elite.</string>
     <string name="label_note">Note !</string>
     <string name="most_login">You must be logged in!</string>
-    <string name="add_comment">Add comment ..</string>
+    <string name="add_comment">Add commentModel ..</string>
     <string name="click_to_change_image">Choose a picture</string>
     <string name="label_send">Send</string>
     <string name="error_empty_field_not_allowed">The field must not be empty</string>
@@ -268,7 +268,7 @@
     <string name="label_add_show_time">Add show time</string>
     <string name="label_episode_image_profile">Episode image profile</string>
     <string name="label_add_episode_image_profile">Add episode image profile</string>
-    <string name="label_add_comment_as_val">Add comment as %s ..</string>
+    <string name="label_add_comment_as_val">Add commentModel as %s ..</string>
     <string name="label_enter_new_priority">Enter new Priority</string>
     <string name="label_enable">Enable</string>
     <string name="label_disable">Disable</string>
@@ -308,6 +308,7 @@
     <string name="label_force_update_message">Kindle update to last version</string>
     <string name="label_no">No</string>
     <string name="label_yes">Yes</string>
+    <string name="label_report">Report</string>
     <!--    <string name="gdpr_privacy_policy">-->
     <!--        By using this App, you agree to the <a href="%s">Terms-Conditions &amp; Privacy-Policy</a>.-->
     <!--    </string>-->

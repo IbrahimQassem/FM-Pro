@@ -1,57 +1,47 @@
 package com.sana.dev.fm.model;
 
-import androidx.annotation.NonNull;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class Comment extends CommentId {
-
-//    private String userId, post_id, comment, timestamp;
-//    private Map<String, Boolean> messageLikes = new HashMap<>();
-
-    private String commentUser;
+public class Comment {
+    private String id;
     private String episodeId;
-    private String commentText;
-    private String commentUserId;
-    private String commentTime;
-    private long commentLikesCount;
-    private Map<String, Boolean> commentLikes = new HashMap<>();
+    private String userId;
+    private String userName;
+    private String userPhotoUrl;
+    private String content;
+    private long timestamp;
+    private int reportCount;
+    private boolean isReviewed;
+    private List<String> reportedBy;
+    private List<String> likedBy;
 
     public Comment() {
+        // Required empty constructor for Firestore
     }
 
-    public Comment(String commentId, String episodeId, String commentUser, String commentText, String commentUserId, String commentTime, long commentLikesCount, Map<String, Boolean> commentLikes) {
-        this.commentId = commentId;
+    public Comment(String userId, String episodeId, String userName, String userPhotoUrl, String content) {
+        this.userId = userId;
         this.episodeId = episodeId;
-        this.commentUser = commentUser;
-        this.commentText = commentText;
-        this.commentUserId = commentUserId;
-        this.commentTime = commentTime;
-        this.commentLikesCount = commentLikesCount;
-        this.commentLikes = commentLikes;
+        this.userName = userName;
+        this.userPhotoUrl = userPhotoUrl;
+        this.content = content;
+        this.timestamp = System.currentTimeMillis();
+        this.reportCount = 0;
+        this.isReviewed = false;
+        this.reportedBy = new ArrayList<>();
+        this.likedBy = new ArrayList<>();
     }
 
-    @Override
-    public String toString() {
-        return "Comment{" +
-                "commentUser='" + commentUser + '\'' +
-                ", episodeId='" + episodeId + '\'' +
-                ", commentText='" + commentText + '\'' +
-                ", commentUserId='" + commentUserId + '\'' +
-                ", commentTime='" + commentTime + '\'' +
-                ", commentLikesCount=" + commentLikesCount +
-                ", commentLikes=" + commentLikes +
-                ", commentId='" + commentId + '\'' +
-                '}';
+    // Getters and setters
+    // ... (implement all getters and setters)
+
+    public String getId() {
+        return id;
     }
 
-    public String getCommentId() {
-        return commentId;
-    }
-
-    public void setCommentId(String commentId) {
-        this.commentId = commentId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getEpisodeId() {
@@ -62,63 +52,75 @@ public class Comment extends CommentId {
         this.episodeId = episodeId;
     }
 
-    public String getCommentUser() {
-        return commentUser;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setCommentUser(String commentUser) {
-        this.commentUser = commentUser;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public String getCommentText() {
-        return commentText;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setCommentText(String commentText) {
-        this.commentText = commentText;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public String getCommentUserId() {
-        return commentUserId;
+    public String getUserPhotoUrl() {
+        return userPhotoUrl;
     }
 
-    public void setCommentUserId(String commentUserId) {
-        this.commentUserId = commentUserId;
+    public void setUserPhotoUrl(String userPhotoUrl) {
+        this.userPhotoUrl = userPhotoUrl;
     }
 
-    public String getCommentTime() {
-        return commentTime;
+    public String getContent() {
+        return content;
     }
 
-    public void setCommentTime(String commentTime) {
-        this.commentTime = commentTime;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public long getCommentLikesCount() {
-        return commentLikesCount;
+    public long getTimestamp() {
+        return timestamp;
     }
 
-    public void setCommentLikesCount(long commentLikesCount) {
-        this.commentLikesCount = commentLikesCount;
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
-    public Map<String, Boolean> getCommentLikes() {
-        return commentLikes;
+    public int getReportCount() {
+        return reportCount;
     }
 
-    public void setCommentLikes(Map<String, Boolean> commentLikes) {
-        this.commentLikes = commentLikes;
-    }
-}
-
-class CommentId {
-
-    public String commentId;
-
-    public <T extends CommentId> T withId(@NonNull final String id) {
-        this.commentId = id;
-        return (T) this;
+    public void setReportCount(int reportCount) {
+        this.reportCount = reportCount;
     }
 
+    public boolean isReviewed() {
+        return isReviewed;
+    }
 
+    public void setReviewed(boolean reviewed) {
+        isReviewed = reviewed;
+    }
+
+    public List<String> getReportedBy() {
+        return reportedBy;
+    }
+
+    public void setReportedBy(List<String> reportedBy) {
+        this.reportedBy = reportedBy;
+    }
+
+    public List<String> getLikedBy() {
+        return likedBy;
+    }
+
+    public void setLikedBy(List<String> likedBy) {
+        this.likedBy = likedBy;
+    }
 }

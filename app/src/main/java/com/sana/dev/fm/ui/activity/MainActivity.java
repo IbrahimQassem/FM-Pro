@@ -189,6 +189,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         } else {
             startActivity(new Intent(IntentHelper.userProfileActivity(MainActivity.this, false)));
         }
+//        new RadioInfo().createRadio(this);
     }
 
     private void initBottomNav() {

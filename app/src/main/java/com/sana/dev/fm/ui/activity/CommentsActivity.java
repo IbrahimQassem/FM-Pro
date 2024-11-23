@@ -13,17 +13,20 @@ import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.EditText;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.CommentsAdapter;
@@ -37,14 +40,22 @@ import com.sana.dev.fm.ui.view.SendCommentButton;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
+import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
+import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.ugc.CommentAction;
+import com.sana.dev.fm.utils.ugc.CommentClickListener;
+import com.sana.dev.fm.utils.ugc.UserBlockManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by ibrahim
  */
-public class CommentsActivity extends BaseActivity implements SendCommentButton.OnSendClickListener {
+public class CommentsActivity extends BaseActivity implements SendCommentButton.OnSendClickListener, CommentClickListener {
     public static final String ARG_DRAWING_START_LOCATION = "arg_drawing_start_location";
     public final String TAG = CommentsActivity.class.getSimpleName();
 
@@ -56,6 +67,9 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     private CommentsAdapter commentsAdapter;
     private int drawingStartLocation;
     private FirestoreDbUtility firestoreDbUtility;
+    private FirebaseFirestore db;
+    private UserBlockManager blockManager;
+
 
     public static void startActivity(Context context, Episode episode) {
         Intent intent = new Intent(context, CommentsActivity.class);
@@ -75,10 +89,12 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 
         prefMgr = PreferencesManager.getInstance();
         firestoreDbUtility = new FirestoreDbUtility();
+        db = FirebaseFirestore.getInstance();
+        this.blockManager = UserBlockManager.getInstance(this, this);
 
 
         initToolbar();
-        setupComments();
+        loadComments();
         setupSendCommentButton();
 
         drawingStartLocation = getIntent().getIntExtra(ARG_DRAWING_START_LOCATION, 0);
@@ -95,7 +111,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     }
 
     private void initToolbar() {
-       binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
+        binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
@@ -103,7 +119,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         });
     }
 
-    private void setupComments() {
+    private void loadComments() {
 
         String s = getIntent().getStringExtra("episode");
         if (s == null) {
@@ -123,7 +139,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         }
 
 
-        Tools.setTextOrHideIfEmpty(binding.toolbar.tvTitle,episode.getEpName());
+        Tools.setTextOrHideIfEmpty(binding.toolbar.tvTitle, episode.getEpName());
 
 //        getComments();
 
@@ -137,14 +153,14 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 //                .collection(AppConstant.Firebase.EPISODE_TABLE)
                 .document(epId)
                 .collection(AppConstant.Firebase.COMMENT_TABLE)
-                .orderBy("commentTime", Query.Direction.ASCENDING);
+                .orderBy("timestamp", Query.Direction.DESCENDING)/*.limit(COMMENT_LIMIT)*/;
 
 //        Query query = notebookRef.orderBy("priority", Query.Direction.DESCENDING);
         FirestoreRecyclerOptions<Comment> options = new FirestoreRecyclerOptions.Builder<Comment>()
                 .setQuery(query, Comment.class)
                 .build();
 
-        commentsAdapter = new CommentsAdapter(options, this,firestoreDbUtility);
+        commentsAdapter = new CommentsAdapter(options, this, this, firestoreDbUtility, currentUser);
         commentsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -221,8 +237,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                 .start();
     }
 
-    @Override
-    public void onSendClickListener(View v) {
+    private void postComment() {
         if (validateComment()) {
 //            commentsAdapter.addItem();
 //            commentsAdapter.setAnimationsLocked(false);
@@ -233,32 +248,56 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 //            binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
 
             CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
-
-            CollectionReference colRef = collectionReference
-//                    .document(radioId)
-//                    .collection(AppConstant.Firebase.EPISODE_TABLE)
-                    .document(epId)
+            CollectionReference colRef = collectionReference.document(epId)
                     .collection(AppConstant.Firebase.COMMENT_TABLE);
             String pushKey = colRef.document().getId();
-            Comment comment = new Comment(pushKey, epId, currentUser.getName(), binding.etComment.getText().toString().trim(), currentUser.getUserId(), String.valueOf(System.currentTimeMillis()), 0, null);
-            colRef.add(comment).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                @Override
-                public void onSuccess(DocumentReference documentReference) {
-                    binding.etComment.setText(null);
-                    binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
-                    binding.etComment.setHint(getString(R.string.add_comment));
-                    binding.etComment.setHint(String.format(getString(R.string.label_add_comment_as_val), currentUser.getName()));
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "Error send comment " + e.getMessage());
-                }
-            });
+            String content = binding.etComment.getText().toString().trim();
+            Comment comment = new Comment(
+                    currentUser.getUserId(),
+                    epId,
+                    currentUser.getName(),
+                    currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : "",
+                    content
+            );
+            comment.setId(pushKey);
+
+            colRef.document(comment.getId()).set(comment)
+                    .addOnSuccessListener(aVoid -> {
+                        binding.etComment.setText(null);
+                        binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
+                        binding.etComment.setHint(getString(R.string.add_comment));
+                        binding.etComment.setHint(String.format(getString(R.string.label_add_comment_as_val), currentUser.getName()));
+                    }).addOnFailureListener(aVoid -> {
+                        Log.e(TAG, "Error send commentModel ");
+                        showToast(getString(R.string.label_error_occurred));
+                    });
+
+
+//            collectionReference.document(comment.getId()).set(comment).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                @Override
+//                public void onSuccess(DocumentReference documentReference) {
+//                    binding.etComment.setText(null);
+//                    binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
+//                    binding.etComment.setHint(getString(R.string.add_comment));
+//                    binding.etComment.setHint(String.format(getString(R.string.label_add_comment_as_val), currentUser.getName()));
+//                }
+//            }).addOnFailureListener(new OnFailureListener() {
+//                @Override
+//                public void onFailure(@NonNull Exception e) {
+//                    e.printStackTrace();
+//                    Log.e(TAG, "Error send commentModel " + e.getMessage());
+//                }
+//            });
         } else {
             binding.btnSendComment.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake_error));
         }
+
+    }
+
+
+    @Override
+    public void onSendClickListener(View v) {
+        postComment();
     }
 
     private boolean validateComment() {
@@ -299,4 +338,250 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         if (commentsAdapter != null)
             commentsAdapter.stopListening();
     }
+
+    @Override
+    public void onReportClick(Comment comment) {
+        ModelConfig config = new ModelConfig(R.drawable.ic_warning, "Report Comment", "Are you sure you want to report this comment?", new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_report), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                reportComment(comment);
+                comment.setEpisodeId(epId);
+                blockManager.handleCommentAction(comment, CommentAction.REPORT,radioId);
+            }
+        }));
+        showWarningDialog(config);
+    }
+
+    @Override
+    public void onUserClick(String userId) {
+        postComment();
+    }
+
+    @Override
+    public void onLikeClick(Comment comment) {
+        comment.setEpisodeId(epId);
+        blockManager.handleCommentAction(comment, CommentAction.LIKE,radioId);
+    }
+
+    @Override
+    public void onDeleteClick(Comment comment) {
+        ModelConfig config = new ModelConfig(R.drawable.ic_warning, "Delete Comment", "Are you sure you want to delete this comment?", new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_delete), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                deleteComment(comment);
+                comment.setEpisodeId(epId);
+                blockManager.handleCommentAction(comment, CommentAction.DELETE,radioId);
+            }
+        }));
+        showWarningDialog(config);
+    }
+
+    @Override
+    public void onBlockClick(Comment comment) {
+//        ModelConfig config = new ModelConfig(R.drawable.ic_warning, "Block Comment", "Are you sure you want to delete this comment?", new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_confirm), new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                comment.setEpisodeId(epId);
+//                blockManager.handleCommentAction(comment, CommentAction.BLOCK,radioId);
+//            }
+//        }));
+//        showWarningDialog(config);
+        if (blockManager.isUserBlocked(comment.getUserId())) {
+            showUnblockDialog(comment);
+        } else {
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_block_user, null);
+            EditText reasonInput = dialogView.findViewById(R.id.reason_input);
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Block User")
+                    .setView(dialogView)
+                    .setPositiveButton("Block", (dialog, which) -> {
+                        String reason = reasonInput.getText().toString().trim();
+//                        blockUser(comment, reason);
+                        comment.setEpisodeId(epId);
+                        comment.setContent(reason);
+                        blockManager.handleCommentAction(comment, CommentAction.BLOCK,radioId);
+
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        }
+    }
+
+    @Override
+    public void onUnBlockClick(Comment comment) {
+        showUnblockDialog(comment);
+    }
+
+    private void showUnblockDialog(Comment comment) {
+        new AlertDialog.Builder(this)
+                .setTitle("Unblock User")
+                .setMessage("Would you like to unblock this user?")
+                .setPositiveButton("Unblock", (dialog, which) ->
+                        blockManager.handleCommentAction(comment, CommentAction.UNBLOCK,radioId)
+                )
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+
+    private void reportComment(Comment comment) {
+        String userId = currentUser.getUserId();
+
+        // Check if user already reported
+        if (comment.getReportedBy().contains(userId)) {
+            showToast("You have already reported this comment");
+            return;
+        }
+
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+        CollectionReference colRef = collectionReference
+                .document(epId)
+                .collection(AppConstant.Firebase.COMMENT_TABLE);
+        db.runTransaction((Transaction.Function<Void>) transaction -> {
+
+            Comment updatedComment = comment;
+
+            updatedComment.getReportedBy().add(userId);
+            updatedComment.setReportCount(updatedComment.getReportCount() + 1);
+
+            Map<String, Object> docData = new HashMap<>();
+            docData.put("reportedBy", updatedComment.getReportedBy());
+            docData.put("reportCount", updatedComment.getReportCount());
+
+            LogUtility.i(LogUtility.TAG, "collectionReference is  : " + colRef.getParent());
+
+            firestoreDbUtility.update(colRef, comment.getId(), docData, new CallBack() {
+                @Override
+                public void onSuccess(Object object) {
+//                    showToast(getString(R.string.done_successfully));
+                    LogUtility.d(LogUtility.TAG, "success set  : " + comment.getId() + " res is  : " + docData);
+                    // Auto-hide comment if report threshold reached
+                    if (updatedComment.getReportCount() >= 5) {
+                        updatedComment.setReviewed(true);
+                        // Move to moderation queue
+                        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.ALERT_TABLE, AppConstant.Firebase.ALERT_TABLE);
+                        CollectionReference colRef = collectionReference.document(epId)
+                                .collection(AppConstant.Firebase.MODERATION_TABLE);
+                        colRef.document(comment.getId())
+                                .set(updatedComment);
+                        /*      firestoreDbUtility.createOrMerge(collectionReference, comment.getId(), updatedComment, new CallBack() {
+                            @Override
+                            public void onSuccess(Object object) {
+//                                            showToast(getString(R.string.done_successfully));
+                            }
+
+                            @Override
+                            public void onFailure(Object object) {
+//                                            showToast(getString(R.string.label_error_occurred_with_val,object));
+                            }
+                        });*/
+                    }
+                }
+
+                @Override
+                public void onFailure(Object object) {
+//                    showToast(getString(R.string.label_error_occurred_with_val, object));
+                    LogUtility.e(LogUtility.TAG, "failure  : " + comment.getId() + " res is  : " + object.toString());
+                }
+            });
+
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            // Update local data
+//            LogUtility.w(TAG, "FCM token updated successfully : " + object);
+            showToast("Comment reported");
+        }).addOnFailureListener(e -> {
+            LogUtility.e(TAG, "onError : " + e.getMessage());
+            showToast(getString(R.string.label_error_occurred_with_val, e.getMessage()));
+        });
+    }
+
+    private void deleteComment(Comment comment) {
+        String userId = currentUser.getUserId();
+
+        // Check if user already reported
+        if (comment.getReportedBy().contains(userId)) {
+            showToast("You have already reported this comment");
+            return;
+        }
+
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+        CollectionReference colRef = collectionReference
+                .document(epId)
+                .collection(AppConstant.Firebase.COMMENT_TABLE);
+        db.runTransaction((Transaction.Function<Void>) transaction -> {
+
+            LogUtility.i(LogUtility.TAG, "collectionReference is  : " + colRef.getParent());
+
+            firestoreDbUtility.deleteDocument(colRef, comment.getId(), new CallBack() {
+                @Override
+                public void onSuccess(Object object) {
+                    LogUtility.d(LogUtility.TAG, "success delete  : " + comment.getId() + " res is  : " + object);
+                    showToast(getString(R.string.deleted_successfully_with_param, comment.getContent()));
+                }
+
+                @Override
+                public void onFailure(Object object) {
+                    LogUtility.e(LogUtility.TAG, "failure  : " + comment.getId() + " res is  : " + object.toString());
+                    showToast(getString(R.string.error_failure));
+                }
+            });
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            // Update local data
+//            LogUtility.w(TAG, "FCM token updated successfully : " + object);
+            showToast("Comment reported");
+        }).addOnFailureListener(e -> {
+            LogUtility.e(TAG, "onError : " + e.getMessage());
+            showToast(getString(R.string.label_error_occurred_with_val, e.getMessage()));
+        });
+    }
+
+    private void reportCommentZ(Comment comment) {
+        String userId = currentUser.getUserId();
+
+        // Check if user already reported
+        if (comment.getReportedBy().contains(userId)) {
+            showToast("You have already reported this comment");
+            return;
+        }
+
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+
+        CollectionReference colRef = collectionReference
+                .document(epId)
+                .collection(AppConstant.Firebase.COMMENT_TABLE);
+
+        DocumentReference commentRef = colRef.document();
+//        DocumentReference commentRef = db.collection("posts")
+//                .document(postId)
+//                .collection("comments")
+//                .document(comment.getId());
+
+        db.runTransaction(transaction -> {
+            DocumentSnapshot snapshot = transaction.get(commentRef);
+            Comment updatedComment = snapshot.toObject(Comment.class);
+
+            updatedComment.getReportedBy().add(userId);
+            updatedComment.setReportCount(updatedComment.getReportCount() + 1);
+
+            // Auto-hide comment if report threshold reached
+            if (updatedComment.getReportCount() >= 5) {
+                updatedComment.setReviewed(true);
+                // Move to moderation queue
+                db.collection("moderation")
+                        .document(comment.getId())
+                        .set(updatedComment);
+            }
+
+            transaction.set(commentRef, updatedComment);
+            return null;
+        }).addOnSuccessListener(result ->
+                Toast.makeText(this, "Comment reported", Toast.LENGTH_SHORT).show()
+        ).addOnFailureListener(e ->
+                showToast("Failed to report comment")
+        );
+    }
+
 }

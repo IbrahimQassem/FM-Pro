@@ -42,8 +42,6 @@ import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioProgram;
-import com.sana.dev.fm.model.WakeTranslate;
-import com.sana.dev.fm.model.enums.Weekday;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -778,23 +776,28 @@ public class FmUtilize {
 
     public static String getFileName(Uri imageUri, Activity activity) {
         String result = null;
-        if (imageUri.getScheme().equals("content")) {
-            Cursor cursor = activity.getContentResolver().query(imageUri, null, null, null, null);
-            try {
-                if (cursor != null && cursor.moveToFirst()) {
-                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                }
-            } finally {
-                cursor.close();
-            }
-        }
-        if (result == null) {
-            result = imageUri.getPath();
-            int cut = result.lastIndexOf('/');
-            if (cut != -1) {
-                result = result.substring(cut + 1);
-            }
-        }
+       try {
+           if (imageUri != null || imageUri.getScheme().equals("content")) {
+               Cursor cursor = activity.getContentResolver().query(imageUri, null, null, null, null);
+               try {
+                   if (cursor != null && cursor.moveToFirst()) {
+                       result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                   }
+               } finally {
+                   cursor.close();
+               }
+           }
+           if (result == null) {
+               result = imageUri.getPath();
+               int cut = result.lastIndexOf('/');
+               if (cut != -1) {
+                   result = result.substring(cut + 1);
+               }
+           }
+       } catch (Exception e) {
+           e.printStackTrace();
+           Log.w(TAG, "getFileName Error  : " + e.getMessage());
+       }
         return result;
     }
 

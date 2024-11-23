@@ -53,10 +53,14 @@ public class AppConstant {
         public static final String RADIO_PROGRAM_TABLE = "RadioProgram";
         public static final String EPISODE_TABLE = "Episode";
         public static final String USERS_TABLE = "Users";
-        public static final String COMMENT_TABLE = "Comment";
         public static final String ADVERTISEMENT_TABLE = "Advertisement";
         //    public static String LIKED_USERS = "Liked_Users";
 //    public static String FAVORITE_USERS = "Favorite_Users";
+        public static final String COMMENT_TABLE = "Comments";
+        public static final  String MODERATION_TABLE = "Moderation";
+        public static final  String ALERT_TABLE = "Alert";
+        public static final String REPORTS_TABLE = "Reports";
+        public static final String COLLECTION_USER_BLOCKS = "UserBlocks";
 
 
     }

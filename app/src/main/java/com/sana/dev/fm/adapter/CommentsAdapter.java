@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -28,6 +29,7 @@ import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
+import com.sana.dev.fm.utils.ugc.CommentClickListener;
 
 
 /**
@@ -39,12 +41,16 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
     private int lastAnimatedPosition = -1;
     private boolean animationsLocked = false;
     private boolean delayEnterAnimation = true;
+    private CommentClickListener listener;
     private FirestoreDbUtility firestoreDbUtility;
+    private UserModel userModel;
 
-    public CommentsAdapter(@NonNull FirestoreRecyclerOptions<Comment> options, Context ctx,FirestoreDbUtility firestoreDbUtility) {
+    public CommentsAdapter(@NonNull FirestoreRecyclerOptions<Comment> options, Context ctx, CommentClickListener listener, FirestoreDbUtility firestoreDbUtility, UserModel userModel) {
         super(options);
         this.ctx = ctx;
+        this.listener = listener;
         this.firestoreDbUtility = firestoreDbUtility;
+        this.userModel = userModel;
     }
 
     @NonNull
@@ -72,12 +78,79 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
     @Override
     protected void onBindViewHolder(@NonNull CommentViewHolder holder, int position, @NonNull Comment model) {
         LogUtility.e(TAG, " Comment : " + model.toString());
-        holder.binding.tvComment.setText(model.getCommentText());
-        holder.binding.tvFrom.setText(model.getCommentUser());
-        String timeAgo = getTimeAgo(Long.parseLong(model.getCommentTime()), ctx);
+        holder.binding.tvComment.setText(model.getContent());
+        holder.binding.tvFrom.setText(model.getUserName());
+        String timeAgo = getTimeAgo(model.getTimestamp(), ctx);
         holder.binding.tvDate.setText(String.format("%s", timeAgo));
-        getListItems(holder, model.getCommentUserId());
+
+
+//        boolean isBlocked = blockManager.isUserBlocked(comment.getUserId());
+//        holder.blockButton.setText(isBlocked ? "Unblock" : "Block");
+//        holder.blockButton.setOnClickListener(v -> {
+//            UserBlockManager.CommentAction action = isBlocked ?
+//                    UserBlockManager.CommentAction.UNBLOCK :
+//                    UserBlockManager.CommentAction.BLOCK;
+//            blockManager.handleCommentAction(comment, action);
+//        });
+
+        // Set up click listeners
+
+        // Set like status
+//        boolean isLiked = model.getLikedBy().contains(auth.getCurrentUser().getUid());
+        boolean isLiked = model.getLikedBy().contains(model.getUserId());
+        holder.binding.likeButton.setImageResource(isLiked ?
+                R.drawable.ic_favorites : R.drawable.ic_heart_outline_white);
+        holder.binding.likeCountText.setText(String.valueOf(model.getLikedBy().size()));
+
+        // Click listeners
+//        userPhotoView.setOnClickListener(v -> listener.onUserClick(model.getUserId()));
+
+//        userNameText.setOnClickListener(v -> listener.onUserClick(model.getUserId()));
+
+        holder.binding.likeButton.setOnClickListener(v ->
+                listener.onLikeClick(model));
+
+        holder.binding.menuButton.setOnClickListener(v -> showPopupMenu(v, model));
+
+//
+//        holder.reportButton.setOnClickListener(v ->
+//                blockManager.handleCommentAction(model, UGCUserManager.CommentAction.REPORT));
+//
+//        holder.deleteButton.setOnClickListener(v ->
+//                blockManager.handleCommentAction(model, UGCUserManager.CommentAction.DELETE));
+//
+//        holder.blockButton.setOnClickListener(v ->
+//                blockManager.handleCommentAction(model, UGCUserManager.CommentAction.BLOCK));
+//
+//        holder.binding.civLogo.setOnClickListener(v ->
+//                blockManager.navigateToUserProfile(model.getUserId()));
+////        getListItems(holder, model.getUserId());
     }
+
+    private void showPopupMenu(View view, Comment comment) {
+        PopupMenu popup = new PopupMenu(ctx, view);
+        popup.inflate(R.menu.menu_comment);
+
+        // Show delete option only for comment owner or admin
+        popup.getMenu().findItem(R.id.action_delete).setVisible(
+                comment.getUserId().equals(userModel.getUserId()));
+
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_report) {
+                listener.onReportClick(comment);
+                return true;
+            } else if (item.getItemId() == R.id.action_block) {
+                listener.onBlockClick(comment);
+                return true;
+            } else if (item.getItemId() == R.id.action_delete) {
+                listener.onDeleteClick(comment);
+                return true;
+            }
+            return false;
+        });
+        popup.show();
+    }
+
 
     private void getListItems(CommentViewHolder holder, String userId) {
         CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
@@ -91,9 +164,9 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
                     LogUtility.e(TAG, "getAllUsers :  " + new Gson().toJson(userModel));
 
 //                    if (!isEmpty(userModel.getName()))
-                        holder.binding.tvFrom.setText(userModel.getName());
-                        if (!Tools.isEmpty(userModel.getPhotoUrl()))
-                    Tools.displayUserProfile(ctx, holder.binding.civLogo, userModel.getPhotoUrl(), R.drawable.ic_baseline_person);
+                    holder.binding.tvFrom.setText(userModel.getName());
+                    if (!Tools.isEmpty(userModel.getPhotoUrl()))
+                        Tools.displayUserProfile(ctx, holder.binding.civLogo, userModel.getPhotoUrl(), R.drawable.ic_baseline_person);
 //                    Tools.displayImageRound(ctx, holder.binding.civLogo, userModel.getPhotoUrl());
 
 
