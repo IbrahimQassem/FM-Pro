@@ -20,7 +20,7 @@ import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
-public class WhatsAppHelper {
+public class ShareAppHelper {
     private static final String WHATSAPP_PACKAGE = "com.whatsapp";
     private static final String WHATSAPP_BUSINESS_PACKAGE = "com.whatsapp.w4b";
 
@@ -196,13 +196,53 @@ public class WhatsAppHelper {
 
             // Verify if WhatsApp is installed
             if (isAppInstalled(context, WHATSAPP_PACKAGE)) {
-                context.startActivity(Intent.createChooser(intent, "Share via"));
+                context.startActivity(Intent.createChooser(intent, context.getString(R.string.label_share_via)));
             } else {
                 showWhatsAppNotInstalledDialog(context);
             }
         } catch (Exception e) {
             Toast.makeText(context, context.getString(R.string.label_error_occurred_with_val,e.getMessage()), Toast.LENGTH_SHORT).show();
 //            Toast.makeText(context, "Error sharing to WhatsApp", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
+    public static void shareImageWithText(Context context, Uri imageUri, String title, String description) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("image/*");
+
+            // Combine title and description
+            StringBuilder textToShare = new StringBuilder();
+            if (title != null && !title.isEmpty()) {
+                textToShare.append(title).append("\n\n");
+            }
+            if (description != null && !description.isEmpty()) {
+                textToShare.append(description);
+            }
+
+            // Add text and image to intent
+            intent.putExtra(Intent.EXTRA_TEXT, textToShare.toString());
+            intent.putExtra(Intent.EXTRA_TITLE, title);
+            intent.putExtra(Intent.EXTRA_SUBJECT, title);
+            intent.putExtra(Intent.EXTRA_STREAM, imageUri);
+
+            // Grant temporary read permission
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            // Create chooser
+            Intent chooser = Intent.createChooser(intent, context.getString(R.string.label_share_via));
+
+            // Verify that there are applications available to handle the intent
+            if (intent.resolveActivity(context.getPackageManager()) != null) {
+                context.startActivity(chooser);
+            } else {
+                Toast.makeText(context, context.getString(R.string.label_error_occurred), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(context, "No apps available to share", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(context, context.getString(R.string.label_error_occurred_with_val,e.getMessage()), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, "Error sharing content", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
     }
@@ -233,7 +273,7 @@ public class WhatsAppHelper {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
             if (isAppInstalled(context, WHATSAPP_PACKAGE)) {
-                context.startActivity(Intent.createChooser(intent, "Share via"));
+                context.startActivity(Intent.createChooser(intent, context.getString(R.string.label_share_via)));
             } else {
                 showWhatsAppNotInstalledDialog(context);
             }

@@ -52,7 +52,7 @@ import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
-import com.sana.dev.fm.utils.WhatsAppHelper;
+import com.sana.dev.fm.utils.ShareAppHelper;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
@@ -330,8 +330,8 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                     @Override
                     public void onShareClick(View view, Object obj, int position) {
                         Episode item = (Episode) obj;
-//                        WhatsAppHelper.openWhatsApp(context, item.getEpName(),     message);
-                        WhatsAppHelper.shareImageWithTextToWhatsApp(context,  Uri.parse(item.getEpProfile()),item.getEpName(),item.getEpDesc());
+//                        ShareAppHelper.openWhatsApp(context, item.getEpName(),     message);
+                        ShareAppHelper.shareImageWithText(context,  Uri.parse(item.getEpProfile()),item.getEpName(),item.getEpDesc()+"\n"+item.getEpAnnouncer());
 //                        showToast("ddddd");
                     }
                 });

@@ -335,6 +335,7 @@
     <string name="label_whatsapp_not_installed">WhatsApp Not Installed</string>
     <string name="msg_whatsapp_is_not_installed_on_your_device_would_you_like_to_install_it">WhatsApp is not installed on your device. Would you like to install it?</string>
     <string name="label_install">Install</string>
+    <string name="label_share_via">Share via</string>
     <!--    <string name="gdpr_privacy_policy">-->
     <!--        By using this App, you agree to the <a href="%s">Terms-Conditions &amp; Privacy-Policy</a>.-->
     <!--    </string>-->

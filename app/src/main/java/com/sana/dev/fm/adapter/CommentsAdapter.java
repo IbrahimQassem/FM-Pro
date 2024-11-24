@@ -84,6 +84,16 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
         String timeAgo = getTimeAgo(model.getTimestamp(), ctx);
         holder.binding.tvDate.setText(String.format("%s", timeAgo));
 
+//        // Load user photo
+//        if (model.getUserPhotoUrl() != null && !model.getUserPhotoUrl().isEmpty()) {
+//            Glide.with(ctx)
+//                    .load(model.getUserPhotoUrl())
+//                    .circleCrop()
+//                    .into(holder.binding.civLogo);
+//        }
+
+        Tools.displayUserProfile(ctx, holder.binding.civLogo, userModel.getPhotoUrl(), R.drawable.ic_baseline_person);
+
 
 //        boolean isBlocked = blockManager.isUserBlocked(comment.getUserId());
 //        holder.blockButton.setText(isBlocked ? "Unblock" : "Block");

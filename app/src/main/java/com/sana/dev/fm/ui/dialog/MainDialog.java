@@ -20,7 +20,7 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
-import com.sana.dev.fm.utils.WhatsAppHelper;
+import com.sana.dev.fm.utils.ShareAppHelper;
 
 
 public class MainDialog {
@@ -137,7 +137,7 @@ public class MainDialog {
 
                 // Regular WhatsApp
                 String message = context.getResources().getString(R.string.label_hello);
-                WhatsAppHelper.openWhatsApp(context, contact,     message);
+                ShareAppHelper.openWhatsApp(context, contact,     message);
                 dialog.dismiss();
             }
         });
