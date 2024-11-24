@@ -32,7 +32,7 @@ public class ProgramAdapter extends RecyclerView.Adapter<ProgramAdapter.MyViewHo
         return new ProgramAdapter.MyViewHolder(inflate);
     }
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
+    public class MyViewHolder extends RecyclerView.ViewHolder {
         private final ItemProgramsBinding binding;
 
         public MyViewHolder(ItemProgramsBinding binding) {

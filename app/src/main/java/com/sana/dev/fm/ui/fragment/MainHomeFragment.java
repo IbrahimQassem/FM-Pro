@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.Query;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.DestinationSliderAdapter;
 import com.sana.dev.fm.adapter.RadiosAdapter;
@@ -33,6 +32,7 @@ import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.LogUtility;
+import com.sana.dev.fm.utils.ShareAppHelper;
 import com.sana.dev.fm.utils.SnackBarUtility;
 import com.sana.dev.fm.utils.UserGuide;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
@@ -58,17 +58,11 @@ import co.mobiwise.materialintro.view.MaterialIntroView;
  */
 public class MainHomeFragment extends BaseFragment implements DestinationSliderAdapter.OnDestinationClickListener {
     private static final String TAG = MainHomeFragment.class.getSimpleName();
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
     @BindView(R.id.child_fragment_container)
     FrameLayout cf_container;
 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
-
-//    @BindView(R.id.sliderRecyclerView)
-//    RecyclerView sliderRecyclerView;
 
     @BindView(R.id.lyt_parent_stations)
     LinearLayout lytParentStation;
@@ -255,52 +249,64 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
                 new DestinationModel(
                         "1",
                         "Yemen Mobile",
+                        "Sub Yemen Mobile",
                         "Sana'a, Tahrir .St",
                         "https://tayramanafm.com/wp-content/uploads/2023/09/358454813_692864899329781_3591857878315610245_n.jpg", // Replace with actual URLs
+                        null,
                         "Experience the majestic beauty of Alaska's mountain ranges. Home to diverse wildlife and stunning glaciers, this destination offers unforgettable hiking and photography opportunities.",
                         3.9f,
                         599.99,
                         5,
                         1,
+                        true,
                         Arrays.asList("hiking", "nature", "adventure"),
                         "Asia"
                 ),
                 new DestinationModel(
                         "2",
                         "YKB 365",
+                        "Sub YKB 365",
                         "Sana'a, Jazair .St",
+                        "https://tayramanafm.com/wp-content/uploads/2024/08/454352311_970723881752787_8772440098511516660_n.jpg",
                         "https://tayramanafm.com/wp-content/uploads/2024/08/454352311_970723881752787_8772440098511516660_n.jpg",
                         "Discover the spiritual and natural wonder of the Himalayas. Trek through ancient paths, visit traditional villages, and witness breathtaking sunrise views over snow-capped peaks.",
                         4.0f,
                         799.99,
                         5,
                         2,
+                        true,
                         Arrays.asList("trekking", "culture", "spiritual"),
                         "Asia"
                 ),
                 new DestinationModel(
                         "3",
-                        "One Cash OTC",
+                        "ون كاش",
+                        "أرسل و استلم حوالات الشبكة المحلية من تطبيق ون كاش",
                         "Sana'a, 14 Oct .St",
-                        "https://onecashye.com/wp-content/uploads/2024/10/WEB-BANNER-2000X882.jpg",
+                        "https://onecashye.com/wp-content/uploads/2024/11/LOCAL-NETWORKS-2000X882-3120x1240-c-default.jpg",
+                        "https://play.google.com/store/apps/details?id=com.one.onecustomer",
                         "Join a full-day guided tour from Tokyo that travels to Mt Fuji, Japan's iconic mountain. Experience traditional Japanese culture and breathtaking natural beauty.",
                         4.5f,
                         350.00,
                         5,
                         3,
+                        false,
                         Arrays.asList("culture", "nature", "sightseeing"),
                         "Asia"
                 ),
                 new DestinationModel(
-                        "3",
-                        "One Cash",
+                        "4",
+                        "ون كاش",
+                        "أموالك معك في أي وقت ومن أي مكان",
                         "Sana'a, 14 Oct .St",
                         "https://onecashye.com/wp-content/uploads/2021/11/home3-copyone.jpg",
+                        "https://onecashye.com",
                         "Join a full-day guided tour from Tokyo that travels to Mt Fuji, Japan's iconic mountain. Experience traditional Japanese culture and breathtaking natural beauty.",
                         4.8f,
                         350.00,
                         5,
                         4,
+                        true,
                         Arrays.asList("culture", "nature", "sightseeing"),
                         "Asia"
                 )
@@ -316,10 +322,16 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
         List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
 
         firestoreQueryList.add(new FirestoreQuery(
-                FirestoreQueryConditionCode.Query_Direction_DESCENDING,
-                "rating",
-                Query.Direction.DESCENDING
+                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                "active",
+                true
         ));
+
+//        firestoreQueryList.add(new FirestoreQuery(
+//                FirestoreQueryConditionCode.Query_Direction_DESCENDING,
+//                "rating",
+//                Query.Direction.DESCENDING
+//        ));
 
 //     db.collection("destinations").orderBy("rating", Query.Direction.DESCENDING).limit(10)
         CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.ADVERTISEMENT_TABLE).collection(AppConstant.Firebase.ADVERTISEMENT_TABLE);
@@ -335,9 +347,9 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
                 if (destinationList != null && destinationList.size() > 0) {
                     List<DestinationModel> sortedDestinations = getSortedDestinations(destinationList);
                     sliderAdapter.setDestinations(sortedDestinations);
-
+                    LogUtility.w(TAG, " loadDestinations destinationList:  " + sortedDestinations.size());
                     setupDots();
-                }else {
+                } else {
                     // Todo hide slider
 //                    collapsing_toolbar.setVisibility(View.GONE);
                 }
@@ -355,7 +367,8 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
 
     private List<DestinationModel> getSortedDestinations(List<DestinationModel> destinations) {
         List<DestinationModel> models = new ArrayList<>();
-        if (destinations != null && (destinations.size() % destinations.size()) > 0) {
+//        if (destinations != null && (destinations.size() % destinations.size()) > 0) {
+        if (destinations != null && destinations.size() > 0) {
             // Sort by priority
             Collections.sort(destinations, (d1, d2) -> Integer.compare(d2.getPriority(), d1.getPriority()));
             return destinations;
@@ -432,6 +445,8 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
                 }
             }
         });*/
+
+        ShareAppHelper.openUrl(requireContext(),destination.getWebUrl());
     }
 }
 

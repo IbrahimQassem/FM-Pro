@@ -371,4 +371,30 @@ public class ShareAppHelper {
             showWhatsAppNotInstalledDialog(context);
         }
     }
+
+    // Simple URL opening
+    public static void openUrl(Context context, String url) {
+        try {
+            Uri webpage = formatUrl(url);
+            Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+
+            // Verify if there's a browser available
+            if (intent.resolveActivity(context.getPackageManager()) != null) {
+                context.startActivity(intent);
+            } else {
+                Toast.makeText(context, "No web browser found", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(context, "Error opening URL", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
+    // Helper method to format URLs
+    private static Uri formatUrl(String url) {
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            url = "https://" + url;
+        }
+        return Uri.parse(url);
+    }
 }

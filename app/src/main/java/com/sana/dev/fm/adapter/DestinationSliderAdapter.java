@@ -1,18 +1,16 @@
 package com.sana.dev.fm.adapter;
 
+import static android.view.View.VISIBLE;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.RatingBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.sana.dev.fm.R;
+import com.sana.dev.fm.databinding.ItemDestinationSliderBinding;
 import com.sana.dev.fm.model.DestinationModel;
 import com.sana.dev.fm.utils.Tools;
 
@@ -37,16 +35,49 @@ public class DestinationSliderAdapter extends RecyclerView.Adapter<DestinationSl
 
     @NonNull
     @Override
-    public SliderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_destination_slider, parent, false);
-        return new SliderViewHolder(view);
+    public SliderViewHolder onCreateViewHolder(ViewGroup parent, int type) {
+        ItemDestinationSliderBinding inflate = ItemDestinationSliderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new SliderViewHolder(inflate);
     }
 
+
     @Override
-    public void onBindViewHolder(@NonNull SliderViewHolder holder, int position) {
-        DestinationModel destination = destinations.get(position);
-        holder.bind(destination);
+    public void onBindViewHolder(@NonNull SliderViewHolder viewHolder, int position) {
+        if (viewHolder instanceof SliderViewHolder) {
+            SliderViewHolder holder = (SliderViewHolder) viewHolder;
+            holder.setIsRecyclable(false);
+
+            DestinationModel item = destinations.get(position);
+
+            holder.binding.tvName.setText(item.getName());
+            holder.binding.tvDesc.setText(item.getSubTitle());
+            holder.binding.ratingBar.setRating(item.getRating());
+
+            Tools.displayImageOriginal(context, holder.binding.destinationImage, item.getImageUrl());
+
+            holder.binding.favoriteButton.setVisibility(!Tools.isEmpty(item.getWebUrl()) ? VISIBLE : View.GONE);
+
+//////            // Load image using Glide
+//            Glide.with(context)
+//                    .load(item.getImageUrl())
+//                    .transform(new RoundedCorners(32))
+//                    .transition(DrawableTransitionOptions.withCrossFade())
+//                    .into(holder.binding.destinationImage);
+
+            holder.itemView.setOnClickListener(v -> {
+                if (position != RecyclerView.NO_POSITION) {
+                    listener.onDestinationClick(destinations.get(position));
+                }
+            });
+
+            holder.binding.favoriteButton.setOnClickListener(v -> {
+                if (position != RecyclerView.NO_POSITION) {
+                    listener.onFavoriteClick(destinations.get(position));
+                }
+            });
+        }
     }
+
 
     @Override
     public int getItemCount() {
@@ -58,6 +89,15 @@ public class DestinationSliderAdapter extends RecyclerView.Adapter<DestinationSl
         notifyDataSetChanged();
     }
 
+    public class SliderViewHolder extends RecyclerView.ViewHolder {
+        private final ItemDestinationSliderBinding binding;
+        public SliderViewHolder(ItemDestinationSliderBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+    }
+
+/*
     class SliderViewHolder extends RecyclerView.ViewHolder {
         ImageView destinationImage;
         TextView destinationName;
@@ -101,4 +141,5 @@ public class DestinationSliderAdapter extends RecyclerView.Adapter<DestinationSl
 //                    .into(destinationImage);
         }
     }
+*/
 }

@@ -62,7 +62,7 @@
                 android:id="@+id/destinationTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="The Island Shrine of Itsukushima"
+                tools:text="The Island Shrine of Itsukushima"
                 android:textColor="@android:color/black"
                 android:textSize="24sp"
                 android:textStyle="bold" />
@@ -71,7 +71,7 @@
                 android:id="@+id/locationText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/label_label"
+                tools:text="@string/label_label"
                 android:textColor="@android:color/black"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -124,7 +124,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:lineSpacingExtra="8dp"
-                android:text="The name Itsukushima literally means 'island of worship' and from ancient times the island itself was worshipped as a god..."
+                tools:text="The name Itsukushima literally means 'island of worship' and from ancient times the island itself was worshipped as a god..."
                 android:textColor="@android:color/darker_gray"
                 android:textSize="16sp" />
 
