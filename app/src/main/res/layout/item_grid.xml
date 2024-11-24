@@ -22,9 +22,12 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="horizontal"
-                android:padding="@dimen/spacing_middle">
+                android:padding="@dimen/spacing_medium">
 
-                <ImageView
+
+
+                <!-- Round corners -->
+                <com.sana.dev.fm.ui.view.RoundImageView
                     android:id="@+id/civ_logo"
                     android:layout_width="@dimen/global_card_avatar_size"
                     android:layout_height="@dimen/global_card_avatar_size"
@@ -32,7 +35,14 @@
                     android:labelFor="@+id/civ_logo"
                     android:padding="@dimen/spacing_small"
                     app:elevation="@dimen/spacing_medium"
-                    tools:srcCompat="@drawable/logo_app" />
+                    android:layout_marginStart="@dimen/spacing_large"
+                    android:layout_marginEnd="@dimen/spacing_medium"
+                    android:foreground="@color/overlay_light_20"
+                    android:scaleType="fitCenter"
+                    app:borderColor="?attr/colorPrimary"
+                    app:borderWidth="0.5dp"
+                    app:cornerRadius="50dp"
+                    app:srcCompat="@mipmap/ic_launcher" />
 
 
                 <LinearLayout

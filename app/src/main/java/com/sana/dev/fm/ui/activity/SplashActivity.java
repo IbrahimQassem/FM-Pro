@@ -70,6 +70,7 @@ public class SplashActivity extends AppCompatActivity {
         crashlytics = FirebaseCrashlytics.getInstance();
 
         tv_trail = findViewById(R.id.tv_trail);
+
 //        Intent intent = new Intent(SplashActivity.this, GoogleSignInActivity.class);
 //        startActivity(intent);
 //        return;
@@ -172,6 +173,10 @@ public class SplashActivity extends AppCompatActivity {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
+        TextView tvVersion = findViewById(R.id.tv_version);
+
+        String version = getString(R.string.app_version) +" ("+ Tools.getAppVersion(this) + ")";
+        tvVersion.setText(version);
 
         AppRemoteConfig remoteConfig = Tools.getAppRemoteConfig();
         if (remoteConfig != null) {
