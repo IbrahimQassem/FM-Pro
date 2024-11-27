@@ -11,7 +11,7 @@ import java.util.Map;
 public class Episode implements Serializable {
     @Exclude
     public boolean isLiked, isFavorite;
-    private int likesCount, favCount;
+    private int favCount;
     private boolean disabled;
     private String radioId, programId, epId, epName, epDesc, epAnnouncer,
             epProfile, epStreamUrl, programName,
@@ -55,7 +55,7 @@ public class Episode implements Serializable {
     }
 
 
-    public Episode(String radioId, String programId, String programName, String epId, String epName, String epDesc, String epAnnouncer, DateTimeModel programScheduleTime, String epProfile, String epStreamUrl, int likesCount, int favCount, String timestamp, String createBy, String stopNote, boolean disabled, List<DateTimeModel> dateTimeModel) {
+    public Episode(String radioId, String programId, String programName, String epId, String epName, String epDesc, String epAnnouncer, DateTimeModel programScheduleTime, String epProfile, String epStreamUrl, int favCount, String timestamp, String createBy, String stopNote, boolean disabled, List<DateTimeModel> dateTimeModel) {
         this.radioId = radioId;
         this.programId = programId;
         this.programName = programName;
@@ -66,7 +66,6 @@ public class Episode implements Serializable {
         this.programScheduleTime = programScheduleTime;
         this.epProfile = epProfile;
         this.epStreamUrl = epStreamUrl;
-        this.likesCount = likesCount;
         this.favCount = favCount;
         this.timestamp = timestamp;
         this.createBy = createBy;
@@ -80,7 +79,6 @@ public class Episode implements Serializable {
         return "Episode{" +
                 "isLiked=" + isLiked +
                 ", isFavorite=" + isFavorite +
-                ", likesCount=" + likesCount +
                 ", favCount=" + favCount +
                 ", disabled=" + disabled +
                 ", radioId='" + radioId + '\'' +
@@ -167,13 +165,13 @@ public class Episode implements Serializable {
         this.programName = programName;
     }
 
-    public int getLikesCount() {
-        return likesCount;
-    }
-
-    public void setLikesCount(int likesCount) {
-        this.likesCount = likesCount;
-    }
+//    public int getLikesCount() {
+//        return likesCount;
+//    }
+//
+//    public void setLikesCount(int likesCount) {
+//        this.likesCount = likesCount;
+//    }
 
     public int getFavCount() {
         return favCount;

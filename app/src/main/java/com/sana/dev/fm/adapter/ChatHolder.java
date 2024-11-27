@@ -115,7 +115,9 @@ public class ChatHolder extends RecyclerView.ViewHolder {
             binding.imvLike.setColorFilter(ContextCompat.getColor(ctx, R.color.grey_400));
         }
 
-        int countLike = episode.getLikesCount();// Collections.frequency(likeStates.values(), true);
+//        int countLike = episode.getLikesCount();// Collections.frequency(likeStates.values(), true);
+        int countLike = episode.getTotalLikes();
+
         binding.txtLikes.setText(ctx.getResources().getQuantityString(
                 R.plurals.likes_count, countLike, countLike
         ));

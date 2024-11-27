@@ -541,7 +541,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 likes = new HashMap<>();
             }
 
-            int newLikesCount = episode.getLikesCount();
+            int newLikesCount = episode.getTotalLikes();
 
             if (likes.containsKey(currentUserId) &&
                     Boolean.TRUE.equals(likes.get(currentUserId))) {
@@ -577,10 +577,10 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
             boolean wasLiked = episode.isLikedBy(currentUserId);
             if (wasLiked) {
                 episode.getEpisodeLikes().remove(currentUserId);
-                episode.setLikesCount(episode.getLikesCount() - 1);
+//                episode.setLikesCount(episode.getLikesCount() - 1);
             } else {
                 episode.getEpisodeLikes().put(currentUserId, true);
-                episode.setLikesCount(episode.getLikesCount() + 1);
+//                episode.setLikesCount(episode.getLikesCount() + 1);
             }
 
             // Animate like button

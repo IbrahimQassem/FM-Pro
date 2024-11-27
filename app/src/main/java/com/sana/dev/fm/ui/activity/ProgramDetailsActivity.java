@@ -121,7 +121,7 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
         if (s != null) {
             Episode episode = new Gson().fromJson(s, Episode.class);
 
-            TempEpModel tempEpModel = new TempEpModel(episode.getProgramName(), "", "", "", episode.getEpProfile(), episode.getLikesCount(), 1, 0);
+            TempEpModel tempEpModel = new TempEpModel(episode.getProgramName(), "", "", "", episode.getEpProfile(), episode.getTotalLikes(), 1, 0);
             updateInfoUI(tempEpModel);
 
             // Show loading dialog

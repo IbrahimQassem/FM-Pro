@@ -304,7 +304,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                     String pushKey;
                     if (Tools.isEmpty(epId)) {
                         pushKey = radioId + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
-                        episode = new Episode(radioId, programId, programName, epId, epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
+                        episode = new Episode(radioId, programId, programName, epId, epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
                     } else {
                         pushKey = epId;
                         episode = currentEpisode;
@@ -357,7 +357,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
             String pushKey;
             if (Tools.isEmpty(epId)) {
                 pushKey = radioId + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
-                episode = new Episode(radioId, programId, programName, epId, epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
+                episode = new Episode(radioId, programId, programName, epId, epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
             } else {
                 pushKey = epId;
                 episode = currentEpisode;

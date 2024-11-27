@@ -302,6 +302,8 @@
     <string name="label_whatsapp_not_installed">واتساب غير مثبت</string>
     <string name="msg_whatsapp_is_not_installed_on_your_device_would_you_like_to_install_it">WhatsApp غير مثبت على جهازك. هل ترغب في تثبيته؟</string>
     <string name="label_install">تثبيت</string>
-    <string name="label_share_via">Share via</string>
-
+    <string name="label_share_via">مشاركة عبر</string>
+    <string name="notification_permission_required">تمكين الإشعارات للتحكم في التشغيل</string>
+    <string name="notification_permission_title">مطلوب إذن الإشعار</string>
+    <string name="notification_permission_message">يرجى تمكين الإشعارات للتحكم في تشغيل الوسائط من لوحة الإشعارات.</string>
 </resources>
