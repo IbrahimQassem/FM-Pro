@@ -28,7 +28,7 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.CommentUGCAdapter;
 import com.sana.dev.fm.model.Comment;
 import com.sana.dev.fm.model.Episode;
-import com.sana.dev.fm.ui.activity.appuser.UserProfileActivity;
+import com.sana.dev.fm.ui.activity.userApp.UserProfileActivity;
 import com.sana.dev.fm.utils.ugc.CommentAction;
 import com.sana.dev.fm.utils.ugc.CommentClickListener;
 import com.sana.dev.fm.utils.ugc.UserBlockManager;

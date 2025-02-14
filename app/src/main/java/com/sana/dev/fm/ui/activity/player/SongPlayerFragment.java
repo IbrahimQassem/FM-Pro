@@ -370,7 +370,7 @@ public class SongPlayerFragment extends MusicServiceFragment {
                         panelPlayBtn.setBackgroundResource(R.drawable.ic_action_pause);
                         currentArtist.setText(song.getArtistName());
                         if (song.getImgUrl() != null) {
-                            Tools.displayImageRound(requireContext(), currentCoverArt, song.getImgUrl());
+                            Tools.displayUserProfile(requireContext(), currentCoverArt, song.getImgUrl(),R.drawable.logo_app);
                             Tools.displayImageOriginal(requireContext(), currentCoverArtShadow, song.getImgUrl());
                         } else {
                             currentCoverArt.setImageBitmap(bitmap);

@@ -306,4 +306,8 @@
     <string name="notification_permission_required">تمكين الإشعارات للتحكم في التشغيل</string>
     <string name="notification_permission_title">مطلوب إذن الإشعار</string>
     <string name="notification_permission_message">يرجى تمكين الإشعارات للتحكم في تشغيل الوسائط من لوحة الإشعارات.</string>
+    <string name="label_user_already_logged_in">المستخدم قام بتسجيل الدخول بالفعل: $s</string>
+    <string name="label_registration_successful">تم التسجيل بنجاح!</string>
+    <string name="label_create_account">إنشاء حساب</string>
+    <string name="msg_if_you_have_already_registered_with_email_you_can_log_in_or_register_with_another_email_address">إذا كنت قد قمت بالتسجيل بالفعل بالبريد الإلكتروني، فيمكنك الضغط على تسجيل الدخول، أو الضغط على إنشاء حساب للمرة الأولى.</string>
 </resources>

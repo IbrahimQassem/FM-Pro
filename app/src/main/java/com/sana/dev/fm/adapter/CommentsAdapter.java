@@ -5,6 +5,7 @@ import static com.sana.dev.fm.utils.FmUtilize.getTimeAgo;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,23 +79,29 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
 
     @Override
     protected void onBindViewHolder(@NonNull CommentViewHolder holder, int position, @NonNull Comment model) {
-        LogUtility.e(TAG, " Comment : " + model.toString());
-        holder.binding.tvComment.setText(model.getContent());
-        holder.binding.tvFrom.setText(model.getUserName());
-        String timeAgo = getTimeAgo(model.getTimestamp(), ctx);
-        holder.binding.tvDate.setText(String.format("%s", timeAgo));
+        try {
+            LogUtility.e(TAG, " Comment : " + model.toString());
+            holder.binding.tvComment.setText(model.getContent());
+            holder.binding.tvFrom.setText(model.getUserName());
+            String timeAgo = getTimeAgo(model.getTimestamp(), ctx);
+            holder.binding.tvDate.setText(String.format("%s", timeAgo));
+            holder.binding.likeCountText.setText(String.valueOf(model.getLikedBy().size()));
+            // Click listeners
+            holder.binding.civLogo.setOnClickListener(v -> listener.onUserClickProfile(model.getUserId()));
 
-//        // Load user photo
-//        if (model.getUserPhotoUrl() != null && !model.getUserPhotoUrl().isEmpty()) {
-//            Glide.with(ctx)
-//                    .load(model.getUserPhotoUrl())
-//                    .circleCrop()
-//                    .into(holder.binding.civLogo);
-//        }
+//        userNameText.setOnClickListener(v -> listener.onUserClick(model.getUserId()));
 
-        Tools.displayUserProfile(ctx, holder.binding.civLogo, userModel.getPhotoUrl(), R.drawable.ic_baseline_person);
+            holder.binding.imvLike.setOnClickListener(v -> listener.onLikeClick(model));
 
+            holder.binding.menuButton.setOnClickListener(v -> showPopupMenu(v, model));
 
+        // Load user photo
+        if (model.getUserPhotoUrl() != null && !model.getUserPhotoUrl().isEmpty()) {
+            Tools.displayUserProfile(ctx, holder.binding.civLogo,model.getUserPhotoUrl(), R.drawable.ic_baseline_person);
+        }
+
+            // Load user photo
+            if (userModel != null && !Tools.isEmpty(userModel.getPhotoUrl())) {
 //        boolean isBlocked = blockManager.isUserBlocked(comment.getUserId());
 //        holder.blockButton.setText(isBlocked ? "Unblock" : "Block");
 //        holder.blockButton.setOnClickListener(v -> {
@@ -104,25 +111,13 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
 //            blockManager.handleCommentAction(comment, action);
 //        });
 
-        // Set up click listeners
+                // Set up click listeners
 
-        // Set like status
-//        boolean isLiked = model.getLikedBy().contains(auth.getCurrentUser().getUid());
-        boolean isLiked = model.getLikedBy().contains(userModel.getUserId());
-        holder.binding.imvLike.setImageResource(isLiked ? R.drawable.ic_favorites : R.drawable.ic_heart_outline_white);
-        holder.binding.imvLike.setColorFilter(ContextCompat.getColor(ctx,isLiked ? R.color.colorPrimary :  R.color.grey_400));
-        holder.binding.likeCountText.setTextColor(ContextCompat.getColor(ctx,isLiked ? R.color.colorPrimary :  R.color.grey_400));
-        holder.binding.likeCountText.setText(String.valueOf(model.getLikedBy().size()));
-
-        // Click listeners
-        holder.binding.civLogo.setOnClickListener(v -> listener.onUserClickProfile(model.getUserId()));
-
-//        userNameText.setOnClickListener(v -> listener.onUserClick(model.getUserId()));
-
-        holder.binding.imvLike.setOnClickListener(v -> listener.onLikeClick(model));
-
-        holder.binding.menuButton.setOnClickListener(v -> showPopupMenu(v, model));
-
+                // Set like status
+                boolean isLiked = model.getLikedBy().contains(userModel.getUserId());
+                holder.binding.imvLike.setImageResource(isLiked ? R.drawable.ic_favorites : R.drawable.ic_heart_outline_white);
+                holder.binding.imvLike.setColorFilter(ContextCompat.getColor(ctx, isLiked ? R.color.colorPrimary : R.color.grey_400));
+                holder.binding.likeCountText.setTextColor(ContextCompat.getColor(ctx, isLiked ? R.color.colorPrimary : R.color.grey_400));
 //
 //        holder.reportButton.setOnClickListener(v ->
 //                blockManager.handleCommentAction(model, UGCUserManager.CommentAction.REPORT));
@@ -136,15 +131,26 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
 //        holder.binding.civLogo.setOnClickListener(v ->
 //                blockManager.navigateToUserProfile(model.getUserId()));
 ////        getListItems(holder, model.getUserId());
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Error deleting user: " + e.getMessage());
+        }
+
     }
 
     private void showPopupMenu(View view, Comment comment) {
         PopupMenu popup = new PopupMenu(ctx, view);
         popup.inflate(R.menu.menu_comment);
 
+        // Todo
         // Show delete option only for comment owner or admin
-        popup.getMenu().findItem(R.id.action_delete).setVisible(
+        if (userModel != null && !Tools.isEmpty(userModel.getUserId())) {
+                    popup.getMenu().findItem(R.id.action_delete).setVisible(
                 comment.getUserId().equals(userModel.getUserId()));
+        }else {
+            popup.getMenu().findItem(R.id.action_delete).setVisible(false);
+        }
+
 
         popup.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.action_report) {

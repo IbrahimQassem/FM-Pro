@@ -103,7 +103,7 @@ public class AdapterListProgram extends Adapter<AdapterListProgram.MyViewHolder>
 
     private void displayImage(MyViewHolder viewHolder, RadioProgram inbox) {
         if (inbox.getPrProfile() != null) {
-            Tools.displayImageRound(this.ctx, viewHolder.binding.image, inbox.getPrProfile());
+            Tools.displayUserProfile(this.ctx, viewHolder.binding.image, inbox.getPrProfile(),R.drawable.logo_app);
             viewHolder.binding.image.setColorFilter(null);
             viewHolder.binding.imageLetter.setVisibility(View.GONE);
             return;

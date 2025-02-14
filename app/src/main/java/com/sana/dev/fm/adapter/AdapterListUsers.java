@@ -100,7 +100,7 @@ public class AdapterListUsers extends Adapter<AdapterListUsers.MyViewHolder> {
 
     private void displayImage(MyViewHolder viewHolder, UserModel inbox) {
         if (inbox.getPhotoUrl() != null) {
-            Tools.displayImageRound(this.ctx, viewHolder.binding.image, inbox.getPhotoUrl());
+            Tools.displayUserProfile(this.ctx, viewHolder.binding.image, inbox.getPhotoUrl(),R.drawable.logo_app);
             viewHolder.binding.image.setColorFilter(null);
             viewHolder.binding.imageLetter.setVisibility(View.GONE);
             return;

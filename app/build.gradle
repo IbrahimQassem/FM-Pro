@@ -86,8 +86,8 @@ android {
         hudhudfm_google_play {
             dimension 'fm_flavor'
             applicationId "com.sana.dev.fm"
-            versionCode 26
-            versionName "2.0.6"
+            versionCode 27
+            versionName "2.0.7"
 //            signingConfig signingConfigs.debug
             buildConfigField "String", "BASE_FB_DB", '"HudHudFmGooglePlay"'
             archivesBaseName = "hudhudfm-google-play-v($versionName)" // to name generated apk

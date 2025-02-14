@@ -137,6 +137,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 
         if (prefMgr.getUserSession() == null) {
             binding.etComment.setHint(getString(R.string.add_comment));
+//            currentUser.setUserId(prefMgr.get);
         } else {
             currentUser = prefMgr.getUserSession();
             binding.etComment.setHint(String.format(getString(R.string.label_comment_as), currentUser.getName()));

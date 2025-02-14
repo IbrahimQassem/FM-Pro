@@ -50,7 +50,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             holder.binding.tvTitle.setText(episode.getEpName());
             holder.binding.tvDesc.setText(episode.getEpAnnouncer());
-            Tools.displayImageRound(context, holder.binding.civLogo, episode.getEpProfile());
+            Tools.displayUserProfile(context, holder.binding.civLogo, episode.getEpProfile(),R.drawable.logo_app);
 
             // Todo handel this
             if (episode.getShowTime() != null) {

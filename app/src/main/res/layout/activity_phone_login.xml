@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/white"
     android:fitsSystemWindows="true"
-    tools:context=".ui.activity.appuser.PhoneLoginActivity">
+    tools:context=".ui.activity.userApp.PhoneLoginActivity">
 
     <include
         android:id="@+id/toolbar"

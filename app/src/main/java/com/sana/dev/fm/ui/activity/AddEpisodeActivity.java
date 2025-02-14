@@ -73,7 +73,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
     private int success_step = 0;
     private int current_step = 0;
     private String radioId, epId, epName, epDesc, epAnnouncer, programId, epProfile, epStreamUrl, programName, timestamp, createBy, stopNote = null;
-    private Episode currentEpisode;
+    private Episode currentEpisode = new Episode();
     private DateTimeModel programScheduleTime;
     private Uri imageUri = null;
     private RadioInfo radioInfo = new RadioInfo();
@@ -286,34 +286,34 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                     epProfile = profileImageUrl;
 
 
-                    Episode episode = new Episode();
-                    currentEpisode.setRadioId(radioId);
-                    currentEpisode.setProgramId(programId);
-                    currentEpisode.setEpId(epId);
-                    currentEpisode.setEpName(epName);
-                    currentEpisode.setEpDesc(epDesc);
-                    currentEpisode.setEpAnnouncer(epAnnouncer);
-                    currentEpisode.setProgramScheduleTime(programScheduleTime);
-                    currentEpisode.setEpProfile(epProfile);
-                    currentEpisode.setEpStreamUrl(epStreamUrl);
-                    currentEpisode.setTimestamp(String.valueOf(System.currentTimeMillis()));
-                    currentEpisode.setCreateBy(createBy);
-                    currentEpisode.setDisabled(false);
-                    currentEpisode.setShowTimeList(showTimeList);
+//                    Episode episode = new Episode();
+//                    currentEpisode.setRadioId(radioId);
+//                    currentEpisode.setProgramId(programId);
+//                    currentEpisode.setEpId(epId);
+//                    currentEpisode.setEpName(epName);
+//                    currentEpisode.setEpDesc(epDesc);
+//                    currentEpisode.setEpAnnouncer(epAnnouncer);
+//                    currentEpisode.setProgramScheduleTime(programScheduleTime);
+//                    currentEpisode.setEpProfile(epProfile);
+//                    currentEpisode.setEpStreamUrl(epStreamUrl);
+//                    currentEpisode.setTimestamp(String.valueOf(System.currentTimeMillis()));
+//                    currentEpisode.setCreateBy(createBy);
+//                    currentEpisode.setDisabled(false);
+//                    currentEpisode.setShowTimeList(showTimeList);
 
                     String pushKey;
                     if (Tools.isEmpty(epId)) {
                         pushKey = radioId + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
-                        episode = new Episode(radioId, programId, programName, epId, epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
+                        currentEpisode = new Episode(radioId, programId, programName, epId, epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
                     } else {
                         pushKey = epId;
-                        episode = currentEpisode;
+                        currentEpisode = currentEpisode;
                     }
 
-                    episode.setEpId(pushKey);
+                    currentEpisode.setEpId(pushKey);
 
                     CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
-                    firestoreDbUtility.createOrMerge(collectionReference, pushKey, episode, new CallBack() {
+                    firestoreDbUtility.createOrMerge(collectionReference, pushKey, currentEpisode, new CallBack() {
                         @Override
                         public void onSuccess(Object object) {
                             kProgressHUDHelper.dismiss();
@@ -339,35 +339,35 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
             //-------------------------   submit image task    ---------------------------
 
         } else {
-            Episode episode = new Episode();
-            currentEpisode.setRadioId(radioId);
-            currentEpisode.setProgramId(programId);
-            currentEpisode.setEpId(epId);
-            currentEpisode.setEpName(epName);
-            currentEpisode.setEpDesc(epDesc);
-            currentEpisode.setEpAnnouncer(epAnnouncer);
-            currentEpisode.setProgramScheduleTime(programScheduleTime);
-            currentEpisode.setEpProfile(epProfile);
-            currentEpisode.setEpStreamUrl(epStreamUrl);
-            currentEpisode.setTimestamp(String.valueOf(System.currentTimeMillis()));
-            currentEpisode.setCreateBy(createBy);
-            currentEpisode.setDisabled(false);
-            currentEpisode.setShowTimeList(showTimeList);
+//            Episode episode = new Episode();
+//            episode.setRadioId(radioId);
+//            episode.setProgramId(programId);
+//            episode.setEpId(epId);
+//            episode.setEpName(epName);
+//            episode.setEpDesc(epDesc);
+//            episode.setEpAnnouncer(epAnnouncer);
+//            episode.setProgramScheduleTime(programScheduleTime);
+//            episode.setEpProfile(epProfile);
+//            episode.setEpStreamUrl(epStreamUrl);
+//            episode.setTimestamp(String.valueOf(System.currentTimeMillis()));
+//            episode.setCreateBy(createBy);
+//            episode.setDisabled(false);
+//            episode.setShowTimeList(showTimeList);
 
             String pushKey;
             if (Tools.isEmpty(epId)) {
                 pushKey = radioId + "_" + firestoreDbUtility.getKeyId(AppConstant.Firebase.EPISODE_TABLE).document().getId();
-                episode = new Episode(radioId, programId, programName, epId, epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
+                currentEpisode = new Episode(radioId, programId, programName, epId, epName, epDesc, epAnnouncer, programScheduleTime, epProfile, epStreamUrl, 1, String.valueOf(System.currentTimeMillis()), createBy, "", false, showTimeList);
             } else {
                 pushKey = epId;
-                episode = currentEpisode;
+//                episode = currentEpisode;
             }
 
-            episode.setEpId(pushKey);
+            currentEpisode.setEpId(pushKey);
 
             CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
 
-            firestoreDbUtility.createOrMerge(collectionReference, pushKey, episode, new CallBack() {
+            firestoreDbUtility.createOrMerge(collectionReference, pushKey, currentEpisode, new CallBack() {
                 @Override
                 public void onSuccess(Object object) {
                     CollectionReference collectionRef = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, radioId);

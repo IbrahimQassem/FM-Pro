@@ -1,4 +1,4 @@
-package com.sana.dev.fm.ui.activity.appuser;
+package com.sana.dev.fm.ui.activity.userApp;
 
 import static android.view.View.VISIBLE;
 
@@ -114,13 +114,13 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
         binding.btGoogleLogin.setOnClickListener(v -> helper.signInWithGoogle(this));
 
 
-        //        binding.btEmailLogin.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent(LoginByActivity.this, GoogleSignInActivity.class);
-//                startActivity(intent);
-//            }
-//        });
+        binding.btEmailLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(LoginByActivity.this, EmailLoginActivity.class);
+                startActivity(intent);
+            }
+        });
 
     }
 
@@ -139,7 +139,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
         String email = firebaseUser.getEmail();
         String displayName = firebaseUser.getDisplayName();
         String phoneNumber = firebaseUser.getPhoneNumber();
-        String photoUrl = firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "";
+        String photoUrl = firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : null;
 
         UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.GOOGLE, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
         userModel.setVerified(true);
@@ -320,7 +320,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
                             String email = firebaseUser.getEmail();
                             String displayName = firebaseUser.getDisplayName();
                             String phoneNumber = firebaseUser.getPhoneNumber();
-                            String photoUrl = firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "";
+                            String photoUrl = firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : null;
 
                             UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.FACEBOOK, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
                             userModel.setVerified(true);
@@ -419,7 +419,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
                         @Override
                         public void onSuccess(Object object) {
                             prefMgr.setUserSession(userModel);
-                            showToast(getString(R.string.login_successfully));
+                            showToast(getString(R.string.label_registration_successful));
                             startActivity(intent);
                         }
 

@@ -241,11 +241,14 @@ public class ProgramsFragment extends BaseFragment {
             toggleView(true);
         }
         List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
-        firestoreQueryList.add(new FirestoreQuery(
-                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
-                "radioId",
-                getSelectedRadio().getRadioId()
-        ));
+        if (getSelectedRadio() != null){
+            firestoreQueryList.add(new FirestoreQuery(
+                    FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                    "radioId",
+                    getSelectedRadio().getRadioId()
+            ));
+        }
+
 
 //            firestoreQueryList.add(new FirestoreQuery(
 //                    FirestoreQueryConditionCode.WHERE_LESS_THAN_OR_EQUAL_TO,

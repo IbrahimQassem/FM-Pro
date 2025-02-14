@@ -1,4 +1,4 @@
-package com.sana.dev.fm.ui.activity.appuser;
+package com.sana.dev.fm.ui.activity.userApp;
 
 import android.content.Intent;
 import android.os.Bundle;

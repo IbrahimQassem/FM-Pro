@@ -1,5 +1,6 @@
 package com.sana.dev.fm.utils.playerpro;
 
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK;
 import static com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_PAUSE;
 import static com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_PLAY;
 import static com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_STOP;
@@ -72,6 +73,7 @@ public class RadioPlayerService extends Service {
     }
 
     private void createNotificationChannel() {
+        // Create a notification channel (required for Android 8.0+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
@@ -292,7 +294,12 @@ public class RadioPlayerService extends Service {
                 .setShowActionsInCompactView(0, 1)
                 .setMediaSession(mediaSession.getSessionToken()));
 
-        startForeground(NOTIFICATION_ID, builder.build());
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            startForeground(NOTIFICATION_ID, builder.build());
+        } else {
+            startForeground(NOTIFICATION_ID, builder.build(),
+                    FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+        }
     }
 
 
@@ -314,7 +321,12 @@ public class RadioPlayerService extends Service {
                 .setSmallIcon(R.drawable.ic_radio)
                 .setPriority(NotificationCompat.PRIORITY_LOW);
 
-        startForeground(NOTIFICATION_ID, builder.build());
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            startForeground(NOTIFICATION_ID, builder.build());
+        } else {
+            startForeground(NOTIFICATION_ID, builder.build(),
+                    FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+        }
 
         Intent intent = new Intent(ACTION_NOTIFICATION_PERMISSION_REQUIRED);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);

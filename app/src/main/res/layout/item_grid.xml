@@ -162,8 +162,8 @@
                 android:layout_height="@dimen/spacing_xxlarge"
                 android:gravity="center"
                 android:orientation="horizontal"
-                android:paddingLeft="@dimen/spacing_middle"
-                android:paddingRight="@dimen/spacing_middle">
+                android:paddingStart="@dimen/spacing_middle"
+                android:paddingEnd="@dimen/spacing_middle">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -175,7 +175,8 @@
                         android:id="@+id/imv_like"
                         android:layout_width="@dimen/spacing_mlarge"
                         android:layout_height="@dimen/spacing_mlarge"
-                        android:layout_marginStart="@dimen/spacing_middle"
+                        android:layout_marginStart="@dimen/spacing_small"
+                        android:layout_marginEnd="@dimen/spacing_small"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
                         android:focusable="true"
@@ -186,8 +187,8 @@
                         android:id="@+id/txt_likes"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/spacing_medium"
-                        android:layout_marginEnd="@dimen/spacing_medium"
+                        android:layout_marginStart="@dimen/spacing_small"
+                        android:layout_marginEnd="@dimen/spacing_small"
                         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                         android:textColor="@color/grey_40"
                         tools:text="@string/ex_likes" />
@@ -197,8 +198,8 @@
                     android:id="@+id/lyt_comment_parent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_large"
-                    android:layout_marginEnd="@dimen/spacing_large"
+                    android:layout_marginStart="@dimen/spacing_middle"
+                    android:layout_marginEnd="@dimen/spacing_middle"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
@@ -208,7 +209,8 @@
                         android:id="@+id/imv_comment"
                         android:layout_width="@dimen/spacing_mlarge"
                         android:layout_height="@dimen/spacing_mlarge"
-                        android:layout_marginStart="@dimen/spacing_middle"
+                        android:layout_marginStart="@dimen/spacing_small"
+                        android:layout_marginEnd="@dimen/spacing_small"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
                         android:focusable="true"
@@ -218,8 +220,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/spacing_medium"
-                        android:layout_marginEnd="@dimen/spacing_medium"
+                        android:layout_marginStart="@dimen/spacing_small"
+                        android:layout_marginEnd="@dimen/spacing_small"
                         android:text="@string/label_comments"
                         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                         android:textColor="@color/grey_40"
@@ -235,7 +237,7 @@
                     android:id="@+id/tv_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/spacing_middle"
+                    android:padding="@dimen/spacing_medium"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                     android:textColor="@color/grey_40"
                     tools:text="@string/ex_date" />
@@ -247,7 +249,7 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:focusable="true"
-                    android:padding="@dimen/spacing_medium"
+                    android:padding="@dimen/spacing_middle"
                     app:srcCompat="@drawable/ic_more_dot"
                     app:tint="@color/grey_500" />
 

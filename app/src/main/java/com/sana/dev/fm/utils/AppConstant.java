@@ -26,7 +26,7 @@ public class AppConstant {
     }
 
     public static class PushNotification {
-        public static final int LARGE_ICONE_SIZE = 256; //px
+        public static final int LARGE_ICON_SIZE = 256; //px
     }
 
 
@@ -61,7 +61,6 @@ public class AppConstant {
         public static final  String ALERT_TABLE = "Alert";
         public static final String REPORTS_TABLE = "Reports";
         public static final String COLLECTION_USER_BLOCKS = "UserBlocks";
-
 
     }
 }
