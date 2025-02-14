@@ -237,53 +237,50 @@ public class ProgramsFragment extends BaseFragment {
                 e.printStackTrace();
                 Log.e(TAG, "Error parsing remote config JSON: " + e.getMessage());
             }
-        } else {
-            toggleView(true);
-        }
-        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
-        if (getSelectedRadio() != null){
-            firestoreQueryList.add(new FirestoreQuery(
-                    FirestoreQueryConditionCode.WHERE_EQUAL_TO,
-                    "radioId",
-                    getSelectedRadio().getRadioId()
-            ));
-        }
 
+            List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+                firestoreQueryList.add(new FirestoreQuery(
+                        FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                        "radioId",
+                        getSelectedRadio().getRadioId()
+                ));
 
-//            firestoreQueryList.add(new FirestoreQuery(
+            //            firestoreQueryList.add(new FirestoreQuery(
 //                    FirestoreQueryConditionCode.WHERE_LESS_THAN_OR_EQUAL_TO,
 //                    "programScheduleTime.dateEnd",
 //                    System.currentTimeMillis()
 //            ));
+            firestoreQueryList.add(new FirestoreQuery(
+                    FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                    "disabled",
+                    false
+            ));
 
+            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, getSelectedRadio().getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
 
-        firestoreQueryList.add(new FirestoreQuery(
-                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
-                "disabled",
-                false
-        ));
+            firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
+                @Override
+                public void onSuccess(Object object) {
+                    List<RadioProgram> loadedPrograms = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
+                    toggleView(loadedPrograms.isEmpty());
 
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, getSelectedRadio().getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
-
-        firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
-            @Override
-            public void onSuccess(Object object) {
-                List<RadioProgram> loadedPrograms = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
-                toggleView(loadedPrograms.isEmpty());
-
-                if (!loadedPrograms.isEmpty()) {
-                    programs.clear();
-                    programs.addAll(loadedPrograms);
-                    adapter.notifyDataSetChanged();
+                    if (!loadedPrograms.isEmpty()) {
+                        programs.clear();
+                        programs.addAll(loadedPrograms);
+                        adapter.notifyDataSetChanged();
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Object object) {
-                LogUtility.e(TAG, " loadRadioProgram :  " + object);
-                toggleView(true);
-            }
-        });
+                @Override
+                public void onFailure(Object object) {
+                    LogUtility.e(TAG, " loadRadioProgram :  " + object);
+                    toggleView(true);
+                }
+            });
+
+        } else {
+            toggleView(true);
+        }
 
     }
 

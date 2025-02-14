@@ -461,7 +461,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
 // Metadata metadata = new Metadata(info.getName(), info.getName(), info.getChannelFreq(), info.getName(), info.getStreamUrl());
             changeStation(info.getStreamUrl(), info.getName() + " " + info.getChannelFreq());
         } else {
-            showToast(getString(R.string.error_please_select_radio_station));
+            showToast(getString(R.string.error_no_station_selected));
         }
 //        } else {
 //         //   showToast(getString(R.string.no_data_available));
@@ -479,13 +479,12 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     }
 
     // Method to change the radio station
-    public void changeStation(String newStreamUrl, String newTitle) {
+    public void changeStationZ(String newStreamUrl, String newTitle) {
 //        boolean isSameStation = currentStreamUrl.equals(newStreamUrl);
         currentStreamUrl = newStreamUrl;
         currentStreamTitle = newTitle;
 
         try {
-
             if (bound && radioService != null) {
                 if (!radioService.isPlaying()) {
                     radioService.setStreamUrl(currentStreamUrl);
@@ -502,12 +501,53 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
                 }
                 updatePlayButtonState();
             } else {
-                showToast(String.format("%s", getResources().getString(R.string.no_stream, PreferencesManager.getInstance().selectedRadio().getName())));
+                showToast(String.format("%s", getResources().getString(R.string.msg_no_stream, PreferencesManager.getInstance().selectedRadio().getName())));
             }
-
         } catch (Exception e) {
             Log.d(TAG, "Error startPlay : " + e.getMessage());
             showToast(getString(R.string.label_error_occurred_with_val, e.getMessage()));
+        }
+    }
+
+    public void changeStation(String newStreamUrl, String newTitle) {
+        if (PreferencesManager.getInstance().selectedRadio() == null) {
+            showToast(getString(R.string.error_no_station_selected));
+            return;
+        }
+
+        boolean isSameStation = newStreamUrl.equals(currentStreamUrl);
+        currentStreamUrl = newStreamUrl;
+        currentStreamTitle = newTitle;
+
+        try {
+            if (bound && radioService != null) {
+                if (!radioService.isPlaying()) {
+                    radioService.setStreamUrl(currentStreamUrl);
+                    radioService.setStreamTitle(currentStreamTitle);
+                    radioService.startPlayback();
+                } else {
+                    if (isSameStation) {
+                        radioService.pause();
+                    } else {
+                        radioService.stop();
+                        // Rebind service if unbound
+                        if (!bound) {
+                            bindRadioService();
+                        }
+                        radioService.setStreamUrl(currentStreamUrl);
+                        radioService.setStreamTitle(currentStreamTitle);
+                        radioService.startPlayback();
+                    }
+                }
+                updatePlayButtonState();
+            } else {
+//                showNoStreamToast();
+                showToast(String.format("%s", getResources().getString(R.string.msg_no_stream, PreferencesManager.getInstance().selectedRadio().getName())));
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error in changeStation: " + e.getMessage());
+//            showErrorToast(e.getMessage());
+            showToast("!"+String.format("%s", getResources().getString(R.string.msg_no_stream, PreferencesManager.getInstance().selectedRadio().getName())));
         }
     }
 
@@ -529,24 +569,6 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         } else {
             iv_internet.setVisibility(View.GONE);
         }
-    }
-
-    private void showBottomSheetDialogZ() {
-        if (mBottomSheetDialog != null && mBottomSheetDialog.isShowing()) {
-            return;
-        }
-
-        View bottomSheetView = getLayoutInflater().inflate(R.layout.main_activity_sheet_list, null);
-        mBottomSheetDialog = new BottomSheetDialog(this);
-        mBottomSheetDialog.setContentView(bottomSheetView);
-
-        mBehavior = BottomSheetBehavior.from((View) bottomSheetView.getParent());
-        mBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-
-        initializeBottomSheetViews(bottomSheetView);
-
-        mBottomSheetDialog.setOnDismissListener(dialog -> mBottomSheetDialog = null);
-        mBottomSheetDialog.show();
     }
 
     private void showBottomSheetDialog() {
@@ -690,12 +712,6 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
                 bottomSheetDialog.dismiss();
             }
         });
-    }
-
-
-    private void initializeBottomSheetViews(View bottomSheetView) {
-        // Initialize bottom sheet views and set click listeners
-        // Implementation depends on your layout and requirements
     }
 
     private void restartActivity() {

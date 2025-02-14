@@ -411,7 +411,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                 if (binding.etStation.getText().toString().trim().isEmpty()) {
                     binding.etStation.setError(getString(R.string.error_empty_field_not_allowed));
                     binding.etStation.requestFocus();
-                    showSnackBar(getString(R.string.error_please_select_radio_station));
+                    showSnackBar(getString(R.string.error_no_station_selected));
                     return;
                 } else if (binding.etProgram.getText().toString().trim().isEmpty()) {
                     binding.etProgram.setError(getString(R.string.error_empty_field_not_allowed));

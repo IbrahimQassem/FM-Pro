@@ -229,8 +229,13 @@ public class SplashActivity extends AppCompatActivity {
 
                                 // Access and use data from remoteConfigObject
                                 // Save the entire config as a String (optional, consider specific data access)
-                                prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, remoteConfigObject.toString());
-                                Log.d(TAG, "RemoteConfig Fetch Success: " + remoteConfigObject.toString());
+                                if (remoteConfigObject != null){
+                                    prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, remoteConfigObject.toString());
+                                    Log.d(TAG, "RemoteConfig Fetch Success: " + remoteConfigObject.toString());
+                                }else {
+                                    Log.e(TAG, "Error remoteConfigObject is null! ");
+                                }
+
 
 //                                if (remoteConfigObject.isTrialMode()) {
 //                                    tv_trail.setVisibility(View.VISIBLE);

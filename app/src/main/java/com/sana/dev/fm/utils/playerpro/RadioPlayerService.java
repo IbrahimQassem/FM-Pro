@@ -22,6 +22,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.view.KeyEvent;
 
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -29,10 +30,12 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.ui.activity.MainActivity;
+import com.sana.dev.fm.utils.LogUtility;
 
 import java.io.IOException;
 
 public class RadioPlayerService extends Service {
+    private static final String TAG = RadioPlayerService.class.getSimpleName();
     private static final String CHANNEL_ID = "radio_playback_channel";
     public static final String ACTION_NOTIFICATION_PERMISSION_REQUIRED =
             "com.sana.dev.fm.utils.playerpro.action.NOTIFICATION_PERMISSION_REQUIRED";
@@ -95,6 +98,18 @@ public class RadioPlayerService extends Service {
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
+        // Add this: Set a MediaButtonReceiver to handle media button intents
+        Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        mediaButtonIntent.setClass(this, RadioPlayerService.class);
+        PendingIntent mediaPendingIntent = PendingIntent.getService(
+                this,
+                0,
+                mediaButtonIntent,
+                PendingIntent.FLAG_IMMUTABLE
+        );
+        mediaSession.setMediaButtonReceiver(mediaPendingIntent);
+
+        // Rest of your code...
         mediaSession.setCallback(new MediaSessionCompat.Callback() {
             @Override
             public void onPlay() {
@@ -111,7 +126,6 @@ public class RadioPlayerService extends Service {
                 stop();
             }
         });
-
         updatePlaybackState();
     }
 
@@ -149,14 +163,18 @@ public class RadioPlayerService extends Service {
         updateNotification();
     }
 
+    // In RadioPlayerService.java
     public void startPlayback() {
+        if (mediaPlayer != null) {
+            mediaPlayer.reset(); // Reset instead of reinitializing
+        } else {
+            initializeMediaPlayer();
+        }
         try {
-            if (mediaPlayer == null) {
-                initializeMediaPlayer();
-            }
             mediaPlayer.setDataSource(streamUrl);
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
+            LogUtility.d(TAG, "Error setupProgramProfile : " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -188,11 +206,21 @@ public class RadioPlayerService extends Service {
             mediaPlayer = null;
             isPlaying = false;
             currentState = PlayerState.STOPPED;
+            // Clear the MediaSession and notification
             updatePlaybackState();
-            stopForeground(true);
-            stopSelf();
+            stopForeground(true); // Remove foreground state and notification
+            stopSelf(); // Terminate the service
+
+//            // Explicitly release MediaSession
+//            if (mediaSession != null) {
+//                mediaSession.setActive(false);
+//                mediaSession.release();
+//                mediaSession = null;
+//            }
         }
     }
+
+
 
     public void setPlayPauseButton(FloatingActionButton button) {
         this.playPauseButton = button;
@@ -334,19 +362,24 @@ public class RadioPlayerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && intent.getAction() != null) {
-            switch (intent.getAction()) {
-                case ACTION_PLAY:
-                    play();
-                    break;
-                case ACTION_PAUSE:
-                    pause();
-                    break;
-                case ACTION_STOP:
-                    stop();
-                    break;
+        if (intent != null && Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
+            // Extract the media button event
+            KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+            if (keyEvent != null && keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
+                switch (keyEvent.getKeyCode()) {
+                    case KeyEvent.KEYCODE_MEDIA_PLAY:
+                        play();
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                        pause();
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_STOP:
+                        stop();
+                        break;
+                }
             }
         }
+        // Rest of your existing code...
         return START_NOT_STICKY;
     }
 
@@ -355,8 +388,9 @@ public class RadioPlayerService extends Service {
         if (mediaSession != null) {
             mediaSession.setActive(false);
             mediaSession.release();
+            mediaSession = null;
         }
-        stop();
+        stop(); // Ensure cleanup
         super.onDestroy();
     }
 

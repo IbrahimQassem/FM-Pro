@@ -20,8 +20,7 @@
 
     <string name="url_profile">https://picsum.photos/200</string>
 
-    <!--    <string name="no_stream">نعتذر , البث الإذاعي ل %s غير متوفر بعد</string>-->
-    <string name="no_stream">المعذرة, البث الإذاعي ل %s غير متوفر حالياً</string>
+    <string name="msg_no_stream">المعذرة, البث الإذاعي ل %s غير متوفر حالياً</string>
 
     <string name="select_email_app">مشاركة</string>
 
@@ -149,7 +148,7 @@
     <string name="label_replay">إعادة</string>
     <string name="label_from">من</string>
     <string name="label_to">إلى</string>
-    <string name="error_please_select_radio_station">يرجى تحديد القناة الإذاعية</string>
+    <string name="error_no_station_selected">يرجى تحديد القناة الإذاعية</string>
     <string name="label_program_category">فئة البرنامج</string>
     <string name="label_show_date">فترة العرض</string>
     <string name="label_show_days">أيام العرض</string>

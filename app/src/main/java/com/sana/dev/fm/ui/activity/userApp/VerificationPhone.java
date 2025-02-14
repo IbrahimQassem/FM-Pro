@@ -155,7 +155,7 @@ public class VerificationPhone extends BaseActivity {
                 } else {
                     String uid = firebaseUser.getUid();
                     String name = firebaseUser.getDisplayName();
-                    UserModel obUser = new UserModel(uid, name, null, userMobile, null, null, FmUtilize.getIMEIDeviceId(VerificationPhone.this), null, null, null, true, false, false, FmUtilize.deviceId(VerificationPhone.this), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.SMS, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(VerificationPhone.this), null, new ArrayList<>());
+                    UserModel obUser = new UserModel(uid, name, null, userMobile, null, null, FmUtilize.getIMEIDeviceId(VerificationPhone.this), null, null, null, true, false, false, FmUtilize.deviceId(VerificationPhone.this), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.SMS, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(VerificationPhone.this), null, new ArrayList<>(),String.valueOf(System.currentTimeMillis()));
 
                     firestoreDbUtility.createOrMerge(collectionReference, obUser.userId, obUser, new CallBack() {
                         @Override

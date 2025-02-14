@@ -21,12 +21,14 @@ public class UserModel extends UserId {
     private UserType userType;
     private AuthMethod authMethod;
     private String createdAt;
+    private String timestamp;
+
     private List<String> allowedPermissions;
 
     public UserModel() {
     }
 
-    public UserModel(String userId, String name, String email, String mobile, String password, String photoUrl, String deviceToken, String nickNme, String bio, String tag, boolean isVerified, boolean isOnline, boolean disabled, String deviceId, String stopNote, Gender gender, String country, String city, long lastSignInTimestamp, UserType userType,AuthMethod authMethod,String createdAt,String notificationToken,String otherData,List<String> allowedPermissions) {
+    public UserModel(String userId, String name, String email, String mobile, String password, String photoUrl, String deviceToken, String nickNme, String bio, String tag, boolean isVerified, boolean isOnline, boolean disabled, String deviceId, String stopNote, Gender gender, String country, String city, long lastSignInTimestamp, UserType userType,AuthMethod authMethod,String createdAt,String notificationToken,String otherData,List<String> allowedPermissions,String timestamp) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -52,6 +54,7 @@ public class UserModel extends UserId {
         this.notificationToken = notificationToken;
         this.otherData = otherData;
         this.allowedPermissions = allowedPermissions;
+        this.timestamp = timestamp;
     }
 
     @Override
@@ -247,6 +250,14 @@ public class UserModel extends UserId {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
     public List<String> getAllowedPermissions() {
