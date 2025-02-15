@@ -309,4 +309,12 @@
     <string name="label_registration_successful">تم التسجيل بنجاح!</string>
     <string name="label_create_account">إنشاء حساب</string>
     <string name="msg_if_you_have_already_registered_with_email_you_can_log_in_or_register_with_another_email_address">إذا كنت قد قمت بالتسجيل بالفعل بالبريد الإلكتروني، فيمكنك الضغط على تسجيل الدخول، أو الضغط على إنشاء حساب للمرة الأولى.</string>
+    <string name="label_search_items">البحث...</string>
+    <string name="saturday">السبت</string>
+    <string name="sunday">الأحد</string>
+    <string name="monday">الاثنين</string>
+    <string name="tuesday">الثلاثاء</string>
+    <string name="wednesday">الأربعاء</string>
+    <string name="thursday">الخميس</string>
+    <string name="friday">الجمعة</string>
 </resources>

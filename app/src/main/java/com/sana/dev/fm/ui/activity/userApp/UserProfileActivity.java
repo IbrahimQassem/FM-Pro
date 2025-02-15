@@ -403,7 +403,6 @@ public class UserProfileActivity extends BaseActivity {
                 data.put("deviceToken", userModel.getDeviceToken());
                 data.put("notificationToken", userModel.getNotificationToken());
                 data.put("gender", userModel.getGender());
-                data.put("gender", userModel.getGender());
 
                 prefMgr.setUserSession(userModel);
 

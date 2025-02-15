@@ -72,6 +72,7 @@ public class RadioListActivity extends BaseActivity {
 
         initToolbar();
         initComponent();
+        setupSearchView();
         loadRadios();
     }
 
@@ -156,7 +157,7 @@ public class RadioListActivity extends BaseActivity {
                 RadioInfo item = (RadioInfo) model;
                 switch (view.getId()) {
                     case R.id.disable_switch:
-                        toggleDisableStatus((SwitchCompat) view,item);
+                        toggleDisableStatus((SwitchCompat) view, item);
                         break;
                 }
             }
@@ -196,6 +197,23 @@ public class RadioListActivity extends BaseActivity {
 
     }
 
+    private void setupSearchView() {
+        binding.searchView.setOnQueryTextListener(new android.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // Handle search submit (optional)
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // Filter RecyclerView as the user types
+                mAdapter.filter(newText);
+                return true;
+            }
+        });
+    }
+
     private void loadRadios() {
         List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
         firestoreQueryList.add(new FirestoreQuery(
@@ -216,8 +234,7 @@ public class RadioListActivity extends BaseActivity {
             @Override
             public void onSuccess(Object object) {
                 List<RadioInfo> stationList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioInfo.class);
-                items.addAll(stationList);
-                mAdapter.notifyDataSetChanged();
+                mAdapter.updateItemList(stationList);
             }
 
             @Override

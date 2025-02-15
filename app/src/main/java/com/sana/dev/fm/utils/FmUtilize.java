@@ -50,6 +50,7 @@ import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.SecureRandom;
+import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -567,6 +568,46 @@ public class FmUtilize {
                 e.printStackTrace();
             }
         return null;
+    }
+
+    public static String getFormattedDate(String inputText) {
+        String outputText = null;
+        if (!isEmpty(inputText)) {
+            try {
+                // Note, MM is months, not mm
+                DateFormat outputFormat = new SimpleDateFormat(_dateFormat, Locale.US);
+                DateFormat inputFormat = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.US);
+
+                //  String inputText = "2012-11-17T00:00:00.000-05:00";
+                Date date = inputFormat.parse(inputText);
+                outputText = outputFormat.format(date);
+                return outputText;
+            } catch (Exception e) {
+                Log.e("date error : ", e.toString());
+                e.printStackTrace();
+            }
+        }
+        return outputText;
+    }
+
+    public static String getFormattedTime(String inputText) {
+        String outputText = null;
+        if (!isEmpty(inputText)) {
+            try {
+                // Note, MM is months, not mm
+                DateFormat outputFormat = new SimpleDateFormat(_timeFormat, Locale.US);
+                DateFormat inputFormat = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.US);
+
+                //  String inputText = "2012-11-17T00:00:00.000-05:00";
+                Date date = inputFormat.parse(inputText);
+                outputText = outputFormat.format(date);
+                return outputText;
+            } catch (Exception e) {
+                Log.e("date error : ", e.toString());
+                e.printStackTrace();
+            }
+        }
+        return outputText;
     }
 
 //    public static String getTimeFormat(long millis) {

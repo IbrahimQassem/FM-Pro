@@ -16,6 +16,15 @@
             android:id="@+id/toolbar"
             layout="@layout/view_feed_toolbar" />
 
+        <!-- SearchView -->
+        <SearchView
+            android:id="@+id/searchView"
+            android:layout_margin="@dimen/spacing_large"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:queryHint="@string/label_search_items"
+            android:iconifiedByDefault="false" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"

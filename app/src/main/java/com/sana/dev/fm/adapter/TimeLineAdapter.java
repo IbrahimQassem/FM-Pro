@@ -15,6 +15,7 @@ import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemTimelineBinding;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.TempEpisodeModel;
+import com.sana.dev.fm.model.enums.Weekday;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.Tools;
 
@@ -71,8 +72,8 @@ public class TimeLineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 //                Weekday today = WeekdayUtils.getCurrentDayOfWeek();
 //                boolean isDisplayDay = WeekdayUtils.isCurrentDay(episode.getDisplayDay());
 //                holder.binding.tvDesc.setText(today.name());
-                holder.binding.tvDesc.setText(episode.getDisplayDay().name());
-
+                Weekday weekday = Weekday.fromString(episode.getDisplayDay().name());
+                holder.binding.tvDesc.setText(weekday.getTranslatedName(context));
 
                 boolean isNow = showTime.isWithinRange(showTime);
                 if (!isNow)

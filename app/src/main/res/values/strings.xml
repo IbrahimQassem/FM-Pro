@@ -342,6 +342,14 @@
     <string name="label_registration_successful">Registration successful!</string>
     <string name="label_create_account">Create Account</string>
     <string name="msg_if_you_have_already_registered_with_email_you_can_log_in_or_register_with_another_email_address">If you have already registered with email, you can press log in, or press create account of first time.</string>
+    <string name="label_search_items">Search...</string>
+    <string name="saturday">السبت</string>
+    <string name="sunday">الأحد</string>
+    <string name="monday">الاثنين</string>
+    <string name="tuesday">الثلاثاء</string>
+    <string name="wednesday">الأربعاء</string>
+    <string name="thursday">الخميس</string>
+    <string name="friday">الجمعة</string>
     <!--    <string name="gdpr_privacy_policy">-->
     <!--        By using this App, you agree to the <a href="%s">Terms-Conditions &amp; Privacy-Policy</a>.-->
     <!--    </string>-->

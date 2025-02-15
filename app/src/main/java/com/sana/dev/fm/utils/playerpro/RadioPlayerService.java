@@ -259,8 +259,10 @@ public class RadioPlayerService extends Service {
                     PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 0.0f);
         }
 
-        mediaSession.setPlaybackState(stateBuilder.build());
-        mediaSession.setActive(true);
+        if (mediaSession != null){
+            mediaSession.setPlaybackState(stateBuilder.build());
+            mediaSession.setActive(true);
+        }
 
         updatePlayPauseButton();
     }
