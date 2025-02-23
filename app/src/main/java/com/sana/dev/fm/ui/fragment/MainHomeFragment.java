@@ -246,7 +246,7 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
         CollectionReference destinationsRef = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.ADVERTISEMENT_TABLE).collection(AppConstant.Firebase.ADVERTISEMENT_TABLE);
 
         List<DestinationModel> dummyDestinations = Arrays.asList(
-                new DestinationModel(
+/*                new DestinationModel(
                         "1",
                         "Yemen Mobile",
                         "Sub Yemen Mobile",
@@ -306,10 +306,26 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
                         350.00,
                         5,
                         4,
-                        true,
+                        false,
                         Arrays.asList("culture", "nature", "sightseeing"),
                         "Asia"
-                )
+                ),
+                new DestinationModel(
+                        "5",
+                        "SMEPS",
+                        "وكالة تنمية المنشآت الصغيرة والأصغر",
+                        "صنعاء - شارع بيروت، فج عطان",
+                        "https://smeps.org.ye/upimages/sliders/SMEPS2020-11-02-619245.jpg",
+                        "https://smeps.org.ye",
+                        "Join a full-day guided tour from Tokyo that travels to Mt Fuji, Japan's iconic mountain. Experience traditional Japanese culture and breathtaking natural beauty.",
+                        3.8f,
+                        350.00,
+                        5,
+                        4,
+                        false,
+                        Arrays.asList("culture", "nature", "sightseeing"),
+                        "Asia"
+                )*/
         );
 
         for (DestinationModel destination : dummyDestinations) {
