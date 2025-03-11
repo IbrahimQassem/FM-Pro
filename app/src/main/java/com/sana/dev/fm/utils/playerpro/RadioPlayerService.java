@@ -26,8 +26,10 @@ import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.sana.dev.fm.FmApplication;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.ui.activity.MainActivity;
+import com.sana.dev.fm.utils.LogUtility;
 
 import java.io.IOException;
 
@@ -127,16 +129,12 @@ public class RadioPlayerService extends Service {
         });
 
         mediaPlayer.setOnErrorListener((mp, what, extra) -> {
-            handleMediaPlayerError(what, extra);
+            LogUtility.e(FmApplication.TAG, "MediaPlayer error: what=" + what + ", extra=" + extra);
+            stop(); // Stop and clean up on error
             return true;
         });
     }
 
-    private boolean handleMediaPlayerError(int what, int extra) {
-        // Handle media player errors
-        stopSelf();
-        return true;
-    }
 
     public void setStreamUrl(String url) {
         this.streamUrl = url;
@@ -147,15 +145,42 @@ public class RadioPlayerService extends Service {
         updateNotification();
     }
 
+//    public void startPlayback() {
+//        try {
+//            if (mediaPlayer == null) {
+//                initializeMediaPlayer();
+//            }
+//            mediaPlayer.setDataSource(streamUrl);
+//            mediaPlayer.prepareAsync();
+////            play();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
     public void startPlayback() {
+        if (mediaPlayer == null) {
+            initializeMediaPlayer(); // Initialize if null
+        } else {
+            mediaPlayer.reset(); // Reset if already initialized
+        }
+
         try {
-            if (mediaPlayer == null) {
-                initializeMediaPlayer();
+            if (streamUrl == null || streamUrl.isEmpty()) {
+                LogUtility.e(FmApplication.TAG, "Stream URL is null or empty");
+                return;
             }
-            mediaPlayer.setDataSource(streamUrl);
-            mediaPlayer.prepareAsync();
+
+            mediaPlayer.setDataSource(streamUrl); // Set the data source
+            mediaPlayer.prepareAsync(); // Prepare asynchronously
         } catch (IOException e) {
+            LogUtility.e(FmApplication.TAG, "Error setting data source: " + e.getMessage());
             e.printStackTrace();
+            stop(); // Stop and clean up on error
+        } catch (IllegalStateException e) {
+            LogUtility.e(FmApplication.TAG, "IllegalStateException: " + e.getMessage());
+            e.printStackTrace();
+            stop(); // Stop and clean up on error
         }
     }
 

@@ -507,7 +507,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
 
         } catch (Exception e) {
             Log.d(TAG, "Error startPlay : " + e.getMessage());
-            showToast(getString(R.string.label_error_occurred_with_val, e.getMessage()));
+            showToast(getString(R.string.unkon_error_please_try_again_later));
         }
     }
 
@@ -717,15 +717,9 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         restartActivity();
     }
 
-//    @Override
-//    public void onNetworkChanged(boolean status) {
-//        LogUtility.e(TAG, "CheckInternetCon : " + status);
-//        updateOnlineFlag();
-//    }
-
     @Override
     public void onNetworkChanged(boolean isConnected) {
-        LogUtility.e(TAG, "CheckInternetCon : " + isConnected);
+        LogUtility.e(TAG, "Internet is Connected : " + isConnected);
         updateOnlineFlag();
 //        if (!isConnected) {
 //            showToast(getString(R.string.check_internet_connection));
