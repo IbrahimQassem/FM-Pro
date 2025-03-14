@@ -6,11 +6,19 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.GlideBuilder;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.installations.FirebaseInstallations;
 import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
 
@@ -34,6 +42,25 @@ public class FmApplication extends Application {
         setLocale();
 
         FirebaseApp.initializeApp(/*context=*/ mInstance);
+
+        FirebaseInstallations.getInstance().getId().addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                if (!task.isSuccessful()) {
+                    return;
+                }
+                Log.i("FirebaseInstallations", task.getResult() + "");
+
+            }
+        });
+
+        // Configure Glide (optional)
+        Glide.init(this, new GlideBuilder()
+                .setDefaultRequestOptions(new RequestOptions()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL) // Cache images
+                        .timeout(10000) // Set timeout
+                ));
+
 
 //        FirebaseAppCheck firebaseAppCheck = FirebaseAppCheck.getInstance();
 ////        firebaseAppCheck.installAppCheckProviderFactory(

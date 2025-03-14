@@ -40,6 +40,7 @@ public class AppConstant {
         //    public static final String CHANNEL_NAME = "Simplified  Notification";
 //    public static final String CHANNEL_DESCRIPTION = "www.sanaadev.net";
         public static final String FIREBASE_FCM_TOKEN = "firebaseFmcToken";
+        public static final String FIREBASE_NOTIFICATION = "firebaseNotification";
         public static final String USER_INFO = "userInfo";
         public static final String RADIO_INFO_LIST = "radioInfoList";
         //    public static final String USER_IMAGE_Profile = "userImageProfile";

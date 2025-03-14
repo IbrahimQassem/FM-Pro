@@ -59,6 +59,7 @@ import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
+import com.sana.dev.fm.utils.my_firebase.notification.FcmMessagingService;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.playerpro.RadioPlayerService;
 
@@ -111,6 +112,16 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         @Override
         public void onServiceDisconnected(ComponentName name) {
             bound = false;
+        }
+    };
+
+    private BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String title = intent.getStringExtra("title");
+            String message = intent.getStringExtra("message");
+            // Update the UI with the notification data
+            showToast(title + ": " + message);
         }
     };
 
@@ -170,6 +181,10 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 notificationPermissionReceiver,
                 new IntentFilter(ACTION_NOTIFICATION_PERMISSION_REQUIRED)
+        );
+
+        // Register the receiver
+        LocalBroadcastManager.getInstance(this).registerReceiver(notificationReceiver, new IntentFilter(FcmMessagingService.ACTION_NOTIFICATION_RECEIVED)
         );
     }
 
@@ -335,6 +350,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
 
                         String token = task.getResult();
                         PreferencesManager.getInstance().write(AppConstant.General.FIREBASE_FCM_TOKEN, token);
+                        Log.w(TAG, "FCM token: " + token);
 
                         if (isAccountSignedIn()) {
                             UserModel userModel = PreferencesManager.getInstance().getUserSession();
@@ -426,6 +442,12 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
             LocalBroadcastManager.getInstance(this)
                     .unregisterReceiver(notificationPermissionReceiver);
         }
+
+        if (notificationReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationReceiver);
+        }
+
+
         super.onDestroy();
     }
 

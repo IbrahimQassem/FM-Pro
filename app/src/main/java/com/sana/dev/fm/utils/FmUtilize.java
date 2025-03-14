@@ -34,6 +34,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.gson.Gson;
@@ -69,6 +71,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by  on 05.11.14.
@@ -384,38 +387,16 @@ public class FmUtilize {
         return BitmapFactory.decodeStream(c.getContentResolver().openInputStream(uri), null, o2);
     }
 
-    public static Bitmap downloadImage(String imageUrl) {
+    public static Bitmap downloadImage(Context context,String imageUrl) {
         try {
-            URL url = new URL(imageUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-
-            // Check for successful connection
-            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                Log.w("DownloadImage", "Error downloading image: " + connection.getResponseMessage());
-                return null;
-            }
-
-            InputStream inputStream = connection.getInputStream();
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true; // Only decode bounds for efficiency
-            BitmapFactory.decodeStream(inputStream, null, options);
-            inputStream.close();
-
-            // Calculate inSampleSize to avoid memory issues with large images
-            int inSampleSize = calculateInSampleSize(options, 100, 100); // Adjust width and height as needed
-
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            inputStream = connection.getInputStream();
-            options.inSampleSize = inSampleSize;
-            Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
-            inputStream.close();
-            return bitmap;
-        } catch (IOException e) {
-            Log.w("DownloadImage", "Error downloading image: " + e.getMessage());
+            // Use Glide to download the image as a Bitmap
+            return Glide.with(context)
+                    .asBitmap()
+                    .load(imageUrl)
+                    .submit(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) // Download the full-size image
+                    .get(); // Block until the image is downloaded
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Failed to download image: " + e.getMessage());
             return null;
         }
     }
@@ -1000,6 +981,24 @@ public class FmUtilize {
         return BitmapFactory.decodeResource(context.getResources(), resourceId, options);
     }
 
+    public static Bitmap resizeImage(Bitmap bitmap, int maxWidth, int maxHeight) {
+        if (bitmap == null) return null;
+
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        float ratio = (float) width / height;
+        if (width > maxWidth) {
+            width = maxWidth;
+            height = (int) (width / ratio);
+        }
+        if (height > maxHeight) {
+            height = maxHeight;
+            width = (int) (height * ratio);
+        }
+
+        return Bitmap.createScaledBitmap(bitmap, width, height, true);
+    }
 
 
 

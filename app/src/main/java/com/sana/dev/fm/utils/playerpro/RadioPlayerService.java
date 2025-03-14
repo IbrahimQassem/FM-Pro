@@ -35,8 +35,7 @@ import java.io.IOException;
 
 public class RadioPlayerService extends Service {
     private static final String CHANNEL_ID = "radio_playback_channel";
-    public static final String ACTION_NOTIFICATION_PERMISSION_REQUIRED =
-            "com.sana.dev.fm.utils.playerpro.action.NOTIFICATION_PERMISSION_REQUIRED";
+    public static final String ACTION_NOTIFICATION_PERMISSION_REQUIRED = "com.sana.dev.fm.utils.playerpro.action.NOTIFICATION_PERMISSION_REQUIRED";
     private static final int NOTIFICATION_ID = 1;
 
     private MediaSessionCompat mediaSession;

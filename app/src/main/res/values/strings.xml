@@ -339,6 +339,7 @@
     <string name="notification_permission_required">Enable notifications for playback controls</string>
     <string name="notification_permission_title">Notification Permission Required</string>
     <string name="notification_permission_message">Please enable notifications to control media playback from the notification panel.</string>
+    <string name="open_url">Open URL</string>
     <!--    <string name="gdpr_privacy_policy">-->
     <!--        By using this App, you agree to the <a href="%s">Terms-Conditions &amp; Privacy-Policy</a>.-->
     <!--    </string>-->

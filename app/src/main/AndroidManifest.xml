@@ -198,13 +198,14 @@
             android:value="@string/default_notification_channel_id" />
 
         <service
-            android:name=".utils.my_firebase.notification.FcmMessagingService"
-            android:exported="true">
+            android:name=".utils.my_firebase.notification.AppFCMMessagingService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
                 <action android:name="com.google.firebase.messaging.RECEIVE_ERROR" />
             </intent-filter>
         </service>
+
         <service
             android:name=".ui.activity.player.MusicService"
             android:exported="true" />
