@@ -40,6 +40,7 @@ public interface BaseView {
     boolean isAccountSignedIn();
     boolean isRadioSelected();
     RadioInfo getSelectedRadio();
+    String getSelectedRadioId();
     boolean hasInternetConnection();
 
 }

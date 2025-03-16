@@ -7,9 +7,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -17,13 +19,11 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -31,6 +31,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AppRemoteConfig;
@@ -50,6 +51,7 @@ import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,27 +91,28 @@ public class SplashActivity extends AppCompatActivity {
             updateUI(currentUser);
         } else {
             // User is not signed in
-            // Proceed with sign-in logic
-            auth.signInAnonymously()
-                    .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                        @Override
-                        public void onSuccess(AuthResult authResult) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInAnonymously:success");
-                            FirebaseUser user = authResult.getUser();
-                            updateUI(user);
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInAnonymously:failure", e);
-                            updateUI(null);
-                        }
-                    });
+            signInAnonymously();
         }
-//        signInAnonymously();
+//
+    }
+
+    private void signInAnonymously() {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth.signInAnonymously()
+                .addOnSuccessListener(authResult -> {
+                    FirebaseUser user = authResult.getUser();
+                    updateUI(user);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Anonymous sign-in failed", e);
+                    // Show retry dialog
+                    new AlertDialog.Builder(this)
+                            .setTitle("Connection Error")
+                            .setMessage("Failed to connect. Retry?")
+                            .setPositiveButton("Retry", (dialog, which) -> signInAnonymously())
+                            .setNegativeButton("Exit", (dialog, which) -> finish())
+                            .show();
+                });
     }
 
     private void updateUI(FirebaseUser user) {
@@ -169,13 +172,148 @@ public class SplashActivity extends AppCompatActivity {
         });
     }
 
+    // Update the existing loadRadios method to use the task
+    private void loadRadiosZ() {
+        new LoadRadiosTask(this).execute();
+    }
+
+    private void handleRadiosLoaded(List<RadioInfo> radioInfoList) {
+        try {
+            // Store radio data in memory and preferences
+            ShardDate.getInstance().setRadioInfoList(radioInfoList);
+            prefMgr.setRadioInfo(new ArrayList<>(radioInfoList));
+
+            // Set default radio if none selected
+            if (prefMgr.selectedRadio() == null && !radioInfoList.isEmpty()) {
+                prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, radioInfoList.get(0));
+            }
+
+            // Navigate to main activity
+            startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
+
+        } catch (Exception e) {
+            handleRadiosLoadFailed(e);
+        }
+    }
+
+    private void handleRadiosLoadFailed(Exception exception) {
+        // Log error details
+        String errorMsg = "Failed to load radio data: " + exception.getMessage();
+        LogUtility.e(TAG, errorMsg);
+        crashlytics.log(errorMsg);
+        crashlytics.recordException(exception);
+
+        // Show user-friendly error dialog
+        ModelConfig config = new ModelConfig(
+                R.drawable.ic_warning,
+                getString(R.string.label_warning),
+                getString(R.string.radio_load_error),
+                null,
+                new ButtonConfig(getString(R.string.label_retry), view -> loadRadios())
+        );
+
+        config.setBtnConfirm(new ButtonConfig(
+                getString(R.string.label_cancel),
+                view -> finishAffinity()
+        ));
+
+        config.setCancellable(false);
+        config.setViewType(FmGeneralDialog.VIEW_WARNING);
+
+        new FmGeneralDialog(this, config).show();
+    }
+
+
+    // Add this as an inner class in SplashActivity
+    private static class LoadRadiosTask extends AsyncTask<Void, Void, List<RadioInfo>> {
+        private final WeakReference<SplashActivity> activityRef;
+        private Exception exception;
+
+        LoadRadiosTask(SplashActivity activity) {
+            this.activityRef = new WeakReference<>(activity);
+        }
+
+        @Override
+        protected List<RadioInfo> doInBackground(Void... voids) {
+            try {
+                SplashActivity activity = activityRef.get();
+                if (activity != null && !activity.isFinishing()) {
+                    return activity.fetchRadiosFromFirestore();
+                }
+                return null;
+            } catch (Exception e) {
+                this.exception = e;
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(List<RadioInfo> radioInfoList) {
+            SplashActivity activity = activityRef.get();
+            if (activity != null && !activity.isFinishing()) {
+                if (radioInfoList != null && exception == null) {
+                    activity.handleRadiosLoaded(radioInfoList);
+                } else {
+                    activity.handleRadiosLoadFailed(exception != null ? exception :
+                            new Exception("Unknown error loading radio data"));
+                }
+            }
+        }
+    }
+
+    // Add this method in SplashActivity
+    private List<RadioInfo> fetchRadiosFromFirestore() {
+        List<RadioInfo> radioInfoList = new ArrayList<>();
+        FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
+        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+
+        // Add query conditions
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.Query_Direction_DESCENDING,
+                "priority",
+                Query.Direction.DESCENDING
+        ));
+
+        firestoreQueryList.add(new FirestoreQuery(
+                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
+                "disabled",
+                false
+        ));
+
+        CollectionReference collectionRef = firestoreDbUtility.getTopLevelCollection()
+                .document(AppConstant.Firebase.RADIO_INFO_TABLE)
+                .collection(AppConstant.Firebase.RADIO_INFO_TABLE);
+
+        firestoreDbUtility.getMany(collectionRef, firestoreQueryList, new CallBack() {
+            @Override
+            public void onSuccess(Object object) {
+                List<RadioInfo> radioInfoList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioInfo.class);
+                ShardDate.getInstance().setRadioInfoList(radioInfoList);
+                prefMgr.setRadioInfo(new ArrayList<>(radioInfoList));
+                if (prefMgr.selectedRadio() == null && radioInfoList != null && radioInfoList.size() > 0) {
+                    prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, radioInfoList.get(0));
+                }
+                radioInfoList.addAll(radioInfoList);
+            }
+
+            @Override
+            public void onFailure(Object object) {
+                LogUtility.e(TAG, " loadRadios :  " + object);
+                startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
+            }
+        });
+
+        return radioInfoList;
+    }
+
+
     private void setFullScreen() {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
         TextView tvVersion = findViewById(R.id.tv_version);
 
-        String version = getString(R.string.app_version) +" ("+ Tools.getAppVersion(this) + ")";
+        String version = getString(R.string.app_version) + " (" + Tools.getAppVersion(this) + ")";
         tvVersion.setText(version);
 
         AppRemoteConfig remoteConfig = Tools.getAppRemoteConfig();
@@ -204,7 +342,7 @@ public class SplashActivity extends AppCompatActivity {
         super.attachBaseContext(MyContextWrapper.wrap(newBase, PreferencesManager.getInstance().getPrefLange()));
     }
 
-    private void initRemoteConfig() {
+    private void initRemoteConfigZ() {
         FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.getInstance();
         remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults); // Set default values
 
@@ -233,13 +371,6 @@ public class SplashActivity extends AppCompatActivity {
                                 prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, remoteConfigObject.toString());
                                 Log.d(TAG, "RemoteConfig Fetch Success: " + remoteConfigObject.toString());
 
-//                                if (remoteConfigObject.isTrialMode()) {
-//                                    tv_trail.setVisibility(View.VISIBLE);
-//                                } else {
-//                                    tv_trail.setVisibility(View.INVISIBLE);
-//                                }
-
-
                             } catch (Exception e) {
                                 Log.e(TAG, "Error parsing remote config JSON: " + e.getMessage());
                                 crashlytics.recordException(e);
@@ -266,43 +397,33 @@ public class SplashActivity extends AppCompatActivity {
 //                                    .build();
 //                            crashlytics.setCustomKeys(keysAndValues);
                         }
-
-
-                        // initSplash();
-
                         //        -----------------------------------------------------------------------------------------
-
-//                        /*
-//                         * Showing splash screen with a timer. This will be useful when you
-//                         * want to show case your app logo / company
-//                         */
-//                        new Handler().postDelayed(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                binding.tvSlogan.setVisibility(View.VISIBLE);
-//                                Animation animation = AnimationUtils.loadAnimation(SplashActivity.this, R.anim.topnews_text_view);
-//                                binding.tvSlogan.setAnimation(animation);
-//                            }
-//                        }, 1000);
-
-
-//                        new Handler().postDelayed(new Runnable() {
-//                            @Override
-//                            public void run() {
-////                //this method will be executed once the timer is over
-////                //start the main activity or the start activity
-//                                if (isAccountSignedIn()) {
-//                                    intent = new Intent(IntentHelper.mainActivity(mContext, true));
-//                                } else {
-//                                    intent = new Intent(IntentHelper.loginIntroActivity(mContext, true));
-//                                }
-//                                startActivity(intent);
-//                                finish();
-//                                //checkIfUserIsAuthenticated();
-//                            }
-//                        }, SPLASH_TIME_OUT);
                     }
                 });
+    }
+
+    private void initRemoteConfig() {
+        FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.getInstance();
+        remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults);
+
+        remoteConfig.fetchAndActivate().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                String jsonString = remoteConfig.getString(getString(R.string.label_remote_config_key));
+                if (!TextUtils.isEmpty(jsonString)) {
+                    try {
+                        AppRemoteConfig config = new Gson().fromJson(jsonString, AppRemoteConfig.class);
+                        prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, config.toString());
+                    } catch (JsonSyntaxException e) {
+                        Log.e(TAG, "Invalid remote config JSON", e);
+                        LogUtility.e(TAG, "Configuration error. Using default settings.");
+                        useDefaultConfig();
+                    }
+                }
+            } else {
+                LogUtility.e(TAG, "Failed to fetch settings. Using defaults.");
+                useDefaultConfig();
+            }
+        });
     }
 
     // Helper method to use default config
@@ -312,15 +433,8 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private boolean isForceUpdateRequired(int requiredVersion) {
-        // Todo
-        if (BuildConfig.FLAVOR.equals("hudhudfm_google_play")) {
-            int currentVersion = BuildConfig.VERSION_CODE;
-//        String deviceLanguage = Locale.getDefault().getLanguage();
-            return currentVersion < requiredVersion /*&& forceUpdateLanguages.contains(deviceLanguage)*/;
-        } else {
-            return false;
-        }
-
+        return BuildConfig.FLAVOR.equals("hudhudfm_google_play")
+                && BuildConfig.VERSION_CODE < requiredVersion;
     }
 
     private void showDialogForForceUpdate() {
@@ -340,31 +454,11 @@ public class SplashActivity extends AppCompatActivity {
         dialogWarning.show();
     }
 
-/*    private void linkAccount() {
-        AuthCredential credential = EmailAuthProvider.getCredential("", "");
-
-        // [START link_credential]
-        mAuth.getCurrentUser().linkWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "linkWithCredential:success");
-                            FirebaseUser user = task.getResult().getUser();
-                            updateUI(user);
-                        } else {
-                            Log.w(TAG, "linkWithCredential:failure", task.getException());
-                            Toast.makeText(SplashActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
-                    }
-                });
-        // [END link_credential]
-    }*/
-
-
     private void checkFirstTime() {
+
+        //        int lastVersion = task.getResult().get(LAST_APP_VERSION) ?: -1;
+//        AppStart appStart = determineAppStart(lastVersion);
+//        handleAppStart(appStart);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -387,7 +481,14 @@ public class SplashActivity extends AppCompatActivity {
 
             }
         }, START_DELAY);
+    }
 
+
+    private AppStart determineAppStart(int lastVersion) {
+        int currentVersion = BuildConfig.VERSION_CODE;
+        if (lastVersion == -1) return AppStart.FIRST_TIME;
+        else if (lastVersion < currentVersion) return AppStart.FIRST_TIME_VERSION;
+        else return AppStart.NORMAL;
     }
 
     /**

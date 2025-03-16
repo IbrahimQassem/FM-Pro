@@ -2,6 +2,7 @@ package com.sana.dev.fm.ui.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -171,10 +172,10 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     @Override
     public void showSnackBar(String message) {
-//        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content),message, Snackbar.LENGTH_LONG);
-//        snackbar.show();
-        sbHelp = new SnackBarUtility(this);
-        sbHelp.showSnackBar(message, 3000);
+        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content),message, Snackbar.LENGTH_LONG);
+        snackbar.show();
+//        sbHelp = new SnackBarUtility(this);
+//        sbHelp.showSnackBar(message, 3000);
     }
 
 
@@ -253,12 +254,18 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
 
     @Override
     public boolean isAccountSignedIn() {
-        return  PreferencesManager.getInstance().getUserSession() != null &&  PreferencesManager.getInstance().getUserSession().getUserId() != null /*&& FirebaseAuth.getInstance().getCurrentUser() != null*/;
+        return PreferencesManager.getInstance().getUserSession() != null && PreferencesManager.getInstance().getUserSession().getUserId() != null /*&& FirebaseAuth.getInstance().getCurrentUser() != null*/;
     }
 
     @Override
     public boolean isRadioSelected() {
-        return prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null;
+        return !TextUtils.isEmpty(getSelectedRadioId());
+    }
+
+    @Override
+    public String getSelectedRadioId() {
+        String radioId = prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null ? prefMgr.selectedRadio().getRadioId() : " ";
+        return radioId;
     }
 
     @Override

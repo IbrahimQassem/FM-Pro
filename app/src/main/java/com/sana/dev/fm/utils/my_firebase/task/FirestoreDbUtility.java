@@ -15,6 +15,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.sana.dev.fm.utils.LogUtility;
@@ -43,16 +44,8 @@ public class FirestoreDbUtility {
 
     // Get a reference to a specific collection
     public CollectionReference getCollectionReference(String collectionPath, String docId) {
-//        String[] pathSegments = collectionPath.split("/");
         CollectionReference collectionRef = getTopLevelCollection();
         collectionRef = collectionRef.document(collectionPath).collection(docId);
-
-//        for (String segment : pathSegments) {
-//            if (!segment.isEmpty()) {
-////                collectionRef = collectionRef.collection(segment);
-//                collectionRef = collectionRef.document(collectionPath).collection(docId);
-//            }
-//        }
         return collectionRef;
     }
 
@@ -361,5 +354,15 @@ public class FirestoreDbUtility {
         return dataList;
     }
 
+    public <T> List<T> getDataFromQuerySnapshot(QuerySnapshot querySnapshot, Class<T> modelClass) {
+        List<T> resultList = new ArrayList<>();
+        if (querySnapshot != null && !querySnapshot.isEmpty()) {
+            for (QueryDocumentSnapshot document : querySnapshot) {
+                T item = document.toObject(modelClass);
+                resultList.add(item);
+            }
+        }
+        return resultList;
+    }
 
 }

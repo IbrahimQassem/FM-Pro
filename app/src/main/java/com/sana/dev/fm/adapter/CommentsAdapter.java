@@ -2,13 +2,11 @@ package com.sana.dev.fm.adapter;
 
 import static com.sana.dev.fm.utils.FmUtilize.getTimeAgo;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
@@ -17,19 +15,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemCommentBinding;
 import com.sana.dev.fm.model.Comment;
 import com.sana.dev.fm.model.UserModel;
-import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
-import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.ugc.CommentClickListener;
 
 
@@ -37,21 +28,26 @@ import com.sana.dev.fm.utils.ugc.CommentClickListener;
  * Created by ibrahim on 11.11.14.
  */
 public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsAdapter.CommentViewHolder> {
-    private final String TAG = CommentsAdapter.class.getName();
+    private final String TAG = LogUtility.tag(CommentsAdapter.class);
     private final Context ctx;
     private int lastAnimatedPosition = -1;
     private boolean animationsLocked = false;
     private boolean delayEnterAnimation = true;
     private CommentClickListener listener;
-    private FirestoreDbUtility firestoreDbUtility;
     private UserModel userModel;
 
-    public CommentsAdapter(@NonNull FirestoreRecyclerOptions<Comment> options, Context ctx, CommentClickListener listener, FirestoreDbUtility firestoreDbUtility, UserModel userModel) {
+    public CommentsAdapter(@NonNull FirestoreRecyclerOptions<Comment> options, Context ctx, CommentClickListener listener, UserModel userModel) {
         super(options);
         this.ctx = ctx;
         this.listener = listener;
-        this.firestoreDbUtility = firestoreDbUtility;
         this.userModel = userModel;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        // Return a unique ID from your Comment model
+        return getItem(position).getCommentId().hashCode();
     }
 
     @NonNull
@@ -60,9 +56,8 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
         return super.getItem(position);
     }
 
-    public static class CommentViewHolder extends RecyclerView.ViewHolder {
+    public class CommentViewHolder extends RecyclerView.ViewHolder {
         private final ItemCommentBinding binding;
-
         public CommentViewHolder(ItemCommentBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
@@ -78,7 +73,10 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
 
     @Override
     protected void onBindViewHolder(@NonNull CommentViewHolder holder, int position, @NonNull Comment model) {
-        LogUtility.e(TAG, " Comment : " + model.toString());
+        try {
+        LogUtility.d(TAG, " Comment : " + model.toString());
+        LogUtility.d(TAG, "RecyclerViewDebug Position: " + position + ", Dataset Size: " + getItemCount());
+
         holder.binding.tvComment.setText(model.getContent());
         holder.binding.tvFrom.setText(model.getUserName());
         String timeAgo = getTimeAgo(model.getTimestamp(), ctx);
@@ -91,8 +89,6 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
 //                    .circleCrop()
 //                    .into(holder.binding.civLogo);
 //        }
-
-        Tools.displayUserProfile(ctx, holder.binding.civLogo, userModel.getPhotoUrl(), R.drawable.ic_baseline_person);
 
 
 //        boolean isBlocked = blockManager.isUserBlocked(comment.getUserId());
@@ -108,11 +104,26 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
 
         // Set like status
 //        boolean isLiked = model.getLikedBy().contains(auth.getCurrentUser().getUid());
-        boolean isLiked = model.getLikedBy().contains(userModel.getUserId());
+        String userId = userModel != null && userModel.getUserId() != null ? userModel.getUserId() : null;
+
+        boolean isLiked = model.getLikedBy().contains(userId);
         holder.binding.imvLike.setImageResource(isLiked ? R.drawable.ic_favorites : R.drawable.ic_heart_outline_white);
-        holder.binding.imvLike.setColorFilter(ContextCompat.getColor(ctx,isLiked ? R.color.colorPrimary :  R.color.grey_400));
-        holder.binding.likeCountText.setTextColor(ContextCompat.getColor(ctx,isLiked ? R.color.colorPrimary :  R.color.grey_400));
+        holder.binding.imvLike.setColorFilter(ContextCompat.getColor(ctx, isLiked ? R.color.colorPrimary : R.color.grey_400));
+        holder.binding.likeCountText.setTextColor(ContextCompat.getColor(ctx, isLiked ? R.color.colorPrimary : R.color.grey_400));
         holder.binding.likeCountText.setText(String.valueOf(model.getLikedBy().size()));
+
+
+        // Todo
+//            Tools.displayUserProfile(ctx, holder.binding.civLogo, userImg, R.drawable.ic_baseline_person);
+        boolean isMyComment = model.getUserId().equals(userId);
+        String userImg;
+        if (isMyComment) {
+            userImg = userModel != null && userModel.getPhotoUrl() != null ? userModel.getPhotoUrl() : null;
+
+        } else {
+            userImg = model != null && model.getUserPhotoUrl() != null ? model.getUserPhotoUrl() : null;
+        }
+        Tools.displayImageRound(ctx, holder.binding.civLogo, userImg);
 
         // Click listeners
         holder.binding.civLogo.setOnClickListener(v -> listener.onUserClickProfile(model.getUserId()));
@@ -126,7 +137,7 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
 //
 //        holder.reportButton.setOnClickListener(v ->
 //                blockManager.handleCommentAction(model, UGCUserManager.CommentAction.REPORT));
-//
+
 //        holder.deleteButton.setOnClickListener(v ->
 //                blockManager.handleCommentAction(model, UGCUserManager.CommentAction.DELETE));
 //
@@ -136,15 +147,21 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
 //        holder.binding.civLogo.setOnClickListener(v ->
 //                blockManager.navigateToUserProfile(model.getUserId()));
 ////        getListItems(holder, model.getUserId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d(TAG, "Error onBindViewHolder : " + e.getMessage());
+        }
     }
 
     private void showPopupMenu(View view, Comment comment) {
         PopupMenu popup = new PopupMenu(ctx, view);
         popup.inflate(R.menu.menu_comment);
 
+        String userId = userModel != null && userModel.getUserId() != null ? userModel.getUserId() : null;
+
         // Show delete option only for comment owner or admin
         popup.getMenu().findItem(R.id.action_delete).setVisible(
-                comment.getUserId().equals(userModel.getUserId()));
+                comment.getUserId().equals(userId));
 
         popup.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.action_report) {
@@ -163,6 +180,7 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
     }
 
 
+/*
     private void getListItems(CommentViewHolder holder, String userId) {
         CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
 //        DocumentReference colRef = FirebaseDatabaseReference.getTopLevelCollection().getFirestore().collection(USERS_TABLE).document(userId);
@@ -193,7 +211,9 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
             }
         });
     }
+*/
 
+/*
     private void runEnterAnimation(View view, int position) {
         if (animationsLocked) return;
 
@@ -215,8 +235,9 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
                     .start();
         }
     }
+*/
 
-    public void deleteItem(int position) {
+/*    public void deleteItem(int position) {
         getSnapshots().getSnapshot(position).getReference().delete();
     }
 
@@ -226,6 +247,6 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
 
     public void setDelayEnterAnimation(boolean delayEnterAnimation) {
         this.delayEnterAnimation = delayEnterAnimation;
-    }
+    }*/
 
 }

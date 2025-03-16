@@ -340,6 +340,16 @@
     <string name="notification_permission_title">Notification Permission Required</string>
     <string name="notification_permission_message">Please enable notifications to control media playback from the notification panel.</string>
     <string name="open_url">Open URL</string>
+    <string name="label_retry">Try Again</string>
+    <string name="radio_load_error">Failed to load radio stations. Please check your connection and try again.</string>
+    <string name="error_comment_empty">Please write a comment before submitting</string>
+    <string name="error_comment_too_long">Comment cannot exceed %d characters</string>
+    <string name="error_comment_too_frequent">Please wait before posting another comment</string>
+    <string name="label_sign_in_required">Sign In Required</string>
+    <string name="message_sign_in_to_comment">You need to be signed in to post comments</string>
+    <string name="message_sign_in_to_perform">You need to be signed in to before perform</string>
+
+
     <!--    <string name="gdpr_privacy_policy">-->
     <!--        By using this App, you agree to the <a href="%s">Terms-Conditions &amp; Privacy-Policy</a>.-->
     <!--    </string>-->

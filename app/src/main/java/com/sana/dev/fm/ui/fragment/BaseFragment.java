@@ -139,6 +139,10 @@ public abstract class BaseFragment extends Fragment implements BaseFragmentView 
     public RadioInfo getSelectedRadio() {
         return ((BaseActivity) getActivity()).getSelectedRadio();
     }
+    @Override
+    public String getSelectedRadioId() {
+        return ((BaseActivity) getActivity()).getSelectedRadioId();
+    }
 
     protected static void setSpinning(@Nullable CircularProgressButton button) {
         if (button != null) {

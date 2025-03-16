@@ -1,5 +1,8 @@
 package com.sana.dev.fm.model;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +35,17 @@ public class Comment {
         this.isReviewed = false;
         this.reportedBy = new ArrayList<>();
         this.likedBy = new ArrayList<>();
+    }
+
+    @Override
+    public String toString() {
+        return new GsonBuilder().create().toJson(this, Comment.class);
+    }
+
+    public String toJSON() {
+        Gson gson = new Gson();
+        String json = gson.toJson(this);
+        return json;
     }
 
     // Getters and setters

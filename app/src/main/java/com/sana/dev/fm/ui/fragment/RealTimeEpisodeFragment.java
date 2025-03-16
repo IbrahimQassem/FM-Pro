@@ -5,7 +5,6 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -131,7 +130,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        String primary = prefMgr.selectedRadio() != null ? prefMgr.selectedRadio().getName() : "";
+        String primary = getSelectedRadio() != null ? getSelectedRadio().getName() : "";
         EmptyViewFragment emptyViewFragment = EmptyViewFragment.newInstance(context.getString(R.string.no_data_available), String.format("%s", getResources().getString(R.string.msg_no_data_for, primary)), null);
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.replace(R.id.child_fragment_container, emptyViewFragment).commit();
@@ -250,11 +249,10 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
     @NonNull
     private RecyclerView.Adapter newAdapter() {
 
-        String radioId = prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null ? prefMgr.selectedRadio().getRadioId() : "";
-        LogUtility.d(LogUtility.TAG, " radioId : " + radioId + " time is  : " + String.valueOf(System.currentTimeMillis()));
+        LogUtility.d(LogUtility.TAG, " radioId : " + getSelectedRadioId() + " time is  : " + String.valueOf(System.currentTimeMillis()));
 
 //        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, getSelectedRadioId()).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
 // Create a timestamp from the date object
         Timestamp timestamp = new Timestamp(new Date());
         // Get today's date in milliseconds since epoch
@@ -322,7 +320,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                         Episode item = (Episode) obj;
 
                         if (RealTimeEpisodeFragment.this.isAccountSignedIn() && prefMgr.getUserSession().getUserType() == UserType.SuperADMIN)
-                            showBottomSheetDialog(item, radioId);
+                            showBottomSheetDialog(item, getSelectedRadioId());
                     }
                 });
 
@@ -360,13 +358,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                             case R.id.imv_like:
                                 if (!RealTimeEpisodeFragment.this.isAccountSignedIn()) {
                                     if (context instanceof MainActivity) {
-                                        ModelConfig config = new ModelConfig(-1, getString(R.string.label_note), getString(R.string.goto_login), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                startActivity(new Intent(IntentHelper.intentFormSignUp(context, false)));
-                                            }
-                                        }));
-                                        showWarningDialog(config);
+                                        showSignInDialog();
                                     }
                                 } else {
                                     toggleLike((ImageView) view,model, item.userId, item.getRadioId());
@@ -523,8 +515,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
     private void toggleLike(ImageView likeButton , Episode episode, String currentUserId, String radioId) {
         if (currentUserId == null) {
-//            Toast.makeText(context, "Please sign in to like episodes", Toast.LENGTH_SHORT).show();
-            showToast(getString(R.string.goto_login));
+            showToast(getString(R.string.message_sign_in_to_perform));
             return;
         }
 
@@ -611,4 +602,16 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         animatorSet.start();
     }
 
+    private void showSignInDialog() {
+        ModelConfig config = new ModelConfig(
+                R.drawable.ic_warning,
+                getString(R.string.label_sign_in_required),
+                getString(R.string.message_sign_in_to_perform),
+                new ButtonConfig(getString(R.string.label_cancel), null),
+                new ButtonConfig(getString(R.string.label_login), v -> {
+                    startActivity(IntentHelper.intentFormSignUp(mActivity, false));
+                })
+        );
+        showWarningDialog(config);
+    }
 }

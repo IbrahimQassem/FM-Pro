@@ -31,6 +31,7 @@ public class AppConstant {
 
 
     public static class General {
+        //PrefKeys
         public static final long DOUBLE_CLICK_TO_EXIT_INTERVAL = 3000; // in milliseconds
 
         public static String FB_FM_FOLDER_PATH = BASE_FB_DB+"_Folder";
@@ -45,9 +46,11 @@ public class AppConstant {
         public static final String RADIO_INFO_LIST = "radioInfoList";
         //    public static final String USER_IMAGE_Profile = "userImageProfile";
         public static final String PREF_LANGUAGE = "prefLanguage";
+        public static final String LAST_COMMENT_TIMESTAMP = "last_comment_timestamp";
         public static final String CONST_MOBILE = "userMobile";
         public static final String APP_REMOTE_CONFIG = "appRemoteConfig";
     }
+
 
     public class Firebase {
         public static final String RADIO_INFO_TABLE = "RadioInfo";
@@ -62,7 +65,5 @@ public class AppConstant {
         public static final  String ALERT_TABLE = "Alert";
         public static final String REPORTS_TABLE = "Reports";
         public static final String COLLECTION_USER_BLOCKS = "UserBlocks";
-
-
     }
 }

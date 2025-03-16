@@ -6,7 +6,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Parcelable;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -14,19 +18,15 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.CommentsAdapter;
@@ -43,7 +43,6 @@ import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
-import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.ugc.CommentAction;
 import com.sana.dev.fm.utils.ugc.CommentClickListener;
@@ -51,8 +50,7 @@ import com.sana.dev.fm.utils.ugc.NetworkCallback;
 import com.sana.dev.fm.utils.ugc.NetworkError;
 import com.sana.dev.fm.utils.ugc.UGCUserManager;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ibrahim
@@ -62,6 +60,9 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     public final String TAG = CommentsActivity.class.getSimpleName();
 
     private ActivityCommentsBinding binding;
+    private View networkStatusIndicator;
+    // Define max comment length
+    private final int maxCommentLength = 500; // Set your desired limit
     private String radioId, epId;
     private Query query;
     private UserModel currentUser;
@@ -69,10 +70,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     private CommentsAdapter commentsAdapter;
     private int drawingStartLocation;
     private FirestoreDbUtility firestoreDbUtility;
-    private FirebaseFirestore db;
-//    private UserBlockManager blockManager;
     private UGCUserManager ugcManager;
-
 
     public static void startActivity(Context context, Episode episode) {
         Intent intent = new Intent(context, CommentsActivity.class);
@@ -92,12 +90,13 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 
         prefMgr = PreferencesManager.getInstance();
         firestoreDbUtility = new FirestoreDbUtility();
-        db = FirebaseFirestore.getInstance();
-//        this.blockManager = new UserBlockManager(this, this);
-        this.ugcManager = new UGCUserManager(this, this);
 
+        this.ugcManager = new UGCUserManager(this, this);
+        // Initialize network status indicator
+        networkStatusIndicator = binding.networkStatusIndicator;
 
         initToolbar();
+        initEvent();
         loadComments();
         setupSendCommentButton();
 
@@ -114,6 +113,49 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         }
     }
 
+    private void initEvent() {
+
+// Add TextWatcher to EditText
+        binding.etComment.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Called before the text is changed
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                // Called when the text is being changed
+//                int currentLength = s.length();
+//                binding.charCounter.setText(currentLength + "/" + maxCommentLength);
+//
+//                // Optional: Change text color if the limit is exceeded
+//                if (currentLength > maxCommentLength) {
+//                    binding.charCounter.setTextColor(ContextCompat.getColor(CommentsActivity.this, R.color.red_500));
+//                } else {
+//                    binding.charCounter.setTextColor(ContextCompat.getColor(CommentsActivity.this, R.color.grey_500));
+//                }
+                String trimmedText = s.toString().trim();
+                int currentLength = trimmedText.length();
+                binding.charCounter.setText(currentLength + "/" + maxCommentLength);
+
+                // Disable submit button if limit is exceeded
+                binding.btnSendComment.setEnabled(currentLength <= maxCommentLength);
+
+                // Change text color if limit is exceeded
+                if (currentLength > maxCommentLength) {
+                    binding.charCounter.setTextColor(ContextCompat.getColor(CommentsActivity.this, R.color.red_500));
+                } else {
+                    binding.charCounter.setTextColor(ContextCompat.getColor(CommentsActivity.this, R.color.grey_500));
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Called after the text has been changed
+            }
+        });
+    }
+
     private void initToolbar() {
         binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,65 +166,87 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     }
 
     private void loadComments() {
+        try {
+            String s = getIntent().getStringExtra("episode");
+            if (s == null) {
+                showSnackBar(getString(R.string.label_error_occurred));
+                return;
+            }
 
-        String s = getIntent().getStringExtra("episode");
-        if (s == null) {
-            showSnackBar(getString(R.string.label_error_occurred));
-            return;
-        }
+            Episode episode = new Gson().fromJson(s, Episode.class);
+            radioId = episode.getRadioId();
+            epId = episode.getEpId();
 
-        Episode episode = new Gson().fromJson(s, Episode.class);
-        radioId = episode.getRadioId();
-        epId = episode.getEpId();
-
-        if (prefMgr.getUserSession() == null) {
-            binding.etComment.setHint(getString(R.string.add_comment));
-        } else {
-            currentUser = prefMgr.getUserSession();
-            binding.etComment.setHint(String.format(getString(R.string.label_comment_as), currentUser.getName()));
-        }
-
-
-        Tools.setTextOrHideIfEmpty(binding.toolbar.tvTitle, episode.getEpName());
-
-//        getComments();
+            if (prefMgr.getUserSession() == null) {
+                binding.etComment.setHint(getString(R.string.add_comment));
+            } else {
+                currentUser = prefMgr.getUserSession();
+                binding.etComment.setHint(String.format(getString(R.string.label_comment_as), currentUser.getName()));
+            }
 
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        binding.rvComments.setLayoutManager(linearLayoutManager);
+            Tools.setTextOrHideIfEmpty(binding.toolbar.tvTitle, episode.getEpName());
+
+            // Initialize LinearLayoutManager
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+            linearLayoutManager.setItemPrefetchEnabled(false); // Disable predictive animations
+            binding.rvComments.setLayoutManager(linearLayoutManager);
+
+            // Set fixed size (optional)
+            binding.rvComments.setHasFixedSize(true);
+
+
+//            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+//            binding.rvComments.setLayoutManager(linearLayoutManager);
 //        binding.rvComments.setHasFixedSize(true);
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
-        query = collectionReference
+            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+            query = collectionReference
 //                .document(radioId)
 //                .collection(AppConstant.Firebase.EPISODE_TABLE)
-                .document(epId)
-                .collection(AppConstant.Firebase.COMMENT_TABLE)
-                .orderBy("timestamp", Query.Direction.DESCENDING)/*.limit(COMMENT_LIMIT)*/;
+                    .document(epId)
+                    .collection(AppConstant.Firebase.COMMENT_TABLE)
+                    .orderBy("timestamp", Query.Direction.DESCENDING)/*.limit(COMMENT_LIMIT)*/;
 
-//        Query query = notebookRef.orderBy("priority", Query.Direction.DESCENDING);
-        FirestoreRecyclerOptions<Comment> options = new FirestoreRecyclerOptions.Builder<Comment>()
-                .setQuery(query, Comment.class)
-                .build();
+            FirestoreRecyclerOptions<Comment> options = new FirestoreRecyclerOptions.Builder<Comment>()
+                    .setQuery(query, Comment.class)
+                    .build();
 
-        commentsAdapter = new CommentsAdapter(options, this, this, firestoreDbUtility, currentUser);
-        commentsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                super.onItemRangeInserted(positionStart, itemCount);
-                int friendlyMessageCount = commentsAdapter.getItemCount();
-                int lastVisiblePosition = linearLayoutManager.findLastCompletelyVisibleItemPosition();
-                // If the recycler view is initially being loaded or the
-                // user is at the bottom of the list, scroll to the bottom
-                // of the list to show the newly added message.
-                if (lastVisiblePosition == -1 ||
-                        (positionStart >= (friendlyMessageCount - 1) &&
-                                lastVisiblePosition == (positionStart - 1))) {
-                    binding.rvComments.scrollToPosition(positionStart);
+            commentsAdapter = new CommentsAdapter(options, this, this, currentUser);
+//             Simplified data observer
+            commentsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                @Override
+                public void onItemRangeInserted(int positionStart, int itemCount) {
+                    super.onItemRangeInserted(positionStart, itemCount);
+                    binding.rvComments.smoothScrollToPosition(positionStart);
                 }
+            });
 
-            }
-        });
-        binding.rvComments.setAdapter(commentsAdapter);
+
+            // Set Adapter
+            binding.rvComments.setAdapter(commentsAdapter);
+
+            // Debugging
+            Log.d(TAG, "RecyclerViewDebug LayoutManager: " + binding.rvComments.getLayoutManager());
+            Log.d(TAG, "RecyclerViewDebug Adapter: " + binding.rvComments.getAdapter());
+            Log.d(TAG, "RecyclerViewDebug ItemCount: " + binding.rvComments.getAdapter().getItemCount());
+
+/*            commentsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                @Override
+                public void onItemRangeInserted(int positionStart, int itemCount) {
+                    super.onItemRangeInserted(positionStart, itemCount);
+                    int friendlyMessageCount = commentsAdapter.getItemCount();
+                    int lastVisiblePosition = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+                    // If the recycler view is initially being loaded or the
+                    // user is at the bottom of the list, scroll to the bottom
+                    // of the list to show the newly added message.
+                    if (lastVisiblePosition == -1 ||
+                            (positionStart >= (friendlyMessageCount - 1) &&
+                                    lastVisiblePosition == (positionStart - 1))) {
+                        binding.rvComments.scrollToPosition(positionStart);
+                    }
+
+                }
+            });*/
 //        binding.rvComments.setOverScrollMode(View.OVER_SCROLL_NEVER);
 //        binding.rvComments.setOnScrollListener(new RecyclerView.OnScrollListener() {
 //            @Override
@@ -192,7 +256,12 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 //                }
 //            }
 //        });
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d(TAG, "Error loadComments : " + e.getMessage());
+        }
     }
+
 
     private void setupSendCommentButton() {
         binding.btnSendComment.setOnSendClickListener(this);
@@ -251,12 +320,16 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 //            binding.etComment.setText(null);
 //            binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
 
+            // Save the timestamp after submission
+            saveLastCommentTimestamp();
+
             CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
             CollectionReference colRef = collectionReference.document(epId)
                     .collection(AppConstant.Firebase.COMMENT_TABLE);
 //            String pushKey = colRef.document().getId();
             String pushKey = radioId + "_" + colRef.document().getId();
             String content = binding.etComment.getText().toString().trim();
+            LogUtility.i(TAG, " currentUser :  " + new Gson().toJson(currentUser));
             Comment comment = new Comment(
                     currentUser.getUserId(),
                     epId,
@@ -273,8 +346,12 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                     .addOnSuccessListener(aVoid -> {
                         binding.etComment.setText(null);
                         binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
-                        binding.etComment.setHint(getString(R.string.add_comment));
-                        binding.etComment.setHint(String.format(getString(R.string.label_add_comment_as_val), currentUser.getName()));
+                        if (prefMgr.getUserSession() == null) {
+                            binding.etComment.setHint(getString(R.string.add_comment));
+                        } else {
+                            currentUser = prefMgr.getUserSession();
+                            binding.etComment.setHint(String.format(getString(R.string.label_comment_as), currentUser.getName()));
+                        }
                     }).addOnFailureListener(aVoid -> {
                         Log.e(TAG, "Error send commentModel ");
                         showToast(getString(R.string.label_error_occurred));
@@ -309,29 +386,165 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     }
 
     private boolean validateComment() {
-
-        if (TextUtils.isEmpty(binding.etComment.getText())) {
-//            AnimationUtil.shakeView(binding.etComment, CommentsActivity.this);
-//            binding.btnSendComment.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake_error));
-            showToast(getString(R.string.error_no_comment));
-            return false;
-        } else if (currentUser == null) {
-            ModelConfig config = new ModelConfig(-1, getString(R.string.label_note), getString(R.string.goto_login), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = IntentHelper.intentFormSignUp(getApplicationContext(), false);
-                    startActivity(intent);
-                }
-            }));
-            showWarningDialog(config);
-            return false;
-        } else if (!hasInternetConnection()) {
-//            showWarningDialog(-1,getString(R.string.label_no_internet), getString(R.string.check_internet_connection));
+        // 1. Check Internet Connection First
+        if (!hasInternetConnection()) {
+            updateNetworkStatus(false); // Show network error indicator
             showSnackBar(getString(R.string.check_internet_connection));
+//            showSnackBar(getString(R.string.check_internet_connection), Snackbar.LENGTH_LONG);
+            highlightNetworkError();
             return false;
         }
+
+        // 2. Validate User Session
+        if (!isAccountSignedIn()) {
+            showSignInDialog();
+            return false;
+        }
+
+        // 3. Validate Comment Content
+        String commentText = binding.etComment.getText().toString().trim();
+
+        if (TextUtils.isEmpty(commentText)) {
+            handleEmptyComment();
+            return false;
+        }
+
+        // 4. Validate Comment Length
+        int maxCommentLength = 500; // Set your preferred limit
+        if (commentText.length() > maxCommentLength) {
+            showLengthError(maxCommentLength);
+            return false;
+        }
+
+        // 5. Validate Spam Protection
+        if (isTooFrequentSubmission()) {
+            showSnackBar(getString(R.string.error_comment_too_frequent));
+            return false;
+        }
+
         return true;
     }
+
+    // Supporting methods
+    private void showSignInDialog() {
+        ModelConfig config = new ModelConfig(
+                R.drawable.ic_warning,
+                getString(R.string.label_sign_in_required),
+                getString(R.string.message_sign_in_to_perform),
+                new ButtonConfig(getString(R.string.label_cancel), null),
+                new ButtonConfig(getString(R.string.label_login), v -> {
+                    startActivity(IntentHelper.intentFormSignUp(this, false));
+                })
+        );
+        showWarningDialog(config);
+    }
+
+    public void showInteractiveDialog(ModelConfig config) {
+        // Create AlertDialog Builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        // Set Icon (if provided)
+        if (config.getIcon() != -1) {
+            builder.setIcon(config.getIcon());
+        }
+
+        // Set Title and Message
+        builder.setTitle(config.getTitle())
+                .setMessage(config.getTitle());
+
+        // Set Negative Button (if provided)
+        if (config.getBtnCancel() != null) {
+            builder.setNegativeButton(config.getBtnCancel().getName(), (dialog, which) -> {
+                if (config.getBtnCancel().getOnClickListener() != null) {
+                    config.getBtnCancel().getOnClickListener().onClick(null);
+                }
+                dialog.dismiss();
+            });
+        }
+
+        // Set Positive Button (if provided)
+        if (config.getBtnConfirm() != null) {
+            builder.setPositiveButton(config.getBtnConfirm().getName(), (dialog, which) -> {
+                if (config.getBtnConfirm().getOnClickListener() != null) {
+                    config.getBtnConfirm().getOnClickListener().onClick(null);
+                }
+                dialog.dismiss();
+            });
+        }
+
+        // Create and Show Dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void handleEmptyComment() {
+        binding.etComment.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake_error));
+        binding.etComment.setError(getString(R.string.error_comment_empty));
+        binding.etComment.requestFocus();
+    }
+
+    private void showLengthError(int maxLength) {
+        String message = getString(R.string.error_comment_too_long, maxLength);
+        binding.etComment.setError(message);
+        binding.etComment.requestFocus();
+        showSnackBar(message);
+    }
+
+    private boolean isTooFrequentSubmission() {
+        long lastCommentTime = getLastCommentTimestamp();
+        long cooldownPeriod = TimeUnit.SECONDS.toMillis(5); // 5 second cooldown
+//        long cooldownPeriod = TimeUnit.MINUTES.toMillis(1); // 1 minute cooldown
+        return (System.currentTimeMillis() - lastCommentTime) < cooldownPeriod;
+    }
+
+    private void saveLastCommentTimestamp() {
+        prefMgr.setValue(AppConstant.General.LAST_COMMENT_TIMESTAMP, System.currentTimeMillis());
+    }
+
+    private long getLastCommentTimestamp() {
+        return prefMgr.getValue(AppConstant.General.LAST_COMMENT_TIMESTAMP);
+    }
+
+    private void highlightNetworkError() {
+        binding.networkStatusIndicator.setVisibility(View.VISIBLE);
+        new Handler().postDelayed(() ->
+                binding.networkStatusIndicator.setVisibility(View.GONE), 3000);
+    }
+
+
+    private void updateNetworkStatusZ(boolean isConnected) {
+        if (isConnected) {
+            networkStatusIndicator.setVisibility(View.GONE);
+        } else {
+            networkStatusIndicator.setVisibility(View.VISIBLE);
+            new Handler().postDelayed(() ->
+                    networkStatusIndicator.setVisibility(View.GONE), 3000); // Hide after 3 seconds
+        }
+    }
+
+    private void updateNetworkStatus(boolean isConnected) {
+        if (isConnected) {
+            networkStatusIndicator.animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .withEndAction(() -> networkStatusIndicator.setVisibility(View.GONE))
+                    .start();
+        } else {
+            networkStatusIndicator.setAlpha(0f);
+            networkStatusIndicator.setVisibility(View.VISIBLE);
+            networkStatusIndicator.animate()
+                    .alpha(1f)
+                    .setDuration(300)
+                    .start();
+            new Handler().postDelayed(() ->
+                    networkStatusIndicator.animate()
+                            .alpha(0f)
+                            .setDuration(300)
+                            .withEndAction(() -> networkStatusIndicator.setVisibility(View.GONE))
+                            .start(), 3000);
+        }
+    }
+
 
     @Override
     protected void onStart() {
@@ -347,28 +560,58 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
             commentsAdapter.stopListening();
     }
 
+    private Parcelable recyclerViewState;
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        recyclerViewState = binding.rvComments.getLayoutManager().onSaveInstanceState();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        binding.rvComments.setAdapter(null);
+        binding.rvComments.setLayoutManager(null);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        binding.rvComments.setLayoutManager(linearLayoutManager);
+        binding.rvComments.setAdapter(commentsAdapter);
+
+        commentsAdapter.startListening(); // Restart FirestoreRecyclerAdapter
+        if (recyclerViewState != null) {
+            binding.rvComments.getLayoutManager().onRestoreInstanceState(recyclerViewState);
+        }
+    }
+
+
     @Override
     public void onReportClick(Comment comment) {
-        ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.lebel_report_comment), getString(R.string.confirm_report_comment), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_report), new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        // 2. Validate User Session
+        if (!isAccountSignedIn()) {
+            showSignInDialog();
+        } else {
+            ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.lebel_report_comment), getString(R.string.confirm_report_comment), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_report), new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 //                reportComment(comment);
-                comment.setEpisodeId(epId);
+                    comment.setEpisodeId(epId);
 //                blockManager.handleCommentAction(comment, CommentAction.REPORT,radioId);
-                ugcManager.handleCommentAction(comment, CommentAction.REPORT, radioId, new NetworkCallback() {
-                    @Override
-                    public void onSuccess(Object result) {
-                        showToast(getString(R.string.done_successfully));
-                    }
+                    ugcManager.handleCommentAction(comment, CommentAction.REPORT, radioId, new NetworkCallback() {
+                        @Override
+                        public void onSuccess(Object result) {
+                            showToast(getString(R.string.done_successfully));
+                        }
 
-                    @Override
-                    public void onError(NetworkError error) {
-                      //  showToast(getString(R.string.label_error_occurred_with_val, error.getMessage()));
-                    }
-                });
-            }
-        }));
-        showWarningDialog(config);
+                        @Override
+                        public void onError(NetworkError error) {
+                            //  showToast(getString(R.string.label_error_occurred_with_val, error.getMessage()));
+                        }
+                    });
+                }
+            }));
+            showWarningDialog(config);
+        }
     }
 
     @Override
@@ -378,57 +621,49 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 
     @Override
     public void onLikeClick(Comment comment) {
-        comment.setEpisodeId(epId);
-        ugcManager.handleCommentAction(comment, CommentAction.LIKE,radioId,null);
+        // 2. Validate User Session
+        if (!isAccountSignedIn()) {
+            showSignInDialog();
+        } else {
+            comment.setEpisodeId(epId);
+            ugcManager.handleCommentAction(comment, CommentAction.LIKE, radioId, null);
+        }
     }
 
     @Override
     public void onDeleteClick(Comment comment) {
-        ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.lebel_delete_comment), getString(R.string.confirm_delete_comment), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_delete), new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        // 2. Validate User Session
+        if (!isAccountSignedIn()) {
+            showSignInDialog();
+        } else {
+            ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.lebel_delete_comment), getString(R.string.confirm_delete_comment), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_delete), new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 //                deleteComment(comment);
-                comment.setEpisodeId(epId);
-                ugcManager.handleCommentAction(comment, CommentAction.DELETE, radioId, new NetworkCallback() {
-                    @Override
-                    public void onSuccess(Object result) {
-                        showToast(getString(R.string.done_successfully));
-                    }
+                    comment.setEpisodeId(epId);
+                    ugcManager.handleCommentAction(comment, CommentAction.DELETE, radioId, new NetworkCallback() {
+                        @Override
+                        public void onSuccess(Object result) {
+                            showToast(getString(R.string.done_successfully));
+                        }
 
-                    @Override
-                    public void onError(NetworkError error) {
+                        @Override
+                        public void onError(NetworkError error) {
 
-                    }
-                });
-            }
-        }));
-        showWarningDialog(config);
+                        }
+                    });
+                }
+            }));
+            showWarningDialog(config);
+        }
     }
 
     @Override
     public void onBlockClick(Comment comment) {
-//        ModelConfig config = new ModelConfig(R.drawable.ic_warning, "Block Comment", "Are you sure you want to delete this comment?", new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_confirm), new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                comment.setEpisodeId(epId);
-//                ugcManager.handleCommentAction(comment, CommentAction.BLOCK, radioId, new NetworkCallback() {
-//                    @Override
-//                    public void onSuccess(Object result) {
-//                        showToast(getString(R.string.done_successfully));
-//                    }
-//
-//                    @Override
-//                    public void onError(NetworkError error) {
-//
-//                    }
-//                });
-//            }
-//        }));
-//        //showWarningDialog(config);
-//        if (blockManager.isUserBlocked(comment.getUserId())) {
-//            showUnblockDialog(comment);
-//        } else {
-
+        // 2. Validate User Session
+        if (!isAccountSignedIn()) {
+            showSignInDialog();
+        } else {
             View dialogView = getLayoutInflater().inflate(R.layout.dialog_block_user, null);
             EditText reasonInput = dialogView.findViewById(R.id.reason_input);
 
@@ -436,7 +671,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                     .setTitle(getString(R.string.label_block_user))
                     .setView(dialogView)
                     .setPositiveButton(getString(R.string.label_block), (dialog, which) -> {
-                        if (!Tools.isEmpty(reasonInput)){
+                        if (!Tools.isEmpty(reasonInput)) {
                             String reason = reasonInput.getText().toString().trim();
                             comment.setEpisodeId(epId);
                             comment.setContent(reason);
@@ -458,209 +693,59 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                     })
                     .setNegativeButton(getString(R.string.label_cancel), null)
                     .show();
-//        }
+        }
     }
 
     @Override
     public void onUnBlockClick(Comment comment) {
-        showUnblockDialog(comment);
+        // 2. Validate User Session
+        if (!isAccountSignedIn()) {
+            showSignInDialog();
+        } else {
+            showUnblockDialog(comment);
+        }
     }
 
     @Override
     public void onUserClickProfile(String userId) {
         // Navigate to user profile
-//        ModelConfig config = new ModelConfig(R.drawable.ic_warning, "Navigate to user profile", "Would you like to navigate to user profile?", new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_confirm), new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Comment comment = new Comment();
-//                comment.setCommentId(userId);
-//                ugcManager.handleCommentAction(comment, CommentAction.USER_PROFILE, radioId, new NetworkCallback() {
-//                    @Override
-//                    public void onSuccess(Object result) {
-//                        // Navigate to user profile
-//                        Intent intent = IntentHelper.userProfileActivity(CommentsActivity.this, false);
-//                        intent.putExtra("user_id", userId);
-//                        startActivity(intent);                    }
-//
-//                    @Override
-//                    public void onError(NetworkError error) {
-//
-//                    }
-//                });
-//            }
-//        }));
-//        showWarningDialog(config);
+  /*      ModelConfig config = new ModelConfig(R.drawable.ic_warning, "Navigate to user profile", "Would you like to navigate to user profile?", new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_confirm), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Comment comment = new Comment();
+                comment.setCommentId(userId);
+                ugcManager.handleCommentAction(comment, CommentAction.USER_PROFILE, radioId, new NetworkCallback() {
+                    @Override
+                    public void onSuccess(Object result) {
+                        // Navigate to user profile
+                        Intent intent = IntentHelper.userProfileActivity(CommentsActivity.this, false);
+                        intent.putExtra("user_id", userId);
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onError(NetworkError error) {
+
+                    }
+                });
+            }
+        }));
+        showWarningDialog(config);*/
     }
 
     private void showUnblockDialog(Comment comment) {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.label_unblock_user)
-                .setMessage(R.string.confirm_unblock_user)
-                .setPositiveButton(R.string.label_unblock, (dialog, which) ->
-                        ugcManager.handleCommentAction(comment, CommentAction.UNBLOCK,radioId,null)
-                )
-                .setNegativeButton(getString(R.string.label_cancel), null)
-                .show();
-    }
-
-
-    private void reportComment(Comment comment) {
-        String userId = currentUser.getUserId();
-
-        // Check if user already reported
-        if (comment.getReportedBy().contains(userId)) {
-            showToast("You have already reported this comment");
-            return;
+        // 2. Validate User Session
+        if (!isAccountSignedIn()) {
+            showSignInDialog();
+        } else {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.label_unblock_user)
+                    .setMessage(R.string.confirm_unblock_user)
+                    .setPositiveButton(R.string.label_unblock, (dialog, which) ->
+                            ugcManager.handleCommentAction(comment, CommentAction.UNBLOCK, radioId, null)
+                    )
+                    .setNegativeButton(getString(R.string.label_cancel), null)
+                    .show();
         }
-
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
-        CollectionReference colRef = collectionReference
-                .document(epId)
-                .collection(AppConstant.Firebase.COMMENT_TABLE);
-        db.runTransaction((Transaction.Function<Void>) transaction -> {
-
-            Comment updatedComment = comment;
-
-            updatedComment.getReportedBy().add(userId);
-            updatedComment.setReportCount(updatedComment.getReportCount() + 1);
-
-            Map<String, Object> docData = new HashMap<>();
-            docData.put("reportedBy", updatedComment.getReportedBy());
-            docData.put("reportCount", updatedComment.getReportCount());
-
-            LogUtility.i(LogUtility.TAG, "collectionReference is  : " + colRef.getParent());
-
-            firestoreDbUtility.update(colRef, comment.getCommentId(), docData, new CallBack() {
-                @Override
-                public void onSuccess(Object object) {
-//                    showToast(getString(R.string.done_successfully));
-                    LogUtility.d(LogUtility.TAG, "success set  : " + comment.getCommentId() + " res is  : " + docData);
-                    // Auto-hide comment if report threshold reached
-                    if (updatedComment.getReportCount() >= 5) {
-                        updatedComment.setReviewed(true);
-                        // Move to moderation queue
-                        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.ALERT_TABLE, AppConstant.Firebase.ALERT_TABLE);
-                        CollectionReference colRef = collectionReference.document(epId)
-                                .collection(AppConstant.Firebase.MODERATION_TABLE);
-                        colRef.document(comment.getCommentId())
-                                .set(updatedComment);
-                        /*      firestoreDbUtility.createOrMerge(collectionReference, comment.getId(), updatedComment, new CallBack() {
-                            @Override
-                            public void onSuccess(Object object) {
-//                                            showToast(getString(R.string.done_successfully));
-                            }
-
-                            @Override
-                            public void onFailure(Object object) {
-//                                            showToast(getString(R.string.label_error_occurred_with_val,object));
-                            }
-                        });*/
-                    }
-                }
-
-                @Override
-                public void onFailure(Object object) {
-//                    showToast(getString(R.string.label_error_occurred_with_val, object));
-                    LogUtility.e(LogUtility.TAG, "failure  : " + comment.getCommentId() + " res is  : " + object.toString());
-                }
-            });
-
-            return null;
-        }).addOnSuccessListener(aVoid -> {
-            // Update local data
-//            LogUtility.w(TAG, "FCM token updated successfully : " + object);
-            showToast("Comment reported");
-        }).addOnFailureListener(e -> {
-            LogUtility.e(TAG, "onError : " + e.getMessage());
-            showToast(getString(R.string.label_error_occurred_with_val, e.getMessage()));
-        });
     }
-
-    private void deleteComment(Comment comment) {
-        String userId = currentUser.getUserId();
-
-        // Check if user already reported
-        if (comment.getReportedBy().contains(userId)) {
-            showToast("You have already reported this comment");
-            return;
-        }
-
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
-        CollectionReference colRef = collectionReference
-                .document(epId)
-                .collection(AppConstant.Firebase.COMMENT_TABLE);
-        db.runTransaction((Transaction.Function<Void>) transaction -> {
-
-            LogUtility.i(LogUtility.TAG, "collectionReference is  : " + colRef.getParent());
-
-            firestoreDbUtility.deleteDocument(colRef, comment.getCommentId(), new CallBack() {
-                @Override
-                public void onSuccess(Object object) {
-                    LogUtility.d(LogUtility.TAG, "success delete  : " + comment.getCommentId() + " res is  : " + object);
-                    showToast(getString(R.string.deleted_successfully_with_param, comment.getContent()));
-                }
-
-                @Override
-                public void onFailure(Object object) {
-                    LogUtility.e(LogUtility.TAG, "failure  : " + comment.getCommentId() + " res is  : " + object.toString());
-                    showToast(getString(R.string.error_failure));
-                }
-            });
-            return null;
-        }).addOnSuccessListener(aVoid -> {
-            // Update local data
-//            LogUtility.w(TAG, "FCM token updated successfully : " + object);
-            showToast("Comment reported");
-        }).addOnFailureListener(e -> {
-            LogUtility.e(TAG, "onError : " + e.getMessage());
-            showToast(getString(R.string.label_error_occurred_with_val, e.getMessage()));
-        });
-    }
-
-    private void reportCommentZ(Comment comment) {
-        String userId = currentUser.getUserId();
-
-        // Check if user already reported
-        if (comment.getReportedBy().contains(userId)) {
-            showToast("You have already reported this comment");
-            return;
-        }
-
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
-
-        CollectionReference colRef = collectionReference
-                .document(epId)
-                .collection(AppConstant.Firebase.COMMENT_TABLE);
-
-        DocumentReference commentRef = colRef.document();
-//        DocumentReference commentRef = db.collection("posts")
-//                .document(postId)
-//                .collection("comments")
-//                .document(comment.getId());
-
-        db.runTransaction(transaction -> {
-            DocumentSnapshot snapshot = transaction.get(commentRef);
-            Comment updatedComment = snapshot.toObject(Comment.class);
-
-            updatedComment.getReportedBy().add(userId);
-            updatedComment.setReportCount(updatedComment.getReportCount() + 1);
-
-            // Auto-hide comment if report threshold reached
-            if (updatedComment.getReportCount() >= 5) {
-                updatedComment.setReviewed(true);
-                // Move to moderation queue
-                db.collection("moderation")
-                        .document(comment.getCommentId())
-                        .set(updatedComment);
-            }
-
-            transaction.set(commentRef, updatedComment);
-            return null;
-        }).addOnSuccessListener(result ->
-                Toast.makeText(this, "Comment reported", Toast.LENGTH_SHORT).show()
-        ).addOnFailureListener(e ->
-                showToast("Failed to report comment")
-        );
-    }
-
 }

@@ -39,13 +39,13 @@ public class PreferencesManager {
         mPref = context.getSharedPreferences(PREF_NAME, MODE_PRIVATE);
     }
 
-    public long getValue() {
-        return mPref.getLong(KEY_VALUE, 0);
+    public long getValue(String keyValue) {
+        return mPref.getLong(keyValue, 0);
     }
 
-    public void setValue(long value) {
+    public void setValue(String keyValue,long value) {
         mPref.edit()
-                .putLong(KEY_VALUE, value)
+                .putLong(keyValue, value)
                 .apply();
     }
 

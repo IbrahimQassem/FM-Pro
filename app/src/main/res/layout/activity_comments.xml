@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -23,12 +24,23 @@
                 android:layout_height="0dp"
                 android:layout_weight="1">
 
+                <!--    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvComments"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingTop="@dimen/spacing_small"
+                        android:scrollbars="none" />-->
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvComments"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:overScrollMode="never"
                     android:paddingTop="@dimen/spacing_small"
-                    android:scrollbars="none" />
+                    android:paddingBottom="16dp"
+                    android:scrollbars="none"
+                    tools:listitem="@layout/item_comment" />
 
                 <View
                     android:layout_width="match_parent"
@@ -36,6 +48,18 @@
                     android:layout_gravity="bottom"
                     android:background="@drawable/shadow_top" />
             </FrameLayout>
+
+            <!-- Inside your layout file -->
+            <LinearLayout
+                android:id="@+id/networkStatusIndicator"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginBottom="8dp"
+                android:background="@color/red_500"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
             <LinearLayout
                 android:id="@+id/llAddComment"
@@ -54,8 +78,24 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:inputType="textMultiLine"
+                    android:maxLines="5"
                     android:textColor="#555555"
                     android:textSize="14sp" />
+
+
+                <TextView
+                    android:id="@+id/charCounter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical"
+                    android:paddingStart="@dimen/spacing_small"
+                    android:paddingLeft="@dimen/spacing_small"
+                    android:text="0/500"
+                    android:textColor="@color/grey_500"
+                    android:textSize="12sp" />
 
                 <com.sana.dev.fm.ui.view.SendCommentButton
                     android:id="@+id/btnSendComment"

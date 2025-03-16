@@ -152,7 +152,7 @@ public class ProgramsFragment extends BaseFragment {
                 @Override
                 public void onClick(View v) {
 
-                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, getSelectedRadio().getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, getSelectedRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
                     firestoreDbUtility.deleteDocument(collectionReference, item.getProgramId(), new CallBack() {
                         @Override
                         public void onSuccess(Object object) {
@@ -244,7 +244,7 @@ public class ProgramsFragment extends BaseFragment {
         firestoreQueryList.add(new FirestoreQuery(
                 FirestoreQueryConditionCode.WHERE_EQUAL_TO,
                 "radioId",
-                getSelectedRadio().getRadioId()
+                getSelectedRadioId()
         ));
 
 //            firestoreQueryList.add(new FirestoreQuery(
@@ -260,7 +260,7 @@ public class ProgramsFragment extends BaseFragment {
                 false
         ));
 
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, getSelectedRadio().getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, getSelectedRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
 
         firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override

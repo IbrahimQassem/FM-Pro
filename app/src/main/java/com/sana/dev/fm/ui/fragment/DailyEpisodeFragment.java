@@ -155,7 +155,7 @@ public class DailyEpisodeFragment extends BaseFragment {
                 @Override
                 public void onClick(View v) {
 
-                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, getSelectedRadio().getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, getSelectedRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
                     firestoreDbUtility.deleteDocument(collectionReference, item.getProgramId(), new CallBack() {
                         @Override
                         public void onSuccess(Object object) {
@@ -220,7 +220,7 @@ public class DailyEpisodeFragment extends BaseFragment {
         if (isRadioSelected()) {
             try {
                 SpannableStringBuilder builder = new SpannableStringBuilder();
-                RadioInfo selectedRadio = prefMgr.selectedRadio();
+                RadioInfo selectedRadio = getSelectedRadio();
                 String primary = (selectedRadio != null && selectedRadio.getName() != null) ? selectedRadio.getName() : " ";
                 SpannableString primarySpannable = new SpannableString(Html.fromHtml("<b>" + primary + "</b>"));
                 primarySpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimary)), 0, primary.length(), 0);
@@ -254,7 +254,7 @@ public class DailyEpisodeFragment extends BaseFragment {
                 "disabled",
                 false
         ));
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, getSelectedRadio().getRadioId()).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE,getSelectedRadioId()).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
 
         firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override

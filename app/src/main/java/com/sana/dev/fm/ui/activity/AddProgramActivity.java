@@ -287,7 +287,7 @@ public class AddProgramActivity extends BaseActivity {
                 timestamp = _episode.getTimestamp();
                 createBy = _episode.getCreateBy();
                 stopNote = _episode.getStopNote();
-                radioInfo = prefMgr.selectedRadio();
+                radioInfo = getSelectedRadio();
                 programScheduleTime = _episode.getProgramScheduleTime() != null ? _episode.getProgramScheduleTime() : new DateTimeModel();
                 displayDay = programScheduleTime.getWeekdays() != null ? programScheduleTime.getWeekdays() : new ArrayList<>();
 //            program = program.findRadioProgram(programId, ShardDate.getInstance().getProgramList());

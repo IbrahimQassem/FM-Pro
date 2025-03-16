@@ -237,7 +237,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
             timestamp = currentEpisode.getTimestamp();
             createBy = currentEpisode.getCreateBy();
             stopNote = currentEpisode.getStopNote();
-            radioInfo = prefMgr.selectedRadio();
+            radioInfo = getSelectedRadio();
             radioId = radioInfo.getRadioId();
             programScheduleTime = currentEpisode.getProgramScheduleTime();
             showTimeList = currentEpisode.getShowTimeList() != null ? currentEpisode.getShowTimeList() : new ArrayList<>();

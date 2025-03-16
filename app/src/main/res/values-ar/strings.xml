@@ -307,4 +307,12 @@
     <string name="notification_permission_title">مطلوب إذن الإشعار</string>
     <string name="notification_permission_message">يرجى تمكين الإشعارات للتحكم في تشغيل الوسائط من لوحة الإشعارات.</string>
     <string name="open_url">الذهاب إلى الموقع</string>
+    <string name="label_retry">حاول مرة أخرى</string>
+    <string name="radio_load_error">تعذر تحميل محطات الراديو. يُرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.</string>
+    <string name="error_comment_empty">يرجى كتابة تعليق قبل الإرسال</string>
+    <string name="error_comment_too_long">لا يمكن أن يتجاوز التعليق %d حرفًا</string>
+    <string name="error_comment_too_frequent">يرجى الانتظار قبل نشر تعليق آخر</string>
+    <string name="label_sign_in_required">تسجيل الدخول مطلوب</string>
+    <string name="message_sign_in_to_comment">يجب تسجيل الدخول لنشر التعليقات</string>
+    <string name="message_sign_in_to_perform">يجب عليك تسجيل الدخول أولاَ</string>
 </resources>

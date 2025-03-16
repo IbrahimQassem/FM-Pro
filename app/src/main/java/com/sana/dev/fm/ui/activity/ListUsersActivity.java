@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListUsers;
 import com.sana.dev.fm.databinding.ActivityListProgramBinding;
-import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
@@ -28,10 +27,8 @@ import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.task.FirestoreCollectionTransferHelper;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
-import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,9 +70,8 @@ public class ListUsersActivity extends BaseActivity {
         initToolbar();
 
 
-        RadioInfo radioInfo = prefMgr.selectedRadio();
-        if (radioInfo != null && radioInfo.getRadioId() != null) {
-            initComponent(radioInfo.getRadioId());
+        if (getSelectedRadioId() != null) {
+            initComponent(getSelectedRadioId());
         }
 
     }

@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.AdapterListProgram;
 import com.sana.dev.fm.databinding.ActivityListProgramBinding;
-import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.RadioProgram;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
@@ -72,9 +71,8 @@ public class ListProgramActivity extends BaseActivity {
         initToolbar();
 
 
-        RadioInfo radioInfo = prefMgr.selectedRadio();
-        if (radioInfo != null && radioInfo.getRadioId() != null) {
-            initComponent(radioInfo.getRadioId());
+        if (getSelectedRadioId() != null) {
+            initComponent(getSelectedRadioId());
         }
 
     }

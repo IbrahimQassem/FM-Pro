@@ -26,7 +26,6 @@ import com.sana.dev.fm.databinding.ActivityListEpisodeBinding;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.ModelConfig;
-import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.ui.view.LineItemDecoration;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.LogUtility;
@@ -82,9 +81,8 @@ public class ListEpisodeActivity extends BaseActivity {
 
         }
 
-        RadioInfo radioInfo = prefMgr.selectedRadio();
-        if (radioInfo != null && radioInfo.getRadioId() != null) {
-            initComponent(radioInfo.getRadioId());
+        if (getSelectedRadioId() != null) {
+            initComponent(getSelectedRadioId());
         }
 
     }
