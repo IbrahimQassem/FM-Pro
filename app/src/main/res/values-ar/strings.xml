@@ -326,4 +326,6 @@
     <string name="wednesday">الأربعاء</string>
     <string name="thursday">الخميس</string>
     <string name="friday">الجمعة</string>
+    <string name="msg_failed_to_load_radio_data_val">Failed to load radio data: $s</string>
+
 </resources>

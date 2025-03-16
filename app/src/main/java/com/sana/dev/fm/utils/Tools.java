@@ -236,6 +236,38 @@ public class Tools {
         }
     }
 
+    public static void displayImageRound(final Context ctx, final ImageView img, String imgUrl) {
+        try {
+
+            RequestOptions requestOptions = new RequestOptions();
+            requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(100));
+            GlideApp.with(ctx)
+                    .load(imgUrl)
+                    .apply(requestOptions)
+                    .placeholder(R.drawable.bg_comment_avatar)
+                    .error(ctx.getDrawable(R.drawable.logo_app))
+                    .into(img);
+//            Glide.with(ctx)
+//                    .load(imgUrl)
+//                    .apply(RequestOptions.bitmapTransform(new RoundedCorners(50)))
+//                    .placeholder(R.drawable.bg_comment_avatar)
+//                    .error(AppRemoteConfig.RADIO_LOGO)
+//                     .into(img);
+
+//            Glide.with(ctx).load(imgUrl).asBitmap().placeholder(R.drawable.bg_comment_avatar).error(AppRemoteConfig.RADIO_LOGO).centerCrop().into(new BitmapImageViewTarget(img) {
+//                @Override
+//                protected void setResource(Bitmap resource) {
+//                    RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(ctx.getResources(), resource);
+//                    circularBitmapDrawable.setCircular(true);
+//                    img.setImageDrawable(circularBitmapDrawable);
+//                }
+//            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtility.d(TAG + " displayImageRound :", e.toString());
+        }
+    }
+
     public static String getFormattedDateSimple(Long dateTime) {
         SimpleDateFormat newFormat = new SimpleDateFormat(_dateFormat);
         return newFormat.format(new Date(dateTime));

@@ -19,7 +19,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -92,7 +91,6 @@ public class SplashActivity extends AppCompatActivity {
             // User is not signed in
             signInAnonymously();
         }
-//
     }
 
     private void signInAnonymously() {
@@ -105,12 +103,13 @@ public class SplashActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Log.w(TAG, "Anonymous sign-in failed", e);
                     // Show retry dialog
-                    new AlertDialog.Builder(this)
-                            .setTitle("Connection Error")
-                            .setMessage("Failed to connect. Retry?")
-                            .setPositiveButton("Retry", (dialog, which) -> signInAnonymously())
-                            .setNegativeButton("Exit", (dialog, which) -> finish())
-                            .show();
+                    handleSignInAnonymouslyFailed(e);
+//                    new AlertDialog.Builder(this)
+//                            .setTitle("Connection Error")
+//                            .setMessage("Failed to connect. Retry?")
+//                            .setPositiveButton("Retry", (dialog, which) -> signInAnonymously())
+//                            .setNegativeButton("Exit", (dialog, which) -> finish())
+//                            .show();
                 });
     }
 
@@ -207,14 +206,36 @@ public class SplashActivity extends AppCompatActivity {
                 R.drawable.ic_warning,
                 getString(R.string.label_warning),
                 getString(R.string.radio_load_error),
-                null,
+                new ButtonConfig(getString(R.string.label_cancel), view -> finishAffinity()),
                 new ButtonConfig(getString(R.string.label_retry), view -> loadRadios())
         );
 
-        config.setBtnConfirm(new ButtonConfig(
-                getString(R.string.label_cancel),
-                view -> finishAffinity()
-        ));
+        config.setCancellable(false);
+        config.setViewType(FmGeneralDialog.VIEW_WARNING);
+
+        new FmGeneralDialog(this, config).show();
+    }
+
+    private void handleSignInAnonymouslyFailed(Exception exception) {
+        // Log error details
+        String errorMsg = "Failed to signInAnonymously data: " + exception.getMessage();
+        LogUtility.e(TAG, errorMsg);
+        crashlytics.log(errorMsg);
+        crashlytics.recordException(exception);
+
+        // Show user-friendly error dialog
+        ModelConfig config = new ModelConfig(
+                R.drawable.ic_warning,
+                getString(R.string.label_warning),
+                getString(R.string.radio_load_error),
+                new ButtonConfig(getString(R.string.label_cancel), view -> finishAffinity()),
+                new ButtonConfig(getString(R.string.label_retry), view -> signInAnonymously())
+        );
+
+//        config.setBtnConfirm(new ButtonConfig(
+//                getString(R.string.label_cancel),
+//                view -> finishAffinity()
+//        ));
 
         config.setCancellable(false);
         config.setViewType(FmGeneralDialog.VIEW_WARNING);
