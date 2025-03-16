@@ -51,8 +51,7 @@
     <string name="url_profile">https://picsum.photos/200</string>
 
 
-    <!--    <string name="no_stream">نعتذر , البث الإذاعي ل %s غير متوفر بعد</string>-->
-    <string name="no_stream">Sorry, %s radio broadcasts are currently unavailable</string>
+    <string name="msg_no_stream">Sorry, %s radio broadcasts are currently unavailable</string>
 
     <string name="select_email_app">Share</string>
 
@@ -182,7 +181,7 @@
     <string name="label_replay">Replay</string>
     <string name="label_from">From</string>
     <string name="label_to">To</string>
-    <string name="error_please_select_radio_station">Please select the radio channel</string>
+    <string name="error_no_station_selected">Please select the radio channel</string>
     <string name="label_program_category">Program Category</string>
     <string name="label_show_date">Date Show</string>
     <string name="label_show_days">Day\'s Show</string>
@@ -350,6 +349,18 @@
     <string name="message_sign_in_to_perform">You need to be signed in to before perform</string>
 
 
+    <string name="label_user_already_logged_in">User already logged in: $s</string>
+    <string name="label_registration_successful">Registration successful!</string>
+    <string name="label_create_account">Create Account</string>
+    <string name="msg_if_you_have_already_registered_with_email_you_can_log_in_or_register_with_another_email_address">If you have already registered with email, you can press log in, or press create account of first time.</string>
+    <string name="label_search_items">Search...</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
     <!--    <string name="gdpr_privacy_policy">-->
     <!--        By using this App, you agree to the <a href="%s">Terms-Conditions &amp; Privacy-Policy</a>.-->
     <!--    </string>-->

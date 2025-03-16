@@ -1,4 +1,4 @@
-package com.sana.dev.fm.ui.activity.appuser;
+package com.sana.dev.fm.ui.activity.userApp;
 
 import static android.app.Activity.RESULT_OK;
 import static com.sana.dev.fm.utils.LogUtility.TAG;
@@ -16,7 +16,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.yalantis.ucrop.UCrop;
 

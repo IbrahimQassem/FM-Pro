@@ -25,7 +25,6 @@ import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.utils.FmUtilize;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -38,8 +37,8 @@ public class ImagePickerActivity extends AppCompatActivity {
 
     //    public static final String[] PERMISSIONS = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE;
     public static final String[] PERMISSIONS = {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
-    public static final String[] PERMISSIONSCAMERA = {Manifest.permission.CAMERA};
-    public static final String[] PERMISSIONSREAD_EXTERNAL_STORAGE = {Manifest.permission.CAMERA};
+    public static final String[] PERMISSIONS_CAMERA = {Manifest.permission.CAMERA};
+    public static final String[] PERMISSIONS_READ_EXTERNAL_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE};
     public static final String INTENT_IMAGE_PICKER_OPTION = "image_picker_option";
     public static final String INTENT_ASPECT_RATIO_X = "aspect_ratio_x";
     public static final String INTENT_ASPECT_RATIO_Y = "aspect_ratio_Y";
@@ -118,7 +117,7 @@ public class ImagePickerActivity extends AppCompatActivity {
 
     private void takeCameraImage() {
         Dexter.withContext(this)
-                .withPermissions(PERMISSIONSCAMERA)
+                .withPermissions(PERMISSIONS_CAMERA)
                 .withListener(new MultiplePermissionsListener() {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
@@ -148,7 +147,7 @@ public class ImagePickerActivity extends AppCompatActivity {
 
     private void chooseImageFromGallery() {
         Dexter.withContext(this)
-                .withPermissions(PERMISSIONSREAD_EXTERNAL_STORAGE)
+                .withPermissions(PERMISSIONS_READ_EXTERNAL_STORAGE)
                 .withListener(new MultiplePermissionsListener() {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {

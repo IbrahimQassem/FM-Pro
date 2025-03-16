@@ -7,9 +7,9 @@ import com.sana.dev.fm.ui.activity.AppIntroLight;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.NoInternetActivity;
 import com.sana.dev.fm.ui.activity.SplashActivity;
-import com.sana.dev.fm.ui.activity.appuser.LoginByActivity;
-import com.sana.dev.fm.ui.activity.appuser.PhoneLoginActivity;
-import com.sana.dev.fm.ui.activity.appuser.UserProfileActivity;
+import com.sana.dev.fm.ui.activity.userApp.LoginByActivity;
+import com.sana.dev.fm.ui.activity.userApp.PhoneLoginActivity;
+import com.sana.dev.fm.ui.activity.userApp.UserProfileActivity;
 
 public class IntentHelper {
 

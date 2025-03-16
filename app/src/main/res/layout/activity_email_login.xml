@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.activity.userApp.EmailLoginActivity">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/view_feed_toolbar" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
+
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:tint="@color/colorPrimary"
+            app:srcCompat="@drawable/ic_email_black" />
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:scrollingCache="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/spacing_large"
+                android:paddingEnd="@dimen/spacing_large">
+
+
+                <TextView
+                    style="@style/TextBold"
+                    android:padding="@dimen/spacing_medium"
+                    android:text="@string/login_via_email"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
+                    android:textColor="@color/grey_80" />
+
+                <TextView
+                    style="@style/TextRegular"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:gravity="center"
+                    android:letterSpacing=".2"
+                    android:lineSpacingExtra="5dp"
+                    android:maxLines="3"
+                    android:padding="@dimen/spacing_medium"
+                    android:text="@string/msg_if_you_have_already_registered_with_email_you_can_log_in_or_register_with_another_email_address"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/grey_60" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_middle"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_middle">
+
+
+                    <LinearLayout
+                        android:id="@+id/lyt_parent_email"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/spacing_middle"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="@dimen/spacing_large"
+                        android:paddingTop="@dimen/spacing_large"
+                        android:paddingEnd="@dimen/spacing_large"
+                        android:visibility="visible">
+
+                        <EditText
+                            android:id="@+id/et_email"
+                            style="@style/TextRegular"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:hint="@string/email"
+                            android:inputType="text"
+                            android:padding="@dimen/spacing_middle"
+                            android:textColor="@color/grey_80"
+                            tools:text="@string/email" />
+
+                        <ImageButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="@color/transparent"
+                            android:padding="@dimen/spacing_middle"
+                            app:srcCompat="@drawable/ic_email_black"
+                            app:tint="@color/colorPrimary" />
+                    </LinearLayout>
+
+
+                    <LinearLayout
+                        android:id="@+id/lyt_parent_pass"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/spacing_middle"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="@dimen/spacing_large"
+                        android:paddingTop="@dimen/spacing_large"
+                        android:paddingEnd="@dimen/spacing_large"
+                        android:visibility="visible">
+
+                        <EditText
+                            android:id="@+id/et_password"
+                            style="@style/TextRegular"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:clickable="true"
+                            android:digits="0123456789+"
+                            android:focusable="true"
+                            android:gravity="start"
+                            android:hint="@string/password"
+                            android:inputType="text"
+                            android:padding="@dimen/spacing_middle"
+                            android:textColor="@color/grey_80"
+                            tools:text="@string/mobile" />
+
+                        <ImageButton
+                            android:id="@+id/ib_pass"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="@color/transparent"
+                            android:padding="@dimen/spacing_middle"
+                            app:srcCompat="@drawable/ic_password"
+                            app:tint="@color/colorPrimary" />
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/bt_email_login"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/btn_rounded_accent"
+                    android:fontFamily="@font/tj_bold"
+                    android:text="@string/label_login"
+                    android:textColor="@android:color/white" />
+
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/bt_email_register"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_large"
+                    android:background="@drawable/btn_rounded_accent"
+                    android:backgroundTint="@color/colorPrimaryDark"
+                    android:fontFamily="@font/tj_bold"
+                    android:text="@string/label_create_account"
+                    android:textColor="@android:color/white" />
+
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+
+    </LinearLayout>
+
+
+</RelativeLayout>

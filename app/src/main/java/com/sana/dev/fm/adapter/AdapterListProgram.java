@@ -75,8 +75,10 @@ public class AdapterListProgram extends Adapter<AdapterListProgram.MyViewHolder>
         } else {
 //            binding.tvState.setVisibility(View.GONE);
         }
-        if (!Tools.isEmpty(model.getPrName()))
-        viewHolder.binding.imageLetter.setText(model.getPrName().substring(0, 1));
+        if (!Tools.isEmpty(model.getPrName())){
+            viewHolder.binding.imageLetter.setText(model.getPrName().substring(0, 1));
+        }
+
         viewHolder.binding.lytParent.setActivated(this.selected_items.get(i, false));
 
         viewHolder.binding.lytParent.setOnClickListener(new View.OnClickListener() {
@@ -103,7 +105,7 @@ public class AdapterListProgram extends Adapter<AdapterListProgram.MyViewHolder>
 
     private void displayImage(MyViewHolder viewHolder, RadioProgram inbox) {
         if (inbox.getPrProfile() != null) {
-            Tools.displayImageRound(this.ctx, viewHolder.binding.image, inbox.getPrProfile());
+            Tools.displayUserProfile(this.ctx, viewHolder.binding.image, inbox.getPrProfile(),R.drawable.logo_app);
             viewHolder.binding.image.setColorFilter(null);
             viewHolder.binding.imageLetter.setVisibility(View.GONE);
             return;

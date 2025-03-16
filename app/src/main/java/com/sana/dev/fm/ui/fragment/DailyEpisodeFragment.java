@@ -119,9 +119,9 @@ public class DailyEpisodeFragment extends BaseFragment {
 //        adapter = new AdapterMainProgram(programs, this::onProgramClick);
         adapter = new TimeLineAdapter(requireActivity(), programs);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        recyclerView.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
 
 //        adapter.setOnItemClickListener(this::onProgramClick);
 //        adapter.setOnLongItemClickListener(this::OnItemLongClick);

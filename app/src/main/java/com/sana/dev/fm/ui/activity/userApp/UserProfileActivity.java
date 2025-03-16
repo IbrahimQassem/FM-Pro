@@ -1,4 +1,4 @@
-package com.sana.dev.fm.ui.activity.appuser;
+package com.sana.dev.fm.ui.activity.userApp;
 
 
 import android.app.Activity;
@@ -12,7 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.URLUtil;
-import android.widget.EditText;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -163,6 +162,10 @@ public class UserProfileActivity extends BaseActivity {
             binding.etEmail.setText(_userModel.getEmail());
             binding.etMobile.setText(FmUtilize.trimMobileCode(_userModel.getMobile()));
 
+            if (!Tools.isEmpty(_userModel.getMobile())){
+                Tools.disableEditText(binding.etMobile);
+            }
+
 //            try {
 //                binding.etPassword.setText(AESCrypt.decrypt(_userModel.getPassword()));
 //            } catch (Exception e) {
@@ -180,9 +183,9 @@ public class UserProfileActivity extends BaseActivity {
 //            Tools.setTextOrHideIfEmpty(binding.etEmail, null);
 
             if (_userModel.getAuthMethod() != null && _userModel.getAuthMethod().equals(AuthMethod.SMS)) {
-                disableEditText(binding.etMobile);
+                Tools.disableEditText(binding.etMobile);
             } else if (_userModel.getAuthMethod() != null && _userModel.getAuthMethod().equals(AuthMethod.EMAIL)) {
-                disableEditText(binding.etEmail);
+                Tools.disableEditText(binding.etEmail);
             }
 
             if (URLUtil.isValidUrl(_userModel.getPhotoUrl()))
@@ -234,14 +237,6 @@ public class UserProfileActivity extends BaseActivity {
                 saveUserData();
             }
         });
-    }
-
-    private void disableEditText(EditText editText) {
-        editText.setFocusable(false);
-        editText.setEnabled(false);
-        editText.setCursorVisible(true);
-        editText.setKeyListener(null);
-//        editText.setBackgroundColor(Color.TRANSPARENT);
     }
 
     private void initToolbar() {

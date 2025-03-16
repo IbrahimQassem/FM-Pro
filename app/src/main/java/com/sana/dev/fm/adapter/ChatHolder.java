@@ -102,7 +102,7 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 //            LogUtility.d(TAG, "date  getDateEnd : " + new Gson().toJson(FmUtilize.modifyDateLayout(episode.getDateTimeModel().getDateEnd())));
 //        }
 //        tv_time.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
-        Tools.displayImageRound(ctx, binding.civLogo, episode.getEpProfile());
+        Tools.displayUserProfile(ctx, binding.civLogo, episode.getEpProfile(),R.drawable.logo_app);
         Tools.displayImageOriginal(ctx, binding.ivBanner, episode.getEpProfile());
 
 

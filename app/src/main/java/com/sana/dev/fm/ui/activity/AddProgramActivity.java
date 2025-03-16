@@ -349,7 +349,7 @@ public class AddProgramActivity extends BaseActivity {
             showToast(getString(R.string.most_login));
             return;
         } else if (binding.etStation.getText().toString().trim().isEmpty()) {
-            showSnackBar(getString(R.string.error_please_select_radio_station));
+            showSnackBar(getString(R.string.error_no_station_selected));
             return;
         } else if (binding.titPrName.getText().toString().trim().isEmpty()) {
             binding.titPrName.setError(getString(R.string.error_empty_field_not_allowed));

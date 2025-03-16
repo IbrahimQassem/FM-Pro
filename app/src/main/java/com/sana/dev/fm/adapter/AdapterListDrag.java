@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemDragBinding;
 import com.sana.dev.fm.model.RadioInfo;
@@ -27,14 +26,14 @@ import java.util.Collections;
 import java.util.List;
 
 public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements DragItemTouchHelper.MoveHelperAdapter {
-
-    private List<RadioInfo> items = new ArrayList<>();
-    private FirebaseFirestore db;
+    private List<RadioInfo> data = new ArrayList<>();
+    private List<RadioInfo> filteredData= new ArrayList<>(); // Copy of the original data for filtering
     private final Context ctx;
     private OnClickListener onClickListener = null;
     private OnItemLongClick onLongClickListener = null;
     private OnStartDragListener mDragStartListener = null;
     private OnCheckedChangeListener mCheckedChangeListener = null;
+
 
     public interface OnStartDragListener {
         void onStartDrag(RecyclerView.ViewHolder viewHolder, RadioInfo obj, int position);
@@ -53,9 +52,16 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public AdapterListDrag(Context context, List<RadioInfo> items) {
-        this.items = items;
+        this.data = items;
+        this.filteredData = new ArrayList<>(items); // Copy of the original list
         ctx = context;
-        this.db = FirebaseFirestore.getInstance();
+    }
+
+    public void updateItemList(List<RadioInfo> items) {
+        List<RadioInfo> newList = items != null ? new ArrayList<>(items) : new ArrayList<>();
+        data = newList;
+        this.filteredData = new ArrayList<>(items); // Copy of the original list
+        notifyDataSetChanged();
     }
 
     public void setDragListener(OnStartDragListener dragStartListener) {
@@ -96,9 +102,15 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (holder instanceof OriginalViewHolder) {
             final OriginalViewHolder view = (OriginalViewHolder) holder;
 
-            final RadioInfo model = items.get(position);
+            final RadioInfo model = filteredData.get(position);
+
+            String currentDate = FmUtilize.getFormattedDate(model.getCreateAt());
+            String currentTime = FmUtilize.getFormattedTime(model.getCreateAt());
+
+//            Tools.setTextOrHideIfEmpty(holder.mBinding.tvTime, currentTime);
+
             view.binding.tvTitle.setText(model.getName()+" - "+model.getRadioId());
-            Tools.setTextOrHideIfEmpty( view.binding.tvDesc, /*model.getChannelFreq() + "\n"+*/ model.getDesc() + "\n" + FmUtilize.stringToDate(model.getCreateAt()));
+            Tools.setTextOrHideIfEmpty( view.binding.tvDesc, /*model.getChannelFreq() + "\n"+*/ model.getDesc() + "\n" + currentDate +" - " + currentTime);
             view.binding.tvPriority.setText(model.getChannelFreq());
             view.binding.priorityText.setText(ctx.getString(R.string.label_priority,model.getPriority()));
             view.binding.tvDate.setText(ctx.getString(R.string.label_index)+ (position + 1));
@@ -173,20 +185,34 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
             });
 
         }
-
-
     }
 
     @Override
     public int getItemCount() {
-        return items.size();
+        return filteredData.size();
     }
 
     @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
-        Collections.swap(items, fromPosition, toPosition);
+        Collections.swap(filteredData, fromPosition, toPosition);
         notifyItemMoved(fromPosition, toPosition);
         notifyDataSetChanged();
         return true;
+    }
+
+    public void filter(String query) {
+        filteredData.clear();
+        if (query.isEmpty()) {
+            filteredData.addAll(data); // Show all items if query is empty
+        } else {
+            query = query.toLowerCase();
+            for (RadioInfo item : data) {
+                if (item.getName().toLowerCase().contains(query) ||
+                        item.getRadioId().toLowerCase().contains(query)) {
+                    filteredData.add(item); // Add matching items
+                }
+            }
+        }
+        notifyDataSetChanged(); // Refresh RecyclerView
     }
 }

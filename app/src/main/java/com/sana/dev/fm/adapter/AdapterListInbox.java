@@ -103,7 +103,7 @@ public class AdapterListInbox extends Adapter<AdapterListInbox.MyViewHolder> {
 
     private void displayImage(MyViewHolder viewHolder, Episode inbox) {
         if (inbox.getEpProfile() != null) {
-            Tools.displayImageRound(this.ctx, viewHolder.binding.image, inbox.getEpProfile());
+            Tools.displayUserProfile(this.ctx, viewHolder.binding.image, inbox.getEpProfile(),R.drawable.logo_app);
             viewHolder.binding.image.setColorFilter(null);
             viewHolder.binding.imageLetter.setVisibility(View.GONE);
             return;

@@ -123,7 +123,6 @@ public class PreferencesManager {
         write(AppConstant.General.RADIO_INFO_LIST, jsonText);
     }
 
-
     public ArrayList<RadioInfo> getRadioList() {
         ArrayList<RadioInfo> list = new ArrayList<>();
         try {

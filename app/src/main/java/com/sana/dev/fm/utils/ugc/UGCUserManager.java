@@ -28,6 +28,7 @@ public class UGCUserManager {
     //    private static final String COLLECTION_REPORTS = "reports";
     private static final String COLLECTION_USER_BLOCKS = "user_blocks";
 
+    // https://stream.zeno.fm/v8l1lqrhmt1tv
     private final FirebaseFirestore db;
     private FirestoreDbUtility firestoreDbUtility;
     private final CommentClickListener listener;
