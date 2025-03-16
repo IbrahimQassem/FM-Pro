@@ -109,18 +109,24 @@
                 android:orientation="vertical">
 
                 <TextView
+                    style="@style/TextRegular"
                     android:visibility="visible"
                     android:id="@+id/tv_desc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="start"
-                    android:lines="2"
-                    android:lineSpacingExtra="4dp"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:lineSpacingExtra="4.5sp"
                     android:padding="@dimen/spacing_middle"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                     android:textColor="@color/grey_40"
-                    tools:text="@string/lorem_ipsum" />
+                    tools:text="@string/dialog_connection_description" />
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/grey_5" />
 
                 <LinearLayout
                     android:visibility="gone"
