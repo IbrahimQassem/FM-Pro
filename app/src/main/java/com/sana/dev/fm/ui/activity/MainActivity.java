@@ -72,10 +72,7 @@ import co.mobiwise.materialintro.shape.ShapeType;
 
 public class MainActivity extends BaseActivity implements CallBackListener, BaseActivity.NetworkStatusCallback {
     private static final String TAG = MainActivity.class.getSimpleName();
-    public static String FRAGMENT_DATA = "transaction_data";
-    public static String FRAGMENT_CLASS = "transaction_target";
-    public static final String ACTION_SHOW_LOADING_ITEM = "action_show_loading_item";
-
+    private final String SELECTED_STATION = "SELECTED_STATION";
     private FirebaseCrashlytics firebaseCrashlytics;
     private FirebaseAnalytics firebaseAnalytics;
     private FloatingActionButton playPauseButton;
@@ -90,9 +87,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     private Fragment fragment1, fragment2, fragment3, active;
 
     // Radio Player Service
-    private String currentStreamUrl = "";
-    private String currentStreamTitle;
-
+    private RadioInfo currentStreamRadio;
     private static final int PERMISSION_REQUEST_CODE = 123;
     private RadioPlayerService radioService;
     private boolean bound = false;
@@ -124,7 +119,6 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
             showToast(title + ": " + message);
         }
     };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -227,12 +221,19 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     private void initializeFirebaseServices() {
         firebaseCrashlytics = FirebaseCrashlytics.getInstance();
         firebaseAnalytics = FirebaseAnalytics.getInstance(this);
-
         if (isAccountSignedIn()) {
             UserModel user = PreferencesManager.getInstance().getUserSession();
             firebaseCrashlytics.setUserId(user.getMobile());
             firebaseAnalytics.setUserId(user.getMobile());
         }
+
+//        Bundle sessionData = new Bundle();
+//        sessionData.putString("sessionId", "06a46c002db947f1bc8065ed973d9f87");
+//        sessionData.putString("firstSessionId", "06a46c002db947f1bc8065ed973d9f87");
+//        sessionData.putInt("sessionIndex", 0);
+//        sessionData.putLong("eventTimestampUs", 1742597892746000L);
+//
+//        FirebaseAnalytics.getInstance(this).logEvent("session_event", sessionData);
     }
 
     private void initializeViews() {
@@ -350,7 +351,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
 
                         String token = task.getResult();
                         PreferencesManager.getInstance().write(AppConstant.General.FIREBASE_FCM_TOKEN, token);
-                        Log.w(TAG, "FCM token: " + token);
+                        Log.i(TAG, "FCM token: " + token);
 
                         if (isAccountSignedIn()) {
                             UserModel userModel = PreferencesManager.getInstance().getUserSession();
@@ -396,13 +397,13 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("currentStreamUrl", currentStreamUrl);
-        outState.putString("currentStreamTitle", currentStreamTitle);
+        outState.putSerializable(SELECTED_STATION, currentStreamRadio);
     }
 
     private void restoreInstanceState(Bundle savedInstanceState) {
-        currentStreamUrl = savedInstanceState.getString("currentStreamUrl");
-        currentStreamTitle = savedInstanceState.getString("currentStreamTitle");
+        if (savedInstanceState != null) {
+            currentStreamRadio = (RadioInfo) savedInstanceState.getSerializable(SELECTED_STATION);
+        }
     }
 
     @Override
@@ -481,7 +482,9 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         if (PreferencesManager.getInstance().selectedRadio() != null) {
             RadioInfo info = PreferencesManager.getInstance().selectedRadio();
 // Metadata metadata = new Metadata(info.getName(), info.getName(), info.getChannelFreq(), info.getName(), info.getStreamUrl());
-            changeStation(info.getStreamUrl(), info.getName() + " " + info.getChannelFreq());
+            changeStation(info);
+            // Example: Log when a user selects a station
+//            analytics.logSelectStation(info.getName(), , 1500);
         } else {
             showToast(getString(R.string.error_no_station_selected));
         }
@@ -500,52 +503,20 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         });
     }
 
-    // Method to change the radio station
-    public void changeStationZ(String newStreamUrl, String newTitle) {
-//        boolean isSameStation = currentStreamUrl.equals(newStreamUrl);
-        currentStreamUrl = newStreamUrl;
-        currentStreamTitle = newTitle;
-
-        try {
-            if (bound && radioService != null) {
-                if (!radioService.isPlaying()) {
-                    radioService.setStreamUrl(currentStreamUrl);
-                    radioService.setStreamTitle(currentStreamTitle);
-                    radioService.startPlayback();
-                } else {
-                    radioService.stop();
-
-//                    if (isSameStation) {
-//                        radioService.pause();
-//                    } else {
-//                        radioService.stop();
-//                    }
-                }
-                updatePlayButtonState();
-            } else {
-                showToast(String.format("%s", getResources().getString(R.string.msg_no_stream, PreferencesManager.getInstance().selectedRadio().getName())));
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "Error startPlay : " + e.getMessage());
-            showToast(getString(R.string.unkon_error_please_try_again_later));
-        }
-    }
-
-    public void changeStation(String newStreamUrl, String newTitle) {
+    public void changeStation(RadioInfo newRadioInfo) {
         if (PreferencesManager.getInstance().selectedRadio() == null) {
             showToast(getString(R.string.error_no_station_selected));
             return;
         }
 
-        boolean isSameStation = newStreamUrl.equals(currentStreamUrl);
-        currentStreamUrl = newStreamUrl;
-        currentStreamTitle = newTitle;
+        boolean isSameStation = newRadioInfo.equals(currentStreamRadio);
+
+        currentStreamRadio = newRadioInfo;
 
         try {
             if (bound && radioService != null) {
                 if (!radioService.isPlaying()) {
-                    radioService.setStreamUrl(currentStreamUrl);
-                    radioService.setStreamTitle(currentStreamTitle);
+                    radioService.setRadioStreamInfo(currentStreamRadio);
                     radioService.startPlayback();
                 } else {
                     if (isSameStation) {
@@ -556,11 +527,12 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
                         if (!bound) {
                             bindRadioService();
                         }
-                        radioService.setStreamUrl(currentStreamUrl);
-                        radioService.setStreamTitle(currentStreamTitle);
+                        radioService.setRadioStreamInfo(currentStreamRadio);
                         radioService.startPlayback();
                     }
                 }
+
+
                 updatePlayButtonState();
             } else {
 //                showNoStreamToast();
@@ -569,8 +541,42 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         } catch (Exception e) {
             Log.e(TAG, "Error in changeStation: " + e.getMessage());
 //            showErrorToast(e.getMessage());
-            showToast("!"+String.format("%s", getResources().getString(R.string.msg_no_stream, PreferencesManager.getInstance().selectedRadio().getName())));
+            showToast("!" + String.format("%s", getResources().getString(R.string.msg_no_stream, PreferencesManager.getInstance().selectedRadio().getName())));
         }
+
+        /*      if (bound && radioService != null) {
+
+                if (!isSameStation && radioService.isPlaying()) {
+                    radioService.stop();
+                    // Rebind service if unbound
+                    if (!bound) {
+                        bindRadioService();
+                    }
+                    radioService.setRadioStreamInfo(currentStreamRadio);
+                    radioService.startPlayback();
+                } else if (!radioService.isPlaying()) {
+                    radioService.setRadioStreamInfo(currentStreamRadio);
+                    radioService.startPlayback();
+                } else {
+                    if (isSameStation) {
+                        radioService.pause();
+                    } else {
+                        radioService.stop();
+                        // Rebind service if unbound
+                        if (!bound) {
+                            bindRadioService();
+                        }
+                        radioService.setRadioStreamInfo(currentStreamRadio);
+                        radioService.startPlayback();
+                    }
+                }
+
+
+                updatePlayButtonState();
+            } else {
+//                showNoStreamToast();
+                showToast(String.format("%s", getResources().getString(R.string.msg_no_stream, PreferencesManager.getInstance().selectedRadio().getName())));
+            }*/
     }
 
     public void selectTab(@IdRes int itemId) {
@@ -744,8 +750,10 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         _dailyEpisodeFragment.refresh();
 
 
-        if (radioService.isPlaying()) {
-            radioService.stop();
+        if (bound && radioService != null) {
+            if (radioService.getCurrentState() == RadioPlayerService.PlayerState.PLAYING || radioService.getCurrentState() == RadioPlayerService.PlayerState.PAUSED) {
+                radioService.stop();
+            }
         }
     }
 
@@ -757,7 +765,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
 
     @Override
     public void onNetworkChanged(boolean isConnected) {
-        LogUtility.e(TAG, "Internet is Connected : " + isConnected);
+//        LogUtility.i(TAG, "Internet is Connected : " + isConnected);
         updateOnlineFlag();
 //        if (!isConnected) {
 //            showToast(getString(R.string.check_internet_connection));

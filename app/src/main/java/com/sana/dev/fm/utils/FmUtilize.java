@@ -46,11 +46,7 @@ import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioProgram;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
@@ -78,7 +74,6 @@ import java.util.concurrent.ExecutionException;
  * Created by  on 05.11.14.
  */
 public class FmUtilize {
-
     public static final Locale arabicFormat = new Locale("ar", "SA");  // Arabic language. Saudi Arabia cultural norms.
     public static final Locale englishFormat = new Locale("en", "En"); // Locale.ENGLISH
     public static final SimpleDateFormat month_date = new SimpleDateFormat("MMMM", arabicFormat);
@@ -220,7 +215,7 @@ public class FmUtilize {
 
     public static String timeDifference(long startTime, long endTime, Locale locale) {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", locale);
+            SimpleDateFormat sdf = new SimpleDateFormat(_timeFormat, locale);
             String _startDate = sdf.format(startTime);
             String _endDate = sdf.format(endTime);
 
@@ -279,7 +274,11 @@ public class FmUtilize {
     public static String getTDateFormat(Date date) {
         SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat(_dateFormat, Locale.ENGLISH);
         return ISO_8601_FORMAT.format(date);
+    }
 
+    public static String getTDateFormat(Date date,String format) {
+        SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat(format, Locale.ENGLISH);
+        return ISO_8601_FORMAT.format(date);
     }
 
     public static String getDayName(Date date) {
@@ -1001,11 +1000,14 @@ public class FmUtilize {
     }
 
 
-    public static String getFirebaseToken(Context context) {
-//        return PreferencesManager.getInstance().write(FirebaseConstants.DEVICE_TOKEN,null);
+    public static String getFirebaseToken() {
         String token = PreferencesManager.getInstance().read(AppConstant.General.FIREBASE_FCM_TOKEN, null);
         return token;
-//        return context.getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(AppConstant.General.FIREBASE_FCM_TOKEN, null);
+    }
+
+    public static String getFirebaseInstallationId() {
+        String token = PreferencesManager.getInstance().read(AppConstant.General.FIREBASE_INSTALLATION_ID, null);
+        return token;
     }
 
     public static Bitmap resizeImage(Context context, int resourceId, int targetWidth, int targetHeight) {

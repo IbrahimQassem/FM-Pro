@@ -30,6 +30,7 @@ import com.sana.dev.fm.utils.SnackBarUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.UserGuide;
 import com.sana.dev.fm.utils.my_firebase.AppGeneralMessage;
+import com.sana.dev.fm.utils.my_firebase.RadioAnalytics;
 import com.sana.dev.fm.utils.network.CheckInternetConnection;
 import com.sana.dev.fm.utils.network.ConnectionChangeListener;
 
@@ -38,11 +39,10 @@ import com.sana.dev.fm.utils.network.ConnectionChangeListener;
  */
 public class BaseActivity extends AppCompatActivity implements BaseView {
 //    private static final String TAG = BaseActivity.class.getSimpleName();
-
     public PreferencesManager prefMgr;
     public AppRemoteConfig remoteConfig;
     SnackBarUtility sbHelp;
-
+    RadioAnalytics analytics;
     protected CheckInternetConnection connectionChecker;
     UserGuide userGuide;
     protected NetworkStatusCallback networkStatusCallback;
@@ -89,6 +89,7 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
         prefMgr = PreferencesManager.getInstance();
         userGuide = new UserGuide(this);
         remoteConfig = Tools.getAppRemoteConfig();
+        analytics = new RadioAnalytics(this);
         setupToolbar();
     }
 

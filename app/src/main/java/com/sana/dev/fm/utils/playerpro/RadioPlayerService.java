@@ -19,34 +19,46 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.sana.dev.fm.FmApplication;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.model.RadioInfo;
+import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.LogUtility;
+import com.sana.dev.fm.utils.PreferencesManager;
+import com.sana.dev.fm.utils.my_firebase.StationManager;
 
 import java.io.IOException;
 
 public class RadioPlayerService extends Service {
+    private static final String TAG = RadioPlayerService.class.getSimpleName();
     private static final String CHANNEL_ID = "radio_playback_channel";
     public static final String ACTION_NOTIFICATION_PERMISSION_REQUIRED = "com.sana.dev.fm.utils.playerpro.action.NOTIFICATION_PERMISSION_REQUIRED";
     private static final int NOTIFICATION_ID = 1;
-
     private MediaSessionCompat mediaSession;
     private MediaPlayer mediaPlayer;
     private boolean isPlaying = false;
-    private String streamTitle = "";
-    private String streamUrl = ""; // Your stream URL
+    private RadioInfo streamRadio;
     private FloatingActionButton playPauseButton;
     private PlayerState currentState = PlayerState.STOPPED;
 
-    private enum PlayerState {
+    // Log analytics
+    private StationManager stationManager;
+    UserModel userModel;
+
+    // When playback starts
+    private long playbackStartElapsed;
+    private long totalElapsedTime;
+
+    public enum PlayerState {
         PLAYING, PAUSED, STOPPED
     }
 
@@ -67,6 +79,8 @@ public class RadioPlayerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        stationManager = new StationManager();
+        userModel = PreferencesManager.getInstance().getUserSession();
         createNotificationChannel();
         initializeMediaSession();
         initializeMediaPlayer();
@@ -128,19 +142,16 @@ public class RadioPlayerService extends Service {
         });
 
         mediaPlayer.setOnErrorListener((mp, what, extra) -> {
-            LogUtility.e(FmApplication.TAG, "MediaPlayer error: what=" + what + ", extra=" + extra);
+            LogUtility.e(TAG, "MediaPlayer error: what=" + what + ", extra=" + extra);
+//            Toast.makeText(this, "MediaPlayer error: what=" + what + ", extra=" + extra, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, String.format("%s", getResources().getString(R.string.msg_no_stream, streamRadio.getName())), Toast.LENGTH_SHORT).show();
             stop(); // Stop and clean up on error
             return true;
         });
     }
 
-
-    public void setStreamUrl(String url) {
-        this.streamUrl = url;
-    }
-
-    public void setStreamTitle(String title) {
-        this.streamTitle = title;
+    public void setRadioStreamInfo(RadioInfo radioInfo) {
+        this.streamRadio = radioInfo;
         updateNotification();
     }
 
@@ -165,19 +176,19 @@ public class RadioPlayerService extends Service {
         }
 
         try {
-            if (streamUrl == null || streamUrl.isEmpty()) {
-                LogUtility.e(FmApplication.TAG, "Stream URL is null or empty");
+            if (streamRadio == null || streamRadio.getStreamUrl().isEmpty()) {
+                LogUtility.w(TAG, "Stream URL is null or empty");
                 return;
             }
 
-            mediaPlayer.setDataSource(streamUrl); // Set the data source
+            mediaPlayer.setDataSource(streamRadio.getStreamUrl()); // Set the data source
             mediaPlayer.prepareAsync(); // Prepare asynchronously
         } catch (IOException e) {
-            LogUtility.e(FmApplication.TAG, "Error setting data source: " + e.getMessage());
+            LogUtility.e(TAG, "Error setting data source: " + e.getMessage());
             e.printStackTrace();
             stop(); // Stop and clean up on error
-        } catch (IllegalStateException e) {
-            LogUtility.e(FmApplication.TAG, "IllegalStateException: " + e.getMessage());
+        } catch (Exception e) {
+            LogUtility.e(TAG, "IllegalStateException: " + e.getMessage());
             e.printStackTrace();
             stop(); // Stop and clean up on error
         }
@@ -190,6 +201,12 @@ public class RadioPlayerService extends Service {
             currentState = PlayerState.PLAYING;
             updatePlaybackState();
             updateNotification();
+            // When a user starts listening to a station:
+            playbackStartElapsed = SystemClock.elapsedRealtime();
+
+            String userId = userModel != null && userModel.getUserId() != null ? userModel.getUserId() : null;
+            String radioId = streamRadio != null && streamRadio.getRadioId() != null ? streamRadio.getRadioId() : " ";
+            stationManager.addListener(radioId, userId);
         }
     }
 
@@ -200,6 +217,7 @@ public class RadioPlayerService extends Service {
             currentState = PlayerState.PAUSED;
             updatePlaybackState();
             updateNotification();
+            totalElapsedTime += SystemClock.elapsedRealtime() - playbackStartElapsed;
         }
     }
 
@@ -213,13 +231,37 @@ public class RadioPlayerService extends Service {
             updatePlaybackState();
             stopForeground(true);
             stopSelf();
+
+            // When a user stops listening, calculate the listen duration and update:
+            // When playback stops
+            long listenTime = calculateCurrentListenTime();/// 1000; // Convert to seconds
+
+            String userId = userModel != null && userModel.getUserId() != null ? userModel.getUserId() : null;
+            String newRadioId = streamRadio != null && streamRadio.getRadioId() != null ? streamRadio.getRadioId() : " ";
+            stationManager.updateListenTime(newRadioId, userId, listenTime);
+
+            //                        // When a user skips a song or marks a station as a favorite:
+//                        stationManager.incrementSkips(newRadioId,userId);
+//                        stationManager.incrementFavorites(newRadioId,userId);
+//                        if (lastStartTime > 0) {
+//                            totalListenTime += (System.currentTimeMillis() - lastStartTime);
+//                            lastStartTime = 0;
+//                        }
         }
+    }
+
+    public long calculateCurrentListenTime() {
+        if (isPlaying) {
+            return totalElapsedTime + (SystemClock.elapsedRealtime() - playbackStartElapsed);
+        }
+        return totalElapsedTime;
     }
 
     public void setPlayPauseButton(FloatingActionButton button) {
         this.playPauseButton = button;
         updatePlayPauseButton();
     }
+
     private void updatePlayPauseButton() {
         if (playPauseButton != null) {
             playPauseButton.post(() -> {
@@ -286,6 +328,7 @@ public class RadioPlayerService extends Service {
         Bitmap largeIcon = BitmapFactory.decodeResource(getResources(),
                 R.mipmap.ic_launcher_round);
 
+        String streamTitle = streamRadio != null && streamRadio.getName() != null ? streamRadio.getName() + "-" + streamRadio.getChannelFreq() : " ";
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(streamTitle)
                 .setContentText(isPlaying ?
@@ -374,5 +417,9 @@ public class RadioPlayerService extends Service {
 
     public boolean isPlaying() {
         return isPlaying;
+    }
+
+    public PlayerState getCurrentState() {
+        return currentState;
     }
 }

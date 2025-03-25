@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.installations.FirebaseInstallations;
+import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.MyContextWrapper;
 import com.sana.dev.fm.utils.PreferencesManager;
 
@@ -49,7 +50,9 @@ public class FmApplication extends Application {
                 if (!task.isSuccessful()) {
                     return;
                 }
-                Log.i("FirebaseInstallations", task.getResult() + "");
+                String token = task.getResult();
+                PreferencesManager.getInstance().write(AppConstant.General.FIREBASE_INSTALLATION_ID, token);
+                Log.i(TAG, "FirebaseInstallations Id: " + token);
 
             }
         });

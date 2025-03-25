@@ -141,7 +141,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
         String phoneNumber = firebaseUser.getPhoneNumber();
         String photoUrl = firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : null;
 
-        UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.GOOGLE, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>(),String.valueOf(System.currentTimeMillis()));
+        UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.GOOGLE, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(),FmUtilize.getFirebaseInstallationId(), null, new ArrayList<>(),String.valueOf(System.currentTimeMillis()));
         userModel.setVerified(true);
         prefMgr.setUserSession(userModel);
 //        showToast(getString(R.string.login_successfully));
@@ -250,7 +250,6 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
         boolean isAuthEmailEnable = remoteConfig != null && remoteConfig.isAuthEmailEnable();
         boolean isAuthGoogleEnable = remoteConfig != null && remoteConfig.isAuthGoogleEnable();
 
-        //            binding.loginButtonFacebook.setVisibility(remoteConfig.isFacebookEnable() ? VISIBLE : View.GONE);
         binding.btFacebookLogin.setVisibility(isAuthFacebookEnable ? VISIBLE : View.GONE);
         binding.btGoogleLogin.setVisibility(isAuthGoogleEnable ? VISIBLE : View.GONE);
         binding.btEmailLogin.setVisibility(isAuthEmailEnable ? VISIBLE : View.GONE);
@@ -321,7 +320,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
                             String phoneNumber = firebaseUser.getPhoneNumber();
                             String photoUrl = firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : null;
 
-                            UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.FACEBOOK, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>(),String.valueOf(System.currentTimeMillis()));
+                            UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.FACEBOOK, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(), FmUtilize.getFirebaseInstallationId(), null, new ArrayList<>(),String.valueOf(System.currentTimeMillis()));
                             userModel.setVerified(true);
                             prefMgr.setUserSession(userModel);
 //                            showToast(getString(R.string.login_successfully));

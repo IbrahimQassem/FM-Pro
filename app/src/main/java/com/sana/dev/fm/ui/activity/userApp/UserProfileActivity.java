@@ -391,7 +391,8 @@ public class UserProfileActivity extends BaseActivity {
 
                 userModel.setGender(gender);
                 userModel.setDeviceToken(FmUtilize.getIMEIDeviceId(this));
-                userModel.setNotificationToken(FmUtilize.getFirebaseToken(this));
+                userModel.setNotificationToken(FmUtilize.getFirebaseToken());
+                userModel.setFirebaseInstallationId(FmUtilize.getFirebaseInstallationId());
 //            updateUser(user);
                 Log.d(TAG, "before submit : " + userModel.toString());
                 Map<String, Object> data = new HashMap<>();

@@ -46,6 +46,7 @@ import java.util.Random;
 
 public class AppFCMMessagingService extends FirebaseMessagingService {
     private static final String TAG = LogUtility.tag(AppFCMMessagingService.class);
+    private final static String CHANNEL_NOTIFICATION_MESSAGE = "notification_message";
 
     @Override
     public void onNewToken(@NonNull String token) {
@@ -56,8 +57,6 @@ public class AppFCMMessagingService extends FirebaseMessagingService {
     private void sendRegistrationToServer(String token) {
         PreferencesManager.getInstance().write(AppConstant.General.FIREBASE_FCM_TOKEN, token);
     }
-
-    private final static String CHANNEL_NOTIFICATION_MESSAGE = "notification_message";
 
     Handler mHandler;
 

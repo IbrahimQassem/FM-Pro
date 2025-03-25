@@ -41,6 +41,7 @@ public class AppConstant {
         //    public static final String CHANNEL_NAME = "Simplified  Notification";
 //    public static final String CHANNEL_DESCRIPTION = "www.sanaadev.net";
         public static final String FIREBASE_FCM_TOKEN = "firebaseFmcToken";
+        public static final String FIREBASE_INSTALLATION_ID = "firebaseInstallationId";
         public static final String FIREBASE_NOTIFICATION = "firebaseNotification";
         public static final String USER_INFO = "userInfo";
         public static final String RADIO_INFO_LIST = "radioInfoList";
@@ -65,6 +66,7 @@ public class AppConstant {
         public static final  String ALERT_TABLE = "Alert";
         public static final String REPORTS_TABLE = "Reports";
         public static final String COLLECTION_USER_BLOCKS = "UserBlocks";
+        public static final String COLLECTION_DAILY_LISTENERS = "daily_listeners2";
 
 
     }

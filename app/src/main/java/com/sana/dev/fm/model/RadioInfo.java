@@ -21,24 +21,24 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class RadioInfo implements Serializable {
-
     private int id;
-    //    @DocumentId
     private String radioId;
-    private String name, desc, streamUrl, logo, tag, city, channelFreq, enName, createBy, createAt;
-    private int programsCount, followers, subscribers, rating, priority;
+    private String name, desc, slogan, streamUrl, logo, tag, country, city, channelFreq, enName, genre, createBy, createAt;
+    private int programsCount, followers, subscribers, rating, priority, listener_count;
     private boolean isOnline, disabled, isBlueBadge;
 
     public RadioInfo() {
 
     }
 
-    public RadioInfo(String radioId, String name, String desc, String streamUrl, String logo, String tag, int programs, int followers, int subscribers, int rating, int priority, boolean isOnline, boolean disabled, boolean isBlueBadge, String city, String channelFreq, String enName, String createBy, String createAt) {
+    public RadioInfo(String radioId, String name, String desc, String slogan, String streamUrl, String logo, String tag, int programs, int followers, int subscribers, int rating, int priority, boolean isOnline, boolean disabled, boolean isBlueBadge, String country, String city, String channelFreq, String enName, String createBy, String createAt, String genre, int listener_count) {
         this.radioId = radioId;
         this.name = name;
         this.desc = desc;
+        this.slogan = slogan;
         this.streamUrl = streamUrl;
         this.logo = logo;
         this.tag = tag;
@@ -50,17 +50,19 @@ public class RadioInfo implements Serializable {
         this.isOnline = isOnline;
         this.disabled = disabled;
         this.isBlueBadge = isBlueBadge;
+        this.country = country;
         this.city = city;
         this.channelFreq = channelFreq;
         this.enName = enName;
         this.createBy = createBy;
         this.createAt = createAt;
+        this.genre = createAt;
+        this.listener_count = listener_count;
     }
 
-    public static RadioInfo newInstance(String radioId, String name, String desc, String streamUrl, String logo, String tag, String city, String channelFreq, String enName, String createBy, boolean disabled) {
-        return new RadioInfo(radioId, name, desc, streamUrl, logo, tag, 1, 1, 1, 1, 1, false, true, disabled, city, channelFreq, enName, createBy, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat));
+    public static RadioInfo newInstance(String radioId, String name, String desc,  String slogan, String streamUrl, String logo, String tag, String country, String city, String channelFreq, String enName, String createBy, boolean disabled) {
+        return new RadioInfo(radioId, name, desc, slogan, streamUrl, logo, tag, 1, 1, 1, 1, 1, false, true, disabled, country,  city, channelFreq, enName, createBy, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), null, 0);
     }
-
 
     @Exclude
     @Override
@@ -72,6 +74,27 @@ public class RadioInfo implements Serializable {
         Gson gson = new Gson();
         String json = gson.toJson(this);
         return json;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        // 1. Check if same instance
+        if (this == o) return true;
+
+        // 2. Check null and class type
+        if (o == null || getClass() != o.getClass()) return false;
+
+        // 3. Cast and compare fields
+        RadioInfo that = (RadioInfo) o;
+        return  Objects.equals(channelFreq, that.channelFreq) &&
+                Objects.equals(radioId, that.radioId) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(streamUrl, that.streamUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(radioId, name, streamUrl, channelFreq);
     }
 
     public static class RadioInfoPriorityComparator implements Comparator<RadioInfo> {
@@ -170,7 +193,7 @@ public class RadioInfo implements Serializable {
 //            RadioInfo radi47 = RadioInfo.newInstance("1047", "temp", "", "", "", "@", "", "", "", usId, false);
 //            RadioInfo radi48 = RadioInfo.newInstance("1048", "temp", "", "", "", "@", "", "", "", usId, false);
 //            RadioInfo radi49 = RadioInfo.newInstance("1049", "temp", "", "", "", "@", "", "", "", usId, false);
-            RadioInfo radi50 = RadioInfo.newInstance("1050", "temp", "", "", "", "@", "", "", "", usId, false);
+            RadioInfo radi50 = RadioInfo.newInstance("1050", "temp", "", "", "", "", "@", "", "", "", "", usId, false);
 
 
             List<RadioInfo> infos = new ArrayList<>();
@@ -321,6 +344,14 @@ public class RadioInfo implements Serializable {
         this.desc = desc;
     }
 
+    public String getSlogan() {
+        return slogan;
+    }
+
+    public void setSlogan(String slogan) {
+        this.slogan = slogan;
+    }
+
     public String getStreamUrl() {
         return streamUrl;
     }
@@ -417,6 +448,14 @@ public class RadioInfo implements Serializable {
         this.city = city;
     }
 
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
     public String getChannelFreq() {
         return channelFreq;
     }
@@ -447,6 +486,22 @@ public class RadioInfo implements Serializable {
 
     public void setCreateAt(String createAt) {
         this.createAt = createAt;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public int getListener_count() {
+        return listener_count;
+    }
+
+    public void setListener_count(int listener_count) {
+        this.listener_count = listener_count;
     }
 }
 

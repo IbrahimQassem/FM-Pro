@@ -131,11 +131,11 @@
             android:name=".ui.activity.userApp.EmailLoginActivity"
             android:exported="false"
             android:screenOrientation="portrait"/>
-        <activity
-            android:name=".ui.activity.CommentsUGCActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            />
+<!--        <activity-->
+<!--            android:name=".ui.activity.CommentsUGCActivity"-->
+<!--            android:exported="true"-->
+<!--            android:screenOrientation="portrait"-->
+<!--            />-->
 
         <activity
             android:name="com.facebook.FacebookActivity"
