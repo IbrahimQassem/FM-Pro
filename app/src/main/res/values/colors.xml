@@ -36,6 +36,7 @@
     <color name="ic_launcher_background">#FFFFFF</color>
 
     <!--    <color name="mbc">#ac201f</color>-->
+    <color name="default_notification_color">#1E1E1E</color>
 
 
     <color name="btn_send_normal">#02c754</color>

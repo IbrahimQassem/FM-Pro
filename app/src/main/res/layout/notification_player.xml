@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    android:padding="12dp">
+
+    <ImageView
+        android:id="@+id/notification_image"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:paddingStart="@dimen/spacing_small"
+        android:paddingEnd="@dimen/spacing_small"
+        android:src="@drawable/ic_radio"
+        android:tint="@color/colorPrimary" />
+
+    <TextView
+        android:id="@+id/notification_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_toEndOf="@id/notification_image"
+        android:textColor="@color/colorPrimary"
+        android:padding="@dimen/spacing_small"
+        android:layout_margin="@dimen/spacing_small"
+        android:textSize="16sp"
+        tools:text="94.9 إرام" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/notification_title"
+        android:layout_marginStart="16dp"
+        android:layout_toEndOf="@id/notification_image"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/btn_previous"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="@dimen/spacing_small"
+            android:layout_marginEnd="@dimen/spacing_small"
+            android:background="@color/colorPrimary"
+            android:tint="@color/colorAccent"
+            app:srcCompat="@drawable/ic_pause" />
+
+        <ImageButton
+            android:id="@+id/btn_play"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="@dimen/spacing_small"
+            android:layout_marginEnd="@dimen/spacing_small"
+            android:background="@color/colorPrimary"
+            android:tint="@color/colorAccent"
+            app:srcCompat="@drawable/ic_play" />
+
+        <ImageButton
+            android:id="@+id/btn_stop"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="@dimen/spacing_small"
+            android:layout_marginEnd="@dimen/spacing_small"
+            android:background="@color/colorPrimary"
+            android:tint="@color/colorAccent"
+            app:srcCompat="@drawable/ic_stop" />
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -12,6 +12,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioAttributes;
@@ -25,8 +26,12 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.palette.graphics.Palette;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.RadioInfo;
@@ -40,7 +45,6 @@ import java.io.IOException;
 
 public class RadioPlayerService extends Service {
     private static final String TAG = RadioPlayerService.class.getSimpleName();
-    private static final String CHANNEL_ID = "radio_playback_channel";
     public static final String ACTION_NOTIFICATION_PERMISSION_REQUIRED = "com.sana.dev.fm.utils.playerpro.action.NOTIFICATION_PERMISSION_REQUIRED";
     private static final int NOTIFICATION_ID = 1;
     private MediaSessionCompat mediaSession;
@@ -49,6 +53,10 @@ public class RadioPlayerService extends Service {
     private RadioInfo streamRadio;
     private FloatingActionButton playPauseButton;
     private PlayerState currentState = PlayerState.STOPPED;
+    private static final String MEDIA_SESSION_TAG = "com.sana.dev.fm.MEDIA_SESSION";
+    private static final String NOTIFICATION_CHANNEL_ID = "media_playback_channel";
+    private NotificationManager notificationManager;
+    private NotificationCompat.Builder notificationBuilder;
 
     // Log analytics
     private StationManager stationManager;
@@ -89,16 +97,18 @@ public class RadioPlayerService extends Service {
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "Radio Playback",
-                    NotificationManager.IMPORTANCE_LOW);
+                    NOTIFICATION_CHANNEL_ID,
+                    "Media Playback",
+                    NotificationManager.IMPORTANCE_LOW
+            );
 
-            channel.setDescription("Used for radio playback controls");
+            channel.setDescription("Controls for the radio player");
             channel.setShowBadge(false);
+            channel.enableLights(false);
+            channel.enableVibration(false);
             channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
 
-            NotificationManager notificationManager =
-                    getSystemService(NotificationManager.class);
+            notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
     }
@@ -198,6 +208,7 @@ public class RadioPlayerService extends Service {
         if (mediaPlayer != null && !isPlaying) {
             mediaPlayer.start();
             isPlaying = true;
+//            notificationLayout.setImageViewResource(R.id.btn_play, R.drawable.ic_pause);
             currentState = PlayerState.PLAYING;
             updatePlaybackState();
             updateNotification();
@@ -214,6 +225,7 @@ public class RadioPlayerService extends Service {
         if (mediaPlayer != null && isPlaying) {
             mediaPlayer.pause();
             isPlaying = false;
+//            notificationLayout.setImageViewResource(R.id.btn_play, R.drawable.ic_play);
             currentState = PlayerState.PAUSED;
             updatePlaybackState();
             updateNotification();
@@ -301,7 +313,7 @@ public class RadioPlayerService extends Service {
         updatePlayPauseButton();
     }
 
-    private void updateNotification() {
+   /* private void updateNotificationZZ() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -329,7 +341,7 @@ public class RadioPlayerService extends Service {
                 R.mipmap.ic_launcher_round);
 
         String streamTitle = streamRadio != null && streamRadio.getName() != null ? streamRadio.getName() + "-" + streamRadio.getChannelFreq() : " ";
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                 .setContentTitle(streamTitle)
                 .setContentText(isPlaying ?
                         getString(R.string.notification_playing) :
@@ -360,8 +372,7 @@ public class RadioPlayerService extends Service {
                 .setMediaSession(mediaSession.getSessionToken()));
 
         startForeground(NOTIFICATION_ID, builder.build());
-    }
-
+    }*/
 
     private PendingIntent createActionIntent(String action, int requestCode) {
         Intent intent = new Intent(this, RadioPlayerService.class);
@@ -375,7 +386,7 @@ public class RadioPlayerService extends Service {
     }
 
     private void handleNotificationPermissionDenied() {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText(getString(R.string.notification_permission_required))
                 .setSmallIcon(R.drawable.ic_radio)
@@ -421,5 +432,121 @@ public class RadioPlayerService extends Service {
 
     public PlayerState getCurrentState() {
         return currentState;
+    }
+
+    // ... (keep existing constants)
+
+    private void updateNotification() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                handleNotificationPermissionDenied();
+                return;
+            }
+        }
+
+        // Create intent for clicking the notification
+        Intent contentIntent = new Intent(this, MainActivity.class);
+        PendingIntent contentPendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                contentIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        // Create media style
+        androidx.media.app.NotificationCompat.MediaStyle mediaStyle = new androidx.media.app.NotificationCompat.MediaStyle()
+                .setMediaSession(mediaSession.getSessionToken())
+                .setShowActionsInCompactView(0, 1, 2); // Show previous, play/pause, next buttons
+
+        // Create action buttons
+        NotificationCompat.Action previousAction = new NotificationCompat.Action.Builder(
+                R.drawable.ic_action_prev,
+                "Previous",
+                createActionIntent("previous", 1)
+        ).build();
+
+        NotificationCompat.Action playPauseAction = new NotificationCompat.Action.Builder(
+                isPlaying ? R.drawable.ic_pause : R.drawable.ic_play,
+                isPlaying ? getString(R.string.pause) : getString(R.string.play),
+                createActionIntent(isPlaying ? "pause" : "play", 2)
+        ).build();
+
+        NotificationCompat.Action nextAction = new NotificationCompat.Action.Builder(
+                R.drawable.ic_action_next,
+                "Next",
+                createActionIntent("next", 3)
+        ).build();
+
+        // Build the notification
+        notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+                .setStyle(mediaStyle)
+                .setSmallIcon(R.drawable.ic_radio) // Replace with your icon
+                .setLargeIcon(getCurrentArtwork())
+                .setContentTitle(streamRadio != null ? streamRadio.getName() + " " + streamRadio.getChannelFreq() : "")
+                .setContentText(streamRadio != null ? streamRadio.getSlogan() : "")
+                .setColorized(true)
+                .setColor(getBackgroundColor())
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(contentPendingIntent)
+                .setOngoing(isPlaying)
+//                .addAction(previousAction)
+                .addAction(playPauseAction);
+//                .addAction(nextAction);
+
+        // Show the notification
+        startForegroundService();
+    }
+
+    private Bitmap getCurrentArtwork() {
+        if (streamRadio != null && streamRadio.getStreamUrl() != null) {
+            // Implement artwork loading using Glide or similar library
+            try {
+                return Glide.with(this)
+                        .asBitmap()
+                        .load(streamRadio.getLogo())
+                        .placeholder(R.drawable.logo_app)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .submit()
+                        .get();
+            } catch (Exception e) {
+                return BitmapFactory.decodeResource(getResources(), R.drawable.logo_app);
+            }
+        }
+        return BitmapFactory.decodeResource(getResources(), R.drawable.logo_app);
+    }
+
+    private int getBackgroundColor() {
+        // Extract dominant color from artwork
+        Bitmap artwork = getCurrentArtwork();
+        if (artwork != null) {
+            Palette palette = Palette.from(artwork).generate();
+            return palette.getDominantColor(ContextCompat.getColor(this, R.color.default_notification_color));
+        }
+        return ContextCompat.getColor(this, R.color.default_notification_color);
+    }
+
+    private void startForegroundService() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTIFICATION_ID, notificationBuilder.build(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+        } else {
+            startForeground(NOTIFICATION_ID, notificationBuilder.build());
+        }
+    }
+
+    private void updateNotificationPlayState() {
+        if (notificationBuilder != null) {
+            // Update play/pause button
+            notificationBuilder.mActions.set(1, new NotificationCompat.Action.Builder(
+                    isPlaying ? R.drawable.ic_pause : R.drawable.ic_play,
+                    isPlaying ? "Pause" : "Play",
+                    createActionIntent(isPlaying ? "pause" : "play", 2)
+            ).build());
+
+            // Update notification
+            notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
+        }
     }
 }
