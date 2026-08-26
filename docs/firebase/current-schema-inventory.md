@@ -29,7 +29,7 @@ collection، ثم تتكرر بعض أسماء الوثائق والـcollection
 | Program | `/{root}/RadioProgram/{radioId}/RadioProgram/RadioProgram/{programId}` | استعلام، إنشاء، تحديث، حذف |
 | Episode | `/{root}/Episode/{radioId}/Episode/Episode/{epId}` | استعلام، إنشاء، تحديث، حذف |
 | Comment | مسار Episode ثم `/Comment/{commentDocumentId}` | استعلام مرتب، إنشاء، حذف |
-| User | `/{root}/Users/Users/{uid}` | قراءة، merge، تحديث، قائمة إدارية |
+| User | `/{root}/Users/Users/{uid}` | قراءة مباشرة بالـUID، merge، تحديث، قائمة إدارية للمشرف فقط |
 | Advertisement | `/{root}/Advertisement/Advertisement/{advertisementId}` | استعلام وعرض |
 | Destination favorite | مسار User ثم `/favorites/{destinationId}` | قراءة، إنشاء، حذف |
 
@@ -44,7 +44,8 @@ collection، ثم تتكرر بعض أسماء الوثائق والـcollection
   المنشئ والتوقيت والعدادات وحالة disabled.
 - Episode: معرفات المحطة والبرنامج والحلقة، بيانات العرض والبث والمذيع والصورة،
   الجدول والتوقيت والعدادات والإعجابات وحالة disabled.
-- Comment: المعرف، معرف الحلقة، اسم ومعرف الكاتب، النص، الوقت والإعجابات.
+- Comment: المعرف الثابت يساوي document ID، ومعرف الحلقة، اسم ومعرف الكاتب،
+  النص، الوقت والإعجابات.
 - User: UID والاسم والبريد والهاتف والصورة والملف الشخصي والموقع وطريقة
   التوثيق والدور والأذونات، مع معرفات الجهاز ورموز الإشعارات.
 
@@ -59,28 +60,39 @@ collection، ثم تتكرر بعض أسماء الوثائق والـcollection
 ## خدمات Firebase الأخرى
 
 - Authentication: مسارات Google وFacebook وSMS مرصودة، مع تهيئة تدعم email.
-- Storage: `/{BASE_FB_DB}_Folder/{parentDocumentId}/{imageName}` للصور، وتستخدم
-  البرامج عادة `{programId}.jpg`.
+- Storage: `/{BASE_FB_DB}_Folder/{ownerId}/{imageName}`؛ تستخدم صورة الحساب UID
+  كـ`ownerId`، بينما تستخدم صور المحتوى `radioId` ويكتبها admin فقط. روابط الصور
+  القديمة تبقى قابلة للقراءة ولا تحتاج migration فوريًا.
 - Remote Config: المفتاح `hudhudFmAppConfig` مع defaults من
   `res/xml/remote_config_defaults.xml`، ويقرأ إعدادات الدخول والإعلانات
   والإصدار المطلوب.
-- Cloud Messaging: يجلب العميل FCM token ويخزنه محليًا وفي وثيقة المستخدم.
+- Cloud Messaging: يجلب العميل FCM token بعد تسجيل الدخول ويزامنه مع وثيقة
+  المستخدم دون تخزين محلي.
 - Crashlytics: مهيأ ويستعمله مسار بدء التطبيق، لكن مؤشرات الإنتاج غير متاحة
   من المستودع.
 
 ## حدود الأمان الحالية
 
-- لا توجد في المستودع ملفات `firestore.rules` أو `storage.rules` أو
-  `firestore.indexes.json` أو `firebase.json` أو اختبارات Emulator للقواعد.
-- واجهات الإدارة تعتمد حاليًا على `UserType` محفوظ محليًا. هذا يصلح لإخفاء UI
-  فقط ولا يثبت التفويض؛ قواعد Firebase وcustom claims الموثوقة هي السلطة.
+- يملك المستودع `firestore.rules` و`storage.rules` و`firebase.json` و19 اختبار
+  Emulator محليًا. القواعد لم تُنشر إلى أي مشروع Firebase.
+- القراءة العامة محصورة في المحطات والبرامج والحلقات والإعلانات والتعليقات ضمن
+  جذور flavors المعروفة. وثيقة المستخدم خاصة بصاحب UID، وقائمة المستخدمين admin فقط.
+- إنشاء التعليق يثبت UID والمؤلف ومعرف الحلقة والوثيقة والطول؛ التعديل والحذف
+  للمالك أو admin. تفاعل الحلقة يسمح للمستخدم بتغيير مدخل إعجابه وعدّاده فقط.
+- الكتابات الإدارية تعتمد custom claim باسم `admin=true`. يبقى `UserType` المحلي
+  لإظهار UI فقط ولا يمنح أي كتابة في القواعد.
+- رفع المستخدم محصور في مجلد UID وصور أقل من 5 MiB؛ صور المحتوى يكتبها admin.
 - يوجد وصول مباشر إلى Firebase من Activities وFragments وAdapters. يمنع العقد
   إضافة وصول مباشر جديد، وتُنقل المسارات تدريجيًا إلى data source/repository.
+- أزيل جلب ملفات مؤلفي التعليقات من Adapter، وصارت مطابقة الحساب تقرأ وثيقة UID
+  بدل استعلام email/mobile، بينما مر إنشاء التعليق عبر `FirestoreDbUtility`.
 
 ## المدخلات الخارجية اللازمة للإغلاق
 
-1. تصدير قواعد Firestore وStorage والفهارس الفعلية من مالك مشروع Firebase.
-2. إضافة القواعد والفهارس إلى Git واختبارات Emulator لحالات allow/deny.
+1. تصدير قواعد Firestore وStorage والفهارس الفعلية من مالك المشروع ومقارنتها
+   بالقواعد المحلية قبل أي نشر.
+2. توفير خدمة موثوقة لمنح وسحب `admin` custom claim مع سجل تدقيق.
 3. توفير Firebase client صالح لـ`com.sanaadev.internews` أو ADR يوقف النكهة.
 4. جرد production آمن لحقول `password` القديمة وحذفها بأداة إدارية مدققة.
-5. توثيق custom claims ومصدر منح/سحب أدوار الإدارة.
+5. تنفيذ بوابة ما قبل النشر والـrollback في
+   [دليل القواعد](security-rules-runbook.md) بعد تفويض إنتاجي مستقل.

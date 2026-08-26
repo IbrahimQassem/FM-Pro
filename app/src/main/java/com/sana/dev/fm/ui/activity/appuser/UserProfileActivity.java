@@ -383,10 +383,17 @@ public class UserProfileActivity extends BaseActivity {
         // Show loading dialog
         kProgressHUDHelper.showLoading(getString(R.string.please_wait_to_save_your_profile), false);
 
+        UserModel currentUser = prefMgr.getUserSession();
+        if (currentUser == null) {
+            kProgressHUDHelper.dismiss();
+            showToast(getString(R.string.unkon_error_please_try_again_later));
+            return;
+        }
+
         //-------------------------   submit image task    ---------------------------
         StorageHelper storageHelper = new StorageHelper(FirebaseStorage.getInstance());
 
-        storageHelper.submitUserInfo(UserProfileActivity.this, AppConstant.Firebase.USERS_TABLE, imageUri, new StorageHelper.UserSubmittedCallback() {
+        storageHelper.submitUserInfo(UserProfileActivity.this, currentUser.getUserId(), imageUri, new StorageHelper.UserSubmittedCallback() {
             @Override
             public void onSuccess( String mId, String profileImageUrl) {
                 kProgressHUDHelper.dismiss();

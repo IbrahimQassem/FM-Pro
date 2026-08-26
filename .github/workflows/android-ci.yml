@@ -22,7 +22,25 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21 for Firebase emulators
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install Firebase rule test dependencies
+        run: npm ci
+
+      - name: Test Firebase security rules
+        run: npm run emulators:test
+
+      - name: Set up JDK 17 for Android
         uses: actions/setup-java@v5
         with:
           distribution: temurin

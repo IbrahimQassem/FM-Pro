@@ -1,0 +1,42 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isKnownFolder(folder) {
+      return folder == 'HudHudFM_Folder'
+        || folder == 'HudHudFmGooglePlay_Folder'
+        || folder == 'InterNews_Folder';
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.get('admin', false) == true;
+    }
+
+    function isOwner(ownerId) {
+      return isSignedIn() && request.auth.uid == ownerId;
+    }
+
+    function isValidImage() {
+      return request.resource != null
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    match /{folder}/{ownerId}/{fileName} {
+      allow read: if isKnownFolder(folder);
+      allow create, update: if isKnownFolder(folder)
+        && (isAdmin() || isOwner(ownerId))
+        && isValidImage();
+      allow delete: if isKnownFolder(folder)
+        && (isAdmin() || isOwner(ownerId));
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateInterpolator;
@@ -19,10 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Query;
 import com.google.gson.Gson;
 import com.sana.dev.fm.R;
@@ -39,6 +35,7 @@ import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
+import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
 /**
@@ -144,7 +141,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                 .setQuery(query, Comment.class)
                 .build();
 
-        commentsAdapter = new CommentsAdapter(options, this,firestoreDbUtility);
+        commentsAdapter = new CommentsAdapter(options, this);
         commentsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -241,18 +238,19 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                     .collection(AppConstant.Firebase.COMMENT_TABLE);
             String pushKey = colRef.document().getId();
             Comment comment = new Comment(pushKey, epId, currentUser.getName(), binding.etComment.getText().toString().trim(), currentUser.getUserId(), String.valueOf(System.currentTimeMillis()), 0, null);
-            colRef.add(comment).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            firestoreDbUtility.createOrMerge(colRef, pushKey, comment, new CallBack() {
                 @Override
-                public void onSuccess(DocumentReference documentReference) {
+                public void onSuccess(Object object) {
                     binding.etComment.setText(null);
                     binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
                     binding.etComment.setHint(getString(R.string.add_comment));
                     binding.etComment.setHint(String.format(getString(R.string.label_add_comment_as_val), currentUser.getName()));
                 }
-            }).addOnFailureListener(new OnFailureListener() {
+
                 @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.e(TAG, "Error sending comment", e);
+                public void onFailure(Object object) {
+                    binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
+                    showSnackBar(getString(R.string.label_error_occurred));
                 }
             });
         } else {

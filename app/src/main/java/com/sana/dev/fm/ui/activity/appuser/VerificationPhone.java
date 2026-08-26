@@ -19,6 +19,7 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.model.AuthMethod;
 import com.sana.dev.fm.model.ButtonConfig;
@@ -36,11 +37,8 @@ import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
-import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
-import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class VerificationPhone extends BaseActivity {
@@ -127,25 +125,20 @@ public class VerificationPhone extends BaseActivity {
         Intent intent = IntentHelper.userProfileActivity(VerificationPhone.this, true);
 
         FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
-        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
-        firestoreQueryList.add(new FirestoreQuery(
-                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
-                "mobile",
-                FmUtilize.trimMobileCode(userMobile)
-        ));
-
-
         CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
-        firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
+        firestoreDbUtility.getOne(collectionReference, firebaseUser.getUid(), new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                LogUtility.d(LogUtility.TAG, "Success checkUserAuth: " + object);
                 kProgressHUDHelper.dismiss();
 
-                List<UserModel> userModelList = FirestoreDbUtility.getDataFromQuerySnapshot(object, UserModel.class);
-
-                if (userModelList != null && userModelList.size() > 0) {
-                    UserModel user = userModelList.get(0);
+                DocumentSnapshot document = (DocumentSnapshot) object;
+                if (document != null && document.exists()) {
+                    UserModel user = document.toObject(UserModel.class);
+                    if (user == null || !firebaseUser.getUid().equals(user.getUserId())) {
+                        LogUtility.e(LogUtility.TAG, "Invalid user profile document");
+                        showToast(getString(R.string.unkon_error_please_try_again_later));
+                        return;
+                    }
                     // cause user logged with auth
                     user.setVerified(true);
                     user.setAuthMethod(AuthMethod.SMS);
@@ -155,7 +148,7 @@ public class VerificationPhone extends BaseActivity {
                 } else {
                     String uid = firebaseUser.getUid();
                     String name = firebaseUser.getDisplayName();
-                    UserModel obUser = new UserModel(uid, name, null, userMobile, null, FmUtilize.getIMEIDeviceId(VerificationPhone.this), null, null, null, true, false, false, FmUtilize.deviceId(VerificationPhone.this), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.SMS, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), null, null, new ArrayList<>());
+                    UserModel obUser = new UserModel(uid, name, null, userMobile, null, null, null, null, null, true, false, false, null, null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.SMS, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), null, null, new ArrayList<>());
 
                     firestoreDbUtility.createOrMerge(collectionReference, obUser.userId, obUser, new CallBack() {
                         @Override
@@ -167,8 +160,8 @@ public class VerificationPhone extends BaseActivity {
 
                         @Override
                         public void onFailure(Object object) {
-                            LogUtility.e(LogUtility.TAG, "onError : " + object);
-                            showToast(getString(R.string.label_error_occurred_with_val, object.toString()));
+                            LogUtility.e(LogUtility.TAG, "User profile creation failed");
+                            showToast(getString(R.string.unkon_error_please_try_again_later));
                         }
                     });
                 }
@@ -177,8 +170,8 @@ public class VerificationPhone extends BaseActivity {
             @Override
             public void onFailure(Object object) {
                 kProgressHUDHelper.dismiss();
-                LogUtility.d(LogUtility.TAG, "Failure checkUserAuth: " + object);
-                showToast(getString(R.string.label_error_occurred_with_val, object));
+                LogUtility.e(LogUtility.TAG, "User profile lookup failed");
+                showToast(getString(R.string.unkon_error_please_try_again_later));
             }
         });
     }

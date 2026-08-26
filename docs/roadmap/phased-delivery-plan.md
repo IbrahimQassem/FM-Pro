@@ -45,21 +45,22 @@
 
 | إجمالي الحزم | done | in progress | blocked | not started |
 |---:|---:|---:|---:|---:|
-| 41 | 5 | 2 | 3 | 31 |
+| 41 | 6 | 2 | 3 | 30 |
 
 ## نافذة التنفيذ التالية
 
-1. `P1-04`: إضافة Rules واختبارات Firebase Emulator دون نشر إنتاجي.
-2. `P0-04`: إكمال baseline لبدء الصوت والذاكرة على المحاكي.
-3. `P1-06`: تحويل نتائج الشرائح السابقة إلى smoke regression tests.
-4. `P1-05`: جرد حقول الإنتاج وحذف legacy password بعد تفويض مستقل.
+1. `P0-04`: إكمال baseline لبدء الصوت والذاكرة على المحاكي.
+2. `P1-06`: تحويل نتائج الشرائح السابقة إلى smoke regression tests.
+3. `P1-05`: جرد حقول الإنتاج وحذف legacy password بعد تفويض مستقل.
+4. `P2-01`: بدء نماذج domain ونتائج الأخطاء بعد تثبيت عقد القواعد.
 
 تبقى `P1-03` و`P0-05` و`P0-06` محجوبة ببيانات/إعدادات أو تفويض خارجي.
 
 ## خط الأساس الحالي
 
 - 151 ملف Java رئيسي و60 layout XML.
-- ثلاثة ملفات unit test تحتوي 9 اختبارات لقرارات البدء وتنظيف الجلسة المحلية.
+- ثلاثة ملفات Java unit تحتوي 9 اختبارات، وملفا Firebase Rules يحتويان 19 اختبار
+  Emulator لحالات القراءة والمالك والمستخدم وadmin والبيانات غير الصالحة.
 - 25 ملفًا ضمن UI/model يستورد Firebase حاليًا؛ أداة الدين ترصد 19 ملف
   UI/adapter منها.
 - لا يوجد ViewModel/StateFlow أو Media3 أو repository boundary حديث بعد.
@@ -107,7 +108,7 @@ P1-04 rules/authorization
 | P1-01 | done | Android modernization | `SplashActivity` وسياسة الدخول وcache عند غياب الشبكة/auth | TD-006, TD-014 | 6 unit tests، smoke offline، flavorان؛ `d4f368f` | revert السياسة مع إبقاء إصلاح FIRST_TIME_VERSION |
 | P1-02 | done | Firebase security | صلاحيات الهاتف/التخزين، image picker، exported services وFCM logs | TD-007, TD-008 | merged manifest بلا الصلاحيات؛ الخدمات الداخلية false؛ `1c31075`, `ccfbc6d` | revert عنصر manifest منفرد إذا أثبت SDK حاجته |
 | P1-03 | blocked | Firebase security | حصر stream hosts واستبدال cleartext العام باستثناءات دنيا | بيانات production read-only مصرح بها؛ TD-008 | HTTPS افتراضي، host exceptions موثقة واختبار تشغيل كل محطة | إعادة الاستثناء لمضيف واحد فقط مع تاريخ إزالة |
-| P1-04 | not started | Firebase security | Rules deny-by-default وclaims/ownership للتعليقات والإدارة | جرد schema؛ TD-004, TD-005, TD-016 | emulator allow/deny: listener/user/owner/admin/invalid write | عدم نشر rules؛ rollback إلى rules artifact السابق |
+| P1-04 | done | Firebase security | Rules deny-by-default وclaims/ownership للتعليقات والإدارة | جرد schema؛ TD-004, TD-005, TD-016 | 19 اختبار Emulator محليًا وفي CI: listener/user/owner/admin/invalid write؛ القواعد غير منشورة | عدم نشر rules؛ rollback إلى rules artifact السابق |
 | P1-05 | in progress | Firebase security | PII/token/password inventory، منع backup وعدم تخزين FCM token محليًا | P1-04 وتفويض جرد الإنتاج؛ TD-016 | sanitizer tests، merged manifest بلا backup، scan بلا token storage، وعدم كتابة password | revert المزامنة فقط؛ لا تعيد token أو device fields إلى cache |
 | P1-06 | not started | Quality release | smoke: cold/warm/offline/login/comment/notification/image flows | P1-03..P1-05 | نتائج pass/fail على API 21 وAPI حديث، مع screenshots عند UI | تعطيل الاختبار flaky فقط بمالك وموعد، لا حذف البوابة |
 
@@ -237,6 +238,7 @@ P1-04 rules/authorization
 | 2026-08-26 | P0-03 | إزالة radio seed والمساعدات الميتة | `329e1d9`، فحص callers وflavor builds | characterization قبل تنظيف جديد |
 | 2026-08-26 | P1-02 | تقييد FCM/Music services وإزالة FCM_SEND/log URI | `ccfbc6d`، merged manifest وflavor builds | P1-03/P1-04 |
 | 2026-08-26 | P1-05 | تنظيف جلسات المستخدم، حذف تخزين FCM ومنع backup ومعرّفات analytics الشخصية | 9 unit tests، merged manifest وflavor builds؛ أخطاء Lint الموروثة في TD-017 | P1-04؛ جرد production لاحقًا |
+| 2026-08-26 | P1-04 | قواعد Firestore/Storage برفض افتراضي وclaim إداري وملكية المستخدم والتعليق والصور | 19 اختبار Emulator وflavor builds؛ دون نشر production | P0-04؛ claim provisioning قبل النشر |
 
 ### قالب سطر جديد
 

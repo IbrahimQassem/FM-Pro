@@ -1,0 +1,16 @@
+{
+  "name": "fm-pro-firebase-rules",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20 <25"
+  },
+  "scripts": {
+    "emulators:test": "firebase emulators:exec --only firestore,storage --project demo-fm-pro-rules-test \"node --test tests/firebase-rules/firestore.rules.test.js tests/firebase-rules/storage.rules.test.js\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "5.0.2",
+    "firebase": "12.18.0",
+    "firebase-tools": "15.28.1"
+  }
+}

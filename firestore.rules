@@ -1,0 +1,177 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isKnownRoot(root) {
+      return root == 'HudHudFM'
+        || root == 'HudHudFmGooglePlay'
+        || root == 'InterNews';
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.get('admin', false) == true;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function validOwnUserCreate(uid) {
+      let data = request.resource.data;
+      return isOwner(uid)
+        && data.keys().hasOnly([
+          'userId', 'name', 'email', 'mobile', 'photoUrl', 'nickNme',
+          'bio', 'tag', 'deviceId', 'stopNote', 'country', 'city',
+          'deviceToken', 'notificationToken', 'otherData', 'verified',
+          'online', 'disabled', 'lastSignInTimestamp', 'gender',
+          'userType', 'authMethod', 'createdAt', 'allowedPermissions'
+        ])
+        && data.keys().hasAll([
+          'userId', 'disabled', 'userType', 'allowedPermissions'
+        ])
+        && data.userId == uid
+        && data.disabled == false
+        && data.userType == 'USER'
+        && data.allowedPermissions is list
+        && data.allowedPermissions.size() == 0
+        && (!('deviceId' in data) || data.deviceId == null)
+        && (!('deviceToken' in data) || data.deviceToken == null)
+        && (!('notificationToken' in data) || data.notificationToken == null)
+        && (!('stopNote' in data) || data.stopNote == null)
+        && (!('otherData' in data) || data.otherData == null)
+        && (!('name' in data) || data.name == null
+          || (data.name is string && data.name.size() <= 120));
+    }
+
+    function validOwnUserUpdate(uid) {
+      let data = request.resource.data;
+      let changed = data.diff(resource.data).affectedKeys();
+      return isOwner(uid)
+        && data.userId == uid
+        && changed.hasOnly([
+          'name', 'email', 'mobile', 'photoUrl', 'nickNme', 'bio', 'tag',
+          'country', 'city', 'gender', 'lastSignInTimestamp', 'authMethod',
+          'notificationToken', 'online', 'updatedAt'
+        ])
+        && (!('name' in data) || data.name == null
+          || (data.name is string && data.name.size() <= 120))
+        && (!('notificationToken' in data) || data.notificationToken == null
+          || (data.notificationToken is string
+            && data.notificationToken.size() <= 4096))
+        && (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    function validCommentCreate(episodeId, commentId) {
+      let data = request.resource.data;
+      return isSignedIn()
+        && data.keys().hasOnly([
+          'commentId', 'episodeId', 'commentUser', 'commentText',
+          'commentUserId', 'commentTime', 'commentLikesCount', 'commentLikes'
+        ])
+        && data.keys().hasAll([
+          'commentId', 'episodeId', 'commentUser', 'commentText',
+          'commentUserId', 'commentTime', 'commentLikesCount'
+        ])
+        && data.commentId == commentId
+        && data.episodeId == episodeId
+        && data.commentUserId == request.auth.uid
+        && data.commentUser is string
+        && data.commentUser.size() <= 120
+        && data.commentText is string
+        && data.commentText.size() > 0
+        && data.commentText.size() <= 1000
+        && data.commentTime is string
+        && data.commentTime.matches('^[0-9]{10,16}$')
+        && data.commentLikesCount == 0
+        && (!('commentLikes' in data) || data.commentLikes == null
+          || (data.commentLikes is map && data.commentLikes.size() == 0));
+    }
+
+    function validCommentEdit() {
+      let changed = request.resource.data.diff(resource.data).affectedKeys();
+      return (isOwner(resource.data.commentUserId) || isAdmin())
+        && changed.hasOnly(['commentText'])
+        && request.resource.data.commentText is string
+        && request.resource.data.commentText.size() > 0
+        && request.resource.data.commentText.size() <= 1000;
+    }
+
+    function validEpisodeReactionUpdate() {
+      let oldLikes = resource.data.get('episodeLikes', {});
+      let newLikes = request.resource.data.get('episodeLikes', {});
+      let changed = request.resource.data.diff(resource.data).affectedKeys();
+      return isSignedIn()
+        && changed.hasOnly(['episodeLikes', 'likesCount', 'updatedAt'])
+        && oldLikes is map
+        && newLikes is map
+        && newLikes.diff(oldLikes).affectedKeys().hasOnly([request.auth.uid])
+        && resource.data.likesCount is int
+        && request.resource.data.likesCount is int
+        && (!('updatedAt' in request.resource.data)
+          || request.resource.data.updatedAt is timestamp)
+        && (
+          (newLikes.get(request.auth.uid, false) == true
+            && oldLikes.get(request.auth.uid, false) != true
+            && request.resource.data.likesCount == resource.data.likesCount + 1)
+          ||
+          (newLikes.get(request.auth.uid, false) != true
+            && oldLikes.get(request.auth.uid, false) == true
+            && request.resource.data.likesCount == resource.data.likesCount - 1)
+        );
+    }
+
+    match /{root}/RadioInfo/RadioInfo/{radioId} {
+      allow read: if isKnownRoot(root);
+      allow create, update, delete: if isKnownRoot(root) && isAdmin();
+    }
+
+    match /{root}/RadioProgram/{radioId}/RadioProgram/RadioProgram/{programId} {
+      allow read: if isKnownRoot(root);
+      allow create, update, delete: if isKnownRoot(root) && isAdmin();
+    }
+
+    match /{root}/Episode/{radioId}/Episode/Episode/{episodeId} {
+      allow read: if isKnownRoot(root);
+      allow create, delete: if isKnownRoot(root) && isAdmin();
+      allow update: if isKnownRoot(root)
+        && (isAdmin() || validEpisodeReactionUpdate());
+
+      match /Comment/{commentId} {
+        allow read: if isKnownRoot(root);
+        allow create: if isKnownRoot(root)
+          && validCommentCreate(episodeId, commentId);
+        allow update: if isKnownRoot(root) && validCommentEdit();
+        allow delete: if isKnownRoot(root)
+          && (isOwner(resource.data.commentUserId) || isAdmin());
+      }
+    }
+
+    match /{root}/Users/Users/{uid} {
+      allow get: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+      allow list: if isKnownRoot(root) && isAdmin();
+      allow create: if isKnownRoot(root)
+        && (isAdmin() || validOwnUserCreate(uid));
+      allow update: if isKnownRoot(root)
+        && (isAdmin() || validOwnUserUpdate(uid));
+      allow delete: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+
+      match /favorites/{favoriteId} {
+        allow read, create, update, delete: if isKnownRoot(root)
+          && (isOwner(uid) || isAdmin());
+      }
+    }
+
+    match /{root}/Advertisement/Advertisement/{advertisementId} {
+      allow read: if isKnownRoot(root);
+      allow create, update, delete: if isKnownRoot(root) && isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

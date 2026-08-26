@@ -67,3 +67,9 @@ exports/
 /app/internews/release/output-metadata.json
 /app/hudhudfm_google_play/debug/output-metadata.json
 /.idea/inspectionProfiles/Project_Default.xml
+
+# Firebase emulator and Node test artifacts
+/node_modules/
+/firebase-debug.log
+/firestore-debug.log
+/ui-debug.log
