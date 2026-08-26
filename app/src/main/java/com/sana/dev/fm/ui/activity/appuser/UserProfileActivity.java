@@ -28,7 +28,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityUserProfileBinding;
 import com.sana.dev.fm.model.AuthMethod;
@@ -59,7 +58,6 @@ public class UserProfileActivity extends BaseActivity {
     private final String TAG = UserProfileActivity.class.getSimpleName();
     ActivityUserProfileBinding binding;
     private FirebaseAuth mAuth;
-//    private String userId, name, email, mobile, password, photoUrl, token, nickNme, bio, tag, deviceId, stopNote, country, city;
 
 //    private Gender gender = Gender.UNKNOWN;
 
@@ -154,7 +152,6 @@ public class UserProfileActivity extends BaseActivity {
             binding.lytParentCity.setVisibility(View.GONE);
 
             UserModel _userModel = prefMgr.getUserSession();
-            Log.d(TAG, " UserSession : " + new Gson().toJson(_userModel));
             binding.tvLabelUserName.setText(_userModel.getName());
             binding.tvLabelUserEmail.setText(_userModel.getEmail());
             binding.tvLabelUserMobile.setText(FmUtilize.trimMobileCode(_userModel.getMobile()));
@@ -164,7 +161,6 @@ public class UserProfileActivity extends BaseActivity {
             binding.etMobile.setText(FmUtilize.trimMobileCode(_userModel.getMobile()));
 
 //            try {
-//                binding.etPassword.setText(AESCrypt.decrypt(_userModel.getPassword()));
 //            } catch (Exception e) {
 //                Log.e(TAG, e.toString());
 //            }
@@ -202,31 +198,6 @@ public class UserProfileActivity extends BaseActivity {
             }
         });
 
-
-/*        //assign the image in code (or you can do this in your layout xml with the src attribute)
-        binding.ibPass.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_visibility_off));
-
-//set the click listener
-        binding.ibPass.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View button) {
-                try {
-                    //Set the button's appearance
-                    button.setSelected(!button.isSelected());
-
-                    if (button.isSelected()) {
-                        //Handle selected state change
-                        binding.ibPass.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_visibility));
-                        binding.etPassword.setTransformationMethod(null);
-                    } else {
-                        //Handle de-select state change
-                        binding.ibPass.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_visibility_off));
-                        binding.etPassword.setTransformationMethod(new PasswordTransformationMethod());
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });*/
 
         binding.btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -382,7 +353,6 @@ public class UserProfileActivity extends BaseActivity {
             String name = Tools.isEmpty(binding.etFullName) ? "" : binding.etFullName.getText().toString().trim();
             String mobile = Tools.isEmpty(binding.etMobile) ? "" : binding.etMobile.getText().toString().trim();
             String email = Tools.isEmpty(binding.etEmail) ? "" : binding.etEmail.getText().toString().trim();
-//            String pass = Tools.isEmpty(binding.etPassword) ? "" : AESCrypt.encrypt(Tools.toString(binding.etPassword));
 
             boolean isUserNameEdite = Tools.isEmpty(userModel.getName()) && name.equalsIgnoreCase(userModel.getName());
             boolean isGenderEdited = userModel.getGender() == gender;
@@ -392,18 +362,15 @@ public class UserProfileActivity extends BaseActivity {
                 userModel.setName(name);
                 userModel.setMobile(mobile);
                 userModel.setEmail(email);
-//                userModel.setPassword(pass);
 
                 userModel.setGender(gender);
                 userModel.setDeviceToken(FmUtilize.getIMEIDeviceId(this));
                 userModel.setNotificationToken(FmUtilize.getFirebaseToken(this));
 //            updateUser(user);
-                Log.d(TAG, "before submit : " + userModel.toString());
                 Map<String, Object> data = new HashMap<>();
                 data.put("name", userModel.getName());
                 data.put("email", userModel.getEmail());
                 data.put("mobile", userModel.getMobile());
-                data.put("password", userModel.getPassword());
                 data.put("deviceId", userModel.getDeviceId());
                 data.put("deviceToken", userModel.getDeviceToken());
                 data.put("notificationToken", userModel.getNotificationToken());
@@ -458,7 +425,6 @@ public class UserProfileActivity extends BaseActivity {
 //        data.put("name", model.getName());
 //        data.put("email", model.getEmail());
 //        data.put("mobile", model.getMobile());
-//        data.put("password", model.getPassword());
 //        data.put("photoUrl", model.getPhotoUrl());
 //        data.put("deviceId", model.getDeviceId());
 //        data.put("deviceToken", model.getDeviceToken());

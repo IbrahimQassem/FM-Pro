@@ -132,7 +132,6 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
     @Override
     public void onSignInSuccess(GoogleSignInAccount account) {
         // Handle successful sign-in with Google account details
-        Log.d(TAG, "User signed in with Google: " + account.getEmail());
         // You can also access account.getIdToken() etc.
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         String uid = firebaseUser.getUid();
@@ -141,7 +140,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
         String phoneNumber = firebaseUser.getPhoneNumber();
         String photoUrl = firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "";
 
-        UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.GOOGLE, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
+        UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.GOOGLE, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
         userModel.setVerified(true);
         prefMgr.setUserSession(userModel);
 //        showToast(getString(R.string.login_successfully));
@@ -194,54 +193,6 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
         }
     };
 
-//    private void loginWithFacebook() {
-//        // Create login request
-//        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", EMAIL));
-//
-////       binding.loginButtonFacebook.setReadPermissions(EMAIL, "public_profile");
-//        binding.loginButtonFacebook.registerCallback(mCallbackManager, facebookCallback);
-//        // [END initialize_fblogin]
-//
-//    }
-
-/*
-    private void handleFacebookLoginResult(LoginResult loginResult) {
-        if (loginResult != null) {
-            // Access token received
-            AccessToken accessToken = loginResult.getAccessToken();
-
-            // Retrieve user information
-            // Retrieve user information
-            GraphRequest request = GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {
-                @Override
-                public void onCompleted(@Nullable JSONObject jsonObject, @Nullable GraphResponse graphResponse) {
-                    if (graphResponse.getJSONObject() != null) {
-                        try {
-                            JSONObject userData = graphResponse.getJSONObject();
-
-                            // Extract user information
-                            String name = userData.getString("name");
-                            String email = userData.getString("email");
-
-                            // Handle user information
-                            Log.d(TAG, "User name: " + name);
-                            Log.d(TAG, "User email: " + email);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        Log.e(TAG, "Error retrieving user information");
-                    }
-                }
-            });
-            Bundle parameters = new Bundle();
-            parameters.putString("fields", "id,name,email");
-            request.setParameters(parameters);
-            request.executeAsync();
-        }
-    }
-*/
-
     private void initRemoteConfig() {
 
 //        if (/*BuildConfig.FLAVOR.equals("hudhudfm_google_play") && */!BuildConfig.DEBUG) {
@@ -292,7 +243,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
 
     // [START auth_with_facebook]
     private void handleFacebookAccessToken(AccessToken token) {
-        Log.d(TAG, "handleFacebookAccessToken:" + token);
+        Log.d(TAG, "Signing in with Facebook credential");
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         mAuth.signInWithCredential(credential)
@@ -321,7 +272,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
                             String phoneNumber = firebaseUser.getPhoneNumber();
                             String photoUrl = firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "";
 
-                            UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.FACEBOOK, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
+                            UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.FACEBOOK, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
                             userModel.setVerified(true);
                             prefMgr.setUserSession(userModel);
 //                            showToast(getString(R.string.login_successfully));
@@ -349,7 +300,6 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
 //                String phoneNumber = firebaseUser.getPhoneNumber();
 ////                String getPhotoUrl = user.getPhotoUrl();
 //
-//                UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, null, null, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
 
                 List<UserInfo> providerData = (List<UserInfo>) firebaseUser.getProviderData();
 
@@ -403,8 +353,6 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
         firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                LogUtility.d(LogUtility.TAG, "Success checkUserAuth: " + object);
-
                 List<UserModel> userModelList = FirestoreDbUtility.getDataFromQuerySnapshot(object, UserModel.class);
 
                 if (userModelList != null && userModelList.size() > 0) {

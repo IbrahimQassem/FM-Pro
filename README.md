@@ -14,11 +14,11 @@
 
 ## البناء المحلي
 
-المشروع الحالي يحتاج JDK 17:
+المشروع يحتاج JDK 17، والمستودع يثبته في `.java-version`. على macOS:
 
 ```bash
-JAVA_HOME=/Users/ibrahimqassem/Library/Java/JavaVirtualMachines/jbr-17.0.14/Contents/Home \
-  ./gradlew app:assembleHudhudfm_google_playDebug
+export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+./gradlew app:assembleHudhudfm_google_playDebug
 ```
 
 نفّذ التحقق المؤسسي قبل تسليم أي تغيير:
@@ -30,3 +30,9 @@ JAVA_HOME=/Users/ibrahimqassem/Library/Java/JavaVirtualMachines/jbr-17.0.14/Cont
 
 لا تُضف أسرار Firebase أو مفاتيح التوقيع إلى Git. راجع
 [عقد الأمان والخصوصية](docs/contracts/security-privacy-contract.md).
+
+## CI secrets
+
+يتطلب workflow أمانة GitHub باسم `GOOGLE_SERVICES_JSON_BASE64`. قيمتها هي ملف
+`app/google-services.json` المعتمد، مشفرًا Base64، ويجب أن يحتوي clients للحزمتين
+`com.sana.dev.fm` و`com.sanaadev.hudhudfm`. لا تُضف الملف نفسه إلى Git.

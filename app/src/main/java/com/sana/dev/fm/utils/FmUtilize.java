@@ -971,7 +971,6 @@ public class FmUtilize {
                 deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
             }
         }
-        Log.d("deviceId", deviceId);
         return deviceId;
     }
 
@@ -1027,5 +1026,4 @@ public class FmUtilize {
 //        }
 //    }
 //}
-
 

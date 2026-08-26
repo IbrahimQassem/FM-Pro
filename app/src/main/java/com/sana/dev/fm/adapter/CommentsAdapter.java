@@ -19,7 +19,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.gson.Gson;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemCommentBinding;
 import com.sana.dev.fm.model.Comment;
@@ -71,7 +70,6 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
 
     @Override
     protected void onBindViewHolder(@NonNull CommentViewHolder holder, int position, @NonNull Comment model) {
-        LogUtility.e(TAG, " Comment : " + model.toString());
         holder.binding.tvComment.setText(model.getCommentText());
         holder.binding.tvFrom.setText(model.getCommentUser());
         String timeAgo = getTimeAgo(Long.parseLong(model.getCommentTime()), ctx);
@@ -88,8 +86,6 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot != null) {
                     UserModel userModel = documentSnapshot.toObject(UserModel.class);
-                    LogUtility.e(TAG, "getAllUsers :  " + new Gson().toJson(userModel));
-
 //                    if (!isEmpty(userModel.getName()))
                         holder.binding.tvFrom.setText(userModel.getName());
                         if (!Tools.isEmpty(userModel.getPhotoUrl()))
@@ -105,7 +101,6 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
 //                            }
 //                        });
                 }
-//                LogUtility.e(TAG, "getAllUsers :  " + documentSnapshot.getData());
             }
         });
     }

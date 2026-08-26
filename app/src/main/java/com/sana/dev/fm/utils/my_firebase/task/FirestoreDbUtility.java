@@ -79,26 +79,19 @@ public class FirestoreDbUtility {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.i(TAG, "createOrMerge success: "
-                                    + collectionReference.getParent()
-                                    + " "
-                                    + documentName);
+                            Log.d(TAG, "createOrMerge success");
                             callback.onSuccess(null);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.e(TAG, "createOrMerge failure: "
-                                    + collectionReference.getParent()
-                                    + " "
-                                    + documentName);
+                            Log.e(TAG, "createOrMerge failure", e);
                             callback.onFailure(e.getMessage());
                         }
                     });
         } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "createOrMerge Exception: " + collectionReference.getParent() + " " + documentName + " " + e);
+            Log.e(TAG, "createOrMerge exception", e);
             callback.onFailure(e.getMessage());
         }
     }
@@ -116,29 +109,19 @@ public class FirestoreDbUtility {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.i(TAG, "update success: "
-                                    + collectionReference.getParent()
-                                    + " "
-                                    + documentName
-                                    + " "
-                                    + hashMap.toString()
-                            );
+                            Log.d(TAG, "update success");
                             callback.onSuccess(null);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.e(TAG, "update failure: "
-                                    + collectionReference.getParent()
-                                    + " "
-                                    + documentName);
+                            Log.e(TAG, "update failure", e);
                             callback.onFailure(e.getMessage());
                         }
                     });
         } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "update Exception: " + collectionReference.getParent() + " " + documentName + " " + e);
+            Log.e(TAG, "update exception", e);
             callback.onFailure(e.getMessage());
         }
     }
@@ -184,9 +167,7 @@ public class FirestoreDbUtility {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
-//            Log.d(TAG, document.getId() + " => " + document.getData());
-            Log.e(TAG, "getOne Exception: " + collectionReference.getParent() + " " + documentName + " " + e);
+            Log.e(TAG, "getOne exception", e);
             callback.onFailure(e.getMessage());
         }
     }

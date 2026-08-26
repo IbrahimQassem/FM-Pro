@@ -265,49 +265,6 @@
                             app:tint="@color/colorPrimary" />
                     </LinearLayout>
 
-<!--
-                    <LinearLayout
-                        android:id="@+id/lyt_parent_pass"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/spacing_middle"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingStart="@dimen/spacing_large"
-                        android:paddingTop="@dimen/spacing_large"
-                        android:paddingEnd="@dimen/spacing_large"
-                        android:visibility="visible">
-
-                        <EditText
-                            android:id="@+id/et_password"
-                            style="@style/TextRegular"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:clickable="true"
-                            android:digits="0123456789+"
-                            android:focusable="true"
-                            android:gravity="start"
-                            android:hint="@string/password"
-                            android:inputType="textPassword"
-                            android:padding="@dimen/spacing_middle"
-                            android:textColor="@color/grey_80"
-                            tools:text="@string/mobile" />
-
-                        <ImageButton
-                            android:id="@+id/ib_pass"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="@color/transparent"
-                            android:padding="@dimen/spacing_middle"
-                            app:srcCompat="@drawable/ic_password"
-                            app:tint="@color/colorPrimary" />
-                    </LinearLayout>
--->
-
                     <LinearLayout
                         android:id="@+id/lyt_parent_gender"
                         android:layout_width="match_parent"

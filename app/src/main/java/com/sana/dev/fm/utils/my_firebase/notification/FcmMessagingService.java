@@ -52,8 +52,6 @@ public class FcmMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
 //            handleDataMessage(remoteMessage.getData());
 
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
-
             if (/* Check if data needs to be processed by long running job */ true) {
                 // For long-running tasks (10 seconds or more) use WorkManager.
                 scheduleJob();
@@ -66,7 +64,6 @@ public class FcmMessagingService extends FirebaseMessagingService {
 
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
-            Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
             String notificationTitle = remoteMessage.getNotification().getTitle();
             String notificationContent = remoteMessage.getNotification().getBody();
             Uri notificationImage = remoteMessage.getNotification().getImageUrl();
@@ -86,11 +83,6 @@ public class FcmMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onNewToken(String token) {
-        Log.d(TAG, "Refreshed token: " + token);
-
-        // If you want to send messages to this application instance or
-        // manage this apps subscriptions on the server side, send the
-        // Instance ID token to your app server.
         sendRegistrationToServer(token);
     }
     // [END on_new_token]
@@ -139,13 +131,13 @@ public class FcmMessagingService extends FirebaseMessagingService {
     //     Todo fix notification on android 14
     private void createNotification(String notificationTitle, String messageBody, Uri imageUri) {
         Intent notificationIntent = IntentHelper.mainActivity(this, true);
-        PendingIntent pendingIntent = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            pendingIntent = PendingIntent.getActivity
-                    (this, 0, notificationIntent, PendingIntent.FLAG_MUTABLE);
+        PendingIntent pendingIntent;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         } else {
-            pendingIntent = PendingIntent.getActivity
-                    (this, 0, notificationIntent, PendingIntent.FLAG_ONE_SHOT);
+            pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
         // Let's create a notification builder object

@@ -2,8 +2,7 @@ package com.sana.dev.fm.model;
 
 import androidx.annotation.NonNull;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.sana.dev.fm.model.enums.Gender;
 import com.sana.dev.fm.model.enums.UserType;
 
@@ -13,8 +12,9 @@ import java.util.List;
  * Created by Ibrahim on 22/2/18.
  */
 
+@IgnoreExtraProperties
 public class UserModel extends UserId {
-    private String name, email, mobile, password, photoUrl, nickNme, bio, tag, deviceId, stopNote, country, city, deviceToken,notificationToken,otherData;
+    private String name, email, mobile, photoUrl, nickNme, bio, tag, deviceId, stopNote, country, city, deviceToken,notificationToken,otherData;
     private boolean isVerified, isOnline, disabled;
     private long lastSignInTimestamp;
     private Gender gender;
@@ -26,12 +26,11 @@ public class UserModel extends UserId {
     public UserModel() {
     }
 
-    public UserModel(String userId, String name, String email, String mobile, String password, String photoUrl, String deviceToken, String nickNme, String bio, String tag, boolean isVerified, boolean isOnline, boolean disabled, String deviceId, String stopNote, Gender gender, String country, String city, long lastSignInTimestamp, UserType userType,AuthMethod authMethod,String createdAt,String notificationToken,String otherData,List<String> allowedPermissions) {
+    public UserModel(String userId, String name, String email, String mobile, String photoUrl, String deviceToken, String nickNme, String bio, String tag, boolean isVerified, boolean isOnline, boolean disabled, String deviceId, String stopNote, Gender gender, String country, String city, long lastSignInTimestamp, UserType userType,AuthMethod authMethod,String createdAt,String notificationToken,String otherData,List<String> allowedPermissions) {
         this.userId = userId;
         this.name = name;
         this.email = email;
         this.mobile = mobile;
-        this.password = password;
         this.photoUrl = photoUrl;
         this.deviceToken = deviceToken;
         this.nickNme = nickNme;
@@ -52,17 +51,6 @@ public class UserModel extends UserId {
         this.notificationToken = notificationToken;
         this.otherData = otherData;
         this.allowedPermissions = allowedPermissions;
-    }
-
-    @Override
-    public String toString() {
-        return new GsonBuilder().create().toJson(this, UserModel.class);
-    }
-
-    public String toJSON() {
-        Gson gson = new Gson();
-        String json = gson.toJson(this);
-        return json;
     }
 
     public String getName() {
@@ -87,14 +75,6 @@ public class UserModel extends UserId {
 
     public void setMobile(String mobile) {
         this.mobile = mobile;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getPhotoUrl() {
@@ -273,4 +253,3 @@ class UserId {
         this.userId = userId;
     }
 }
-

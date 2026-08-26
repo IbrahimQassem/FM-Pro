@@ -359,16 +359,11 @@ public class SplashActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                switch (checkAppStart()) {
-                    case NORMAL:
+                switch (getStartAction(checkAppStart())) {
+                    case LOAD_RADIOS:
                         loadRadios();
                         break;
-                    case FIRST_TIME_VERSION:
-                        // TODO show what's new
-//                        startActivity(new Intent(IntentHelper.introActivity(SplashActivity.this, true)));
-                        break;
-                    case FIRST_TIME:
-                        // TODO show a tutorial
+                    case SHOW_INTRO:
                         Intent intent = IntentHelper.introActivity(SplashActivity.this, true);
                         startActivity(intent);
                         break;
@@ -397,6 +392,16 @@ public class SplashActivity extends AppCompatActivity {
      */
     public enum AppStart {
         FIRST_TIME, FIRST_TIME_VERSION, NORMAL;
+    }
+
+    enum AppStartAction {
+        LOAD_RADIOS, SHOW_INTRO
+    }
+
+    static AppStartAction getStartAction(AppStart appStart) {
+        return appStart == AppStart.FIRST_TIME
+                ? AppStartAction.SHOW_INTRO
+                : AppStartAction.LOAD_RADIOS;
     }
 
     /**

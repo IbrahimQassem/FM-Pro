@@ -19,25 +19,29 @@ public class NotificationHandler {
 
     public static Notification createNotification(Context context, SongModel currentSong, boolean playStatus) {
         Notification.Builder nbuilder = null;
+        int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            pendingIntentFlags |= PendingIntent.FLAG_IMMUTABLE;
+        }
         Intent openAppIntent = new Intent(context, ProgramDetailsActivity.class);
-        PendingIntent pendingOpenAppIntent = PendingIntent.getActivity(context, 0, openAppIntent, 0);
+        PendingIntent pendingOpenAppIntent = PendingIntent.getActivity(context, 0, openAppIntent, pendingIntentFlags);
 
         Intent previousIntent = new Intent(context, MusicService.class);
         previousIntent.setAction("action.prev");
-        PendingIntent ppreviousIntent = PendingIntent.getService(context, 0, previousIntent, 0);
+        PendingIntent ppreviousIntent = PendingIntent.getService(context, 0, previousIntent, pendingIntentFlags);
 
         Intent playIntent = new Intent(context, MusicService.class);
         playIntent.setAction("action.play");
-        PendingIntent pplayIntent = PendingIntent.getService(context, 0, playIntent, 0);
+        PendingIntent pplayIntent = PendingIntent.getService(context, 0, playIntent, pendingIntentFlags);
 
         Intent pauseIntent = new Intent(context, MusicService.class);
         pauseIntent.setAction("action.pause");
-        PendingIntent ppauseIntent = PendingIntent.getService(context, 0, pauseIntent, 0);
+        PendingIntent ppauseIntent = PendingIntent.getService(context, 0, pauseIntent, pendingIntentFlags);
 
 
         Intent nextIntent = new Intent(context, MusicService.class);
         nextIntent.setAction("action.next");
-        PendingIntent pnextIntent = PendingIntent.getService(context, 0, nextIntent, 0);
+        PendingIntent pnextIntent = PendingIntent.getService(context, 0, nextIntent, pendingIntentFlags);
 
         Bitmap bitmap = getBitmap(context, currentSong.getAlbumArt());
         nbuilder = new Notification.Builder(context)

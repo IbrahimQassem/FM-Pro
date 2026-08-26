@@ -103,7 +103,6 @@
     <string name="check_internet_connection">Please make sure the internet is available!</string>
     <string name="label_radio_map">Programs</string>
     <string name="press_once_again_to_exit">Click again to log out</string>
-    <string name="password">Password</string>
     <string name="user_name">User name</string>
     <string name="mobile">Mobile</string>
     <string name="email">Email</string>

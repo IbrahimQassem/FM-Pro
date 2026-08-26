@@ -14,8 +14,9 @@
 
 - يمنع commit لـ`key.properties`, `google-services.json`, keystores, tokens أو
   ملفات service-account.
-- `key.properties` المتتبع حاليًا حادثة يجب معالجتها في TD-002: تدوير بيانات
-  التوقيع، إزالة الملف من التاريخ/التتبع وفق خطة متفق عليها، ثم توفير example.
+- أزيل `key.properties` من التتبع الحالي. يبقى TD-002 مفتوحًا حتى تدوير بيانات
+  التوقيع وتقييم التاريخ وفق
+  [`signing-key-rotation-plan.md`](../security/signing-key-rotation-plan.md).
 - لا تطبع محتوى الملفات الحساسة أثناء الفحص.
 
 ## السجلات والبيانات الشخصية

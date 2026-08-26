@@ -3,6 +3,10 @@
 الحالة: ملزم  
 المالك: Firebase security agent
 
+دليل التنفيذ الحالي ومساراته موثق في
+[جرد Firebase الحالي](../firebase/current-schema-inventory.md). هذا الجرد وصفي؛
+هذا العقد وحده يحدد الحدود الملزمة.
+
 ## السلطة الحالية
 
 - اسم جذر البيانات يأتي فقط من `BuildConfig.BASE_FB_DB` لكل flavor.

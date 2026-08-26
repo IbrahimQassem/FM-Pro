@@ -8,7 +8,7 @@
 | المرحلة | الحالة | المدة المستهدفة | بوابة الخروج |
 |---|---|---:|---|
 | 0. الحوكمة وخط الأساس | in progress | 1 أسبوع | بناء حتمي، عقود معتمدة، قياسات أساسية |
-| 1. الأمان والاستقرار | not started | 2 أسبوع | إغلاق P0 الأمنية وأخطاء البدء |
+| 1. الأمان والاستقرار | in progress | 2 أسبوع | إغلاق P0 الأمنية وأخطاء البدء |
 | 2. الأساس المعماري | not started | 3 أسابيع | أول شريحة repository/state كاملة |
 | 3. نظام التصميم والتنقل | not started | 2–3 أسابيع | shell جديد وRTL/accessibility |
 | 4. رحلة المستمع | not started | 4–5 أسابيع | الرئيسية والجدول والبرامج والحساب |
@@ -21,10 +21,12 @@
 - [x] إنشاء مصدر الحقيقة والعقود والأدوار والمهارات.
 - [x] توثيق البناء على JDK 17.
 - [x] إزالة الملفات المعلقة بالكامل المثبتة ككود ميت.
-- [ ] إضافة CI يبني debug ويشغل unit tests.
-- [ ] قياس startup، بدء الصوت، crash-free وANR.
-- [ ] حصر Firebase schema وSecurity Rules واختبارات emulator الحالية.
-- [ ] اعتماد خطة تدوير الأسرار وإزالة `key.properties` من التتبع.
+- [x] إضافة CI يبني debug ويشغل unit tests.
+- [ ] قياس startup، بدء الصوت، crash-free وANR؛ اكتمل startup المحلي، والبقية
+  تحتاج instrumentation أو صلاحية لوحات الإنتاج كما في
+  [خط أساس المراقبة](../observability/baseline.md).
+- [x] حصر Firebase schema وإثبات غياب Rules والفهارس واختبارات emulator من Git.
+- [x] إزالة `key.properties` من التتبع وإضافة خطة تدوير؛ التنفيذ الخارجي معلق.
 - [ ] إصلاح Google Services لنكهة `internews` أو اعتماد قرار بإيقاف النكهة.
 
 بوابة الخروج: نفس commit يبني محليًا وCI، ولا توجد أسرار جديدة، والقياسات
@@ -32,9 +34,12 @@
 
 ## المرحلة 1: الأمان والاستقرار
 
-- إصلاح `FIRST_TIME_VERSION` وإزالة hard network gate.
+الحالة: `in progress` منذ 2026-08-26.
+
+- [x] إصلاح `FIRST_TIME_VERSION` كي يكمل التحميل بعد ترقية الإصدار.
 - تصنيف أخطاء الشبكة وتوفير cached content.
-- إيقاف logs الحساسة ومراجعة permissions وexported components وcleartext.
+- [ ] إيقاف logs الحساسة ومراجعة permissions وexported components وcleartext؛
+  أزيلت سجلات FCM/User و`READ_PRIVILEGED_PHONE_STATE`.
 - فرض admin وownership عبر Firebase Rules وclaims.
 - إضافة smoke tests للبدء والتسجيل والتعليقات.
 

@@ -252,8 +252,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "Error send comment " + e.getMessage());
+                    Log.e(TAG, "Error sending comment", e);
                 }
             });
         } else {

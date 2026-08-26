@@ -1,0 +1,6 @@
+# Copy this file to key.properties and fill values from the approved secret store.
+# Never commit key.properties or a keystore.
+storeFile=/absolute/path/to/release-keystore.jks
+storePassword=replace-from-secret-store
+keyAlias=replace-from-secret-store
+keyPassword=replace-from-secret-store

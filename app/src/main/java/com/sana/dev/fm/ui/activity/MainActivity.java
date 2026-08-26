@@ -270,16 +270,10 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
                             return;
                         }
 
-                        // Get new FCM registration token
                         String token = task.getResult();
-
-                        // Log and toast
-                        String msg = "FCM Registration token: " + token;
-                        Log.d(TAG, msg);
                         PreferencesManager.getInstance().write(AppConstant.General.FIREBASE_FCM_TOKEN, token);
                         if (isAccountSignedIn()) {
                             UserModel userModel = prefMgr.getUserSession();
-//                            LogUtility.w(TAG, "FCM UserModel : " + new Gson().toJson(userModel));
                             if (userModel.getNotificationToken() != null)
                                 if (!userModel.getNotificationToken().equals(token)) {
                                     updateUserFcmToken(userModel, token);
@@ -300,7 +294,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         firestoreDbUtility.update(collectionReference, userModel.getUserId(), data, new CallBack() {
             @Override
             public void onSuccess(Object object) {
-                LogUtility.w(TAG, "FCM token updated successfully : " + token);
+                LogUtility.d(TAG, "FCM token updated successfully");
                 userModel.setNotificationToken(token);
                 prefMgr.setUserSession(userModel);
             }
@@ -718,39 +712,6 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         }
     }*/
 
-
-/*
-    private void initFirebaseNote(){
-
-        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(this, instanceIdResult -> {
-            String newToken = instanceIdResult.getToken();
-            Log.e("newToken", newToken);
-            getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(AppConstant.Firebase.DEVICE_TOKEN, newToken).apply();
-
-        });
-
-        Log.d("newToken",  getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).getString(FirebaseConstants.DEVICE_TOKEN, null));
-
-        //If the device is having android oreo we will create a notification channel
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager mNotificationManager =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel mChannel = new NotificationChannel(FirebaseConstants.CHANNEL_ID, FirebaseConstants.CHANNEL_NAME, importance);
-            mChannel.setDescription(FirebaseConstants.CHANNEL_DESCRIPTION);
-            mChannel.enableLights(true);
-            mChannel.setLightColor(Color.RED);
-            mChannel.enableVibration(true);
-            mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-            mNotificationManager.createNotificationChannel(mChannel);
-        }
-
-        //Displaying a notification locally
-        MyNotificationManager.getInstance(getApplicationContext()).displayNotification("Hi","Where are you?");
-
-    }
-*/
 
     private void initializeViews() {
         currentStreamTitle = getString(R.string.app_name);
