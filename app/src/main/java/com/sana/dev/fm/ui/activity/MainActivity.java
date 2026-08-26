@@ -32,8 +32,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.sana.dev.fm.R;
@@ -68,8 +66,6 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     public static String FRAGMENT_DATA = "transaction_data";
     public static String FRAGMENT_CLASS = "transaction_target";
     public static final String ACTION_SHOW_LOADING_ITEM = "action_show_loading_item";
-    FirebaseCrashlytics firebaseCrashlytics;
-    FirebaseAnalytics firebaseAnalytics;
     FloatingActionButton playPauseButton;
     private BottomSheetDialog mBottomSheetDialog;
     private BottomSheetBehavior mBehavior;
@@ -110,9 +106,6 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        firebaseCrashlytics = FirebaseCrashlytics.getInstance();
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         initializeViews();
         bindRadioService();
@@ -215,13 +208,15 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
                         }
 
                         String token = task.getResult();
-                        PreferencesManager.getInstance().write(AppConstant.General.FIREBASE_FCM_TOKEN, token);
+                        if (token == null || token.trim().isEmpty()) {
+                            Log.w(TAG, "Firebase returned an empty registration token");
+                            return;
+                        }
                         if (isAccountSignedIn()) {
                             UserModel userModel = prefMgr.getUserSession();
-                            if (userModel.getNotificationToken() != null)
-                                if (!userModel.getNotificationToken().equals(token)) {
-                                    updateUserFcmToken(userModel, token);
-                                }
+                            if (userModel != null && !token.equals(userModel.getNotificationToken())) {
+                                updateUserFcmToken(userModel, token);
+                            }
                         }
                     }
                 });
@@ -239,13 +234,11 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
             @Override
             public void onSuccess(Object object) {
                 LogUtility.d(TAG, "FCM token updated successfully");
-                userModel.setNotificationToken(token);
-                prefMgr.setUserSession(userModel);
             }
 
             @Override
             public void onFailure(Object object) {
-                LogUtility.e(TAG, "onError : " + object);
+                LogUtility.e(TAG, "FCM token update failed");
             }
         });
     }
@@ -439,8 +432,6 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
             if (!Tools.isEmpty(user.getPhotoUrl()))
                 Tools.displayUserProfile(this, findViewById(R.id.civ_logo), user.getPhotoUrl(), R.drawable.ic_baseline_person);
 
-            firebaseCrashlytics.setUserId(user.getMobile());
-            firebaseAnalytics.setUserId(user.getMobile());
             updateOnlineFlag();
         }
 

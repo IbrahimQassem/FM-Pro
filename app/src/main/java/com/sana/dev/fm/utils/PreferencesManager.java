@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.sana.dev.fm.core.privacy.CachedUserSessionSanitizer;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
 
@@ -18,6 +19,7 @@ public class PreferencesManager {
 
     public static final String KEY_VALUE = "com.sana.dev.fm.KEY_VALUE";
     public static final String PREF_NAME = "com.sana.dev.fm.PREF_NAME";
+    private static final String LEGACY_FCM_TOKEN_KEY = "firebaseFmcToken";
     private static PreferencesManager sInstance;
     private final SharedPreferences mPref;
 
@@ -37,6 +39,21 @@ public class PreferencesManager {
 
     private PreferencesManager(Context context) {
         mPref = context.getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        migrateSensitivePreferences();
+    }
+
+    private void migrateSensitivePreferences() {
+        String cachedUser = mPref.getString(AppConstant.General.USER_INFO, null);
+        String sanitizedUser = CachedUserSessionSanitizer.sanitize(cachedUser);
+        SharedPreferences.Editor editor = mPref.edit().remove(LEGACY_FCM_TOKEN_KEY);
+        if (cachedUser != null) {
+            if (sanitizedUser == null) {
+                editor.remove(AppConstant.General.USER_INFO);
+            } else if (!cachedUser.equals(sanitizedUser)) {
+                editor.putString(AppConstant.General.USER_INFO, sanitizedUser);
+            }
+        }
+        editor.apply();
     }
 
     public long getValue() {
@@ -107,7 +124,17 @@ public class PreferencesManager {
     }
 
     public void setUserSession(UserModel userModel) {
-        write(AppConstant.General.USER_INFO, userModel);
+        if (userModel == null) {
+            remove(AppConstant.General.USER_INFO);
+            return;
+        }
+
+        String sanitizedUser = CachedUserSessionSanitizer.sanitize(new Gson().toJson(userModel));
+        if (sanitizedUser == null) {
+            remove(AppConstant.General.USER_INFO);
+        } else {
+            write(AppConstant.General.USER_INFO, sanitizedUser);
+        }
     }
 
     public UserModel getUserSession() {

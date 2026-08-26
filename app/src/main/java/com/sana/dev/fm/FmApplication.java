@@ -32,26 +32,6 @@ public class FmApplication extends Application {
 
         FirebaseApp.initializeApp(/*context=*/ this);
 
-//        FirebaseAppCheck firebaseAppCheck = FirebaseAppCheck.getInstance();
-////        firebaseAppCheck.installAppCheckProviderFactory(
-////                SafetyNetAppCheckProviderFactory.getInstance());
-//
-//        firebaseAppCheck.getToken(true)
-//                .addOnCompleteListener(new OnCompleteListener<AppCheckTokenResult>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<AppCheckTokenResult> task) {
-//                        if (task.isSuccessful()) {
-//                            AppCheckTokenResult token = task.getResult();
-//                            // Use the token to protect your app's resources
-//                            Log.d(TAG, "App Check token: " + token.getToken());
-//                        } else {
-//                            // Handle error
-//                            Log.w(TAG, "Failed to get App Check token", task.getException());
-//                        }
-//                    }
-//                });
-
-
         PreferencesManager.initializeInstance(this);
         // This flag should be set to true to enable VectorDrawable support for API < 21.
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);

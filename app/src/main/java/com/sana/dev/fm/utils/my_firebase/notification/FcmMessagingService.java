@@ -14,10 +14,8 @@ import androidx.core.app.NotificationCompat;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.sana.dev.fm.R;
-import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
-import com.sana.dev.fm.utils.PreferencesManager;
 
 import java.util.Map;
 import java.util.Random;
@@ -81,7 +79,8 @@ public class FcmMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onNewToken(String token) {
-        sendRegistrationToServer(token);
+        // Tokens are intentionally not persisted locally. MainActivity syncs the
+        // current Firebase token after the authenticated session is available.
     }
     // [END on_new_token]
 
@@ -110,20 +109,6 @@ public class FcmMessagingService extends FirebaseMessagingService {
 
         // Process the data message based on its content (e.g., update UI, trigger actions)
         // You could also show a notification here if the data message is critical
-    }
-
-    /**
-     * Persist token to third-party servers.
-     * <p>
-     * Modify this method to associate the user's FCM InstanceID token with any server-side account
-     * maintained by your application.
-     *
-     * @param token The new token.
-     */
-    private void sendRegistrationToServer(String token) {
-        // TODO: Implement this method to send token to your app server.
-        PreferencesManager.getInstance().write(AppConstant.General.FIREBASE_FCM_TOKEN, token);
-//        getSharedPreferences(PreferencesManager.PREF_NAME, MODE_PRIVATE).edit().putString(AppConstant.General.FIREBASE_FCM_TOKEN, token).apply();
     }
 
     //     Todo fix notification on android 14

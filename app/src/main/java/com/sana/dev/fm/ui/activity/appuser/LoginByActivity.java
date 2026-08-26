@@ -140,7 +140,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
         String phoneNumber = firebaseUser.getPhoneNumber();
         String photoUrl = firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "";
 
-        UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.GOOGLE, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
+        UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.GOOGLE, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), null, null, new ArrayList<>());
         userModel.setVerified(true);
         prefMgr.setUserSession(userModel);
 //        showToast(getString(R.string.login_successfully));
@@ -272,7 +272,7 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
                             String phoneNumber = firebaseUser.getPhoneNumber();
                             String photoUrl = firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "";
 
-                            UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.FACEBOOK, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), FmUtilize.getFirebaseToken(getBaseContext()), null, new ArrayList<>());
+                            UserModel userModel = new UserModel(uid, displayName, email, phoneNumber, photoUrl, FmUtilize.getIMEIDeviceId(getBaseContext()), displayName, null, null, false, false, false, FmUtilize.deviceId(getBaseContext()), null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.FACEBOOK, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), null, null, new ArrayList<>());
                             userModel.setVerified(true);
                             prefMgr.setUserSession(userModel);
 //                            showToast(getString(R.string.login_successfully));

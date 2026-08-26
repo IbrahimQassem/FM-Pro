@@ -361,16 +361,11 @@ public class UserProfileActivity extends BaseActivity {
                 userModel.setEmail(email);
 
                 userModel.setGender(gender);
-                userModel.setDeviceToken(FmUtilize.getIMEIDeviceId(this));
-                userModel.setNotificationToken(FmUtilize.getFirebaseToken(this));
 //            updateUser(user);
                 Map<String, Object> data = new HashMap<>();
                 data.put("name", userModel.getName());
                 data.put("email", userModel.getEmail());
                 data.put("mobile", userModel.getMobile());
-                data.put("deviceId", userModel.getDeviceId());
-                data.put("deviceToken", userModel.getDeviceToken());
-                data.put("notificationToken", userModel.getNotificationToken());
                 data.put("gender", userModel.getGender());
 
                 prefMgr.setUserSession(userModel);

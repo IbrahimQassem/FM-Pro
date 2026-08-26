@@ -13,7 +13,7 @@
 
 ## التنفيذ
 
-- [خطة التطوير المرحلية](roadmap/phased-delivery-plan.md)
+- [خطة التنفيذ ومتتبع التقدم](roadmap/phased-delivery-plan.md)
 - [سجل الدين التقني](roadmap/technical-debt-register.md)
 - [تعريف الاكتمال](roadmap/definition-of-done.md)
 - [خطة تدوير مفتاح التوقيع](security/signing-key-rotation-plan.md)

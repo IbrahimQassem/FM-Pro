@@ -16,7 +16,7 @@
 
     <application
         android:name=".FmApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -27,7 +27,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HudHudFM"
         android:usesCleartextTraffic="true"
-        tools:replace="android:supportsRtl"
+        tools:replace="android:allowBackup,android:supportsRtl"
         tools:targetApi="33">
 
         <activity
