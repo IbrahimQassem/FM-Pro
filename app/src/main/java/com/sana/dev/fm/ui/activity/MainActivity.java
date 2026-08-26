@@ -201,62 +201,6 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
 
 //        rotateImageAlbum();
 
-/*
-        fab_radio.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-*/
-/*                try {
-                    FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
-
-                    // Example: Add a document with generated ID
-                    Map<String, Object> data = new HashMap<>();
-                    data.put("id", "123");
-                    data.put("name", "John Doe");
-                    RadioInfo radio1 = RadioInfo.newInstance("1001", "يمن", "", "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3", "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/Fm_Folder_Images%2F1001%2F1001.jpg?alt=media&token=41d7cab7-d1cf-4d10-840a-dd576c04871a", "@yemen_fm", "صنعاء", "99,9", "Yemen Fm", prefMgr.getUserSession().userId, false);
-
-                    firestoreDbUtility.createOrMerge(firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_INFO_TABLE, AppConstant.Firebase.RADIO_INFO_TABLE),radio1.getRadioId(), radio1, new CallBack() {
-//                    firestoreDbUtility.createOrMerge(AppConstant.Firebase.RADIO_INFO_TABLE, radio1.getRadioId(), FmUtilize.classToMap(radio1), new CallBack() {
-                        @Override
-                        public void onSuccess(Object object) {
-                            showToast(getString(R.string.done_successfully));
-                        }
-
-                        @Override
-                        public void onFailure(Object object) {
-                            showToast(getString(R.string.label_error_occurred_with_val, object));
-                        }
-                    });
-                } catch (Exception e) {
-                    showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
-                }*//*
-
-
-                //        rotation.setRepeatCount(0);
-
-//                v.clearAnimation();
-//                fab_radio.clearAnimation();
-                if (hasInternetConnection()) {
-                    if (prefMgr.selectedRadio() != null) {
-                        RadioInfo info = prefMgr.selectedRadio();
-                        Metadata metadata = new Metadata(info.getName(), info.getName(), info.getChannelFreq(), info.getName(), info.getStreamUrl());
-                        startPlay(metadata);
-                    } else {
-                        showToast(getString(R.string.error_please_select_radio_station));
-                    }
-
-                } else {
-                    showToast(getString(R.string.check_internet_connection));
-                }
-
-
-                if (prefMgr.read(UserGuide.INTRO_FOCUS_2, "").equals(UserGuide.INTRO_FOCUS_2)) {
-                    showPlayIntro();
-                }
-            }
-        });
-*/
     }
 
     private void logRegToken() {
@@ -701,7 +645,6 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
                 } else {
                     radioPlayerService.playOrPause(streamUrl, "...");
 //        radioManager.playOrStop(streamURL);
-//        http://edge.mixlr.com/channel/kijwr
                 }
             } else {
                 showToast(String.format("%s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));

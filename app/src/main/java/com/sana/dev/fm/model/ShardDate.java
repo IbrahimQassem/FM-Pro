@@ -27,9 +27,6 @@ public class ShardDate {
 
 
     public List<RadioInfo> getRadioInfoList() {
-        // Sort the list using the custom comparator
-//        Collections.sort(radioInfoList, new RadioInfo.RadioInfoPriorityComparator());
-////        Collections.reverse(radioInfoList);
         return radioInfoList;
     }
 

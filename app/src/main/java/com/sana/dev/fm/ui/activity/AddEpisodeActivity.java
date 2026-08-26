@@ -247,7 +247,6 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
             binding.titEpName.setText(epName);
             binding.titEpAnnouncer.setText(epAnnouncer);
             binding.titEpDesc.setText(epDesc);
-//           RadioInfo ri = radioInfo.findRadio(radioId,ShardDate.getInstance().getInfoList());
             binding.etStation.setText(radioInfo.getName());
             binding.etProgram.setText(programName);
             binding.titEpStreamUrl.setText(epStreamUrl);
