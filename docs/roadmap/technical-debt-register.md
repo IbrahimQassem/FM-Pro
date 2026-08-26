@@ -14,11 +14,11 @@
 | TD-007 | P0 | done | FCM/User/device data كانت تطبع في السجلات | Security | 1 | أزيلت القيم الحساسة من المسارات المرصودة وفُحص المصدر |
 | TD-008 | P0 | in progress | cleartext وصلاحيات هاتف/تخزين قديمة | Security | 1 | حُذفت privileged phone؛ يلزم حذف البقية أو استثناء host موثق ومختبر |
 | TD-009 | P0 | open | `RadioPlayerService` يحتفظ بـFloatingActionButton | Playback | 5 | MediaSessionService بلا مرجع UI |
-| TD-010 | P1 | in progress | أضيفت 3 اختبارات لمسار Splash فقط | Quality | 0–7 | تغطية seams والمسارات الحرجة حسب العقد |
+| TD-010 | P1 | in progress | أضيفت 6 اختبارات لقرارات Splash والوصول فقط | Quality | 0–7 | تغطية seams والمسارات الحرجة حسب العقد |
 | TD-011 | P1 | in progress | ثُبت Facebook 18.3.0؛ ما زالت dependencies قديمة وJCenter | Modernization | 0/2 | إصدارات مثبتة وrepositories دنيا وبناء متكرر |
 | TD-012 | P1 | open | نصوص وأيام إنجليزية داخل واجهات عربية | Product UX | 3/4 | موارد Locale واختبارات RTL |
 | TD-013 | P1 | open | بيانات ناقصة تعرض كـ`null - null` | Firebase | 2/4 | mapper validation وحالة UI مفهومة |
-| TD-014 | P1 | open | `MainActivity` وSplash يخلطان مسؤوليات كثيرة | Modernization | 1–3 | shell/use cases وخفض مسؤوليات موثق |
+| TD-014 | P1 | in progress | فُصل قرار الوصول في `StartupAccessPolicy`؛ ما زال Main/Splash يخلطان مسؤوليات كثيرة | Modernization | 1–3 | shell/use cases وخفض مسؤوليات موثق |
 | TD-015 | P0 | open | `internews` يفشل: لا Firebase client للحزمة `com.sanaadev.internews` | Firebase | 0 | إعداد flavor صالح أو قرار موثق بإيقافه، ثم build ناجح |
 | TD-016 | P0 | in progress | نموذج User كان يسلسل `password` ويسجل PII/tokens | Security | 1 | أوقفت الكتابة والتسجيل محليًا؛ يلزم جرد وحذف حقول الإنتاج وتحقق rules |
 

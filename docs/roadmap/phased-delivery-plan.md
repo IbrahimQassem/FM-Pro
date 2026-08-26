@@ -37,7 +37,9 @@
 الحالة: `in progress` منذ 2026-08-26.
 
 - [x] إصلاح `FIRST_TIME_VERSION` كي يكمل التحميل بعد ترقية الإصدار.
-- تصنيف أخطاء الشبكة وتوفير cached content.
+- [ ] تصنيف أخطاء الشبكة وتوفير cached content؛ أزيلت بوابة anonymous auth
+  الصلبة وأضيفت مهلة 3 ثوانٍ واستعادة قائمة المحطات المحلية، وتبقى حالات UI
+  الصريحة وبقية مصادر البيانات.
 - [ ] إيقاف logs الحساسة ومراجعة permissions وexported components وcleartext؛
   أزيلت سجلات FCM/User و`READ_PRIVILEGED_PHONE_STATE`.
 - فرض admin وownership عبر Firebase Rules وclaims.

@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -33,6 +34,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.gson.Gson;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.core.startup.StartupAccessPolicy;
 import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.ModelConfig;
@@ -52,13 +54,16 @@ import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
     private static final String TAG = "SplashActivity";
-    private final Integer START_DELAY = 1500;
+    private static final long START_DELAY_MS = 1500L;
+    private static final long AUTH_TIMEOUT_MS = 3000L;
     public PreferencesManager prefMgr;
     protected FirebaseCrashlytics crashlytics;
+    private final AtomicBoolean startupContinued = new AtomicBoolean(false);
 
     private TextView tv_trail;
 
@@ -83,49 +88,54 @@ public class SplashActivity extends AppCompatActivity {
         FirebaseUser currentUser = auth.getCurrentUser();
 
         if (currentUser != null) {
-            // User is already signed in
-            // Proceed with user-specific operations
-            updateUI(currentUser);
+            continueStartupOnce(true);
         } else {
-            // User is not signed in
-            // Proceed with sign-in logic
+            new Handler(Looper.getMainLooper()).postDelayed(
+                    () -> continueStartupOnce(false),
+                    AUTH_TIMEOUT_MS
+            );
             auth.signInAnonymously()
                     .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                         @Override
                         public void onSuccess(AuthResult authResult) {
-                            // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInAnonymously:success");
-                            FirebaseUser user = authResult.getUser();
-                            updateUI(user);
+                            continueStartupOnce(authResult.getUser() != null);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInAnonymously:failure", e);
-                            updateUI(null);
+                            Log.w(TAG, "Anonymous sign-in unavailable; continuing in listener mode");
+                            continueStartupOnce(false);
                         }
                     });
         }
 //        signInAnonymously();
     }
 
-    private void updateUI(FirebaseUser user) {
+    private void continueStartupOnce(boolean firebaseUserAvailable) {
+        if (startupContinued.compareAndSet(false, true)) {
+            continueStartup(firebaseUserAvailable);
+        }
+    }
+
+    private void continueStartup(boolean firebaseUserAvailable) {
         int requiredVersion = (int) Tools.getAppRemoteConfig().getRequiredVersion();
-        // Check for force update
-        if (isForceUpdateRequired(requiredVersion)) {
-            showDialogForForceUpdate();
-        } else {
-            if (user != null) {
-                // User is signed in
-                // Display welcome message or allow access to user-specific content
+        StartupAccessPolicy.Action action = StartupAccessPolicy.decide(
+                BuildConfig.VERSION_CODE,
+                requiredVersion,
+                firebaseUserAvailable
+        );
+        switch (action) {
+            case FORCE_UPDATE:
+                showDialogForForceUpdate();
+                break;
+            case CONTINUE_AUTHENTICATED:
+            case CONTINUE_LISTENER:
                 checkFirstTime();
-            } else {
-                // User is not signed in
-                // Display sign-in prompt or redirect to sign-in page
-                startActivity(new Intent(IntentHelper.noInternetActivity(SplashActivity.this, false)));
-            }
+                break;
+            default:
+                throw new IllegalStateException("Unsupported startup action: " + action);
         }
     }
 
@@ -157,15 +167,24 @@ public class SplashActivity extends AppCompatActivity {
                 if (prefMgr.selectedRadio() == null && radioInfoList != null && radioInfoList.size() > 0) {
                     prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, radioInfoList.get(0));
                 }
-                startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
+                openMainActivity();
             }
 
             @Override
             public void onFailure(Object object) {
-                LogUtility.e(TAG, " loadRadios :  " + object);
-                startActivity(new Intent(IntentHelper.mainActivity(SplashActivity.this, true)));
+                LogUtility.e(TAG, "Radio refresh unavailable; using cached stations");
+                List<RadioInfo> cachedRadios = prefMgr.getRadioList();
+                if (cachedRadios == null) {
+                    cachedRadios = new ArrayList<>();
+                }
+                ShardDate.getInstance().setRadioInfoList(cachedRadios);
+                openMainActivity();
             }
         });
+    }
+
+    private void openMainActivity() {
+        startActivity(IntentHelper.mainActivity(SplashActivity.this, true));
     }
 
     private void setFullScreen() {
@@ -226,7 +245,6 @@ public class SplashActivity extends AppCompatActivity {
                                 // Access and use data from remoteConfigObject
                                 // Save the entire config as a String (optional, consider specific data access)
                                 prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, remoteConfigObject.toString());
-                                Log.d(TAG, "RemoteConfig Fetch Success: " + remoteConfigObject.toString());
 
 //                                if (remoteConfigObject.isTrialMode()) {
 //                                    tv_trail.setVisibility(View.VISIBLE);
@@ -306,14 +324,6 @@ public class SplashActivity extends AppCompatActivity {
         prefMgr.write(AppConstant.General.APP_REMOTE_CONFIG, remoteConfig.toString());
     }
 
-    private boolean isForceUpdateRequired(int requiredVersion) {
-        // Todo
-        int currentVersion = BuildConfig.VERSION_CODE;
-//        String deviceLanguage = Locale.getDefault().getLanguage();
-        return currentVersion < requiredVersion /*&& forceUpdateLanguages.contains(deviceLanguage)*/;
-//        return false;
-    }
-
     private void showDialogForForceUpdate() {
         ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_update_now), getString(R.string.label_force_update_message), null, new ButtonConfig(getString(R.string.label_force_update_title), new View.OnClickListener() {
             @Override
@@ -356,7 +366,7 @@ public class SplashActivity extends AppCompatActivity {
 
 
     private void checkFirstTime() {
-        new Handler().postDelayed(new Runnable() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 switch (getStartAction(checkAppStart())) {
@@ -372,7 +382,7 @@ public class SplashActivity extends AppCompatActivity {
                 }
 
             }
-        }, START_DELAY);
+        }, START_DELAY_MS);
 
     }
 
