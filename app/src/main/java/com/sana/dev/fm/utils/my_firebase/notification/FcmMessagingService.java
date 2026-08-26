@@ -46,8 +46,6 @@ public class FcmMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
-
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
 //            handleDataMessage(remoteMessage.getData());
@@ -182,7 +180,6 @@ public class FcmMessagingService extends FirebaseMessagingService {
 // Set the image for the notification
         if (imageUri != null) {
             try {
-                Log.w(TAG, "Image  : " + imageUri);
 //                String imageUrl = "";
 //                ImageView imageView = new ImageView();
 //                new DownloadImageTask(imageView).execute(imageUrl);
@@ -200,8 +197,7 @@ public class FcmMessagingService extends FirebaseMessagingService {
 
 
             } catch (Exception e) {
-                e.printStackTrace();
-                Log.e(TAG, "Image Notification not exist : " + e);
+                Log.e(TAG, "Notification image could not be loaded");
             }
         }
 

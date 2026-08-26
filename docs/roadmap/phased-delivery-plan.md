@@ -44,7 +44,9 @@
 - [ ] إيقاف logs الحساسة ومراجعة permissions وexported components وcleartext؛
   أزيلت سجلات FCM/User وصلاحيات الهاتف والتخزين، وصارت الكاميرا مطلوبة لمسار
   الالتقاط فقط. يبقى حصر مضيفي البث الديناميكي قبل استبدال cleartext العام
-  باستثناءات محددة، ثم مراجعة exported components.
+  باستثناءات محددة. صارت خدمتَا FCM والمشغل الداخلي غير مصدّرتين، وأزيلت
+  صلاحية `FCM_SEND` اليدوية؛ بقيت المكونات المصدّرة ذات عقود Launcher أو
+  Facebook callback أو media-button فقط.
 - فرض admin وownership عبر Firebase Rules وclaims.
 - إضافة smoke tests للبدء والتسجيل والتعليقات.
 
