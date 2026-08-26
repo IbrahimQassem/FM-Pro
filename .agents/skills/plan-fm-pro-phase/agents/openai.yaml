@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plan FM-Pro Phase"
+  short_description: "Scope one native delivery phase with gates"
+  default_prompt: "Use $plan-fm-pro-phase to turn the next FM-Pro roadmap phase into executable vertical slices."

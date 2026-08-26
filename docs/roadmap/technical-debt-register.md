@@ -1,0 +1,36 @@
+# Technical debt register
+
+هذا الملف هو المصدر الوحيد لحالة الدين التقني. كل بند يملك دليلًا، خطرًا، مالكًا،
+مرحلة هدف، ومعيار إغلاق قابلًا للتحقق.
+
+| ID | الأولوية | الحالة | الدين والدليل | المالك | المرحلة | معيار الإغلاق |
+|---|---|---|---|---|---|---|
+| TD-001 | P1 | done | 12 ملف Java كانت كلها كودًا معلّقًا بلا مراجع | Modernization | 0 | حذفها وبناء التطبيق بنجاح |
+| TD-002 | P0 | open | `key.properties` متتبع ويحمل بيانات توقيع | Security | 0/1 | تدوير السر، إلغاء التتبع، example آمن، فحص التاريخ |
+| TD-003 | P0 | open | AGP 7.2.1/Gradle 7.6.3 وJDK غير مثبت آليًا | Modernization | 0 | toolchain موثق وCI حتمي وترقية متدرجة |
+| TD-004 | P0 | open | Firebase SDK مستخدم مباشرة في UI/Adapters | Firebase | 2 | لا وصول جديد وميزة Programs خلف repository |
+| TD-005 | P0 | open | admin يعتمد على `UserType` محلي | Security | 1/6 | Rules/claims واختبارات denied مثبتة |
+| TD-006 | P0 | open | `FIRST_TIME_VERSION` لا يوجه المستخدم | Modernization | 1 | اختبار تحديث يفتح الوجهة الصحيحة |
+| TD-007 | P0 | open | FCM token يطبع في `MainActivity` | Security | 1 | إزالة logs وفحص release/debug |
+| TD-008 | P0 | open | cleartext وصلاحيات هاتف/تخزين قديمة | Security | 1 | حذفها أو استثناء host موثق ومختبر |
+| TD-009 | P0 | open | `RadioPlayerService` يحتفظ بـFloatingActionButton | Playback | 5 | MediaSessionService بلا مرجع UI |
+| TD-010 | P1 | open | اختبار placeholder واحد فقط | Quality | 0–7 | تغطية seams والمسارات الحرجة حسب العقد |
+| TD-011 | P1 | open | dependencies قديمة و`latest.release` وJCenter | Modernization | 0/2 | إصدارات مثبتة وrepositories دنيا وبناء متكرر |
+| TD-012 | P1 | open | نصوص وأيام إنجليزية داخل واجهات عربية | Product UX | 3/4 | موارد Locale واختبارات RTL |
+| TD-013 | P1 | open | بيانات ناقصة تعرض كـ`null - null` | Firebase | 2/4 | mapper validation وحالة UI مفهومة |
+| TD-014 | P1 | open | `MainActivity` وSplash يخلطان مسؤوليات كثيرة | Modernization | 1–3 | shell/use cases وخفض مسؤوليات موثق |
+| TD-015 | P0 | open | `internews` يفشل: لا Firebase client للحزمة `com.sanaadev.internews` | Firebase | 0 | إعداد flavor صالح أو قرار موثق بإيقافه، ثم build ناجح |
+
+## TD-001 evidence
+
+الملفات المحذوفة كانت: `MusicServiceActivity`, `PermitActivity`, `PlayerActivity`,
+`SongListFragment`, `FmProgress`, `FireBaseHelper`, `FirebaseDatabaseReference`,
+`FirestoreHelperZ`, `FmProgramCRUDImpl`, `FmStationCRUDImpl`, `FmUserCRUDImpl`,
+`MediaNotificationManager`. لم يكن فيها أي سطر Java فعّال أو مرجع فعّال خارجها.
+
+## سياسة الإضافة والإغلاق
+
+- أضف بندًا فقط لعمل مؤجل يملك أثرًا حقيقيًا، لا لكل TODO صغير.
+- لا تغلق بندًا بالنية أو بإخفاء التحذير.
+- إذا استبدل بند بقرار معماري، اربطه بـADR ثم أغلقه.
+- أي debt جديد في مسار معدل يجب أن يكون أضيق من الدين الذي أزيل، مع موعد إزالة.

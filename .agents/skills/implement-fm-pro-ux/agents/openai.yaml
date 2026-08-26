@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implement FM-Pro UX"
+  short_description: "Build accessible Arabic RTL Android flows"
+  default_prompt: "Use $implement-fm-pro-ux to improve this FM-Pro screen under the product and accessibility contracts."

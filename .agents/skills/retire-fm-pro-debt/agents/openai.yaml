@@ -1,0 +1,4 @@
+interface:
+  display_name: "Retire FM-Pro Debt"
+  short_description: "Delete proven dead code and close one debt"
+  default_prompt: "Use $retire-fm-pro-debt to close this FM-Pro debt item with caller and build evidence."

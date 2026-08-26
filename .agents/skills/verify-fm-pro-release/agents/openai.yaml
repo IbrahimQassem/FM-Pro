@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify FM-Pro Release"
+  short_description: "Check contracts, flavors, tests, and rollout"
+  default_prompt: "Use $verify-fm-pro-release to verify this FM-Pro change and report pass, fail, or not-run evidence."
