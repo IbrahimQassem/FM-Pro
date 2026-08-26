@@ -2,14 +2,12 @@ package com.sana.dev.fm.utils;
 
 import static com.sana.dev.fm.FmApplication.TAG;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -22,7 +20,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.OpenableColumns;
 import android.provider.Settings;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -948,30 +945,13 @@ public class FmUtilize {
     }
 
     public static String getIMEIDeviceId(Context context) {
-
-        String deviceId;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        } else {
-            final TelephonyManager mTelephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                    return "";
-                }
-            }
-            assert mTelephony != null;
-            if (mTelephony.getDeviceId() != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    deviceId = mTelephony.getImei();
-                } else {
-                    deviceId = mTelephony.getDeviceId();
-                }
-            } else {
-                deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-            }
-        }
-        return deviceId;
+        String androidId = Settings.Secure.getString(
+                context.getContentResolver(),
+                Settings.Secure.ANDROID_ID
+        );
+        return androidId == null || androidId.trim().isEmpty()
+                ? deviceId(context)
+                : androidId;
     }
 
 
@@ -1026,4 +1006,3 @@ public class FmUtilize {
 //        }
 //    }
 //}
-

@@ -41,7 +41,9 @@
   الصلبة وأضيفت مهلة 3 ثوانٍ واستعادة قائمة المحطات المحلية، وتبقى حالات UI
   الصريحة وبقية مصادر البيانات.
 - [ ] إيقاف logs الحساسة ومراجعة permissions وexported components وcleartext؛
-  أزيلت سجلات FCM/User و`READ_PRIVILEGED_PHONE_STATE`.
+  أزيلت سجلات FCM/User وصلاحيات الهاتف والتخزين، وصارت الكاميرا مطلوبة لمسار
+  الالتقاط فقط. يبقى حصر مضيفي البث الديناميكي قبل استبدال cleartext العام
+  باستثناءات محددة، ثم مراجعة exported components.
 - فرض admin وownership عبر Firebase Rules وclaims.
 - إضافة smoke tests للبدء والتسجيل والتعليقات.
 

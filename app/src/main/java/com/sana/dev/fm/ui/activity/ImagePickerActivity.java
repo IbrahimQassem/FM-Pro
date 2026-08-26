@@ -36,10 +36,7 @@ import java.util.UUID;
 public class ImagePickerActivity extends AppCompatActivity {
     private static final String TAG = ImagePickerActivity.class.getSimpleName();
 
-    //    public static final String[] PERMISSIONS = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE;
-    public static final String[] PERMISSIONS = {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
     public static final String[] PERMISSIONSCAMERA = {Manifest.permission.CAMERA};
-    public static final String[] PERMISSIONSREAD_EXTERNAL_STORAGE = {Manifest.permission.CAMERA};
     public static final String INTENT_IMAGE_PICKER_OPTION = "image_picker_option";
     public static final String INTENT_ASPECT_RATIO_X = "aspect_ratio_x";
     public static final String INTENT_ASPECT_RATIO_Y = "aspect_ratio_Y";
@@ -142,31 +139,16 @@ public class ImagePickerActivity extends AppCompatActivity {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, getCacheImagePath(fileName));
+            takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             ImagePickerActivity.this.startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
     }
 
     private void chooseImageFromGallery() {
-        Dexter.withContext(this)
-                .withPermissions(PERMISSIONSREAD_EXTERNAL_STORAGE)
-                .withListener(new MultiplePermissionsListener() {
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport report) {
-                        if (report.areAllPermissionsGranted()) {
-                            Intent pickPhoto = new Intent(Intent.ACTION_PICK,
-                                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                            startActivityForResult(pickPhoto, REQUEST_GALLERY_IMAGE);
-                        }
-                    }
-
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List<com.karumi.dexter.listener.PermissionRequest> list, PermissionToken permissionToken) {
-                        permissionToken.continuePermissionRequest();
-                    }
-
-
-                }).check();
-
+        Intent pickPhoto = new Intent(Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(pickPhoto, REQUEST_GALLERY_IMAGE);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

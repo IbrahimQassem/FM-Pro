@@ -12,7 +12,7 @@
 | TD-005 | P0 | open | admin يعتمد على `UserType` محلي | Security | 1/6 | Rules/claims واختبارات denied مثبتة |
 | TD-006 | P0 | done | `FIRST_TIME_VERSION` كان يوقف مسار البدء | Modernization | 1 | صار مسار الترقية يستدعي `loadRadios` والبناء ناجح |
 | TD-007 | P0 | done | FCM/User/device data كانت تطبع في السجلات | Security | 1 | أزيلت القيم الحساسة من المسارات المرصودة وفُحص المصدر |
-| TD-008 | P0 | in progress | cleartext وصلاحيات هاتف/تخزين قديمة | Security | 1 | حُذفت privileged phone؛ يلزم حذف البقية أو استثناء host موثق ومختبر |
+| TD-008 | P0 | in progress | أزيلت صلاحيات الهاتف والتخزين؛ ما زال cleartext عامًا بسبب روابط بث ديناميكية | Security | 1 | حصر مضيفي الإنتاج واستبدال العام باستثناء host موثق ومختبر |
 | TD-009 | P0 | open | `RadioPlayerService` يحتفظ بـFloatingActionButton | Playback | 5 | MediaSessionService بلا مرجع UI |
 | TD-010 | P1 | in progress | أضيفت 6 اختبارات لقرارات Splash والوصول فقط | Quality | 0–7 | تغطية seams والمسارات الحرجة حسب العقد |
 | TD-011 | P1 | in progress | ثُبت Facebook 18.3.0؛ ما زالت dependencies قديمة وJCenter | Modernization | 0/2 | إصدارات مثبتة وrepositories دنيا وبناء متكرر |

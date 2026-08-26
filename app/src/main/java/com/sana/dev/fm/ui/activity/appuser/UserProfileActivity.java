@@ -65,7 +65,6 @@ public class UserProfileActivity extends BaseActivity {
 //    private UserModel _userModel;
     private FirestoreDbUtility firestoreDbUtility;
 
-//    private ProfileImageHelper profileImageHelper;
 
     private Uri imageUri = null;
     private KProgressHUDHelper kProgressHUDHelper;
@@ -86,7 +85,6 @@ public class UserProfileActivity extends BaseActivity {
         prefMgr = PreferencesManager.getInstance();
         kProgressHUDHelper = new KProgressHUDHelper(this);
 
-//        profileImageHelper = new ProfileImageHelper(this);
 
 
         initToolbar();
@@ -193,7 +191,6 @@ public class UserProfileActivity extends BaseActivity {
         binding.rtlImgParent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                profileImageHelper.onImageSelect();
                 showImagePickerOptions();
             }
         });

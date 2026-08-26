@@ -51,7 +51,6 @@ import java.util.List;
  * Created by  Ibrahim on 25.03.21.
  */
 public class ProgramDetailsActivity extends BaseActivity implements RevealBackgroundView.OnStateChangeListener {
-    public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
     public static final String ARG_REVEAL_START_LOCATION = "reveal_start_location";
     private static final int USER_OPTIONS_ANIMATION_DELAY = 300;
     private static final Interpolator INTERPOLATOR = new DecelerateInterpolator();

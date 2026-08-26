@@ -10,7 +10,7 @@
     <string name="app_mobile" translatable="false">+967 775617017</string>
     <string name="app_twitter" translatable="false">https://twitter.com/HudhudFm</string>
     <string name="app_facebook" translatable="false">https://www.facebook.com/HudhudFm</string>
-    <string name="app_instagram" translatable="false">http://instagram.com/hudhudfm</string>
+    <string name="app_instagram" translatable="false">https://instagram.com/hudhudfm</string>
 
     <string name="developer_reference" translatable="false">https://sanaa-dev.web.app</string>
     <string name="terms_reference" translatable="false">https://doc-hosting.flycricket.io/hudhud-fm-terms-policy/792dff13-4452-4693-978c-bfcfc1d7c8b0/privacy</string>

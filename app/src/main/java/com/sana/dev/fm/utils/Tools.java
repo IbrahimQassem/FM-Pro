@@ -458,7 +458,7 @@ public class Tools {
         try {
             activity.startActivity(goToMarket);
         } catch (ActivityNotFoundException e) {
-            activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + activity.getPackageName())));
+            activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + activity.getPackageName())));
         }
     }
 
