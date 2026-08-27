@@ -13,15 +13,14 @@
 
         <TextView
             android:id="@+id/tvTittle"
+            style="@style/TextAppearance.FMPro.TitleSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/spacing_middle"
             android:gravity="center_vertical"
-            android:paddingStart="@dimen/spacing_middle"
-            android:paddingTop="@dimen/spacing_middle"
-            android:paddingEnd="@dimen/spacing_middle"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:textColor="@color/grey_90"
+            android:paddingHorizontal="@dimen/spacing_md"
+            android:paddingTop="@dimen/spacing_sm"
+            android:paddingBottom="@dimen/spacing_xs"
+            android:textColor="@color/md_theme_onSurfaceVariant"
             tools:text="@string/label_label" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -29,7 +28,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:padding="@dimen/spacing_middle"
+            android:paddingHorizontal="@dimen/spacing_sm"
+            android:paddingTop="@dimen/spacing_xs"
+            android:paddingBottom="120dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/item_programs" />
 

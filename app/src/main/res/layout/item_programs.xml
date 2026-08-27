@@ -8,294 +8,272 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingBottom="@dimen/spacing_middle">
+        android:paddingHorizontal="@dimen/spacing_xs"
+        android:paddingBottom="@dimen/spacing_md">
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_xmedium"
-            android:layout_marginEnd="@dimen/spacing_xmedium"
-            android:visibility="visible"
-            app:cardCornerRadius="6dp"
-            app:cardElevation="2dp"
-            app:cardUseCompatPadding="true">
+            app:cardBackgroundColor="@color/md_theme_surface"
+            app:cardCornerRadius="@dimen/corner_radius_lg"
+            app:cardElevation="@dimen/elevation_level1"
+            app:strokeColor="@color/md_theme_outlineVariant"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-
+                <!-- Program Hero / Banner Image -->
                 <ImageView
                     android:id="@+id/iv_banner"
                     android:layout_width="match_parent"
-                    android:layout_height="220dp"
+                    android:layout_height="180dp"
                     android:adjustViewBounds="true"
-                    android:background="@color/transparent"
+                    android:background="@color/md_theme_surfaceVariant"
                     android:contentDescription="@string/app_name"
-                    android:scaleType="fitCenter"
-                    android:transitionName="@string/app_name"
+                    android:scaleType="centerCrop"
                     app:srcCompat="@drawable/logo_app" />
 
-                <View
-                    android:id="@+id/view"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="@dimen/spacing_large"
-                    android:background="@color/grey_5" />
-
+                <!-- Program Header Bar -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center|center_vertical"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="@dimen/spacing_xmedium">
+                    android:paddingHorizontal="@dimen/spacing_md"
+                    android:paddingVertical="@dimen/spacing_sm">
 
-
-                    <!-- Round corners -->
+                    <!-- Program Logo / Avatar -->
                     <com.sana.dev.fm.ui.view.RoundImageView
                         android:id="@+id/civ_logo"
-                        android:layout_width="@dimen/spacing_xxlarge"
-                        android:layout_height="@dimen/spacing_xxlarge"
-                        android:layout_marginStart="@dimen/spacing_large"
-                        android:layout_marginEnd="@dimen/spacing_medium"
-                        android:foreground="@color/overlay_light_20"
-                        android:scaleType="fitCenter"
-                        app:borderColor="?attr/colorPrimary"
-                        app:borderWidth="0.5dp"
-                        app:cornerRadius="50dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:contentDescription="@null"
+                        android:scaleType="centerCrop"
+                        app:borderColor="@color/md_theme_outlineVariant"
+                        app:borderWidth="1dp"
+                        app:cornerRadius="22dp"
                         app:srcCompat="@mipmap/ic_launcher" />
 
+                    <!-- Program Title & Tag -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="@dimen/spacing_sm"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:paddingStart="@dimen/spacing_medium"
-                        android:paddingEnd="@dimen/spacing_medium">
+                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/title"
-                            style="@style/TextBold"
+                            style="@style/TextAppearance.FMPro.TitleMedium"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
                             android:ellipsize="end"
                             android:maxLines="1"
-                            android:textColor="@color/grey_80"
-                            tools:text="@string/app_name" />
+                            tools:text="البرنامج العام" />
 
                         <TextView
                             android:id="@+id/tv_tag"
-                            style="@style/TextMedium"
-                            android:padding="@dimen/spacing_medium"
-                            android:textColor="@color/grey_40"
+                            style="@style/TextAppearance.FMPro.BodySmall"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/md_theme_onSurfaceVariant"
+                            android:visibility="gone"
                             tools:text="@string/label_tag" />
-
                     </LinearLayout>
 
-                    <ImageView
+                    <!-- Expand / Collapse Toggle Button -->
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/bt_toggle"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:padding="@dimen/spacing_large"
-                        app:srcCompat="@drawable/ic_expand_arrow"
-                        app:tint="@color/grey_500" />
-
+                        style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                        android:layout_width="@dimen/min_touch_target_size"
+                        android:layout_height="@dimen/min_touch_target_size"
+                        android:contentDescription="@string/more"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        android:padding="0dp"
+                        app:icon="@drawable/ic_expand_arrow"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:iconSize="24dp"
+                        app:iconTint="@color/md_theme_primary" />
                 </LinearLayout>
 
-
-                <androidx.core.widget.NestedScrollView
-                    android:id="@+id/nested_scroll_view"
+                <!-- Expandable Metadata Details Container -->
+                <LinearLayout
+                    android:id="@+id/lyt_more"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scrollbars="none"
-                    android:scrollingCache="true"
-                    app:layout_constraintTop_toBottomOf="@+id/bt_toggle">
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/spacing_sm"
+                    android:layout_marginBottom="@dimen/spacing_sm"
+                    android:background="@drawable/shape_round_corner"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_md"
+                    android:visibility="visible">
 
-
+                    <!-- 1. Description Section -->
                     <LinearLayout
-                        android:id="@+id/lyt_more"
+                        android:id="@+id/lyt_parent_desc"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_middle"
-                        android:layout_marginBottom="@dimen/spacing_large"
-                        android:background="@color/grey_50"
-                        android:orientation="vertical"
-                        android:visibility="visible"
-                        app:layout_constraintTop_toBottomOf="@+id/civ_logo">
-
-                        <!--                <View-->
-                        <!--                    android:layout_width="match_parent"-->
-                        <!--                    android:layout_height="1dp"-->
-                        <!--                    android:layout_marginHorizontal="@dimen/spacing_large"-->
-                        <!--                    android:layout_marginLeft="@dimen/spacing_large"-->
-                        <!--                    android:layout_marginRight="@dimen/spacing_large"-->
-                        <!--                    android:background="@color/grey_10" />-->
+                        android:layout_marginBottom="@dimen/spacing_sm"
+                        android:orientation="vertical">
 
                         <LinearLayout
-                            android:id="@+id/lyt_parent_desc"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical">
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:contentDescription="@null"
+                                android:src="@drawable/ic_info"
+                                app:tint="@color/md_theme_primary" />
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.LabelMedium"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:gravity="center|center_vertical"
-                                android:padding="@dimen/spacing_large">
-
-                                <TextView
-                                    style="@style/TextBold"
-                                    android:layout_width="match_parent"
-                                    android:layout_weight="2"
-                                    android:text="@string/label_desc"
-                                    android:textColor="@color/grey_80" />
-
-                                <TextView
-                                    android:id="@+id/tv_desc"
-                                    style="@style/TextMedium"
-                                    android:layout_width="match_parent"
-                                    android:layout_weight="1"
-                                    tools:text="@string/label_desc" />
-
-                            </LinearLayout>
-
-                            <View
-                                android:layout_width="match_parent"
-                                android:layout_height="1dp"
-                                android:layout_marginLeft="@dimen/spacing_large"
-                                android:layout_marginRight="@dimen/spacing_large"
-                                android:background="@color/grey_10" />
-
+                                android:layout_marginStart="@dimen/spacing_xs"
+                                android:text="@string/label_desc"
+                                android:textColor="@color/md_theme_primary" />
                         </LinearLayout>
 
-
-                        <LinearLayout
-                            android:id="@+id/lyt_parent_category"
+                        <TextView
+                            android:id="@+id/tv_desc"
+                            style="@style/TextAppearance.FMPro.BodyMedium"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:orientation="horizontal"
-                                android:padding="@dimen/spacing_large">
-
-                                <TextView
-                                    style="@style/TextBold"
-                                    android:layout_width="match_parent"
-                                    android:layout_weight="2"
-                                    android:text="@string/label_program_category"
-                                    android:textColor="@color/grey_80" />
-
-
-                                <com.google.android.flexbox.FlexboxLayout
-                                    android:id="@+id/flex_category"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    app:flexWrap="wrap"
-                                    app:justifyContent="flex_end">
-
-                                </com.google.android.flexbox.FlexboxLayout>
-
-                            </LinearLayout>
-
-                            <View
-                                android:layout_width="match_parent"
-                                android:layout_height="1dp"
-                                android:layout_marginLeft="@dimen/spacing_large"
-                                android:layout_marginRight="@dimen/spacing_large"
-                                android:background="@color/grey_10" />
-
-                        </LinearLayout>
-
-
-                        <LinearLayout
-                            android:id="@+id/lyt_parent_day_period"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:orientation="horizontal"
-                                android:padding="@dimen/spacing_large">
-
-                                <TextView
-                                    style="@style/TextBold"
-                                    android:layout_width="match_parent"
-                                    android:layout_weight="2"
-                                    android:text="@string/label_show_date"
-                                    android:textColor="@color/grey_80" />
-
-                                <TextView
-                                    android:id="@+id/tv_day_period"
-                                    style="@style/TextMedium"
-                                    android:layout_width="match_parent"
-                                    android:layout_weight="1"
-                                    tools:text="@string/ex_date" />
-
-                            </LinearLayout>
-
-                            <View
-                                android:layout_width="match_parent"
-                                android:layout_height="1dp"
-                                android:layout_marginLeft="@dimen/spacing_large"
-                                android:layout_marginRight="@dimen/spacing_large"
-                                android:background="@color/grey_10" />
-
-                        </LinearLayout>
-
-
-                        <LinearLayout
-                            android:id="@+id/lyt_parent_show_days"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:orientation="horizontal"
-                                android:padding="@dimen/spacing_large">
-
-                                <TextView
-                                    style="@style/TextBold"
-                                    android:layout_width="match_parent"
-                                    android:layout_weight="2"
-                                    android:text="@string/label_show_days"
-                                    android:textColor="@color/grey_80" />
-
-
-                                <com.google.android.flexbox.FlexboxLayout
-                                    android:id="@+id/flex_day_show"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    app:flexWrap="wrap"
-                                    app:justifyContent="flex_end" />
-
-                            </LinearLayout>
-
-
-                        </LinearLayout>
-
-
+                            android:layout_marginTop="@dimen/spacing_xxs"
+                            android:textColor="@color/md_theme_onSurface"
+                            tools:text="وصف تفصيلي للبرنامج وفقراته الإذاعية" />
                     </LinearLayout>
 
+                    <!-- 2. Program Categories Section -->
+                    <LinearLayout
+                        android:id="@+id/lyt_parent_category"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/spacing_sm"
+                        android:orientation="vertical">
 
-                </androidx.core.widget.NestedScrollView>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
 
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:contentDescription="@null"
+                                android:src="@drawable/ic_ballot"
+                                app:tint="@color/md_theme_primary" />
 
+                            <TextView
+                                style="@style/TextAppearance.FMPro.LabelMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/spacing_xs"
+                                android:text="@string/label_program_category"
+                                android:textColor="@color/md_theme_primary" />
+                        </LinearLayout>
+
+                        <com.google.android.flexbox.FlexboxLayout
+                            android:id="@+id/flex_category"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            app:flexWrap="wrap"
+                            app:justifyContent="flex_start" />
+                    </LinearLayout>
+
+                    <!-- 3. Broadcast Date Period Section -->
+                    <LinearLayout
+                        android:id="@+id/lyt_parent_day_period"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/spacing_sm"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:contentDescription="@null"
+                                android:src="@drawable/ic_date_range"
+                                app:tint="@color/md_theme_primary" />
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.LabelMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/spacing_xs"
+                                android:text="@string/label_show_date"
+                                android:textColor="@color/md_theme_primary" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tv_day_period"
+                            style="@style/TextAppearance.FMPro.BodyMedium"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xxs"
+                            android:textColor="@color/md_theme_onSurface"
+                            tools:text="من ١ يناير الى ٣١ ديسمبر" />
+                    </LinearLayout>
+
+                    <!-- 4. Broadcast Weekdays Section -->
+                    <LinearLayout
+                        android:id="@+id/lyt_parent_show_days"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:contentDescription="@null"
+                                android:src="@drawable/ic_access_time"
+                                app:tint="@color/md_theme_primary" />
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.LabelMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/spacing_xs"
+                                android:text="@string/label_show_days"
+                                android:textColor="@color/md_theme_primary" />
+                        </LinearLayout>
+
+                        <com.google.android.flexbox.FlexboxLayout
+                            android:id="@+id/flex_day_show"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            app:flexWrap="wrap"
+                            app:justifyContent="flex_start" />
+                    </LinearLayout>
+
+                </LinearLayout>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
-
 </layout>

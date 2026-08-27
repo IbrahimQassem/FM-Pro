@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
 import androidx.core.content.ContextCompat;
@@ -176,69 +177,74 @@ public class AdapterMainProgram extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public void initExpand(MyViewHolder holder, RadioProgram program) {
+        holder.binding.flexDayShow.removeAllViews();
+        holder.binding.flexCategory.removeAllViews();
+
         if (program.getProgramScheduleTime() != null) {
             DateTimeModel dateTime = program.getProgramScheduleTime();
             List<Weekday> arDayList = safeList(dateTime.getWeekdays());
-//            if (arDayList.size() > 0) {
-            for (int i2 = 0; i2 < arDayList.size(); i2++) {
-                int pixels = Math.round(Tools.dip2px(ctx, 40));
+            if (!arDayList.isEmpty()) {
+                holder.binding.lytParentShowDays.setVisibility(View.VISIBLE);
+                int chipHeight = Math.round(Tools.dip2px(ctx, 32));
+                int chipMargin = Math.round(Tools.dip2px(ctx, 4));
+                int chipPaddingH = Math.round(Tools.dip2px(ctx, 12));
 
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        pixels);
+                for (int i = 0; i < arDayList.size(); i++) {
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            chipHeight);
+                    params.setMargins(chipMargin, chipMargin, chipMargin, chipMargin);
 
-                Button btn = new Button(ctx);
-                btn.setId(i2);
+                    TextView chip = new TextView(ctx);
+                    chip.setText(WeekdayUtils.getLocalizedDayName(arDayList.get(i), "ar"));
+                    chip.setBackground(ContextCompat.getDrawable(ctx, R.drawable.bg_program_chip));
+                    chip.setTextColor(ContextCompat.getColor(ctx, R.color.md_theme_onSurface));
+                    chip.setTextSize(12f);
+                    chip.setGravity(android.view.Gravity.CENTER);
+                    chip.setPadding(chipPaddingH, 0, chipPaddingH, 0);
 
-                String dayName = WeekdayUtils.getLocalizedDayName(arDayList.get(i2), "ar");
-                btn.setText(dayName);
-                final int sdk = android.os.Build.VERSION.SDK_INT;
-                if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-                    btn.setBackgroundDrawable(ContextCompat.getDrawable(ctx, R.drawable.btn_rounded_darker));
-                } else {
-                    btn.setBackground(ContextCompat.getDrawable(ctx, R.drawable.btn_rounded_darker));
+                    Typeface typeface = ResourcesCompat.getFont(ctx, R.font.tj_regular);
+                    if (typeface != null) chip.setTypeface(typeface);
+
+                    holder.binding.flexDayShow.addView(chip, params);
                 }
-                btn.setTextColor(ctx.getResources().getColor(R.color.grey_60));
-                Typeface typeface = ResourcesCompat.getFont(ctx, R.font.tj_regular);
-                btn.setTypeface(typeface);
-                holder.binding.flexDayShow.addView(btn, params);
+            } else {
+                holder.binding.lytParentShowDays.setVisibility(View.GONE);
             }
-//            } else {
-//                holder.binding.lytParentShowDays.setVisibility(View.GONE);
-//            }
         } else {
             holder.binding.lytParentShowDays.setVisibility(View.GONE);
         }
 
-        if (program.getPrCategoryList() != null) {
-            int index = 0;
+        if (program.getPrCategoryList() != null && !safeList(program.getPrCategoryList()).isEmpty()) {
+            holder.binding.lytParentCategory.setVisibility(View.VISIBLE);
+            int chipHeight = Math.round(Tools.dip2px(ctx, 32));
+            int chipMargin = Math.round(Tools.dip2px(ctx, 4));
+            int chipPaddingH = Math.round(Tools.dip2px(ctx, 12));
+
             for (Object o : safeList(program.getPrCategoryList())) {
-                // do whatever
-                int pixels = Math.round(Tools.dip2px(ctx, 40));
+                if (o == null || o.toString().trim().isEmpty()) continue;
 
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.WRAP_CONTENT,
-                        pixels);
+                        chipHeight);
+                params.setMargins(chipMargin, chipMargin, chipMargin, chipMargin);
 
-                Button btn = new Button(ctx);
-                btn.setId(index);
-                index++;
-                btn.setText(o.toString());
-                final int sdk = android.os.Build.VERSION.SDK_INT;
-                if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-                    btn.setBackgroundDrawable(ContextCompat.getDrawable(ctx, R.drawable.btn_rounded_darker));
-                } else {
-                    btn.setBackground(ContextCompat.getDrawable(ctx, R.drawable.btn_rounded_darker));
-                }
-                btn.setTextColor(ctx.getResources().getColor(R.color.grey_60));
+                TextView chip = new TextView(ctx);
+                chip.setText(o.toString());
+                chip.setBackground(ContextCompat.getDrawable(ctx, R.drawable.bg_program_chip));
+                chip.setTextColor(ContextCompat.getColor(ctx, R.color.md_theme_primary));
+                chip.setTextSize(12f);
+                chip.setGravity(android.view.Gravity.CENTER);
+                chip.setPadding(chipPaddingH, 0, chipPaddingH, 0);
+
                 Typeface typeface = ResourcesCompat.getFont(ctx, R.font.tj_regular);
-                btn.setTypeface(typeface);
-                holder.binding.flexCategory.addView(btn, params);
+                if (typeface != null) chip.setTypeface(typeface);
+
+                holder.binding.flexCategory.addView(chip, params);
             }
         } else {
             holder.binding.lytParentCategory.setVisibility(View.GONE);
         }
-
     }
 
     public void removeAt(int position) {
