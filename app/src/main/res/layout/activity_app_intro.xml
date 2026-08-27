@@ -12,6 +12,18 @@
         android:scaleType="centerCrop"
         app:srcCompat="@drawable/img_old_sanaa" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_skip"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/min_touch_target_size"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="@dimen/spacing_md"
+        android:minWidth="@dimen/min_touch_target_size"
+        android:text="@string/label_skip"
+        android:textColor="@color/md_theme_primary" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+JAVA_17_HOME="$(/usr/libexec/java_home -v 17)"
+FLAVOR="${1:-hudhudfm_google_play}"
+
+if [ "$FLAVOR" = "hudhud_fm" ]; then
+  TASK_NAME="installHudhud_fmDebug"
+  PACKAGE_NAME="com.sanaadev.hudhudfm"
+else
+  TASK_NAME="installHudhudfm_google_playDebug"
+  PACKAGE_NAME="com.sana.dev.fm"
+fi
+
+echo "==> Building and installing $FLAVOR via Gradle ($TASK_NAME)..."
+./gradlew -Dorg.gradle.java.home="$JAVA_17_HOME" ":app:$TASK_NAME" --no-daemon
+
+echo "==> Launching $PACKAGE_NAME/.ui.activity.SplashActivity on connected device/emulator..."
+adb shell am start -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -n "$PACKAGE_NAME/.ui.activity.SplashActivity"
+
+echo "==> Application launched successfully."

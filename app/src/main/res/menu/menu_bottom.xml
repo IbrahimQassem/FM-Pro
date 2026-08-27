@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/ic_home"
+        android:title="@string/nav_home" />
 
     <item
-        android:id="@+id/nav_more"
-        android:icon="@drawable/ic_more_grey"
-        android:title="@string/more" />
+        android:id="@+id/nav_daily_epi"
+        android:icon="@drawable/ic_av_timer"
+        android:title="@string/nav_episode_daily" />
 
     <item
         android:id="@+id/nav_radio_map"
@@ -13,19 +17,8 @@
         android:title="@string/label_radio_map" />
 
     <item
-        android:id="@+id/nav_daily_epi"
-        android:icon="@drawable/ic_av_timer"
-        android:title="@string/nav_episode_daily" />
-
-
-    <item
-        android:id="@+id/navigation_home"
-        android:icon="@drawable/ic_home"
-        android:title="@string/nav_home" />
-
-    <item
-        android:enabled="false"
-        android:title="" />
-
+        android:id="@+id/nav_more"
+        android:icon="@drawable/ic_account_circle"
+        android:title="@string/nav_account" />
 
 </menu>

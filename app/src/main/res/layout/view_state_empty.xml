@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/state_empty_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="@dimen/spacing_xl">
+
+    <ImageView
+        android:id="@+id/state_empty_icon"
+        android:layout_width="@dimen/state_icon_size"
+        android:layout_height="@dimen/state_icon_size"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_info"
+        app:tint="@color/md_theme_outline" />
+
+    <TextView
+        android:id="@+id/state_empty_title"
+        style="@style/TextAppearance.FMPro.TitleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:gravity="center"
+        android:text="@string/no_data_available" />
+
+    <TextView
+        android:id="@+id/state_empty_description"
+        style="@style/TextAppearance.FMPro.BodyMedium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:gravity="center"
+        android:text="@string/brows_more_station" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/state_empty_action_button"
+        style="@style/Widget.FMPro.Button.Tonal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_lg"
+        android:text="@string/label_main_screen"
+        android:visibility="gone" />
+
+</LinearLayout>

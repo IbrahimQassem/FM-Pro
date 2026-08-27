@@ -8,17 +8,17 @@
 | TD-001 | P1 | done | 12 ملف Java كانت كلها كودًا معلّقًا بلا مراجع | Modernization | 0 | حذفها وبناء التطبيق بنجاح |
 | TD-002 | P0 | open | أزيل `key.properties` حاليًا؛ السر التاريخي لم يُدوّر | Security | 0/1 | تدوير السر، إصدار موقّع، وتقييم التاريخ |
 | TD-003 | P0 | in progress | JDK 17 وCI مثبتان؛ AGP 7.2.1/Gradle 7.6.3 قديمان | Modernization | 0 | CI ناجح وترقية متدرجة بلا كسر flavors |
-| TD-004 | P0 | open | Firebase SDK مستخدم مباشرة في UI/Adapters؛ أزيل جلب المستخدم من CommentsAdapter واستعلام login الحساس | Firebase | 2 | لا وصول جديد وميزة Programs خلف repository |
+| TD-004 | P0 | in progress | Firebase SDK مستخدم مباشرة في UI/Adapters؛ تم إكمال عزل ميزة Programs بالكامل خلف `ProgramsRepository` و`ProgramsViewModel` وحذف الاستعلام المباشر في P2-05 | Firebase | 2 | لا وصول جديد وميزة Programs خلف repository |
 | TD-005 | P0 | in progress | القواعد المحلية تعتمد `admin` claim و19 اختبار denied؛ provisioning والنشر الإنتاجي غير منفذين | Security | 1/6 | خدمة claims موثوقة ونشر Rules واختبارات staging مثبتة |
 | TD-006 | P0 | done | `FIRST_TIME_VERSION` كان يوقف مسار البدء | Modernization | 1 | صار مسار الترقية يستدعي `loadRadios` والبناء ناجح |
 | TD-007 | P0 | done | FCM/User/device data كانت تطبع في السجلات | Security | 1 | أزيلت القيم الحساسة من المسارات المرصودة وفُحص المصدر |
 | TD-008 | P0 | in progress | أزيلت صلاحيات الهاتف والتخزين؛ ما زال cleartext عامًا بسبب روابط بث ديناميكية | Security | 1 | حصر مضيفي الإنتاج واستبدال العام باستثناء host موثق ومختبر |
 | TD-009 | P0 | open | `RadioPlayerService` يحتفظ بـFloatingActionButton | Playback | 5 | MediaSessionService بلا مرجع UI |
-| TD-010 | P1 | in progress | أضيفت 9 اختبارات Java و19 اختبار Firebase Rules | Quality | 0–7 | تغطية seams والمسارات الحرجة حسب العقد |
+| TD-010 | P1 | in progress | أضيفت 85 اختبار وحدة Java و19 اختبار Firebase Rules | Quality | 0–7 | تغطية seams والمسارات الحرجة حسب العقد |
 | TD-011 | P1 | in progress | ثُبت Facebook 18.3.0؛ ما زالت dependencies قديمة وJCenter | Modernization | 0/2 | إصدارات مثبتة وrepositories دنيا وبناء متكرر |
-| TD-012 | P1 | open | نصوص وأيام إنجليزية داخل واجهات عربية | Product UX | 3/4 | موارد Locale واختبارات RTL |
-| TD-013 | P1 | open | بيانات ناقصة تعرض كـ`null - null` | Firebase | 2/4 | mapper validation وحالة UI مفهومة |
-| TD-014 | P1 | in progress | فُصل قرار الوصول في `StartupAccessPolicy`؛ ما زال Main/Splash يخلطان مسؤوليات كثيرة | Modernization | 1–3 | shell/use cases وخفض مسؤوليات موثق |
+| TD-012 | P1 | done | تأسيس رموز Material 3 وحالات الشاشة المشتركة باللغة العربية واختبار مصفوفة RTL وAccessibility بالكامل في المرحلة 3 | Product UX | 3 | موارد Locale واختبارات RTL وAccessibility |
+| TD-013 | P1 | in progress | تم التحقق من سلامة الحقول الناقصة ومنع `null - null` عبر اختبارات `ProgramMapperTest` و`ScheduleMapperTest` ضمن P2-01 | Firebase | 2/4 | mapper validation وحالة UI مفهومة |
+| TD-014 | P1 | in progress | فُصل قرار الوصول في `StartupAccessPolicy`، وفُصلت حالة البرامج في `ProgramsViewModel`، وتوحد هيكل التنقل بـ4 وجهات و`AccountFragment` في P3-02؛ ما زال Main/Splash يخلطان مسؤوليات أخرى | Modernization | 1–3 | shell/use cases وخفض مسؤوليات موثق |
 | TD-015 | P0 | open | `internews` يفشل: لا Firebase client للحزمة `com.sanaadev.internews` | Firebase | 0 | إعداد flavor صالح أو قرار موثق بإيقافه، ثم build ناجح |
 | TD-016 | P0 | in progress | أوقف password/logs وtoken cache والنسخ الاحتياطي؛ القواعد تمنع إنشاء device/password أو تغيير الدور؛ حقول legacy قد تبقى في الإنتاج | Security | 1 | جرد وحذف حقول الإنتاج بأداة موثوقة وتحقق rules |
 | TD-017 | P1 | open | Android Lint يفشل بـ38 خطأ legacy و723 تحذيرًا؛ أولها `Range` في `FmUtilize` مع toolchain Kotlin قديم | Quality/Modernization | 2/7 | Lint ناجح بلا baseline يخفي الأخطاء، مع ترقية toolchain تدريجية |

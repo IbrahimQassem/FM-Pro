@@ -1,0 +1,68 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run: Build, Install & Launch (hudhudfm_google_play)",
+      "type": "shell",
+      "command": "./tools/run-app.sh hudhudfm_google_play",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run: Build, Install & Launch (hudhud_fm)",
+      "type": "shell",
+      "command": "./tools/run-app.sh hudhud_fm",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build: Assemble All Debug Flavors",
+      "type": "shell",
+      "command": "./gradlew -Dorg.gradle.java.home=$(/usr/libexec/java_home -v 17) :app:assembleHudhudfm_google_playDebug :app:assembleHudhud_fmDebug --no-daemon",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Unit Tests",
+      "type": "shell",
+      "command": "./gradlew -Dorg.gradle.java.home=$(/usr/libexec/java_home -v 17) testHudhudfm_google_playDebugUnitTest --no-daemon",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Verify: Governance & Debt Audit",
+      "type": "shell",
+      "command": "./tools/verify-governance.sh && ./tools/audit-technical-debt.sh",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

@@ -4,44 +4,45 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <LinearLayout
+    <com.sana.dev.fm.ui.widget.StateLayout
+        android:id="@+id/state_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-
-        <TextView
-            android:id="@+id/tvTittle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/spacing_middle"
-            android:gravity="center_vertical"
-            android:paddingStart="@dimen/spacing_middle"
-            android:paddingTop="@dimen/spacing_middle"
-            android:paddingEnd="@dimen/spacing_middle"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:textColor="@color/grey_90"
-            tools:text="@string/label_label" />
-
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:padding="@dimen/spacing_middle"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:listitem="@layout/item_timeline" />
+            android:orientation="vertical">
 
+            <TextView
+                android:id="@+id/tvTittle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/spacing_middle"
+                android:gravity="center_vertical"
+                android:paddingStart="@dimen/spacing_middle"
+                android:paddingTop="@dimen/spacing_middle"
+                android:paddingEnd="@dimen/spacing_middle"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textColor="@color/grey_90"
+                tools:text="@string/label_label" />
 
-        <FrameLayout
-            android:id="@+id/child_fragment_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:padding="@dimen/spacing_middle"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                tools:listitem="@layout/item_timeline" />
 
-    </LinearLayout>
+            <FrameLayout
+                android:id="@+id/child_fragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
 
+        </LinearLayout>
+    </com.sana.dev.fm.ui.widget.StateLayout>
 
 </FrameLayout>

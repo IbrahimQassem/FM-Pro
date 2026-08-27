@@ -34,6 +34,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.gson.Gson;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.core.playback.DefaultStationPolicy;
 import com.sana.dev.fm.core.startup.StartupAccessPolicy;
 import com.sana.dev.fm.model.AppRemoteConfig;
 import com.sana.dev.fm.model.ButtonConfig;
@@ -163,10 +164,11 @@ public class SplashActivity extends AppCompatActivity {
             public void onSuccess(Object object) {
                 List<RadioInfo> radioInfoList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioInfo.class);
                 ShardDate.getInstance().setRadioInfoList(radioInfoList);
-                prefMgr.setRadioInfo(new ArrayList<>(radioInfoList));
-                if (prefMgr.selectedRadio() == null && radioInfoList != null && radioInfoList.size() > 0) {
-                    prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, radioInfoList.get(0));
+                if (radioInfoList != null) {
+                    prefMgr.setRadioInfo(new ArrayList<>(radioInfoList));
                 }
+                RadioInfo activeStation = DefaultStationPolicy.resolveActiveStation(prefMgr.selectedRadio(), radioInfoList);
+                prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, activeStation);
                 openMainActivity();
             }
 
@@ -178,6 +180,8 @@ public class SplashActivity extends AppCompatActivity {
                     cachedRadios = new ArrayList<>();
                 }
                 ShardDate.getInstance().setRadioInfoList(cachedRadios);
+                RadioInfo activeStation = DefaultStationPolicy.resolveActiveStation(prefMgr.selectedRadio(), cachedRadios);
+                prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, activeStation);
                 openMainActivity();
             }
         });
@@ -404,11 +408,11 @@ public class SplashActivity extends AppCompatActivity {
         FIRST_TIME, FIRST_TIME_VERSION, NORMAL;
     }
 
-    enum AppStartAction {
+    public enum AppStartAction {
         LOAD_RADIOS, SHOW_INTRO
     }
 
-    static AppStartAction getStartAction(AppStart appStart) {
+    public static AppStartAction getStartAction(AppStart appStart) {
         return appStart == AppStart.FIRST_TIME
                 ? AppStartAction.SHOW_INTRO
                 : AppStartAction.LOAD_RADIOS;

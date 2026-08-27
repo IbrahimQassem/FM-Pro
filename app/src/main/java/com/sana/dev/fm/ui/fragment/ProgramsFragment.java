@@ -36,14 +36,20 @@ import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.ui.activity.ProgramDetailsActivity;
+import com.sana.dev.fm.data.datasource.FirestoreProgramsRemoteDataSource;
+import com.sana.dev.fm.data.datasource.ProgramsRemoteDataSource;
+import com.sana.dev.fm.data.mapper.ProgramMapper;
+import com.sana.dev.fm.data.repository.ProgramsRepositoryImpl;
+import com.sana.dev.fm.domain.model.Program;
+import com.sana.dev.fm.domain.repository.ProgramsRepository;
+import com.sana.dev.fm.feature.programs.state.ProgramsUiState;
+import com.sana.dev.fm.feature.programs.viewmodel.ProgramsViewModel;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
-import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
-import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -99,14 +105,14 @@ public class ProgramsFragment extends BaseFragment {
     private AdapterMainProgram mAdapter;
     private List<RadioProgram> itemList = new ArrayList<>();
     private FirestoreDbUtility firestoreDbUtility;
+    private ProgramsViewModel programsViewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        if (getArguments() != null) {
-//            radioId = getArguments().getString(ARG_RADIO_ID);
-//            itemList = (List<RadioProgram>) getArguments().getSerializable(ARG_RADIO_LIST);
-//        }
+        ProgramsRemoteDataSource remoteDataSource = new FirestoreProgramsRemoteDataSource();
+        ProgramsRepository repository = new ProgramsRepositoryImpl(remoteDataSource);
+        programsViewModel = new ProgramsViewModel(repository);
     }
 
     @Override
@@ -117,22 +123,6 @@ public class ProgramsFragment extends BaseFragment {
         ButterKnife.bind(this, parent_fragment_view);
         firestoreDbUtility = new FirestoreDbUtility();
         initComponent();
-
-//        itemList = DataGenerator.getProgramData(ctx);
-////        List<Episode> list = DataGenerator.getEpisodeData(ctx);
-//////        AdapterListInbox adapterListInbox = new AdapterListInbox(ctx, list);
-////
-//        mAdapter = new AdapterMainProgram(ctx, itemList, R.layout.item_programs);
-////        recyclerView.setAdapter(mAdapter);
-////        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-//
-//        // Removes blinks
-//        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
-//
-//        // Standard setup
-//        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-//        recyclerView.setAdapter(mAdapter);
-//        recyclerView.setHasFixedSize(true);
 
         return parent_fragment_view;
     }
@@ -156,15 +146,13 @@ public class ProgramsFragment extends BaseFragment {
 
     private void initComponent() {
         RadioInfo selectedRadio = prefMgr.selectedRadio();
-        if (selectedRadio != null) {
+        if (selectedRadio != null && selectedRadio.getRadioId() != null) {
             try {
 
                 SpannableStringBuilder builder = new SpannableStringBuilder();
 
                 String primary = (selectedRadio != null && selectedRadio.getName() != null) ? selectedRadio.getName() : " ";
                 SpannableString blueSpannable = new SpannableString(Html.fromHtml(" <b>" + primary + "</b> "));
-//        StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
-//        blueSpannable.setSpan(boldSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 blueSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimary)), 0, primary.length(), 0);
                 builder.append(blueSpannable);
 
@@ -173,120 +161,97 @@ public class ProgramsFragment extends BaseFragment {
                 whiteSpannable.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.grey_40)), 0, black.length(), 0);
                 builder.append(whiteSpannable);
 
-
                 tvTittle.setText(builder, TextView.BufferType.SPANNABLE);
 
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.e(TAG, "Error parsing remote config JSON: " + e.getMessage());
+                Log.e(TAG, "Error formatting title: " + e.getMessage());
             }
 
-            List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
-            firestoreQueryList.add(new FirestoreQuery(
-                    FirestoreQueryConditionCode.WHERE_EQUAL_TO,
-                    "radioId",
-                    selectedRadio.getRadioId()
-            ));
+            programsViewModel.getUiState().observe(getViewLifecycleOwner(), state -> {
+                if (state == null) return;
 
-//            firestoreQueryList.add(new FirestoreQuery(
-//                    FirestoreQueryConditionCode.WHERE_LESS_THAN_OR_EQUAL_TO,
-//                    "programScheduleTime.dateEnd",
-//                    System.currentTimeMillis()
-//            ));
-
-
-            firestoreQueryList.add(new FirestoreQuery(
-                    FirestoreQueryConditionCode.WHERE_EQUAL_TO,
-                    "disabled",
-                    false
-            ));
-
-            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, selectedRadio.getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
-
-//             FirebaseFirestore DATABASE = FirebaseFirestore.getInstance();
-//            CollectionReference colRef =  DATABASE.collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE).document(selectedRadio.getRadioId()).collection(RADIO_PROGRAM_TABLE);
-            firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
-                @Override
-                public void onSuccess(Object object) {
-                    List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
+                if (state.isLoading()) {
+                    toggleView(itemList == null || itemList.isEmpty());
+                } else if (state.isContent()) {
+                    List<RadioProgram> programList = new ArrayList<>();
+                    for (Program p : state.getPrograms()) {
+                        if (p != null) {
+                            programList.add(ProgramMapper.toDto(p));
+                        }
+                    }
 
                     if (!programList.isEmpty()) {
                         itemList = programList;
-//                      itemList =  DataGenerator.getProgramData(ctx);
                         initAdapter();
-
-                        mAdapter.setOnItemClickListener(new OnClickListener() {
-                            @Override
-                            public void onItemClick(View view, Object obj, int position) {
-                                RadioProgram item = (RadioProgram) obj;
-                                if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhud_fm") || (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
-                                    Episode episode = new Episode();
-                                    episode.setRadioId(item.getRadioId());
-                                    episode.setProgramId(item.getProgramId());
-                                    int[] startingLocation = new int[2];
-                                    view.getLocationOnScreen(startingLocation);
-                                    startingLocation[0] += view.getWidth() / 2;
-                                    ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, mActivity, episode);
-                                    mActivity.overridePendingTransition(0, 0);
-//                                showToast("is : "+radioProgram.getPrName());
-                                }
-//                                switch (v.getId()) {
-//                                    case R.id.bt_toggle:
-//                                        break;
-//                                    default:return;
-//                                }
-                            }
-                        });
-
-                        mAdapter.setOnLongItemClickListener(new OnItemLongClick() {
-                            @Override
-                            public void onItemLongClick(View view, Object obj, int position) {
-                                RadioProgram item = (RadioProgram) obj;
-                                if (ProgramsFragment.this.isAccountSignedIn() && prefMgr.getUserSession().getUserType() == UserType.SuperADMIN) {
-                                    ModelConfig config = new ModelConfig(R.drawable.ic_info, getString(R.string.label_warning), getString(R.string.confirm_delete, item.getPrName()), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-
-                                            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, selectedRadio.getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
-                                            firestoreDbUtility.deleteDocument(collectionReference, item.getProgramId(), new CallBack() {
-                                                @Override
-                                                public void onSuccess(Object object) {
-                                                    showToast(getString(R.string.deleted_successfully_with_param, item.getPrName()));
-//                                                    mAdapter.removeAt(position);
-                                                    itemList.remove(position);
-                                                    mAdapter.notifyDataSetChanged();
-//                                                    mAdapter.notifyItemRangeRemoved(position, itemList.size());
-                                                }
-
-                                                @Override
-                                                public void onFailure(Object object) {
-                                                    showToast(getString(R.string.label_error_occurred_with_val, object));
-                                                }
-                                            });
-                                        }
-                                    }));
-                                    showWarningDialog(config);
-                                }
-                            }
-                        });
-
-                        toggleView(itemList.isEmpty());
-
+                        setupAdapterListeners(selectedRadio);
+                        toggleView(false);
                     } else {
                         toggleView(true);
                     }
-                }
-
-                @Override
-                public void onFailure(Object object) {
-                    LogUtility.e(TAG, " loadRadioProgram :  " + object);
+                } else if (state.isEmpty()) {
+                    toggleView(true);
+                } else if (state.isError()) {
+                    toggleView(itemList == null || itemList.isEmpty());
+                    LogUtility.e(TAG, "Programs load error: " + state.getMessage());
                 }
             });
+
+            programsViewModel.loadPrograms(selectedRadio.getRadioId());
         } else {
-//            showToast(getString(R.string.msg_you_must_select_radio_station));
             toggleView(true);
         }
 
+    }
+
+    private void setupAdapterListeners(RadioInfo selectedRadio) {
+        if (mAdapter == null) return;
+
+        mAdapter.setOnItemClickListener(new OnClickListener() {
+            @Override
+            public void onItemClick(View view, Object obj, int position) {
+                RadioProgram item = (RadioProgram) obj;
+                if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhud_fm") || (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
+                    Episode episode = new Episode();
+                    episode.setRadioId(item.getRadioId());
+                    episode.setProgramId(item.getProgramId());
+                    int[] startingLocation = new int[2];
+                    view.getLocationOnScreen(startingLocation);
+                    startingLocation[0] += view.getWidth() / 2;
+                    ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, mActivity, episode);
+                    mActivity.overridePendingTransition(0, 0);
+                }
+            }
+        });
+
+        mAdapter.setOnLongItemClickListener(new OnItemLongClick() {
+            @Override
+            public void onItemLongClick(View view, Object obj, int position) {
+                RadioProgram item = (RadioProgram) obj;
+                if (ProgramsFragment.this.isAccountSignedIn() && prefMgr.getUserSession().getUserType() == UserType.SuperADMIN) {
+                    ModelConfig config = new ModelConfig(R.drawable.ic_info, getString(R.string.label_warning), getString(R.string.confirm_delete, item.getPrName()), new ButtonConfig(getString(R.string.label_cancel)), new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, selectedRadio.getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+                            firestoreDbUtility.deleteDocument(collectionReference, item.getProgramId(), new CallBack() {
+                                @Override
+                                public void onSuccess(Object object) {
+                                    showToast(getString(R.string.deleted_successfully_with_param, item.getPrName()));
+                                    itemList.remove(position);
+                                    mAdapter.notifyDataSetChanged();
+                                }
+
+                                @Override
+                                public void onFailure(Object object) {
+                                    showToast(getString(R.string.label_error_occurred_with_val, object));
+                                }
+                            });
+                        }
+                    }));
+                    showWarningDialog(config);
+                }
+            }
+        });
     }
 
     void initAdapter() {

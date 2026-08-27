@@ -35,14 +35,18 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.core.playback.DefaultStationPolicy;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.model.interfaces.MetadataListener;
 import com.sana.dev.fm.ui.dialog.MainDialog;
+import com.sana.dev.fm.ui.fragment.AccountFragment;
 import com.sana.dev.fm.ui.fragment.DailyEpisodeFragment;
 import com.sana.dev.fm.ui.fragment.MainHomeFragment;
 import com.sana.dev.fm.ui.fragment.ProgramsFragment;
+import com.sana.dev.fm.ui.model.PlaybackUiState;
+import com.sana.dev.fm.ui.widget.MiniPlayerView;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.IntentHelper;
@@ -67,6 +71,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     public static String FRAGMENT_CLASS = "transaction_target";
     public static final String ACTION_SHOW_LOADING_ITEM = "action_show_loading_item";
     FloatingActionButton playPauseButton;
+    private MiniPlayerView miniPlayerView;
     private BottomSheetDialog mBottomSheetDialog;
     private BottomSheetBehavior mBehavior;
     //    private final AtomicBoolean isMobileAdsInitializeCalled = new AtomicBoolean(false);
@@ -310,10 +315,10 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     Fragment fragment1 = new MainHomeFragment();
     Fragment fragment2 = new DailyEpisodeFragment();
     Fragment fragment3 = new ProgramsFragment();
+    Fragment fragment4 = new AccountFragment();
     Fragment active = fragment1;
 
     public void initBottomNav() {
-
         BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
                 = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -321,27 +326,19 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.navigation_home:
-                        fm.beginTransaction().hide(active).show(fragment1).commit();
-                        active = fragment1;
-//                        fm.beginTransaction().replace(R.id.main_container, active).commit();
-
+                        switchDestination(fragment1);
                         return true;
 
                     case R.id.nav_daily_epi:
-                        fm.beginTransaction().hide(active).show(fragment2).commit();
-                        active = fragment2;
-//                        fm.beginTransaction().replace(R.id.main_container, active).commit();
+                        switchDestination(fragment2);
                         return true;
 
                     case R.id.nav_radio_map:
-                        fm.beginTransaction().hide(active).show(fragment3).commit();
-                        active = fragment3;
-//                        fm.beginTransaction().replace(R.id.main_container, active).commit();
-//                        fm.beginTransaction().setMaxLifecycle(active,"").commit();
+                        switchDestination(fragment3);
                         return true;
 
                     case R.id.nav_more:
-                        showBottomSheetDialog();
+                        switchDestination(fragment4);
                         return true;
                 }
                 return false;
@@ -349,42 +346,26 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         };
 
         navigation = (BottomNavigationView) findViewById(R.id.nav_view);
-//        disableShiftMode(navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigation.setSelectedItemId(R.id.navigation_home);
 
+        fm.beginTransaction().add(R.id.main_container, fragment4, fragment4.getClass().getSimpleName()).hide(fragment4).commit();
         fm.beginTransaction().add(R.id.main_container, fragment3, fragment3.getClass().getSimpleName()).hide(fragment3).commit();
         fm.beginTransaction().add(R.id.main_container, fragment2, fragment2.getClass().getSimpleName()).hide(fragment2).commit();
         fm.beginTransaction().add(R.id.main_container, fragment1, fragment1.getClass().getSimpleName()).commit();
+    }
 
+    private void switchDestination(Fragment target) {
+        if (active != target) {
+            fm.beginTransaction().hide(active).show(target).commit();
+            active = target;
+        }
+    }
 
-//         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-//        NavigationUI.setupWithNavController(navigation, navHostFragment.getNavController());
-//
-
-
-//        // handle navigation selection
-//        navigation.setOnNavigationItemSelectedListener(
-//                new BottomNavigationView.OnNavigationItemSelectedListener() {
-//                    @Override
-//                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//                        Fragment fragment;
-//                        switch (item.getItemId()) {
-//                            case R.id.navigation_home:
-//                                fragment = fragment1;
-//                                break;
-//                            case R.id.nav_daily_epi:
-//                                fragment = fragment2;
-//                                break;
-//                            case R.id.nav_radio_map:
-//                            default:
-//                                fragment = fragment3;
-//                                break;
-//                        }
-//                        fm.beginTransaction().replace(R.id.main_container, fragment).commit();
-//                        return true;
-//                    }
-//                });
+    public void openAdminPanelIfAuthorized() {
+        if (checkPrivilegeAdmin()) {
+            showBottomSheetDialog();
+        }
     }
 
 /*
@@ -412,9 +393,18 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
 */
 
     public void selectTab(@IdRes int itemId) {
-        fm.beginTransaction().hide(active).show(fragment1).commit();
-        active = fragment1;
-        navigation.setSelectedItemId(itemId);
+        if (navigation != null) {
+            navigation.setSelectedItemId(itemId);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (active != fragment1) {
+            selectTab(R.id.navigation_home);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     public void initToolbarProfile() {
@@ -610,7 +600,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     }
 
 
-    private void checkUserLogin() {
+    public void checkUserLogin() {
         if (!isAccountSignedIn()) {
 //            Intent intent = IntentHelper.phoneLoginActivity(MainActivity.this, false);
             Intent intent = IntentHelper.intentFormSignUp(MainActivity.this, false);
@@ -650,8 +640,13 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     private void initializeViews() {
         currentStreamTitle = getString(R.string.app_name);
         playPauseButton = findViewById(R.id.playPauseButton);
+        miniPlayerView = findViewById(R.id.mini_player_view);
 
         playPauseButton.setOnClickListener(v -> handlePlayPauseClick());
+        if (miniPlayerView != null) {
+            miniPlayerView.setOnPlayPauseClickListener(v -> handlePlayPauseClick());
+            updateMiniPlayerState();
+        }
     }
 
     private void bindRadioService() {
@@ -674,20 +669,23 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
                     updateMetadataUI(title, artist);
                 }
             });
+            updateMiniPlayerState();
         }
     }
 
     private void handlePlayPauseClick() {
         if (isBound && radioPlayerService != null) {
-            if (prefMgr.selectedRadio() != null) {
-                RadioInfo info = prefMgr.selectedRadio();
-//                Metadata metadata = new Metadata(info.getName(), info.getName(), info.getChannelFreq(), info.getName(), info.getStreamUrl());
+            RadioInfo info = prefMgr != null ? DefaultStationPolicy.resolveActiveStation(prefMgr.selectedRadio(), prefMgr.getRadioList()) : null;
+            if (info != null && prefMgr != null && prefMgr.selectedRadio() == null) {
+                prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, info);
+            }
+            if (info != null && !Tools.isEmpty(info.getStreamUrl())) {
                 changeStation(info.getStreamUrl(), info.getName() + " " + info.getChannelFreq());
             } else {
                 showToast(getString(R.string.error_please_select_radio_station));
             }
         } else {
-            showToast(getString(com.hbb20.R.string.no_result_found));
+            showToast(getString(R.string.state_buffering));
         }
     }
 
@@ -710,6 +708,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
             if (isBound && radioPlayerService != null) {
                 // This will update the stream and start playing
                 radioPlayerService.playOrPause(newStreamUrl, newTitle);
+                updateMiniPlayerState();
             } else {
                 showToast(String.format("%s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
             }
@@ -717,6 +716,28 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
             Log.d(TAG, "Error startPlay : " + e.getMessage());
             showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
         }
+    }
+
+    public void updateMiniPlayerState() {
+        if (miniPlayerView == null) return;
+        String title = currentStreamTitle != null && !currentStreamTitle.isEmpty() ? currentStreamTitle : getString(R.string.app_name);
+        String subtitle = getString(R.string.state_live_stream);
+        String imageUrl = "";
+        RadioInfo info = prefMgr != null ? DefaultStationPolicy.resolveActiveStation(prefMgr.selectedRadio(), prefMgr.getRadioList()) : null;
+        if (info != null) {
+            if (info.getName() != null && !info.getName().isEmpty()) {
+                title = info.getName();
+            }
+            if (info.getChannelFreq() != null && !info.getChannelFreq().isEmpty()) {
+                subtitle = info.getChannelFreq();
+            }
+            imageUrl = info.getLogo();
+        }
+        boolean isPlaying = isBound && radioPlayerService != null && radioPlayerService.isPlaying();
+        PlaybackUiState state = isPlaying
+                ? PlaybackUiState.playing(title, subtitle, imageUrl)
+                : PlaybackUiState.paused(title, subtitle, imageUrl);
+        miniPlayerView.renderState(state);
     }
 
     @Override
@@ -767,6 +788,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         }
         prefMgr = PreferencesManager.getInstance();
         initToolbarProfile();
+        updateMiniPlayerState();
     }
 
 

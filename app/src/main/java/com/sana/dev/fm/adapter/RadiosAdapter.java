@@ -130,9 +130,19 @@ public class RadiosAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             });
 
             if (selectedItem == position) {
-                holder.binding.cvParent.setCardBackgroundColor(context.getResources().getColor(R.color.colorAccent));
+                holder.binding.cvParent.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(context, R.color.md_theme_primaryContainer));
+                holder.binding.cvParent.setStrokeColor(androidx.core.content.ContextCompat.getColor(context, R.color.md_theme_primary));
+                holder.binding.cvParent.setStrokeWidth(Tools.dpToPx(context, 2));
+                holder.binding.tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.md_theme_onPrimaryContainer));
+                holder.binding.tvFreq.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.md_theme_primary));
+                holder.binding.tvFreq.setBackgroundTintList(android.content.res.ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.white)));
             } else {
-                holder.binding.cvParent.setCardBackgroundColor(context.getResources().getColor(R.color.white));
+                holder.binding.cvParent.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(context, R.color.md_theme_surface));
+                holder.binding.cvParent.setStrokeColor(androidx.core.content.ContextCompat.getColor(context, R.color.md_theme_outlineVariant));
+                holder.binding.cvParent.setStrokeWidth(Tools.dpToPx(context, 1));
+                holder.binding.tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.md_theme_onSurface));
+                holder.binding.tvFreq.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.md_theme_primary));
+                holder.binding.tvFreq.setBackgroundTintList(android.content.res.ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.md_theme_station_chip_bg)));
             }
 
 //        if ( d.getRadioId().equals(model.getRadioId())) {

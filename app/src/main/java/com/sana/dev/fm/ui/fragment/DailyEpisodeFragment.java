@@ -29,6 +29,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.TimeLineAdapter;
+import com.sana.dev.fm.domain.schedule.ScheduleStatusCalculator;
 import com.sana.dev.fm.model.DateTimeModel;
 import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioInfo;
@@ -36,6 +37,7 @@ import com.sana.dev.fm.model.TempEpisodeModel;
 import com.sana.dev.fm.model.enums.Weekday;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.MainActivity;
+import com.sana.dev.fm.ui.widget.StateLayout;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
@@ -68,6 +70,8 @@ public class DailyEpisodeFragment extends BaseFragment {
     Context ctx;
     @BindView(R.id.child_fragment_container)
     FrameLayout cf_container;
+    @BindView(R.id.state_layout)
+    StateLayout stateLayout;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
     @BindView(R.id.tvTittle)
@@ -253,6 +257,10 @@ public class DailyEpisodeFragment extends BaseFragment {
                     }
                 });*/
 
+        if (stateLayout != null) {
+            stateLayout.showLoading();
+        }
+
         firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
             @Override
             public void onSuccess(Object object) {
@@ -275,26 +283,33 @@ public class DailyEpisodeFragment extends BaseFragment {
                     }
                 }
 
-                // Query(target=Query(HudHudFM/Episode/1011/Episode/Episode order by __name__);limitType=LIMIT_TO_FIRST)
-//                List<TempEpisodeModel> filtered = new ArrayList<TempEpisodeModel>();
-//                for (TempEpisodeModel article : modelList) {
-//                    if (article.getDisplayDayName().matches(FmUtilize.getShortEnDayName()))
-//                        filtered.add(article);
-//                }
-
-                boolean isToday = modelList.size() > 0;
-
-                recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
-                TimeLineAdapter adapterPeople = new TimeLineAdapter(ctx, modelList);
-//                mAdapter = adapterPeople;
-                recyclerView.setAdapter(adapterPeople);
-
-                toggleView(!isToday);
+                boolean hasEpisodes = modelList.size() > 0;
+                if (hasEpisodes) {
+                    if (stateLayout != null) {
+                        stateLayout.showContent();
+                    }
+                    recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
+                    TimeLineAdapter adapterPeople = new TimeLineAdapter(ctx, modelList);
+                    recyclerView.setAdapter(adapterPeople);
+                    toggleView(false);
+                } else {
+                    if (stateLayout != null) {
+                        stateLayout.showEmpty(getString(R.string.no_data_available), getString(R.string.brows_more_station), () -> {
+                            if (getActivity() instanceof MainActivity) {
+                                ((MainActivity) getActivity()).selectTab(R.id.navigation_home);
+                            }
+                        });
+                    }
+                    toggleView(true);
+                }
             }
 
             @Override
             public void onFailure(Object object) {
                 LogUtility.e(TAG, " loadDailyEpisode :  " + object);
+                if (stateLayout != null) {
+                    stateLayout.showError(getString(R.string.an_error_occurred), null, () -> loadDailyEpisode(radioId));
+                }
             }
         });
 

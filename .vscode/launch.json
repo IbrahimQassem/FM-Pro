@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Run HudHud FM (Install & Launch)",
+      "request": "launch",
+      "preLaunchTask": "Run: Build, Install & Launch (hudhudfm_google_play)",
+      "mainClass": "${file}"
+    },
+    {
+      "type": "java",
+      "name": "Current Java File",
+      "request": "launch",
+      "mainClass": "${file}"
+    }
+  ]
+}

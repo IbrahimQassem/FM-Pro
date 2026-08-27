@@ -108,6 +108,13 @@ public class AppIntroLight extends BaseActivity {
         Tools.setSystemBarColor(this, R.color.overlay_light_80);
         Tools.setSystemBarLight(this);
 
+        View btnSkip = findViewById(R.id.btn_skip);
+        if (btnSkip != null) {
+            btnSkip.setOnClickListener(v -> {
+                Intent intent = IntentHelper.splashActivity(AppIntroLight.this, true);
+                startActivity(intent);
+            });
+        }
     }
 
     private void bottomProgressDots(int i) {

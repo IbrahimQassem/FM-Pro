@@ -44,6 +44,8 @@
     <string name="dialog_internet_description">يبدو أنه ليس لديك اتصال بالإنترنت ، وهذا التطبيق يتطلب الإنترنت للحصول على أحدث محتوى. \n\ n يمكنك الاستمرار في مشاهدة العناصر المفضلة / غير المتصلة!</string>
     <!-- media viewer and radio-->
     <string name="volume_low">يجب رفع مستوى الصوت!</string>
+    <string name="label_like">إعجاب</string>
+    <string name="label_more">المزيد</string>
     <string name="label_cancel">إلغاء</string>
     <string name="label_ok">نعم</string>
     <string name="nav_home">الرئيسية</string>

@@ -41,6 +41,9 @@
     <!--    <string name="facebook_client_token" translatable="false">fad23c664feb985b0804395215f5495b</string>-->
 
 
+    <string name="label_like">إعجاب</string>
+    <string name="label_more">المزيد</string>
+
     <plurals name="likes_count">
         <item quantity="one">%d like</item>
         <!--        like-->
@@ -307,11 +310,49 @@
     <string name="label_force_update_message">Kindle update to last version</string>
     <string name="label_no">No</string>
     <string name="label_yes">Yes</string>
-    <!--    <string name="gdpr_privacy_policy">-->
-    <!--        By using this App, you agree to the <a href="%s">Terms-Conditions &amp; Privacy-Policy</a>.-->
-    <!--    </string>-->
 
-    <!--label_weak_days-->
-    <!--    <string name="emoji"> &#160;	&#x1F394;  &#x1F497; 	&#x1F49A; nn	&#x2661; hh 	&#x2665; Hi &#128072;</string>-->
+    <!-- Shared UI State Strings -->
+    <string name="loading">جاري التحميل...</string>
+    <string name="retry">إعادة المحاولة</string>
+    <string name="something_went_wrong">حدث خطأ غير متوقع</string>
+    <string name="no_internet">لا يوجد اتصال بالإنترنت</string>
+    <string name="failed_to_connect_server">تعذر الاتصال بالخادم، يرجى التحقق من اتصال الشبكة</string>
+
+    <!-- Navigation & Account Strings -->
+    <string name="nav_account">الحساب</string>
+    <string name="login">تسجيل الدخول</string>
+    <string name="login_anonymous_status">مستمع (زائر)</string>
+    <string name="term_privacy">الشروط وسياسة الخصوصية</string>
+    <string name="label_share_app">مشاركة التطبيق</string>
+    <string name="preferences_title">التفضيلات</string>
+    <string name="audio_quality">جودة الصوت</string>
+    <string name="audio_quality_standard">قياسية (توفير البيانات)</string>
+    <string name="audio_quality_high">عالية</string>
+    <string name="notifications_pref">إشعارات البرامج</string>
+    <string name="about_and_support">عن التطبيق والدعم</string>
+    <string name="admin_panel">لوحة الإدارة</string>
+
+    <!-- MiniPlayer & TalkBack Strings -->
+    <string name="mini_player_desc">المشغل المصغر</string>
+    <string name="action_play_stream">تشغيل البث المباشر</string>
+    <string name="action_pause_stream">إيقاف البث مؤقتاً</string>
+    <string name="state_buffering">جارٍ التخزين المؤقت للبث...</string>
+    <string name="state_live_stream">بث مباشر</string>
+    <string name="label_skip">تخطي</string>
+
+    <!-- Schedule Status Strings -->
+    <string name="status_now">البث الآن</string>
+    <string name="status_next">التالي</string>
+    <string name="status_ended">انتهى</string>
+    <string name="status_upcoming">قريباً</string>
+    <string name="an_error_occurred">حدث خطأ، يرجى المحاولة مرة أخرى</string>
+
+    <!-- Account Deletion Strings -->
+    <string name="label_delete_account">حذف الحساب والبيانات</string>
+    <string name="delete_account_confirm_title">تأكيد حذف الحساب</string>
+    <string name="delete_account_confirm_message">هل أنت متأكد من رغبتك في حذف حسابك؟ سيتم حذف بيانات ملفك الشخصي نهائياً من الخادم وحذف الجلسة المحلية، ولا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="delete_account_confirm_button">تأكيد الحذف النهائي</string>
+    <string name="delete_account_success">تم حذف حسابك بنجاح.</string>
+    <string name="delete_account_reauth_required">يرجى إعادة تسجيل الدخول أولاً لتأكيد هويتك قبل حذف الحساب.</string>
 
 </resources>
