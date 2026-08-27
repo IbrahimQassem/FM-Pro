@@ -74,6 +74,8 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         firestoreDbUtility = new FirestoreDbUtility();
 
 
+        Tools.setSystemBarColor(this, R.color.colorPrimary);
+
         initToolbar();
         setupComments();
         setupSendCommentButton();
@@ -92,7 +94,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     }
 
     private void initToolbar() {
-       binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
+        binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
@@ -101,7 +103,6 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     }
 
     private void setupComments() {
-
         String s = getIntent().getStringExtra("episode");
         if (s == null) {
             showSnackBar(getString(R.string.label_error_occurred));
@@ -109,7 +110,15 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
         }
 
         Episode episode = new Gson().fromJson(s, Episode.class);
+        if (episode == null) {
+            showSnackBar(getString(R.string.label_error_occurred));
+            return;
+        }
+
         radioId = episode.getRadioId();
+        if (TextUtils.isEmpty(radioId) && prefMgr.selectedRadio() != null) {
+            radioId = prefMgr.selectedRadio().getRadioId();
+        }
         epId = episode.getEpId();
 
         if (prefMgr.getUserSession() == null) {
@@ -119,56 +128,67 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
             binding.etComment.setHint(String.format(getString(R.string.label_comment_as), currentUser.getName()));
         }
 
-
-        Tools.setTextOrHideIfEmpty(binding.toolbar.tvTitle,episode.getEpName());
-
-//        getComments();
-
+        Tools.setTextOrHideIfEmpty(binding.toolbar.tvTitle, episode.getEpName());
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         binding.rvComments.setLayoutManager(linearLayoutManager);
-//        binding.rvComments.setHasFixedSize(true);
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+
+        binding.pbLoading.setVisibility(View.VISIBLE);
+        binding.llEmptyState.setVisibility(View.GONE);
+
+        if (TextUtils.isEmpty(radioId) || TextUtils.isEmpty(epId)) {
+            binding.pbLoading.setVisibility(View.GONE);
+            binding.llEmptyState.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId)
+                .document(AppConstant.Firebase.EPISODE_TABLE)
+                .collection(AppConstant.Firebase.EPISODE_TABLE);
+
         query = collectionReference
-//                .document(radioId)
-//                .collection(AppConstant.Firebase.EPISODE_TABLE)
                 .document(epId)
                 .collection(AppConstant.Firebase.COMMENT_TABLE)
                 .orderBy("commentTime", Query.Direction.ASCENDING);
 
-//        Query query = notebookRef.orderBy("priority", Query.Direction.DESCENDING);
         FirestoreRecyclerOptions<Comment> options = new FirestoreRecyclerOptions.Builder<Comment>()
                 .setQuery(query, Comment.class)
+                .setLifecycleOwner(this)
                 .build();
 
         commentsAdapter = new CommentsAdapter(options, this);
+        commentsAdapter.setOnDataLoadedListener(new CommentsAdapter.OnDataLoadedListener() {
+            @Override
+            public void onDataLoaded(int itemCount) {
+                binding.pbLoading.setVisibility(View.GONE);
+                if (itemCount == 0) {
+                    binding.llEmptyState.setVisibility(View.VISIBLE);
+                } else {
+                    binding.llEmptyState.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                binding.pbLoading.setVisibility(View.GONE);
+                binding.llEmptyState.setVisibility(View.VISIBLE);
+            }
+        });
+
         commentsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
                 int friendlyMessageCount = commentsAdapter.getItemCount();
                 int lastVisiblePosition = linearLayoutManager.findLastCompletelyVisibleItemPosition();
-                // If the recycler view is initially being loaded or the
-                // user is at the bottom of the list, scroll to the bottom
-                // of the list to show the newly added message.
                 if (lastVisiblePosition == -1 ||
                         (positionStart >= (friendlyMessageCount - 1) &&
                                 lastVisiblePosition == (positionStart - 1))) {
                     binding.rvComments.scrollToPosition(positionStart);
                 }
-
             }
         });
         binding.rvComments.setAdapter(commentsAdapter);
-//        binding.rvComments.setOverScrollMode(View.OVER_SCROLL_NEVER);
-//        binding.rvComments.setOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-//                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-//                    commentsAdapter.setAnimationsLocked(true);
-//                }
-//            }
-//        });
     }
 
     private void setupSendCommentButton() {
@@ -176,7 +196,6 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     }
 
     private void startIntroAnimation() {
-//        ViewCompat.setElevation(getToolbar(), 0);
         binding.contentRoot.setScaleY(0.1f);
         binding.contentRoot.setPivotY(drawingStartLocation);
         binding.llAddComment.setTranslationY(200);
@@ -188,7 +207,6 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                 .setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-//                        ViewCompat.setElevation(getToolbar(), FmUtilize.dpToPx(8));
                         animateContent();
                     }
                 })
@@ -204,7 +222,6 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
 
     @Override
     public void onBackPressed() {
-//        ViewCompat.setElevation(getToolbar(), 0);
         binding.contentRoot.animate()
                 .translationY(FmUtilize.getScreenHeight(this))
                 .setDuration(200)
@@ -221,19 +238,11 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     @Override
     public void onSendClickListener(View v) {
         if (validateComment()) {
-//            commentsAdapter.addItem();
-//            commentsAdapter.setAnimationsLocked(false);
-//            commentsAdapter.setDelayEnterAnimation(false);
-//            binding.rvComments.smoothScrollBy(0, binding.rvComments.getChildAt(0).getHeight() * commentsAdapter.getItemCount());
-
-//            binding.etComment.setText(null);
-//            binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
-
-            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId)
+                    .document(AppConstant.Firebase.EPISODE_TABLE)
+                    .collection(AppConstant.Firebase.EPISODE_TABLE);
 
             CollectionReference colRef = collectionReference
-//                    .document(radioId)
-//                    .collection(AppConstant.Firebase.EPISODE_TABLE)
                     .document(epId)
                     .collection(AppConstant.Firebase.COMMENT_TABLE);
             String pushKey = colRef.document().getId();
@@ -243,8 +252,8 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
                 public void onSuccess(Object object) {
                     binding.etComment.setText(null);
                     binding.btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
-                    binding.etComment.setHint(getString(R.string.add_comment));
-                    binding.etComment.setHint(String.format(getString(R.string.label_add_comment_as_val), currentUser.getName()));
+                    binding.etComment.setHint(String.format(getString(R.string.label_comment_as), currentUser.getName()));
+                    binding.llEmptyState.setVisibility(View.GONE);
                 }
 
                 @Override

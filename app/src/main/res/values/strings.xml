@@ -363,4 +363,8 @@
     <string name="admin_tile_manage_episodes_sub">Manage &amp; edit</string>
     <string name="admin_tile_manage_programs_sub">Schedule &amp; edit</string>
     <string name="admin_tile_station_info_sub">Station settings</string>
+
+    <!-- Comments Screen Strings -->
+    <string name="no_comments_yet">No comments yet</string>
+    <string name="be_the_first_to_comment">Be the first to share your thoughts on this episode</string>
 </resources>

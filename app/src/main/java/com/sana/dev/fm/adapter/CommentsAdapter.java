@@ -55,12 +55,47 @@ public class CommentsAdapter extends FirestoreRecyclerAdapter<Comment, CommentsA
         return new CommentsAdapter.CommentViewHolder(inflate);
     }
 
+    public interface OnDataLoadedListener {
+        void onDataLoaded(int itemCount);
+        void onError(Exception e);
+    }
+
+    private OnDataLoadedListener onDataLoadedListener;
+
+    public void setOnDataLoadedListener(OnDataLoadedListener listener) {
+        this.onDataLoadedListener = listener;
+    }
+
+    @Override
+    public void onDataChanged() {
+        super.onDataChanged();
+        if (onDataLoadedListener != null) {
+            onDataLoadedListener.onDataLoaded(getItemCount());
+        }
+    }
+
+    @Override
+    public void onError(@NonNull com.google.firebase.firestore.FirebaseFirestoreException e) {
+        super.onError(e);
+        if (onDataLoadedListener != null) {
+            onDataLoadedListener.onError(e);
+        }
+    }
+
     @Override
     protected void onBindViewHolder(@NonNull CommentViewHolder holder, int position, @NonNull Comment model) {
         holder.binding.tvComment.setText(model.getCommentText());
         holder.binding.tvFrom.setText(model.getCommentUser());
-        String timeAgo = getTimeAgo(Long.parseLong(model.getCommentTime()), ctx);
-        holder.binding.tvDate.setText(String.format("%s", timeAgo));
+        try {
+            if (model.getCommentTime() != null) {
+                String timeAgo = getTimeAgo(Long.parseLong(model.getCommentTime()), ctx);
+                holder.binding.tvDate.setText(String.format("%s", timeAgo));
+            } else {
+                holder.binding.tvDate.setText("");
+            }
+        } catch (Exception e) {
+            holder.binding.tvDate.setText("");
+        }
     }
 
     private void runEnterAnimation(View view, int position) {

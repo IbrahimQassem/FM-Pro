@@ -295,4 +295,8 @@
     <string name="admin_tile_manage_episodes_sub">إدارة وتعديل الحلقات</string>
     <string name="admin_tile_manage_programs_sub">جدولة وتعديل البرامج</string>
     <string name="admin_tile_station_info_sub">إعدادات وبيانات الإذاعة</string>
+
+    <!-- Comments Screen Strings (Arabic) -->
+    <string name="no_comments_yet">لا توجد تعليقات بعد</string>
+    <string name="be_the_first_to_comment">كن أول من يشارك برأيه في هذه الحلقة</string>
 </resources>

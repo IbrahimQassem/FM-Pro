@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/md_theme_surface">
 
         <include
             android:id="@+id/toolbar"
@@ -14,8 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/toolbar"
-            android:background="@color/white"
-            android:elevation="@dimen/default_elevation"
+            android:background="@color/md_theme_surface"
             android:orientation="vertical">
 
             <FrameLayout
@@ -23,49 +25,109 @@
                 android:layout_height="0dp"
                 android:layout_weight="1">
 
+                <!-- Comments List -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvComments"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:paddingTop="@dimen/spacing_small"
-                    android:scrollbars="none" />
+                    android:clipToPadding="false"
+                    android:paddingTop="@dimen/spacing_sm"
+                    android:paddingBottom="@dimen/spacing_md"
+                    android:scrollbars="none"
+                    tools:listitem="@layout/item_comment" />
 
-                <View
+                <!-- Empty Comments State -->
+                <LinearLayout
+                    android:id="@+id/llEmptyState"
                     android:layout_width="match_parent"
-                    android:layout_height="4dp"
-                    android:layout_gravity="bottom"
-                    android:background="@drawable/shadow_top" />
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_lg"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:contentDescription="@null"
+                        android:alpha="0.6"
+                        app:srcCompat="@drawable/ic_textsms"
+                        app:tint="@color/md_theme_primary" />
+
+                    <TextView
+                        style="@style/TextAppearance.FMPro.TitleMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_md"
+                        android:text="@string/no_comments_yet"
+                        android:textColor="@color/md_theme_onSurface" />
+
+                    <TextView
+                        style="@style/TextAppearance.FMPro.BodyMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:text="@string/be_the_first_to_comment"
+                        android:textColor="@color/md_theme_onSurfaceVariant" />
+                </LinearLayout>
+
+                <!-- Loading Progress -->
+                <ProgressBar
+                    android:id="@+id/pbLoading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+
             </FrameLayout>
 
+            <!-- Bottom Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/md_theme_outlineVariant" />
+
+            <!-- Bottom Comment Input Bar -->
             <LinearLayout
                 android:id="@+id/llAddComment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:elevation="@dimen/default_elevation"
+                android:background="@color/md_theme_surface"
                 android:gravity="center_vertical"
-                android:paddingLeft="8dp"
-                android:paddingTop="8dp"
-                android:paddingRight="8dp"
-                android:paddingBottom="4dp">
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/spacing_md"
+                android:paddingVertical="@dimen/spacing_sm">
 
-                <EditText
-                    android:id="@+id/etComment"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="#555555"
-                    android:textSize="14sp" />
+                    android:background="@drawable/bg_comment_input"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="@dimen/spacing_md"
+                    android:paddingVertical="4dp">
+
+                    <EditText
+                        android:id="@+id/etComment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:hint="@string/add_comment"
+                        android:inputType="textCapSentences|textMultiLine"
+                        android:maxLines="3"
+                        android:minHeight="36dp"
+                        android:textColor="@color/md_theme_onSurface"
+                        android:textColorHint="@color/md_theme_onSurfaceVariant"
+                        android:textSize="14sp" />
+                </LinearLayout>
 
                 <com.sana.dev.fm.ui.view.SendCommentButton
                     android:id="@+id/btnSendComment"
-                    android:layout_width="72dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginBottom="2dp"
-                    android:background="@drawable/btn_send_comment"
-                    android:elevation="4dp"
-                    android:orientation="vertical" />
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="@dimen/spacing_sm"
+                    android:background="@drawable/btn_send_comment" />
 
             </LinearLayout>
         </LinearLayout>

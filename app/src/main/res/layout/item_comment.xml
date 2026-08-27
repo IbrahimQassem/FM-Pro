@@ -8,77 +8,77 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:baselineAligned="false"
-        android:clickable="true"
-        android:focusable="true"
         android:orientation="horizontal"
-        android:paddingStart="@dimen/spacing_medium"
-        android:paddingTop="@dimen/spacing_middle"
-        android:paddingEnd="@dimen/spacing_medium"
-        android:paddingBottom="@dimen/spacing_middle">
+        android:paddingHorizontal="@dimen/spacing_md"
+        android:paddingVertical="@dimen/spacing_xs">
 
-        <!--        <ImageView
-                    android:id="@+id/civ_logo"
-                    android:layout_width="@dimen/spacing_xmlarge"
-                    android:layout_height="@dimen/spacing_xmlarge"
-                    ImageView
-                    app:civ_border_width="1px"
-                    app:civ_shadow="true"
-                    app:civ_shadow_radius="0"
-                    app:srcCompat="@drawable/ic_person" />-->
+        <!-- User Avatar Circle -->
+        <FrameLayout
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/shape_circle">
 
-        <ImageView
-            android:id="@+id/civ_logo"
-            android:layout_width="@dimen/spacing_xmlarge"
-            android:layout_height="@dimen/spacing_xmlarge"
-            android:scaleType="centerInside"
-            android:tint="@color/colorPrimary"
-            app:srcCompat="@drawable/ic_baseline_person" />
+            <ImageView
+                android:id="@+id/civ_logo"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:contentDescription="@null"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_person"
+                app:tint="@color/md_theme_primary" />
+        </FrameLayout>
 
-
+        <!-- Comment Message Bubble -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_sm"
             android:layout_weight="1"
+            android:background="@drawable/bg_comment_bubble"
             android:orientation="vertical"
-            android:paddingStart="@dimen/spacing_medium"
-            android:paddingEnd="@dimen/spacing_medium">
+            android:paddingHorizontal="@dimen/spacing_md"
+            android:paddingVertical="@dimen/spacing_sm">
 
+            <!-- Name and Date Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/tvFrom"
-                    style="@style/TextBold"
+                    style="@style/TextAppearance.FMPro.TitleSmall"
                     android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:ellipsize="end"
                     android:maxLines="1"
-                    android:padding="@dimen/spacing_small"
-                    android:singleLine="true"
-                    android:textColor="@color/grey_90"
-                    tools:text="@string/user_name" />
+                    android:textColor="@color/md_theme_onSurface"
+                    tools:text="إبراهيم قاسم" />
 
                 <TextView
                     android:id="@+id/tv_date"
-                    style="@style/TextBold"
-                    android:paddingStart="@dimen/spacing_medium"
-                    android:paddingEnd="@dimen/spacing_medium"
-                    android:textSize="12sp"
-                    tools:text="@string/ex_time" />
-
-
+                    style="@style/TextAppearance.FMPro.BodySmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_xs"
+                    android:textColor="@color/md_theme_onSurfaceVariant"
+                    tools:text="منذ ساعتين" />
             </LinearLayout>
 
+            <!-- Comment Body Text -->
             <TextView
                 android:id="@+id/tvComment"
-                style="@style/TextLight"
-                android:padding="@dimen/spacing_medium"
-                android:textColor="@color/grey_40"
-                tools:text="@string/ex_comment" />
-
+                style="@style/TextAppearance.FMPro.BodyMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xxs"
+                android:lineSpacingExtra="2dp"
+                android:textColor="@color/md_theme_onSurface"
+                tools:text="برنامج رائع ومميز جداً، شكراً لإذاعة صنعاء على هذه التغطية الجميلة والمفيدة!" />
         </LinearLayout>
-
     </LinearLayout>
 </layout>
