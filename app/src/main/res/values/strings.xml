@@ -23,7 +23,7 @@
     <string name="label_remote_config_key" translatable="false">hudhudFmAppConfig</string>
 
     <string name="facebook_app_id" translatable="false">811088116023852</string>
-    <string name="fb_login_protocol_scheme" translatable="false">fb1234</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb811088116023852</string>
     <string name="facebook_client_token" translatable="false">afe4eb099e9ad5f32fd9b17ce8ca50ea</string>
 
     <string name="default_notification_channel_id" translatable="false">app_notification_channel</string>
@@ -233,17 +233,17 @@
     <string name="label_pick_date">Pick Date</string>
     <string name="label_radio_list">Radio List</string>
     <string name="label_priority">Priority %d</string>
-    <string name="login_via_mobile">Login via Mobile</string>
-    <string name="label_login_by">Login By</string>
-    <string name="login_via_facebook">Login via Facebook</string>
-    <string name="label_index">Index\n</string>
-    <string name="login_via_email">Login via Email</string>
+    <string name="login_via_mobile">Continue with Phone</string>
+    <string name="label_login_by">Sign in with</string>
+    <string name="login_via_facebook">Continue with Facebook</string>
+    <string name="label_index"># </string>
+    <string name="login_via_email">Continue with Email</string>
+    <string name="label_login_via_google">Continue with Google</string>
     <string name="label_please_enter_a_valid_mobile_number">Please enter a valid mobile number</string>
     <string name="label_confirm">Confirm</string>
     <string name="label_verifying_code">Verifying Code</string>
     <string name="label_error_occurred_with_val">Error occurred (%s)</string>
     <string name="label_login">Login</string>
-    <string name="label_login_via_google">Login via Google</string>
     <string name="label_week_days">أيام الأسبوع</string>
     <string name="label_set_time">تحديد الوقت</string>
     <string name="msg_you_must_select_radio_station">You must select radio station</string>
@@ -366,5 +366,7 @@
 
     <!-- Comments Screen Strings -->
     <string name="no_comments_yet">No comments yet</string>
-    <string name="be_the_first_to_comment">Be the first to share your thoughts on this episode</string>
+    <string name="be_the_first_to_comment">Be the first to share your thoughts!</string>
+    <string name="label_profile">Profile</string>
+    <string name="label_personal_info">Personal Information</string>
 </resources>

@@ -150,13 +150,14 @@ public class UserProfileActivity extends BaseActivity {
             binding.lytParentCity.setVisibility(View.GONE);
 
             UserModel _userModel = prefMgr.getUserSession();
-            binding.tvLabelUserName.setText(_userModel.getName());
-            binding.tvLabelUserEmail.setText(_userModel.getEmail());
-            binding.tvLabelUserMobile.setText(FmUtilize.trimMobileCode(_userModel.getMobile()));
+            String name = _userModel.getName() != null && !_userModel.getName().trim().isEmpty() ? _userModel.getName() : getString(R.string.user_name);
+            binding.tvLabelUserName.setText(name);
+            binding.tvLabelUserEmail.setText(_userModel.getEmail() != null ? _userModel.getEmail() : "");
+            binding.tvLabelUserMobile.setText(_userModel.getMobile() != null ? FmUtilize.trimMobileCode(_userModel.getMobile()) : "");
 
-            binding.etFullName.setText(_userModel.getName());
-            binding.etEmail.setText(_userModel.getEmail());
-            binding.etMobile.setText(FmUtilize.trimMobileCode(_userModel.getMobile()));
+            binding.etFullName.setText(_userModel.getName() != null ? _userModel.getName() : "");
+            binding.etEmail.setText(_userModel.getEmail() != null ? _userModel.getEmail() : "");
+            binding.etMobile.setText(_userModel.getMobile() != null ? FmUtilize.trimMobileCode(_userModel.getMobile()) : "");
 
 //            try {
 //            } catch (Exception e) {
@@ -214,15 +215,21 @@ public class UserProfileActivity extends BaseActivity {
 
     private void initToolbar() {
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setTitle(null);
-        (binding.toolbar).setNavigationIcon(R.drawable.ic_arrow_back);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        Tools.setSystemBarColor(this, R.color.colorPrimary);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.label_profile);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
+        Tools.setSystemBarColor(this, R.color.md_theme_surface);
+        Tools.setSystemBarLight(this);
+        if (binding.toolbar.getNavigationIcon() != null) {
+            binding.toolbar.getNavigationIcon().setTint(ContextCompat.getColor(this, R.color.md_theme_onSurface));
+        }
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_notif_setting, menu);
-        Tools.changeMenuIconColor(menu, getResources().getColor(R.color.colorPrimary));
+        Tools.changeMenuIconColor(menu, ContextCompat.getColor(this, R.color.md_theme_onSurface));
         return true;
     }
 

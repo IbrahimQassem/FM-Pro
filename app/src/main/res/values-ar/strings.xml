@@ -210,17 +210,17 @@
     <string name="label_pick_date">تحديد التاريخ</string>
     <string name="label_radio_list">قائمة القنوات الإذاعية</string>
     <string name="label_priority">الأولوية %d</string>
-    <string name="login_via_mobile">رقم الموبايل</string>
     <string name="label_login_by">تسجيل الدخول عبر</string>
-    <string name="login_via_facebook">فيسبوك</string>
-    <string name="label_index">رقم</string>
-    <string name="login_via_email">الإيميل</string>
+    <string name="login_via_facebook">متابعة باستخدام Facebook</string>
+    <string name="label_index"># </string>
+    <string name="login_via_email">متابعة بالبريد الإلكتروني</string>
+    <string name="login_via_mobile">متابعة برقم الهاتف</string>
     <string name="label_please_enter_a_valid_mobile_number">يرجى إدخال رقم موبايل صحيح</string>
     <string name="label_confirm">تأكيد</string>
     <string name="label_verifying_code">رمز التحقق</string>
     <string name="label_error_occurred_with_val">حدث خطأ (%s)</string>
     <string name="label_login">تسجيل الدخول</string>
-    <string name="label_login_via_google">قوقل</string>
+    <string name="label_login_via_google">متابعة باستخدام Google</string>
     <string name="label_week_days">أيام الأسبوع</string>
     <string name="label_set_time">تحديد الوقت</string>
     <string name="msg_you_must_select_radio_station">يجب عليك تحديد محطة الراديو</string>
@@ -298,5 +298,7 @@
 
     <!-- Comments Screen Strings (Arabic) -->
     <string name="no_comments_yet">لا توجد تعليقات بعد</string>
-    <string name="be_the_first_to_comment">كن أول من يشارك برأيه في هذه الحلقة</string>
+    <string name="be_the_first_to_comment">كن أول من يشارك برأيه!</string>
+    <string name="label_profile">الملف الشخصي</string>
+    <string name="label_personal_info">المعلومات الشخصية</string>
 </resources>

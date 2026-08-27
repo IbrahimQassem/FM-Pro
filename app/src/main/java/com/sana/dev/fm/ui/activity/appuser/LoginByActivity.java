@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.text.Html;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -159,12 +160,12 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
 
     private void initToolbar() {
         binding.toolbar.tvTitle.setText(getString(R.string.label_login));
-        binding.toolbar.imbEvent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        binding.toolbar.tvTitle.setTextColor(ContextCompat.getColor(this, R.color.md_theme_onSurface));
+        binding.toolbar.appBarLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.md_theme_surface));
+        binding.toolbar.imbEvent.setColorFilter(ContextCompat.getColor(this, R.color.md_theme_onSurface));
+        binding.toolbar.imbEvent.setOnClickListener(v -> finish());
+        Tools.setSystemBarColor(this, R.color.md_theme_surface);
+        Tools.setSystemBarLight(this);
     }
 
 
@@ -192,26 +193,19 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
     };
 
     private void initRemoteConfig() {
-
-//        if (/*BuildConfig.FLAVOR.equals("hudhudfm_google_play") && */!BuildConfig.DEBUG) {
-        boolean isAuthFacebookEnable = remoteConfig != null && remoteConfig.isAuthFacebookEnable();
+        boolean isAuthFacebookEnable = remoteConfig == null || remoteConfig.isAuthFacebookEnable();
         boolean isAuthSmsEnable = remoteConfig != null && remoteConfig.isAuthSmsEnable();
         boolean isAuthEmailEnable = remoteConfig != null && remoteConfig.isAuthEmailEnable();
-        boolean isAuthGoogleEnable = remoteConfig != null && remoteConfig.isAuthGoogleEnable();
+        boolean isAuthGoogleEnable = remoteConfig == null || remoteConfig.isAuthGoogleEnable();
 
-        //            binding.loginButtonFacebook.setVisibility(remoteConfig.isFacebookEnable() ? VISIBLE : View.GONE);
-        binding.btFacebookLogin.setVisibility(isAuthFacebookEnable ? VISIBLE : View.GONE);
+        binding.btFacebookLogin.setVisibility(VISIBLE);
         binding.btGoogleLogin.setVisibility(isAuthGoogleEnable ? VISIBLE : View.GONE);
         binding.btEmailLogin.setVisibility(isAuthEmailEnable ? VISIBLE : View.GONE);
         binding.btMobileLogin.setVisibility(isAuthSmsEnable ? VISIBLE : View.GONE);
-//        }
-
 
         TextView textView = binding.tvContent;
-//        remoteConfig.setTermsReference(getString(R.string.terms_reference));
-//        String textWithLinks = "By using this App, you agree to the <a href=\"" + remoteConfig.getTermsReference() + "\">Terms-Conditions &amp; Privacy-Policy</a>.";
-//        String textWithLinks = "باستخدام هذا التطبيق، فإنك توافق على <a href=\"" + remoteConfig.getTermsReference() + "\">الشروط و الأحكام &amp; سياسة الخصوصية</a>.";
-        String textWithLinks = "بالضغط على زر التسجيل، فإنك توافق على <a href=\"" + remoteConfig.getTermsReference() + "\">الشروط و الأحكام &amp; سياسة الخصوصية</a>.";
+        String termsRef = remoteConfig != null && remoteConfig.getTermsReference() != null ? remoteConfig.getTermsReference() : "https://hudhudfm.com/terms";
+        String textWithLinks = "بالضغط على زر التسجيل، فإنك توافق على <a href=\"" + termsRef + "\">الشروط و الأحكام &amp; سياسة الخصوصية</a>.";
         textView.setText(Html.fromHtml(textWithLinks));
         textView.setMovementMethod(LinkMovementMethod.getInstance());
     }

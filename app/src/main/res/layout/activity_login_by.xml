@@ -3,233 +3,197 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-
-    <LinearLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
-        android:orientation="vertical"
+        android:background="@color/md_theme_surface"
         tools:context=".ui.activity.appuser.LoginByActivity">
 
-        <include
-            android:id="@+id/toolbar"
-            layout="@layout/view_feed_toolbar" />
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/md_theme_surface"
+            app:elevation="0dp">
+
+            <include
+                android:id="@+id/toolbar"
+                layout="@layout/view_feed_toolbar" />
+        </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true"
-            android:scrollbars="vertical">
+            android:scrollbars="none"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:padding="@dimen/spacing_large">
+                android:paddingHorizontal="@dimen/spacing_lg"
+                android:paddingVertical="@dimen/spacing_md">
 
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/spacing_xlarge" />
-
-                <!-- Round corners -->
-                <com.sana.dev.fm.ui.view.RoundImageView
-                    android:id="@+id/img_profile"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="@dimen/spacing_small"
-                    android:layout_marginBottom="@dimen/spacing_small"
-                    android:scaleType="centerInside"
-                    app:srcCompat="@mipmap/ic_launcher"
-                    android:foreground="@color/overlay_light_20"
-                    app:borderColor="?attr/colorPrimary"
-                    app:borderWidth="0.5dp"
-                    app:cornerRadius="50dp" />
-
-
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/spacing_large" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="@dimen/spacing_medium"
-                    android:text="@string/app_name"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-                    android:textColor="@color/colorPrimary"
-                    android:textStyle="bold" />
-
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="@dimen/spacing_medium"
-                    android:text="@string/label_login_by"
-                    android:textAlignment="center"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                    android:textColor="@color/grey_95" />
-
-                <Button
-                    android:id="@+id/bt_mobile_login"
-                    android:layout_width="match_parent"
-                    android:layout_height="55dp"
-                    android:layout_marginLeft="-4dp"
-                    android:layout_marginTop="@dimen/spacing_mxlarge"
-                    android:layout_marginRight="-4dp"
-                    android:background="@drawable/btn_rounded_accent"
-                    android:backgroundTint="@color/black"
-                    android:text="@string/login_via_mobile"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/bt_google_login"
-                    android:layout_width="match_parent"
-                    android:layout_height="55dp"
-                    android:layout_marginLeft="-4dp"
-                    android:layout_marginTop="@dimen/spacing_mxlarge"
-                    android:layout_marginRight="-4dp"
-                    android:background="@drawable/btn_rounded_accent"
-                    android:backgroundTint="#db4a39"
-                    android:text="@string/label_login_via_google"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/bt_email_login"
-                    android:layout_width="match_parent"
-                    android:layout_height="55dp"
-                    android:layout_marginLeft="-4dp"
-                    android:layout_marginTop="@dimen/spacing_mxlarge"
-                    android:layout_marginRight="-4dp"
-                    android:background="@drawable/btn_rounded_accent"
-                    android:backgroundTint="@color/material_deep_teal_500"
-                    android:text="@string/login_via_email"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/bt_facebook_login"
-                    android:layout_width="match_parent"
-                    android:layout_height="55dp"
-                    android:layout_marginLeft="-4dp"
-                    android:layout_marginTop="@dimen/spacing_mxlarge"
-                    android:layout_marginRight="-4dp"
-                    android:background="@drawable/btn_rounded_facebook"
-                    android:backgroundTint="@color/com_facebook_blue"
-                    android:text="@string/login_via_facebook"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold" />
-
-                <com.facebook.login.widget.LoginButton
-                    android:id="@+id/login_button_facebook"
-                    android:layout_width="match_parent"
-                    android:layout_height="55dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="-4dp"
-                    android:layout_marginTop="@dimen/spacing_mxlarge"
-                    android:layout_marginRight="-4dp"
-                    android:visibility="gone" />
-
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/spacing_medium" />
-
-                <!--
-                        <Button
-                            android:layout_width="match_parent"
-                            android:layout_height="55dp"
-                            android:layout_marginLeft="-4dp"
-                            android:layout_marginRight="-4dp"
-                            android:background="@drawable/btn_rounded_accent"
-                            android:text="Login with Facebook"
-                            android:textAllCaps="false"
-                            android:textColor="@android:color/white"
-                            android:textStyle="bold" />
-
-                        <include layout="@layout/com_facebook_tooltip_bubble" />
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="@dimen/spacing_medium" />
-
-                        <LinearLayout
-                            android:id="@+id/sign_up_for_account"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_medium"
-                            android:gravity="center"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="SIGN UP FOR AN ACCOUNT?"
-                                android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
-                                android:textColor="@color/blue_grey_700" />
-
-
-                        </LinearLayout>
-
-                        <Button
-                            android:id="@+id/email_sign_in_button"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_large"
-                            android:background="@drawable/btn_rounded_accent"
-                            android:text="REGISTER"
-                            android:textColor="@android:color/white" />
-
-
-                        <Button
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/btn_rounded_accent"
-                            android:text="REGISTER WITH FACEBOOK"
-                            android:textColor="@color/white" />-->
-
-                <LinearLayout
+                <!-- 1. Hero Brand Header Card -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/spacing_large">
+                    android:layout_marginBottom="@dimen/spacing_lg"
+                    app:cardBackgroundColor="@color/md_theme_surfaceVariant"
+                    app:cardCornerRadius="@dimen/corner_radius_lg"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/md_theme_outlineVariant"
+                    app:strokeWidth="1dp">
 
-                    <TextView
-                        android:id="@+id/tv_content"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/label_label"
-                        android:textAlignment="center"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                        android:textColor="@color/grey_60" />
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="@dimen/spacing_lg">
 
-                </LinearLayout>
+                        <!-- App Logo Squircle Container -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            app:cardBackgroundColor="@color/md_theme_surface"
+                            app:cardCornerRadius="@dimen/corner_radius_lg"
+                            app:cardElevation="@dimen/elevation_level2"
+                            app:strokeColor="@color/md_theme_outlineVariant"
+                            app:strokeWidth="1dp">
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/spacing_xlarge" />
+                            <ImageView
+                                android:id="@+id/img_profile"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:padding="@dimen/spacing_xs"
+                                android:scaleType="fitCenter"
+                                app:srcCompat="@drawable/logo_app" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- App Name -->
+                        <TextView
+                            style="@style/TextAppearance.FMPro.HeadlineSmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_md"
+                            android:text="@string/app_name"
+                            android:textColor="@color/md_theme_onSurface" />
+
+                        <!-- Welcome Subtitle -->
+                        <TextView
+                            style="@style/TextAppearance.FMPro.BodyMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xxs"
+                            android:text="@string/label_login_by"
+                            android:textAlignment="center"
+                            android:textColor="@color/md_theme_onSurfaceVariant" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 2. Login Options Action Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_lg"
+                    app:cardBackgroundColor="@color/md_theme_surface"
+                    app:cardCornerRadius="@dimen/corner_radius_lg"
+                    app:cardElevation="@dimen/elevation_level1"
+                    app:strokeColor="@color/md_theme_outlineVariant"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/spacing_lg">
+
+                        <!-- Google Sign-in Button -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/bt_google_login"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/min_touch_target_size"
+                            android:layout_marginBottom="@dimen/spacing_sm"
+                            android:text="@string/label_login_via_google"
+                            android:textColor="@color/md_theme_onSurface"
+                            android:textSize="15sp"
+                            app:cornerRadius="@dimen/corner_radius_md"
+                            app:icon="@drawable/ic_google"
+                            app:iconGravity="textStart"
+                            app:iconPadding="@dimen/spacing_sm"
+                            app:iconTint="@null"
+                            app:strokeColor="@color/md_theme_outline"
+                            app:strokeWidth="1dp" />
+
+                        <!-- Mobile / Phone Sign-in Button -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/bt_mobile_login"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/min_touch_target_size"
+                            android:layout_marginBottom="@dimen/spacing_sm"
+                            android:text="@string/login_via_mobile"
+                            android:textSize="15sp"
+                            app:cornerRadius="@dimen/corner_radius_md"
+                            app:icon="@drawable/ic_smart_phone"
+                            app:iconGravity="textStart"
+                            app:iconPadding="@dimen/spacing_sm" />
+
+                        <!-- Email Sign-in Button -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/bt_email_login"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/min_touch_target_size"
+                            android:layout_marginBottom="@dimen/spacing_sm"
+                            android:text="@string/login_via_email"
+                            android:textColor="@color/md_theme_onSurface"
+                            android:textSize="15sp"
+                            app:cornerRadius="@dimen/corner_radius_md"
+                            app:icon="@drawable/ic_email_black"
+                            app:iconGravity="textStart"
+                            app:iconPadding="@dimen/spacing_sm"
+                            app:iconTint="@color/md_theme_primary"
+                            app:strokeColor="@color/md_theme_outline" />
+
+                        <!-- Facebook Sign-in Button -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/bt_facebook_login"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/min_touch_target_size"
+                            android:text="@string/login_via_facebook"
+                            android:textColor="@color/md_theme_onSurface"
+                            android:textSize="15sp"
+                            app:cornerRadius="@dimen/corner_radius_md"
+                            app:icon="@drawable/ic_social_facebook"
+                            app:iconGravity="textStart"
+                            app:iconPadding="@dimen/spacing_sm"
+                            app:iconTint="@color/com_facebook_blue"
+                            app:strokeColor="@color/md_theme_outline" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 3. Terms & Privacy Policy Disclaimer -->
+                <TextView
+                    android:id="@+id/tv_content"
+                    style="@style/TextAppearance.FMPro.BodySmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginHorizontal="@dimen/spacing_md"
+                    android:lineSpacingExtra="4dp"
+                    android:text="@string/label_label"
+                    android:textAlignment="center"
+                    android:textColor="@color/md_theme_onSurfaceVariant"
+                    android:textColorLink="@color/md_theme_primary" />
 
             </LinearLayout>
-
-
         </androidx.core.widget.NestedScrollView>
 
-    </LinearLayout>
-
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
