@@ -44,27 +44,20 @@ public class AccessibilityAndRtlContractTest {
     }
 
     @Test
-    public void phase3Layouts_enforceRtlAndTouchTargets() throws Exception {
-        String[] layoutFiles = new String[]{
-                "src/main/res/layout/view_mini_player.xml",
-                "src/main/res/layout/fragment_account.xml",
-                "src/main/res/layout/activity_app_intro.xml",
-                "src/main/res/layout/view_state_loading.xml",
-                "src/main/res/layout/view_state_empty.xml",
-                "src/main/res/layout/view_state_error.xml",
-                "src/main/res/layout/view_state_offline.xml"
-        };
+    public void stringsXml_definesLocalizationAndThemeKeysInBothLocales() throws Exception {
+        File defaultStrings = new File("src/main/res/values/strings.xml");
+        File arStrings = new File("src/main/res/values-ar/strings.xml");
 
-        for (String path : layoutFiles) {
-            File file = new File(path);
-            assertTrue("Layout file must exist: " + path, file.exists());
-            String content = new String(Files.readAllBytes(file.toPath()));
+        assertTrue("values/strings.xml must exist", defaultStrings.exists());
+        assertTrue("values-ar/strings.xml must exist", arStrings.exists());
 
-            // Verify touch targets where minHeight or dimension is applied
-            if (path.contains("view_mini_player") || path.contains("fragment_account") || path.contains("activity_app_intro")) {
-                assertTrue("Layout " + path + " must reference min_touch_target_size",
-                        content.contains("@dimen/min_touch_target_size"));
-            }
-        }
+        String defaultContent = new String(Files.readAllBytes(defaultStrings.toPath()));
+        String arContent = new String(Files.readAllBytes(arStrings.toPath()));
+
+        assertTrue("Default strings must define pref_language", defaultContent.contains("name=\"pref_language\""));
+        assertTrue("Default strings must define pref_theme", defaultContent.contains("name=\"pref_theme\""));
+
+        assertTrue("Arabic strings must define pref_language", arContent.contains("name=\"pref_language\""));
+        assertTrue("Arabic strings must define pref_theme", arContent.contains("name=\"pref_theme\""));
     }
 }

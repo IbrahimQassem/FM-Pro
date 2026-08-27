@@ -24,6 +24,18 @@ public class DesignTokensContractTest {
     }
 
     @Test
+    public void nightColorsTokensXml_definesSemanticMaterial3DarkColors() throws Exception {
+        File file = new File("src/main/res/values-night/colors_tokens.xml");
+        assertTrue("values-night/colors_tokens.xml should exist", file.exists());
+
+        String content = new String(Files.readAllBytes(file.toPath()));
+        assertTrue("Must define md_theme_primary in dark mode", content.contains("name=\"md_theme_primary\""));
+        assertTrue("Must define md_theme_surface in dark mode", content.contains("name=\"md_theme_surface\""));
+        assertTrue("Must define md_theme_background in dark mode", content.contains("name=\"md_theme_background\""));
+        assertTrue("Must define md_theme_onSurface in dark mode", content.contains("name=\"md_theme_onSurface\""));
+    }
+
+    @Test
     public void dimensTokensXml_definesSpacingGridAndTouchTarget() throws Exception {
         File file = new File("src/main/res/values/dimens_tokens.xml");
         assertTrue("dimens_tokens.xml should exist", file.exists());

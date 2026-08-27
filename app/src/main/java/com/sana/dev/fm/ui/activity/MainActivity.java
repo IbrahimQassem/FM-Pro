@@ -432,14 +432,13 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         if (isAccountSignedIn()) {
             boolean isOnline = hasInternetConnection();
             String isOnlineTxt = isOnline ? getString(R.string.label_online) : getString(R.string.offline);
-            int colorState = isOnline ? R.color.green_500 : R.color.yellow_500;
+            int colorState = isOnline ? R.color.md_theme_success : R.color.md_theme_warning;
             tv_user_state.setText(isOnlineTxt);
-            iv_internet.setColorFilter(ContextCompat.getColor(this, colorState), android.graphics.PorterDuff.Mode.MULTIPLY);
+            iv_internet.setColorFilter(ContextCompat.getColor(this, colorState), android.graphics.PorterDuff.Mode.SRC_IN);
             iv_internet.setVisibility(VISIBLE);
         } else {
             iv_internet.setVisibility(View.GONE);
         }
-
     }
 
     private void showBottomSheetDialog() {
