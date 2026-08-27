@@ -26,23 +26,28 @@ public class FmApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-//        Timber.plant(new Timber.DebugTree());
         mInstance = this;
+        PreferencesManager.initializeInstance(this);
+
+        applyNightMode();
         setLocale();
 
         FirebaseApp.initializeApp(/*context=*/ this);
 
-        PreferencesManager.initializeInstance(this);
         // This flag should be set to true to enable VectorDrawable support for API < 21.
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         FacebookSdk.sdkInitialize(getApplicationContext());
         AppEventsLogger.activateApp(this);
     }
 
+    private void applyNightMode() {
+        int nightMode = PreferencesManager.getInstance().getNightMode();
+        AppCompatDelegate.setDefaultNightMode(nightMode);
+    }
+
     @Override
     protected void attachBaseContext(Context context) {
         super.attachBaseContext(context);
-//        MultiDex.install(this);
     }
 
     public static synchronized FmApplication getInstance() {
@@ -51,14 +56,14 @@ public class FmApplication extends Application {
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        Context context = MyContextWrapper.wrap(getInstance()/*in fragment use getContext() instead of this*/, PreferencesManager.getInstance().getPrefLange());
+        Context context = MyContextWrapper.wrap(getInstance(), PreferencesManager.getInstance().getPrefLanguage());
         getResources().updateConfiguration(context.getResources().getConfiguration(), context.getResources().getDisplayMetrics());
         super.onConfigurationChanged(newConfig);
     }
 
     private void setLocale() {
-        String languageToLoad = "ar";
-        Locale locale = new Locale(languageToLoad);
+        String languageToLoad = PreferencesManager.getInstance().getPrefLanguage();
+        Locale locale = new Locale(languageToLoad != null ? languageToLoad : "ar");
         Locale.setDefault(locale);
 
         Configuration config = getBaseContext().getResources().getConfiguration();

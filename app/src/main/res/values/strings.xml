@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="TypographyDashes">
-    <string name="app_name">هدهد اف ام</string>
+    <string name="app_name">Hudhud FM</string>
     <string name="app_slogan">The ideal destination for fans of radio and audio programs in Yemen</string>
     <string name="label_app_description">With “Hudhud FM”, the limits of space and time are no longer an obstacle between you and the pulse of life in Yemen. With the push of a button, your phone becomes a window to a wide ocean of Yemeni radio channels, taking you on a journey through rich cultures, ancient history, and inexhaustible creativity.</string>
 
@@ -22,11 +22,6 @@
 
     <string name="label_remote_config_key" translatable="false">hudhudFmAppConfig</string>
 
-    <!--    <string name="facebook_app_id" translatable="false">811088116023852</string>-->
-    <!--    <string name="fb_login_protocol_scheme" translatable="false">fb1234</string>-->
-    <!--    <string name="facebook_client_token" translatable="false">170e1661cdcf6358ee03ac6ef53278c3</string>-->
-    <!--&lt;!&ndash;    afe4eb099e9ad5f32fd9b17ce8ca50ea &ndash;&gt;-->
-
     <string name="facebook_app_id" translatable="false">811088116023852</string>
     <string name="fb_login_protocol_scheme" translatable="false">fb1234</string>
     <string name="facebook_client_token" translatable="false">afe4eb099e9ad5f32fd9b17ce8ca50ea</string>
@@ -35,16 +30,17 @@
     <string name="default_notification_channel_name" translatable="false">App Updates</string>
     <string name="default_notification_channel_description" translatable="false">Receive notifications about app updates and new features.</string>
 
-    <!--    test app-->
-    <!--    <string name="facebook_app_id" translatable="false">1018585879216952</string>-->
-    <!--    <string name="fb_login_protocol_scheme" translatable="false">fb1234</string>-->
-    <!--    <string name="facebook_client_token" translatable="false">fad23c664feb985b0804395215f5495b</string>-->
-
-
-    <string name="label_like">إعجاب</string>
-    <string name="label_more">المزيد</string>
-    <string name="label_share">مشاركة</string>
-    <string name="share_with">مشاركة عبر</string>
+    <string name="label_like">Like</string>
+    <string name="label_more">More</string>
+    <string name="label_share">Share</string>
+    <string name="share_with">Share via</string>
+    <string name="pref_language">Language</string>
+    <string name="pref_language_ar">العربية (Arabic)</string>
+    <string name="pref_language_en">English</string>
+    <string name="pref_theme">Theme</string>
+    <string name="pref_theme_light">Light</string>
+    <string name="pref_theme_dark">Dark</string>
+    <string name="pref_theme_system">System default</string>
 
     <plurals name="likes_count">
         <item quantity="one">%d like</item>

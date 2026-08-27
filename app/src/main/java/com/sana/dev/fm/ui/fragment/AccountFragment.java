@@ -33,6 +33,10 @@ public class AccountFragment extends BaseFragment {
     private TextView tvStatus;
     private MaterialButton btnAuth;
     private MaterialCardView cardAdminPanel;
+    private LinearLayout rowLanguage;
+    private TextView tvLanguageVal;
+    private LinearLayout rowTheme;
+    private TextView tvThemeVal;
     private LinearLayout rowPrivacy;
     private LinearLayout rowShareApp;
     private View dividerDeleteAccount;
@@ -49,6 +53,10 @@ public class AccountFragment extends BaseFragment {
         tvStatus = view.findViewById(R.id.tv_account_status);
         btnAuth = view.findViewById(R.id.btn_account_auth);
         cardAdminPanel = view.findViewById(R.id.card_admin_panel);
+        rowLanguage = view.findViewById(R.id.row_language);
+        tvLanguageVal = view.findViewById(R.id.tv_language_val);
+        rowTheme = view.findViewById(R.id.row_theme);
+        tvThemeVal = view.findViewById(R.id.tv_theme_val);
         rowPrivacy = view.findViewById(R.id.row_privacy);
         rowShareApp = view.findViewById(R.id.row_share_app);
         dividerDeleteAccount = view.findViewById(R.id.divider_delete_account);
@@ -63,6 +71,7 @@ public class AccountFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         updateUserState();
+        updatePreferencesSummary();
     }
 
     private void initViews() {
@@ -77,6 +86,14 @@ public class AccountFragment extends BaseFragment {
                 }
             }
         });
+
+        if (rowLanguage != null) {
+            rowLanguage.setOnClickListener(v -> showLanguageSelectionDialog());
+        }
+
+        if (rowTheme != null) {
+            rowTheme.setOnClickListener(v -> showThemeSelectionDialog());
+        }
 
         rowPrivacy.setOnClickListener(v -> {
             String url = getString(R.string.terms_reference);
@@ -101,6 +118,96 @@ public class AccountFragment extends BaseFragment {
         });
 
         updateUserState();
+        updatePreferencesSummary();
+    }
+
+    private void updatePreferencesSummary() {
+        if (tvLanguageVal != null) {
+            String lang = prefMgr.getPrefLanguage();
+            if ("en".equalsIgnoreCase(lang)) {
+                tvLanguageVal.setText(R.string.pref_language_en);
+            } else {
+                tvLanguageVal.setText(R.string.pref_language_ar);
+            }
+        }
+
+        if (tvThemeVal != null) {
+            int nightMode = prefMgr.getNightMode();
+            if (nightMode == androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES) {
+                tvThemeVal.setText(R.string.pref_theme_dark);
+            } else if (nightMode == androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO) {
+                tvThemeVal.setText(R.string.pref_theme_light);
+            } else {
+                tvThemeVal.setText(R.string.pref_theme_system);
+            }
+        }
+    }
+
+    private void showLanguageSelectionDialog() {
+        if (getContext() == null) return;
+
+        String[] languages = new String[]{
+                getString(R.string.pref_language_ar),
+                getString(R.string.pref_language_en)
+        };
+
+        String currentLang = prefMgr.getPrefLanguage();
+        int selectedIndex = "en".equalsIgnoreCase(currentLang) ? 1 : 0;
+
+        new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                .setTitle(R.string.pref_language)
+                .setSingleChoiceItems(languages, selectedIndex, (dialog, which) -> {
+                    dialog.dismiss();
+                    String selectedLang = which == 1 ? "en" : "ar";
+                    if (!selectedLang.equalsIgnoreCase(currentLang)) {
+                        prefMgr.setPrefLanguage(selectedLang);
+                        if (getActivity() != null) {
+                            getActivity().recreate();
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.label_cancel, null)
+                .show();
+    }
+
+    private void showThemeSelectionDialog() {
+        if (getContext() == null) return;
+
+        String[] themes = new String[]{
+                getString(R.string.pref_theme_system),
+                getString(R.string.pref_theme_light),
+                getString(R.string.pref_theme_dark)
+        };
+
+        int currentMode = prefMgr.getNightMode();
+        int selectedIndex = 0;
+        if (currentMode == androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO) {
+            selectedIndex = 1;
+        } else if (currentMode == androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES) {
+            selectedIndex = 2;
+        }
+
+        new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                .setTitle(R.string.pref_theme)
+                .setSingleChoiceItems(themes, selectedIndex, (dialog, which) -> {
+                    dialog.dismiss();
+                    int newMode;
+                    if (which == 1) {
+                        newMode = androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
+                    } else if (which == 2) {
+                        newMode = androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;
+                    } else {
+                        newMode = androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+                    }
+
+                    if (newMode != currentMode) {
+                        prefMgr.setNightMode(newMode);
+                        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(newMode);
+                        updatePreferencesSummary();
+                    }
+                })
+                .setNegativeButton(R.string.label_cancel, null)
+                .show();
     }
 
     private void showDeleteAccountConfirmation() {

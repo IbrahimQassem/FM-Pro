@@ -48,6 +48,13 @@
     <string name="label_more">المزيد</string>
     <string name="label_share">مشاركة</string>
     <string name="share_with">مشاركة عبر</string>
+    <string name="pref_language">اللغة</string>
+    <string name="pref_language_ar">العربية</string>
+    <string name="pref_language_en">الإنجليزية (English)</string>
+    <string name="pref_theme">المظهر</string>
+    <string name="pref_theme_light">فاتح</string>
+    <string name="pref_theme_dark">داكن</string>
+    <string name="pref_theme_system">تلقائي (حسب النظام)</string>
     <string name="label_cancel">إلغاء</string>
     <string name="label_ok">نعم</string>
     <string name="nav_home">الرئيسية</string>

@@ -119,8 +119,23 @@ public class PreferencesManager {
     }
 
     public String getPrefLange() {
-        String lang = read(AppConstant.General.PREF_LANGUAGE, "ar");
-        return lang;
+        return read(AppConstant.General.PREF_LANGUAGE, "ar");
+    }
+
+    public String getPrefLanguage() {
+        return read(AppConstant.General.PREF_LANGUAGE, "ar");
+    }
+
+    public void setPrefLanguage(String languageCode) {
+        write(AppConstant.General.PREF_LANGUAGE, languageCode != null ? languageCode : "ar");
+    }
+
+    public int getNightMode() {
+        return read(AppConstant.General.PREF_THEME_MODE, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+    }
+
+    public void setNightMode(int mode) {
+        write(AppConstant.General.PREF_THEME_MODE, mode);
     }
 
     public void setUserSession(UserModel userModel) {

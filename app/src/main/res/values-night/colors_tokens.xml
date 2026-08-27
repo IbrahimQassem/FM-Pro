@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material 3 Semantic Dark Theme Color Tokens with WCAG AA compliance -->
+<resources>
+    <!-- Primary Brand Palette -->
+    <color name="md_theme_primary">#FFAFD1</color>
+    <color name="md_theme_onPrimary">#570C34</color>
+    <color name="md_theme_primaryContainer">#72264B</color>
+    <color name="md_theme_onPrimaryContainer">#FFD8E4</color>
+
+    <!-- Secondary Palette -->
+    <color name="md_theme_secondary">#E3BDC6</color>
+    <color name="md_theme_onSecondary">#422931</color>
+    <color name="md_theme_secondaryContainer">#5B3F48</color>
+    <color name="md_theme_onSecondaryContainer">#FFD9E2</color>
+
+    <!-- Tertiary Accent -->
+    <color name="md_theme_tertiary">#EFBD94</color>
+    <color name="md_theme_onTertiary">#472A0C</color>
+    <color name="md_theme_tertiaryContainer">#623F20</color>
+    <color name="md_theme_onTertiaryContainer">#FFDCBE</color>
+
+    <!-- Surface & Background -->
+    <color name="md_theme_background">#1F1A1B</color>
+    <color name="md_theme_onBackground">#EAE0E1</color>
+    <color name="md_theme_surface">#1F1A1B</color>
+    <color name="md_theme_onSurface">#EAE0E1</color>
+    <color name="md_theme_surfaceVariant">#352F30</color>
+    <color name="md_theme_onSurfaceVariant">#D5C2C6</color>
+    <color name="md_theme_surfaceTint">#FFAFD1</color>
+    <color name="md_theme_inverseSurface">#EAE0E1</color>
+    <color name="md_theme_inverseOnSurface">#352F30</color>
+
+    <!-- Outlines & Dividers -->
+    <color name="md_theme_outline">#9E8C90</color>
+    <color name="md_theme_outlineVariant">#514347</color>
+
+    <!-- Semantic States -->
+    <color name="md_theme_error">#FFB4AB</color>
+    <color name="md_theme_onError">#690005</color>
+    <color name="md_theme_errorContainer">#93000A</color>
+    <color name="md_theme_onErrorContainer">#FFDAD6</color>
+
+    <color name="md_theme_success">#88D98E</color>
+    <color name="md_theme_onSuccess">#003912</color>
+    <color name="md_theme_successContainer">#00531D</color>
+    <color name="md_theme_onSuccessContainer">#A3F5A8</color>
+
+    <color name="md_theme_warning">#FFB951</color>
+    <color name="md_theme_onWarning">#452B00</color>
+    <color name="md_theme_warningContainer">#633F00</color>
+    <color name="md_theme_onWarningContainer">#FFDDB3</color>
+
+    <color name="md_theme_info">#8ECEFF</color>
+    <color name="md_theme_onInfo">#003452</color>
+    <color name="md_theme_infoContainer">#004B72</color>
+    <color name="md_theme_onInfoContainer">#CCE5FF</color>
+
+    <!-- Scrim & Overlay -->
+    <color name="md_theme_scrim">#000000</color>
+
+    <!-- Custom Live / Media Accents -->
+    <color name="md_theme_live_red">#FF8A80</color>
+    <color name="md_theme_live_container">#4B1010</color>
+    <color name="md_theme_station_chip_bg">#2C2627</color>
+</resources>
