@@ -346,11 +346,21 @@
     <string name="an_error_occurred">حدث خطأ، يرجى المحاولة مرة أخرى</string>
 
     <!-- Account Deletion Strings -->
-    <string name="label_delete_account">حذف الحساب والبيانات</string>
-    <string name="delete_account_confirm_title">تأكيد حذف الحساب</string>
-    <string name="delete_account_confirm_message">هل أنت متأكد من رغبتك في حذف حسابك؟ سيتم حذف بيانات ملفك الشخصي نهائياً من الخادم وحذف الجلسة المحلية، ولا يمكن التراجع عن هذا الإجراء.</string>
-    <string name="delete_account_confirm_button">تأكيد الحذف النهائي</string>
-    <string name="delete_account_success">تم حذف حسابك بنجاح.</string>
-    <string name="delete_account_reauth_required">يرجى إعادة تسجيل الدخول أولاً لتأكيد هويتك قبل حذف الحساب.</string>
+    <string name="label_delete_account">Delete Account &amp; Data</string>
+    <string name="delete_account_confirm_title">Confirm Account Deletion</string>
+    <string name="delete_account_confirm_message">Are you sure you want to delete your account permanently? This action cannot be undone.</string>
+    <string name="delete_account_confirm_button">Delete Permanently</string>
+    <string name="delete_account_success">Your account has been deleted successfully.</string>
+    <string name="delete_account_reauth_required">Please re-login to confirm your identity before deleting your account.</string>
 
+    <!-- Control Panel Strings -->
+    <string name="control_panel_title">Control Panel</string>
+    <string name="section_admin_control">Administrative Tools</string>
+    <string name="section_general_support">Account &amp; Support</string>
+    <string name="admin_badge_title">Admin Access</string>
+    <string name="admin_tile_add_episode_sub">Publish new episode</string>
+    <string name="admin_tile_add_program_sub">Create new show</string>
+    <string name="admin_tile_manage_episodes_sub">Manage &amp; edit</string>
+    <string name="admin_tile_manage_programs_sub">Schedule &amp; edit</string>
+    <string name="admin_tile_station_info_sub">Station settings</string>
 </resources>

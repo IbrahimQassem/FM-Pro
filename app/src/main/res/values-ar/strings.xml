@@ -282,8 +282,17 @@
     <string name="label_minutes">دقيقة</string>
     <string name="label_update_now">تحديث التطبيق</string>
     <string name="label_force_update_title">التحديث الآن</string>
-    <string name="label_force_update_message">يرجى تحديث الإصدار الأخير من التطبيق.</string>
     <string name="label_no">لا</string>
     <string name="label_yes">نعم</string>
 
+    <!-- Control Panel Strings (Arabic) -->
+    <string name="control_panel_title">لوحة التحكم</string>
+    <string name="section_admin_control">أدوات الإدارة والتحكم</string>
+    <string name="section_general_support">الحساب والإعدادات</string>
+    <string name="admin_badge_title">صلاحية الإدارة</string>
+    <string name="admin_tile_add_episode_sub">نشر حلقة جديدة</string>
+    <string name="admin_tile_add_program_sub">إنشاء برنامج جديد</string>
+    <string name="admin_tile_manage_episodes_sub">إدارة وتعديل الحلقات</string>
+    <string name="admin_tile_manage_programs_sub">جدولة وتعديل البرامج</string>
+    <string name="admin_tile_station_info_sub">إعدادات وبيانات الإذاعة</string>
 </resources>

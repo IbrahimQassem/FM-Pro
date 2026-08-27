@@ -452,26 +452,20 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
 
         View inflate = getLayoutInflater().inflate(R.layout.main_activity_sheet_list, null);
 
-        LinearLayout lyt_add_program = inflate.findViewById(R.id.lyt_add_program);
-        LinearLayout lyt_add_episode = inflate.findViewById(R.id.lyt_add_episode);
-        LinearLayout lyt_update_episode = inflate.findViewById(R.id.lyt_update_episode);
-        LinearLayout lyt_update_program = inflate.findViewById(R.id.lyt_update_program);
-        LinearLayout lyt_update_radio = inflate.findViewById(R.id.lyt_update_radio);
-        //lyt_update_radio.setVisibility(View.GONE);
+        View card_admin_section = inflate.findViewById(R.id.card_admin_section);
+        TextView tv_admin_badge = inflate.findViewById(R.id.tv_admin_badge);
+        View lyt_add_program = inflate.findViewById(R.id.lyt_add_program);
+        View lyt_add_episode = inflate.findViewById(R.id.lyt_add_episode);
+        View lyt_update_episode = inflate.findViewById(R.id.lyt_update_episode);
+        View lyt_update_program = inflate.findViewById(R.id.lyt_update_program);
+        View lyt_update_radio = inflate.findViewById(R.id.lyt_update_radio);
 
-
-        if (checkPrivilegeAdmin()) {
-            lyt_add_program.setVisibility(View.VISIBLE);
-            lyt_add_episode.setVisibility(View.VISIBLE);
-            lyt_update_episode.setVisibility(View.VISIBLE);
-            lyt_update_program.setVisibility(View.VISIBLE);
-            lyt_update_radio.setVisibility(View.VISIBLE);
-        } else {
-            lyt_add_program.setVisibility(View.GONE);
-            lyt_add_episode.setVisibility(View.GONE);
-            lyt_update_episode.setVisibility(View.GONE);
-            lyt_update_program.setVisibility(View.GONE);
-            lyt_update_radio.setVisibility(View.GONE);
+        boolean isAdmin = checkPrivilegeAdmin();
+        if (card_admin_section != null) {
+            card_admin_section.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
+        }
+        if (tv_admin_badge != null) {
+            tv_admin_badge.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
         }
 
 //        if (checkPrivilegeAdmin() && (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
