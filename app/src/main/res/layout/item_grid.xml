@@ -200,7 +200,7 @@
                     android:id="@+id/lyt_comment_parent"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="@dimen/spacing_sm"
+                    android:layout_marginStart="@dimen/spacing_xs"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
@@ -222,6 +222,37 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/spacing_xs"
                         android:text="@string/label_comments"
+                        android:textColor="@color/md_theme_onSurfaceVariant" />
+                </LinearLayout>
+
+                <!-- Share Button -->
+                <LinearLayout
+                    android:id="@+id/lyt_share_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="@dimen/spacing_xs"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="@dimen/spacing_sm">
+
+                    <ImageView
+                        android:id="@+id/imv_share"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:contentDescription="@string/label_share"
+                        app:srcCompat="@drawable/ic_share"
+                        app:tint="@color/md_theme_onSurfaceVariant" />
+
+                    <TextView
+                        android:id="@+id/txt_share"
+                        style="@style/TextAppearance.FMPro.LabelMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_xs"
+                        android:text="@string/label_share"
                         android:textColor="@color/md_theme_onSurfaceVariant" />
                 </LinearLayout>
 

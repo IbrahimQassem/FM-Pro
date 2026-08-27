@@ -46,10 +46,8 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 //        setIsSender(currentUser != null && chat.getUid().equals(currentUser.getUid()));
 
         binding.btMore.setVisibility(View.GONE);
-
-        if ((BuildConfig.FLAVOR.equals("hudhudfm_google_play"))) {
-            binding.lytCommentParent.setVisibility(View.GONE);
-        }
+        binding.lytCommentParent.setVisibility(View.VISIBLE);
+        binding.lytShareParent.setVisibility(View.VISIBLE);
 
     }
 
@@ -166,6 +164,33 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         });
 
         binding.imvLike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClick(v, episode, position);
+                }
+            }
+        });
+
+        binding.lytShareParent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClick(v, episode, position);
+                }
+            }
+        });
+
+        binding.imvShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClick(v, episode, position);
+                }
+            }
+        });
+
+        binding.btMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mOnItemClickListener != null) {

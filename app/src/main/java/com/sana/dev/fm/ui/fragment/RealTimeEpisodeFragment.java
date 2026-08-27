@@ -382,6 +382,24 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 //                                    });
                                 }
                                 break;
+                            case R.id.lyt_share_parent:
+                            case R.id.imv_share:
+                                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                                shareIntent.setType("text/plain");
+                                String shareText = item.getEpName();
+                                if (item.getEpDesc() != null && !item.getEpDesc().isEmpty()) {
+                                    shareText += "\n" + item.getEpDesc();
+                                }
+                                shareText += "\n" + getString(R.string.app_name);
+                                shareIntent.putExtra(Intent.EXTRA_SUBJECT, item.getEpName());
+                                shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+                                context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.share_with)));
+                                break;
+                            case R.id.bt_more:
+                                if (RealTimeEpisodeFragment.this.isAccountSignedIn() && prefMgr.getUserSession().getUserType() == UserType.SuperADMIN) {
+                                    showBottomSheetDialog(item, radioId);
+                                }
+                                break;
                             case R.id.bt_toggle:
 //                                recyclerView.notifySubtreeAccessibilityStateChanged();
                                 adapter.notifyDataSetChanged();

@@ -43,6 +43,8 @@
 
     <string name="label_like">إعجاب</string>
     <string name="label_more">المزيد</string>
+    <string name="label_share">مشاركة</string>
+    <string name="share_with">مشاركة عبر</string>
 
     <plurals name="likes_count">
         <item quantity="one">%d like</item>

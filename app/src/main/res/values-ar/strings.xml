@@ -46,6 +46,8 @@
     <string name="volume_low">يجب رفع مستوى الصوت!</string>
     <string name="label_like">إعجاب</string>
     <string name="label_more">المزيد</string>
+    <string name="label_share">مشاركة</string>
+    <string name="share_with">مشاركة عبر</string>
     <string name="label_cancel">إلغاء</string>
     <string name="label_ok">نعم</string>
     <string name="nav_home">الرئيسية</string>
