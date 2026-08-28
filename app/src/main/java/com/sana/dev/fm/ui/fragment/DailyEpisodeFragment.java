@@ -163,6 +163,10 @@ public class DailyEpisodeFragment extends BaseFragment {
                 }
             }
 
+            if (episodeList.isEmpty() && BuildConfig.DEBUG) {
+                episodeList = com.sana.dev.fm.data.datasource.LocalSeedEpisodeDataSource.loadSeedEpisodes(ctx, radioId);
+            }
+
             List<TempEpisodeModel> modelList = new ArrayList<>();
             Weekday currentWeekday = WeekdayUtils.getCurrentDayOfWeek();
 
@@ -212,6 +216,22 @@ public class DailyEpisodeFragment extends BaseFragment {
             }
         }).addOnFailureListener(e -> {
             LogUtility.e(TAG, "Error fetching daily episodes: " + e.getMessage());
+            if (BuildConfig.DEBUG) {
+                List<Episode> seedEpisodes = com.sana.dev.fm.data.datasource.LocalSeedEpisodeDataSource.loadSeedEpisodes(ctx, radioId);
+                List<TempEpisodeModel> modelList = new ArrayList<>();
+                Weekday currentWeekday = WeekdayUtils.getCurrentDayOfWeek();
+                for (Episode ep : seedEpisodes) {
+                    modelList.add(new TempEpisodeModel(ep.getEpProfile(), ep.getEpName(), ep.getEpAnnouncer(), ep.getProgramScheduleTime(), currentWeekday));
+                }
+                if (!modelList.isEmpty() && recyclerView != null && ctx != null) {
+                    if (stateLayout != null) stateLayout.showContent();
+                    recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
+                    TimeLineAdapter adapter = new TimeLineAdapter(ctx, modelList);
+                    recyclerView.setAdapter(adapter);
+                    toggleView(false);
+                    return;
+                }
+            }
             if (stateLayout != null) {
                 stateLayout.showError(getString(R.string.an_error_occurred), null, () -> loadDailyEpisode(radioId));
             }

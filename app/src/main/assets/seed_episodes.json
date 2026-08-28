@@ -1,0 +1,305 @@
+[
+  {
+    "id": "ep_sabah_01",
+    "episodeId": "ep_sabah_01",
+    "epId": "ep_sabah_01",
+    "programId": "prog_sabah_alyemen",
+    "programName": "صباح الخير يا يمن",
+    "programTitle": "صباح الخير يا يمن",
+    "stationId": "s9_9",
+    "radioId": "s9_9",
+    "stationName": "إذاعة صنعاء",
+    "title": "حلقة خاصة: التعليم ومستقبل الشباب في اليمن",
+    "epName": "حلقة خاصة: التعليم ومستقبل الشباب في اليمن",
+    "description": "حوارية شاملة مع دكاترة الجامعات والطلاب حول الابتكار وسوق العمل وفرص التمكين المهني والتكنولوجي.",
+    "epDesc": "حوارية شاملة مع دكاترة الجامعات والطلاب حول الابتكار وسوق العمل وفرص التمكين المهني والتكنولوجي.",
+    "coverUrl": "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600",
+    "epProfile": "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600",
+    "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "epStreamUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "audioDurationSec": 2400,
+    "presenter": "أحمد الشامي",
+    "epAnnouncer": "أحمد الشامي",
+    "guest": "د. عبد الله الماوري",
+    "broadcastDate": "2026-08-28T08:00:00Z",
+    "isPublished": true,
+    "isFeatured": true,
+    "disabled": false,
+    "likesCount": 142,
+    "favCount": 45,
+    "showTimeList": [
+      {
+        "timeStart": 1756450800000,
+        "timeEnd": 1756458000000,
+        "asMainTime": true,
+        "weekdays": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+      }
+    ],
+    "programScheduleTime": {
+      "dateStart": 1756339200000,
+      "dateEnd": 1759017600000,
+      "timeStart": 1756450800000,
+      "timeEnd": 1756458000000,
+      "asMainTime": true,
+      "weekdays": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    },
+    "metrics": {
+      "likesCount": 142,
+      "commentsCount": 18,
+      "playsCount": 3840,
+      "downloadsCount": 420
+    }
+  },
+  {
+    "id": "ep_hadith_01",
+    "episodeId": "ep_hadith_01",
+    "epId": "ep_hadith_01",
+    "programId": "prog_hadith_alrooh",
+    "programName": "حديث الروح والوجدان",
+    "programTitle": "حديث الروح والوجدان",
+    "stationId": "s9_9",
+    "radioId": "s9_9",
+    "stationName": "إذاعة صنعاء",
+    "title": "خواطر الصباح: التراحم وبناء المجتمع",
+    "epName": "خواطر الصباح: التراحم وبناء المجتمع",
+    "description": "تأملات في الأخلاق والتعاون والتكافل الاجتماعي بين الجيران والأسر في المجتمع اليمني.",
+    "epDesc": "تأملات في الأخلاق والتعاون والتكافل الاجتماعي بين الجيران والأسر في المجتمع اليمني.",
+    "coverUrl": "https://images.unsplash.com/photo-1507692049790-de58290a4334?w=600",
+    "epProfile": "https://images.unsplash.com/photo-1507692049790-de58290a4334?w=600",
+    "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    "epStreamUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    "audioDurationSec": 1500,
+    "presenter": "الشيخ عبد الرحمن العماري",
+    "epAnnouncer": "الشيخ عبد الرحمن العماري",
+    "broadcastDate": "2026-08-28T06:30:00Z",
+    "isPublished": true,
+    "isFeatured": false,
+    "disabled": false,
+    "likesCount": 89,
+    "favCount": 25,
+    "showTimeList": [
+      {
+        "timeStart": 1756445400000,
+        "timeEnd": 1756449000000,
+        "asMainTime": true,
+        "weekdays": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+      }
+    ],
+    "programScheduleTime": {
+      "dateStart": 1756339200000,
+      "dateEnd": 1759017600000,
+      "timeStart": 1756445400000,
+      "timeEnd": 1756449000000,
+      "asMainTime": true,
+      "weekdays": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    },
+    "metrics": {
+      "likesCount": 89,
+      "commentsCount": 8,
+      "playsCount": 1820,
+      "downloadsCount": 150
+    }
+  },
+  {
+    "id": "ep_sabah_02",
+    "episodeId": "ep_sabah_02",
+    "epId": "ep_sabah_02",
+    "programId": "prog_sabah_alyemen",
+    "programName": "صباح الخير يا يمن",
+    "programTitle": "صباح الخير يا يمن",
+    "stationId": "s9_9",
+    "radioId": "s9_9",
+    "stationName": "إذاعة صنعاء",
+    "title": "البيئة والمبادرات المجتمعية لتشجير المدن",
+    "epName": "البيئة والمبادرات المجتمعية لتشجير المدن",
+    "description": "لقاء مع نشطاء بيئيين حول مبادرات التشجير وتوفير مصادر المياه والطاقة البديلة المستدامة في الأحياء.",
+    "epDesc": "لقاء مع نشطاء بيئيين حول مبادرات التشجير وتوفير مصادر المياه والطاقة البديلة المستدامة في الأحياء.",
+    "coverUrl": "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600",
+    "epProfile": "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600",
+    "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    "epStreamUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    "audioDurationSec": 1850,
+    "presenter": "منى القاضي",
+    "epAnnouncer": "منى القاضي",
+    "guest": "م. أروى عبد الخالق",
+    "broadcastDate": "2026-08-27T08:00:00Z",
+    "isPublished": true,
+    "isFeatured": false,
+    "disabled": false,
+    "likesCount": 98,
+    "favCount": 30,
+    "showTimeList": [
+      {
+        "timeStart": 1756461600000,
+        "timeEnd": 1756468800000,
+        "asMainTime": false,
+        "weekdays": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+      }
+    ],
+    "programScheduleTime": {
+      "dateStart": 1756339200000,
+      "dateEnd": 1759017600000,
+      "timeStart": 1756461600000,
+      "timeEnd": 1756468800000,
+      "asMainTime": false,
+      "weekdays": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    },
+    "metrics": {
+      "likesCount": 98,
+      "commentsCount": 12,
+      "playsCount": 2190,
+      "downloadsCount": 180
+    }
+  },
+  {
+    "id": "ep_nabd_01",
+    "episodeId": "ep_nabd_01",
+    "epId": "ep_nabd_01",
+    "programId": "prog_nabd_alsharea",
+    "programName": "نبض الشارع",
+    "programTitle": "نبض الشارع",
+    "stationId": "s16_16",
+    "radioId": "s16_16",
+    "stationName": "يمن شباب FM",
+    "title": "الخدمات العامة والتنمية في المحافظات",
+    "epName": "الخدمات العامة والتنمية في المحافظات",
+    "description": "استطلاع ميداني شامل لآراء المواطنين واحتياجات التنمية والمشاريع الخدمية والبنية التحتية.",
+    "epDesc": "استطلاع ميداني شامل لآراء المواطنين واحتياجات التنمية والمشاريع الخدمية والبنية التحتية.",
+    "coverUrl": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600",
+    "epProfile": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600",
+    "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    "epStreamUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    "audioDurationSec": 2100,
+    "presenter": "محمد المقرمي",
+    "epAnnouncer": "محمد المقرمي",
+    "broadcastDate": "2026-08-28T17:00:00Z",
+    "isPublished": true,
+    "isFeatured": true,
+    "disabled": false,
+    "likesCount": 230,
+    "favCount": 92,
+    "showTimeList": [
+      {
+        "timeStart": 1756483200000,
+        "timeEnd": 1756490400000,
+        "asMainTime": true,
+        "weekdays": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+      }
+    ],
+    "programScheduleTime": {
+      "dateStart": 1756339200000,
+      "dateEnd": 1759017600000,
+      "timeStart": 1756483200000,
+      "timeEnd": 1756490400000,
+      "asMainTime": true,
+      "weekdays": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    },
+    "metrics": {
+      "likesCount": 230,
+      "commentsCount": 34,
+      "playsCount": 6120,
+      "downloadsCount": 890
+    }
+  },
+  {
+    "id": "ep_awtar_01",
+    "episodeId": "ep_awtar_01",
+    "epId": "ep_awtar_01",
+    "programId": "prog_awtar_yamaniya",
+    "programName": "أوتار يمانية",
+    "programTitle": "أوتار يمانية",
+    "stationId": "s6_6",
+    "radioId": "s6_6",
+    "stationName": "يمن ميوزك FM",
+    "title": "روائع الدان الحضرمي وأغاني التراث",
+    "epName": "روائع الدان الحضرمي وأغاني التراث",
+    "description": "جلسة طرب نادرة تستعرض تاريخ الدان الحضرمي وشعراء الغناء الأصيل في شبام وسيئون وتريم.",
+    "epDesc": "جلسة طرب نادرة تستعرض تاريخ الدان الحضرمي وشعراء الغناء الأصيل في شبام وسيئون وتريم.",
+    "coverUrl": "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=600",
+    "epProfile": "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=600",
+    "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+    "epStreamUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+    "audioDurationSec": 3200,
+    "presenter": "مروان عبده",
+    "epAnnouncer": "مروان عبده",
+    "guest": "الفنان سعيد باصالح",
+    "broadcastDate": "2026-08-28T21:00:00Z",
+    "isPublished": true,
+    "isFeatured": true,
+    "disabled": false,
+    "likesCount": 510,
+    "favCount": 210,
+    "showTimeList": [
+      {
+        "timeStart": 1756497600000,
+        "timeEnd": 1756504800000,
+        "asMainTime": true,
+        "weekdays": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+      }
+    ],
+    "programScheduleTime": {
+      "dateStart": 1756339200000,
+      "dateEnd": 1759017600000,
+      "timeStart": 1756497600000,
+      "timeEnd": 1756504800000,
+      "asMainTime": true,
+      "weekdays": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    },
+    "metrics": {
+      "likesCount": 510,
+      "commentsCount": 47,
+      "playsCount": 12800,
+      "downloadsCount": 2400
+    }
+  },
+  {
+    "id": "ep_asalah_01",
+    "episodeId": "ep_asalah_01",
+    "epId": "ep_asalah_01",
+    "programId": "prog_asalah_fann",
+    "programName": "مجالس الأصالة والتراث",
+    "programTitle": "مجالس الأصالة والتراث",
+    "stationId": "s1_1",
+    "radioId": "s1_1",
+    "stationName": "إذاعة أصالة",
+    "title": "فنون العمارة الطينية والقمريات في صنعاء القديمة",
+    "epName": "فنون العمارة الطينية والقمريات في صنعاء القديمة",
+    "description": "استعراض تاريخي وفني لجماليات العمارة الصنعانية المسجلة في قائمة التراث العالمي لليونسكو.",
+    "epDesc": "استعراض تاريخي وفني لجماليات العمارة الصنعانية المسجلة في قائمة التراث العالمي لليونسكو.",
+    "coverUrl": "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=600",
+    "epProfile": "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=600",
+    "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "epStreamUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "audioDurationSec": 2700,
+    "presenter": "فهد العريقي",
+    "epAnnouncer": "فهد العريقي",
+    "broadcastDate": "2026-08-28T16:00:00Z",
+    "isPublished": true,
+    "isFeatured": true,
+    "disabled": false,
+    "likesCount": 380,
+    "favCount": 125,
+    "showTimeList": [
+      {
+        "timeStart": 1756479600000,
+        "timeEnd": 1756486800000,
+        "asMainTime": true,
+        "weekdays": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+      }
+    ],
+    "programScheduleTime": {
+      "dateStart": 1756339200000,
+      "dateEnd": 1759017600000,
+      "timeStart": 1756479600000,
+      "timeEnd": 1756486800000,
+      "asMainTime": true,
+      "weekdays": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    },
+    "metrics": {
+      "likesCount": 380,
+      "commentsCount": 29,
+      "playsCount": 7400,
+      "downloadsCount": 610
+    }
+  }
+]

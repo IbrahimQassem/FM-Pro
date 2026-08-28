@@ -78,7 +78,12 @@ public class ProgramsRepositoryImpl implements ProgramsRepository {
                     }
                 }
 
-                if (cacheEnabled) {
+                if (domainList.isEmpty() && BuildConfig.DEBUG) {
+                    domainList = com.sana.dev.fm.data.datasource.LocalSeedProgramDataSource.loadSeedPrograms(
+                            com.sana.dev.fm.FmApplication.getInstance(), cleanRadioId);
+                }
+
+                if (cacheEnabled && !domainList.isEmpty()) {
                     localDataSource.savePrograms(cleanRadioId, domainList);
                 }
 
@@ -92,6 +97,18 @@ public class ProgramsRepositoryImpl implements ProgramsRepository {
                     CacheEntry<List<Program>> entry = localDataSource.getCacheEntry(cleanRadioId);
                     if (entry != null && entry.getData() != null && !entry.getData().isEmpty()) {
                         callback.onResult(Result.success(entry.getData()));
+                        return;
+                    }
+                }
+
+                if (BuildConfig.DEBUG) {
+                    List<Program> seedList = com.sana.dev.fm.data.datasource.LocalSeedProgramDataSource.loadSeedPrograms(
+                            com.sana.dev.fm.FmApplication.getInstance(), cleanRadioId);
+                    if (!seedList.isEmpty()) {
+                        if (cacheEnabled) {
+                            localDataSource.savePrograms(cleanRadioId, seedList);
+                        }
+                        callback.onResult(Result.success(seedList));
                         return;
                     }
                 }

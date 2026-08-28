@@ -68,10 +68,11 @@ public class TimeLineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 //                int _state = showTime.isAsMainTime() ? View.INVISIBLE : View.VISIBLE;
                 Tools.setTextOrHideIfEmpty(holder.binding.tvState, replay);
 
-//                Weekday today = WeekdayUtils.getCurrentDayOfWeek();
-//                boolean isDisplayDay = WeekdayUtils.isCurrentDay(episode.getDisplayDay());
-//                holder.binding.tvDesc.setText(today.name());
-                holder.binding.tvDesc.setText(episode.getDisplayDay().name());
+                String announcer = episode.getEpAnnouncer();
+                if (Tools.isEmpty(announcer)) {
+                    announcer = FmUtilize.getDayName(new java.util.Date());
+                }
+                holder.binding.tvDesc.setText(announcer);
 
 
                 boolean isNow = showTime.isWithinRange(showTime);

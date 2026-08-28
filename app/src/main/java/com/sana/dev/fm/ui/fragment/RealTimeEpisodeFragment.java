@@ -383,10 +383,55 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
             @Override
             public void onDataChanged() {
-                // If there are no chat messages, show a view that invites the user to add a message.
-                toggleView(getItemCount() == 0);
+                if (getItemCount() == 0) {
+                    showSeedEpisodesFallback(radioId);
+                } else {
+                    toggleView(false);
+                }
+            }
+
+            @Override
+            public void onError(@NonNull com.google.firebase.firestore.FirebaseFirestoreException e) {
+                showSeedEpisodesFallback(radioId);
             }
         };
+    }
+
+    private void showSeedEpisodesFallback(String radioId) {
+        if (!BuildConfig.DEBUG) {
+            toggleView(true);
+            return;
+        }
+        List<Episode> seedList = com.sana.dev.fm.data.datasource.LocalSeedEpisodeDataSource.loadSeedEpisodes(context, radioId);
+        if (seedList != null && !seedList.isEmpty()) {
+            recyclerView.setAdapter(new RecyclerView.Adapter<ChatHolder>() {
+                @NonNull
+                @Override
+                public ChatHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                    ItemGridBinding inflate = ItemGridBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+                    return new ChatHolder(inflate);
+                }
+
+                @Override
+                public void onBindViewHolder(@NonNull ChatHolder holder, int position) {
+                    Episode ep = seedList.get(position);
+                    holder.bind(ep, position);
+                    holder.setOnItemClickListener((v, obj, pos) -> {
+                        int[] startingLocation = new int[2];
+                        v.getLocationOnScreen(startingLocation);
+                        ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, context, (Episode) obj);
+                    });
+                }
+
+                @Override
+                public int getItemCount() {
+                    return seedList.size();
+                }
+            });
+            toggleView(false);
+        } else {
+            toggleView(true);
+        }
     }
 
     private BottomSheetDialog mBottomSheetDialog;
