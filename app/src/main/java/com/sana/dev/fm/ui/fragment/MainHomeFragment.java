@@ -259,9 +259,7 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
     }
 
     private List<DestinationModel> getSortedDestinations(List<DestinationModel> destinations) {
-        Collections.sort(destinations, (d1, d2) ->
-                Integer.compare(d2.getPriority(), d1.getPriority()));
-        return destinations;
+        return com.sana.dev.fm.domain.ranking.PriorityRankingEngine.sortDestinations(destinations);
     }
 
     @Override

@@ -83,6 +83,8 @@ public class ProgramsRepositoryImpl implements ProgramsRepository {
                             com.sana.dev.fm.FmApplication.getInstance(), cleanRadioId);
                 }
 
+                domainList = com.sana.dev.fm.domain.ranking.PriorityRankingEngine.sortPrograms(domainList);
+
                 if (cacheEnabled && !domainList.isEmpty()) {
                     localDataSource.savePrograms(cleanRadioId, domainList);
                 }
@@ -96,7 +98,7 @@ public class ProgramsRepositoryImpl implements ProgramsRepository {
                 if (cacheEnabled) {
                     CacheEntry<List<Program>> entry = localDataSource.getCacheEntry(cleanRadioId);
                     if (entry != null && entry.getData() != null && !entry.getData().isEmpty()) {
-                        callback.onResult(Result.success(entry.getData()));
+                        callback.onResult(Result.success(com.sana.dev.fm.domain.ranking.PriorityRankingEngine.sortPrograms(entry.getData())));
                         return;
                     }
                 }
@@ -105,6 +107,7 @@ public class ProgramsRepositoryImpl implements ProgramsRepository {
                     List<Program> seedList = com.sana.dev.fm.data.datasource.LocalSeedProgramDataSource.loadSeedPrograms(
                             com.sana.dev.fm.FmApplication.getInstance(), cleanRadioId);
                     if (!seedList.isEmpty()) {
+                        seedList = com.sana.dev.fm.domain.ranking.PriorityRankingEngine.sortPrograms(seedList);
                         if (cacheEnabled) {
                             localDataSource.savePrograms(cleanRadioId, seedList);
                         }

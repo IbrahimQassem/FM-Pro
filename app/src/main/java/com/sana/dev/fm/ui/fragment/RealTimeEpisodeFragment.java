@@ -404,6 +404,8 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         }
         List<Episode> seedList = com.sana.dev.fm.data.datasource.LocalSeedEpisodeDataSource.loadSeedEpisodes(context, radioId);
         if (seedList != null && !seedList.isEmpty()) {
+            seedList = com.sana.dev.fm.domain.ranking.PriorityRankingEngine.sortEpisodes(seedList);
+            final List<Episode> finalSeedList = seedList;
             recyclerView.setAdapter(new RecyclerView.Adapter<ChatHolder>() {
                 @NonNull
                 @Override
@@ -414,7 +416,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
                 @Override
                 public void onBindViewHolder(@NonNull ChatHolder holder, int position) {
-                    Episode ep = seedList.get(position);
+                    Episode ep = finalSeedList.get(position);
                     holder.bind(ep, position);
                     holder.setOnItemClickListener((v, obj, pos) -> {
                         int[] startingLocation = new int[2];
@@ -425,7 +427,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
                 @Override
                 public int getItemCount() {
-                    return seedList.size();
+                    return finalSeedList.size();
                 }
             });
             toggleView(false);

@@ -44,6 +44,7 @@ public class StationsRepositoryImpl implements StationsRepository {
                         // Fallback to seed stations if remote collection is empty
                         domainList = LocalSeedStationDataSource.loadSeedStations(appContext);
                     }
+                    domainList = com.sana.dev.fm.domain.ranking.PriorityRankingEngine.sortStations(domainList);
                     inMemoryCache = domainList;
                     callback.onResult(Result.success(domainList));
                 } else {
@@ -53,6 +54,7 @@ public class StationsRepositoryImpl implements StationsRepository {
                     } else if (appContext != null) {
                         List<Station> seedList = LocalSeedStationDataSource.loadSeedStations(appContext);
                         if (!seedList.isEmpty()) {
+                            seedList = com.sana.dev.fm.domain.ranking.PriorityRankingEngine.sortStations(seedList);
                             inMemoryCache = seedList;
                             callback.onResult(Result.success(seedList));
                         } else {

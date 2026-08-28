@@ -335,5 +335,15 @@ public class Episode implements Serializable {
     public void setLogo(String logo) {
         if (logo != null) this.epProfile = logo;
     }
+
+    private boolean isFeatured = false;
+
+    public boolean isFeatured() {
+        return isFeatured;
+    }
+
+    public void setFeatured(boolean featured) {
+        this.isFeatured = featured;
+    }
 }
 

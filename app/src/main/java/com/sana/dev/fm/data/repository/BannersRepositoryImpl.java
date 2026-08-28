@@ -37,8 +37,7 @@ public class BannersRepositoryImpl implements BannersRepository {
             @Override
             public void onSuccess(List<BannerDto> dtos) {
                 List<Banner> domainBanners = BannerMapper.toDomainList(dtos);
-                // Sort by priority descending
-                Collections.sort(domainBanners, (b1, b2) -> Integer.compare(b2.getPriority(), b1.getPriority()));
+                domainBanners = com.sana.dev.fm.domain.ranking.PriorityRankingEngine.sortBanners(domainBanners);
                 callback.onResult(Result.success(domainBanners));
             }
 
