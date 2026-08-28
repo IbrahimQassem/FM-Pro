@@ -169,8 +169,14 @@
     <string name="label_desc">Description</string>
     <string name="ex_no">123</string>
     <string name="label_announcer_name">Announcer Name</string>
-    <string name="label_grid">Grade</string>
+    <string name="label_grid">Grid</string>
     <string name="label_list">List</string>
+    <string name="tab_episodes">Episodes</string>
+    <string name="tab_about_station">About &amp; Schedule</string>
+    <string name="btn_listen_live">Listen Live</string>
+    <string name="label_station_info">Station Info</string>
+    <string name="label_schedule_table">Broadcast Schedule</string>
+    <string name="label_live_badge">Live</string>
     <string name="label_comments">Comments</string>
     <string name="label_title">Title</string>
     <string name="label_label">Label</string>

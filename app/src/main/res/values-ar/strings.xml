@@ -148,6 +148,12 @@
     <string name="label_announcer_name">اسم المذيع</string>
     <string name="label_grid">عرض شبكي</string>
     <string name="label_list">عرض قائمة</string>
+    <string name="tab_episodes">الحلقات</string>
+    <string name="tab_about_station">عن الإذاعة والجدول</string>
+    <string name="btn_listen_live">استمع للبث المباشر</string>
+    <string name="label_station_info">معلومات وتفاصيل الإذاعة</string>
+    <string name="label_schedule_table">مواعيد وجدول البث</string>
+    <string name="label_live_badge">بث حي</string>
     <string name="label_comments">التعليقات</string>
     <string name="label_title">العنوان</string>
     <string name="label_label">وسم</string>

@@ -58,7 +58,11 @@
     <color name="overlay_dark_10">#1A000000</color>
     <color name="overlay_dark_20">#33000000</color>
     <color name="overlay_light_20">#33FFFFFF</color>
+    <color name="overlay_light_40">#66FFFFFF</color>
+    <color name="overlay_light_60">#99FFFFFF</color>
+    <color name="overlay_light_70">#B3FFFFFF</color>
     <color name="overlay_light_80">#CCFFFFFF</color>
+    <color name="overlay_light_90">#E6FFFFFF</color>
     <color name="quantum_white_100">@color/white</color>
     <color name="blue_300">@color/md_theme_info</color>
     <color name="blue_400">@color/md_theme_info</color>

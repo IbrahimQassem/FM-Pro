@@ -5,31 +5,55 @@
     android:id="@+id/flRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
+    android:layout_margin="6dp"
+    android:clickable="true"
+    android:focusable="true"
     app:cardBackgroundColor="@color/md_theme_surface"
-    app:cardCornerRadius="@dimen/corner_radius_md"
-    app:cardElevation="@dimen/elevation_level1"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
     app:strokeColor="@color/md_theme_outlineVariant"
-    app:strokeWidth="1dp">
+    app:strokeWidth="0.5dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/ivPhoto"
+        <!-- Image with Play Icon Overlay -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:contentDescription="@string/app_name"
-            android:scaleType="centerCrop"
-            app:srcCompat="@drawable/logo_app" />
+            android:layout_height="124dp">
+
+            <ImageView
+                android:id="@+id/ivPhoto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/app_name"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/logo_app" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_gradient_card_bottom" />
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="8dp"
+                android:background="@drawable/shape_circle_accent"
+                android:padding="6dp"
+                android:tint="@color/white"
+                app:srcCompat="@drawable/ic_media_play" />
+
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/spacing_sm">
+            android:padding="10dp">
 
             <TextView
                 android:id="@+id/tvName"
@@ -39,7 +63,9 @@
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:textColor="@color/md_theme_onSurface"
-                tools:text="@string/label_program_name" />
+                android:textSize="13sp"
+                android:textStyle="bold"
+                tools:text="التعليم ومستقبل الشباب في اليمن" />
 
             <TextView
                 android:id="@+id/tvDesc"
@@ -48,10 +74,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:ellipsize="end"
-                android:maxLines="2"
+                android:maxLines="1"
                 android:textColor="@color/md_theme_onSurfaceVariant"
+                android:textSize="11sp"
                 android:visibility="gone"
-                tools:text="@string/label_desc" />
+                tools:text="تقديم: أحمد الشامي" />
 
         </LinearLayout>
 
