@@ -11,7 +11,6 @@ import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -208,13 +207,13 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
                     @Override
                     public void onComplete(@NonNull Task<String> task) {
                         if (!task.isSuccessful()) {
-                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                            LogUtility.w(TAG, "Fetching FCM registration token failed", task.getException());
                             return;
                         }
 
                         String token = task.getResult();
                         if (token == null || token.trim().isEmpty()) {
-                            Log.w(TAG, "Firebase returned an empty registration token");
+                            LogUtility.w(TAG, "Firebase returned an empty registration token");
                             return;
                         }
                         if (isAccountSignedIn()) {
@@ -272,7 +271,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
                     if (consentError != null) {
                         // Consent not obtained in current session. This sample loads ads using
                         // consent obtained in the previous session.
-                        Log.w(
+                        LogUtility.w(
                                 TAG,
                                 String.format(
                                         "%s: %s",
@@ -385,9 +384,9 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
                 item.setChecked(item.getItemData().isChecked());
             }
         } catch (NoSuchFieldException e) {
-            Log.e("BNVHelper", "Unable to get shift mode field", e);
+            LogUtility.e("BNVHelper", "Unable to get shift mode field", e);
         } catch (IllegalAccessException e) {
-            Log.e("BNVHelper", "Unable to change value of shift mode", e);
+            LogUtility.e("BNVHelper", "Unable to change value of shift mode", e);
         }
     }
 */
@@ -624,7 +623,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
                 showToast(String.format("%s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
             }
         } catch (Exception e) {
-            Log.d(TAG, "Error startPlay : " + e.getMessage());
+            LogUtility.d(TAG, "Error startPlay : " + e.getMessage());
             showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
         }
     }*/
@@ -706,7 +705,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
                 showToast(String.format("%s", getResources().getString(R.string.no_stream, prefMgr.selectedRadio().getName())));
             }
         } catch (Exception e) {
-            Log.d(TAG, "Error startPlay : " + e.getMessage());
+            LogUtility.d(TAG, "Error startPlay : " + e.getMessage());
             showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
         }
     }

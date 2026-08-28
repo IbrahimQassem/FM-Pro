@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemGridBinding;
@@ -108,9 +107,6 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         try {
             if (PreferencesManager.getInstance() != null && PreferencesManager.getInstance().getUserSession() != null) {
                 currentUserId = PreferencesManager.getInstance().getUserSession().getUserId();
-            }
-            if (currentUserId == null && FirebaseAuth.getInstance().getCurrentUser() != null) {
-                currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             }
         } catch (Exception ignored) {
         }

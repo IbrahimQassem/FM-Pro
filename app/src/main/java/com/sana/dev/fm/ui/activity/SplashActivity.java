@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -99,14 +98,14 @@ public class SplashActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                         @Override
                         public void onSuccess(AuthResult authResult) {
-                            Log.d(TAG, "signInAnonymously:success");
+                            LogUtility.d(TAG, "signInAnonymously:success");
                             continueStartupOnce(authResult.getUser() != null);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Anonymous sign-in unavailable; continuing in listener mode");
+                            LogUtility.w(TAG, "Anonymous sign-in unavailable; continuing in listener mode");
                             continueStartupOnce(false);
                         }
                     });
@@ -280,7 +279,7 @@ public class SplashActivity extends AppCompatActivity {
 
                                 // Safety check for null or empty string before parsing
                                 if (Tools.isEmpty(jsonString)) {
-                                    Log.w(TAG, "Remote config data is empty or null. Using default config.");
+                                    LogUtility.w(TAG, "Remote config data is empty or null. Using default config.");
                                     crashlytics.setCustomKey(TAG, "Remote config data is empty or null. Using default config.");
                                     useDefaultConfig();
                                 }
@@ -301,7 +300,7 @@ public class SplashActivity extends AppCompatActivity {
 
 
                             } catch (Exception e) {
-                                Log.e(TAG, "Error parsing remote config JSON: " + e.getMessage());
+                                LogUtility.e(TAG, "Error parsing remote config JSON: " + e.getMessage());
                                 crashlytics.recordException(e);
                                 crashlytics.setCustomKey("SplashActivity", TAG);
                                 // Handle parsing errors (use more specific exception handling if possible)
@@ -309,7 +308,7 @@ public class SplashActivity extends AppCompatActivity {
                             }
                         } else {
                             // Handle fetch failure
-                            Log.e(TAG, "RemoteConfig Fetch failed", task.getException());
+                            LogUtility.e(TAG, "RemoteConfig Fetch failed", task.getException());
                             // Log the Exception with custom key
                             crashlytics.setCustomKey(TAG, "RemoteConfig Fetch failed " + task.getException());
 //                            crashlytics.recordException("RemoteConfig Fetch failed "+  task.getException());
@@ -397,11 +396,11 @@ public class SplashActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "linkWithCredential:success");
+                            LogUtility.d(TAG, "linkWithCredential:success");
                             FirebaseUser user = task.getResult().getUser();
                             updateUI(user);
                         } else {
-                            Log.w(TAG, "linkWithCredential:failure", task.getException());
+                            LogUtility.w(TAG, "linkWithCredential:failure", task.getException());
                             Toast.makeText(SplashActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
@@ -491,7 +490,7 @@ public class SplashActivity extends AppCompatActivity {
             sharedPreferences.edit()
                     .putInt(LAST_APP_VERSION, currentVersionCode).apply();
         } catch (PackageManager.NameNotFoundException e) {
-            Log.w(AppConstant.LOG,
+            LogUtility.w(AppConstant.LOG,
                     "Unable to determine current app version from pacakge manager. Defenisvely assuming normal app start.");
         }
         return appStart;
@@ -503,7 +502,7 @@ public class SplashActivity extends AppCompatActivity {
         } else if (lastVersionCode < currentVersionCode) {
             return AppStart.FIRST_TIME_VERSION;
         } else if (lastVersionCode > currentVersionCode) {
-            Log.w(AppConstant.LOG, "Current version code (" + currentVersionCode
+            LogUtility.w(AppConstant.LOG, "Current version code (" + currentVersionCode
                     + ") is less then the one recognized on last startup ("
                     + lastVersionCode
                     + "). Defenisvely assuming normal app start.");

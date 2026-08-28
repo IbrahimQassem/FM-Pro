@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemDragBinding;
 import com.sana.dev.fm.model.RadioInfo;
@@ -29,7 +28,6 @@ import java.util.List;
 public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements DragItemTouchHelper.MoveHelperAdapter {
 
     private List<RadioInfo> items = new ArrayList<>();
-    private FirebaseFirestore db;
     private final Context ctx;
     private OnClickListener onClickListener = null;
     private OnItemLongClick onLongClickListener = null;
@@ -55,7 +53,6 @@ public class AdapterListDrag extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public AdapterListDrag(Context context, List<RadioInfo> items) {
         this.items = items;
         ctx = context;
-        this.db = FirebaseFirestore.getInstance();
     }
 
     public void setDragListener(OnStartDragListener dragStartListener) {

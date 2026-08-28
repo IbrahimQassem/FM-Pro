@@ -233,6 +233,8 @@
     <string name="label_pick_date">Pick Date</string>
     <string name="label_radio_list">Radio List</string>
     <string name="label_priority">Priority %d</string>
+    <string name="action_decrease_priority">Decrease priority</string>
+    <string name="action_increase_priority">Increase priority</string>
     <string name="login_via_mobile">Continue with Phone</string>
     <string name="label_login_by">Sign in with</string>
     <string name="login_via_facebook">Continue with Facebook</string>

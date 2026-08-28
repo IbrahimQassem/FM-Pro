@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -18,6 +17,8 @@ import android.widget.CompoundButton;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.core.content.ContextCompat;
+
+import com.sana.dev.fm.utils.LogUtility;
 
 import com.google.android.material.chip.Chip;
 import com.google.firebase.firestore.CollectionReference;
@@ -311,7 +312,7 @@ public class AddProgramActivity extends BaseActivity {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.d(TAG, "Error saveUserData : " + e.getMessage());
+                LogUtility.e(TAG, "Error saveUserData : " + e.getMessage());
                 showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
             }
 
@@ -444,14 +445,14 @@ public class AddProgramActivity extends BaseActivity {
                 @Override
                 public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                     double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                    Log.d(TAG, "Upload is " + progress + "% done");
+                    LogUtility.d(TAG, "Upload is " + progress + "% done");
 //                    hud.setDetailsLabel(" جار الإرسال " + " % " + (int) progress);
                     kProgressHUDHelper.setProgress((int) progress);
                 }
             }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                    Log.d(TAG, "Upload is paused");
+                    LogUtility.d(TAG, "Upload is paused");
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -614,7 +615,7 @@ public class AddProgramActivity extends BaseActivity {
 
 
     private void loadProfile(Uri imageUri) {
-        Log.d(TAG, "Image cache path: " + imageUri.toString());
+        LogUtility.d(TAG, "Image cache path: " + imageUri.toString());
 
         binding.tvAddLogo.setVisibility(View.GONE);
         binding.linFile.setVisibility(View.VISIBLE);

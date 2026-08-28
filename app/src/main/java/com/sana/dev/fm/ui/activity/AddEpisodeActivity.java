@@ -12,7 +12,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
@@ -605,7 +604,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
     }
 
     private void loadProfile(Uri imageUri) {
-        Log.d(TAG, "Image cache path: " + imageUri.toString());
+        LogUtility.d(TAG, "Image cache path: " + imageUri.toString());
         binding.tvAddLogo.setVisibility(View.GONE);
         binding.linFile.setVisibility(View.VISIBLE);
         String dd = FmUtilize.getFileName(imageUri, this);
@@ -620,7 +619,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
 
         binding.imgLogo.setColorFilter(ContextCompat.getColor(this, R.color.grey_10));
         // Displaying the Stack after the Operation
-        Log.d(TAG, "Final stackImg: " + stackImg);
+        LogUtility.d(TAG, "Final stackImg: " + stackImg);
     }
 
     public void clearImg() {
@@ -759,7 +758,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
 //                    dateTimeModel.setAsMainTime(false);
 //                }
 
-                Log.d("asMainTime", "Checked : " + dateTimeModel.isAsMainTime());
+                LogUtility.d("asMainTime", "Checked : " + dateTimeModel.isAsMainTime());
 
 //                radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 //                    @Override
@@ -785,7 +784,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.d(TAG, "Error saveUserData : " + e.getMessage());
+            LogUtility.e(TAG, "Error saveUserData : " + e.getMessage());
             showToast(getString(R.string.label_error_occurred_with_val, e.getLocalizedMessage()));
         }
 
@@ -834,7 +833,7 @@ public class AddEpisodeActivity extends BaseActivity implements SharedAction {
                         Weekday checkedDay = weekdays[i]; // Assuming weekdays is defined as in the previous response
                         displayDays.add(checkedDay);
                         // Do something with the checked day
-                        Log.d("CheckedDays", "Checked day: " + checkedDay);
+                        LogUtility.d("CheckedDays", "Checked day: " + checkedDay);
                     }
                 }
 

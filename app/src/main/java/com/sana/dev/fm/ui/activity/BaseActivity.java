@@ -279,30 +279,4 @@ public class BaseActivity extends AppCompatActivity implements BaseView {
     }
 
 
-/*    protected FirebaseAuth mAuth;
-    protected FirebaseUser currentUser;
-    private void checkIfFirebaseAuth() {
-
-        mAuth = FirebaseAuth.getInstance();
-        mAuth.setLanguageCode(PreferencesManager.getInstance().getPrefLange());
-        currentUser = mAuth.getCurrentUser();
-        currentUser.reload().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    //User still exists and credentials are valid
-                    Log.d(LogUtility.TAG, "User still exists : " + task.isSuccessful());
-
-                } else {
-                    //User has been disabled, deleted or login credentials are no longer valid,
-                    //so send them to Login screen
-                    Log.d(LogUtility.TAG, "User has been disabled, deleted : " + task.getException());
-                    startActivity(new Intent(IntentHelper.introActivity(BaseActivity.this, true)));
-                }
-            }
-        });
-    }*/
-
 }
-
-//        2022-10-22 18:51:50.357 20745-20745/com.sana.dev.fm D/main_log: readAllRadioByEvent error: {"code":"PERMISSION_DENIED","cause":{"fillInStackTrace":true,"status":{"code":"PERMISSION_DENIED","description":"Missing or insufficient permissions."},"detailMessage":"PERMISSION_DENIED: Missing or insufficient permissions.","stackTrace":[]},"detailMessage":"PERMISSION_DENIED: Missing or insufficient permissions.","stackTrace":[]}

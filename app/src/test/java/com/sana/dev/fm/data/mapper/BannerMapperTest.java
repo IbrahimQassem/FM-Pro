@@ -73,4 +73,19 @@ public class BannerMapperTest {
         assertEquals(1720000000000L, banner.getExpiresAtMillis());
         assertEquals(1705000000000L, banner.getCreatedAtMillis());
     }
+
+    @Test
+    public void toDomain_withStringAndLongTimestamps_convertsGracefully() {
+        BannerDto dto = new BannerDto();
+        dto.setId("b_legacy");
+        dto.setStartAt("1710000000000");
+        dto.setCreatedAt(1705000000000L);
+
+        Banner banner = BannerMapper.toDomain(dto, null);
+
+        assertNotNull(banner);
+        assertEquals("b_legacy", banner.getId());
+        assertEquals(1710000000000L, banner.getStartAtMillis());
+        assertEquals(1705000000000L, banner.getCreatedAtMillis());
+    }
 }

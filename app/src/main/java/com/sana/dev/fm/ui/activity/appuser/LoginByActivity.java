@@ -68,9 +68,6 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_login_by);
-        setContentView((int) R.layout.activity_login_by);
-
         binding = ActivityLoginByBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);

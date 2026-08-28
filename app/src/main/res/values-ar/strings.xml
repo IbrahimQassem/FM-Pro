@@ -233,6 +233,8 @@
     <string name="msg_you_must_select_a_programme">يجب تحديد برنامج</string>
     <string name="msg_make_sure_you_add_all_the_data_correctly">تأكد من إضافة جميع البيانات بشكل صحيح !</string>
     <string name="label_add">إضافة</string>
+    <string name="action_decrease_priority">تقليل الأولوية</string>
+    <string name="action_increase_priority">زيادة الأولوية</string>
     <string name="label_episode_info">بيانات الحلقة</string>
     <string name="label_episode_announcer">مقدم البرنامج</string>
     <string name="ex_announcer_name">مثال : علي نجم</string>

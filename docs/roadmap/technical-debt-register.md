@@ -8,7 +8,7 @@
 | TD-001 | P1 | done | 12 ملف Java كانت كلها كودًا معلّقًا بلا مراجع | Modernization | 0 | حذفها وبناء التطبيق بنجاح |
 | TD-002 | P0 | open | أزيل `key.properties` حاليًا؛ السر التاريخي لم يُدوّر | Security | 0/1 | تدوير السر، إصدار موقّع، وتقييم التاريخ |
 | TD-003 | P0 | in progress | JDK 17 وCI مثبتان؛ AGP 7.2.1/Gradle 7.6.3 قديمان | Modernization | 0 | CI ناجح وترقية متدرجة بلا كسر flavors |
-| TD-004 | P0 | in progress | Firebase SDK مستخدم مباشرة في UI/Adapters؛ تم إكمال عزل ميزة Programs بالكامل خلف `ProgramsRepository` و`ProgramsViewModel` وحذف الاستعلام المباشر في P2-05 | Firebase | 2 | لا وصول جديد وميزة Programs خلف repository |
+| TD-004 | P0 | in progress | عزل ميزتي Programs وBanners بالكامل خلف repositories؛ حذف MyItemAdapter الميت وإزالة وصول Firebase المباشر من AdapterListDrag وChatHolder وNoInternetActivity وMainHomeFragment وProgramsFragment وButterKnife بالكامل | Firebase | 2–4 | لا وصول مباشر لـ Firebase من Activities أو Fragments أو Adapters |
 | TD-005 | P0 | in progress | القواعد المحلية تعتمد `admin` claim و19 اختبار denied؛ provisioning والنشر الإنتاجي غير منفذين | Security | 1/6 | خدمة claims موثوقة ونشر Rules واختبارات staging مثبتة |
 | TD-006 | P0 | done | `FIRST_TIME_VERSION` كان يوقف مسار البدء | Modernization | 1 | صار مسار الترقية يستدعي `loadRadios` والبناء ناجح |
 | TD-007 | P0 | done | FCM/User/device data كانت تطبع في السجلات | Security | 1 | أزيلت القيم الحساسة من المسارات المرصودة وفُحص المصدر |

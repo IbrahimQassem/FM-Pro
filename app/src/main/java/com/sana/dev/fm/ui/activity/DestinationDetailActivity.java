@@ -17,18 +17,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.TagsAdapter;
 import com.sana.dev.fm.model.DestinationModel;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.LogUtility;
+import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
 import java.util.Locale;
 
+/**
+ * Shows banner/destination details. Currently unreachable from UI
+ * (MainHomeFragment.onDestinationClick is a no-op).
+ * Firebase access will move to BannersRepository once the screen is activated.
+ */
 public class DestinationDetailActivity extends AppCompatActivity {
     private static final String TAG = "DestinationDetail";
 
@@ -47,7 +50,7 @@ public class DestinationDetailActivity extends AppCompatActivity {
     private String destinationId;
     private DestinationModel currentDestination;
     private boolean isFavorite = false;
-    private FirestoreDbUtility firestoreDbUtility ;
+    private FirestoreDbUtility firestoreDbUtility;
 
 
     @Override
@@ -67,7 +70,6 @@ public class DestinationDetailActivity extends AppCompatActivity {
         initializeViews();
         setupToolbar();
         loadDestinationDetails();
-        checkFavoriteStatus();
     }
 
     private void initializeViews() {
@@ -104,9 +106,10 @@ public class DestinationDetailActivity extends AppCompatActivity {
     private void loadDestinationDetails() {
         progressBar.setVisibility(View.VISIBLE);
 
-        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.ADVERTISEMENT_TABLE).collection(AppConstant.Firebase.ADVERTISEMENT_TABLE);
-
-        collectionReference
+        // TODO: TD — migrate to BannersRepository when this screen is activated
+        firestoreDbUtility.getTopLevelCollection()
+                .document(AppConstant.Firebase.ADVERTISEMENT_TABLE)
+                .collection(AppConstant.Firebase.ADVERTISEMENT_TABLE)
                 .document(destinationId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -143,41 +146,19 @@ public class DestinationDetailActivity extends AppCompatActivity {
         tagsRecyclerView.setAdapter(tagsAdapter);
     }
 
-    private void checkFavoriteStatus() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.USERS_TABLE).collection(AppConstant.Firebase.USERS_TABLE);
-        collectionReference
-                .document(userId)
-                .collection("favorites")
-                .document(destinationId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    isFavorite = documentSnapshot.exists();
-                    updateFavoriteButton();
-                });
-    }
-
     private void toggleFavorite() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.USERS_TABLE).collection(AppConstant.Firebase.USERS_TABLE);
-        DocumentReference favoriteRef = collectionReference
-                .document(userId)
-                .collection("favorites")
-                .document(destinationId);
-
-        if (isFavorite) {
-            favoriteRef.delete()
-                    .addOnSuccessListener(aVoid -> {
-                        isFavorite = false;
-                        updateFavoriteButton();
-                    });
-        } else {
-            favoriteRef.set(currentDestination)
-                    .addOnSuccessListener(aVoid -> {
-                        isFavorite = true;
-                        updateFavoriteButton();
-                    });
+        // TODO: TD — favorites will be migrated to a FavoritesRepository
+        String userId = null;
+        if (PreferencesManager.getInstance() != null && PreferencesManager.getInstance().getUserSession() != null) {
+            userId = PreferencesManager.getInstance().getUserSession().getUserId();
         }
+        if (userId == null) {
+            LogUtility.w(TAG, "Cannot toggle favorite — no user session");
+            return;
+        }
+        // Placeholder — full implementation moves to FavoritesRepository
+        isFavorite = !isFavorite;
+        updateFavoriteButton();
     }
 
     private void updateFavoriteButton() {
@@ -187,9 +168,6 @@ public class DestinationDetailActivity extends AppCompatActivity {
 
     private void handleBooking() {
         // Implement booking logic
-//        Intent intent = new Intent(this, BookingActivity.class);
-//        intent.putExtra("destination", currentDestination);
-//        startActivity(intent);
     }
 
     @Override

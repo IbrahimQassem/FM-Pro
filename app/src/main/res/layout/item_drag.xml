@@ -115,7 +115,7 @@
                             android:layout_width="48dp"
                             android:layout_height="48dp"
                             android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="Decrease Priority"
+                            android:contentDescription="@string/action_decrease_priority"
                             android:src="@drawable/outline_remove_24"
                             app:tint="@color/colorPrimary" />
 
@@ -124,7 +124,7 @@
                             android:layout_width="48dp"
                             android:layout_height="48dp"
                             android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="Increase Priority"
+                            android:contentDescription="@string/action_increase_priority"
                             android:src="@drawable/outline_add_24"
                             app:tint="@color/colorPrimary" />
 

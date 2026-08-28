@@ -1,6 +1,5 @@
 package com.sana.dev.fm.ui.fragment;
 
-
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,11 +21,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.Query;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.DestinationSliderAdapter;
 import com.sana.dev.fm.adapter.RadiosAdapter;
+import com.sana.dev.fm.data.datasource.FirestoreBannersRemoteDataSource;
+import com.sana.dev.fm.data.repository.BannersRepositoryImpl;
+import com.sana.dev.fm.domain.model.Banner;
+import com.sana.dev.fm.domain.repository.BannersRepository;
 import com.sana.dev.fm.model.DestinationModel;
 import com.sana.dev.fm.model.RadioInfo;
 import com.sana.dev.fm.model.interfaces.CallBackListener;
@@ -35,55 +36,36 @@ import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.SnackBarUtility;
 import com.sana.dev.fm.utils.UserGuide;
-import com.sana.dev.fm.utils.my_firebase.CallBack;
-import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
-import com.sana.dev.fm.utils.my_firebase.task.FirestoreQuery;
-import com.sana.dev.fm.utils.my_firebase.task.FirestoreQueryConditionCode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import co.mobiwise.materialintro.animation.MaterialIntroListener;
 import co.mobiwise.materialintro.shape.Focus;
 import co.mobiwise.materialintro.shape.ShapeType;
 import co.mobiwise.materialintro.view.MaterialIntroView;
 
 /**
- * A simple {@link Fragment} subclass.
- * create an instance of this fragment.
+ * Main Home screen displaying stations slider, banners/advertisements, and episode stream.
+ * Pure UI presentation layer — Banner data fetched via BannersRepository.
  */
 public class MainHomeFragment extends BaseFragment implements DestinationSliderAdapter.OnDestinationClickListener {
     private static final String TAG = MainHomeFragment.class.getSimpleName();
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
-    @BindView(R.id.child_fragment_container)
-    FrameLayout cf_container;
 
-    @BindView(R.id.recyclerView)
-    RecyclerView recyclerView;
-
-//    @BindView(R.id.sliderRecyclerView)
-//    RecyclerView sliderRecyclerView;
-
-    @BindView(R.id.lyt_parent_stations)
-    LinearLayout lytParentStation;
-    @BindView(R.id.viewPager)
-    ViewPager2 viewPager;
-
-    @BindView(R.id.dotsLayout)
-    LinearLayout dotsLayout;
+    private FrameLayout cf_container;
+    private RecyclerView recyclerView;
+    private LinearLayout lytParentStation;
+    private ViewPager2 viewPager;
+    private LinearLayout dotsLayout;
 
     View view;
     Context ctx;
     MaterialIntroView materialIntroView;
     private SnackBarUtility sbHelp;
     private CallBackListener callBackListener;
-    private FirestoreDbUtility firestoreDbUtility;
+    private BannersRepository bannersRepository;
     private DestinationSliderAdapter sliderAdapter;
     private List<DestinationModel> destinationList = new ArrayList<>();
     private Handler sliderHandler = new Handler();
@@ -95,21 +77,29 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        bannersRepository = new BannersRepositoryImpl(new FirestoreBannersRemoteDataSource());
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_main_home, container, false);
 
-        ButterKnife.bind(this, view);
+        cf_container = view.findViewById(R.id.child_fragment_container);
+        recyclerView = view.findViewById(R.id.recyclerView);
+        lytParentStation = view.findViewById(R.id.lyt_parent_stations);
+        viewPager = view.findViewById(R.id.viewPager);
+        dotsLayout = view.findViewById(R.id.dotsLayout);
+
         sbHelp = new SnackBarUtility(getActivity());
         materialIntroView = new MaterialIntroView(ctx);
-        firestoreDbUtility = new FirestoreDbUtility();
 
         setupSlider();
 
-        // Initialize your destinations list
+        // Load banners via repository
         loadDestinations();
 
         loadRadios();
@@ -119,18 +109,9 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-//        Fragment childFragment = new EmptyViewFragment();
-//        Bundle args = new Bundle();
-//        args.putString(ARG_NOTE_TITLE, ctx.getString(R.string.no_data_available));
-//        args.putString(ARG_NOTE_DETAILS, getString(R.string.brows_more_station));
-//        childFragment.setArguments(args);
-//        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
-//        transaction.replace(R.id.child_fragment_container, childFragment).commit();
     }
 
     private void loadRadios() {
-
-
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, true);
         recyclerView.setLayoutManager(layoutManager);
@@ -179,13 +160,11 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
             }, 3000);
 
         } else {
-            // Todo check radio is empty call it again
             lytParentStation.setVisibility(View.GONE);
         }
     }
 
     private void updateRecycle() {
-//        Fragment childFragment = new EpChildFragment();
         Fragment childFragment = new RealTimeEpisodeFragment();
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.replace(R.id.child_fragment_container, childFragment).commit();
@@ -200,7 +179,7 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 sliderHandler.removeCallbacks(sliderRunnable);
-                sliderHandler.postDelayed(sliderRunnable, delayMillis); // Slide every 3 seconds
+                sliderHandler.postDelayed(sliderRunnable, delayMillis);
                 updateDots(position);
             }
         });
@@ -225,6 +204,7 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
     };
 
     private void setupDots() {
+        dotsLayout.removeAllViews();
         dots = new TextView[destinationList.size()];
 
         for (int i = 0; i < dots.length; i++) {
@@ -242,105 +222,48 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
     }
 
     private void updateDots(int position) {
+        if (dots == null) return;
         for (int i = 0; i < dots.length; i++) {
-            dots[i].setTextColor(ContextCompat.getColor(mActivity,
-                    i == position ? android.R.color.white : android.R.color.darker_gray));
-        }
-    }
-
-    private void addDummyDestinations() {
-        CollectionReference destinationsRef = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.ADVERTISEMENT_TABLE).collection(AppConstant.Firebase.ADVERTISEMENT_TABLE);
-
-        List<DestinationModel> dummyDestinations = Arrays.asList(
-                new DestinationModel(
-                        "1",
-                        "Yemen Mobile",
-                        "Sana'a, Tahrir .St",
-                        "https://tayramanafm.com/wp-content/uploads/2023/09/358454813_692864899329781_3591857878315610245_n.jpg", // Replace with actual URLs
-                        "Experience the majestic beauty of Alaska's mountain ranges. Home to diverse wildlife and stunning glaciers, this destination offers unforgettable hiking and photography opportunities.",
-                        3.9f,
-                        599.99,
-                        5,
-                        1,
-                        Arrays.asList("hiking", "nature", "adventure"),
-                        "Asia"
-                ),
-                new DestinationModel(
-                        "2",
-                        "YKB 365",
-                        "Sana'a, Jazair .St",
-                        "https://tayramanafm.com/wp-content/uploads/2024/08/454352311_970723881752787_8772440098511516660_n.jpg",
-                        "Discover the spiritual and natural wonder of the Himalayas. Trek through ancient paths, visit traditional villages, and witness breathtaking sunrise views over snow-capped peaks.",
-                        4.0f,
-                        799.99,
-                        5,
-                        2,
-                        Arrays.asList("trekking", "culture", "spiritual"),
-                        "Asia"
-                ),
-                new DestinationModel(
-                        "3",
-                        "One Cash OTC",
-                        "Sana'a, 14 Oct .St",
-                        "https://onecashye.com/wp-content/uploads/2024/10/WEB-BANNER-2000X882.jpg",
-                        "Join a full-day guided tour from Tokyo that travels to Mt Fuji, Japan's iconic mountain. Experience traditional Japanese culture and breathtaking natural beauty.",
-                        4.5f,
-                        350.00,
-                        5,
-                        3,
-                        Arrays.asList("culture", "nature", "sightseeing"),
-                        "Asia"
-                ),
-                new DestinationModel(
-                        "3",
-                        "One Cash",
-                        "Sana'a, 14 Oct .St",
-                        "https://onecashye.com/wp-content/uploads/2021/11/home3-copyone.jpg",
-                        "Join a full-day guided tour from Tokyo that travels to Mt Fuji, Japan's iconic mountain. Experience traditional Japanese culture and breathtaking natural beauty.",
-                        4.8f,
-                        350.00,
-                        5,
-                        4,
-                        Arrays.asList("culture", "nature", "sightseeing"),
-                        "Asia"
-                )
-        );
-
-        for (DestinationModel destination : dummyDestinations) {
-            destinationsRef.document(destination.getId()).set(destination);
+            if (dots[i] != null) {
+                dots[i].setTextColor(ContextCompat.getColor(mActivity,
+                        i == position ? android.R.color.white : android.R.color.darker_gray));
+            }
         }
     }
 
     private void loadDestinations() {
-        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection()
-                .document(AppConstant.Firebase.BANNERS_COLLECTION)
-                .collection(AppConstant.Firebase.BANNERS_COLLECTION);
+        if (bannersRepository == null) return;
 
-        collectionReference.get().addOnSuccessListener(queryDocumentSnapshots -> {
-            if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
-                destinationList = FirestoreDbUtility.getDataFromQuerySnapshot(queryDocumentSnapshots, DestinationModel.class);
-                if (destinationList == null) {
-                    destinationList = new ArrayList<>();
+        bannersRepository.getBanners(result -> {
+            if (result != null && result.isSuccess()) {
+                List<Banner> banners = result.getDataOrNull();
+                destinationList = new ArrayList<>();
+                if (banners != null) {
+                    for (Banner b : banners) {
+                        if (b != null) {
+                            DestinationModel dm = new DestinationModel();
+                            dm.setId(b.getId());
+                            dm.setName(b.getTitle());
+                            dm.setImageUrl(b.getImageUrl());
+                            dm.setPriority(b.getPriority());
+                            destinationList.add(dm);
+                        }
+                    }
                 }
                 List<DestinationModel> sortedDestinations = getSortedDestinations(destinationList);
                 sliderAdapter.setDestinations(sortedDestinations);
                 setupDots();
+            } else {
+                LogUtility.e(TAG, "loadDestinations failure: " + (result != null && result.getErrorOrNull() != null ? result.getErrorOrNull().getMessage() : "unknown"));
             }
-        }).addOnFailureListener(e -> {
-            LogUtility.e(TAG, " loadDestinations onFailure: " + e.getMessage());
         });
     }
 
-
-
     private List<DestinationModel> getSortedDestinations(List<DestinationModel> destinations) {
-        // Sort by priority
         Collections.sort(destinations, (d1, d2) ->
                 Integer.compare(d2.getPriority(), d1.getPriority()));
-
         return destinations;
     }
-
 
     @Override
     public void onResume() {
@@ -357,7 +280,6 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
         LogUtility.e(TAG, "task Pause");
     }
 
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -367,11 +289,9 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        //getActivity() is fully created in onActivityCreated and instanceOf differentiate it between different Activities
         if (getActivity() instanceof CallBackListener)
             callBackListener = (CallBackListener) getActivity();
     }
-
 
     private void showIntro(View view, String id, String text) {
         userGuide.showIntro(view, id, text, Focus.ALL, ShapeType.RECTANGLE, new MaterialIntroListener() {
@@ -385,31 +305,9 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
 
     @Override
     public void onDestinationClick(DestinationModel destination) {
-//        // Handle destination click - navigate to details
-//        Intent intent = new Intent(mActivity, DestinationDetailActivity.class);
-//        intent.putExtra("destination_id", destination.getId());
-//        startActivity(intent);
     }
 
     @Override
     public void onFavoriteClick(DestinationModel destination) {
-/*        // Handle favorite click - update Firestore
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.USERS_TABLE).collection(AppConstant.Firebase.USERS_TABLE);
-        DocumentReference userFavorites = collectionReference
-                .document(userId)
-                .collection("favorites")
-                .document(destination.getId());
-
-        userFavorites.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                if (task.getResult().exists()) {
-                    userFavorites.delete();
-                } else {
-                    userFavorites.set(destination);
-                }
-            }
-        });*/
     }
 }
-

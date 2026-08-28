@@ -72,7 +72,9 @@ public final class BannerMapper {
         return val != null ? (int) Math.max(0, val) : 0;
     }
 
-    private static long toMillis(Timestamp timestamp) {
+    private static long toMillis(Object timestampObj) {
+        if (timestampObj == null) return 0;
+        Timestamp timestamp = BannerDto.toTimestamp(timestampObj);
         if (timestamp == null) return 0;
         return timestamp.toDate().getTime();
     }
