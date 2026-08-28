@@ -100,6 +100,56 @@
         <activity
             android:name=".ui.activity.appuser.UserProfileActivity"
             android:screenOrientation="portrait" />
+
+        <!-- =================== Admin Panel =================== -->
+        <activity
+            android:name=".admin.AdminDashboardActivity"
+            android:screenOrientation="portrait" />
+        <!-- Stations -->
+        <activity
+            android:name=".admin.stations.AdminStationsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".admin.stations.AdminStationDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".admin.stations.AdminStationFormActivity"
+            android:screenOrientation="portrait" />
+        <!-- Programs -->
+        <activity
+            android:name=".admin.programs.AdminProgramsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".admin.programs.AdminProgramDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".admin.programs.AdminProgramFormActivity"
+            android:screenOrientation="portrait" />
+        <!-- Episodes -->
+        <activity
+            android:name=".admin.episodes.AdminEpisodesActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".admin.episodes.AdminEpisodeDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".admin.episodes.AdminEpisodeFormActivity"
+            android:screenOrientation="portrait" />
+        <!-- Users -->
+        <activity
+            android:name=".admin.users.AdminUsersActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".admin.users.AdminUserDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".admin.users.AdminUserFormActivity"
+            android:screenOrientation="portrait" />
+        <!-- Roles -->
+        <activity
+            android:name=".admin.roles.AdminRolesActivity"
+            android:screenOrientation="portrait" />
+        <!-- ================================================== -->
         <activity
             android:name=".ui.activity.appuser.VerificationPhone"
             android:screenOrientation="portrait" /> <!--  -->

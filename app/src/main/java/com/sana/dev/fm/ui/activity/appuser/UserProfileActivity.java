@@ -29,12 +29,14 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.storage.FirebaseStorage;
 import com.sana.dev.fm.R;
+import com.sana.dev.fm.admin.AdminDashboardActivity;
 import com.sana.dev.fm.databinding.ActivityUserProfileBinding;
 import com.sana.dev.fm.model.AuthMethod;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.ModelConfig;
 import com.sana.dev.fm.model.UserModel;
 import com.sana.dev.fm.model.enums.Gender;
+import com.sana.dev.fm.model.enums.UserType;
 import com.sana.dev.fm.ui.activity.BaseActivity;
 import com.sana.dev.fm.ui.activity.ImagePickerActivity;
 import com.sana.dev.fm.utils.AppConstant;
@@ -203,6 +205,17 @@ public class UserProfileActivity extends BaseActivity {
                 saveUserData();
             }
         });
+
+        // Show admin panel button only for ADMIN and SuperADMIN users
+        UserModel sessionUser = prefMgr.getUserSession();
+        if (sessionUser != null && sessionUser.getUserType() != null) {
+            UserType userType = sessionUser.getUserType();
+            if (userType == UserType.ADMIN || userType == UserType.SuperADMIN) {
+                binding.btnAdminPanel.setVisibility(View.VISIBLE);
+                binding.btnAdminPanel.setOnClickListener(v ->
+                        AdminDashboardActivity.startActivity(UserProfileActivity.this));
+            }
+        }
     }
 
     private void disableEditText(EditText editText) {

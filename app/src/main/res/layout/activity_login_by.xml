@@ -113,7 +113,7 @@
                         <!-- Google Sign-in Button -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/bt_google_login"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/min_touch_target_size"
                             android:layout_marginBottom="@dimen/spacing_sm"
@@ -131,7 +131,7 @@
                         <!-- Mobile / Phone Sign-in Button -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/bt_mobile_login"
-                            style="@style/Widget.Material3.Button.TonalButton"
+                            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/min_touch_target_size"
                             android:layout_marginBottom="@dimen/spacing_sm"
@@ -145,7 +145,7 @@
                         <!-- Email Sign-in Button -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/bt_email_login"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/min_touch_target_size"
                             android:layout_marginBottom="@dimen/spacing_sm"
@@ -162,7 +162,7 @@
                         <!-- Facebook Sign-in Button -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/bt_facebook_login"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/min_touch_target_size"
                             android:text="@string/login_via_facebook"

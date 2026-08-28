@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "vscjava.vscode-java-pack",
+    "redhat.java",
+    "vscjava.vscode-java-debug",
+    "vscjava.vscode-java-dependency",
+    "vscjava.vscode-java-test",
+    "vscjava.vscode-gradle",
+    "adelphes.android-dev-ext",
+    "DotJoshJohnson.xml",
+    "timonwong.shellcheck",
+    "mads-hartmann.bash-ide-support"
+  ]
+}

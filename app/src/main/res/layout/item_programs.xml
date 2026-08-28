@@ -87,7 +87,7 @@
                     <!-- Expand / Collapse Toggle Button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/bt_toggle"
-                        style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                         android:layout_width="@dimen/min_touch_target_size"
                         android:layout_height="@dimen/min_touch_target_size"
                         android:contentDescription="@string/more"

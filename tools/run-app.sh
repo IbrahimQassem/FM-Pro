@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-JAVA_17_HOME="$(/usr/libexec/java_home -v 17)"
+JAVA_17_HOME="${JAVA_HOME:-$(/usr/libexec/java_home -v 17 2>/dev/null || echo '/Applications/Android Studio.app/Contents/jbr/Contents/Home')}"
+if [ ! -d "$JAVA_17_HOME" ] && [ -d "/Applications/Android Studio.app/Contents/jbr/Contents/Home" ]; then
+  JAVA_17_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+fi
 FLAVOR="${1:-hudhudfm_google_play}"
 
 if [ "$FLAVOR" = "hudhud_fm" ]; then

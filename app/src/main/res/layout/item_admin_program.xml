@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/spacing_xs"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="@color/md_theme_surface"
+    app:cardCornerRadius="@dimen/corner_radius_lg"
+    app:cardElevation="@dimen/elevation_level1"
+    app:strokeColor="@color/md_theme_outlineVariant"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="@dimen/spacing_md">
+
+        <!-- Program Logo -->
+        <com.sana.dev.fm.ui.view.RoundImageView
+            android:id="@+id/img_logo"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:scaleType="centerCrop"
+            app:borderColor="@color/md_theme_outlineVariant"
+            app:borderWidth="1dp"
+            app:cornerRadius="12dp"
+            app:srcCompat="@drawable/ic_nav_programs" />
+
+        <!-- Info -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/spacing_md"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_name"
+                style="@style/TextAppearance.FMPro.TitleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/md_theme_onSurface"
+                tools:text="صباح العاصمة" />
+
+            <TextView
+                android:id="@+id/tv_station"
+                style="@style/TextAppearance.FMPro.BodySmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/md_theme_primary"
+                tools:text="إذاعة هدهد اليمنية" />
+
+            <TextView
+                android:id="@+id/tv_category"
+                style="@style/TextAppearance.FMPro.BodySmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/md_theme_onSurfaceVariant"
+                tools:text="اجتماعي • 12 حلقة" />
+        </LinearLayout>
+
+        <!-- More Button -->
+        <ImageButton
+            android:id="@+id/btn_more"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/label_more"
+            app:srcCompat="@drawable/ic_more_vert"
+            app:tint="@color/md_theme_onSurfaceVariant" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

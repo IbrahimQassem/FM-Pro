@@ -68,21 +68,21 @@
     </style>
 
     <!-- Accessible Button Style Tokens (Min touch target 48dp) -->
-    <style name="Widget.FMPro.Button.Primary" parent="Widget.Material3.Button">
+    <style name="Widget.FMPro.Button.Primary" parent="Widget.MaterialComponents.Button">
         <item name="android:minHeight">@dimen/min_touch_target_size</item>
         <item name="backgroundTint">@color/md_theme_primary</item>
         <item name="android:textColor">@color/md_theme_onPrimary</item>
         <item name="cornerRadius">@dimen/corner_radius_full</item>
     </style>
 
-    <style name="Widget.FMPro.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+    <style name="Widget.FMPro.Button.Tonal" parent="Widget.MaterialComponents.Button.UnelevatedButton">
         <item name="android:minHeight">@dimen/min_touch_target_size</item>
         <item name="backgroundTint">@color/md_theme_secondaryContainer</item>
         <item name="android:textColor">@color/md_theme_onSecondaryContainer</item>
         <item name="cornerRadius">@dimen/corner_radius_full</item>
     </style>
 
-    <style name="Widget.FMPro.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+    <style name="Widget.FMPro.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:minHeight">@dimen/min_touch_target_size</item>
         <item name="strokeColor">@color/md_theme_outline</item>
         <item name="android:textColor">@color/md_theme_primary</item>

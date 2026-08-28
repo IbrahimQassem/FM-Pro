@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/md_theme_surface"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="@color/md_theme_onSurface"
+        app:titleTextAppearance="@style/TextAppearance.FMPro.TitleMedium"
+        app:titleTextColor="@color/md_theme_onSurface" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_xl">
+
+        <ImageView
+            android:id="@+id/img_icon"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginBottom="@dimen/spacing_md"
+            app:srcCompat="@drawable/ic_admin_panel_settings"
+            app:tint="@color/md_theme_primary" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            style="@style/TextAppearance.FMPro.TitleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/section_admin_control"
+            android:textColor="@color/md_theme_onSurface" />
+
+        <TextView
+            android:id="@+id/tv_subtitle"
+            style="@style/TextAppearance.FMPro.BodyMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:gravity="center"
+            android:text="هذه الشاشة تحت التطوير وسيتم توفيرها بالكامل في التحديث القادم."
+            android:textColor="@color/md_theme_onSurfaceVariant" />
+    </LinearLayout>
+</LinearLayout>

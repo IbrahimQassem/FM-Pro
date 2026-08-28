@@ -12,7 +12,8 @@
       "presentation": {
         "reveal": "always",
         "panel": "shared",
-        "focus": true
+        "focus": true,
+        "clear": true
       },
       "problemMatcher": []
     },
@@ -24,29 +25,31 @@
       "presentation": {
         "reveal": "always",
         "panel": "shared",
-        "focus": true
+        "focus": true,
+        "clear": true
       },
       "problemMatcher": []
     },
     {
       "label": "Build: Assemble All Debug Flavors",
       "type": "shell",
-      "command": "./gradlew -Dorg.gradle.java.home=$(/usr/libexec/java_home -v 17) :app:assembleHudhudfm_google_playDebug :app:assembleHudhud_fmDebug --no-daemon",
+      "command": "JAVA_HOME=\"/Applications/Android Studio.app/Contents/jbr/Contents/Home\" ./gradlew :app:assembleHudhudfm_google_playDebug :app:assembleHudhud_fmDebug --no-daemon",
       "group": {
         "kind": "build",
         "isDefault": true
       },
       "presentation": {
         "reveal": "always",
-        "panel": "shared"
+        "panel": "shared",
+        "focus": false
       },
       "problemMatcher": []
     },
     {
-      "label": "Test: Unit Tests",
+      "label": "Build: Clean Project",
       "type": "shell",
-      "command": "./gradlew -Dorg.gradle.java.home=$(/usr/libexec/java_home -v 17) testHudhudfm_google_playDebugUnitTest --no-daemon",
-      "group": "test",
+      "command": "JAVA_HOME=\"/Applications/Android Studio.app/Contents/jbr/Contents/Home\" ./gradlew clean --no-daemon",
+      "group": "build",
       "presentation": {
         "reveal": "always",
         "panel": "shared"
@@ -54,13 +57,38 @@
       "problemMatcher": []
     },
     {
-      "label": "Verify: Governance & Debt Audit",
+      "label": "Test: Unit Tests (HudHud FM Google Play)",
+      "type": "shell",
+      "command": "JAVA_HOME=\"/Applications/Android Studio.app/Contents/jbr/Contents/Home\" ./gradlew testHudhudfm_google_playDebugUnitTest --no-daemon",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Verify: Governance & Technical Debt",
       "type": "shell",
       "command": "./tools/verify-governance.sh && ./tools/audit-technical-debt.sh",
       "group": "none",
       "presentation": {
         "reveal": "always",
-        "panel": "shared"
+        "panel": "shared",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Logcat: Stream App Logs",
+      "type": "shell",
+      "command": "adb logcat -v time | grep -E 'com.sana.dev.fm|AndroidRuntime|FATAL'",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "focus": false
       },
       "problemMatcher": []
     }

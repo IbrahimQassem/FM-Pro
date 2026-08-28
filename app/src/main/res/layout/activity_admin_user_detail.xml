@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/md_theme_surface"
+        tools:context="com.sana.dev.fm.admin.users.AdminUserDetailActivity">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/md_theme_surface"
+            app:elevation="0dp">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:menu="@menu/menu_admin_user_detail"
+                app:navigationIcon="@drawable/ic_arrow_back"
+                app:navigationIconTint="@color/md_theme_onSurface"
+                app:title="@string/admin_user_detail"
+                app:titleTextAppearance="@style/TextAppearance.FMPro.TitleMedium"
+                app:titleTextColor="@color/md_theme_onSurface" />
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/spacing_md"
+                android:paddingTop="@dimen/spacing_md"
+                android:paddingBottom="80dp">
+
+                <!-- Hero Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_md"
+                    app:cardBackgroundColor="@color/md_theme_primaryContainer"
+                    app:cardCornerRadius="@dimen/corner_radius_lg"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="@dimen/spacing_lg">
+
+                        <com.sana.dev.fm.ui.view.RoundImageView
+                            android:id="@+id/img_avatar"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:scaleType="centerCrop"
+                            app:borderColor="@color/md_theme_onPrimaryContainer"
+                            app:borderWidth="2dp"
+                            app:cornerRadius="40dp"
+                            app:srcCompat="@drawable/ic_person" />
+
+                        <TextView
+                            android:id="@+id/tv_name"
+                            style="@style/TextAppearance.FMPro.HeadlineSmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_sm"
+                            android:textColor="@color/md_theme_onPrimaryContainer"
+                            tools:text="أحمد محمد العمري" />
+
+                        <!-- Role Chip -->
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_role"
+                            style="@style/Widget.MaterialComponents.Chip.Action"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            tools:text="مدير" />
+
+                        <!-- Active Status -->
+                        <TextView
+                            android:id="@+id/tv_status"
+                            style="@style/TextAppearance.FMPro.BodySmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:background="@drawable/shape_rounded_badge"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="4dp"
+                            tools:text="✓ نشط" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Details Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_md"
+                    app:cardBackgroundColor="@color/md_theme_surface"
+                    app:cardCornerRadius="@dimen/corner_radius_lg"
+                    app:cardElevation="@dimen/elevation_level1"
+                    app:strokeColor="@color/md_theme_outlineVariant"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/spacing_md">
+
+                        <TextView
+                            style="@style/TextAppearance.FMPro.TitleSmall"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/spacing_sm"
+                            android:text="@string/label_personal_info"
+                            android:textColor="@color/md_theme_primary" />
+
+                        <!-- Email Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/spacing_sm"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="@dimen/spacing_sm"
+                                app:srcCompat="@drawable/ic_email_black"
+                                app:tint="@color/md_theme_onSurfaceVariant" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    style="@style/TextAppearance.FMPro.BodySmall"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/email"
+                                    android:textColor="@color/md_theme_onSurfaceVariant" />
+
+                                <TextView
+                                    android:id="@+id/tv_email"
+                                    style="@style/TextAppearance.FMPro.BodyMedium"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/md_theme_onSurface"
+                                    tools:text="ahmed@example.com" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Mobile Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/spacing_sm"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="@dimen/spacing_sm"
+                                app:srcCompat="@drawable/ic_smart_phone"
+                                app:tint="@color/md_theme_onSurfaceVariant" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    style="@style/TextAppearance.FMPro.BodySmall"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/mobile"
+                                    android:textColor="@color/md_theme_onSurfaceVariant" />
+
+                                <TextView
+                                    android:id="@+id/tv_mobile"
+                                    style="@style/TextAppearance.FMPro.BodyMedium"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textDirection="ltr"
+                                    android:textColor="@color/md_theme_onSurface"
+                                    tools:text="+967 775617017" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Created At Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/spacing_sm"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="@dimen/spacing_sm"
+                                app:srcCompat="@drawable/ic_date_range"
+                                app:tint="@color/md_theme_onSurfaceVariant" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    style="@style/TextAppearance.FMPro.BodySmall"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/label_created_at"
+                                    android:textColor="@color/md_theme_onSurfaceVariant" />
+
+                                <TextView
+                                    android:id="@+id/tv_created_at"
+                                    style="@style/TextAppearance.FMPro.BodyMedium"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/md_theme_onSurface"
+                                    tools:text="15 يناير 2024" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Last Login Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="@dimen/spacing_sm"
+                                app:srcCompat="@drawable/ic_access_time"
+                                app:tint="@color/md_theme_onSurfaceVariant" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    style="@style/TextAppearance.FMPro.BodySmall"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/label_last_login"
+                                    android:textColor="@color/md_theme_onSurfaceVariant" />
+
+                                <TextView
+                                    android:id="@+id/tv_last_login"
+                                    style="@style/TextAppearance.FMPro.BodyMedium"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/md_theme_onSurface"
+                                    tools:text="منذ 3 أيام" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Role Management Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_md"
+                    app:cardBackgroundColor="@color/md_theme_surface"
+                    app:cardCornerRadius="@dimen/corner_radius_lg"
+                    app:cardElevation="@dimen/elevation_level1"
+                    app:strokeColor="@color/md_theme_outlineVariant"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/spacing_md">
+
+                        <TextView
+                            style="@style/TextAppearance.FMPro.TitleSmall"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/spacing_sm"
+                            android:text="@string/label_change_role"
+                            android:textColor="@color/md_theme_primary" />
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chip_group_role"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:selectionRequired="true"
+                            app:singleSelection="true">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip_role_user"
+                                style="@style/Widget.MaterialComponents.Chip.Choice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_user_role_user" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip_role_admin"
+                                style="@style/Widget.MaterialComponents.Chip.Choice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_user_role_admin" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip_role_super_admin"
+                                style="@style/Widget.MaterialComponents.Chip.Choice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_user_role_super_admin" />
+                        </com.google.android.material.chip.ChipGroup>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_save_role"
+                            style="@style/Widget.MaterialComponents.Button"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/min_touch_target_size"
+                            android:layout_marginTop="@dimen/spacing_sm"
+                            android:text="@string/label_save"
+                            app:cornerRadius="@dimen/corner_radius_md" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Actions Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/md_theme_surface"
+                    app:cardCornerRadius="@dimen/corner_radius_lg"
+                    app:cardElevation="@dimen/elevation_level1"
+                    app:strokeColor="@color/md_theme_outlineVariant"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/spacing_md">
+
+                        <!-- Toggle Active/Disable -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_toggle_active"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/min_touch_target_size"
+                            android:layout_marginBottom="@dimen/spacing_sm"
+                            android:text="@string/label_deactivate"
+                            app:cornerRadius="@dimen/corner_radius_md"
+                            app:icon="@drawable/ic_done"
+                            app:iconGravity="textStart" />
+
+                        <!-- Delete Account -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_delete"
+                            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/min_touch_target_size"
+                            android:text="@string/label_delete"
+                            app:backgroundTint="@color/md_theme_errorContainer"
+                            app:cornerRadius="@dimen/corner_radius_md"
+                            app:icon="@drawable/ic_delete"
+                            app:iconGravity="textStart"
+                            app:iconTint="@color/md_theme_error" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

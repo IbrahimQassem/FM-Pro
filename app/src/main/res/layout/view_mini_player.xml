@@ -74,7 +74,7 @@
         <!-- Play / Pause Action Button (min 48dp touch target) -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_mini_player_play_pause"
-            style="@style/Widget.Material3.Button.IconButton.Filled"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="@dimen/min_touch_target_size"
             android:layout_height="@dimen/min_touch_target_size"
             android:contentDescription="@string/action_play_stream"

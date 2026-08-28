@@ -299,10 +299,27 @@
                     android:layout_height="wrap_content"
                     android:visibility="gone" />
 
+                <!-- 5. Admin Panel Button (visible only to ADMIN/SuperADMIN) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_admin_panel"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/min_touch_target_size"
+                    android:layout_marginHorizontal="@dimen/spacing_sm"
+                    android:layout_marginBottom="@dimen/spacing_sm"
+                    android:text="@string/admin_dashboard"
+                    android:textSize="16sp"
+                    android:visibility="gone"
+                    app:cornerRadius="@dimen/corner_radius_md"
+                    app:icon="@drawable/ic_admin_panel_settings"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/md_theme_primary"
+                    app:strokeColor="@color/md_theme_primary" />
+
                 <!-- 4. Save Button Action -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_save"
-                    style="@style/Widget.Material3.Button"
+                    style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/min_touch_target_size"
                     android:layout_marginHorizontal="@dimen/spacing_sm"

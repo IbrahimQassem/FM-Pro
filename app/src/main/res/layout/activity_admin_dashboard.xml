@@ -1,0 +1,567 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/md_theme_surface"
+        tools:context="com.sana.dev.fm.admin.AdminDashboardActivity">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/md_theme_surface"
+            app:elevation="0dp">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:navigationIcon="@drawable/ic_arrow_back"
+                app:navigationIconTint="@color/md_theme_onSurface"
+                app:title="@string/admin_dashboard"
+                app:titleTextAppearance="@style/TextAppearance.FMPro.TitleMedium"
+                app:titleTextColor="@color/md_theme_onSurface" />
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/spacing_md"
+                android:paddingTop="@dimen/spacing_md"
+                android:paddingBottom="80dp">
+
+                <!-- Stats Overview Label -->
+                <TextView
+                    style="@style/TextAppearance.FMPro.TitleSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_sm"
+                    android:text="@string/label_stats_overview"
+                    android:textColor="@color/md_theme_primary" />
+
+                <!-- Stats Cards Grid 2x2 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_sm"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                    <!-- Stations Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_stations"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/spacing_xs"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardBackgroundColor="@color/md_theme_primaryContainer"
+                        app:cardCornerRadius="@dimen/corner_radius_lg"
+                        app:cardElevation="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_md">
+
+                            <ImageView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:layout_marginBottom="@dimen/spacing_xs"
+                                app:srcCompat="@drawable/ic_radio"
+                                app:tint="@color/md_theme_primary" />
+
+                            <TextView
+                                android:id="@+id/tv_stations_count"
+                                style="@style/TextAppearance.FMPro.HeadlineMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="@color/md_theme_onPrimaryContainer" />
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.BodySmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_total_stations"
+                                android:textColor="@color/md_theme_onPrimaryContainer" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Programs Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_programs"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_xs"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardBackgroundColor="@color/md_theme_secondaryContainer"
+                        app:cardCornerRadius="@dimen/corner_radius_lg"
+                        app:cardElevation="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_md">
+
+                            <ImageView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:layout_marginBottom="@dimen/spacing_xs"
+                                app:srcCompat="@drawable/ic_nav_programs"
+                                app:tint="@color/md_theme_secondary" />
+
+                            <TextView
+                                android:id="@+id/tv_programs_count"
+                                style="@style/TextAppearance.FMPro.HeadlineMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="@color/md_theme_onSecondaryContainer" />
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.BodySmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_total_programs"
+                                android:textColor="@color/md_theme_onSecondaryContainer" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_md"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                    <!-- Episodes Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_episodes"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/spacing_xs"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardBackgroundColor="@color/md_theme_tertiaryContainer"
+                        app:cardCornerRadius="@dimen/corner_radius_lg"
+                        app:cardElevation="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_md">
+
+                            <ImageView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:layout_marginBottom="@dimen/spacing_xs"
+                                app:srcCompat="@drawable/ic_headset"
+                                app:tint="@color/md_theme_tertiary" />
+
+                            <TextView
+                                android:id="@+id/tv_episodes_count"
+                                style="@style/TextAppearance.FMPro.HeadlineMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="@color/md_theme_onTertiaryContainer" />
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.BodySmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_total_episodes"
+                                android:textColor="@color/md_theme_onTertiaryContainer" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Users Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_users"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_xs"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardBackgroundColor="@color/md_theme_surfaceVariant"
+                        app:cardCornerRadius="@dimen/corner_radius_lg"
+                        app:cardElevation="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_md">
+
+                            <ImageView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:layout_marginBottom="@dimen/spacing_xs"
+                                app:srcCompat="@drawable/ic_person"
+                                app:tint="@color/md_theme_onSurfaceVariant" />
+
+                            <TextView
+                                android:id="@+id/tv_users_count"
+                                style="@style/TextAppearance.FMPro.HeadlineMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="@color/md_theme_onSurfaceVariant" />
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.BodySmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_total_users"
+                                android:textColor="@color/md_theme_onSurfaceVariant" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- Management Sections Label -->
+                <TextView
+                    style="@style/TextAppearance.FMPro.TitleSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_sm"
+                    android:text="@string/section_admin_control"
+                    android:textColor="@color/md_theme_primary" />
+
+                <!-- Stations Row -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/row_manage_stations"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_xs"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/md_theme_surface"
+                    app:cardCornerRadius="@dimen/corner_radius_lg"
+                    app:cardElevation="@dimen/elevation_level1"
+                    app:strokeColor="@color/md_theme_outlineVariant"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/spacing_md">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/shape_circle"
+                            android:backgroundTint="@color/md_theme_primaryContainer"
+                            android:padding="8dp"
+                            app:srcCompat="@drawable/ic_radio"
+                            app:tint="@color/md_theme_primary" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/spacing_md"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.TitleSmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/admin_stations"
+                                android:textColor="@color/md_theme_onSurface" />
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.BodySmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/admin_tile_station_info_sub"
+                                android:textColor="@color/md_theme_onSurfaceVariant" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:scaleX="-1"
+                            app:srcCompat="@drawable/ic_arrow_back"
+                            app:tint="@color/md_theme_onSurfaceVariant" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Programs Row -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/row_manage_programs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_xs"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/md_theme_surface"
+                    app:cardCornerRadius="@dimen/corner_radius_lg"
+                    app:cardElevation="@dimen/elevation_level1"
+                    app:strokeColor="@color/md_theme_outlineVariant"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/spacing_md">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/shape_circle"
+                            android:backgroundTint="@color/md_theme_secondaryContainer"
+                            android:padding="8dp"
+                            app:srcCompat="@drawable/ic_nav_programs"
+                            app:tint="@color/md_theme_secondary" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/spacing_md"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.TitleSmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/admin_programs"
+                                android:textColor="@color/md_theme_onSurface" />
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.BodySmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/admin_tile_manage_programs_sub"
+                                android:textColor="@color/md_theme_onSurfaceVariant" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:scaleX="-1"
+                            app:srcCompat="@drawable/ic_arrow_back"
+                            app:tint="@color/md_theme_onSurfaceVariant" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Episodes Row -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/row_manage_episodes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_xs"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/md_theme_surface"
+                    app:cardCornerRadius="@dimen/corner_radius_lg"
+                    app:cardElevation="@dimen/elevation_level1"
+                    app:strokeColor="@color/md_theme_outlineVariant"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/spacing_md">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/shape_circle"
+                            android:backgroundTint="@color/md_theme_tertiaryContainer"
+                            android:padding="8dp"
+                            app:srcCompat="@drawable/ic_headset"
+                            app:tint="@color/md_theme_tertiary" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/spacing_md"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.TitleSmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/admin_episodes"
+                                android:textColor="@color/md_theme_onSurface" />
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.BodySmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/admin_tile_manage_episodes_sub"
+                                android:textColor="@color/md_theme_onSurfaceVariant" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:scaleX="-1"
+                            app:srcCompat="@drawable/ic_arrow_back"
+                            app:tint="@color/md_theme_onSurfaceVariant" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Users Row -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/row_manage_users"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_xs"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/md_theme_surface"
+                    app:cardCornerRadius="@dimen/corner_radius_lg"
+                    app:cardElevation="@dimen/elevation_level1"
+                    app:strokeColor="@color/md_theme_outlineVariant"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/spacing_md">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/shape_circle"
+                            android:backgroundTint="@color/md_theme_surfaceVariant"
+                            android:padding="8dp"
+                            app:srcCompat="@drawable/ic_person"
+                            app:tint="@color/md_theme_primary" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/spacing_md"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.TitleSmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/admin_users"
+                                android:textColor="@color/md_theme_onSurface" />
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.BodySmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/admin_tile_add_episode_sub"
+                                android:textColor="@color/md_theme_onSurfaceVariant" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:scaleX="-1"
+                            app:srcCompat="@drawable/ic_arrow_back"
+                            app:tint="@color/md_theme_onSurfaceVariant" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Roles Row -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/row_manage_roles"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_md"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/md_theme_surface"
+                    app:cardCornerRadius="@dimen/corner_radius_lg"
+                    app:cardElevation="@dimen/elevation_level1"
+                    app:strokeColor="@color/md_theme_outlineVariant"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/spacing_md">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/shape_circle"
+                            android:backgroundTint="@color/md_theme_primaryContainer"
+                            android:padding="8dp"
+                            app:srcCompat="@drawable/ic_admin_panel_settings"
+                            app:tint="@color/md_theme_primary" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/spacing_md"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.TitleSmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/admin_roles"
+                                android:textColor="@color/md_theme_onSurface" />
+
+                            <TextView
+                                style="@style/TextAppearance.FMPro.BodySmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_permissions"
+                                android:textColor="@color/md_theme_onSurfaceVariant" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:scaleX="-1"
+                            app:srcCompat="@drawable/ic_arrow_back"
+                            app:tint="@color/md_theme_onSurfaceVariant" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <!-- Progress Bar -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>
