@@ -210,8 +210,6 @@ public class ProgramsFragment extends BaseFragment {
         } else {
             recyclerView.setAdapter(mAdapter);
         }
-
-        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setNestedScrollingEnabled(false);
     }

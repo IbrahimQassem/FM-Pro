@@ -56,12 +56,34 @@ public class ChatHolder extends RecyclerView.ViewHolder {
     private void initBindViewHolder(@Nullable Episode episode) {
         if (episode == null) return;
 
+        com.sana.dev.fm.model.RadioInfo selectedRadio = PreferencesManager.getInstance() != null ? PreferencesManager.getInstance().selectedRadio() : null;
+
         String title = episode.getEpName();
         if (Tools.isEmpty(title)) {
             title = episode.getProgramName();
         }
-        Tools.setTextOrHideIfEmpty(binding.tvTitle, title);
-        Tools.setTextOrHideIfEmpty(binding.tvAnnouncer, episode.getEpAnnouncer());
+        if (Tools.isEmpty(title) && selectedRadio != null && !Tools.isEmpty(selectedRadio.getName())) {
+            title = selectedRadio.getName();
+        }
+        if (Tools.isEmpty(title)) {
+            title = ctx.getString(R.string.label_program_name);
+        }
+        binding.tvTitle.setVisibility(View.VISIBLE);
+        binding.tvTitle.setText(title);
+
+        String announcer = episode.getEpAnnouncer();
+        if (Tools.isEmpty(announcer) && selectedRadio != null && !Tools.isEmpty(selectedRadio.getChannelFreq())) {
+            announcer = selectedRadio.getChannelFreq();
+        }
+        if (Tools.isEmpty(announcer) && selectedRadio != null && !Tools.isEmpty(selectedRadio.getCity())) {
+            announcer = selectedRadio.getCity();
+        }
+        if (Tools.isEmpty(announcer)) {
+            announcer = ctx.getString(R.string.label_announcer_name);
+        }
+        binding.tvAnnouncer.setVisibility(View.VISIBLE);
+        binding.tvAnnouncer.setText(announcer);
+
         Tools.setTextOrHideIfEmpty(binding.tvDesc, episode.getEpDesc());
 
         if (episode.getShowTimeList() != null && !episode.getShowTimeList().isEmpty()) {
@@ -70,10 +92,12 @@ public class ChatHolder extends RecyclerView.ViewHolder {
                 String st = "" + getFormattedTimeEvent(dateTimeModel.getTimeStart(), FmUtilize.arabicFormat);
                 Tools.setTextOrHideIfEmpty(binding.tvTime, st);
             } else {
-                binding.tvTime.setVisibility(View.GONE);
+                binding.tvTime.setVisibility(View.VISIBLE);
+                binding.tvTime.setText(ctx.getString(R.string.state_live_stream));
             }
         } else {
-            binding.tvTime.setVisibility(View.GONE);
+            binding.tvTime.setVisibility(View.VISIBLE);
+            binding.tvTime.setText(ctx.getString(R.string.state_live_stream));
         }
 
         if (episode.getProgramScheduleTime() != null
@@ -84,30 +108,13 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         } else {
             binding.tvDate.setVisibility(View.GONE);
         }
-//        try {
-////            Tools.setTextOrHideIfEmpty(binding.tvTime, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
-////            Tools.setTextOrHideIfEmpty(binding.tvDate, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));
-////        binding.tvTime.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
-////        String st = "" +  getFormattedTimeEvent(episode.getDateTimeModel().getTimeStart(), FmUtilize.arabicFormat);
-////        binding.tvState.setText(st);
-//            if (episode.getProgramScheduleTime() != null) {
-//                String dt = getFormattedDateOnly(episode.getProgramScheduleTime().getDateStart(),FmUtilize.arabicFormat) + " - " + getFormattedDateOnly(episode.getProgramScheduleTime().getDateEnd(),FmUtilize.arabicFormat);
-//                binding.tvDate.setText(dt);
-//            } else {
-////            binding.tvState.setVisibility(View.GONE);
-//            }
-//        }catch (Exception e){
-//            e.printStackTrace();
-//            LogUtility.d(TAG, "Error getProgramScheduleTime : " + e.getMessage());
-//        }
 
-//        if (episode.getDateTimeModel() != null){
-//            LogUtility.d(TAG, "date  getDateStart : " + new Gson().toJson(FmUtilize.modifyDateLayout(episode.getDateTimeModel().getDateStart())));
-//            LogUtility.d(TAG, "date  getDateEnd : " + new Gson().toJson(FmUtilize.modifyDateLayout(episode.getDateTimeModel().getDateEnd())));
-//        }
-//        tv_time.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
-        Tools.displayImageRound(ctx, binding.civLogo, episode.getEpProfile());
-        Tools.displayImageOriginal(ctx, binding.ivBanner, episode.getEpProfile());
+        String profileUrl = episode.getEpProfile();
+        if (Tools.isEmpty(profileUrl) && selectedRadio != null && !Tools.isEmpty(selectedRadio.getLogo())) {
+            profileUrl = selectedRadio.getLogo();
+        }
+        Tools.displayImageRound(ctx, binding.civLogo, profileUrl);
+        Tools.displayImageOriginal(ctx, binding.ivBanner, profileUrl);
 
 
         String currentUserId = null;

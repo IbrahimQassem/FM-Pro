@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -84,7 +86,8 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     //    ---------- Radio Player -----------
     private RadioPlayerService radioPlayerService;
     private boolean isBound = false;
-    //    private TextView metadataTextView;
+    private String currentMetadataTitle = null;
+    private String currentMetadataArtist = null;
     private String currentStreamUrl = "https://c30.radioboss.fm:18267/stream"; // Replace with your stream URL
     private String currentStreamTitle;
 
@@ -118,7 +121,21 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         initComponent();
         initEvent();
         initBottomNav();
+        checkNotificationPermission();
 //        initAdMob();
+    }
+
+    private void checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{android.Manifest.permission.POST_NOTIFICATIONS},
+                        1001
+                );
+            }
+        }
     }
 
     private void initComponent() {
@@ -648,8 +665,21 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
 
     private void setupRadioService() {
         if (radioPlayerService != null) {
-            // Set up the play/pause button
-            radioPlayerService.setPlayPauseButton(playPauseButton);
+            // Set up decoupled playback state listener
+            radioPlayerService.setPlaybackStateChangeListener((isPlaying, isPaused, isStopped) -> {
+                if (playPauseButton != null) {
+                    playPauseButton.post(() -> {
+                        if (isPlaying) {
+                            playPauseButton.setImageResource(R.drawable.ic_pause);
+                        } else if (isPaused) {
+                            playPauseButton.setImageResource(R.drawable.ic_play);
+                        } else {
+                            playPauseButton.setImageResource(R.drawable.ic_radio);
+                        }
+                    });
+                }
+                runOnUiThread(this::updateMiniPlayerState);
+            });
 
             // Initialize the media player with current stream
             radioPlayerService.initializeMediaPlayer(currentStreamUrl, currentStreamTitle);
@@ -682,19 +712,19 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
     }
 
     public void updateMetadataUI(String title, String artist) {
-//        runOnUiThread(() -> {
-//            String displayText = title;
-//            if (artist != null && !artist.isEmpty()) {
-//                displayText += " - " + artist;
-//            }
-////            metadataTextView.setText(displayText);
-//        });
+        runOnUiThread(() -> {
+            this.currentMetadataTitle = title;
+            this.currentMetadataArtist = artist;
+            updateMiniPlayerState();
+        });
     }
 
     // Method to change the radio station
     public void changeStation(String newStreamUrl, String newTitle) {
         currentStreamUrl = newStreamUrl;
         currentStreamTitle = newTitle;
+        currentMetadataTitle = null;
+        currentMetadataArtist = null;
 
         try {
             if (isBound && radioPlayerService != null) {
@@ -725,6 +755,16 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
             }
             imageUrl = info.getLogo();
         }
+
+        // Live stream metadata (program / song title and presenter / artist)
+        if (currentMetadataTitle != null && !currentMetadataTitle.trim().isEmpty()) {
+            if (currentMetadataArtist != null && !currentMetadataArtist.trim().isEmpty()) {
+                subtitle = currentMetadataTitle + " • " + currentMetadataArtist;
+            } else {
+                subtitle = currentMetadataTitle;
+            }
+        }
+
         boolean isPlaying = isBound && radioPlayerService != null && radioPlayerService.isPlaying();
         PlaybackUiState state = isPlaying
                 ? PlaybackUiState.playing(title, subtitle, imageUrl)
@@ -753,6 +793,10 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         }
         super.onDestroy();
         if (isBound) {
+            if (radioPlayerService != null) {
+                radioPlayerService.setPlaybackStateChangeListener(null);
+                radioPlayerService.setMetadataListener(null);
+            }
             unbindService(serviceConnection);
             isBound = false;
         }

@@ -315,5 +315,25 @@ public class Episode implements Serializable {
     public void setIsActive(boolean active) {
         this.disabled = !active;
     }
+
+    public void setPresenter(String presenter) {
+        if (presenter != null) this.epAnnouncer = presenter;
+    }
+
+    public void setAnnouncer(String announcer) {
+        if (announcer != null) this.epAnnouncer = announcer;
+    }
+
+    public void setBanner(String banner) {
+        if (banner != null) this.epProfile = banner;
+    }
+
+    public void setPhoto(String photo) {
+        if (photo != null) this.epProfile = photo;
+    }
+
+    public void setLogo(String logo) {
+        if (logo != null) this.epProfile = logo;
+    }
 }
 

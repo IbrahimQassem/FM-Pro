@@ -88,7 +88,6 @@ public class RadioListActivity extends BaseActivity {
     private void initComponent() {
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setHasFixedSize(true);
 
 
         // Sort the list using the custom comparator

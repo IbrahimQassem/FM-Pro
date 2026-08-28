@@ -13,7 +13,7 @@
 | TD-006 | P0 | done | `FIRST_TIME_VERSION` كان يوقف مسار البدء | Modernization | 1 | صار مسار الترقية يستدعي `loadRadios` والبناء ناجح |
 | TD-007 | P0 | done | FCM/User/device data كانت تطبع في السجلات | Security | 1 | أزيلت القيم الحساسة من المسارات المرصودة وفُحص المصدر |
 | TD-008 | P0 | in progress | أزيلت صلاحيات الهاتف والتخزين؛ ما زال cleartext عامًا بسبب روابط بث ديناميكية | Security | 1 | حصر مضيفي الإنتاج واستبدال العام باستثناء host موثق ومختبر |
-| TD-009 | P0 | open | `RadioPlayerService` يحتفظ بـFloatingActionButton | Playback | 5 | MediaSessionService بلا مرجع UI |
+| TD-009 | P0 | in progress | فُك الارتباط المباشر لـ FloatingActionButton واستُبدل بـ OnPlaybackStateChangeListener؛ إكمال MediaSessionService لاحقًا | Playback | 5 | MediaSessionService بلا مرجع UI |
 | TD-010 | P1 | in progress | أضيفت 85 اختبار وحدة Java و19 اختبار Firebase Rules | Quality | 0–7 | تغطية seams والمسارات الحرجة حسب العقد |
 | TD-011 | P1 | in progress | ثُبت Facebook 18.3.0؛ ما زالت dependencies قديمة وJCenter | Modernization | 0/2 | إصدارات مثبتة وrepositories دنيا وبناء متكرر |
 | TD-012 | P1 | done | تأسيس رموز Material 3 وحالات الشاشة المشتركة باللغة العربية واختبار مصفوفة RTL وAccessibility بالكامل في المرحلة 3 | Product UX | 3 | موارد Locale واختبارات RTL وAccessibility |

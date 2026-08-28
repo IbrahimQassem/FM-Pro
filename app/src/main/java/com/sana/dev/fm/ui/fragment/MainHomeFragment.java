@@ -112,7 +112,6 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
     }
 
     private void loadRadios() {
-        recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, true);
         recyclerView.setLayoutManager(layoutManager);
 

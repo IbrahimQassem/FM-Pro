@@ -99,7 +99,6 @@ public class ListUsersActivity extends BaseActivity {
         this.recyclerView = recyclerView;
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         this.recyclerView.addItemDecoration(new LineItemDecoration(this, 1));
-        this.recyclerView.setHasFixedSize(true);
 
         List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
 //        firestoreQueryList.add(new FirestoreQuery(

@@ -47,17 +47,39 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
     private final IBinder binder = new LocalBinder();
     private MetadataListener metadataListener;
     private Timer metadataTimer;
-    private FloatingActionButton playPauseButton;
+    private OnPlaybackStateChangeListener playbackStateListener;
     private PlayerState currentState = PlayerState.STOPPED;
     private NotificationManager notificationManager;
+
+    public interface OnPlaybackStateChangeListener {
+        void onPlaybackStateChanged(boolean isPlaying, boolean isPaused, boolean isStopped);
+    }
 
     private enum PlayerState {
         PLAYING, PAUSED, STOPPED
     }
 
+    public void setPlaybackStateChangeListener(OnPlaybackStateChangeListener listener) {
+        this.playbackStateListener = listener;
+        updatePlaybackState();
+    }
+
     public void setPlayPauseButton(FloatingActionButton button) {
-        this.playPauseButton = button;
-        updatePlayPauseButton();
+        if (button == null) {
+            setPlaybackStateChangeListener(null);
+            return;
+        }
+        setPlaybackStateChangeListener((isPlaying, isPaused, isStopped) -> {
+            button.post(() -> {
+                if (isPlaying) {
+                    button.setImageResource(R.drawable.ic_pause);
+                } else if (isPaused) {
+                    button.setImageResource(R.drawable.ic_play);
+                } else {
+                    button.setImageResource(R.drawable.ic_radio);
+                }
+            });
+        });
     }
 
     public void setMetadataListener(MetadataListener listener) {
@@ -115,39 +137,53 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
             mediaPlayer.setOnPreparedListener(this);
             mediaPlayer.setOnErrorListener(this);
         }
-//        startMetadataTimer();
+    }
+
+    private void stopMetadataTimer() {
+        if (metadataTimer != null) {
+            metadataTimer.cancel();
+            metadataTimer = null;
+        }
     }
 
     private void startMetadataTimer() {
-        if (metadataTimer != null) {
-            metadataTimer.cancel();
-        }
+        stopMetadataTimer();
+        if (streamUrl == null || streamUrl.isEmpty()) return;
         metadataTimer = new Timer();
         metadataTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 fetchMetadata();
             }
-        }, 0, 5000); // Check metadata every 5 seconds
+        }, 1000, 10000); // Check metadata every 10 seconds
     }
 
     private void fetchMetadata() {
+        if (streamUrl == null || streamUrl.isEmpty()) return;
+        MediaMetadataRetriever retriever = null;
         try {
-            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever = new MediaMetadataRetriever();
             retriever.setDataSource(streamUrl, new HashMap<String, String>());
 
             String title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
             String artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
 
-            if (metadataListener != null && title != null) {
+            if (metadataListener != null && (title != null || artist != null)) {
                 metadataListener.onMetadataReceived(title, artist);
-                streamTitle = title + (artist != null ? " - " + artist : "");
-                updateNotification();
+                if (title != null && !title.isEmpty()) {
+                    streamTitle = title + (artist != null && !artist.isEmpty() ? " - " + artist : "");
+                    updateNotification();
+                }
             }
-
-            retriever.release();
         } catch (Exception e) {
-            LogUtility.e(TAG, "Error fetching metadata: " + e.getMessage());
+            LogUtility.d(TAG, "Metadata not available from stream: " + e.getMessage());
+        } finally {
+            if (retriever != null) {
+                try {
+                    retriever.release();
+                } catch (Exception ignored) {
+                }
+            }
         }
     }
 
@@ -159,7 +195,8 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
                     mediaPlayer.setDataSource(streamUrl);
                     mediaPlayer.prepareAsync();
                     currentState = PlayerState.PLAYING;
-                    updatePlayPauseButton();
+                    updatePlaybackState();
+                    startMetadataTimer();
                 }
             } catch (Exception e) {
                 LogUtility.d(TAG, "Error startPlay : " + e.getMessage());
@@ -174,7 +211,8 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
             mediaPlayer.pause();
             isPlaying = false;
             currentState = PlayerState.PAUSED;
-            updatePlayPauseButton();
+            stopMetadataTimer();
+            updatePlaybackState();
             updateNotification();
         }
     }
@@ -185,8 +223,8 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
             mediaPlayer.reset();
             isPlaying = false;
             currentState = PlayerState.STOPPED;
-            updatePlayPauseButton();
-//            updateNotification();
+            stopMetadataTimer();
+            updatePlaybackState();
             clearNotification();
         }
     }
@@ -210,21 +248,12 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
         stopForeground(true);
     }
 
-    private void updatePlayPauseButton() {
-        if (playPauseButton != null) {
-            playPauseButton.post(() -> {
-                switch (currentState) {
-                    case PLAYING:
-                        playPauseButton.setImageResource(R.drawable.ic_pause);
-                        break;
-                    case PAUSED:
-                        playPauseButton.setImageResource(R.drawable.ic_play);
-                        break;
-                    case STOPPED:
-                        playPauseButton.setImageResource(R.drawable.ic_radio);
-                        break;
-                }
-            });
+    private void updatePlaybackState() {
+        if (playbackStateListener != null) {
+            boolean isPlaying = (currentState == PlayerState.PLAYING);
+            boolean isPaused = (currentState == PlayerState.PAUSED);
+            boolean isStopped = (currentState == PlayerState.STOPPED);
+            playbackStateListener.onPlaybackStateChanged(isPlaying, isPaused, isStopped);
         }
     }
 
@@ -251,7 +280,7 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
         mp.start();
         isPlaying = true;
         currentState = PlayerState.PLAYING;
-        updatePlayPauseButton();
+        updatePlaybackState();
         updateNotification();
     }
 
@@ -259,7 +288,7 @@ public class RadioPlayerService extends Service implements MediaPlayer.OnPrepare
     public boolean onError(MediaPlayer mp, int what, int extra) {
         isPlaying = false;
         currentState = PlayerState.STOPPED;
-        updatePlayPauseButton();
+        updatePlaybackState();
         clearNotification();
         LogUtility.e(TAG, "MediaPlayer Error: " + what + ", " + extra);
         return false;

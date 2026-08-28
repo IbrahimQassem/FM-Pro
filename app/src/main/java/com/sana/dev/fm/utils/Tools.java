@@ -49,6 +49,7 @@ import androidx.core.os.EnvironmentCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
@@ -145,14 +146,11 @@ public class Tools {
 
     public static void displayImageOriginal(Context ctx, ImageView img, @DrawableRes int resDrawable) {
         try {
-            GlideApp.with(ctx)
+            Glide.with(ctx)
                     .load(resDrawable)
                     .centerCrop()
                     .transition(withCrossFade())
                     .into(img);
-//        GlideApp.with(ctx).load(resDrawable)
-//                .into(img);
-            //        }
         } catch (
                 Exception e) {
             LogUtility.d(TAG + " displayImageOriginal :", e.toString());
@@ -163,13 +161,13 @@ public class Tools {
 
     public static void displayImageOriginal(Context ctx, ImageView img, String imgUrl) {
         try {
-            if (imgUrl.equals("no_image")) {
-                GlideApp.with(ctx).load(ctx.getDrawable(R.drawable.logo_app))
+            if (imgUrl != null && imgUrl.equals("no_image")) {
+                Glide.with(ctx).load(ctx.getDrawable(R.drawable.logo_app))
                         .centerCrop()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(img);
             } else {
-                GlideApp.with(ctx).load(imgUrl)
+                Glide.with(ctx).load(imgUrl)
                         .fitCenter()
                         .placeholder(ctx.getDrawable(R.drawable.logo_app))
                         .error(ctx.getDrawable(R.drawable.logo_app))
@@ -177,22 +175,6 @@ public class Tools {
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(img);
             }
-
-//            Glide.with(ctx).load(Uri.parse(imgUrl))
-//                    .fitCenter()
-//                    .placeholder(AppRemoteConfig.RADIO_IMG)
-//                    .error(BaseDrawerActivity.APP_CONFIG.getCount())
-//                    .crossFade()
-//                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-//                    .into(img);
-
-//            LogUtility.d(TAG+" imgUrl :",imgUrl);
-
-//            Picasso.get()
-//                    .load(url)
-//                    .placeholder(AppRemoteConfig.RADIO_IMG)
-//                    .networkPolicy(NetworkPolicy.OFFLINE)
-//                    .into(img);
         } catch (Exception e) {
             LogUtility.d(TAG + " displayImageOriginal :", e.toString());
         }
@@ -203,27 +185,12 @@ public class Tools {
 
             RequestOptions requestOptions = new RequestOptions();
             requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(100));
-            GlideApp.with(ctx)
+            Glide.with(ctx)
                     .load(imgUrl)
                     .apply(requestOptions)
                     .placeholder(R.drawable.bg_comment_avatar)
                     .error(ctx.getDrawable(R.drawable.logo_app))
                     .into(img);
-//            Glide.with(ctx)
-//                    .load(imgUrl)
-//                    .apply(RequestOptions.bitmapTransform(new RoundedCorners(50)))
-//                    .placeholder(R.drawable.bg_comment_avatar)
-//                    .error(AppRemoteConfig.RADIO_LOGO)
-//                     .into(img);
-
-//            Glide.with(ctx).load(imgUrl).asBitmap().placeholder(R.drawable.bg_comment_avatar).error(AppRemoteConfig.RADIO_LOGO).centerCrop().into(new BitmapImageViewTarget(img) {
-//                @Override
-//                protected void setResource(Bitmap resource) {
-//                    RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(ctx.getResources(), resource);
-//                    circularBitmapDrawable.setCircular(true);
-//                    img.setImageDrawable(circularBitmapDrawable);
-//                }
-//            });
         } catch (Exception e) {
             e.printStackTrace();
             LogUtility.d(TAG + " displayImageRound :", e.toString());
@@ -234,17 +201,10 @@ public class Tools {
         try {
             VectorDrawableCompat vector = VectorDrawableCompat.create(ctx.getResources(), resId, null);
 
-//            Glide.with(ctx)
-//                    .load(imgUrl)
-//                    .apply(RequestOptions.bitmapTransform(new RoundedCorners(100)))
-//                    .placeholder(R.drawable.bg_comment_avatar)
-//                    .error(vector)
-//                    .into(img);
-
             RequestOptions requestOptions = new RequestOptions();
             requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(100));
 
-            GlideApp.with(ctx).load(imgUrl)
+            Glide.with(ctx).load(imgUrl)
                     .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
                     .placeholder(R.drawable.bg_comment_avatar)
                     .error(vector)
@@ -259,15 +219,8 @@ public class Tools {
                         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                             return false;
                         }
-                    }).into(img);
-//            Glide.with(ctx).load(imgUrl).asBitmap().placeholder(R.drawable.bg_comment_avatar).error(vector).centerCrop().into(new BitmapImageViewTarget(img) {
-//                @Override
-//                protected void setResource(Bitmap resource) {
-//                    RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(ctx.getResources(), resource);
-//                    circularBitmapDrawable.setCircular(true);
-//                    img.setImageDrawable(circularBitmapDrawable);
-//                }
-//            });
+                    })
+                    .into(img);
         } catch (Exception e) {
             e.printStackTrace();
             LogUtility.d(TAG + " displayUserProfile :", e.toString());
