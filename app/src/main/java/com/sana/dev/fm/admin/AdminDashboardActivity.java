@@ -97,22 +97,24 @@ public class AdminDashboardActivity extends BaseActivity {
         binding.progressBar.setVisibility(View.VISIBLE);
         pendingCount = 4;
 
-        loadCount(AppConstant.Firebase.RADIO_INFO_TABLE, count ->
+        loadCount(AppConstant.Firebase.STATIONS_COLLECTION, count ->
                 binding.tvStationsCount.setText(String.valueOf(count)));
 
-        loadCount(AppConstant.Firebase.RADIO_PROGRAM_TABLE, count ->
+        loadCount(AppConstant.Firebase.PROGRAMS_COLLECTION, count ->
                 binding.tvProgramsCount.setText(String.valueOf(count)));
 
-        loadCount(AppConstant.Firebase.EPISODE_TABLE, count ->
+        loadCount(AppConstant.Firebase.EPISODES_COLLECTION, count ->
                 binding.tvEpisodesCount.setText(String.valueOf(count)));
 
-        loadCount(AppConstant.Firebase.USERS_TABLE, count -> {
+        loadCount(AppConstant.Firebase.USERS_COLLECTION, count -> {
             binding.tvUsersCount.setText(String.valueOf(count));
         });
     }
 
     private void loadCount(String table, CountCallback cb) {
-        CollectionReference ref = firestoreDbUtility.getCollectionReference(table, table);
+        CollectionReference ref = firestoreDbUtility.getTopLevelCollection()
+                .document(table)
+                .collection(table);
         firestoreDbUtility.getMany(ref, new ArrayList<>(), new CallBack() {
             @Override
             public void onSuccess(Object object) {

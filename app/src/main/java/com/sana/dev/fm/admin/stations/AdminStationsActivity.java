@@ -104,7 +104,7 @@ public class AdminStationsActivity extends BaseActivity {
         binding.lytEmpty.setVisibility(View.GONE);
 
         CollectionReference ref = firestoreDbUtility.getCollectionReference(
-                AppConstant.Firebase.RADIO_INFO_TABLE, AppConstant.Firebase.RADIO_INFO_TABLE);
+                AppConstant.Firebase.STATIONS_COLLECTION, AppConstant.Firebase.STATIONS_COLLECTION);
 
         firestoreDbUtility.getMany(ref, new ArrayList<>(), new CallBack() {
             @Override
@@ -175,7 +175,7 @@ public class AdminStationsActivity extends BaseActivity {
     private void deleteItem(RadioInfo item) {
         kProgressHUDHelper.showLoading("", false);
         CollectionReference ref = firestoreDbUtility.getCollectionReference(
-                AppConstant.Firebase.RADIO_INFO_TABLE, AppConstant.Firebase.RADIO_INFO_TABLE);
+                AppConstant.Firebase.STATIONS_COLLECTION, AppConstant.Firebase.STATIONS_COLLECTION);
         firestoreDbUtility.deleteDocument(ref, item.getRadioId(), new CallBack() {
             @Override
             public void onSuccess(Object object) {
@@ -198,7 +198,7 @@ public class AdminStationsActivity extends BaseActivity {
         item.setDisabled(nowDisabled);
         kProgressHUDHelper.showLoading("", false);
         CollectionReference ref = firestoreDbUtility.getCollectionReference(
-                AppConstant.Firebase.RADIO_INFO_TABLE, AppConstant.Firebase.RADIO_INFO_TABLE);
+                AppConstant.Firebase.STATIONS_COLLECTION, AppConstant.Firebase.STATIONS_COLLECTION);
         firestoreDbUtility.createOrMerge(ref, item.getRadioId(), item, new CallBack() {
             @Override
             public void onSuccess(Object object) {

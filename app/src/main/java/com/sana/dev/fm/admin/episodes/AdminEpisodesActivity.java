@@ -104,7 +104,7 @@ public class AdminEpisodesActivity extends BaseActivity {
         binding.lytEmpty.setVisibility(View.GONE);
 
         CollectionReference ref = firestoreDbUtility.getCollectionReference(
-                AppConstant.Firebase.EPISODE_TABLE, AppConstant.Firebase.EPISODE_TABLE);
+                AppConstant.Firebase.EPISODES_COLLECTION, AppConstant.Firebase.EPISODES_COLLECTION);
 
         firestoreDbUtility.getMany(ref, new ArrayList<>(), new CallBack() {
             @Override
@@ -170,7 +170,7 @@ public class AdminEpisodesActivity extends BaseActivity {
     private void deleteItem(Episode item) {
         kProgressHUDHelper.showLoading("", false);
         CollectionReference ref = firestoreDbUtility.getCollectionReference(
-                AppConstant.Firebase.EPISODE_TABLE, AppConstant.Firebase.EPISODE_TABLE);
+                AppConstant.Firebase.EPISODES_COLLECTION, AppConstant.Firebase.EPISODES_COLLECTION);
         firestoreDbUtility.deleteDocument(ref, item.getEpId(), new CallBack() {
             @Override
             public void onSuccess(Object object) {

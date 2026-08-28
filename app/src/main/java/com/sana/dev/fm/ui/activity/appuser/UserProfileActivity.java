@@ -438,7 +438,9 @@ public class UserProfileActivity extends BaseActivity {
 
 
     void updateUser(String userId,Map<String, Object> data) {
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
+        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection()
+                .document(AppConstant.Firebase.USERS_COLLECTION)
+                .collection(AppConstant.Firebase.USERS_COLLECTION);
 
 //        Map<String, Object> data = new HashMap<>();
 //        data.put("name", model.getName());

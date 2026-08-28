@@ -217,7 +217,7 @@ public class SplashActivity extends AppCompatActivity {
             ShardDate.getInstance().setRadioInfoList(activeList);
             prefMgr.setRadioInfo(new ArrayList<>(activeList));
             RadioInfo activeStation = DefaultStationPolicy.resolveActiveStation(prefMgr.selectedRadio(), activeList);
-            prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, activeStation);
+            prefMgr.write(AppConstant.Firebase.STATIONS_COLLECTION, activeStation);
             openMainActivity();
         }).addOnFailureListener(e -> {
             LogUtility.e(TAG, "Radio refresh unavailable; using seed stations: " + e.getMessage());
@@ -225,7 +225,7 @@ public class SplashActivity extends AppCompatActivity {
             ShardDate.getInstance().setRadioInfoList(fallback);
             prefMgr.setRadioInfo(new ArrayList<>(fallback));
             RadioInfo activeStation = DefaultStationPolicy.resolveActiveStation(prefMgr.selectedRadio(), fallback);
-            prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, activeStation);
+            prefMgr.write(AppConstant.Firebase.STATIONS_COLLECTION, activeStation);
             openMainActivity();
         });
     }

@@ -38,7 +38,7 @@ public class Episode implements Serializable {
     }
 
     public boolean isLikedBy(String userId) {
-        return episodeLikes != null && episodeLikes.containsKey(userId);
+        return episodeLikes != null && userId != null && Boolean.TRUE.equals(episodeLikes.get(userId));
     }
 
     public int getTotalLikes() {

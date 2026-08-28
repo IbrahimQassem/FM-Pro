@@ -109,7 +109,7 @@ public class AdminUsersActivity extends BaseActivity {
         binding.lytEmpty.setVisibility(View.GONE);
 
         CollectionReference ref = firestoreDbUtility.getCollectionReference(
-                AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
+                AppConstant.Firebase.USERS_COLLECTION, AppConstant.Firebase.USERS_COLLECTION);
 
         firestoreDbUtility.getMany(ref, new ArrayList<>(), new CallBack() {
             @Override
@@ -183,7 +183,7 @@ public class AdminUsersActivity extends BaseActivity {
     private void deleteUser(UserModel user) {
         kProgressHUDHelper.showLoading("", false);
         CollectionReference ref = firestoreDbUtility.getCollectionReference(
-                AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
+                AppConstant.Firebase.USERS_COLLECTION, AppConstant.Firebase.USERS_COLLECTION);
         firestoreDbUtility.deleteDocument(ref, user.getUserId(), new CallBack() {
             @Override
             public void onSuccess(Object object) {
@@ -206,7 +206,7 @@ public class AdminUsersActivity extends BaseActivity {
         user.setDisabled(nowDisabled);
         kProgressHUDHelper.showLoading("", false);
         CollectionReference ref = firestoreDbUtility.getCollectionReference(
-                AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
+                AppConstant.Firebase.USERS_COLLECTION, AppConstant.Firebase.USERS_COLLECTION);
         firestoreDbUtility.createOrMerge(ref, user.getUserId(), user, new CallBack() {
             @Override
             public void onSuccess(Object object) {

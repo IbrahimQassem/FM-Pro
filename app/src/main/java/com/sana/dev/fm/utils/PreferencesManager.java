@@ -187,7 +187,10 @@ public class PreferencesManager {
 
     public RadioInfo selectedRadio() {
         Gson gson = new Gson();
-        String json = read(AppConstant.Firebase.RADIO_INFO_TABLE, null);
+        String json = read(AppConstant.Firebase.STATIONS_COLLECTION, null);
+        if (json == null) {
+            json = read(AppConstant.Firebase.RADIO_INFO_TABLE, null); // fallback for existing saved sessions
+        }
         return gson.fromJson(json, RadioInfo.class);
     }
 

@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.sana.dev.fm.BuildConfig;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ItemGridBinding;
@@ -20,6 +21,7 @@ import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.interfaces.OnClickListener;
 import com.sana.dev.fm.model.interfaces.OnItemLongClick;
 import com.sana.dev.fm.utils.FmUtilize;
+import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
 
 
@@ -102,16 +104,31 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         Tools.displayImageOriginal(ctx, binding.ivBanner, episode.getEpProfile());
 
 
-        boolean isLikedBy = episode.isLikedBy(episode.userId);
-
-        if (isLikedBy) {
-            episode.isLiked = isLikedBy;
-            binding.imvLike.setColorFilter(ContextCompat.getColor(ctx, R.color.colorPrimary));
-        }else {
-            binding.imvLike.setColorFilter(ContextCompat.getColor(ctx, R.color.grey_400));
+        String currentUserId = null;
+        try {
+            if (PreferencesManager.getInstance() != null && PreferencesManager.getInstance().getUserSession() != null) {
+                currentUserId = PreferencesManager.getInstance().getUserSession().getUserId();
+            }
+            if (currentUserId == null && FirebaseAuth.getInstance().getCurrentUser() != null) {
+                currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            }
+        } catch (Exception ignored) {
         }
 
-        int countLike = episode.getLikesCount();// Collections.frequency(likeStates.values(), true);
+        boolean isLikedBy = currentUserId != null && episode.isLikedBy(currentUserId);
+        episode.isLiked = isLikedBy;
+
+        if (isLikedBy) {
+            binding.imvLike.setImageResource(R.drawable.ic_thumb_up);
+            binding.imvLike.setColorFilter(ContextCompat.getColor(ctx, R.color.md_theme_primary));
+            binding.txtLikes.setTextColor(ContextCompat.getColor(ctx, R.color.md_theme_primary));
+        } else {
+            binding.imvLike.setImageResource(R.drawable.ic_thumb_up);
+            binding.imvLike.setColorFilter(ContextCompat.getColor(ctx, R.color.md_theme_onSurfaceVariant));
+            binding.txtLikes.setTextColor(ContextCompat.getColor(ctx, R.color.md_theme_onSurfaceVariant));
+        }
+
+        int countLike = episode.getLikesCount();
         binding.txtLikes.setText(ctx.getResources().getQuantityString(
                 R.plurals.likes_count, countLike, countLike
         ));
@@ -159,6 +176,15 @@ public class ChatHolder extends RecyclerView.ViewHolder {
             public void onClick(View view) {
                 if (mOnItemClickListener != null) {
                     mOnItemClickListener.onItemClick(view, episode, position);
+                }
+            }
+        });
+
+        binding.lytLikeParent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClick(binding.imvLike, episode, position);
                 }
             }
         });

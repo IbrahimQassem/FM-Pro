@@ -79,7 +79,7 @@ public class AdminUserDetailActivity extends BaseActivity {
         binding.progressBar.setVisibility(View.VISIBLE);
 
         CollectionReference ref = firestoreDbUtility.getCollectionReference(
-                AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
+                AppConstant.Firebase.USERS_COLLECTION, AppConstant.Firebase.USERS_COLLECTION);
 
         firestoreDbUtility.getOne(ref, userId, new CallBack() {
             @Override
@@ -159,7 +159,7 @@ public class AdminUserDetailActivity extends BaseActivity {
         currentUser.setUserType(newType);
         kProgressHUDHelper.showLoading("", false);
         CollectionReference ref = firestoreDbUtility.getCollectionReference(
-                AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
+                AppConstant.Firebase.USERS_COLLECTION, AppConstant.Firebase.USERS_COLLECTION);
         firestoreDbUtility.createOrMerge(ref, userId, currentUser, new CallBack() {
             @Override
             public void onSuccess(Object object) {
@@ -182,7 +182,7 @@ public class AdminUserDetailActivity extends BaseActivity {
         currentUser.setDisabled(nowDisabled);
         kProgressHUDHelper.showLoading("", false);
         CollectionReference ref = firestoreDbUtility.getCollectionReference(
-                AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
+                AppConstant.Firebase.USERS_COLLECTION, AppConstant.Firebase.USERS_COLLECTION);
         firestoreDbUtility.createOrMerge(ref, userId, currentUser, new CallBack() {
             @Override
             public void onSuccess(Object object) {
@@ -212,7 +212,7 @@ public class AdminUserDetailActivity extends BaseActivity {
     private void deleteUser() {
         kProgressHUDHelper.showLoading("", false);
         CollectionReference ref = firestoreDbUtility.getCollectionReference(
-                AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
+                AppConstant.Firebase.USERS_COLLECTION, AppConstant.Firebase.USERS_COLLECTION);
         firestoreDbUtility.deleteDocument(ref, userId, new CallBack() {
             @Override
             public void onSuccess(Object object) {

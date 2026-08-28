@@ -144,7 +144,7 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
             RadiosAdapter radiosAdapter = new RadiosAdapter(RadiosAdapter.VIEW_TYPE_MAIN, ctx, stationList, recyclerView, indexToScrollTo);
 
             if (!isRadioSelected() && !stationList.isEmpty()) {
-                prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, stationList.get(0));
+                prefMgr.write(AppConstant.Firebase.STATIONS_COLLECTION, stationList.get(0));
             }
 
             recyclerView.setAdapter(radiosAdapter);
@@ -153,7 +153,7 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
                 @Override
                 public void onItemClick(View view, RadioInfo radioInfo, int i) {
                     prefMgr.write("ScrollToPosition", i);
-                    prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, radioInfo);
+                    prefMgr.write(AppConstant.Firebase.STATIONS_COLLECTION, radioInfo);
                     radiosAdapter.selectTaskListItem(i);
                     updateRecycle();
                     if (callBackListener != null)

@@ -28,6 +28,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.Transaction;
@@ -344,31 +345,10 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                                         showWarningDialog(config);
                                     }
                                 } else {
-                                    toggleLike((ImageView) view,model, item.userId, item.getRadioId());
-//                                    boolean isLik = !model.isLiked;
-//                                    HashMap<String, Boolean> likeMap = new HashMap<>();
-//                                    likeMap.put(prefMgr.getUserSession().getUserId(), isLik);
-//                                    model.setEpisodeLikes(likeMap);
-//
-//                                    Map<String, Object> docData = new HashMap<>();
-//                                    docData.put("episodeLikes", model.getEpisodeLikes());
-//
-//                                    CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
-////                                    DocumentReference documentReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(model.getEpId());
-//
-//                                    firestoreDbUtility.update(collectionReference, model.getEpId(), docData, new CallBack() {
-//                                        @Override
-//                                        public void onSuccess(Object object) {
-////                                            showToast(getString(R.string.done_successfully));
-//                                            LogUtility.d(LogUtility.TAG, "success set episodeLikes radioId : " + radioId + " docData is  : " + docData);
-//                                        }
-//
-//                                        @Override
-//                                        public void onFailure(Object object) {
-////                                            showToast(getString(R.string.label_error_occurred_with_val,object));
-//                                            LogUtility.d(LogUtility.TAG, "failure set episodeLikes radioId : " + radioId + " docData is  : " + object);
-//                                        }
-//                                    });
+                                    String currentUid = prefMgr.getUserSession() != null && prefMgr.getUserSession().getUserId() != null
+                                            ? prefMgr.getUserSession().getUserId()
+                                            : (FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getUid() : "guest_user");
+                                    toggleLike((ImageView) view, item, currentUid);
                                 }
                                 break;
                             case R.id.lyt_share_parent:
@@ -413,27 +393,21 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
 
     private void showBottomSheetDialog(Episode obj, String radioId) {
         View findViewById = view.findViewById(R.id.bottom_sheet);
-        View bottom_sheet = findViewById;
-        BottomSheetBehavior mBehavior = BottomSheetBehavior.from(findViewById);
-
-        if (mBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-            mBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        if (findViewById != null) {
+            BottomSheetBehavior mBehavior = BottomSheetBehavior.from(findViewById);
+            if (mBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                mBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
         }
 
         View inflate = getLayoutInflater().inflate(R.layout.sheet_ep_options, null);
 
-
         inflate.findViewById(R.id.lyt_edit).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append(context.getString(R.string.label_edit) + " : ");
-                stringBuilder.append(obj.getEpName());
-
                 AddEpisodeActivity.startActivity(context, obj);
-                mBottomSheetDialog.dismiss();
+                if (mBottomSheetDialog != null) mBottomSheetDialog.dismiss();
             }
         });
-
 
         inflate.findViewById(R.id.lyt_hide).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -443,24 +417,28 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                         obj.setDisabled(true);
                         Map<String, Object> docData = new HashMap<>();
                         docData.put("disabled", obj.isDisabled());
+                        docData.put("isActive", false);
 
-                        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+                        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection()
+                                .document(AppConstant.Firebase.EPISODES_COLLECTION)
+                                .collection(AppConstant.Firebase.EPISODES_COLLECTION);
 
-                        firestoreDbUtility.createOrMerge(collectionReference, obj.getEpId(), docData, new CallBack() {
-                            @Override
-                            public void onSuccess(Object object) {
-//                                            showToast(getString(R.string.done_successfully));
-                            }
+                        String epDocId = obj.getEpId() != null && !obj.getEpId().isEmpty() ? obj.getEpId() : "";
+                        if (!epDocId.isEmpty()) {
+                            firestoreDbUtility.createOrMerge(collectionReference, epDocId, docData, new CallBack() {
+                                @Override
+                                public void onSuccess(Object object) {
+                                }
 
-                            @Override
-                            public void onFailure(Object object) {
-//                                            showToast(getString(R.string.label_error_occurred_with_val,object));
-                            }
-                        });
+                                @Override
+                                public void onFailure(Object object) {
+                                }
+                            });
+                        }
                     }
                 }));
                 showWarningDialog(config);
-                mBottomSheetDialog.dismiss();
+                if (mBottomSheetDialog != null) mBottomSheetDialog.dismiss();
             }
         });
 
@@ -469,42 +447,41 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                 ModelConfig config = new ModelConfig(R.drawable.world_map, getString(R.string.label_warning), getString(R.string.confirm_delete, obj.getEpName()), null, new ButtonConfig(getString(R.string.label_ok), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
-                        firestoreDbUtility.deleteDocument(collectionReference, obj.getEpId(), new CallBack() {
-                            @Override
-                            public void onSuccess(Object object) {
-                                showToast(getString(R.string.deleted_successfully_with_param, obj.getEpName()));
-                            }
+                        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection()
+                                .document(AppConstant.Firebase.EPISODES_COLLECTION)
+                                .collection(AppConstant.Firebase.EPISODES_COLLECTION);
 
-                            @Override
-                            public void onFailure(Object object) {
-                                showToast(getString(R.string.error_failure));
-                            }
-                        });
+                        String epDocId = obj.getEpId() != null && !obj.getEpId().isEmpty() ? obj.getEpId() : "";
+                        if (!epDocId.isEmpty()) {
+                            firestoreDbUtility.deleteDocument(collectionReference, epDocId, new CallBack() {
+                                @Override
+                                public void onSuccess(Object object) {
+                                    showToast(getString(R.string.deleted_successfully_with_param, obj.getEpName()));
+                                }
+
+                                @Override
+                                public void onFailure(Object object) {
+                                    showToast(getString(R.string.error_failure));
+                                }
+                            });
+                        }
                     }
                 }));
                 showWarningDialog(config);
-                mBottomSheetDialog.dismiss();
+                if (mBottomSheetDialog != null) mBottomSheetDialog.dismiss();
             }
         });
-
 
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
         this.mBottomSheetDialog = bottomSheetDialog;
         bottomSheetDialog.setContentView(inflate);
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21 && this.mBottomSheetDialog.getWindow() != null) {
             this.mBottomSheetDialog.getWindow().addFlags(67108864);
         }
         this.mBottomSheetDialog.show();
         this.mBottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             public void onDismiss(DialogInterface dialogInterface) {
                 mBottomSheetDialog = null;
-            }
-        });
-
-        inflate.findViewById(R.id.lyt_make_close).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                bottomSheetDialog.dismiss();
             }
         });
     }
@@ -514,82 +491,65 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         cf_container.setVisibility(hide ? View.VISIBLE : View.GONE);
     }
 
-    private void toggleLike(ImageView likeButton , Episode episode, String currentUserId, String radioId) {
-        if (currentUserId == null) {
-//            Toast.makeText(context, "Please sign in to like episodes", Toast.LENGTH_SHORT).show();
+    private void toggleLike(ImageView likeButton, Episode episode, String currentUserId) {
+        if (currentUserId == null || currentUserId.isEmpty()) {
             showToast(getString(R.string.goto_login));
             return;
         }
 
-//        progressBar.setVisibility(View.VISIBLE);
         likeButton.setEnabled(false);
 
+        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection()
+                .document(AppConstant.Firebase.EPISODES_COLLECTION)
+                .collection(AppConstant.Firebase.EPISODES_COLLECTION);
 
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
+        String epId = episode.getEpId() != null && !episode.getEpId().isEmpty() ? episode.getEpId() : "";
+        if (epId.isEmpty()) {
+            likeButton.setEnabled(true);
+            return;
+        }
 
-        db.runTransaction((Transaction.Function<Void>) transaction -> {
+        DocumentReference docRef = collectionReference.document(epId);
 
-            Map<String, Boolean> likes = episode.getEpisodeLikes();
-            if (likes == null) {
-                likes = new HashMap<>();
-            }
+        Map<String, Boolean> likes = episode.getEpisodeLikes();
+        if (likes == null) {
+            likes = new HashMap<>();
+        }
 
-            int newLikesCount = episode.getLikesCount();
+        int count = episode.getLikesCount();
+        boolean isLiked = Boolean.TRUE.equals(likes.get(currentUserId));
+        if (isLiked) {
+            likes.remove(currentUserId);
+            count = Math.max(0, count - 1);
+        } else {
+            likes.put(currentUserId, true);
+            count++;
+        }
 
-            if (likes.containsKey(currentUserId) &&
-                    Boolean.TRUE.equals(likes.get(currentUserId))) {
-                // Unlike
-                likes.remove(currentUserId);
-                newLikesCount--;
+        final int finalCount = count;
+        final boolean finalIsLiked = !isLiked;
+        final Map<String, Boolean> finalLikes = likes;
+
+        Map<String, Object> docData = new HashMap<>();
+        docData.put("episodeLikes", likes);
+        docData.put("likesCount", count);
+
+        docRef.set(docData, com.google.firebase.firestore.SetOptions.merge()).addOnSuccessListener(aVoid -> {
+            likeButton.setEnabled(true);
+            episode.setEpisodeLikes(finalLikes);
+            episode.setLikesCount(finalCount);
+            if (finalIsLiked) {
+                likeButton.setImageResource(R.drawable.ic_heart_small_blue);
             } else {
-                // Like
-                likes.put(currentUserId, true);
-                newLikesCount++;
+                likeButton.setImageResource(R.drawable.ic_heart_outline_grey);
             }
-
-            Map<String, Object> docData = new HashMap<>();
-            docData.put("episodeLikes", likes);
-            docData.put("likesCount", newLikesCount);
-            firestoreDbUtility.update(collectionReference, episode.getEpId(), docData, new CallBack() {
-                @Override
-                public void onSuccess(Object object) {
-//                    showToast(getString(R.string.done_successfully));
-                    LogUtility.d(LogUtility.TAG, "success set episodeLikes radioId : " + radioId + " docData is  : " + docData);
-                }
-
-                @Override
-                public void onFailure(Object object) {
-//                    showToast(getString(R.string.label_error_occurred_with_val, object));
-                    LogUtility.d(LogUtility.TAG, "failure set episodeLikes radioId : " + radioId + " docData is  : " + object);
-                }
-            });
-
-            return null;
-        }).addOnSuccessListener(aVoid -> {
-            // Update local data
-            boolean wasLiked = episode.isLikedBy(currentUserId);
-            if (wasLiked) {
-                episode.getEpisodeLikes().remove(currentUserId);
-                episode.setLikesCount(episode.getLikesCount() - 1);
-            } else {
-                episode.getEpisodeLikes().put(currentUserId, true);
-                episode.setLikesCount(episode.getLikesCount() + 1);
-            }
-
-            // Animate like button
             animateLikeButton(likeButton);
-
-            // Update UI
-//            updateLikeButtonState(episode);
-//            likesCountText.setText(String.valueOf(episode.getLikesCount()));
-
-//            progressBar.setVisibility(View.GONE);
-            likeButton.setEnabled(true);
-
+            if (adapter != null) {
+                adapter.notifyDataSetChanged();
+            }
         }).addOnFailureListener(e -> {
-//            showToast(getString(R.string.label_error_occurred_with_val, e.getMessage()));
-//            progressBar.setVisibility(View.GONE);
             likeButton.setEnabled(true);
+            LogUtility.e(LogUtility.TAG, "failure toggleLike: " + e.getMessage());
         });
     }
 

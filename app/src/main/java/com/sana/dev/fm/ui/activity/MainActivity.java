@@ -670,7 +670,7 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         if (isBound && radioPlayerService != null) {
             RadioInfo info = prefMgr != null ? DefaultStationPolicy.resolveActiveStation(prefMgr.selectedRadio(), prefMgr.getRadioList()) : null;
             if (info != null && prefMgr != null && prefMgr.selectedRadio() == null) {
-                prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, info);
+                prefMgr.write(AppConstant.Firebase.STATIONS_COLLECTION, info);
             }
             if (info != null && !Tools.isEmpty(info.getStreamUrl())) {
                 changeStation(info.getStreamUrl(), info.getName() + " " + info.getChannelFreq());

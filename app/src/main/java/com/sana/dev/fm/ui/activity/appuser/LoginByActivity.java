@@ -283,43 +283,36 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
     private void updateUI(FirebaseUser firebaseUser, UserModel userModel) {
         try {
             if (firebaseUser != null && userModel != null) {
-//                Log.d(TAG, "FirebaseUser: " + new Gson().toJson(user));
-
-//                String uid = firebaseUser.getUid();
-//                String email = firebaseUser.getEmail();
-//                String displayName = firebaseUser.getDisplayName();
-//                String phoneNumber = firebaseUser.getPhoneNumber();
-////                String getPhotoUrl = user.getPhotoUrl();
-//
-
                 List<UserInfo> providerData = (List<UserInfo>) firebaseUser.getProviderData();
+                boolean handled = false;
 
-                for (UserInfo userInfo : providerData) {
-                    String providerId = userInfo.getProviderId();
-                    userModel.setOtherData(providerId);
+                if (providerData != null) {
+                    for (UserInfo userInfo : providerData) {
+                        String providerId = userInfo.getProviderId();
+                        userModel.setOtherData(providerId);
 
-                    if (providerId.equals("facebook.com")) {
-                        // User signed in using Facebook
-                        userModel.setAuthMethod(AuthMethod.FACEBOOK);
-                        userModel.setVerified(true);
-                        checkUserAuth(userModel);
-                    } else if (providerId.equals("google.com")) {
-                        // User signed in using Google
-                        userModel.setAuthMethod(AuthMethod.GOOGLE);
-                        userModel.setVerified(true);
-                        checkUserAuth(userModel);
-                    } else if (providerId.equals("password")) {
-                        // User signed in using email and password
-                    } else if (providerId.equals("firebase")) {
-                        // User signed in using firebase
-                    } else {
-                        // Unknown provider
+                        if ("facebook.com".equals(providerId)) {
+                            userModel.setAuthMethod(AuthMethod.FACEBOOK);
+                            userModel.setVerified(true);
+                            checkUserAuth(userModel);
+                            handled = true;
+                            break;
+                        } else if ("google.com".equals(providerId)) {
+                            userModel.setAuthMethod(AuthMethod.GOOGLE);
+                            userModel.setVerified(true);
+                            checkUserAuth(userModel);
+                            handled = true;
+                            break;
+                        }
                     }
                 }
 
+                if (!handled) {
+                    checkUserAuth(userModel);
+                }
             }
         } catch (Exception e) {
-            LogUtility.e(TAG, "Failed to map authenticated user profile");
+            LogUtility.e(TAG, "Failed to map authenticated user profile: " + e.getMessage());
         }
     }
 
@@ -328,7 +321,9 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
         Intent intent = IntentHelper.userProfileActivity(LoginByActivity.this, true);
 
         FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.USERS_TABLE, AppConstant.Firebase.USERS_TABLE);
+        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection()
+                .document(AppConstant.Firebase.USERS_COLLECTION)
+                .collection(AppConstant.Firebase.USERS_COLLECTION);
         firestoreDbUtility.getOne(collectionReference, userModel.userId, new CallBack() {
             @Override
             public void onSuccess(Object object) {

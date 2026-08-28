@@ -89,8 +89,8 @@ public class AdminProgramsActivity extends BaseActivity {
         binding.lytEmpty.setVisibility(View.GONE);
 
         CollectionReference ref = firestoreDbUtility.getCollectionReference(
-                AppConstant.Firebase.RADIO_PROGRAM_TABLE,
-                AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+                AppConstant.Firebase.PROGRAMS_COLLECTION,
+                AppConstant.Firebase.PROGRAMS_COLLECTION);
 
         firestoreDbUtility.getMany(ref, new ArrayList<>(), new CallBack() {
             @Override
@@ -155,8 +155,8 @@ public class AdminProgramsActivity extends BaseActivity {
     private void deleteItem(RadioProgram item) {
         kProgressHUDHelper.showLoading("", false);
         CollectionReference ref = firestoreDbUtility.getCollectionReference(
-                AppConstant.Firebase.RADIO_PROGRAM_TABLE,
-                AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+                AppConstant.Firebase.PROGRAMS_COLLECTION,
+                AppConstant.Firebase.PROGRAMS_COLLECTION);
         firestoreDbUtility.deleteDocument(ref, item.getProgramId(), new CallBack() {
             @Override
             public void onSuccess(Object object) {
