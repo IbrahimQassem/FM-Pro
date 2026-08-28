@@ -3,9 +3,13 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     function isKnownRoot(root) {
-      return root == 'HudHudFM'
+      return root == 'HudHudOfficial'
+        || root == 'HudHudDev'
+        || root == 'HudHudFM'
         || root == 'HudHudFmGooglePlay'
         || root == 'InterNews'
+        || root == 'HudHudOfficial_Folder'
+        || root == 'HudHudDev_Folder'
         || root == 'HudHudFM_Folder'
         || root == 'HudHudFmGooglePlay_Folder'
         || root == 'InterNews_Folder';

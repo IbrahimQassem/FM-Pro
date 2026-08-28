@@ -3,7 +3,9 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isKnownRoot(root) {
-      return root == 'HudHudFM'
+      return root == 'HudHudOfficial'
+        || root == 'HudHudDev'
+        || root == 'HudHudFM'
         || root == 'HudHudFmGooglePlay'
         || root == 'InterNews';
     }

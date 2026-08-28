@@ -73,7 +73,7 @@ android {
             applicationId "com.sana.dev.fm"
             versionCode 27
             versionName "2.1.0"
-            buildConfigField "String", "BASE_FB_DB", '"HudHudFM"'
+            buildConfigField "String", "BASE_FB_DB", '"HudHudOfficial"'
             archivesBaseName = "hudhud-official-v($versionName)"
         }
 
@@ -85,7 +85,7 @@ android {
             versionCode 27
             versionName '2.1.0'
             versionNameSuffix '-dev'
-            buildConfigField "String", "BASE_FB_DB", '"HudHudFM_Dev"'
+            buildConfigField "String", "BASE_FB_DB", '"HudHudDev"'
         }
 
         internews {
