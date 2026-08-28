@@ -32,6 +32,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.ActivityLoginByBinding;
+import com.sana.dev.fm.data.mapper.UserMapper;
 import com.sana.dev.fm.model.AuthMethod;
 import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.enums.Gender;
@@ -50,6 +51,7 @@ import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.SignInListener {
@@ -329,18 +331,31 @@ public class LoginByActivity extends BaseActivity implements GoogleSignInHelper.
             public void onSuccess(Object object) {
                 DocumentSnapshot document = (DocumentSnapshot) object;
                 if (document != null && document.exists()) {
-                    UserModel user = document.toObject(UserModel.class);
-                    if (user == null || !userModel.userId.equals(user.getUserId())) {
-                        LogUtility.e(TAG, "Invalid user profile document");
-                        showToast(getString(R.string.unkon_error_please_try_again_later));
-                        return;
+                    UserModel user = null;
+                    try {
+                        user = document.toObject(UserModel.class);
+                    } catch (Exception e) {
+                        LogUtility.e(TAG, "Error deserializing user profile: " + e.getMessage());
+                    }
+                    if (user == null) {
+                        user = userModel;
+                    }
+                    if (user.getUserId() == null || user.getUserId().isEmpty()) {
+                        user.setUserId(document.getId());
+                    }
+                    if (user.getName() == null || user.getName().isEmpty()) {
+                        user.setName(userModel.getName());
+                    }
+                    if (user.getPhotoUrl() == null || user.getPhotoUrl().isEmpty()) {
+                        user.setPhotoUrl(userModel.getPhotoUrl());
                     }
                     // cause user logged with auth
                     prefMgr.setUserSession(user);
                     showToast(getString(R.string.login_successfully));
                     startActivity(intent);
                 } else {
-                    firestoreDbUtility.createOrMerge(collectionReference, userModel.userId, userModel, new CallBack() {
+                    Map<String, Object> canonicalUserData = UserMapper.toCanonicalFirestoreMap(userModel, true);
+                    firestoreDbUtility.createOrMerge(collectionReference, userModel.userId, canonicalUserData, new CallBack() {
                         @Override
                         public void onSuccess(Object object) {
                             prefMgr.setUserSession(userModel);

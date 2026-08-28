@@ -280,8 +280,9 @@
     <string name="label_select_weekdays">حدد أيام الأسبوع</string>
     <string name="label_hours">ساعة</string>
     <string name="label_minutes">دقيقة</string>
-    <string name="label_update_now">تحديث التطبيق</string>
-    <string name="label_force_update_title">التحديث الآن</string>
+    <string name="label_update_now">التحديث الآن</string>
+    <string name="label_force_update_title">تحديث مطلوب</string>
+    <string name="label_force_update_message">يرجى تحديث التطبيق إلى أحدث إصدار لمتابعة الاستخدام والاستمتاع بجميع الميزات والتحسينات الجديدة.</string>
     <string name="label_no">لا</string>
     <string name="label_yes">نعم</string>
 

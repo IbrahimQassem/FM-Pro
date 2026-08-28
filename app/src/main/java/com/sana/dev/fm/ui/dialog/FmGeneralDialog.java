@@ -1,5 +1,6 @@
 package com.sana.dev.fm.ui.dialog;
 
+import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import android.app.Activity;
@@ -7,39 +8,38 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.ViewDataBinding;
 
+import com.google.android.material.button.MaterialButton;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.databinding.DialogHeaderBinding;
 import com.sana.dev.fm.databinding.DialogWarningBinding;
+import com.sana.dev.fm.model.ButtonConfig;
 import com.sana.dev.fm.model.ModelConfig;
-import com.sana.dev.fm.utils.FmUtilize;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.Tools;
 
 public class FmGeneralDialog extends Dialog {
-    public static int VIEW_WARNING = 0;
-    public static int VIEW_INFO = 1;
-//        public DialogWarning instance;
+    public static final int VIEW_WARNING = 0;
+    public static final int VIEW_INFO = 1;
 
-    private Context context;
-    private ModelConfig config;
+    private final Context context;
+    private final ModelConfig config;
     private ViewDataBinding bindingType;
-
-//        public DialogWarning getInstance(Context context) {
-//            if (instance == null) {
-//                instance = new DialogWarning(context, VIEW_WARNING);
-//            }
-//            return instance;
-//        }
-
 
     public FmGeneralDialog(@NonNull Context context, ModelConfig config) {
         super(context);
@@ -50,121 +50,165 @@ public class FmGeneralDialog extends Dialog {
     @Override
     public void show() {
         try {
-            if (!((Activity) context).isFinishing()) {
-                getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-                lp.copyFrom(getWindow().getAttributes());
-                lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-                lp.height = WindowManager.LayoutParams.MATCH_PARENT;
-                getWindow().setAttributes(lp);
-                getWindow().getAttributes().windowAnimations = R.style.PauseDialogAnimation;
-                super.show();
-            } else {
-//                instance = null;
+            if (context instanceof Activity && ((Activity) context).isFinishing()) {
+                return;
             }
+            Window window = getWindow();
+            if (window != null) {
+                window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                lp.copyFrom(window.getAttributes());
+                lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                lp.dimAmount = 0.55f;
+                lp.flags |= WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+                window.setAttributes(lp);
+                window.getAttributes().windowAnimations = R.style.PauseDialogAnimation;
+            }
+            super.show();
         } catch (Exception e) {
-            LogUtility.e(LogUtility.tag(FmGeneralDialog.class), e.getMessage());
+            LogUtility.e(LogUtility.tag(FmGeneralDialog.class), "Error displaying FmGeneralDialog: " + e.getMessage());
         }
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-//            DialogWarningBinding binding = DialogWarningBinding.inflate(LayoutInflater.from(getContext()));
 
         if (VIEW_INFO == config.getViewType()) {
             bindingType = DialogHeaderBinding.inflate(LayoutInflater.from(getContext()));
-        } else if (VIEW_WARNING == config.getViewType()) {
+        } else {
             bindingType = DialogWarningBinding.inflate(LayoutInflater.from(getContext()));
         }
 
         setContentView(bindingType.getRoot());
         setCancelable(config.isCancellable());
+        setCanceledOnTouchOutside(config.isCancellable());
 
         if (bindingType instanceof DialogHeaderBinding) {
             DialogHeaderBinding binding = (DialogHeaderBinding) bindingType;
-
-            if (config.getIcon() < 1) {
-                binding.ivImage.setVisibility(View.GONE);
-            } else {
-                binding.ivImage.setVisibility(View.VISIBLE);
-                binding.ivImage.setImageResource(config.getIcon());
-
-            }
-
-            Tools.setTextOrHideIfEmpty(binding.tvTitle, config.getTitle());
-            Tools.setTextOrHideIfEmpty(binding.tvDesc, config.getDesc());
-
-            boolean isBtConfirm = (config.getBtnConfirm() != null ? config.getBtnConfirm().getName() : null) != null;
-            binding.btConfirm.setVisibility(isBtConfirm ? VISIBLE : View.GONE);
-            if (isBtConfirm) {
-                binding.btConfirm.setText(config.getBtnConfirm().getName());
-                binding.btConfirm.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dismiss();
-                        if (config.getBtnConfirm().getOnClickListener() != null)
-                            config.getBtnConfirm().getOnClickListener().onClick(v);
-                    }
-                });
-            }
-
-            boolean isBtCancel = (config.getBtnCancel() != null ? config.getBtnCancel().getName() : null) != null;
-            binding.btCancel.setVisibility(isBtCancel ? VISIBLE : View.GONE);
-            if (isBtCancel) {
-                binding.btCancel.setText(config.getBtnCancel().getName());
-            }
-
-            binding.btCancel.setOnClickListener(v -> {
-                dismiss();
-                if (config.getBtnCancel().getOnClickListener() != null)
-                    config.getBtnCancel().getOnClickListener().onClick(v);
-            });
+            bindViews(
+                    binding.flIconContainer,
+                    binding.ivImage,
+                    binding.tvTitle,
+                    binding.tvDesc,
+                    binding.lytActions,
+                    binding.btCancel,
+                    binding.btConfirm
+            );
         } else if (bindingType instanceof DialogWarningBinding) {
             DialogWarningBinding binding = (DialogWarningBinding) bindingType;
-
-            if (config.getIcon() < 1) {
-                binding.ivImage.setVisibility(View.GONE);
-            } else {
-                binding.ivImage.setVisibility(View.VISIBLE);
-                binding.ivImage.setImageResource(config.getIcon());
-
-            }
-
-            Tools.setTextOrHideIfEmpty(binding.tvTitle, config.getTitle());
-            Tools.setTextOrHideIfEmpty(binding.tvDesc, config.getDesc());
-
-            boolean isBtConfirm = (config.getBtnConfirm() != null ? config.getBtnConfirm().getName() : null) != null;
-            binding.btConfirm.setVisibility(isBtConfirm ? VISIBLE : View.GONE);
-            if (isBtConfirm) {
-                binding.btConfirm.setText(config.getBtnConfirm().getName());
-                binding.btConfirm.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dismiss();
-                        if (config.getBtnConfirm().getOnClickListener() != null)
-                            config.getBtnConfirm().getOnClickListener().onClick(v);
-                    }
-                });
-            }
-
-            boolean isBtCancel = (config.getBtnCancel() != null ? config.getBtnCancel().getName() : null) != null;
-            binding.btCancel.setVisibility(isBtCancel ? VISIBLE : View.GONE);
-            if (isBtCancel) {
-                binding.btCancel.setText(config.getBtnCancel().getName());
-            }
-
-            binding.btCancel.setOnClickListener(v -> {
-                dismiss();
-                if (config.getBtnCancel().getOnClickListener() != null)
-                    config.getBtnCancel().getOnClickListener().onClick(v);
-            });
+            bindViews(
+                    binding.flIconContainer,
+                    binding.ivImage,
+                    binding.tvTitle,
+                    binding.tvDesc,
+                    binding.lytActions,
+                    binding.btCancel,
+                    binding.btConfirm
+            );
         }
-
-
     }
 
+    private void bindViews(
+            FrameLayout flIconContainer,
+            ImageView ivImage,
+            TextView tvTitle,
+            TextView tvDesc,
+            LinearLayout lytActions,
+            MaterialButton btCancel,
+            MaterialButton btConfirm
+    ) {
+        // 1. Icon & Container
+        if (config.getIcon() < 1) {
+            if (flIconContainer != null) flIconContainer.setVisibility(GONE);
+            if (ivImage != null) ivImage.setVisibility(GONE);
+        } else {
+            if (flIconContainer != null) {
+                flIconContainer.setVisibility(VISIBLE);
+                // Apply semantic container styling
+                int containerColorRes = (config.getViewType() == VIEW_WARNING)
+                        ? R.color.md_theme_warningContainer
+                        : R.color.md_theme_primaryContainer;
+                int iconColorRes = (config.getViewType() == VIEW_WARNING)
+                        ? R.color.md_theme_warning
+                        : R.color.md_theme_primary;
 
+                GradientDrawable shape = new GradientDrawable();
+                shape.setShape(GradientDrawable.RECTANGLE);
+                shape.setCornerRadius(context.getResources().getDimension(R.dimen.corner_radius_lg));
+                shape.setColor(ContextCompat.getColor(context, containerColorRes));
+                flIconContainer.setBackground(shape);
+
+                if (ivImage != null) {
+                    ivImage.setVisibility(VISIBLE);
+                    ivImage.setImageResource(config.getIcon());
+                    ivImage.setColorFilter(ContextCompat.getColor(context, iconColorRes));
+                }
+            } else if (ivImage != null) {
+                ivImage.setVisibility(VISIBLE);
+                ivImage.setImageResource(config.getIcon());
+            }
+        }
+
+        // 2. Title & Description
+        Tools.setTextOrHideIfEmpty(tvTitle, config.getTitle());
+        Tools.setTextOrHideIfEmpty(tvDesc, config.getDesc());
+
+        // 3. Action Buttons Configuration
+        ButtonConfig confirmConfig = config.getBtnConfirm();
+        ButtonConfig cancelConfig = config.getBtnCancel();
+
+        boolean hasConfirm = confirmConfig != null && !Tools.isEmpty(confirmConfig.getName());
+        boolean hasCancel = cancelConfig != null && !Tools.isEmpty(cancelConfig.getName());
+
+        if (!hasConfirm && !hasCancel) {
+            if (lytActions != null) lytActions.setVisibility(GONE);
+            return;
+        }
+
+        if (lytActions != null) lytActions.setVisibility(VISIBLE);
+
+        // Single button vs Dual buttons margin adjustment for responsive balance
+        int marginXs = (int) context.getResources().getDimension(R.dimen.spacing_xs);
+
+        if (hasConfirm && hasCancel) {
+            // Dual button layout: equal weights with spacing
+            configureButton(btConfirm, confirmConfig, marginXs, 0);
+            configureButton(btCancel, cancelConfig, 0, marginXs);
+        } else if (hasConfirm) {
+            // Single confirm button (e.g. Force Update): full width prominent action
+            configureButton(btConfirm, confirmConfig, 0, 0);
+            if (btCancel != null) btCancel.setVisibility(GONE);
+        } else {
+            // Single cancel/dismiss button
+            configureButton(btCancel, cancelConfig, 0, 0);
+            if (btConfirm != null) btConfirm.setVisibility(GONE);
+        }
+    }
+
+    private void configureButton(MaterialButton button, ButtonConfig buttonConfig, int marginStart, int marginEnd) {
+        if (button == null) return;
+        button.setVisibility(VISIBLE);
+        button.setText(buttonConfig.getName());
+
+        if (buttonConfig.getTextColor() != -1) {
+            button.setTextColor(buttonConfig.getTextColor());
+        }
+
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) button.getLayoutParams();
+        if (params != null) {
+            params.setMarginStart(marginStart);
+            params.setMarginEnd(marginEnd);
+            button.setLayoutParams(params);
+        }
+
+        button.setOnClickListener(v -> {
+            dismiss();
+            if (buttonConfig.getOnClickListener() != null) {
+                buttonConfig.getOnClickListener().onClick(v);
+            }
+        });
+    }
 }

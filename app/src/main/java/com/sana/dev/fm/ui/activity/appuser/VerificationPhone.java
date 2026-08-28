@@ -35,10 +35,12 @@ import com.sana.dev.fm.utils.KProgressHUDHelper;
 import com.sana.dev.fm.utils.LogUtility;
 import com.sana.dev.fm.utils.PreferencesManager;
 import com.sana.dev.fm.utils.Tools;
+import com.sana.dev.fm.data.mapper.UserMapper;
 import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class VerificationPhone extends BaseActivity {
@@ -133,11 +135,20 @@ public class VerificationPhone extends BaseActivity {
 
                 DocumentSnapshot document = (DocumentSnapshot) object;
                 if (document != null && document.exists()) {
-                    UserModel user = document.toObject(UserModel.class);
-                    if (user == null || !firebaseUser.getUid().equals(user.getUserId())) {
-                        LogUtility.e(LogUtility.TAG, "Invalid user profile document");
-                        showToast(getString(R.string.unkon_error_please_try_again_later));
-                        return;
+                    UserModel user = null;
+                    try {
+                        user = document.toObject(UserModel.class);
+                    } catch (Exception e) {
+                        LogUtility.e(LogUtility.TAG, "Error deserializing user profile: " + e.getMessage());
+                    }
+                    if (user == null) {
+                        user = new UserModel();
+                    }
+                    if (user.getUserId() == null || user.getUserId().isEmpty()) {
+                        user.setUserId(firebaseUser.getUid());
+                    }
+                    if (user.getMobile() == null || user.getMobile().isEmpty()) {
+                        user.setMobile(userMobile);
                     }
                     // cause user logged with auth
                     user.setVerified(true);
@@ -150,7 +161,8 @@ public class VerificationPhone extends BaseActivity {
                     String name = firebaseUser.getDisplayName();
                     UserModel obUser = new UserModel(uid, name, null, userMobile, null, null, null, null, null, true, false, false, null, null, Gender.UNKNOWN, null, null, System.currentTimeMillis(), UserType.USER, AuthMethod.SMS, Tools.getFormattedDateTimeSimple(System.currentTimeMillis(), FmUtilize.englishFormat), null, null, new ArrayList<>());
 
-                    firestoreDbUtility.createOrMerge(collectionReference, obUser.userId, obUser, new CallBack() {
+                    Map<String, Object> canonicalData = UserMapper.toCanonicalFirestoreMap(obUser, true);
+                    firestoreDbUtility.createOrMerge(collectionReference, obUser.userId, canonicalData, new CallBack() {
                         @Override
                         public void onSuccess(Object object) {
                             prefMgr.setUserSession(obUser);

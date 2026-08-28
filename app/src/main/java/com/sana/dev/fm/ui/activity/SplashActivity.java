@@ -372,7 +372,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void showDialogForForceUpdate() {
-        ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_update_now), getString(R.string.label_force_update_message), null, new ButtonConfig(getString(R.string.label_force_update_title), new View.OnClickListener() {
+        ModelConfig config = new ModelConfig(R.drawable.ic_warning, getString(R.string.label_force_update_title), getString(R.string.label_force_update_message), null, new ButtonConfig(getString(R.string.label_update_now), new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Open app store to download the update

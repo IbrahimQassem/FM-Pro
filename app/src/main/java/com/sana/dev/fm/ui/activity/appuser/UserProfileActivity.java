@@ -27,6 +27,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.storage.FirebaseStorage;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.admin.AdminDashboardActivity;
@@ -384,9 +385,12 @@ public class UserProfileActivity extends BaseActivity {
 //            updateUser(user);
                 Map<String, Object> data = new HashMap<>();
                 data.put("name", userModel.getName());
+                data.put("displayName", userModel.getName());
                 data.put("email", userModel.getEmail());
                 data.put("mobile", userModel.getMobile());
-                data.put("gender", userModel.getGender());
+                data.put("phoneNumber", userModel.getMobile());
+                data.put("gender", userModel.getGender() != null ? userModel.getGender().name() : "UNKNOWN");
+                data.put("updatedAt", FieldValue.serverTimestamp());
 
                 prefMgr.setUserSession(userModel);
 
@@ -422,6 +426,8 @@ public class UserProfileActivity extends BaseActivity {
                 userModel.setPhotoUrl(profileImageUrl);
                 Map<String, Object> data = new HashMap<>();
                 data.put("photoUrl", userModel.getPhotoUrl());
+                data.put("avatarUrl", userModel.getPhotoUrl());
+                data.put("updatedAt", FieldValue.serverTimestamp());
                 prefMgr.setUserSession(userModel);
                 updateUser(userModel.getUserId(),data);
             }

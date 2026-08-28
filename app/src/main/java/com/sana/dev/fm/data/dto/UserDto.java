@@ -7,6 +7,7 @@ import com.google.firebase.firestore.ServerTimestamp;
 
 /**
  * Data Transfer Object for Firestore 'users' documents.
+ * Fully compatible with canonical schema and legacy fields.
  */
 @IgnoreExtraProperties
 public class UserDto {
@@ -31,6 +32,8 @@ public class UserDto {
     private Timestamp lastActiveAt;
     @ServerTimestamp
     private Timestamp createdAt;
+    @ServerTimestamp
+    private Timestamp updatedAt;
 
     public UserDto() {
     }
@@ -75,7 +78,7 @@ public class UserDto {
     public void setOnline(boolean online) { isOnline = online; }
 
     public boolean isActive() { return isActive; }
-    public void setActive(boolean active) { isActive = active; }
+    public void setActive(boolean active) { this.isActive = active; }
 
     public boolean isEmailVerified() { return isEmailVerified; }
     public void setEmailVerified(boolean emailVerified) { isEmailVerified = emailVerified; }
@@ -88,4 +91,52 @@ public class UserDto {
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+
+    public Timestamp getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
+
+    // --- Legacy Fallback Setters for Interoperability ---
+    public void setName(String name) {
+        if (this.displayName == null || this.displayName.isEmpty()) {
+            this.displayName = name;
+        }
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        if (this.avatarUrl == null || this.avatarUrl.isEmpty()) {
+            this.avatarUrl = photoUrl;
+        }
+    }
+
+    public void setMobile(String mobile) {
+        if (this.phoneNumber == null || this.phoneNumber.isEmpty()) {
+            this.phoneNumber = mobile;
+        }
+    }
+
+    public void setNickNme(String nickNme) {
+        if (this.username == null || this.username.isEmpty()) {
+            this.username = nickNme;
+        }
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.isActive = !disabled;
+    }
+
+    public void setUserId(String userId) {
+        if (this.uid == null || this.uid.isEmpty()) {
+            this.uid = userId;
+        }
+    }
+
+    public void setUserType(String userType) {
+        if (this.role == null || this.role.isEmpty()) {
+            this.role = "admin".equalsIgnoreCase(userType) ? "admin" : "listener";
+        }
+    }
+
+    public void setVerified(boolean verified) {
+        this.isEmailVerified = verified;
+    }
 }

@@ -3,90 +3,109 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="wrap_content"
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@android:color/white"
-        app:cardCornerRadius="@dimen/spacing_xmedium"
-        app:cardElevation="3dp"
-        app:cardUseCompatPadding="true">
+        android:layout_gravity="center"
+        android:layout_marginStart="@dimen/spacing_lg"
+        android:layout_marginEnd="@dimen/spacing_lg"
+        app:cardBackgroundColor="@color/md_theme_surface"
+        app:cardCornerRadius="@dimen/corner_radius_xl"
+        app:cardElevation="@dimen/elevation_level3"
+        app:cardUseCompatPadding="false"
+        app:strokeWidth="0dp">
 
         <LinearLayout
-            android:layout_width="280dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:paddingBottom="@dimen/spacing_middle">
+            android:paddingStart="@dimen/spacing_lg"
+            android:paddingTop="@dimen/spacing_xl"
+            android:paddingEnd="@dimen/spacing_lg"
+            android:paddingBottom="@dimen/spacing_lg">
 
-            <ImageView
-                android:id="@+id/iv_image"
-                android:layout_width="match_parent"
-                android:layout_height="220dp"
-                android:scaleType="centerCrop"
-                android:visibility="visible"
-                app:srcCompat="@drawable/logo_app" />
+            <!-- Icon Container with tinted squircle background -->
+            <FrameLayout
+                android:id="@+id/fl_icon_container"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="@drawable/bg_dialog_icon_container">
 
-            <LinearLayout
+                <ImageView
+                    android:id="@+id/iv_image"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@null"
+                    app:srcCompat="@drawable/ic_info"
+                    app:tint="@color/md_theme_info" />
+            </FrameLayout>
+
+            <!-- Dialog Title -->
+            <TextView
+                android:id="@+id/tv_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:fontFamily="@font/tj_bold"
                 android:gravity="center"
-                android:orientation="vertical"
-                android:padding="@dimen/spacing_large">
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.FMPro.TitleLarge"
+                android:textColor="@color/md_theme_onSurface"
+                tools:text="@string/label_title" />
 
-                <TextView
-                    android:id="@+id/tv_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:elegantTextHeight="true"
-                    android:textAlignment="center"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                    android:textColor="@color/grey_95"
-                    app:fontFamily="@font/tj_bold"
-                    tools:text="@string/label_title" />
-
-                <View
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/spacing_middle" />
-
-                <TextView
-                    android:id="@+id/tv_desc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_medium"
-                    android:elegantTextHeight="true"
-                    android:fontFamily="@font/tj_regular"
-                    android:textAlignment="center"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                    android:textColor="@color/grey_60"
-                    tools:text="@string/lorem_ipsum" />
-            </LinearLayout>
-
-            <LinearLayout
+            <!-- Dialog Description / Body -->
+            <TextView
+                android:id="@+id/tv_desc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/spacing_medium"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:fontFamily="@font/tj_regular"
+                android:gravity="center"
+                android:lineSpacingExtra="3dp"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.FMPro.BodyMedium"
+                android:textColor="@color/md_theme_onSurfaceVariant"
+                tools:text="@string/lorem_ipsum" />
+
+            <!-- Action Buttons Container (Supports 1 or 2 buttons with 48dp touch targets) -->
+            <LinearLayout
+                android:id="@+id/lyt_actions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_lg"
                 android:gravity="center"
                 android:orientation="horizontal">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/bt_cancel"
-                    style="@style/Button.Primary.Borderless"
-                    android:layout_width="wrap_content"
+                    style="@style/Widget.FMPro.Button.Outlined"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
+                    android:layout_marginEnd="@dimen/spacing_xs"
+                    android:layout_weight="1"
+                    android:minHeight="@dimen/min_touch_target_size"
                     android:text="@string/label_cancel"
-                    android:textColor="@color/colorPrimary" />
+                    android:textColor="@color/md_theme_onSurfaceVariant"
+                    app:cornerRadius="@dimen/corner_radius_full"
+                    app:strokeColor="@color/md_theme_outlineVariant" />
 
-
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/bt_confirm"
-                    android:layout_width="wrap_content"
+                    style="@style/Widget.FMPro.Button.Primary"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
+                    android:layout_marginStart="@dimen/spacing_xs"
+                    android:layout_weight="1"
+                    android:minHeight="@dimen/min_touch_target_size"
                     android:text="@string/label_ok"
-                    android:theme="@style/Button_Primary" />
-
+                    android:textColor="@color/md_theme_onPrimary"
+                    app:backgroundTint="@color/md_theme_primary"
+                    app:cornerRadius="@dimen/corner_radius_full" />
             </LinearLayout>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
 
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 </layout>
