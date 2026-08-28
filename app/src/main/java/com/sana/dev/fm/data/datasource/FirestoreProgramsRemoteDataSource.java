@@ -28,34 +28,57 @@ public class FirestoreProgramsRemoteDataSource implements ProgramsRemoteDataSour
 
     private CollectionReference getProgramsCollection(String baseDb, String radioId) {
         return firestore.collection(baseDb)
-                .document(AppConstant.Firebase.RADIO_PROGRAM_TABLE)
-                .collection(radioId)
-                .document(AppConstant.Firebase.RADIO_PROGRAM_TABLE)
-                .collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
+                .document(AppConstant.Firebase.PROGRAMS_COLLECTION)
+                .collection(AppConstant.Firebase.PROGRAMS_COLLECTION);
     }
 
     @Override
     public void fetchPrograms(String baseDb, String radioId, DataSourceCallback<List<RadioProgram>> callback) {
-        if (baseDb == null || baseDb.trim().isEmpty() || radioId == null || radioId.trim().isEmpty()) {
+        if (baseDb == null || baseDb.trim().isEmpty()) {
             if (callback != null) {
-                callback.onError(new IllegalArgumentException("baseDb and radioId must not be empty"));
+                callback.onError(new IllegalArgumentException("baseDb must not be empty"));
             }
             return;
         }
 
-        getProgramsCollection(baseDb.trim(), radioId.trim())
-                .whereEqualTo("disabled", false)
+        getProgramsCollection(baseDb.trim(), radioId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<RadioProgram> programs = new ArrayList<>();
                     if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
                         for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
                             RadioProgram item = doc.toObject(RadioProgram.class);
-                            if (item != null) {
-                                if (item.getProgramId() == null || item.getProgramId().isEmpty()) {
-                                    item.setProgramId(doc.getId());
+                            if (item == null) {
+                                item = new RadioProgram();
+                            }
+
+                            // Map Canonical fields if not present in legacy model
+                            if (item.getPrName() == null || item.getPrName().isEmpty()) {
+                                String title = doc.getString("title");
+                                if (title != null) item.setPrName(title);
+                            }
+                            if (item.getPrDesc() == null || item.getPrDesc().isEmpty()) {
+                                String desc = doc.getString("description");
+                                if (desc != null) item.setPrDesc(desc);
+                            }
+                            if (item.getPrProfile() == null || item.getPrProfile().isEmpty()) {
+                                String cover = doc.getString("coverUrl");
+                                if (cover != null) item.setPrProfile(cover);
+                            }
+                            if (item.getRadioId() == null || item.getRadioId().isEmpty()) {
+                                String sId = doc.getString("stationId");
+                                if (sId != null) item.setRadioId(sId);
+                            }
+
+                            if (item.getProgramId() == null || item.getProgramId().isEmpty()) {
+                                item.setProgramId(doc.getId());
+                            }
+
+                            // Filter by radioId if specified
+                            if (radioId == null || radioId.trim().isEmpty() || radioId.equals(item.getRadioId())) {
+                                if (!item.isDisabled()) {
+                                    programs.add(item);
                                 }
-                                programs.add(item);
                             }
                         }
                     }

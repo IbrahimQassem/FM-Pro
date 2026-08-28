@@ -48,16 +48,34 @@ public class AppConstant {
         public static final String APP_REMOTE_CONFIG = "appRemoteConfig";
     }
 
-    public class Firebase {
+    public static class Firebase {
+        // Canonical collections
+        public static final String STATIONS_COLLECTION = "stations";
+        public static final String PROGRAMS_COLLECTION = "programs";
+        public static final String EPISODES_COLLECTION = "episodes";
+        public static final String USERS_COLLECTION = "users";
+        public static final String BANNERS_COLLECTION = "banners";
+
+        // Canonical subcollections
+        public static final String LIKES_SUBCOLLECTION = "likes";
+        public static final String COMMENTS_SUBCOLLECTION = "comments";
+        public static final String FAVORITES_SUBCOLLECTION = "favorites";
+        public static final String SUBSCRIPTIONS_SUBCOLLECTION = "subscriptions";
+
+        // Legacy table constants (preserved for backward compatibility where needed)
         public static final String RADIO_INFO_TABLE = "RadioInfo";
         public static final String RADIO_PROGRAM_TABLE = "RadioProgram";
         public static final String EPISODE_TABLE = "Episode";
         public static final String USERS_TABLE = "Users";
         public static final String COMMENT_TABLE = "Comment";
         public static final String ADVERTISEMENT_TABLE = "Advertisement";
-        //    public static String LIKED_USERS = "Liked_Users";
-//    public static String FAVORITE_USERS = "Favorite_Users";
+    }
 
-
+    public static class StoragePaths {
+        public static final String USERS_DIR = "users";
+        public static final String STATIONS_DIR = "stations";
+        public static final String PROGRAMS_DIR = "programs";
+        public static final String EPISODES_DIR = "episodes";
+        public static final String BANNERS_DIR = "banners";
     }
 }

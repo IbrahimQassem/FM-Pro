@@ -1,14 +1,16 @@
 package com.sana.dev.fm.model;
 
 
-import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.Serializable;
 
+@IgnoreExtraProperties
 public class RadioInfo implements Serializable {
 
+    @Exclude
     private int id;
 //    @DocumentId
     private String radioId;
@@ -54,10 +56,12 @@ public class RadioInfo implements Serializable {
         return json;
     }
 
+    @com.google.firebase.firestore.Exclude
     public int getId() {
         return id;
     }
 
+    @com.google.firebase.firestore.Exclude
     public void setId(int id) {
         this.id = id;
     }

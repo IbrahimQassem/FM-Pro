@@ -141,49 +141,101 @@ public class SplashActivity extends AppCompatActivity {
     }
 
 
+    private List<RadioInfo> loadSeedRadioInfoList() {
+        List<com.sana.dev.fm.domain.model.Station> stations = com.sana.dev.fm.data.datasource.LocalSeedStationDataSource.loadSeedStations(this);
+        List<RadioInfo> list = new ArrayList<>();
+        if (stations != null) {
+            for (com.sana.dev.fm.domain.model.Station s : stations) {
+                RadioInfo r = new RadioInfo();
+                r.setRadioId(s.getId());
+                r.setName(s.getName());
+                r.setEnName(s.getNameEn());
+                r.setDesc(s.getDescription());
+                r.setChannelFreq(s.getFrequency());
+                r.setCity(s.getCity());
+                r.setStreamUrl(s.getStreamUrl());
+                r.setLogo(s.getLogoUrl());
+                r.setPriority(s.getPriority());
+                r.setOnline(s.isLive());
+                r.setDisabled(!s.isActive());
+                list.add(r);
+            }
+        }
+        return list;
+    }
+
     private void loadRadios() {
         FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
+        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection()
+                .document(AppConstant.Firebase.STATIONS_COLLECTION)
+                .collection(AppConstant.Firebase.STATIONS_COLLECTION);
 
-        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
-
-        firestoreQueryList.add(new FirestoreQuery(
-                FirestoreQueryConditionCode.Query_Direction_DESCENDING,
-                "priority",
-                Query.Direction.DESCENDING
-        ));
-
-        firestoreQueryList.add(new FirestoreQuery(
-                FirestoreQueryConditionCode.WHERE_EQUAL_TO,
-                "disabled",
-                false
-        ));
-
-        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.RADIO_INFO_TABLE).collection(AppConstant.Firebase.RADIO_INFO_TABLE);
-        firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
-            @Override
-            public void onSuccess(Object object) {
-                List<RadioInfo> radioInfoList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioInfo.class);
-                ShardDate.getInstance().setRadioInfoList(radioInfoList);
-                if (radioInfoList != null) {
-                    prefMgr.setRadioInfo(new ArrayList<>(radioInfoList));
+        collectionReference.get().addOnSuccessListener(queryDocumentSnapshots -> {
+            List<RadioInfo> activeList = new ArrayList<>();
+            if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+                for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                    RadioInfo r = doc.toObject(RadioInfo.class);
+                    if (r == null) {
+                        r = new RadioInfo();
+                    }
+                    if (r.getRadioId() == null || r.getRadioId().isEmpty()) {
+                        r.setRadioId(doc.getId());
+                    }
+                    // Canonical schema fallback mapping
+                    if (r.getName() == null || r.getName().isEmpty()) {
+                        String name = doc.getString("name");
+                        if (name != null) r.setName(name);
+                    }
+                    if (r.getChannelFreq() == null || r.getChannelFreq().isEmpty()) {
+                        String freq = doc.getString("frequency");
+                        if (freq != null) r.setChannelFreq(freq);
+                    }
+                    if (r.getStreamUrl() == null || r.getStreamUrl().isEmpty()) {
+                        String streamUrl = doc.getString("streamUrl");
+                        if (streamUrl != null) r.setStreamUrl(streamUrl);
+                    }
+                    if (r.getLogo() == null || r.getLogo().isEmpty()) {
+                        String logo = doc.getString("logoUrl");
+                        if (logo != null) r.setLogo(logo);
+                    }
+                    if (r.getCity() == null || r.getCity().isEmpty()) {
+                        String city = doc.getString("city");
+                        if (city != null) r.setCity(city);
+                    }
+                    Boolean isActive = doc.getBoolean("isActive");
+                    if (isActive != null) {
+                        r.setDisabled(!isActive);
+                    }
+                    Long priority = doc.getLong("priority");
+                    if (priority != null) {
+                        r.setPriority(priority.intValue());
+                    }
+                    Boolean isLive = doc.getBoolean("isLive");
+                    if (isLive != null) {
+                        r.setOnline(isLive);
+                    }
+                    if (!r.isDisabled()) {
+                        activeList.add(r);
+                    }
                 }
-                RadioInfo activeStation = DefaultStationPolicy.resolveActiveStation(prefMgr.selectedRadio(), radioInfoList);
-                prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, activeStation);
-                openMainActivity();
+                activeList.sort((a, b) -> Integer.compare(b.getPriority(), a.getPriority()));
             }
-
-            @Override
-            public void onFailure(Object object) {
-                LogUtility.e(TAG, "Radio refresh unavailable; using cached stations");
-                List<RadioInfo> cachedRadios = prefMgr.getRadioList();
-                if (cachedRadios == null) {
-                    cachedRadios = new ArrayList<>();
-                }
-                ShardDate.getInstance().setRadioInfoList(cachedRadios);
-                RadioInfo activeStation = DefaultStationPolicy.resolveActiveStation(prefMgr.selectedRadio(), cachedRadios);
-                prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, activeStation);
-                openMainActivity();
+            if (activeList.isEmpty()) {
+                activeList = loadSeedRadioInfoList();
             }
+            ShardDate.getInstance().setRadioInfoList(activeList);
+            prefMgr.setRadioInfo(new ArrayList<>(activeList));
+            RadioInfo activeStation = DefaultStationPolicy.resolveActiveStation(prefMgr.selectedRadio(), activeList);
+            prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, activeStation);
+            openMainActivity();
+        }).addOnFailureListener(e -> {
+            LogUtility.e(TAG, "Radio refresh unavailable; using seed stations: " + e.getMessage());
+            List<RadioInfo> fallback = loadSeedRadioInfoList();
+            ShardDate.getInstance().setRadioInfoList(fallback);
+            prefMgr.setRadioInfo(new ArrayList<>(fallback));
+            RadioInfo activeStation = DefaultStationPolicy.resolveActiveStation(prefMgr.selectedRadio(), fallback);
+            prefMgr.write(AppConstant.Firebase.RADIO_INFO_TABLE, activeStation);
+            openMainActivity();
         });
     }
 

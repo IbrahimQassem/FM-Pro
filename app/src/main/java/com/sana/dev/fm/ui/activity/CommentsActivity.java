@@ -142,9 +142,9 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
             return;
         }
 
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId)
-                .document(AppConstant.Firebase.EPISODE_TABLE)
-                .collection(AppConstant.Firebase.EPISODE_TABLE);
+        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection()
+                .document(AppConstant.Firebase.EPISODES_COLLECTION)
+                .collection(AppConstant.Firebase.EPISODES_COLLECTION);
 
         query = collectionReference
                 .document(epId)
@@ -238,9 +238,9 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     @Override
     public void onSendClickListener(View v) {
         if (validateComment()) {
-            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId)
-                    .document(AppConstant.Firebase.EPISODE_TABLE)
-                    .collection(AppConstant.Firebase.EPISODE_TABLE);
+            CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection()
+                    .document(AppConstant.Firebase.EPISODES_COLLECTION)
+                    .collection(AppConstant.Firebase.EPISODES_COLLECTION);
 
             CollectionReference colRef = collectionReference
                     .document(epId)

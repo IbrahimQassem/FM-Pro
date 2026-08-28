@@ -312,36 +312,22 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
     }
 
     private void loadDestinations() {
-//        addDummyDestinations();
-        List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
+        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection()
+                .document(AppConstant.Firebase.BANNERS_COLLECTION)
+                .collection(AppConstant.Firebase.BANNERS_COLLECTION);
 
-        firestoreQueryList.add(new FirestoreQuery(
-                FirestoreQueryConditionCode.Query_Direction_DESCENDING,
-                "rating",
-                Query.Direction.DESCENDING
-        ));
-
-//     db.collection("destinations").orderBy("rating", Query.Direction.DESCENDING).limit(10)
-        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection().document(AppConstant.Firebase.ADVERTISEMENT_TABLE).collection(AppConstant.Firebase.ADVERTISEMENT_TABLE);
-        firestoreDbUtility.getMany(collectionReference, firestoreQueryList, new CallBack() {
-            @Override
-            public void onSuccess(Object object) {
-//                Map<String, Object> resultMap = new Gson().fromJson(object.toString(), Map.class);
-                LogUtility.w(TAG, " loadDestinations onSuccess:  " + object.toString());
-                destinationList = FirestoreDbUtility.getDataFromQuerySnapshot(object, DestinationModel.class);
-//                String obj = new Gson().toJson(destinationList);
-//                LogUtility.w(TAG, " loadDestinations onSuccess data:  " + obj);
-                // Sort destinations by priority
+        collectionReference.get().addOnSuccessListener(queryDocumentSnapshots -> {
+            if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+                destinationList = FirestoreDbUtility.getDataFromQuerySnapshot(queryDocumentSnapshots, DestinationModel.class);
+                if (destinationList == null) {
+                    destinationList = new ArrayList<>();
+                }
                 List<DestinationModel> sortedDestinations = getSortedDestinations(destinationList);
                 sliderAdapter.setDestinations(sortedDestinations);
-
                 setupDots();
             }
-
-            @Override
-            public void onFailure(Object object) {
-                LogUtility.e(TAG, " loadDestinations onFailure:  " + object);
-            }
+        }).addOnFailureListener(e -> {
+            LogUtility.e(TAG, " loadDestinations onFailure: " + e.getMessage());
         });
     }
 

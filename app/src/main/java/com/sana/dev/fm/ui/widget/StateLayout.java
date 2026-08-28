@@ -104,7 +104,12 @@ public class StateLayout extends FrameLayout {
         if (btnAction != null) {
             if (onActionClick != null) {
                 btnAction.setVisibility(VISIBLE);
-                btnAction.setOnClickListener(v -> onActionClick.run());
+                btnAction.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onActionClick.run();
+                    }
+                });
             } else {
                 btnAction.setVisibility(GONE);
             }
@@ -129,7 +134,12 @@ public class StateLayout extends FrameLayout {
 
         MaterialButton btnRetry = errorView.findViewById(R.id.state_error_retry_button);
         if (btnRetry != null && onRetryClick != null) {
-            btnRetry.setOnClickListener(v -> onRetryClick.run());
+            btnRetry.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onRetryClick.run();
+                }
+            });
         }
 
         hideAllExcept(errorView);
@@ -141,7 +151,12 @@ public class StateLayout extends FrameLayout {
 
         MaterialButton btnRetry = offlineView.findViewById(R.id.state_offline_retry_button);
         if (btnRetry != null && onRetryClick != null) {
-            btnRetry.setOnClickListener(v -> onRetryClick.run());
+            btnRetry.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onRetryClick.run();
+                }
+            });
         }
 
         hideAllExcept(offlineView);

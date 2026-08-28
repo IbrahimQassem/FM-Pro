@@ -247,5 +247,33 @@ public class Episode implements Serializable {
         this.showTimeList = showTimeList;
     }
 
+    // Canonical schema aliases
+    public void setTitle(String title) {
+        if (title != null) this.epName = title;
+    }
+
+    public void setDescription(String desc) {
+        if (desc != null) this.epDesc = desc;
+    }
+
+    public void setCoverUrl(String coverUrl) {
+        if (coverUrl != null) this.epProfile = coverUrl;
+    }
+
+    public void setAudioUrl(String audioUrl) {
+        if (audioUrl != null) this.epStreamUrl = audioUrl;
+    }
+
+    public void setStationId(String stationId) {
+        if (stationId != null) this.radioId = stationId;
+    }
+
+    public void setId(String id) {
+        if (id != null) this.epId = id;
+    }
+
+    public void setIsActive(boolean active) {
+        this.disabled = !active;
+    }
 }
 

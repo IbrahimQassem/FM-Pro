@@ -1,60 +1,55 @@
 # Firebase and data contract
 
-الحالة: ملزم  
+الحالة: ملزم
 المالك: Firebase security agent
+القرار المرجعي: [ADR-0003](../decisions/ADR-0003-standard-firebase-architecture.md)
 
-دليل التنفيذ الحالي ومساراته موثق في
-[جرد Firebase الحالي](../firebase/current-schema-inventory.md). هذا الجرد وصفي؛
-هذا العقد وحده يحدد الحدود الملزمة.
+## 1. السلطة والمجموعات المعيارية
 
-## السلطة الحالية
+- اسم جذر البيانات يأتي فقط من `BuildConfig.BASE_FB_DB` لكل flavor (`HudHudFM`, `HudHudFmGooglePlay`, `InterNews`).
+- أسماء المجموعات والمسارات المعيارية تعرف مركزياً في `com.sana.dev.fm.utils.AppConstant`:
+  - `stations`: محطات البث الإذاعي `/{root}/stations/{stationId}`
+  - `programs`: البرامج الإذاعية `/{root}/programs/{programId}`
+  - `episodes`: الحلقات المسجلة `/{root}/episodes/{episodeId}`
+  - `users`: ملفات المستخدمين `/{root}/users/{uid}`
+  - `banners`: اللافتات والإعلانات `/{root}/banners/{bannerId}`
 
-- اسم جذر البيانات يأتي فقط من `BuildConfig.BASE_FB_DB` لكل flavor.
-- أسماء collections الحالية تعرف فقط في
-  `app/src/main/java/com/sana/dev/fm/utils/AppConstant.java` حتى إنشاء schema
-  typed بديل واعتماد ADR.
-- collections المعروفة: `RadioInfo`, `RadioProgram`, `Episode`, `Users`,
-  `Comment`, `Advertisement`.
+### المجموعات الفرعية (Subcollections):
+- `episodes/{episodeId}/likes/{uid}`: سجل إعجابات الحلقة
+- `episodes/{episodeId}/comments/{commentId}`: تعليقات المستمعين
+- `users/{uid}/favorites/{targetId}`: العناصر المفضلة للمستخدم
+- `users/{uid}/subscriptions/{programId}`: اشتراكات المستخدم في البرامج
 
-لا تكرر اسم collection نصيًا في شاشة أو Adapter. أي مسار جديد يمر عبر data
-source أو repository واحد.
+---
 
-## ملكية البيانات
+## 2. ملكية البيانات والصلاحيات
 
-| الكيان | المعرف الثابت | جهة الكتابة | سلوك الغياب |
+| الكيان | المسار المعتمد | جهة الكتابة | سلوك الغياب / القراءة غير المصرح بها |
 |---|---|---|---|
-| Station | `radioId` | Admin فقط | استبعاد السجل وتسجيل خطأ schema |
-| Program | `programId` + `radioId` | Admin فقط | حالة محتوى غير متاح |
-| Episode | `epId` + parent IDs | Admin فقط | لا تعرض رابطًا فارغًا |
-| User | Firebase UID | المستخدم/خدمة موثوقة | anonymous listener mode |
-| Comment | document ID + author UID | مستخدم موثق | رفض الكتابة مع رسالة تسجيل دخول |
+| Station | `/{root}/stations/{stationId}` | Admin فقط | استبعاد السجل وتسجيل خطأ schema |
+| Program | `/{root}/programs/{programId}` | Admin فقط | حالة محتوى غير متاح |
+| Episode | `/{root}/episodes/{episodeId}` | Admin فقط | لا تعرض رابطاً فارغاً |
+| Episode Like | `/{root}/episodes/{episodeId}/likes/{uid}` | المستخدم الموثق (UID) | قراءة الحالة للمستخدم فقط |
+| Comment | `/{root}/episodes/{episodeId}/comments/{commentId}` | الكاتب الموثق (UID) | رفض الكتابة مع رسالة تسجيل دخول |
+| User | `/{root}/users/{uid}` | صاحب الـ UID فقط / Admin | وضع المستمع الزائر (Anonymous) |
+| Banner | `/{root}/banners/{bannerId}` | Admin فقط | تجاهل اللافتة |
 
-يجب تثبيت الحقول الإلزامية وأنواعها في اختبارات mapper قبل أي migration بيانات.
-حتى ذلك الوقت، لا تغير أسماء الحقول أو شكل المسارات ضمن تحديث واجهة فقط.
+---
 
-## حدود القراءة والكتابة
+## 3. معايير أنواع البيانات والتسميات
 
-- UI يطلب use case ويستهلك domain state.
-- repository يملك الاستعلام، pagination، retries والتحويل.
-- DTO يطابق Firebase؛ domain model لا يحمل `DocumentSnapshot` أو `Task`.
-- أخطاء permission وoffline وnot-found وinvalid-data أنواع مختلفة.
-- الاستماع realtime يملك lifecycle واضحًا ويتم إلغاؤه عند انتهاء المالك.
+1. **التواريخ:** تستخدم كائنات `com.google.firebase.Timestamp` حصرياً مع `FieldValue.serverTimestamp()` لجميع حقول الوقت (`createdAt`, `updatedAt`, `publishedAt`, `broadcastDate`, `lastActiveAt`, `expiresAt`).
+2. **العدادات:** تجمع كافة الإحصاءات في خريطة `stats` وتحدث ذرياً بواسطة `FieldValue.increment()`.
+3. **الحالات المنطقية:** تصاغ بإيجابية دلالية (`isActive`, `isLive`, `isFeatured`, `isVerified`, `isPublished`).
+4. **التخزين في Storage:**
+   - مجلدات وظيفية: `/{root}/{category}/{id}/{assetType}.webp`.
+   - تحويل وضغط الصور محلياً بصيغة `WebP` قبل الرفع.
+   - ترويسات `Cache-Control: public, max-age=31536000`.
 
-## التوافق والترحيل
+---
 
-أي تغيير schema يستخدم expand/migrate/contract:
+## 4. حدود القراءة والكتابة والمعمارية
 
-1. قراءة القديم والجديد مع telemetry.
-2. backfill قابل للاستئناف مع dry-run وعدّ السجلات.
-3. تحويل القراء إلى الشكل الجديد.
-4. إيقاف الكتابة القديمة.
-5. حذف التوافق بعد فترة تحقق ومسجل في سجل الدين.
-
-لا تنفذ migration إنتاجي من تطبيق العميل. استخدم أداة إدارية موثوقة مع سجل
-تدقيق وخطة rollback.
-
-## التخزين المحلي
-
-القيم المشتقة أو القابلة لإعادة الجلب يمكن تخزينها مؤقتًا. tokens وبيانات
-التوقيع لا تخزن في SharedPreferences عادية. يجب تعريف TTL وسياسة invalidation
-قبل إضافة cache جديد.
+- لا وصول مباشر لـ Firebase من Activities أو Fragments أو Adapters. يمر كل طلب عبر Repository مخصص.
+- DTOs تطابق وثائق Firestore وتتحول إلى Domain Models نقية وغير قابلة للتعديل عبر Mappers دفاعية تضمن سلامة الـ Null-Safety.
+- استعلامات Realtime تملك Lifecycle منضبط يتم إلغاؤه فور تدمير واجهة العرض.

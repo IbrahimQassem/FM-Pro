@@ -224,4 +224,25 @@ public class RadioProgram implements Serializable {
     public void setProgramScheduleTime(DateTimeModel programScheduleTime) {
         this.programScheduleTime = programScheduleTime;
     }
+
+    // Canonical schema aliases
+    public void setTitle(String title) {
+        if (title != null) this.prName = title;
+    }
+
+    public void setDescription(String desc) {
+        if (desc != null) this.prDesc = desc;
+    }
+
+    public void setCoverUrl(String coverUrl) {
+        if (coverUrl != null) this.prProfile = coverUrl;
+    }
+
+    public void setStationId(String stationId) {
+        if (stationId != null) this.radioId = stationId;
+    }
+
+    public void setIsActive(boolean active) {
+        this.disabled = !active;
+    }
 }

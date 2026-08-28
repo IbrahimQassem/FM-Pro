@@ -250,21 +250,10 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
         String radioId = prefMgr.selectedRadio() != null && prefMgr.selectedRadio().getRadioId() != null ? prefMgr.selectedRadio().getRadioId() : "";
         LogUtility.d(LogUtility.TAG, " radioId : " + radioId + " time is  : " + String.valueOf(System.currentTimeMillis()));
 
-//        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId);
-        CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, radioId).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
-// Create a timestamp from the date object
-        Timestamp timestamp = new Timestamp(new Date());
-        // Get today's date in milliseconds since epoch
-        long today = System.currentTimeMillis();
-        LogUtility.d(LogUtility.TAG, "timestamp time is  : " + String.valueOf(timestamp) + " -" + today);
-
-//        Query episodeQuery = collectionReference.whereEqualTo("disabled", false).whereLessThanOrEqualTo("programScheduleTime.dateEnd", today).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
-//        Query episodeQuery = collectionReference.whereEqualTo("disabled", false).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
-//        Query episodeQuery = collectionReference.orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
-//        Query episodeQuery = collectionReference;
-//        Query episodeQuery = collectionReference.orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
-        Query episodeQuery = collectionReference.whereEqualTo("disabled", false).orderBy("programScheduleTime.dateStart", Query.Direction.DESCENDING);
-//        Query episodeQuery = collectionReference.whereLessThan("programScheduleTime.dateEnd", today);
+        CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection()
+                .document(AppConstant.Firebase.EPISODES_COLLECTION)
+                .collection(AppConstant.Firebase.EPISODES_COLLECTION);
+        Query episodeQuery = collectionReference;
 //        LogUtility.d(LogUtility.TAG, " episodeQuery : " + episodeQuery.get());
 
         //    /** Get the last 50 chat messages ordered by timestamp . */

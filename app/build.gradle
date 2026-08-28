@@ -33,8 +33,8 @@ android {
         applicationId "com.sana.dev.fm"
         minSdk 21
         targetSdk 34
-        versionCode 1
-        versionName "1.0.1"
+        versionCode 27
+        versionName "2.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         archivesBaseName = "hudhudfm-v($versionName)" // to name generated apk
     }
@@ -71,8 +71,8 @@ android {
             dimension 'fm_flavor'
             applicationId 'com.sanaadev'
             applicationIdSuffix '.hudhudfm'
-            versionCode 1
-            versionName '0.0.1'
+            versionCode 27
+            versionName '2.1.0'
             versionNameSuffix 'dev'
             buildConfigField "String", "BASE_FB_DB", '"HudHudFM"'
         }
@@ -80,8 +80,8 @@ android {
         hudhudfm_google_play {
             dimension 'fm_flavor'
             applicationId "com.sana.dev.fm"
-            versionCode 26
-            versionName "2.0.6"
+            versionCode 27
+            versionName "2.1.0"
             buildConfigField "String", "BASE_FB_DB", '"HudHudFmGooglePlay"'
             archivesBaseName = "hudhudfm-google-play-v($versionName)" // to name generated apk
         }
@@ -91,8 +91,8 @@ android {
             dimension 'fm_flavor'
             applicationId 'com.sanaadev'
             applicationIdSuffix '.internews'
-            versionCode 1
-            versionName '0.0.1'
+            versionCode 27
+            versionName '2.1.0'
             versionNameSuffix 'dev'
             buildConfigField "String", "BASE_FB_DB", '"InterNews"'
         }
