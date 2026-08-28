@@ -168,10 +168,16 @@ public class ProgramsFragment extends BaseFragment {
             @Override
             public void onItemClick(View view, Object obj, int position) {
                 RadioProgram item = (RadioProgram) obj;
-                if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhudOfficial") || BuildConfig.FLAVOR.equals("hudhudDev")) {
-                    Episode episode = new Episode();
-                    episode.setRadioId(item.getRadioId());
-                    episode.setProgramId(item.getProgramId());
+                Episode episode = new Episode();
+                episode.setRadioId(item.getRadioId());
+                episode.setProgramId(item.getProgramId());
+                episode.setProgramName(item.getPrName());
+                episode.setEpDesc(item.getPrDesc());
+                episode.setEpProfile(item.getPrProfile());
+
+                if (getActivity() instanceof com.sana.dev.fm.core.navigation.AppNavigator) {
+                    ((com.sana.dev.fm.core.navigation.AppNavigator) getActivity()).openProgramDetails(episode);
+                } else if (mActivity != null) {
                     int[] startingLocation = new int[2];
                     view.getLocationOnScreen(startingLocation);
                     startingLocation[0] += view.getWidth() / 2;

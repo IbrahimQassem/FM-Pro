@@ -59,6 +59,11 @@ import com.sana.dev.fm.utils.my_firebase.CallBack;
 import com.sana.dev.fm.utils.my_firebase.task.FirestoreDbUtility;
 import com.sana.dev.fm.utils.playerpro.RadioPlayerService;
 
+import com.sana.dev.fm.core.navigation.AppNavigator;
+import com.sana.dev.fm.core.navigation.DeepLinkRouter;
+import com.sana.dev.fm.model.Episode;
+import com.sana.dev.fm.ui.fragment.ProgramDetailsFragment;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,7 +71,7 @@ import co.mobiwise.materialintro.animation.MaterialIntroListener;
 import co.mobiwise.materialintro.shape.Focus;
 import co.mobiwise.materialintro.shape.ShapeType;
 
-public class MainActivity extends BaseActivity implements CallBackListener, BaseActivity.NetworkCallback {
+public class MainActivity extends BaseActivity implements CallBackListener, BaseActivity.NetworkCallback, AppNavigator {
     private static final String TAG = MainActivity.class.getSimpleName();
     public static String FRAGMENT_DATA = "transaction_data";
     public static String FRAGMENT_CLASS = "transaction_target";
@@ -122,7 +127,23 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         initEvent();
         initBottomNav();
         checkNotificationPermission();
+        processIntentForDeepLinks(getIntent());
 //        initAdMob();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        processIntentForDeepLinks(intent);
+    }
+
+    private void processIntentForDeepLinks(Intent intent) {
+        if (intent == null) return;
+        android.net.Uri data = intent.getData();
+        if (data != null) {
+            handleDeepLink(data);
+        }
     }
 
     private void checkNotificationPermission() {
@@ -326,55 +347,15 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         adView.loadAd(adRequest);
     }*/
 
-    BottomNavigationView navigation;
     FragmentManager fm = getSupportFragmentManager();
-    Fragment fragment1 = new MainHomeFragment();
-    Fragment fragment2 = new DailyEpisodeFragment();
-    Fragment fragment3 = new ProgramsFragment();
-    Fragment fragment4 = new AccountFragment();
-    Fragment active = fragment1;
+    Fragment mainHomeFragment = new MainHomeFragment();
 
     public void initBottomNav() {
-        BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-                = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.navigation_home:
-                        switchDestination(fragment1);
-                        return true;
-
-                    case R.id.nav_daily_epi:
-                        switchDestination(fragment2);
-                        return true;
-
-                    case R.id.nav_radio_map:
-                        switchDestination(fragment3);
-                        return true;
-
-                    case R.id.nav_more:
-                        switchDestination(fragment4);
-                        return true;
-                }
-                return false;
-            }
-        };
-
-        navigation = (BottomNavigationView) findViewById(R.id.nav_view);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        navigation.setSelectedItemId(R.id.navigation_home);
-
-        fm.beginTransaction().add(R.id.main_container, fragment4, fragment4.getClass().getSimpleName()).hide(fragment4).commit();
-        fm.beginTransaction().add(R.id.main_container, fragment3, fragment3.getClass().getSimpleName()).hide(fragment3).commit();
-        fm.beginTransaction().add(R.id.main_container, fragment2, fragment2.getClass().getSimpleName()).hide(fragment2).commit();
-        fm.beginTransaction().add(R.id.main_container, fragment1, fragment1.getClass().getSimpleName()).commit();
-    }
-
-    private void switchDestination(Fragment target) {
-        if (active != target) {
-            fm.beginTransaction().hide(active).show(target).commit();
-            active = target;
+        Fragment existing = fm.findFragmentById(R.id.main_container);
+        if (existing == null) {
+            fm.beginTransaction()
+                    .replace(R.id.main_container, mainHomeFragment, MainHomeFragment.class.getSimpleName())
+                    .commit();
         }
     }
 
@@ -409,18 +390,151 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
 */
 
     public void selectTab(@IdRes int itemId) {
-        if (navigation != null) {
-            navigation.setSelectedItemId(itemId);
+        if (itemId == R.id.navigation_home) {
+            openHome();
+        } else if (itemId == R.id.nav_daily_epi) {
+            openSchedule();
+        } else if (itemId == R.id.nav_radio_map) {
+            openPrograms();
+        } else if (itemId == R.id.nav_more) {
+            openAccount();
+        }
+    }
+
+    @Override
+    public void openHome() {
+        if (fm.getBackStackEntryCount() > 0) {
+            fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
+        updateNavigationUiVisibility(true);
+    }
+
+    @Override
+    public void openSchedule() {
+        pushDetailFragment(new DailyEpisodeFragment());
+    }
+
+    @Override
+    public void openPrograms() {
+        pushDetailFragment(new ProgramsFragment());
+    }
+
+    @Override
+    public void openAccount() {
+        pushDetailFragment(new AccountFragment());
+    }
+
+    @Override
+    public void openProgramDetails(Episode episode) {
+        if (episode == null) return;
+        ProgramDetailsFragment fragment = ProgramDetailsFragment.newInstance(episode);
+        pushDetailFragment(fragment);
+    }
+
+    @Override
+    public void openProgramDetails(String radioId, String programId, String title) {
+        ProgramDetailsFragment fragment = ProgramDetailsFragment.newInstance(radioId, programId, title);
+        pushDetailFragment(fragment);
+    }
+
+    @Override
+    public void openEpisodeDetails(Episode episode) {
+        if (episode != null) {
+            openProgramDetails(episode);
+        }
+    }
+
+    @Override
+    public void openPlayerSheet(Episode episode) {
+        if (episode != null && !Tools.isEmpty(episode.getEpStreamUrl())) {
+            String title = !Tools.isEmpty(episode.getProgramName()) ? episode.getProgramName() : episode.getEpName();
+            changeStation(episode.getEpStreamUrl(), title);
+        } else {
+            showToast(getString(R.string.error_episode_audio_not_available));
+        }
+    }
+
+    private void pushDetailFragment(Fragment fragment) {
+        if (fragment == null) return;
+        fm.beginTransaction()
+                .setCustomAnimations(R.anim.slide_in, R.anim.slide_out, R.anim.slide_in, R.anim.slide_out)
+                .add(R.id.main_container, fragment, fragment.getClass().getSimpleName())
+                .addToBackStack(fragment.getClass().getSimpleName())
+                .commit();
+
+        updateNavigationUiVisibility(false);
+    }
+
+    private void updateNavigationUiVisibility(boolean isMainTab) {
+        View profileToolbar = findViewById(R.id.lyt_profile);
+        if (profileToolbar != null) {
+            profileToolbar.setVisibility(isMainTab ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    @Override
+    public boolean navigateBack() {
+        if (fm.getBackStackEntryCount() > 0) {
+            fm.popBackStack();
+            if (fm.getBackStackEntryCount() <= 1) {
+                updateNavigationUiVisibility(true);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean handleDeepLink(android.net.Uri uri) {
+        DeepLinkRouter.Route route = DeepLinkRouter.parse(uri);
+        if (route == null) return false;
+
+        switch (route.getType()) {
+            case HOME:
+                openHome();
+                return true;
+            case SCHEDULE:
+                openSchedule();
+                return true;
+            case PROGRAMS:
+                openPrograms();
+                return true;
+            case ACCOUNT:
+                openAccount();
+                return true;
+            case PROGRAM:
+                openProgramDetails("", route.getTargetId() != null ? route.getTargetId() : "", "");
+                return true;
+            case EPISODE:
+                Episode ep = new Episode();
+                ep.setEpId(route.getTargetId());
+                openEpisodeDetails(ep);
+                return true;
+            case STATION:
+                if (prefMgr != null && prefMgr.getRadioList() != null && route.getTargetId() != null) {
+                    for (RadioInfo r : prefMgr.getRadioList()) {
+                        if (route.getTargetId().equals(r.getRadioId())) {
+                            prefMgr.write(AppConstant.Firebase.STATIONS_COLLECTION, r);
+                            break;
+                        }
+                    }
+                }
+                openHome();
+                return true;
+            case LIVE:
+                handlePlayPauseClick();
+                return true;
+            default:
+                return false;
         }
     }
 
     @Override
     public void onBackPressed() {
-        if (active != fragment1) {
-            selectTab(R.id.navigation_home);
-        } else {
-            super.onBackPressed();
+        if (navigateBack()) {
+            return;
         }
+        super.onBackPressed();
     }
 
     public void initToolbarProfile() {
@@ -654,6 +768,21 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
         playPauseButton.setOnClickListener(v -> handlePlayPauseClick());
         if (miniPlayerView != null) {
             miniPlayerView.setOnPlayPauseClickListener(v -> handlePlayPauseClick());
+            miniPlayerView.setOnClickListener(v -> {
+                Episode ep = new Episode();
+                RadioInfo currentRadio = prefMgr != null ? prefMgr.selectedRadio() : null;
+                if (currentRadio != null) {
+                    ep.setRadioId(currentRadio.getRadioId());
+                    ep.setProgramName(currentRadio.getName());
+                    ep.setEpDesc(currentRadio.getDesc());
+                    ep.setEpProfile(currentRadio.getLogo());
+                    ep.setEpStreamUrl(currentRadio.getStreamUrl());
+                } else {
+                    ep.setProgramName(currentStreamTitle);
+                    ep.setEpStreamUrl(currentStreamUrl);
+                }
+                openProgramDetails(ep);
+            });
             updateMiniPlayerState();
         }
     }
@@ -838,26 +967,6 @@ public class MainActivity extends BaseActivity implements CallBackListener, Base
 //        LogUtility.e(TAG, "chekInternetCon : " + status);
         updateOnlineFlag();
     }
-
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-//        if (ACTION_SHOW_LOADING_ITEM.equals(intent.getAction())) {
-//
-//        }
-//        Bundle extras = intent.getExtras();
-//        if(extras != null){
-//            if(extras.containsKey(FRAGMENT_DATA))
-//            {
-//                String[] extra = extras.getStringArray(MainActivity.FRAGMENT_DATA);
-//                String msg = extras.getString("NotificationMessage");
-//                Toast.makeText(this, extra[0], Toast.LENGTH_SHORT).show();
-//
-//            }
-//        }
-    }
-
 
     public void showPlayIntro() {
         showIntro(playPauseButton, UserGuide.INTRO_FOCUS_2, getString(R.string.label_play_intro2));

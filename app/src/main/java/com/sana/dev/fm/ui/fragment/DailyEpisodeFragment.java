@@ -198,11 +198,7 @@ public class DailyEpisodeFragment extends BaseFragment {
                 if (stateLayout != null) {
                     stateLayout.showContent();
                 }
-                if (recyclerView != null && ctx != null) {
-                    recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
-                    TimeLineAdapter adapter = new TimeLineAdapter(ctx, modelList);
-                    recyclerView.setAdapter(adapter);
-                }
+                setupTimelineAdapter(modelList, episodeList);
                 toggleView(false);
             } else {
                 if (stateLayout != null) {
@@ -225,9 +221,7 @@ public class DailyEpisodeFragment extends BaseFragment {
                 }
                 if (!modelList.isEmpty() && recyclerView != null && ctx != null) {
                     if (stateLayout != null) stateLayout.showContent();
-                    recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
-                    TimeLineAdapter adapter = new TimeLineAdapter(ctx, modelList);
-                    recyclerView.setAdapter(adapter);
+                    setupTimelineAdapter(modelList, seedEpisodes);
                     toggleView(false);
                     return;
                 }
@@ -237,6 +231,32 @@ public class DailyEpisodeFragment extends BaseFragment {
             }
             toggleView(true);
         });
+    }
+
+    private void setupTimelineAdapter(List<TempEpisodeModel> modelList, List<Episode> sourceEpisodes) {
+        if (recyclerView != null && ctx != null) {
+            recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
+            TimeLineAdapter adapter = new TimeLineAdapter(ctx, modelList);
+            adapter.setOnItemClickListener((view, item, position) -> {
+                Episode targetEpisode = null;
+                if (sourceEpisodes != null && position < sourceEpisodes.size()) {
+                    targetEpisode = sourceEpisodes.get(position);
+                }
+                if (targetEpisode == null) {
+                    targetEpisode = new Episode();
+                    targetEpisode.setEpName(item.getEpName());
+                    targetEpisode.setEpAnnouncer(item.getEpAnnouncer());
+                    targetEpisode.setEpProfile(item.getEpProfile());
+                    if (isRadioSelected() && prefMgr != null && prefMgr.selectedRadio() != null) {
+                        targetEpisode.setRadioId(prefMgr.selectedRadio().getRadioId());
+                    }
+                }
+                if (getActivity() instanceof com.sana.dev.fm.core.navigation.AppNavigator) {
+                    ((com.sana.dev.fm.core.navigation.AppNavigator) getActivity()).openProgramDetails(targetEpisode);
+                }
+            });
+            recyclerView.setAdapter(adapter);
+        }
     }
 
     @Override

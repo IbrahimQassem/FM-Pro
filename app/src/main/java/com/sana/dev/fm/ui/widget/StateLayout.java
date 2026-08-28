@@ -19,13 +19,11 @@ import com.sana.dev.fm.R;
  */
 public class StateLayout extends FrameLayout {
 
-    public enum State {
-        LOADING,
-        CONTENT,
-        EMPTY,
-        ERROR,
-        OFFLINE
-    }
+    public static final int STATE_LOADING = 1;
+    public static final int STATE_CONTENT = 2;
+    public static final int STATE_EMPTY = 3;
+    public static final int STATE_ERROR = 4;
+    public static final int STATE_OFFLINE = 5;
 
     private View contentView;
     private View loadingView;
@@ -33,7 +31,7 @@ public class StateLayout extends FrameLayout {
     private View errorView;
     private View offlineView;
 
-    private State currentState = State.CONTENT;
+    private int currentState = STATE_CONTENT;
 
     public StateLayout(@NonNull Context context) {
         super(context);
@@ -69,25 +67,25 @@ public class StateLayout extends FrameLayout {
         }
     }
 
-    public State getCurrentState() {
+    public int getCurrentState() {
         return currentState;
     }
 
     public void showLoading() {
-        currentState = State.LOADING;
+        currentState = STATE_LOADING;
         ensureLoadingView();
         hideAllExcept(loadingView);
     }
 
     public void showContent() {
-        currentState = State.CONTENT;
+        currentState = STATE_CONTENT;
         if (contentView != null) {
             hideAllExcept(contentView);
         }
     }
 
     public void showEmpty(@Nullable String title, @Nullable String description, @Nullable Runnable onActionClick) {
-        currentState = State.EMPTY;
+        currentState = STATE_EMPTY;
         ensureEmptyView();
 
         TextView tvTitle = emptyView.findViewById(R.id.state_empty_title);
@@ -104,12 +102,7 @@ public class StateLayout extends FrameLayout {
         if (btnAction != null) {
             if (onActionClick != null) {
                 btnAction.setVisibility(VISIBLE);
-                btnAction.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onActionClick.run();
-                    }
-                });
+                btnAction.setOnClickListener(v -> onActionClick.run());
             } else {
                 btnAction.setVisibility(GONE);
             }
@@ -119,7 +112,7 @@ public class StateLayout extends FrameLayout {
     }
 
     public void showError(@Nullable String title, @Nullable String description, @Nullable Runnable onRetryClick) {
-        currentState = State.ERROR;
+        currentState = STATE_ERROR;
         ensureErrorView();
 
         TextView tvTitle = errorView.findViewById(R.id.state_error_title);
@@ -134,29 +127,19 @@ public class StateLayout extends FrameLayout {
 
         MaterialButton btnRetry = errorView.findViewById(R.id.state_error_retry_button);
         if (btnRetry != null && onRetryClick != null) {
-            btnRetry.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onRetryClick.run();
-                }
-            });
+            btnRetry.setOnClickListener(v -> onRetryClick.run());
         }
 
         hideAllExcept(errorView);
     }
 
     public void showOffline(@Nullable Runnable onRetryClick) {
-        currentState = State.OFFLINE;
+        currentState = STATE_OFFLINE;
         ensureOfflineView();
 
         MaterialButton btnRetry = offlineView.findViewById(R.id.state_offline_retry_button);
         if (btnRetry != null && onRetryClick != null) {
-            btnRetry.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onRetryClick.run();
-                }
-            });
+            btnRetry.setOnClickListener(v -> onRetryClick.run());
         }
 
         hideAllExcept(offlineView);

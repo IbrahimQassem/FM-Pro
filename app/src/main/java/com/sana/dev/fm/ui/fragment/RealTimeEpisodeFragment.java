@@ -320,12 +320,13 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                         int[] startingLocation = new int[2];
                         switch (view.getId()) {
                             case R.id.civ_logo:
-                                if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhudOfficial") || BuildConfig.FLAVOR.equals("hudhudDev")) {
+                                if (getActivity() instanceof com.sana.dev.fm.core.navigation.AppNavigator) {
+                                    ((com.sana.dev.fm.core.navigation.AppNavigator) getActivity()).openProgramDetails(item);
+                                } else if (getActivity() != null) {
                                     view.getLocationOnScreen(startingLocation);
                                     ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, context, item);
                                     getActivity().overridePendingTransition(0, 0);
                                 }
-
                                 break;
                             case R.id.lyt_comment_parent:
                             case R.id.imv_comment:
@@ -419,9 +420,14 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                     Episode ep = finalSeedList.get(position);
                     holder.bind(ep, position);
                     holder.setOnItemClickListener((v, obj, pos) -> {
-                        int[] startingLocation = new int[2];
-                        v.getLocationOnScreen(startingLocation);
-                        ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, context, (Episode) obj);
+                        Episode episode = (Episode) obj;
+                        if (getActivity() instanceof com.sana.dev.fm.core.navigation.AppNavigator) {
+                            ((com.sana.dev.fm.core.navigation.AppNavigator) getActivity()).openProgramDetails(episode);
+                        } else if (context != null) {
+                            int[] startingLocation = new int[2];
+                            v.getLocationOnScreen(startingLocation);
+                            ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, context, episode);
+                        }
                     });
                 }
 

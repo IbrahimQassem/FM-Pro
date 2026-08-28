@@ -393,4 +393,13 @@
     <string name="label_add_episode">إضافة حلقة</string>
     <string name="label_edit_episode">تعديل الحلقة</string>
     <string name="label_add_user">إضافة مستخدم</string>
+    <string name="hint_search_radios">ابحث عن إذاعة، تردد، محافظة...</string>
+    <string name="filter_all">الكل</string>
+    <string name="filter_sanaa">صنعاء</string>
+    <string name="filter_aden">عدن</string>
+    <string name="filter_news">إخباري</string>
+    <string name="filter_culture">ثقافي</string>
+    <string name="label_available_stations">المحطات الإذاعية</string>
+    <string name="no_matching_stations">لم يتم العثور على إذاعات مطابقة</string>
+    <string name="label_change_view">تغيير طريقة العرض</string>
 </resources>

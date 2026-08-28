@@ -5,6 +5,7 @@ import static com.sana.dev.fm.utils.Tools.getFormattedTimeEvent;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.core.content.ContextCompat;
@@ -22,9 +23,18 @@ import java.util.List;
 
 
 public class TimeLineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    public interface OnItemClickListener {
+        void onItemClick(View view, TempEpisodeModel item, int position);
+    }
+
     private final int avatarSize;
     private List<TempEpisodeModel> timeLineModelList;
     private Context context;
+    private OnItemClickListener onItemClickListener;
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.onItemClickListener = listener;
+    }
 
     public TimeLineAdapter(Context context, List<TempEpisodeModel> timeLineModelList) {
         this.timeLineModelList = timeLineModelList;
@@ -51,6 +61,12 @@ public class TimeLineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             holder.binding.tvTitle.setText(episode.getEpName());
             holder.binding.tvDesc.setText(episode.getEpAnnouncer());
             Tools.displayImageRound(context, holder.binding.civLogo, episode.getEpProfile());
+
+            holder.itemView.setOnClickListener(v -> {
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(v, episode, position);
+                }
+            });
 
             // Todo handel this
             if (episode.getShowTime() != null) {

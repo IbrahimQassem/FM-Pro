@@ -460,4 +460,13 @@
     <string name="label_add_episode">Add Episode</string>
     <string name="label_edit_episode">Edit Episode</string>
     <string name="label_add_user">Add User</string>
+    <string name="hint_search_radios">Search radio name, frequency, city...</string>
+    <string name="filter_all">All</string>
+    <string name="filter_sanaa">Sana\'a</string>
+    <string name="filter_aden">Aden</string>
+    <string name="filter_news">News</string>
+    <string name="filter_culture">Culture</string>
+    <string name="label_available_stations">Radio Stations</string>
+    <string name="no_matching_stations">No matching radio stations found</string>
+    <string name="label_change_view">Change View</string>
 </resources>

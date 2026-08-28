@@ -3,75 +3,75 @@ package com.sana.dev.fm.ui.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.material.chip.ChipGroup;
 import com.sana.dev.fm.R;
 import com.sana.dev.fm.adapter.DestinationSliderAdapter;
-import com.sana.dev.fm.adapter.RadiosAdapter;
+import com.sana.dev.fm.adapter.StationGridAdapter;
+import com.sana.dev.fm.core.navigation.AppNavigator;
 import com.sana.dev.fm.data.datasource.FirestoreBannersRemoteDataSource;
 import com.sana.dev.fm.data.repository.BannersRepositoryImpl;
 import com.sana.dev.fm.domain.model.Banner;
 import com.sana.dev.fm.domain.repository.BannersRepository;
 import com.sana.dev.fm.model.DestinationModel;
+import com.sana.dev.fm.model.Episode;
 import com.sana.dev.fm.model.RadioInfo;
-import com.sana.dev.fm.model.interfaces.CallBackListener;
 import com.sana.dev.fm.ui.activity.MainActivity;
 import com.sana.dev.fm.utils.AppConstant;
 import com.sana.dev.fm.utils.LogUtility;
-import com.sana.dev.fm.utils.SnackBarUtility;
-import com.sana.dev.fm.utils.UserGuide;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import co.mobiwise.materialintro.animation.MaterialIntroListener;
-import co.mobiwise.materialintro.shape.Focus;
-import co.mobiwise.materialintro.shape.ShapeType;
-import co.mobiwise.materialintro.view.MaterialIntroView;
-
 /**
- * Main Home screen displaying stations slider, banners/advertisements, and episode stream.
- * Pure UI presentation layer — Banner data fetched via BannersRepository.
+ * Unified Main Hub Screen:
+ * - Featured Banners Carousel
+ * - Instant Search & Category Filters
+ * - Responsive 2-Column Grid / 1-Column List Toggle for Radio Stations
+ * - In-shell navigation to Station Details & Direct Audio Playback
  */
 public class MainHomeFragment extends BaseFragment implements DestinationSliderAdapter.OnDestinationClickListener {
     private static final String TAG = MainHomeFragment.class.getSimpleName();
-    private static final String ARG_PARAM1 = "param1";
 
-    private FrameLayout cf_container;
-    private RecyclerView recyclerView;
-    private LinearLayout lytParentStation;
     private ViewPager2 viewPager;
     private LinearLayout dotsLayout;
+    private EditText etSearchRadios;
+    private ImageView ivClearSearch;
+    private ChipGroup chipGroupFilters;
+    private TextView tvStationsCount;
+    private ImageButton ibViewToggle;
+    private RecyclerView rvStationsGrid;
+    private LinearLayout lytEmptySearch;
 
-    View view;
-    Context ctx;
-    MaterialIntroView materialIntroView;
-    private SnackBarUtility sbHelp;
-    private CallBackListener callBackListener;
     private BannersRepository bannersRepository;
     private DestinationSliderAdapter sliderAdapter;
+    private StationGridAdapter stationGridAdapter;
     private List<DestinationModel> destinationList = new ArrayList<>();
-    private Handler sliderHandler = new Handler();
+    private final Handler sliderHandler = new Handler();
     private TextView[] dots;
-    final private long delayMillis = 30000;
+    private final long delayMillis = 30000;
 
+    private String currentSelectedChipTag = "all";
+    private boolean isGridView = true;
 
     public MainHomeFragment() {
         // Required empty public constructor
@@ -84,94 +84,32 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_main_home, container, false);
+        View view = inflater.inflate(R.layout.fragment_main_home, container, false);
 
-        cf_container = view.findViewById(R.id.child_fragment_container);
-        recyclerView = view.findViewById(R.id.recyclerView);
-        lytParentStation = view.findViewById(R.id.lyt_parent_stations);
         viewPager = view.findViewById(R.id.viewPager);
         dotsLayout = view.findViewById(R.id.dotsLayout);
-
-        sbHelp = new SnackBarUtility(getActivity());
-        materialIntroView = new MaterialIntroView(ctx);
+        etSearchRadios = view.findViewById(R.id.et_search_radios);
+        ivClearSearch = view.findViewById(R.id.iv_clear_search);
+        chipGroupFilters = view.findViewById(R.id.chip_group_filters);
+        tvStationsCount = view.findViewById(R.id.tv_stations_count);
+        ibViewToggle = view.findViewById(R.id.ib_view_toggle);
+        rvStationsGrid = view.findViewById(R.id.rv_stations_grid);
+        lytEmptySearch = view.findViewById(R.id.lyt_empty_search);
 
         setupSlider();
-
-        // Load banners via repository
+        setupSearchAndFilters();
+        setupViewToggle();
         loadDestinations();
-
-        loadRadios();
+        loadRadiosGrid();
 
         return view;
     }
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-    }
-
-    private void loadRadios() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, true);
-        recyclerView.setLayoutManager(layoutManager);
-
-        ArrayList<RadioInfo> stationList = prefMgr.getRadioList();
-
-        if (stationList != null && stationList.size() > 0) {
-            lytParentStation.setVisibility(View.VISIBLE);
-            int indexToScrollTo = prefMgr.read("ScrollToPosition", 0);
-
-            RadiosAdapter radiosAdapter = new RadiosAdapter(RadiosAdapter.VIEW_TYPE_MAIN, ctx, stationList, recyclerView, indexToScrollTo);
-
-            if (!isRadioSelected() && !stationList.isEmpty()) {
-                prefMgr.write(AppConstant.Firebase.STATIONS_COLLECTION, stationList.get(0));
-            }
-
-            recyclerView.setAdapter(radiosAdapter);
-            recyclerView.setItemAnimator(new DefaultItemAnimator());
-            radiosAdapter.setOnClickListener(new RadiosAdapter.OnClickListener() {
-                @Override
-                public void onItemClick(View view, RadioInfo radioInfo, int i) {
-                    prefMgr.write("ScrollToPosition", i);
-                    prefMgr.write(AppConstant.Firebase.STATIONS_COLLECTION, radioInfo);
-                    radiosAdapter.selectTaskListItem(i);
-                    updateRecycle();
-                    if (callBackListener != null)
-                        callBackListener.onCallBack();
-
-                    if (radioInfo != null && radioInfo.getName() != null) {
-                        showToast(radioInfo.getName());
-                    }
-                }
-
-                @Override
-                public void onItemLongClick(View view, RadioInfo radioInfo, int i) {
-
-                }
-            });
-
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    recyclerView.smoothScrollToPosition(indexToScrollTo);
-                    showIntro(recyclerView.getChildAt(0), UserGuide.INTRO_FOCUS_1, ctx.getString(R.string.label_radio_intro1));
-                }
-            }, 3000);
-
-        } else {
-            lytParentStation.setVisibility(View.GONE);
-        }
-    }
-
-    private void updateRecycle() {
-        Fragment childFragment = new RealTimeEpisodeFragment();
-        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
-        transaction.replace(R.id.child_fragment_container, childFragment).commit();
-    }
-
     private void setupSlider() {
-        // Auto slide setup
-        sliderAdapter = new DestinationSliderAdapter(mActivity, this);
+        if (getActivity() == null) return;
+        sliderAdapter = new DestinationSliderAdapter(getActivity(), this);
         viewPager.setAdapter(sliderAdapter);
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -183,18 +121,18 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
             }
         });
 
-        // Add page transformer for animation
         viewPager.setPageTransformer((page, position) -> {
             float r = 1 - Math.abs(position);
-            page.setScaleY(0.85f + r * 0.15f);
+            page.setScaleY(0.88f + r * 0.12f);
         });
     }
 
-    private Runnable sliderRunnable = new Runnable() {
+    private final Runnable sliderRunnable = new Runnable() {
         @Override
         public void run() {
+            if (viewPager == null || sliderAdapter == null || sliderAdapter.getItemCount() == 0) return;
             int currentPosition = viewPager.getCurrentItem();
-            if (currentPosition == sliderAdapter.getItemCount() - 1) {
+            if (currentPosition >= sliderAdapter.getItemCount() - 1) {
                 viewPager.setCurrentItem(0);
             } else {
                 viewPager.setCurrentItem(currentPosition + 1);
@@ -203,28 +141,28 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
     };
 
     private void setupDots() {
+        if (dotsLayout == null || getActivity() == null) return;
         dotsLayout.removeAllViews();
         dots = new TextView[destinationList.size()];
 
         for (int i = 0; i < dots.length; i++) {
-            dots[i] = new TextView(mActivity);
+            dots[i] = new TextView(getActivity());
             dots[i].setText("•");
-            dots[i].setTextSize(35);
-            dots[i].setTextColor(ContextCompat.getColor(mActivity, android.R.color.darker_gray));
+            dots[i].setTextSize(32);
+            dots[i].setTextColor(ContextCompat.getColor(getActivity(), android.R.color.darker_gray));
             dotsLayout.addView(dots[i]);
         }
 
-        // Set first dot to active
         if (dots.length > 0) {
-            dots[0].setTextColor(ContextCompat.getColor(mActivity, android.R.color.white));
+            dots[0].setTextColor(ContextCompat.getColor(getActivity(), android.R.color.white));
         }
     }
 
     private void updateDots(int position) {
-        if (dots == null) return;
+        if (dots == null || getActivity() == null) return;
         for (int i = 0; i < dots.length; i++) {
             if (dots[i] != null) {
-                dots[i].setTextColor(ContextCompat.getColor(mActivity,
+                dots[i].setTextColor(ContextCompat.getColor(getActivity(),
                         i == position ? android.R.color.white : android.R.color.darker_gray));
             }
         }
@@ -249,62 +187,170 @@ public class MainHomeFragment extends BaseFragment implements DestinationSliderA
                         }
                     }
                 }
-                List<DestinationModel> sortedDestinations = getSortedDestinations(destinationList);
-                sliderAdapter.setDestinations(sortedDestinations);
-                setupDots();
-            } else {
-                LogUtility.e(TAG, "loadDestinations failure: " + (result != null && result.getErrorOrNull() != null ? result.getErrorOrNull().getMessage() : "unknown"));
+                if (sliderAdapter != null && !destinationList.isEmpty()) {
+                    sliderAdapter.setDestinations(destinationList);
+                    setupDots();
+                }
             }
         });
     }
 
-    private List<DestinationModel> getSortedDestinations(List<DestinationModel> destinations) {
-        return com.sana.dev.fm.domain.ranking.PriorityRankingEngine.sortDestinations(destinations);
-    }
+    private void setupSearchAndFilters() {
+        // Clear search icon
+        ivClearSearch.setOnClickListener(v -> {
+            etSearchRadios.setText("");
+        });
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        updateRecycle();
-        sliderHandler.postDelayed(sliderRunnable, delayMillis);
-        LogUtility.e(TAG, "task resume");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        sliderHandler.removeCallbacks(sliderRunnable);
-        LogUtility.e(TAG, "task Pause");
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        this.ctx = context;
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (getActivity() instanceof CallBackListener)
-            callBackListener = (CallBackListener) getActivity();
-    }
-
-    private void showIntro(View view, String id, String text) {
-        userGuide.showIntro(view, id, text, Focus.ALL, ShapeType.RECTANGLE, new MaterialIntroListener() {
+        // Search text watcher
+        etSearchRadios.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onUserClicked(String materialIntroViewId) {
-                prefMgr.write(UserGuide.INTRO_FOCUS_1, "");
-                ((MainActivity) requireActivity()).showPlayIntro();
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                boolean hasText = !TextUtils.isEmpty(s);
+                ivClearSearch.setVisibility(hasText ? View.VISIBLE : View.GONE);
+                applyFilter();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        // Chip filters listener
+        chipGroupFilters.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.chip_sanaa) {
+                currentSelectedChipTag = "sanaa";
+            } else if (checkedId == R.id.chip_aden) {
+                currentSelectedChipTag = "aden";
+            } else if (checkedId == R.id.chip_news) {
+                currentSelectedChipTag = "news";
+            } else if (checkedId == R.id.chip_culture) {
+                currentSelectedChipTag = "culture";
+            } else {
+                currentSelectedChipTag = "all";
+            }
+            applyFilter();
+        });
+    }
+
+    private void setupViewToggle() {
+        if (ibViewToggle == null) return;
+        updateToggleIcon();
+        ibViewToggle.setOnClickListener(v -> {
+            isGridView = !isGridView;
+            updateToggleIcon();
+            updateRecyclerViewLayout();
+        });
+    }
+
+    private void updateToggleIcon() {
+        if (ibViewToggle != null) {
+            ibViewToggle.setImageResource(isGridView ? R.drawable.ic_ballot : R.drawable.ic_reoder);
+        }
+    }
+
+    private void updateRecyclerViewLayout() {
+        if (rvStationsGrid == null || getContext() == null) return;
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(requireContext(), isGridView ? 2 : 1);
+        rvStationsGrid.setLayoutManager(gridLayoutManager);
+        if (stationGridAdapter != null) {
+            stationGridAdapter.setViewType(isGridView ? StationGridAdapter.VIEW_TYPE_GRID : StationGridAdapter.VIEW_TYPE_LIST);
+        }
+    }
+
+    private void applyFilter() {
+        if (stationGridAdapter == null) return;
+        String query = etSearchRadios != null ? etSearchRadios.getText().toString() : "";
+        int matchCount = stationGridAdapter.filter(query, currentSelectedChipTag);
+
+        updateCountText(matchCount);
+        if (lytEmptySearch != null && rvStationsGrid != null) {
+            boolean isEmpty = (matchCount == 0);
+            lytEmptySearch.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+            rvStationsGrid.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    private void updateCountText(int count) {
+        if (tvStationsCount != null) {
+            tvStationsCount.setText(count + " " + getString(R.string.label_radio_station));
+        }
+    }
+
+    private void loadRadiosGrid() {
+        if (getContext() == null) return;
+
+        ArrayList<RadioInfo> stationList = prefMgr != null ? prefMgr.getRadioList() : null;
+        if (stationList == null) {
+            stationList = new ArrayList<>();
+        }
+
+        // Set up initial layout manager
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(requireContext(), isGridView ? 2 : 1);
+        rvStationsGrid.setLayoutManager(gridLayoutManager);
+        rvStationsGrid.setItemAnimator(new DefaultItemAnimator());
+
+        stationGridAdapter = new StationGridAdapter(requireContext(), stationList);
+        stationGridAdapter.setViewType(isGridView ? StationGridAdapter.VIEW_TYPE_GRID : StationGridAdapter.VIEW_TYPE_LIST);
+        rvStationsGrid.setAdapter(stationGridAdapter);
+
+        updateCountText(stationList.size());
+
+        // Wire Station Actions
+        stationGridAdapter.setListener(new StationGridAdapter.OnStationActionListener() {
+            @Override
+            public void onStationClick(@NonNull RadioInfo station, int position) {
+                // Save active station
+                if (prefMgr != null) {
+                    prefMgr.write(AppConstant.Firebase.STATIONS_COLLECTION, station);
+                }
+
+                // Open Station / Program Details in Single Shell
+                Episode stationEpisode = new Episode();
+                stationEpisode.setRadioId(station.getRadioId());
+                stationEpisode.setProgramName(station.getName());
+                stationEpisode.setEpDesc(station.getDesc() != null ? station.getDesc() : station.getTag());
+                stationEpisode.setEpProfile(station.getLogo());
+                stationEpisode.setEpStreamUrl(station.getStreamUrl());
+
+                if (getActivity() instanceof AppNavigator) {
+                    ((AppNavigator) getActivity()).openProgramDetails(stationEpisode);
+                }
+            }
+
+            @Override
+            public void onQuickPlayClick(@NonNull RadioInfo station, int position) {
+                if (prefMgr != null) {
+                    prefMgr.write(AppConstant.Firebase.STATIONS_COLLECTION, station);
+                }
+
+                if (getActivity() instanceof MainActivity) {
+                    MainActivity activity = (MainActivity) getActivity();
+                    String title = station.getName() + " " + (station.getChannelFreq() != null ? station.getChannelFreq() : "");
+                    activity.changeStation(station.getStreamUrl(), title);
+                    stationGridAdapter.setCurrentPlayingStreamUrl(station.getStreamUrl());
+                }
             }
         });
     }
 
     @Override
     public void onDestinationClick(DestinationModel destination) {
+        if (destination == null || getActivity() == null) return;
+        if (getActivity() instanceof AppNavigator) {
+            ((AppNavigator) getActivity()).openProgramDetails(destination.getId(), "", destination.getName());
+        }
     }
 
     @Override
     public void onFavoriteClick(DestinationModel destination) {
+        // Optional favorite action on slider banner
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        sliderHandler.removeCallbacks(sliderRunnable);
     }
 }
