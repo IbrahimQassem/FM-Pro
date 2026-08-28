@@ -2,12 +2,14 @@ package com.sana.dev.fm.model;
 
 
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.IgnoreExtraProperties;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@IgnoreExtraProperties
 public class Episode implements Serializable {
     @Exclude
     public boolean isLiked, isFavorite;
@@ -252,6 +254,10 @@ public class Episode implements Serializable {
         if (title != null) this.epName = title;
     }
 
+    public void setName(String name) {
+        if (name != null) this.epName = name;
+    }
+
     public void setDescription(String desc) {
         if (desc != null) this.epDesc = desc;
     }
@@ -260,12 +266,46 @@ public class Episode implements Serializable {
         if (coverUrl != null) this.epProfile = coverUrl;
     }
 
+    public void setImageUrl(String imageUrl) {
+        if (imageUrl != null) this.epProfile = imageUrl;
+    }
+
     public void setAudioUrl(String audioUrl) {
         if (audioUrl != null) this.epStreamUrl = audioUrl;
     }
 
+    public void setStreamUrl(String streamUrl) {
+        if (streamUrl != null) this.epStreamUrl = streamUrl;
+    }
+
     public void setStationId(String stationId) {
         if (stationId != null) this.radioId = stationId;
+    }
+
+    public void setStationName(String stationName) {
+        // Can be used for display
+    }
+
+    public void setProgramTitle(String programTitle) {
+        if (programTitle != null) this.programName = programTitle;
+    }
+
+    public void setPresenters(Object presenters) {
+        if (presenters instanceof String) {
+            this.epAnnouncer = (String) presenters;
+        } else if (presenters instanceof List && !((List<?>) presenters).isEmpty()) {
+            Object first = ((List<?>) presenters).get(0);
+            if (first != null) this.epAnnouncer = first.toString();
+        }
+    }
+
+    public void setStats(Map<String, Object> stats) {
+        if (stats != null) {
+            Object likes = stats.get("likesCount");
+            if (likes instanceof Number) this.likesCount = ((Number) likes).intValue();
+            Object favs = stats.get("favCount");
+            if (favs instanceof Number) this.favCount = ((Number) favs).intValue();
+        }
     }
 
     public void setId(String id) {

@@ -2,6 +2,7 @@ package com.sana.dev.fm.model;
 
 
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.IgnoreExtraProperties;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@IgnoreExtraProperties
 public class RadioProgram implements Serializable {
 
 
@@ -230,6 +232,10 @@ public class RadioProgram implements Serializable {
         if (title != null) this.prName = title;
     }
 
+    public void setName(String name) {
+        if (name != null) this.prName = name;
+    }
+
     public void setDescription(String desc) {
         if (desc != null) this.prDesc = desc;
     }
@@ -238,11 +244,43 @@ public class RadioProgram implements Serializable {
         if (coverUrl != null) this.prProfile = coverUrl;
     }
 
+    public void setImageUrl(String imageUrl) {
+        if (imageUrl != null) this.prProfile = imageUrl;
+    }
+
     public void setStationId(String stationId) {
         if (stationId != null) this.radioId = stationId;
     }
 
+    public void setId(String id) {
+        if (id != null) this.programId = id;
+    }
+
+    public void setCategories(List<String> categories) {
+        if (categories != null) this.prCategoryList = categories;
+    }
+
+    public void setStationName(String stationName) {
+    }
+
+    public void setPresenters(Object presenters) {
+    }
+
+    public void setStats(Map<String, Object> stats) {
+        if (stats != null) {
+            Object likes = stats.get("likesCount");
+            if (likes instanceof Number) this.likesCount = ((Number) likes).intValue();
+            Object subs = stats.get("subscribersCount");
+            if (subs instanceof Number) this.subscribeCount = ((Number) subs).intValue();
+            Object eps = stats.get("episodesCount");
+            if (eps instanceof Number) this.episodeCount = ((Number) eps).intValue();
+        }
+    }
+
     public void setIsActive(boolean active) {
         this.disabled = !active;
+    }
+
+    public void setIsFeatured(boolean featured) {
     }
 }

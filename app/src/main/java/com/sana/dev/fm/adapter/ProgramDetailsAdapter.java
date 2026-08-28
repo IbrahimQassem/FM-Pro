@@ -85,7 +85,8 @@ public class ProgramDetailsAdapter extends RecyclerView.Adapter<ProgramDetailsAd
 
     @Override
     public void onBindViewHolder(PhotoViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        Episode item = detailsList.get(position % 4);
+        if (detailsList == null || position < 0 || position >= detailsList.size()) return;
+        Episode item = detailsList.get(position);
         holder.tvName.setText(item.getEpName());
         String imgUrl = item.getEpProfile();
         Tools.displayImageOriginal(context, holder.ivPhoto, imgUrl);

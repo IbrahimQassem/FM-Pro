@@ -54,28 +54,35 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 
 
     private void initBindViewHolder(@Nullable Episode episode) {
-//        if (episode.disabled()){
-//            itemView.setVisibility(View.GONE);
-//        }
+        if (episode == null) return;
 
-        Tools.setTextOrHideIfEmpty(binding.tvTitle, episode.getEpName());
+        String title = episode.getEpName();
+        if (Tools.isEmpty(title)) {
+            title = episode.getProgramName();
+        }
+        Tools.setTextOrHideIfEmpty(binding.tvTitle, title);
         Tools.setTextOrHideIfEmpty(binding.tvAnnouncer, episode.getEpAnnouncer());
-
         Tools.setTextOrHideIfEmpty(binding.tvDesc, episode.getEpDesc());
-//        Tools.setTextOrHideIfEmpty(binding.tvState, null);
-//        Tools.setTextOrHideIfEmpty(binding.tvDate, null);
 
-        if (episode.getShowTimeList() != null && episode.getShowTimeList().size() > 0) {
-            //        binding.tvTime.setText(Tools.getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList())));
+        if (episode.getShowTimeList() != null && !episode.getShowTimeList().isEmpty()) {
             DateTimeModel dateTimeModel = episode.getShowTimeList().get(0);
-            String st = "" + getFormattedTimeEvent(dateTimeModel.getTimeStart(), FmUtilize.arabicFormat);
-            Tools.setTextOrHideIfEmpty(binding.tvTime, st);
+            if (dateTimeModel != null && dateTimeModel.getTimeStart() > 0) {
+                String st = "" + getFormattedTimeEvent(dateTimeModel.getTimeStart(), FmUtilize.arabicFormat);
+                Tools.setTextOrHideIfEmpty(binding.tvTime, st);
+            } else {
+                binding.tvTime.setVisibility(View.GONE);
+            }
+        } else {
+            binding.tvTime.setVisibility(View.GONE);
         }
 
-        if (episode.getProgramScheduleTime() != null) {
+        if (episode.getProgramScheduleTime() != null
+                && episode.getProgramScheduleTime().getDateStart() > 0
+                && episode.getProgramScheduleTime().getDateEnd() > 0) {
             String dt = getFormattedDateOnly(episode.getProgramScheduleTime().getDateStart(), FmUtilize.arabicFormat) + " - " + getFormattedDateOnly(episode.getProgramScheduleTime().getDateEnd(), FmUtilize.arabicFormat);
-//            String dt = episode.getProgramScheduleTime().getDateStart() + " - " + episode.getProgramScheduleTime().getDateEnd();
             Tools.setTextOrHideIfEmpty(binding.tvDate, dt);
+        } else {
+            binding.tvDate.setVisibility(View.GONE);
         }
 //        try {
 ////            Tools.setTextOrHideIfEmpty(binding.tvTime, getFormattedTimeEvent(DateTimeModel.findMainShowTime(episode.getShowTimeList()), FmUtilize.arabicFormat));

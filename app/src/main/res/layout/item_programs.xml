@@ -87,7 +87,7 @@
                     <!-- Expand / Collapse Toggle Button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/bt_toggle"
-                        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                        style="@style/Widget.Material3.Button.IconButton"
                         android:layout_width="@dimen/min_touch_target_size"
                         android:layout_height="@dimen/min_touch_target_size"
                         android:contentDescription="@string/more"
@@ -96,6 +96,7 @@
                         android:insetRight="0dp"
                         android:insetBottom="0dp"
                         android:padding="0dp"
+                        app:backgroundTint="@android:color/transparent"
                         app:icon="@drawable/ic_expand_arrow"
                         app:iconGravity="textStart"
                         app:iconPadding="0dp"
@@ -108,9 +109,10 @@
                     android:id="@+id/lyt_more"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="@dimen/spacing_sm"
-                    android:layout_marginBottom="@dimen/spacing_sm"
+                    android:layout_marginHorizontal="@dimen/spacing_md"
+                    android:layout_marginBottom="@dimen/spacing_md"
                     android:background="@drawable/shape_round_corner"
+                    android:backgroundTint="@color/md_theme_surfaceVariant"
                     android:orientation="vertical"
                     android:padding="@dimen/spacing_md"
                     android:visibility="visible">

@@ -183,36 +183,34 @@ public class ProgramsFragment extends BaseFragment {
     }
 
     void initAdapter() {
-        //This is the code to provide a sectioned list
-        List<SimpleSectionedRecyclerViewAdapter.Section> sections =
-                new ArrayList<SimpleSectionedRecyclerViewAdapter.Section>();
+        mAdapter = new AdapterMainProgram(requireActivity(), itemList, R.layout.item_programs);
 
-        HashMap<String, ArrayList<RadioProgram>> myProgram = new HashMap<String, ArrayList<RadioProgram>>();
+        List<SimpleSectionedRecyclerViewAdapter.Section> sections = new ArrayList<>();
+        HashMap<String, ArrayList<RadioProgram>> myProgram = new HashMap<>();
         for (int i = 0; i < itemList.size(); i++) {
-            if (itemList.get(i).getProgramScheduleTime() != null) {
-                String month_name = FmUtilize.month_date.format(Tools.getDateFormat(itemList.get(i).getProgramScheduleTime().getDateStart()));
+            RadioProgram p = itemList.get(i);
+            if (p != null && p.getProgramScheduleTime() != null && p.getProgramScheduleTime().getDateStart() > 0) {
+                String month_name = FmUtilize.month_date.format(Tools.getDateFormat(p.getProgramScheduleTime().getDateStart()));
                 ArrayList<RadioProgram> programList = myProgram.get(month_name);
                 if (programList == null) {
-                    programList = new ArrayList<RadioProgram>();
+                    programList = new ArrayList<>();
                     myProgram.put(month_name, programList);
                     sections.add(new SimpleSectionedRecyclerViewAdapter.Section(i, month_name));
                 }
-                RadioProgram p = itemList.get(i);
                 programList.add(p);
             }
         }
 
+        if (!sections.isEmpty()) {
+            SimpleSectionedRecyclerViewAdapter.Section[] dummy = new SimpleSectionedRecyclerViewAdapter.Section[sections.size()];
+            SimpleSectionedRecyclerViewAdapter mSectionedAdapter = new
+                    SimpleSectionedRecyclerViewAdapter(requireActivity(), R.layout.layout_section, R.id.section_text, mAdapter);
+            mSectionedAdapter.setSections(sections.toArray(dummy));
+            recyclerView.setAdapter(mSectionedAdapter);
+        } else {
+            recyclerView.setAdapter(mAdapter);
+        }
 
-        mAdapter = new AdapterMainProgram(requireActivity(), itemList, R.layout.item_programs);
-
-        //Add your adapter to the sectionAdapter
-        SimpleSectionedRecyclerViewAdapter.Section[] dummy = new SimpleSectionedRecyclerViewAdapter.Section[sections.size()];
-        SimpleSectionedRecyclerViewAdapter mSectionedAdapter = new
-                SimpleSectionedRecyclerViewAdapter(requireActivity(), R.layout.layout_section, R.id.section_text, mAdapter);
-        mSectionedAdapter.setSections(sections.toArray(dummy));
-
-
-        recyclerView.setAdapter(mSectionedAdapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setNestedScrollingEnabled(false);

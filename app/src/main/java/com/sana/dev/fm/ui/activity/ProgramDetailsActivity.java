@@ -115,12 +115,19 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
     }
 
     private void setupProgramProfile() {
-
         String s = getIntent().getStringExtra("episode");
         if (s != null) {
-            Episode episode = new Gson().fromJson(s, Episode.class);
+            Episode parsed = new Gson().fromJson(s, Episode.class);
+            final Episode episode = parsed != null ? parsed : new Episode();
 
-            TempEpModel tempEpModel = new TempEpModel(episode.getProgramName(), "", "", "", episode.getEpProfile(), episode.getLikesCount(), 1, 0);
+            String title = episode.getProgramName();
+            if (TextUtils.isEmpty(title) || "null".equalsIgnoreCase(title)) {
+                title = episode.getEpName();
+            }
+            if (TextUtils.isEmpty(title) || "null".equalsIgnoreCase(title)) {
+                title = getString(R.string.app_name);
+            }
+            TempEpModel tempEpModel = new TempEpModel(title, episode.getEpDesc(), "", "", episode.getEpProfile(), Math.max(1, episode.getLikesCount()), 1, 1);
             updateInfoUI(tempEpModel);
 
             // Show loading dialog
@@ -141,7 +148,13 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
                             List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
                             if (programList != null && programList.size() > 0) {
                                 RadioProgram radioProgram = programList.get(0);
-                                TempEpModel tempEpModel = new TempEpModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), String.valueOf(radioProgram.getPrCategoryList()), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
+                                String prName = radioProgram.getPrName();
+                                if (TextUtils.isEmpty(prName) || "null".equalsIgnoreCase(prName)) {
+                                    prName = episode.getEpName();
+                                }
+                                String categories = radioProgram.getPrCategoryList() != null ? TextUtils.join(" , ", radioProgram.getPrCategoryList()) : "";
+                                String profileImg = !TextUtils.isEmpty(radioProgram.getPrProfile()) ? radioProgram.getPrProfile() : episode.getEpProfile();
+                                TempEpModel tempEpModel = new TempEpModel(prName, radioProgram.getPrDesc(), radioProgram.getPrTag(), categories, profileImg, Math.max(1, radioProgram.getLikesCount()), Math.max(1, radioProgram.getSubscribeCount()), Math.max(1, radioProgram.getEpisodeCount()));
                                 updateInfoUI(tempEpModel);
                             }
                         } catch (Exception e) {
@@ -203,24 +216,41 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 
     @SuppressLint("SetTextI18n")
     private void updateInfoUI(TempEpModel model) {
-//        TempEpModel _temp = new TempEpModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), radioProgram.getPrCategoryList(), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
         String imgUrl = model.getImgProfile();
-//        Tools.displayImageRound(this, binding.imgProfile, imgUrl);
-//        Tools.displayImageOriginal(this, binding.imgProfile, imgUrl);
         Tools.displayUserProfile(this, binding.imgProfile, imgUrl, R.mipmap.ic_launcher_foreground);
 
-        binding.tvName.setText(model.getName());
-        binding.tvDesc.setText(model.getDesc());
-        binding.tvCategory.setText(model.getCategory());
-//      tvTag.setText(getResources().getString(R.string.tag_format, _temp.tag));
-        if (!TextUtils.isEmpty(model.getTag()))
+        String name = model.getName();
+        if (TextUtils.isEmpty(name) || "null".equalsIgnoreCase(name)) {
+            name = getString(R.string.app_name);
+        }
+        binding.tvName.setText(name);
+
+        String desc = model.getDesc();
+        if (!TextUtils.isEmpty(desc) && !"null".equalsIgnoreCase(desc)) {
+            binding.tvDesc.setText(desc);
+            binding.tvDesc.setVisibility(View.VISIBLE);
+        } else {
+            binding.tvDesc.setVisibility(View.GONE);
+        }
+
+        String cat = model.getCategory();
+        if (!TextUtils.isEmpty(cat) && !"null".equalsIgnoreCase(cat) && !"[]".equals(cat)) {
+            binding.tvCategory.setText(cat);
+            binding.tvCategory.setVisibility(View.VISIBLE);
+        } else {
+            binding.tvCategory.setVisibility(View.GONE);
+        }
+
+        if (!TextUtils.isEmpty(model.getTag()) && !"null".equalsIgnoreCase(model.getTag())) {
             binding.tvTag.setText(String.format("@%s", model.getTag()));
-        if (model.getLikesCount() >= 1)
-            binding.tvLikesCount.setText(Integer.toString(model.getLikesCount()));
-        if (model.getSubScribeCount() >= 1)
-            binding.tvSubscribers.setText(Integer.toString(model.getSubScribeCount()));
-        if (model.getPostCount() >= 1)
-            binding.tvPostCount.setText(Integer.toString(model.getPostCount()));
+            binding.tvTag.setVisibility(View.VISIBLE);
+        } else {
+            binding.tvTag.setVisibility(View.GONE);
+        }
+
+        binding.tvLikesCount.setText(Integer.toString(Math.max(1, model.getLikesCount())));
+        binding.tvSubscribers.setText(Integer.toString(Math.max(1, model.getSubScribeCount())));
+        binding.tvPostCount.setText(Integer.toString(Math.max(1, model.getPostCount())));
         binding.lynStats.setVisibility(View.VISIBLE);
 
         binding.btnFollow.setVisibility(View.GONE);
