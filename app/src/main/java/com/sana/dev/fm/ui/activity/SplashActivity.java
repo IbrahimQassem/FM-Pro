@@ -174,45 +174,36 @@ public class SplashActivity extends AppCompatActivity {
             List<RadioInfo> activeList = new ArrayList<>();
             if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
                 for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
-                    RadioInfo r = doc.toObject(RadioInfo.class);
-                    if (r == null) {
-                        r = new RadioInfo();
-                    }
-                    if (r.getRadioId() == null || r.getRadioId().isEmpty()) {
-                        r.setRadioId(doc.getId());
-                    }
-                    // Canonical schema fallback mapping
-                    if (r.getName() == null || r.getName().isEmpty()) {
-                        String name = doc.getString("name");
-                        if (name != null) r.setName(name);
-                    }
-                    if (r.getChannelFreq() == null || r.getChannelFreq().isEmpty()) {
-                        String freq = doc.getString("frequency");
-                        if (freq != null) r.setChannelFreq(freq);
-                    }
-                    if (r.getStreamUrl() == null || r.getStreamUrl().isEmpty()) {
-                        String streamUrl = doc.getString("streamUrl");
-                        if (streamUrl != null) r.setStreamUrl(streamUrl);
-                    }
-                    if (r.getLogo() == null || r.getLogo().isEmpty()) {
-                        String logo = doc.getString("logoUrl");
-                        if (logo != null) r.setLogo(logo);
-                    }
-                    if (r.getCity() == null || r.getCity().isEmpty()) {
-                        String city = doc.getString("city");
-                        if (city != null) r.setCity(city);
-                    }
+                    RadioInfo r = new RadioInfo();
+                    String stationId = doc.getString("id");
+                    r.setRadioId(stationId != null && !stationId.isEmpty() ? stationId : doc.getId());
+                    r.setName(doc.getString("name"));
+                    r.setEnName(doc.getString("nameEn"));
+                    r.setDesc(doc.getString("description"));
+                    r.setChannelFreq(doc.getString("frequency"));
+                    r.setCity(doc.getString("city"));
+                    r.setStreamUrl(doc.getString("streamUrl"));
+                    r.setLogo(doc.getString("logoUrl"));
+
                     Boolean isActive = doc.getBoolean("isActive");
                     if (isActive != null) {
                         r.setDisabled(!isActive);
+                    } else {
+                        Boolean disabled = doc.getBoolean("disabled");
+                        r.setDisabled(disabled != null && disabled);
                     }
+
                     Long priority = doc.getLong("priority");
                     if (priority != null) {
                         r.setPriority(priority.intValue());
                     }
+
                     Boolean isLive = doc.getBoolean("isLive");
                     if (isLive != null) {
                         r.setOnline(isLive);
+                    } else {
+                        Boolean online = doc.getBoolean("online");
+                        r.setOnline(online == null || online);
                     }
                     if (!r.isDisabled()) {
                         activeList.add(r);

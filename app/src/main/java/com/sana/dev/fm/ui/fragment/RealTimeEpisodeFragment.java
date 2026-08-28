@@ -319,7 +319,7 @@ public class RealTimeEpisodeFragment extends BaseFragment implements FirebaseAut
                         int[] startingLocation = new int[2];
                         switch (view.getId()) {
                             case R.id.civ_logo:
-                                if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhud_fm") || (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
+                                if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhudOfficial") || BuildConfig.FLAVOR.equals("hudhudDev")) {
                                     view.getLocationOnScreen(startingLocation);
                                     ProgramDetailsActivity.startUserProfileFromLocation(startingLocation, context, item);
                                     getActivity().overridePendingTransition(0, 0);

@@ -128,62 +128,66 @@ public class ProgramDetailsActivity extends BaseActivity implements RevealBackgr
 
             FirestoreDbUtility firestoreDbUtility = new FirestoreDbUtility();
 
-            CollectionReference collectionReference = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.RADIO_PROGRAM_TABLE, episode.getRadioId()).document(AppConstant.Firebase.RADIO_PROGRAM_TABLE).collection(AppConstant.Firebase.RADIO_PROGRAM_TABLE);
-            firestoreDbUtility.getOne(collectionReference, episode.getProgramId(), new CallBack() {
-                @Override
-                public void onSuccess(Object object) {
-                    try {
-                        List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
-                        if (programList != null && programList.size() > 0) {
-                            RadioProgram radioProgram = programList.get(0);
-                            TempEpModel tempEpModel = new TempEpModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), String.valueOf(radioProgram.getPrCategoryList()), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
-                            updateInfoUI(tempEpModel);
+            CollectionReference collectionReference = firestoreDbUtility.getTopLevelCollection()
+                    .document(AppConstant.Firebase.PROGRAMS_COLLECTION)
+                    .collection(AppConstant.Firebase.PROGRAMS_COLLECTION);
+
+            String programId = episode.getProgramId() != null ? episode.getProgramId() : "";
+            if (!programId.isEmpty()) {
+                firestoreDbUtility.getOne(collectionReference, programId, new CallBack() {
+                    @Override
+                    public void onSuccess(Object object) {
+                        try {
+                            List<RadioProgram> programList = FirestoreDbUtility.getDataFromQuerySnapshot(object, RadioProgram.class);
+                            if (programList != null && programList.size() > 0) {
+                                RadioProgram radioProgram = programList.get(0);
+                                TempEpModel tempEpModel = new TempEpModel(radioProgram.getPrName(), radioProgram.getPrDesc(), radioProgram.getPrTag(), String.valueOf(radioProgram.getPrCategoryList()), radioProgram.getPrProfile(), radioProgram.getLikesCount(), radioProgram.getSubscribeCount(), radioProgram.getEpisodeCount());
+                                updateInfoUI(tempEpModel);
+                            }
+                        } catch (Exception e) {
+                            LogUtility.d(TAG, "Error setupProgramProfile : " + e.getMessage());
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        LogUtility.d(TAG, "Error setupProgramProfile : " + e.getMessage());
+                        kProgressHUDHelper.dismiss();
                     }
-                    kProgressHUDHelper.dismiss();
+
+                    @Override
+                    public void onFailure(Object object) {
+                        LogUtility.e(TAG, " loadRadioProgram : " + object);
+                        kProgressHUDHelper.dismiss();
+                    }
+                });
+            } else {
+                kProgressHUDHelper.dismiss();
+            }
+
+            CollectionReference collectionReferenceE = firestoreDbUtility.getTopLevelCollection()
+                    .document(AppConstant.Firebase.EPISODES_COLLECTION)
+                    .collection(AppConstant.Firebase.EPISODES_COLLECTION);
+
+            collectionReferenceE.get().addOnSuccessListener(queryDocumentSnapshots -> {
+                List<Episode> episodeList = new ArrayList<>();
+                if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                        Episode ep = doc.toObject(Episode.class);
+                        if (ep == null) ep = new Episode();
+                        if (ep.getEpId() == null || ep.getEpId().isEmpty()) ep.setEpId(doc.getId());
+                        if (ep.getEpName() == null || ep.getEpName().isEmpty()) ep.setEpName(doc.getString("title"));
+                        if (ep.getEpDesc() == null || ep.getEpDesc().isEmpty()) ep.setEpDesc(doc.getString("description"));
+                        if (ep.getEpProfile() == null || ep.getEpProfile().isEmpty()) ep.setEpProfile(doc.getString("coverUrl"));
+                        if (ep.getEpStreamUrl() == null || ep.getEpStreamUrl().isEmpty()) ep.setEpStreamUrl(doc.getString("audioUrl"));
+
+                        if (programId.isEmpty() || programId.equals(ep.getProgramId())) {
+                            if (!ep.isDisabled()) {
+                                episodeList.add(ep);
+                            }
+                        }
+                    }
                 }
-
-                @Override
-                public void onFailure(Object object) {
-                    LogUtility.e(TAG, " loadRadioProgram :  " + object);
-                    kProgressHUDHelper.dismiss();
-                }
-            });
-
-            List<FirestoreQuery> firestoreQueryList = new ArrayList<>();
-
-            firestoreQueryList.add(new FirestoreQuery(
-                    FirestoreQueryConditionCode.WHERE_EQUAL_TO,
-                    "programId",
-                    episode.getProgramId()
-            ));
-
-            firestoreQueryList.add(new FirestoreQuery(
-                    FirestoreQueryConditionCode.WHERE_EQUAL_TO,
-                    "disabled",
-                    false
-            ));
-
-//            CollectionReference collectionRef = firestoreDbUtility.getTopLevelCollection()
-//                    .document(AppConstant.Firebase.EPISODE_TABLE).collection(episode.getRadioId());
-            CollectionReference collectionReferenceE = firestoreDbUtility.getCollectionReference(AppConstant.Firebase.EPISODE_TABLE, episode.getRadioId()).document(AppConstant.Firebase.EPISODE_TABLE).collection(AppConstant.Firebase.EPISODE_TABLE);
-
-            firestoreDbUtility.getMany(collectionReferenceE, firestoreQueryList, new CallBack() {
-                @Override
-                public void onSuccess(Object object) {
-                    List<Episode> episodeList = FirestoreDbUtility.getDataFromQuerySnapshot(object, Episode.class);
-                    ShardDate.getInstance().setEpisodeList(episodeList);
-                    detailsList = episodeList;
-                    setupUserProfileGrid();
-                }
-
-                @Override
-                public void onFailure(Object object) {
-                    LogUtility.e(TAG, " loadDailyEpisode :  " + object);
-                }
+                ShardDate.getInstance().setEpisodeList(episodeList);
+                detailsList = episodeList;
+                setupUserProfileGrid();
+            }).addOnFailureListener(e -> {
+                LogUtility.e(TAG, " loadDailyEpisode failure: " + e.getMessage());
             });
 
 

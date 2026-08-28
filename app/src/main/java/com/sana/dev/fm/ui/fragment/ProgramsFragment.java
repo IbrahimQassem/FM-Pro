@@ -211,7 +211,7 @@ public class ProgramsFragment extends BaseFragment {
             @Override
             public void onItemClick(View view, Object obj, int position) {
                 RadioProgram item = (RadioProgram) obj;
-                if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhud_fm") || (BuildConfig.FLAVOR.equals("hudhudfm_google_play") && BuildConfig.DEBUG)) {
+                if (BuildConfig.FLAVOR.equals("internews") || BuildConfig.FLAVOR.equals("hudhudOfficial") || BuildConfig.FLAVOR.equals("hudhudDev")) {
                     Episode episode = new Episode();
                     episode.setRadioId(item.getRadioId());
                     episode.setProgramId(item.getProgramId());

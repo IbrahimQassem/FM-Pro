@@ -65,35 +65,37 @@ android {
     }
 
 
-    flavorDimensions 'fm_flavor'
+    flavorDimensions 'product'
     productFlavors {
-        hudhud_fm {
-            dimension 'fm_flavor'
-            applicationId 'com.sanaadev'
-            applicationIdSuffix '.hudhudfm'
-            versionCode 27
-            versionName '2.1.0'
-            versionNameSuffix 'dev'
-            buildConfigField "String", "BASE_FB_DB", '"HudHudFM"'
-        }
-
-        hudhudfm_google_play {
-            dimension 'fm_flavor'
+        // 1. Live Official (Google Play Store Release)
+        hudhudOfficial {
+            dimension 'product'
             applicationId "com.sana.dev.fm"
             versionCode 27
             versionName "2.1.0"
-            buildConfigField "String", "BASE_FB_DB", '"HudHudFmGooglePlay"'
-            archivesBaseName = "hudhudfm-google-play-v($versionName)" // to name generated apk
+            buildConfigField "String", "BASE_FB_DB", '"HudHudFM"'
+            archivesBaseName = "hudhud-official-v($versionName)"
+        }
+
+        // 2. Test & Development (Isolated test database)
+        hudhudDev {
+            dimension 'product'
+            applicationId 'com.sanaadev'
+            applicationIdSuffix '.hudhudfm' // Resulting package: com.sanaadev.hudhudfm
+            versionCode 27
+            versionName '2.1.0'
+            versionNameSuffix '-dev'
+            buildConfigField "String", "BASE_FB_DB", '"HudHudFM_Dev"'
         }
 
         internews {
             manifestPlaceholders app_name: 'Inter News'
-            dimension 'fm_flavor'
+            dimension 'product'
             applicationId 'com.sanaadev'
             applicationIdSuffix '.internews'
             versionCode 27
             versionName '2.1.0'
-            versionNameSuffix 'dev'
+            versionNameSuffix '-dev'
             buildConfigField "String", "BASE_FB_DB", '"InterNews"'
         }
     }

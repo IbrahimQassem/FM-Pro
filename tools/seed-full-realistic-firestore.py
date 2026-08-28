@@ -70,6 +70,11 @@ def main():
 
     project_id = "sanadev-fm"
     root = "HudHudFM"
+    if "--flavor-root" in sys.argv:
+        idx = sys.argv.index("--flavor-root")
+        if idx + 1 < len(sys.argv):
+            root = sys.argv[idx + 1]
+
     now_iso = datetime.datetime.utcnow().isoformat() + "Z"
 
     print("=" * 65)

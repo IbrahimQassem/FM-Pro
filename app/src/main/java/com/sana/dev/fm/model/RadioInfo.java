@@ -1,6 +1,7 @@
 package com.sana.dev.fm.model;
 
 
+import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

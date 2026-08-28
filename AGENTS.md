@@ -72,9 +72,9 @@
 ```bash
 ./tools/verify-governance.sh
 ./tools/audit-technical-debt.sh
-./gradlew testHudhudfm_google_playDebugUnitTest
-./gradlew app:assembleHudhudfm_google_playDebug
+./gradlew testHudhudOfficialDebugUnitTest
+./gradlew app:assembleHudhudOfficialDebug
 ```
 
-للتغييرات المشتركة ابنِ أيضًا نكهتي `hudhud_fm` و`internews` المتأثرتين.
+للتغييرات المشتركة ابنِ أيضًا نكهتي `hudhudDev` و`internews` المتأثرتين.
 لا تدّع نجاح الاختبار إذا لم يعمل، وسجّل السبب والبديل المستخدم.
