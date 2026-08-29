@@ -5,6 +5,8 @@
   "onlineStatus": "متصل",
   "offlineStatus": "تعذر الاتصال — حاول التحديث",
   "notifications": "الإشعارات",
+  "audioPlaybackNotificationChannelName": "تشغيل إذاعات هدهد",
+  "audioPlaybackNotificationChannelDescription": "التحكم في البث الإذاعي الجاري من الإشعار وشاشة القفل",
   "settings": "الإعدادات",
   "comingSoon": "ستتوفر في خطوة لاحقة",
   "searchHint": "ابحث باسم الإذاعة أو المدينة أو التردد",

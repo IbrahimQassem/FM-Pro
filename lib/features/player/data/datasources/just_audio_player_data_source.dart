@@ -1,15 +1,26 @@
 import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 
+import '../../domain/models/audio_playback_item.dart';
 import '../../domain/models/audio_playback_phase.dart';
 import 'audio_player_data_source.dart';
 
 class JustAudioPlayerDataSource implements AudioPlayerDataSource {
   JustAudioPlayerDataSource({AudioPlayer? player})
-    : _player = player ?? AudioPlayer() {
+    : _player =
+          player ??
+          AudioPlayer(
+            handleInterruptions: true,
+            androidApplyAudioAttributes: true,
+            handleAudioSessionActivation: true,
+          ) {
     _playerStateSubscription = _player.playerStateStream.listen((state) {
+      if (_isReplacingSource && state.processingState == ProcessingState.idle) {
+        return;
+      }
       _phaseController.add(_mapPhase(state));
     });
     _playbackErrorSubscription = _player.playbackEventStream.listen(
@@ -26,6 +37,7 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
   late final StreamSubscription<PlayerState> _playerStateSubscription;
   late final StreamSubscription<PlaybackEvent> _playbackErrorSubscription;
   bool _isSessionConfigured = false;
+  bool _isReplacingSource = false;
 
   @override
   Stream<AudioPlaybackPhase> get phaseChanges => _phaseController.stream;
@@ -42,26 +54,54 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
   }
 
   @override
-  Future<void> load(List<String> streamUrls) async {
+  Future<void> load(AudioPlaybackItem item) async {
     await _configureSession();
-    await _player.stop();
+    _isReplacingSource = true;
+    try {
+      await _player.stop();
 
-    for (final streamUrl in streamUrls) {
-      try {
-        await _player.setUrl(streamUrl);
-        return;
-      } on Object {
-        // Try the explicitly configured backup without exposing either URL.
+      final mediaItem = MediaItem(
+        id: item.id,
+        title: item.title,
+        artUri: _safeHttpsUri(item.artworkUrl),
+        isLive: true,
+      );
+      for (final streamUrl in item.streamUrls) {
+        try {
+          await _player.setAudioSource(
+            AudioSource.uri(Uri.parse(streamUrl), tag: mediaItem),
+          );
+          return;
+        } on Object {
+          // Try the explicitly configured backup without exposing either URL.
+        }
       }
+    } finally {
+      _isReplacingSource = false;
     }
 
     throw const AudioSourceUnavailableException();
   }
 
   @override
-  Future<void> play() {
-    unawaited(_player.play().catchError((Object _) {}));
-    return Future<void>.value();
+  Future<void> play() async {
+    unawaited(_playAndReportErrors());
+  }
+
+  Future<void> _playAndReportErrors() async {
+    try {
+      await _player.play();
+    } on Object catch (error, stackTrace) {
+      if (!_phaseController.isClosed) {
+        _phaseController.addError(error, stackTrace);
+      }
+    }
+  }
+
+  Uri? _safeHttpsUri(String value) {
+    final uri = Uri.tryParse(value);
+    if (uri == null || uri.scheme != 'https' || !uri.hasAuthority) return null;
+    return uri;
   }
 
   @override

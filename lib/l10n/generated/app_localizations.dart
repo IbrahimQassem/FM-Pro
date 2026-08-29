@@ -134,6 +134,18 @@ abstract class AppLocalizations {
   /// **'Notifications'**
   String get notifications;
 
+  /// No description provided for @audioPlaybackNotificationChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'HudHud radio playback'**
+  String get audioPlaybackNotificationChannelName;
+
+  /// No description provided for @audioPlaybackNotificationChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Control the active radio stream from notifications and the lock screen'**
+  String get audioPlaybackNotificationChannelDescription;
+
   /// No description provided for @settings.
   ///
   /// In en, this message translates to:

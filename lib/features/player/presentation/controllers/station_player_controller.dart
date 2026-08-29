@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../home/domain/models/station.dart';
+import '../../domain/models/audio_playback_item.dart';
 import '../../domain/models/audio_playback_phase.dart';
 import '../../domain/repositories/audio_playback_repository.dart';
 import 'station_player_state.dart';
@@ -38,10 +39,17 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
       status: StationPlaybackStatus.loading,
     );
     try {
-      await _repository.load([
-        station.streamUrl,
-        if (station.backupStreamUrl.isNotEmpty) station.backupStreamUrl,
-      ]);
+      await _repository.load(
+        AudioPlaybackItem(
+          id: station.id,
+          title: station.name,
+          artworkUrl: station.logoUrl,
+          streamUrls: [
+            station.streamUrl,
+            if (station.backupStreamUrl.isNotEmpty) station.backupStreamUrl,
+          ],
+        ),
+      );
       await _repository.play();
     } on Object catch (error) {
       _setFailure(error);
@@ -86,6 +94,10 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
 
   void _onPhaseChanged(AudioPlaybackPhase phase) {
     if (state.station == null) return;
+    if (phase == AudioPlaybackPhase.idle) {
+      state = const StationPlayerState();
+      return;
+    }
     final status = switch (phase) {
       AudioPlaybackPhase.idle => StationPlaybackStatus.idle,
       AudioPlaybackPhase.loading => StationPlaybackStatus.loading,

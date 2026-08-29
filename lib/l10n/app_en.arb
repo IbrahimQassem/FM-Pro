@@ -5,6 +5,8 @@
   "onlineStatus": "Connected",
   "offlineStatus": "Connection failed — try refreshing",
   "notifications": "Notifications",
+  "audioPlaybackNotificationChannelName": "HudHud radio playback",
+  "audioPlaybackNotificationChannelDescription": "Control the active radio stream from notifications and the lock screen",
   "settings": "Settings",
   "comingSoon": "Coming in a later step",
   "searchHint": "Search by station, city, or frequency",

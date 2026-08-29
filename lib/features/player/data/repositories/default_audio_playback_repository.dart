@@ -1,3 +1,4 @@
+import '../../domain/models/audio_playback_item.dart';
 import '../../domain/models/audio_playback_phase.dart';
 import '../../domain/repositories/audio_playback_repository.dart';
 import '../datasources/audio_player_data_source.dart';
@@ -11,7 +12,7 @@ class DefaultAudioPlaybackRepository implements AudioPlaybackRepository {
   Stream<AudioPlaybackPhase> get phaseChanges => _dataSource.phaseChanges;
 
   @override
-  Future<void> load(List<String> streamUrls) => _dataSource.load(streamUrls);
+  Future<void> load(AudioPlaybackItem item) => _dataSource.load(item);
 
   @override
   Future<void> pause() => _dataSource.pause();

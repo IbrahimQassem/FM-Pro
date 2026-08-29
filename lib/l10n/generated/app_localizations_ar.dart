@@ -27,6 +27,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notifications => 'الإشعارات';
 
   @override
+  String get audioPlaybackNotificationChannelName => 'تشغيل إذاعات هدهد';
+
+  @override
+  String get audioPlaybackNotificationChannelDescription =>
+      'التحكم في البث الإذاعي الجاري من الإشعار وشاشة القفل';
+
+  @override
   String get settings => 'الإعدادات';
 
   @override

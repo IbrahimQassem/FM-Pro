@@ -27,6 +27,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifications => 'Notifications';
 
   @override
+  String get audioPlaybackNotificationChannelName => 'HudHud radio playback';
+
+  @override
+  String get audioPlaybackNotificationChannelDescription =>
+      'Control the active radio stream from notifications and the lock screen';
+
+  @override
   String get settings => 'Settings';
 
   @override
