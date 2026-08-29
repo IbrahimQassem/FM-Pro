@@ -16,6 +16,7 @@
 - [خطة التنفيذ ومتتبع التقدم](roadmap/phased-delivery-plan.md)
 - [سجل الدين التقني](roadmap/technical-debt-register.md)
 - [تعريف الاكتمال](roadmap/definition-of-done.md)
+- [تشغيل التطوير الوكيلي](automation/agent-development.md)
 - [خطة تدوير مفتاح التوقيع](security/signing-key-rotation-plan.md)
 - [جرد Firebase الحالي](firebase/current-schema-inventory.md)
 - [دليل اختبار ونشر قواعد Firebase](firebase/security-rules-runbook.md)

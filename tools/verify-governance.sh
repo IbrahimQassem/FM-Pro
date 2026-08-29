@@ -16,6 +16,13 @@ docs/contracts/quality-release-contract.md
 docs/roadmap/phased-delivery-plan.md
 docs/roadmap/technical-debt-register.md
 docs/roadmap/definition-of-done.md
+docs/automation/agent-development.md
+tools/agent-task.py
+.agents/tasks/examples/example-task.json
+.agents/skills/orchestrate-fm-pro-task/SKILL.md
+.agents/skills/orchestrate-fm-pro-task/agents/openai.yaml
+.github/ISSUE_TEMPLATE/agent-task.yml
+.github/workflows/agent-task-gate.yml
 "
 
 for required_file in $required_files; do
@@ -38,6 +45,8 @@ for role_file in .agents/roles/*.md; do
     exit 1
   fi
 done
+
+python3 tools/agent-task.py validate .agents/tasks/examples/example-task.json
 
 comment_only_found=0
 for java_file in $(find app/src/main/java -type f -name '*.java' -print); do

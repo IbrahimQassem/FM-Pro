@@ -63,12 +63,15 @@ jobs:
       - name: Verify governance
         run: ./tools/verify-governance.sh
 
+      - name: Test agent task automation
+        run: python3 -m unittest discover -s tests/tools -p 'test_*.py'
+
       - name: Run unit tests
-        run: ./gradlew testHudhudfm_google_playDebugUnitTest --no-daemon
+        run: ./gradlew testHudhudOfficialDebugUnitTest --no-daemon
 
       - name: Build listener variants
         run: >-
           ./gradlew
-          app:assembleHudhudfm_google_playDebug
-          app:assembleHudhud_fmDebug
+          app:assembleHudhudOfficialDebug
+          app:assembleHudhudDevDebug
           --no-daemon

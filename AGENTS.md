@@ -3,7 +3,7 @@
 ## Scope
 
 هذه التعليمات تخص مستودع `FM-Pro` فقط. لا تقرأ أو تعدّل أو تنقل كودًا من
-`../hudhudfm`. التطبيق المطلوب هنا Android أصلي، ويجب تطويره تدريجيًا داخل
+`../hudhud_fm`. التطبيق المطلوب هنا Android أصلي، ويجب تطويره تدريجيًا داخل
 هذا المستودع مع المحافظة على نكهات المنتج الحالية.
 
 ## Single source of truth
@@ -58,6 +58,18 @@
 - Firebase والصلاحيات: `.agents/skills/secure-fm-pro-firebase/SKILL.md`
 - إزالة الدين والكود الميت: `.agents/skills/retire-fm-pro-debt/SKILL.md`
 - التحقق والإصدار: `.agents/skills/verify-fm-pro-release/SKILL.md`
+- تنسيق تغيير وكيلي من عقد مهمة إلى PR: `.agents/skills/orchestrate-fm-pro-task/SKILL.md`
+
+## Agent task automation
+
+أي تغيير يحمل label باسم `agent-change` يجب أن يضيف أو يعدّل عقدًا واحدًا في
+`.agents/tasks/<task-id>-<slug>.json`. شغّل `tools/agent-task.py preflight` قبل
+التنفيذ و`tools/agent-task.py scope` بعده. عقد المهمة يحدد النطاق والقبول وبوابات
+التحقق، لكنه لا يمنح صلاحية كتابة خارجية أو تغيير إنتاج أو فعل تدميري.
+
+المنسق لا يراجع أو يعتمد تنفيذه. تغييرات الأسرار والتوقيع وملفات CI وعقود
+المعمارية وقواعد Firebase خارج مسار التنفيذ الوكيلي الآلي، وتحتاج تغييرًا بشريًا
+مستقلًا. تفاصيل التشغيل في `docs/automation/agent-development.md`.
 
 ## Agent roles
 
@@ -72,6 +84,7 @@
 ```bash
 ./tools/verify-governance.sh
 ./tools/audit-technical-debt.sh
+python3 -m unittest discover -s tests/tools -p 'test_*.py'
 ./gradlew testHudhudOfficialDebugUnitTest
 ./gradlew app:assembleHudhudOfficialDebug
 ```
