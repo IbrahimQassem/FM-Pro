@@ -159,6 +159,103 @@ class AppLocalizationsAr extends AppLocalizations {
   String get programs => 'برامج';
 
   @override
+  String get schedule => 'الجدول';
+
+  @override
+  String get featuredProgram => 'برنامج مميز';
+
+  @override
+  String episodesCount(Object count) {
+    return '$count حلقة';
+  }
+
+  @override
+  String get programsLoadErrorTitle => 'تعذر تحميل البرامج';
+
+  @override
+  String get programsLoadErrorMessage => 'تحقق من اتصالك ثم أعد المحاولة.';
+
+  @override
+  String get noProgramsTitle => 'لا توجد برامج متاحة';
+
+  @override
+  String get noProgramsMessage => 'لم تُنشر برامج لهذه المحطة بعد.';
+
+  @override
+  String get cachedContentNotice =>
+      'تعرض بيانات محفوظة؛ تحقق من الاتصال للتحديث.';
+
+  @override
+  String get scheduleLoadError => 'تعذر تحميل جدول البث.';
+
+  @override
+  String get noScheduleForDay => 'لا توجد برامج مجدولة في هذا اليوم.';
+
+  @override
+  String get scheduleLive => 'الآن';
+
+  @override
+  String get scheduleNext => 'التالي';
+
+  @override
+  String get scheduleUpcoming => 'قادم';
+
+  @override
+  String get scheduleEnded => 'انتهى';
+
+  @override
+  String get monday => 'الاثنين';
+
+  @override
+  String get tuesday => 'الثلاثاء';
+
+  @override
+  String get wednesday => 'الأربعاء';
+
+  @override
+  String get thursday => 'الخميس';
+
+  @override
+  String get friday => 'الجمعة';
+
+  @override
+  String get saturday => 'السبت';
+
+  @override
+  String get sunday => 'الأحد';
+
+  @override
+  String get aboutProgram => 'عن البرنامج';
+
+  @override
+  String presentedBy(Object name) {
+    return 'تقديم: $name';
+  }
+
+  @override
+  String programTime(Object end, Object start) {
+    return 'من $start إلى $end';
+  }
+
+  @override
+  String programEpisodesTitle(Object count) {
+    return 'حلقات البرنامج ($count)';
+  }
+
+  @override
+  String get noEpisodesMessage => 'لم تُنشر حلقات لهذا البرنامج بعد.';
+
+  @override
+  String minutesCount(Object count) {
+    return '$count دقيقة';
+  }
+
+  @override
+  String playEpisode(Object title) {
+    return 'تشغيل حلقة $title';
+  }
+
+  @override
   String get totalPlays => 'استماع';
 
   @override
@@ -197,15 +294,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get listenLive => 'استمع للبث المباشر';
-
-  @override
-  String stationProgramsTitle(int count) {
-    return 'برامج المحطة ($count)';
-  }
-
-  @override
-  String get stationProgramsNextStep =>
-      'سيتم عرض قائمة البرامج والحلقات عند ربط مصدر بيانات البرامج في الخطوة التالية.';
 
   @override
   String get stationInformation => 'معلومات وتفاصيل الإذاعة';

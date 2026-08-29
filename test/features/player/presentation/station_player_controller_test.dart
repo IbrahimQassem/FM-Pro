@@ -7,6 +7,7 @@ import 'package:hudhud_fm/features/player/domain/models/audio_playback_phase.dar
 import 'package:hudhud_fm/features/player/domain/repositories/audio_playback_repository.dart';
 import 'package:hudhud_fm/features/player/presentation/controllers/station_player_controller.dart';
 import 'package:hudhud_fm/features/player/presentation/controllers/station_player_state.dart';
+import 'package:hudhud_fm/features/station_content/domain/models/episode.dart';
 
 void main() {
   test(
@@ -83,6 +84,23 @@ void main() {
     controller.dispose();
     await repository.dispose();
   });
+
+  test('loads an episode into the same shared audio repository', () async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = StationPlayerController(repository);
+    final station = _station();
+    final episode = _episode();
+
+    await controller.playEpisode(episode, station);
+
+    expect(repository.loadedItem?.id, 'episode:${episode.id}');
+    expect(repository.loadedItem?.title, episode.title);
+    expect(repository.loadedItem?.album, station.name);
+    expect(repository.loadedItem?.streamUrls, [episode.audioUrl]);
+    expect(controller.state.isEpisodeSelected(episode.id), isTrue);
+    controller.dispose();
+    await repository.dispose();
+  });
 }
 
 Station _station() {
@@ -104,6 +122,25 @@ Station _station() {
     programsCount: 4,
     subscribersCount: 120,
     totalPlays: 400,
+  );
+}
+
+Episode _episode() {
+  return Episode(
+    id: 'episode-1',
+    programId: 'morning',
+    stationId: 'sanaa-radio',
+    title: 'حلقة التعليم',
+    audioUrl: 'https://audio.example.com/episode.mp3',
+    durationSeconds: 1800,
+    priority: 10,
+    isPublished: true,
+    isFeatured: false,
+    broadcastAt: DateTime.utc(2026, 8, 29, 5),
+    utcOffsetMinutes: 180,
+    playsCount: 10,
+    likesCount: 1,
+    commentsCount: 0,
   );
 }
 

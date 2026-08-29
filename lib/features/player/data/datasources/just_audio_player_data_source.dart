@@ -63,6 +63,7 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
       final mediaItem = MediaItem(
         id: item.id,
         title: item.title,
+        album: item.album.isEmpty ? null : item.album,
         artUri: _safeHttpsUri(item.artworkUrl),
         isLive: true,
       );

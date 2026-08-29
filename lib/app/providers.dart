@@ -19,6 +19,11 @@ import '../features/player/data/repositories/default_audio_playback_repository.d
 import '../features/player/domain/repositories/audio_playback_repository.dart';
 import '../features/player/presentation/controllers/station_player_controller.dart';
 import '../features/player/presentation/controllers/station_player_state.dart';
+import '../features/station_content/data/datasources/station_content_firestore_data_source.dart';
+import '../features/station_content/data/repositories/firebase_station_content_repository.dart';
+import '../features/station_content/domain/repositories/station_content_repository.dart';
+import '../features/station_content/presentation/controllers/station_content_controller.dart';
+import '../features/station_content/presentation/controllers/station_content_state.dart';
 
 final homeDataSourceProvider = Provider<HomeFirestoreDataSource>((ref) {
   return HomeFirestoreDataSource(
@@ -50,6 +55,30 @@ final homeControllerProvider =
         ref.watch(bannersRepositoryProvider),
         ref.watch(locationsRepositoryProvider),
         ref.watch(userRepositoryProvider),
+      );
+    });
+
+final stationContentDataSourceProvider =
+    Provider<StationContentFirestoreDataSource>((ref) {
+      return StationContentFirestoreDataSource(FirebaseFirestore.instance);
+    });
+
+final stationContentRepositoryProvider = Provider<StationContentRepository>((
+  ref,
+) {
+  return FirebaseStationContentRepository(
+    ref.watch(stationContentDataSourceProvider),
+  );
+});
+
+final stationContentControllerProvider = StateNotifierProvider.autoDispose
+    .family<StationContentController, StationContentState, String>((
+      ref,
+      stationId,
+    ) {
+      return StationContentController(
+        stationId,
+        ref.watch(stationContentRepositoryProvider),
       );
     });
 

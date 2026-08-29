@@ -45,7 +45,7 @@
         "isVerified": false,
         "isFeatured": true,
         "stats": {
-          "programsCount": 0,
+          "programsCount": 2,
           "subscribersCount": 0,
           "totalPlays": 0
         }
@@ -95,7 +95,7 @@
         "isVerified": false,
         "isFeatured": true,
         "stats": {
-          "programsCount": 0,
+          "programsCount": 1,
           "subscribersCount": 0,
           "totalPlays": 0
         }
@@ -123,6 +123,146 @@
           "subscribersCount": 0,
           "totalPlays": 0
         }
+      }
+    }
+  ],
+  "programs": [
+    {
+      "id": "sanaa-morning",
+      "data": {
+        "stationId": "sanaa-radio",
+        "title": "صباح اليمن",
+        "titleEn": "Yemen Morning",
+        "description": "برنامج صباحي يتابع الأخبار المحلية والطقس وقضايا المجتمع.",
+        "coverUrl": "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=900",
+        "thumbnailUrl": "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=300",
+        "categories": ["صباحي", "مجتمعي"],
+        "presenters": ["أحمد الشامي"],
+        "priority": 100,
+        "isActive": true,
+        "isFeatured": true,
+        "schedule": {
+          "weekdays": [6, 7, 1, 2, 3, 4],
+          "startMinute": 480,
+          "endMinute": 600,
+          "utcOffsetMinutes": 180
+        },
+        "stats": {
+          "episodesCount": 2,
+          "subscribersCount": 0,
+          "totalPlays": 0
+        }
+      }
+    },
+    {
+      "id": "sanaa-community",
+      "data": {
+        "stationId": "sanaa-radio",
+        "title": "صوت المجتمع",
+        "titleEn": "Community Voice",
+        "description": "مساحة حوارية أسبوعية لقضايا المجتمع والمبادرات المحلية.",
+        "categories": ["حواري", "مجتمعي"],
+        "presenters": ["منى القاضي"],
+        "priority": 80,
+        "isActive": true,
+        "isFeatured": false,
+        "schedule": {
+          "weekdays": [1, 3],
+          "startMinute": 1020,
+          "endMinute": 1080,
+          "utcOffsetMinutes": 180
+        },
+        "stats": {
+          "episodesCount": 0,
+          "subscribersCount": 0,
+          "totalPlays": 0
+        }
+      }
+    },
+    {
+      "id": "aden-evening",
+      "data": {
+        "stationId": "huna-aden-fm",
+        "title": "مساء عدن",
+        "titleEn": "Aden Evening",
+        "description": "جولة مسائية في أخبار عدن وثقافتها وفنونها.",
+        "categories": ["ثقافي", "مسائي"],
+        "presenters": ["سلمى باوزير"],
+        "priority": 90,
+        "isActive": true,
+        "isFeatured": true,
+        "schedule": {
+          "weekdays": [6, 1, 3],
+          "startMinute": 1080,
+          "endMinute": 1140,
+          "utcOffsetMinutes": 180
+        },
+        "stats": {
+          "episodesCount": 1,
+          "subscribersCount": 0,
+          "totalPlays": 0
+        }
+      }
+    }
+  ],
+  "episodes": [
+    {
+      "id": "sanaa-morning-education",
+      "data": {
+        "programId": "sanaa-morning",
+        "stationId": "sanaa-radio",
+        "title": "التعليم ومستقبل الشباب",
+        "description": "حوار حول التعليم وفرص الشباب في سوق العمل.",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        "durationSeconds": 1800,
+        "coverUrl": "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900",
+        "presenter": "أحمد الشامي",
+        "guest": "د. عبد الله الماوري",
+        "priority": 100,
+        "isPublished": true,
+        "isFeatured": true,
+        "broadcastAt": "2026-08-29T05:00:00Z",
+        "utcOffsetMinutes": 180,
+        "publishedAt": "2026-08-29T07:30:00Z",
+        "stats": {"playsCount": 0, "likesCount": 0, "commentsCount": 0}
+      }
+    },
+    {
+      "id": "sanaa-morning-environment",
+      "data": {
+        "programId": "sanaa-morning",
+        "stationId": "sanaa-radio",
+        "title": "المبادرات البيئية في المدن",
+        "description": "لقاء مع مبادرات محلية للتشجير والطاقة المستدامة.",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+        "durationSeconds": 1500,
+        "presenter": "أحمد الشامي",
+        "priority": 90,
+        "isPublished": true,
+        "isFeatured": false,
+        "broadcastAt": "2026-08-28T05:00:00Z",
+        "utcOffsetMinutes": 180,
+        "publishedAt": "2026-08-28T07:00:00Z",
+        "stats": {"playsCount": 0, "likesCount": 0, "commentsCount": 0}
+      }
+    },
+    {
+      "id": "aden-evening-culture",
+      "data": {
+        "programId": "aden-evening",
+        "stationId": "huna-aden-fm",
+        "title": "ذاكرة عدن الثقافية",
+        "description": "رحلة في الموسيقى والمسرح والحكايات العدنية.",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+        "durationSeconds": 2100,
+        "presenter": "سلمى باوزير",
+        "priority": 100,
+        "isPublished": true,
+        "isFeatured": true,
+        "broadcastAt": "2026-08-29T15:00:00Z",
+        "utcOffsetMinutes": 180,
+        "publishedAt": "2026-08-29T16:00:00Z",
+        "stats": {"playsCount": 0, "likesCount": 0, "commentsCount": 0}
       }
     }
   ],

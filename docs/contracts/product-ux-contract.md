@@ -9,13 +9,16 @@
 
 ```text
 Splash/Firebase gate -> Home discovery -> Station details
-                                  \-> shared mini player
+                                  |        -> Programs -> Program episodes
+                                  |        -> Weekly schedule
+                                  \-> shared live/episode mini player
 ```
 
 - Android هدف الإصدار الأول، وiOS مدعوم في التطوير.
 - لا bottom navigation حاليًا ولا لوحة إدارة أو إشعارات أو إعدادات منفذة.
 - الأزرار المؤجلة تعرض رسالة localized ولا تنشئ تدفقًا وهميًا.
-- تبويب البرامج في تفاصيل المحطة placeholder معلن، لا يوهم ببيانات محملة.
+- تفاصيل المحطة تعرض البرامج والجدول الأسبوعي وحالات التحميل/الفراغ/الخطأ.
+- تفاصيل البرنامج تعرض الوصف والمقدم والتوقيت والحلقات المنشورة وتشغيلها.
 
 ## الشاشة الرئيسية
 

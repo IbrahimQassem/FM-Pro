@@ -10,6 +10,7 @@
 | Firebase data/security | `roles/firebase-data-security.md` | schema والمصادر والمصادقة والأمان |
 | Product UX/accessibility | `roles/product-ux-accessibility.md` | الرحلات وRTL والتوطين والوصول |
 | Playback | `roles/playback.md` | الصوت والحالة والمقاطعات والمنصات |
+| Station content | `roles/station-content.md` | البرامج والحلقات والجدول وربط صوت الحلقة |
 | Quality release | `roles/quality-release.md` | الأدلة والاختبارات والبناء والإصدار |
 
 ## نموذج التفويض

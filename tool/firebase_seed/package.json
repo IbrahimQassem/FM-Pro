@@ -7,7 +7,9 @@
   },
   "scripts": {
     "seed:dry": "node seed.mjs --project sanadev-fm",
-    "seed:apply": "node seed.mjs --project sanadev-fm --apply"
+    "seed:apply": "node seed.mjs --project sanadev-fm --apply",
+    "seed:content:dry": "node seed.mjs --project sanadev-fm --content-only",
+    "seed:content:apply": "node seed.mjs --project sanadev-fm --content-only --apply"
   },
   "dependencies": {
     "@google-cloud/firestore": "9.0.0"

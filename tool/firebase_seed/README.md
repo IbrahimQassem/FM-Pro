@@ -7,6 +7,8 @@
 
 - مدينتان معتمدتان: صنعاء وعدن.
 - أربع محطات ذات روابط HTTPS أعادت `audio/mpeg` عند التحقق.
+- ثلاثة برامج canonical مرتبطة بصنعاء وعدن مع جدول أسبوعي بتوقيت اليمن.
+- ثلاث حلقات منشورة بملفات HTTPS وحقول Firestore الزمنية عند التطبيق.
 - بانر HudHud أصلي مخزن في Firebase Storage تحت
   `HudHudDev/banners/welcome-v1/hudhud-discovery-v1.jpg`.
 
@@ -28,11 +30,17 @@ cd tool/firebase_seed
 npm install
 npm run seed:dry
 npm run seed:apply
+npm run seed:content:dry
+npm run seed:content:apply
 ```
 
 `seed:dry` لا يتصل بـ Firestore. أما `seed:apply` فيقبل مشروع `sanadev-fm`
 فقط، وينشئ جميع الوثائق داخل batch ذري باستخدام `create`. إذا وجد أي Document
 ID مسبقًا تفشل العملية كاملة بدل استبداله.
+
+للبيئة التي تحتوي المحطات بالفعل، يستخدم `seed:content:apply` batch ذريًا ينشئ
+البرامج والحلقات فقط ويحدث `stats.programsCount` لمحطتي صنعاء وهنا عدن. لا
+يستبدل وثيقة برنامج أو حلقة موجودة؛ تعارض أي ID يلغي العملية كاملة.
 
 ## مصادر التحقق
 

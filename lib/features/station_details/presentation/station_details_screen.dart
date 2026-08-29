@@ -7,6 +7,17 @@ import '../../../l10n/generated/app_localizations.dart';
 import '../../home/domain/models/station.dart';
 import '../../player/presentation/controllers/station_player_state.dart';
 import '../../player/presentation/widgets/mini_player.dart';
+import '../../station_content/domain/models/station_program.dart';
+import '../../station_content/presentation/controllers/station_content_state.dart';
+import '../../station_content/presentation/program_details_screen.dart';
+import '../../station_content/presentation/widgets/station_programs_tab.dart';
+import '../../station_content/presentation/widgets/station_schedule_tab.dart';
+
+Future<void> _completedRefresh() async {}
+
+void _ignoreProgram(StationProgram _) {}
+
+void _ignoreWeekday(int _) {}
 
 class StationDetailsScreen extends ConsumerWidget {
   const StationDetailsScreen({required this.station, super.key});
@@ -17,8 +28,26 @@ class StationDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final playerState = ref.watch(stationPlayerControllerProvider);
     final playerController = ref.read(stationPlayerControllerProvider.notifier);
+    final contentState = ref.watch(
+      stationContentControllerProvider(station.id),
+    );
+    final contentController = ref.read(
+      stationContentControllerProvider(station.id).notifier,
+    );
     final isSelected = playerState.isSelected(station.id);
     final status = isSelected ? playerState.status : StationPlaybackStatus.idle;
+
+    void openProgram(StationProgram program) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (context) => ProgramDetailsScreen(
+            station: station,
+            program: program,
+            episodes: contentState.episodesFor(program.id),
+          ),
+        ),
+      );
+    }
 
     return StationDetailsView(
       station: station,
@@ -31,11 +60,15 @@ class StationDetailsScreen extends ConsumerWidget {
         }
       },
       onStopPressed: playerController.stop,
-      playerBar: playerState.station == null
+      contentState: contentState,
+      onContentRefresh: contentController.refresh,
+      onProgramPressed: openProgram,
+      onWeekdaySelected: contentController.selectWeekday,
+      playerBar: !playerState.hasSelection
           ? null
           : MiniPlayer(
               state: playerState,
-              onToggle: () => playerController.play(playerState.station!),
+              onToggle: playerController.toggleCurrent,
               onStop: playerController.stop,
             ),
     );
@@ -48,6 +81,10 @@ class StationDetailsView extends StatelessWidget {
     required this.playbackStatus,
     required this.onPlayPressed,
     required this.onStopPressed,
+    this.contentState = const StationContentState(isInitialLoading: false),
+    this.onContentRefresh,
+    this.onProgramPressed,
+    this.onWeekdaySelected,
     this.playerBar,
     super.key,
   });
@@ -56,6 +93,10 @@ class StationDetailsView extends StatelessWidget {
   final StationPlaybackStatus playbackStatus;
   final VoidCallback onPlayPressed;
   final VoidCallback onStopPressed;
+  final StationContentState contentState;
+  final Future<void> Function()? onContentRefresh;
+  final ValueChanged<StationProgram>? onProgramPressed;
+  final ValueChanged<int>? onWeekdaySelected;
   final Widget? playerBar;
 
   @override
@@ -64,8 +105,8 @@ class StationDetailsView extends StatelessWidget {
     final hasFailed = playbackStatus == StationPlaybackStatus.failure;
 
     return DefaultTabController(
-      length: 2,
-      initialIndex: 1,
+      length: 3,
+      initialIndex: 2,
       child: Scaffold(
         bottomNavigationBar: playerBar,
         body: NestedScrollView(
@@ -91,6 +132,7 @@ class StationDetailsView extends StatelessWidget {
                 TabBar(
                   tabs: [
                     Tab(text: strings.programs),
+                    Tab(text: strings.schedule),
                     Tab(text: strings.aboutStation),
                   ],
                 ),
@@ -99,7 +141,18 @@ class StationDetailsView extends StatelessWidget {
           ],
           body: TabBarView(
             children: [
-              _ProgramsTab(programsCount: station.programsCount),
+              StationProgramsTab(
+                state: contentState,
+                onRefresh: onContentRefresh ?? _completedRefresh,
+                onProgramPressed: onProgramPressed ?? _ignoreProgram,
+              ),
+              StationScheduleTab(
+                state: contentState,
+                now: DateTime.now(),
+                onRefresh: onContentRefresh ?? _completedRefresh,
+                onWeekdaySelected: onWeekdaySelected ?? _ignoreWeekday,
+                onProgramPressed: onProgramPressed ?? _ignoreProgram,
+              ),
               _AboutTab(station: station, hasPlaybackFailed: hasFailed),
             ],
           ),
@@ -312,54 +365,6 @@ class _StationHero extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _ProgramsTab extends StatelessWidget {
-  const _ProgramsTab({required this.programsCount});
-
-  final int programsCount;
-
-  @override
-  Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context);
-    return CustomScrollView(
-      key: const PageStorageKey('station-programs-tab'),
-      slivers: [
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: Padding(
-            padding: const EdgeInsets.all(28),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.library_music_outlined,
-                  size: 58,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  strings.stationProgramsTitle(programsCount),
-                  textAlign: TextAlign.center,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  strings.stationProgramsNextStep,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

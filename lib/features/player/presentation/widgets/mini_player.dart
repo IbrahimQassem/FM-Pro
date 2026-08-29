@@ -20,7 +20,7 @@ class MiniPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final station = state.station!;
+    final title = state.title;
     final strings = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final isLoading = state.status == StationPlaybackStatus.loading;
@@ -40,7 +40,7 @@ class MiniPlayer extends StatelessWidget {
             padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 8, 10),
             child: Row(
               children: [
-                _MiniArtwork(url: station.logoUrl),
+                _MiniArtwork(url: state.artworkUrl),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -48,7 +48,7 @@ class MiniPlayer extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        station.name,
+                        title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(

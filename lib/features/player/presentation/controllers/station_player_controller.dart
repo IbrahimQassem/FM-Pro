@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../home/domain/models/station.dart';
+import '../../../station_content/domain/models/episode.dart';
 import '../../domain/models/audio_playback_item.dart';
 import '../../domain/models/audio_playback_phase.dart';
 import '../../domain/repositories/audio_playback_repository.dart';
@@ -56,6 +57,42 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
     }
   }
 
+  Future<void> playEpisode(Episode episode, Station station) async {
+    if (state.isEpisodeSelected(episode.id)) {
+      if (state.status == StationPlaybackStatus.playing) {
+        await pause();
+        return;
+      }
+      if (state.status == StationPlaybackStatus.paused) {
+        await resume();
+        return;
+      }
+      if (state.status == StationPlaybackStatus.loading) return;
+    }
+
+    state = StationPlayerState(
+      station: station,
+      episode: episode,
+      status: StationPlaybackStatus.loading,
+    );
+    try {
+      await _repository.load(
+        AudioPlaybackItem(
+          id: 'episode:${episode.id}',
+          title: episode.title,
+          album: station.name,
+          artworkUrl: episode.coverUrl.isEmpty
+              ? station.logoUrl
+              : episode.coverUrl,
+          streamUrls: [episode.audioUrl],
+        ),
+      );
+      await _repository.play();
+    } on Object catch (error) {
+      _setFailure(error);
+    }
+  }
+
   Future<void> pause() async {
     if (state.station == null) return;
     try {
@@ -78,8 +115,27 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
   Future<void> retry() async {
     final station = state.station;
     if (station == null) return;
+    final episode = state.episode;
     state = const StationPlayerState();
-    await play(station);
+    if (episode == null) {
+      await play(station);
+    } else {
+      await playEpisode(episode, station);
+    }
+  }
+
+  Future<void> toggleCurrent() async {
+    final station = state.station;
+    if (station == null || state.status == StationPlaybackStatus.loading) {
+      return;
+    }
+    if (state.status == StationPlaybackStatus.failure) {
+      await retry();
+    } else if (state.status == StationPlaybackStatus.playing) {
+      await pause();
+    } else {
+      await resume();
+    }
   }
 
   Future<void> stop() async {

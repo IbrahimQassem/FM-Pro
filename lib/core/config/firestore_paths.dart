@@ -19,4 +19,12 @@ abstract final class FirestorePaths {
   static CollectionReference<Map<String, dynamic>> locations(
     FirebaseFirestore firestore,
   ) => firestore.collection(root).doc('locations').collection('locations');
+
+  static CollectionReference<Map<String, dynamic>> programs(
+    FirebaseFirestore firestore,
+  ) => firestore.collection(root).doc('programs').collection('programs');
+
+  static CollectionReference<Map<String, dynamic>> episodes(
+    FirebaseFirestore firestore,
+  ) => firestore.collection(root).doc('episodes').collection('episodes');
 }

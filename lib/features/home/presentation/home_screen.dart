@@ -45,12 +45,12 @@ class HomeScreen extends ConsumerWidget {
       onSettingsPressed: showDeferredMessage,
       onStationPressed: openStation,
       onStationPlayPressed: playerController.play,
-      playerBar: playerState.station == null
+      playerBar: !playerState.hasSelection
           ? null
           : MiniPlayer(
               state: playerState,
               onOpen: () => openStation(playerState.station!),
-              onToggle: () => playerController.play(playerState.station!),
+              onToggle: playerController.toggleCurrent,
               onStop: playerController.stop,
             ),
     );

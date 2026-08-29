@@ -43,7 +43,7 @@ Android القديم كما يظهر في الكود، لكنه لا يحول ا
 | البدء والتهيئة | Splash، إعداد Firebase، دخول مجهول، Intro، تحديث إجباري، fallback محلي | بوابة Firebase وSplash أساسيان | إعادة بناء سياسات البدء تدريجياً |
 | اكتشاف الإذاعات | بانرات، بحث، تصفية، شبكة/قائمة، اختيار محطة، تفاصيل | موجود أساس جيد للصفحة والتفاصيل | استكمال وتحسين |
 | البث المباشر | تشغيل/إيقاف مؤقت/إيقاف، mini-player، إشعار foreground، metadata | تشغيل `just_audio` وmini-player وخلفية/إشعار جلسة الوسائط وAudio Focus موجودة | اعتماد مصفوفة المقاطعات وBluetooth على أجهزة فعلية ثم بحث استعادة process death |
-| البرامج والحلقات | قوائم، تفاصيل، جدول يومي، حلقات لحظية | غير مربوط بعد | إعادة بناء بعد تثبيت schema |
+| البرامج والحلقات | قوائم، تفاصيل، جدول يومي، حلقات لحظية | برامج وتفاصيل وحلقات منشورة وجدول أسبوعي وتشغيل الحلقة موجودة | اعتماد البيانات والجهاز؛ realtime feed والتفاعل مؤجلان |
 | التفاعل | تعليقات، إعجاب حلقة، مشاركة؛ المفضلة والاشتراك غير مكتملين | غير موجود | تحقق أولاً لكل تفاعل |
 | الحساب | ضيف، Google، Facebook، هاتف، ملف شخصي، حذف الحساب | قراءة مستخدم/ضيف فقط | إعادة بناء حسب قرار مزودي الدخول |
 | الإدارة | لوحة وإحصاءات وقوائم وحذف/تعطيل؛ نماذج كثيرة placeholders | غير موجود | يفضل منتج إدارة منفصل؛ تحقق أولاً |
@@ -91,17 +91,17 @@ Android القديم كما يظهر في الكود، لكنه لا يحول ا
 
 | ID | العملية أو الميزة | الحالة في القديم | الدليل المختصر | قرار Flutter |
 |---|---|---|---|---|
-| CONTENT-01 | جلب برامج محطة محددة | مكتمل | `ProgramsRepository`, `FirestoreProgramsRemoteDataSource` | إعادة البناء بعد اعتماد schema |
+| CONTENT-01 | جلب برامج محطة محددة | مكتمل | `ProgramsRepository`, `FirestoreProgramsRemoteDataSource` | موجود بعقد canonical في Flutter |
 | CONTENT-02 | cache برامج في الذاكرة مع TTL وforce refresh | مكتمل | `ProgramsRepositoryImpl`, `InMemoryProgramsLocalDataSource` | تحقق أولاً؛ لا تضف cache بلا سياسة lifecycle |
-| CONTENT-03 | قائمة البرامج وفتح التفاصيل | مكتمل | `ProgramsFragment`, `ListProgramActivity` | إعادة البناء |
-| CONTENT-04 | تفاصيل البرنامج والإحصاءات والجدول | مكتمل للعرض | `ProgramDetailsActivity/Fragment` | إعادة البناء |
+| CONTENT-03 | قائمة البرامج وفتح التفاصيل | مكتمل | `ProgramsFragment`, `ListProgramActivity` | موجود في Flutter |
+| CONTENT-04 | تفاصيل البرنامج والإحصاءات والجدول | مكتمل للعرض | `ProgramDetailsActivity/Fragment` | موجود جزئيًا؛ لا كتابة إحصاءات |
 | CONTENT-05 | مشاركة تفاصيل البرنامج/الحلقة عبر share sheet | مكتمل | `ProgramDetailsActivity/Fragment` | إعادة البناء |
-| CONTENT-06 | قائمة حلقات البرنامج | مكتمل | `ListEpisodeActivity`, `ProgramDetails*` | إعادة البناء |
-| CONTENT-07 | تفاصيل الحلقة وتشغيل ملفها الصوتي | مكتمل بمسار player قديم | `ProgramDetailsActivity`, `SongPlayerFragment` | إعادة بناء موحدة مع مشغل Flutter |
-| CONTENT-08 | جدول اليوم للمحطة حسب أيام وأوقات البث | مكتمل | `DailyEpisodeFragment`, `TimeLineAdapter` | إعادة البناء بعد اختبار المنطقة الزمنية |
+| CONTENT-06 | قائمة حلقات البرنامج | مكتمل | `ListEpisodeActivity`, `ProgramDetails*` | موجود في Flutter |
+| CONTENT-07 | تفاصيل الحلقة وتشغيل ملفها الصوتي | مكتمل بمسار player قديم | `ProgramDetailsActivity`, `SongPlayerFragment` | قائمة وتشغيل موحد موجودان؛ شاشة تفاصيل مستقلة مؤجلة |
+| CONTENT-08 | جدول اليوم للمحطة حسب أيام وأوقات البث | مكتمل | `DailyEpisodeFragment`, `TimeLineAdapter` | جدول أسبوعي موجود بـoffset صريح واختبارات domain |
 | CONTENT-09 | feed حلقات لحظي من Firestore | مكتمل لكن إرثي مباشر من UI | `RealTimeEpisodeFragment` | إعادة بناء عبر repository أو استبعاد إن لم يعد مطلوباً |
 | CONTENT-10 | ترتيب محطات/برامج/حلقات وفق priority والإحصاءات | بنية تحتية | `PriorityRankingEngine` | تحقق أولاً من قواعد المنتج قبل النقل |
-| CONTENT-11 | حساب حالة الجدول: قادم/مباشر/منتهٍ | بنية تحتية | `ScheduleStatusCalculator` | إعادة البناء مع اختبارات توقيت |
+| CONTENT-11 | حساب حالة الجدول: قادم/مباشر/منتهٍ | بنية تحتية | `ScheduleStatusCalculator` | موجود في domain مع اختبارات توقيت |
 | CONTENT-12 | دعم بيانات legacy وcanonical مع mapping دفاعي | جزئي/انتقالي | DTOs و`*Mapper` | لا تنقل التوافق القديم تلقائياً؛ اعتمد canonical فقط |
 
 ### 4.4 التعليقات والتفاعل الاجتماعي

@@ -15,13 +15,15 @@ Home/Details UI
 ```
 
 واجهة المستخدم لا تستورد `just_audio` أو `audio_session`. مصدر الصوت لا يعرف
-Widget أو Navigator أو Riverpod. يوجد controller مشترك واحد حتى يبقى mini-player
-متسقًا بين الشاشة الرئيسية وتفاصيل المحطة.
+Widget أو Navigator أو Riverpod. يوجد controller مشترك واحد للبث المباشر وملف
+الحلقة حتى يبقى mini-player متسقًا بين Home وStationDetails وProgramDetails.
 
 ## السلوك الملزم
 
 - الضغط على محطة جديدة يحددها ويعرض loading ثم playing/paused/failure.
 - الضغط على المحطة نفسها يبدل play/pause، ولا يبدأ load ثانٍ أثناء loading.
+- الضغط على الحلقة نفسها يبدل play/pause، واختيار حلقة أو محطة أخرى يستبدل
+  المصدر الحالي داخل AudioPlayer نفسه.
 - `retry` يعيد تحميل المحطة المحددة بعد failure.
 - `stop` يوقف المصدر ويمسح المحطة والحالة حتى لو فشل stop داخليًا.
 - يجرب `streamUrl` أولًا ثم `backupStreamUrl` الصريح إن وجد.
@@ -30,6 +32,8 @@ Widget أو Navigator أو Riverpod. يوجد controller مشترك واحد ح�
   أنواع just_audio إلى presentation.
 - يحمل `AudioPlaybackItem` هوية المحطة واسمها وصورتها وروابط primary/backup؛
   يستخدم الإشعار الهوية والاسم ولا يستخدم رابط البث كمعرّف أو metadata ظاهر.
+- الحلقة تستخدم ID مسبوقًا بـ`episode:` وعنوان الحلقة واسم المحطة كـalbum، ولا
+  يخرج رابط الملف الصوتي إلى presentation state أو logs.
 - لا يقبل artwork في جلسة الوسائط إلا من رابط HTTPS صالح.
 
 ## lifecycle والجلسة

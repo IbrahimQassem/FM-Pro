@@ -156,6 +156,105 @@ class AppLocalizationsEn extends AppLocalizations {
   String get programs => 'Programs';
 
   @override
+  String get schedule => 'Schedule';
+
+  @override
+  String get featuredProgram => 'Featured program';
+
+  @override
+  String episodesCount(Object count) {
+    return '$count episodes';
+  }
+
+  @override
+  String get programsLoadErrorTitle => 'Programs could not be loaded';
+
+  @override
+  String get programsLoadErrorMessage => 'Check your connection and try again.';
+
+  @override
+  String get noProgramsTitle => 'No programs available';
+
+  @override
+  String get noProgramsMessage =>
+      'No programs have been published for this station yet.';
+
+  @override
+  String get cachedContentNotice =>
+      'Showing saved content; reconnect to refresh.';
+
+  @override
+  String get scheduleLoadError => 'The broadcast schedule could not be loaded.';
+
+  @override
+  String get noScheduleForDay => 'No programs are scheduled for this day.';
+
+  @override
+  String get scheduleLive => 'NOW';
+
+  @override
+  String get scheduleNext => 'NEXT';
+
+  @override
+  String get scheduleUpcoming => 'UPCOMING';
+
+  @override
+  String get scheduleEnded => 'ENDED';
+
+  @override
+  String get monday => 'Monday';
+
+  @override
+  String get tuesday => 'Tuesday';
+
+  @override
+  String get wednesday => 'Wednesday';
+
+  @override
+  String get thursday => 'Thursday';
+
+  @override
+  String get friday => 'Friday';
+
+  @override
+  String get saturday => 'Saturday';
+
+  @override
+  String get sunday => 'Sunday';
+
+  @override
+  String get aboutProgram => 'About the program';
+
+  @override
+  String presentedBy(Object name) {
+    return 'Presented by $name';
+  }
+
+  @override
+  String programTime(Object end, Object start) {
+    return 'From $start to $end';
+  }
+
+  @override
+  String programEpisodesTitle(Object count) {
+    return 'Program episodes ($count)';
+  }
+
+  @override
+  String get noEpisodesMessage =>
+      'No episodes have been published for this program yet.';
+
+  @override
+  String minutesCount(Object count) {
+    return '$count min';
+  }
+
+  @override
+  String playEpisode(Object title) {
+    return 'Play episode $title';
+  }
+
+  @override
   String get totalPlays => 'Plays';
 
   @override
@@ -194,15 +293,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get listenLive => 'Listen to the live stream';
-
-  @override
-  String stationProgramsTitle(int count) {
-    return 'Station programs ($count)';
-  }
-
-  @override
-  String get stationProgramsNextStep =>
-      'Programs and episodes will appear when their data source is connected in the next step.';
 
   @override
   String get stationInformation => 'Station information and details';

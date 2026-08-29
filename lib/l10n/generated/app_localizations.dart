@@ -350,6 +350,174 @@ abstract class AppLocalizations {
   /// **'Programs'**
   String get programs;
 
+  /// No description provided for @schedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get schedule;
+
+  /// No description provided for @featuredProgram.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured program'**
+  String get featuredProgram;
+
+  /// No description provided for @episodesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} episodes'**
+  String episodesCount(Object count);
+
+  /// No description provided for @programsLoadErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Programs could not be loaded'**
+  String get programsLoadErrorTitle;
+
+  /// No description provided for @programsLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection and try again.'**
+  String get programsLoadErrorMessage;
+
+  /// No description provided for @noProgramsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No programs available'**
+  String get noProgramsTitle;
+
+  /// No description provided for @noProgramsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No programs have been published for this station yet.'**
+  String get noProgramsMessage;
+
+  /// No description provided for @cachedContentNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing saved content; reconnect to refresh.'**
+  String get cachedContentNotice;
+
+  /// No description provided for @scheduleLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'The broadcast schedule could not be loaded.'**
+  String get scheduleLoadError;
+
+  /// No description provided for @noScheduleForDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No programs are scheduled for this day.'**
+  String get noScheduleForDay;
+
+  /// No description provided for @scheduleLive.
+  ///
+  /// In en, this message translates to:
+  /// **'NOW'**
+  String get scheduleLive;
+
+  /// No description provided for @scheduleNext.
+  ///
+  /// In en, this message translates to:
+  /// **'NEXT'**
+  String get scheduleNext;
+
+  /// No description provided for @scheduleUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'UPCOMING'**
+  String get scheduleUpcoming;
+
+  /// No description provided for @scheduleEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'ENDED'**
+  String get scheduleEnded;
+
+  /// No description provided for @monday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get monday;
+
+  /// No description provided for @tuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get tuesday;
+
+  /// No description provided for @wednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get wednesday;
+
+  /// No description provided for @thursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get thursday;
+
+  /// No description provided for @friday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get friday;
+
+  /// No description provided for @saturday.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get saturday;
+
+  /// No description provided for @sunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get sunday;
+
+  /// No description provided for @aboutProgram.
+  ///
+  /// In en, this message translates to:
+  /// **'About the program'**
+  String get aboutProgram;
+
+  /// No description provided for @presentedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Presented by {name}'**
+  String presentedBy(Object name);
+
+  /// No description provided for @programTime.
+  ///
+  /// In en, this message translates to:
+  /// **'From {start} to {end}'**
+  String programTime(Object end, Object start);
+
+  /// No description provided for @programEpisodesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Program episodes ({count})'**
+  String programEpisodesTitle(Object count);
+
+  /// No description provided for @noEpisodesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No episodes have been published for this program yet.'**
+  String get noEpisodesMessage;
+
+  /// No description provided for @minutesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min'**
+  String minutesCount(Object count);
+
+  /// No description provided for @playEpisode.
+  ///
+  /// In en, this message translates to:
+  /// **'Play episode {title}'**
+  String playEpisode(Object title);
+
   /// No description provided for @totalPlays.
   ///
   /// In en, this message translates to:
@@ -427,18 +595,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Listen to the live stream'**
   String get listenLive;
-
-  /// No description provided for @stationProgramsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Station programs ({count})'**
-  String stationProgramsTitle(int count);
-
-  /// No description provided for @stationProgramsNextStep.
-  ///
-  /// In en, this message translates to:
-  /// **'Programs and episodes will appear when their data source is connected in the next step.'**
-  String get stationProgramsNextStep;
 
   /// No description provided for @stationInformation.
   ///

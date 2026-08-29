@@ -12,6 +12,8 @@ HudHudDev/stations/stations/{stationId}
 HudHudDev/banners/banners/{bannerId}
 HudHudDev/users/users/{uid}
 HudHudDev/locations/locations/{locationId}
+HudHudDev/programs/programs/{programId}
+HudHudDev/episodes/episodes/{episodeId}
 ```
 
 `lib/core/config/firestore_paths.dart` هو المالك التنفيذي للمسارات. لا تبني path
@@ -81,6 +83,32 @@ priority, isActive, startAt?, expiresAt?
 - فشل الوثيقة أو غياب الاسم يعود إلى بيانات Auth الآمنة ثم guest.
 - projection الحالي: `uid`, `displayName`, `username`, وHTTPS `avatarUrl` فقط.
 - لا تمرر document map أو token أو email أو phone إلى UI دون عقد جديد.
+
+## Program schema
+
+الحقول الإلزامية:
+
+```text
+stationId, title, priority, isActive, isFeatured,
+stats.episodesCount, stats.subscribersCount, stats.totalPlays
+```
+
+الحقول الاختيارية صحيحة النوع: `titleEn`, `description`, `coverUrl`,
+`thumbnailUrl`, `categories`, `presenters`, و`schedule`. عند وجود الجدول تلزم
+`weekdays`, `startMinute`, `endMinute`, `utcOffsetMinutes`. روابط الصور HTTPS فقط.
+تفاصيل قواعد الجدول والفرز في `station-content-contract.md`.
+
+## Episode schema
+
+```text
+programId, stationId, title, audioUrl, durationSeconds, priority,
+isPublished, isFeatured, broadcastAt, utcOffsetMinutes,
+stats.playsCount, stats.likesCount, stats.commentsCount
+```
+
+الحقول الاختيارية: `description`, `coverUrl`, `presenter`, `guest`, `publishedAt`.
+`broadcastAt` و`publishedAt` عند وجوده Firestore Timestamp، وروابط الصوت والصور
+HTTPS فقط. القراءة فقط؛ لا يكتب التطبيق counters.
 
 ## تغيير schema
 

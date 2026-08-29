@@ -4,6 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hudhud_fm/features/home/domain/models/station.dart';
 import 'package:hudhud_fm/features/player/presentation/controllers/station_player_state.dart';
 import 'package:hudhud_fm/features/station_details/presentation/station_details_screen.dart';
+import 'package:hudhud_fm/features/station_content/domain/models/program_schedule.dart';
+import 'package:hudhud_fm/features/station_content/domain/models/station_program.dart';
+import 'package:hudhud_fm/features/station_content/presentation/controllers/station_content_state.dart';
 import 'package:hudhud_fm/l10n/generated/app_localizations.dart';
 
 void main() {
@@ -61,6 +64,36 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets('shows programs and the weekly schedule', (tester) async {
+    StationProgram? selectedProgram;
+    await tester.pumpWidget(
+      _TestApp(
+        child: StationDetailsView(
+          station: _station,
+          playbackStatus: StationPlaybackStatus.idle,
+          onPlayPressed: () {},
+          onStopPressed: () {},
+          contentState: const StationContentState(
+            isInitialLoading: false,
+            programs: [_program],
+          ),
+          onProgramPressed: (program) => selectedProgram = program,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(Tab, 'برامج'));
+    await tester.pumpAndSettle();
+    expect(find.text('صباح اليمن'), findsOneWidget);
+    await tester.tap(find.text('صباح اليمن'));
+    expect(selectedProgram?.id, 'morning');
+
+    await tester.tap(find.widgetWithText(Tab, 'الجدول'));
+    await tester.pumpAndSettle();
+    expect(find.text('صباح اليمن'), findsOneWidget);
+  });
 }
 
 class _TestApp extends StatelessWidget {
@@ -102,4 +135,22 @@ const _station = Station(
   programsCount: 4,
   subscribersCount: 120,
   totalPlays: 400,
+);
+
+const _program = StationProgram(
+  id: 'morning',
+  stationId: 'sanaa-radio',
+  title: 'صباح اليمن',
+  priority: 10,
+  isActive: true,
+  isFeatured: true,
+  schedule: ProgramSchedule(
+    weekdays: [1, 2, 3, 4, 5, 6, 7],
+    startMinute: 480,
+    endMinute: 600,
+    utcOffsetMinutes: 180,
+  ),
+  episodesCount: 1,
+  subscribersCount: 2,
+  totalPlays: 3,
 );
