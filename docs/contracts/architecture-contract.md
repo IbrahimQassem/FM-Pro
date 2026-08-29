@@ -1,77 +1,62 @@
 # Architecture contract
 
 الحالة: ملزم  
-المالك: Android modernization agent
+المالك: Flutter architecture role
 
 ## الهدف
 
-تحديث تطبيق Android الأصلي تدريجيًا مع إبقاء كل نسخة قابلة للبناء والإطلاق،
-ومن دون إنشاء تنفيذين دائمين للميزة نفسها.
+إبقاء تطبيق Flutter صغيرًا، قابلًا للاختبار، عربيًا أولًا، مع حدود واضحة بين
+الواجهة والقواعد ومصادر البيانات، ومن دون ربط Widgets مباشرة بالخدمات الخارجية.
 
-## الثوابت
-
-1. يبقى `:app` وحدة Gradle الوحيدة حتى تصبح حدود الحزم مستقرة ومقاسة. إضافة
-   وحدات جديدة قرار ADR وليست هدفًا بحد ذاته.
-2. النكهات `hudhud_fm` و`hudhudfm_google_play` و`internews` تشترك في منطق
-   التطبيق. الاختلافات تقتصر على الموارد والإعدادات ومعرّفات الخدمة.
-3. شاشة Android لا تتصل مباشرة بـFirestore أو Storage أو Auth في الكود الجديد.
-4. Service لا يحتفظ بمرجع إلى View أو Activity أو Fragment.
-5. يوجد نموذج مجال canonical واحد لكل: `Station`, `Program`, `Episode`,
-   `Schedule`, `Comment`, `User`. نماذج Firebase وواجهات legacy تتحول عند الحدود.
-6. كل عملية غير متزامنة تنتج حالة صريحة: loading, content, empty, recoverable
-   error أو terminal error. لا تمثل الأخطاء بقيمة `null`.
-
-## اتجاه الاعتماد المستهدف
+## الاتجاه الملزم
 
 ```text
-Android UI -> ViewModel/state -> use case -> repository interface
-                                      -> data repository -> Firebase/local cache
-Android UI -> playback controller -> MediaSessionService
+Widget/View -> Riverpod controller + immutable state -> domain repository
+                                                   <- data repository <- data source
+
+app/providers.dart -> composition and lifecycle only
 ```
 
-الطبقات الداخلية لا تستورد Android UI أو Firebase SDK. التفاصيل الخارجية
-تعتمد على interfaces الداخلية، لا العكس.
+- `presentation` يملك Widgets، التنقل المحلي، controller وحالة العرض.
+- `domain` يملك النماذج canonical وrepository interfaces والقواعد الخالصة.
+- `data` يملك Firebase/just_audio DTO mapping والمصادر وتنفيذ repositories.
+- `app` يهيئ التطبيق ويركب providers؛ لا يملك filtering أو mapping أو I/O rules.
+- `core` يملك الأنواع والسياسات المشتركة الصغيرة فقط، لا يتحول إلى مجلد عام.
 
-## تنظيم الحزم المستهدف
+لا يستورد domain Flutter UI أو Firebase أو just_audio. تعتمد التفاصيل الخارجية
+على interfaces داخلية. يسمح باستيراد نموذج domain canonical بين ميزتين عندما
+تمثلان المفهوم نفسه، مثل `Station` في home وplayer وstation details.
 
-يُطبّق على الملفات التي يتم لمسها فقط:
+## إدارة الحالة ودورة الحياة
 
-```text
-com.sana.dev.fm
-├── core/                 result, clock, logging, dispatchers
-├── domain/               canonical models and repository interfaces
-├── data/                 Firebase/local DTOs, mappers, repositories
-├── feature/<feature>/    UI, state, ViewModel
-├── playback/             controller, Media3 service, notification
-├── admin/                role-gated administration UI
-└── legacy/               temporary adapters with removal IDs
-```
+- Riverpod هو نمط الحالة والـDI الوحيد.
+- حالات الميزة immutable وتكشف loading/content/empty/offline/error بوضوح.
+- لا يبدأ Widget طلب شبكة أو تخزين داخل `build`.
+- `autoDispose` يستخدم للحالة المرتبطة بعمر الشاشة؛ المشغل يبقى مشتركًا ما دام
+  التطبيق يحتاج mini-player عبر أكثر من شاشة.
+- كل StreamSubscription وAudioPlayer وcontroller خارجي له مالك وdispose مثبت.
+- لا تخزّن `BuildContext` أو Widget داخل controller أو repository.
 
-لا تنقل ملفات بالجملة لمجرد مطابقة الشجرة. كل نقل يجب أن يقلل اعتمادًا فعليًا
-أو يفتح اختبارًا جديدًا.
+## التنقل والتطبيق
 
-## استراتيجية التحديث
+- `MaterialApp` و`Navigator`/`MaterialPageRoute` هما المسار الحالي.
+- لا يضاف router package أو shell/bottom navigation قبل وجود رحلة منتج تستحقه
+  وخطة إزالة للمسار السابق.
+- الشاشة الرئيسية وجهة واحدة حاليًا، وتفاصيل المحطة route فوقها.
+- العربية locale الافتراضي الحالي؛ دعم الإنجليزية في ARB لا يعني وجود مبدل لغة.
 
-- Java وXML مسموحان للكود المستقر غير الملموس.
-- الميزات الجديدة أو المعاد بناؤها تستخدم Kotlin وViewModel وStateFlow ما لم
-  يثبت قياس أو توافق flavor مانعًا واضحًا.
-- Material 3 Views هو المسار الأقل مخاطرة. إدخال Compose يحتاج ADR وتجربة شاشة
-  واحدة مع قياس حجم البناء والأداء وإمكانية الوصول.
-- ButterKnife وواجهات callbacks القديمة لا تستخدم في الكود الجديد.
-- كل مسار legacy يتم استبداله عبر seam واحد، ثم تزال النسخة القديمة في نفس
-  المرحلة أو تسجل بموعد ومالك في سجل الدين.
+## إضافة أو تغيير ميزة
 
-## حدود التنقل
+1. ثبّت السلوك المراد باختبار domain/controller أو widget مناسب.
+2. عرّف نموذج domain وrepository interface واحدًا عند الحاجة.
+3. أضف data source/mapping في data، ولا تمرر Firebase snapshots إلى presentation.
+4. أضف state/controller، ثم اربط Widget عبر provider في `app/providers.dart`.
+5. احذف المسار المستبدل فور تحقق التكافؤ؛ لا تترك `Old`, `New`, `V2` دائمًا.
 
-الوجهات الرئيسية أربع: الرئيسية، الجدول، البرامج، الحساب. المشغل المصغر حالة
-مشتركة فوق شريط التنقل، وليس وجهة فارغة. الإدارة graph منفصل ولا تدخل في قائمة
-المستمع العادية.
+## بوابة القبول
 
-## قبول أي تغيير معماري
-
-- اتجاه الاعتماد مطابق للرسم.
-- لا يوجد مصدر بيانات أو نموذج منافس غير مسجل.
-- يوجد اختبار للوحدة الجديدة أو seam يسمح باختبارها.
-- لا يزيد عدد TODO أو الملفات المعلقة بالكامل.
-- النكهات المتأثرة تبنى بنجاح.
-- تم تحديث ADR أو سجل الدين عند تغيير الحدود.
+- اتجاه الاعتماد مطابق للعقد ولا يوجد وصول Firebase/audio من Widget.
+- لا نماذج أو providers متنافسة للمفهوم نفسه.
+- الحالات غير المتزامنة قابلة للملاحظة والاختبار.
+- الموارد تملك lifecycle واضحًا.
+- `flutter analyze` والاختبارات والبناء المتأثر ناجحة.

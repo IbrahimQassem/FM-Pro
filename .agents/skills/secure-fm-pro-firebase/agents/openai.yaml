@@ -1,4 +1,0 @@
-interface:
-  display_name: "Secure FM-Pro Firebase"
-  short_description: "Enforce typed data and server-side authorization"
-  default_prompt: "Use $secure-fm-pro-firebase to secure this FM-Pro Firebase flow and prove its allow and deny cases."

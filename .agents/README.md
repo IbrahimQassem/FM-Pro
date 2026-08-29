@@ -1,38 +1,27 @@
-# FM-Pro agent team
+# HudHud FM Flutter agent roles
 
-هذه الأدوار قابلة للتفويض يدويًا من الوكيل الرئيسي. هي prompts تعاقدية داخل
-المستودع وليست خدمة دائمة أو إعدادًا تلقائيًا غير موثق.
-
-## الأدوار
+هذه الأدوار عقود تسليم يختار منها الوكيل الرئيسي بحسب المهمة. لا تمنح صلاحية
+تلقائية، ولا تعمل كخدمات دائمة، ولا تستبدل `AGENTS.md` أو العقود الملزمة.
 
 | الدور | الملف | المسؤولية الفريدة |
 |---|---|---|
-| Delivery lead | `roles/delivery-lead.md` | تخطيط الشريحة، الملكية، البوابات |
-| Android modernization | `roles/android-modernization.md` | البناء والحدود وإزالة legacy |
-| Product UX | `roles/product-ux.md` | RTL والنظام البصري وتدفقات المستمع |
-| Playback | `roles/playback.md` | Media3 ودورة حياة الصوت |
-| Firebase security | `roles/firebase-security.md` | schema وrepositories وrules والتفويض |
-| Quality release | `roles/quality-release.md` | الاختبارات والأدلة والإطلاق المرحلي |
+| Delivery lead | `roles/delivery-lead.md` | النطاق والاعتماديات وبوابة القبول |
+| Flutter architecture | `roles/flutter-architecture.md` | الطبقات وRiverpod ودورة الحياة |
+| Firebase data/security | `roles/firebase-data-security.md` | schema والمصادر والمصادقة والأمان |
+| Product UX/accessibility | `roles/product-ux-accessibility.md` | الرحلات وRTL والتوطين والوصول |
+| Playback | `roles/playback.md` | الصوت والحالة والمقاطعات والمنصات |
+| Quality release | `roles/quality-release.md` | الأدلة والاختبارات والبناء والإصدار |
 
-## طريقة التفويض
-
-أرسل للوكيل: مسار ملف الدور، هدفًا واحدًا، الملفات المسموح بها، معايير القبول،
-وما إذا كان مخولًا بالتعديل أم بالمراجعة فقط. لا تفوض «حدّث التطبيق» كهدف مفتوح.
-
-نموذج:
+## نموذج التفويض
 
 ```text
-اقرأ .agents/roles/<role>.md ثم نفذ <هدف محدد> داخل FM-Pro فقط.
-النطاق: <ملفات/ميزة>. معايير القبول: <اختبارات/سلوك>.
-لا تعدل ملفات خارج النطاق؛ أعد الأدلة والمخاطر للوكيل الرئيسي.
+اقرأ AGENTS.md ثم .agents/roles/<role>.md والعقود المذكورة فيه.
+الهدف: <نتيجة واحدة قابلة للملاحظة>.
+النطاق: <ملفات/ميزة محددة>.
+معايير القبول: <اختبارات وسلوك>.
+الصلاحية: <تنفيذ أو مراجعة فقط>.
+لا تعدل خارج النطاق؛ أعد الأدلة والمخاطر وما لم يُختبر.
 ```
 
-الوكيل الرئيسي يملك دمج النتائج وتحديث الخطة. لا يملك أي دور صلاحية تلقائية
-لتغيير الإنتاج أو Firebase أو حذف بيانات أو تدوير أسرار.
-
-## مسار orchestration
-
-استخدم `skills/orchestrate-fm-pro-task/SKILL.md` عندما توجد حزمة عمل محددة
-ويراد تنفيذها كتغيير وكيلي قابل للمراجعة. يبدأ المسار بعقد واحد في
-`.agents/tasks/`، ثم يفصل التنفيذ عن التحقق، وينتهي بـPR فقط. لا يستبدل هذا
-المسار دور Delivery lead أو Quality release ولا يمنح أي صلاحية إنتاجية.
+لا يفوض دورين لتعديل الملف نفسه بالتوازي. مراجع Quality release لا يصلح تنفيذ
+الدور الآخر في المراجعة نفسها إلا بتفويض تغيير منفصل.

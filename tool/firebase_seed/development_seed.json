@@ -1,0 +1,141 @@
+{
+  "projectId": "sanadev-fm",
+  "root": "HudHudDev",
+  "locations": [
+    {
+      "id": "ye-sanaa",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "sanaa",
+        "cityNameAr": "صنعاء",
+        "sortOrder": 10,
+        "isActive": true
+      }
+    },
+    {
+      "id": "ye-aden",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "aden",
+        "cityNameAr": "عدن",
+        "sortOrder": 20,
+        "isActive": true
+      }
+    }
+  ],
+  "stations": [
+    {
+      "id": "sanaa-radio",
+      "data": {
+        "name": "إذاعة صنعاء",
+        "nameEn": "Sana'a Radio",
+        "tagline": "صوت صنعاء",
+        "description": "محطة إذاعية يمنية من صنعاء.",
+        "streamUrl": "https://dc5.serverse.com/proxy/pbmhbvxs/stream",
+        "frequency": "92.5 MHz",
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "sanaa",
+        "cityNameAr": "صنعاء",
+        "priority": 100,
+        "isLive": true,
+        "isActive": true,
+        "isVerified": false,
+        "isFeatured": true,
+        "stats": {
+          "programsCount": 0,
+          "subscribersCount": 0,
+          "totalPlays": 0
+        }
+      }
+    },
+    {
+      "id": "quran-radio-sanaa",
+      "data": {
+        "name": "إذاعة القرآن الكريم - صنعاء",
+        "nameEn": "Quran Radio Sana'a",
+        "tagline": "إذاعة القرآن الكريم من صنعاء",
+        "description": "بث إذاعي للقرآن الكريم من صنعاء.",
+        "streamUrl": "https://halo.streamerr.co/listen/quran_kareem/radio.mp3",
+        "frequency": "97.7 MHz",
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "sanaa",
+        "cityNameAr": "صنعاء",
+        "priority": 90,
+        "isLive": true,
+        "isActive": true,
+        "isVerified": false,
+        "isFeatured": false,
+        "stats": {
+          "programsCount": 0,
+          "subscribersCount": 0,
+          "totalPlays": 0
+        }
+      }
+    },
+    {
+      "id": "huna-aden-fm",
+      "data": {
+        "name": "هنا عدن FM",
+        "nameEn": "Huna Aden FM",
+        "tagline": "من عدن إلى كل اليمن",
+        "description": "محطة إذاعية يمنية من مدينة عدن.",
+        "streamUrl": "https://c30.radioboss.fm:18267/stream",
+        "frequency": "92.9 MHz",
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "aden",
+        "cityNameAr": "عدن",
+        "priority": 80,
+        "isLive": true,
+        "isActive": true,
+        "isVerified": false,
+        "isFeatured": true,
+        "stats": {
+          "programsCount": 0,
+          "subscribersCount": 0,
+          "totalPlays": 0
+        }
+      }
+    },
+    {
+      "id": "ibn-alqayyim-radio",
+      "data": {
+        "name": "إذاعة ابن القيم السلفية",
+        "nameEn": "Ibn Al-Qayyim Radio",
+        "tagline": "بث إذاعي من محافظة عدن",
+        "description": "محطة إذاعية يمنية من محافظة عدن.",
+        "streamUrl": "https://c38.radioboss.fm:8323/stream",
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "aden",
+        "cityNameAr": "عدن",
+        "priority": 70,
+        "isLive": true,
+        "isActive": true,
+        "isVerified": false,
+        "isFeatured": false,
+        "stats": {
+          "programsCount": 0,
+          "subscribersCount": 0,
+          "totalPlays": 0
+        }
+      }
+    }
+  ],
+  "banners": [
+    {
+      "id": "welcome-v1",
+      "data": {
+        "title": "اكتشف إذاعات اليمن",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/sanadev-fm.appspot.com/o/HudHudDev%2Fbanners%2Fwelcome-v1%2Fhudhud-discovery-v1.jpg?alt=media&token=e8cc70b3-88b6-4791-83c5-eac3a1809ae6",
+        "targetType": "none",
+        "priority": 100,
+        "isActive": true
+      }
+    }
+  ]
+}

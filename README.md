@@ -1,38 +1,58 @@
-# FM-Pro
+# HudHud FM — Flutter
 
-تطبيق Android الأصلي لراديو هدهد FM. هذا المستودع هو مصدر الحقيقة الوحيد
-لتطوير النسخة الأصلية، بما في ذلك الكود والعقود وخطة التحديث وتعريفات العمل
-الخاصة بالوكلاء.
+تطبيق Flutter جديد، عربي أولًا، لعرض الإذاعات اليمنية. المشروع مستقل عن تطبيق
+Android القديم ولا يحتوي طبقات توافق مع نماذج legacy.
 
-## ابدأ من هنا
+## النطاق الحالي
 
-- [تعليمات العمل للوكلاء](AGENTS.md)
-- [فهرس التوثيق](docs/README.md)
-- [خطة التنفيذ المرحلية](docs/roadmap/phased-delivery-plan.md)
-- [سجل الدين التقني](docs/roadmap/technical-debt-register.md)
-- [العقد المعماري](docs/contracts/architecture-contract.md)
+- Android وiOS مدعومان في بيئة التطوير، مع بقاء Android هدف الإصدار الأول.
+- Splash ثم شاشة رئيسية واحدة بلا Bottom Navigation.
+- مستخدم Firebase الحالي عند توفره، وإلا هوية مستمع ضيف.
+- بانرات Development غير حاجبة للشاشة.
+- بحث بالاسم والمدينة والتردد.
+- فلترة المدن من بيانات Firebase المرجعية فقط.
+- Grid/List محفوظ محليًا.
+- قراءة cache أولًا ثم تحديث يدوي/عند الفتح، دون listener دائم.
 
-## البناء المحلي
+## Firebase Development
 
-المشروع يحتاج JDK 17، والمستودع يثبته في `.java-version`. على macOS:
+الجذر الوحيد حاليًا هو `HudHudDev`، والمسارات المعتمدة:
 
-```bash
-export JAVA_HOME=$(/usr/libexec/java_home -v 17)
-./gradlew app:assembleHudhudfm_google_playDebug
+```text
+HudHudDev/stations/stations/{stationId}
+HudHudDev/banners/banners/{bannerId}
+HudHudDev/users/users/{uid}
+HudHudDev/locations/locations/{locationId}
 ```
 
-نفّذ التحقق المؤسسي قبل تسليم أي تغيير:
+لا ينسخ هذا المستودع أي إعداد Firebase من `FM-Pro`. لربط Android، سجّل تطبيق
+Development بالحزمة `com.sanaadev.hudhudfm` ثم شغّل من جذر المشروع:
 
 ```bash
-./tools/verify-governance.sh
-./gradlew testHudhudfm_google_playDebugUnitTest
+flutterfire configure \
+  --platforms=android \
+  --android-package-name=com.sanaadev.hudhudfm
 ```
 
-لا تُضف أسرار Firebase أو مفاتيح التوقيع إلى Git. راجع
-[عقد الأمان والخصوصية](docs/contracts/security-privacy-contract.md).
+ملفات Firebase المحلية مستبعدة من Git. قبل تشغيل التطبيق مع البيانات الحقيقية، يجب
+أن تسمح قواعد Development بالقراءة من المسارات الأربعة أعلاه.
 
-## CI secrets
+لـ iOS، يجب أن يطابق `ios/Runner/GoogleService-Info.plist` تطبيق Firebase المسجل
+بالحزمة `com.sana.dev.fm`. الملف مضاف إلى Runner Target ويُقرأ عند بدء التطبيق.
 
-يتطلب workflow أمانة GitHub باسم `GOOGLE_SERVICES_JSON_BASE64`. قيمتها هي ملف
-`app/google-services.json` المعتمد، مشفرًا Base64، ويجب أن يحتوي clients للحزمتين
-`com.sana.dev.fm` و`com.sanaadev.hudhudfm`. لا تُضف الملف نفسه إلى Git.
+## العقود والأدوار
+
+العقود الملزمة وخريطة سلطتها في [`docs/README.md`](docs/README.md)، وتعليمات
+التطوير في [`AGENTS.md`](AGENTS.md). عقد Firebase والبيانات هو المصدر الوحيد
+لتفاصيل Station وLocation وBanner بدل تكرارها هنا.
+
+## التحقق
+
+```bash
+./tool/verify-governance.sh
+dart format --output=none --set-exit-if-changed lib test
+flutter analyze
+flutter test
+flutter build apk --debug
+flutter build ios --simulator --debug
+```

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Orchestrate FM-Pro Task"
-  short_description: "Run one scoped task through verified PR gates"
-  default_prompt: "Use $orchestrate-fm-pro-task to execute this FM-Pro task contract and stop at a verified pull request."

@@ -1,39 +1,33 @@
-# FM-Pro documentation map
+# HudHud FM documentation map
 
-هذا الفهرس هو مدخل التوثيق ومكان تحديد سلطة كل وثيقة. التفاصيل تعيش في عقد
-واحد فقط، بينما تشير بقية الملفات إليه بدل تكراره.
+هذا الفهرس يحدد سلطة التوثيق لتطبيق Flutter المستقل. لا تنسخ القرارات بين
+الملفات؛ اربط بالعقد المالك للقرار.
 
 ## العقود الملزمة
 
-- [العقد المعماري](contracts/architecture-contract.md)
-- [عقد المنتج وتجربة المستخدم](contracts/product-ux-contract.md)
-- [عقد Firebase والبيانات](contracts/firebase-data-contract.md)
-- [عقد الأمان والخصوصية](contracts/security-privacy-contract.md)
-- [عقد الجودة والإصدار](contracts/quality-release-contract.md)
+- [المعمارية وإدارة الحالة](contracts/architecture-contract.md)
+- [Firebase والبيانات](contracts/firebase-data-contract.md)
+- [الأمان والخصوصية](contracts/security-privacy-contract.md)
+- [المنتج وUX وإمكانية الوصول](contracts/product-ux-contract.md)
+- [التشغيل الصوتي](contracts/playback-contract.md)
+- [الجودة والإصدار](contracts/quality-release-contract.md)
 
-## التنفيذ
+## التشغيل
 
-- [خطة التنفيذ ومتتبع التقدم](roadmap/phased-delivery-plan.md)
-- [سجل الدين التقني](roadmap/technical-debt-register.md)
-- [تعريف الاكتمال](roadmap/definition-of-done.md)
-- [تشغيل التطوير الوكيلي](automation/agent-development.md)
-- [خطة تدوير مفتاح التوقيع](security/signing-key-rotation-plan.md)
-- [جرد Firebase الحالي](firebase/current-schema-inventory.md)
-- [دليل اختبار ونشر قواعد Firebase](firebase/security-rules-runbook.md)
-- [خط أساس المراقبة والأداء](observability/baseline.md)
-- [خط الأساس الحالي](architecture/current-state.md)
-- [المعمارية المستهدفة](architecture/target-state.md)
+- `README.md`: إعداد المطور والأوامر المختصرة.
+- `AGENTS.md`: حدود العمل، قراءة العقود، توزيع الأدوار والتحقق.
+- `.agents/roles/`: مسؤوليات التسليم وحدود كل دور.
 
-## القرارات
+## مراجع التخطيط
 
-- [فهرس ADR](decisions/README.md)
-- [ADR-0001: مصدر الحقيقة الواحد](decisions/ADR-0001-single-source-of-truth.md)
-- [ADR-0002: تحديث أصلي تدريجي](decisions/ADR-0002-incremental-native-modernization.md)
+- [حصر قدرات التطبيق القديم](reference/legacy-app-capability-inventory.md):
+  لقطة غير ملزمة للعمليات والخدمات والمميزات وحالتها وقرار ترحيلها المقترح.
 
 ## قواعد الصيانة
 
-1. العقود تصف ما يجب أن يبقى صحيحًا، لا تفاصيل المهمة اليومية.
-2. الخطة وحدها تحمل حالة المراحل، وسجل الدين وحده يحمل حالة الديون.
-3. أي قرار يغيّر عقدًا أو اتجاهًا معماريًا يحتاج ADR.
-4. الملفات المولدة أو التقارير المؤقتة لا تصبح مصدر حقيقة.
-5. إذا لم يعد مستند يملك قرارًا فريدًا، احذفه واربط تاريخه عبر Git.
+1. العقد يصف ما يجب أن يبقى صحيحًا، والكود والاختبارات يثبتان السلوك الحالي.
+2. أي تغيير state management أو routing أو schema أو بيئة Firebase أو تقنية
+   playback ملزمة يحتاج قرارًا موثقًا قبل إنشاء مسارين متنافسين.
+3. ملفات Firebase المحلية والأدلة المؤقتة ونتائج build ليست مصادر حقيقة.
+4. لا يحمل هذا المشروع حالة أو عقود تطبيق `FM-Pro`؛ الجرد التاريخي مرجع
+   للتخطيط فقط ولا يتقدم على عقود Flutter.

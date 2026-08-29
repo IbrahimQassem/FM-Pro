@@ -1,4 +1,0 @@
-interface:
-  display_name: "Modernize FM-Pro Feature"
-  short_description: "Replace one legacy feature slice safely"
-  default_prompt: "Use $modernize-fm-pro-feature to modernize this FM-Pro feature and retire the replaced legacy path."

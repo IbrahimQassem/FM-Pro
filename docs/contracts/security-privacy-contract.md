@@ -1,48 +1,54 @@
 # Security and privacy contract
 
 الحالة: ملزم  
-المالك: Firebase security agent
+المالك: Firebase data and security role
 
-## التفويض
+## الأسرار والإعدادات
 
-- Firebase Auth يثبت الهوية فقط؛ الصلاحيات تأتي من Custom Claims أو وثيقة دور
-  لا يستطيع المستخدم تعديلها، وتفرضها Security Rules.
-- فحص `UserType` المحلي يستخدم لإظهار الواجهة فقط ولا يسمح بعملية كتابة.
-- كل عملية admin تحتاج رفضًا افتراضيًا واختبار rules إيجابيًا وسلبيًا.
+- هذه الملفات محلية ومستبعدة من Git ولا يجوز عرض محتواها أو نسخه بين المشاريع:
+  - `android/app/google-services.json`
+  - `ios/Runner/GoogleService-Info.plist`
+  - `lib/firebase_options.dart`
+- لا تسجل API keys أو project IDs أو connection details أو signing material.
+- إعداد Android يخص `com.sanaadev.hudhudfm` وإعداد iOS يخص bundle المسجل له؛
+  لا يفترض أن ملف منصة صالح للأخرى.
+- لا تدخل بيئة production أو secrets إلى CI دون مخزن أسرار وصلاحية دنيا.
 
-## الأسرار
+## المصادقة والبيانات الشخصية
 
-- يمنع commit لـ`key.properties`, `google-services.json`, keystores, tokens أو
-  ملفات service-account.
-- أزيل `key.properties` من التتبع الحالي. يبقى TD-002 مفتوحًا حتى تدوير بيانات
-  التوقيع وتقييم التاريخ وفق
-  [`signing-key-rotation-plan.md`](../security/signing-key-rotation-plan.md).
-- لا تطبع محتوى الملفات الحساسة أثناء الفحص.
+- Firebase Auth هو مصدر هوية المستخدم الوحيد؛ بيانات UI لا تمنح صلاحية.
+- guest fallback للعرض فقط ولا يمثل حسابًا موثقًا.
+- UID والاسم والصورة أقل projection مطلوب. email والهاتف وtokens والأجهزة خارج
+  النطاق الحالي ولا تُخزن محليًا أو تسجل.
+- أي كتابة مستقبلية تتحقق منها Rules جهة الخادم، مع allow/deny tests للضيف
+  والمستخدم والمالك والمشرف. إخفاء زر في UI ليس authorization.
 
-## السجلات والبيانات الشخصية
+## الشبكة والمحتوى الخارجي
 
-يمنع تسجيل FCM tokens، access tokens، البريد، الهاتف، UID الكامل، محتوى تعليق
-خاص أو استثناء يحتوي على هذه القيم. سجلات الإصدار release تستخدم أحداثًا
-منظمة ومعرفات correlation غير قابلة لإرجاع الهوية.
+- صور المستخدم والبانرات HTTPS فقط.
+- روابط البث قد تكون HTTP بسبب المصدر، لكنها بيانات حساسة تشغيليًا: لا تسجل
+  الرابط ولا تعرضه في رسالة خطأ ولا ترسله إلى analytics.
+- لا يفتح banner أو deep link حتى توجد allowlist وسياسة `targetType` واختبارات.
+- رسائل الخطأ للمستخدم آمنة ولا تتضمن Firebase codes أو stack traces أو paths.
 
-## الشبكة والمنصة
+## التخزين والسجلات
 
-- HTTPS هو الافتراضي. أي cleartext exception يحدد host والسبب وتاريخ الإزالة.
-- اطلب أقل permissions ممكنة وفي لحظة الحاجة. راجع صلاحيات الهاتف والتخزين
-  القديمة قبل رفع target SDK أو تحديث flow الصور.
-- كل component exported يملك سببًا وpermission أو intent contract واضحًا.
-- النسخ الاحتياطي يستبعد tokens وبيانات الحساب الحساسة.
+- `SharedPreferences` يخزن اختيار grid/list فقط حاليًا، لا credentials أو PII.
+- Firestore cache تديره SDK ولا يُعامل كصلاحية للوصول بعد تغير الهوية.
+- debug logging يقتصر على نوع الخطأ وأعداد accepted/rejected دون وثائق أو URLs.
+- لا تضف crash/analytics payload يحتوي user data قبل مراجعة الخصوصية.
 
-## المحتوى المجتمعي
+## المنصات والإصدار
 
-- التعليقات تحتاج تحقق طول ومحتوى ومعدل إرسال من الخادم قدر الإمكان.
-- الإبلاغ والحظر لا يكشفان هوية المبلّغ، ويجب أن يكونا idempotent.
-- الحذف والتعديل يراجعان ملكية المؤلف أو تفويض المشرف في rules.
+- Android release يستخدم debug signing حاليًا؛ هذا مقبول للتطوير فقط ويمنع
+  اعتبار artifact جاهزًا للإنتاج.
+- أي signing production أو App Store/Play upload يحتاج تفويضًا منفصلًا، secret
+  storage، rotation وrollback.
+- لا تنشر Firebase Rules أو تعدّل بيانات production ضمن build أو اختبار عادي.
 
 ## بوابة القبول
 
-- لا أسرار جديدة في `git diff`.
-- اختبارات Firebase Rules تغطي listener, signed-in user, owner, admin وdenied.
-- لا logs حساسة في debug أو release.
-- permissions وexported components ضمن نطاق الميزة فقط.
-- أي استثناء أمني له ADR أو بند دين بمالك وموعد.
+- فحص التغيير لا يكشف config أو secret أو PII.
+- لا وصول Firebase جديد خارج data boundary.
+- كل write جديد له Rules واختبارات رفض وقبول قبل الدمج.
+- لا release production مع debug signing أو إعداد Development.

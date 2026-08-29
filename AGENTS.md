@@ -1,93 +1,77 @@
-# FM-Pro Agent Instructions
+# HudHud FM Flutter agent instructions
 
 ## Scope
 
-هذه التعليمات تخص مستودع `FM-Pro` فقط. لا تقرأ أو تعدّل أو تنقل كودًا من
-`../hudhud_fm`. التطبيق المطلوب هنا Android أصلي، ويجب تطويره تدريجيًا داخل
-هذا المستودع مع المحافظة على نكهات المنتج الحالية.
+هذه التعليمات تخص مشروع `hudhud_fm` فقط. لا تقرأ أو تنسخ أو تعدّل كودًا من
+`../FM-Pro`؛ التطبيق Flutter مستقل ولا يحمل طبقات توافق مع تطبيق Android القديم.
 
 ## Single source of truth
 
 | الموضوع | المصدر المعتمد |
 |---|---|
-| السلوك القابل للتنفيذ | `app/src/` واختباراته |
-| حدود المعمارية | `docs/contracts/architecture-contract.md` |
-| تجربة المستخدم والمنتج | `docs/contracts/product-ux-contract.md` |
-| Firebase والبيانات | `docs/contracts/firebase-data-contract.md` |
+| السلوك القابل للتنفيذ | `lib/` واختباراته في `test/` |
+| حدود المعمارية وإدارة الحالة | `docs/contracts/architecture-contract.md` |
+| Firebase ومخطط البيانات | `docs/contracts/firebase-data-contract.md` |
 | الأمان والخصوصية | `docs/contracts/security-privacy-contract.md` |
+| المنتج وRTL وإمكانية الوصول | `docs/contracts/product-ux-contract.md` |
+| التشغيل الصوتي | `docs/contracts/playback-contract.md` |
 | الجودة والإصدار | `docs/contracts/quality-release-contract.md` |
-| ترتيب التنفيذ وحالته | `docs/roadmap/phased-delivery-plan.md` |
-| الدين التقني | `docs/roadmap/technical-debt-register.md` |
-| القرارات الملزمة | `docs/decisions/` |
 
-لا تنسخ قرارًا أو مخططًا إلى ملف آخر. اربط بالمصدر المعتمد. عند اختلاف الكود
-مع العقد، لا تفترض أن أحدهما صحيح: أوقف التوسع، وثّق الفرق، ثم حدّث الكود
-والعقد معًا في نفس التغيير أو أنشئ ADR يقرّ الاستثناء.
+`README.md` مدخل تشغيل فقط ولا يكرر العقود. عند اختلاف الكود مع عقد، لا تفترض
+أن أحدهما صحيح: وثّق الفرق، ثم حدّثهما معًا أو أوقف التغيير حتى يُحسم القرار.
 
 ## Required reading
 
-قبل أي تغيير، اقرأ هذا الملف ثم `docs/README.md`. بعد ذلك اقرأ فقط العقد
-والدور والمهارة المطابقة للمهمة. لا تبدأ من لقطات أو مستندات خارج المستودع.
+قبل أي تغيير اقرأ هذا الملف و`docs/README.md`، ثم اقرأ عقد الدور والعقود المرتبطة
+بالمهمة فقط. افحص الكود والاختبارات الفعلية قبل قبول أي افتراض توثيقي.
 
 ## Change rules
 
-1. افحص المستدعين والموارد وManifest ونكهات Gradle قبل التعديل.
-2. نفّذ شريحة رأسية صغيرة قابلة للبناء والاختبار؛ لا تنفّذ إعادة كتابة شاملة.
-3. استخدم واجهة واحدة ونموذجًا واحدًا لكل مفهوم جديد. اربط الكود القديم عبر
-   adapter مؤقت مسجّل في سجل الدين التقني.
-4. لا تضف وصول Firebase جديدًا من Activity أو Fragment أو Adapter. مرّره عبر
-   repository وحدود البيانات المحددة في العقد.
-5. لا تضف كودًا معلّقًا أو بدائل تحمل أسماء `Old`, `New`, `Temp`, `V2` دون
-   خطة إزالة محددة. Git هو أرشيف الكود المحذوف.
-6. لا تحذف كودًا إلا بعد إثبات عدم وجود مراجع Java/XML/Manifest أو استخدام
-   انعكاسي، ثم ابنِ النكهات المتأثرة.
-7. حافظ على RTL، النصوص العربية، وإمكانية الوصول. لا تضع نصًا ظاهرًا للمستخدم
-   داخل Java/XML خارج موارد `strings.xml`.
-8. صلاحيات الإدارة يثبتها الخادم وقواعد Firebase؛ الحالة المحلية لا تمنح
-   صلاحية كتابة.
-9. لا تعرض أو تسجل الرموز أو البريد أو الهاتف أو معرفات الأجهزة أو مفاتيح
-   التوقيع.
-10. حدّث سجل المرحلة والدين التقني في نفس التغيير عند إغلاق بند أو إنشاء seam.
-
-## Skills routing
-
-- تخطيط أو بدء مرحلة: `.agents/skills/plan-fm-pro-phase/SKILL.md`
-- تحديث ميزة أصلية: `.agents/skills/modernize-fm-pro-feature/SKILL.md`
-- UI/UX وRTL: `.agents/skills/implement-fm-pro-ux/SKILL.md`
-- المشغل الصوتي: `.agents/skills/migrate-fm-pro-playback/SKILL.md`
-- Firebase والصلاحيات: `.agents/skills/secure-fm-pro-firebase/SKILL.md`
-- إزالة الدين والكود الميت: `.agents/skills/retire-fm-pro-debt/SKILL.md`
-- التحقق والإصدار: `.agents/skills/verify-fm-pro-release/SKILL.md`
-- تنسيق تغيير وكيلي من عقد مهمة إلى PR: `.agents/skills/orchestrate-fm-pro-task/SKILL.md`
-
-## Agent task automation
-
-أي تغيير يحمل label باسم `agent-change` يجب أن يضيف أو يعدّل عقدًا واحدًا في
-`.agents/tasks/<task-id>-<slug>.json`. شغّل `tools/agent-task.py preflight` قبل
-التنفيذ و`tools/agent-task.py scope` بعده. عقد المهمة يحدد النطاق والقبول وبوابات
-التحقق، لكنه لا يمنح صلاحية كتابة خارجية أو تغيير إنتاج أو فعل تدميري.
-
-المنسق لا يراجع أو يعتمد تنفيذه. تغييرات الأسرار والتوقيع وملفات CI وعقود
-المعمارية وقواعد Firebase خارج مسار التنفيذ الوكيلي الآلي، وتحتاج تغييرًا بشريًا
-مستقلًا. تفاصيل التشغيل في `docs/automation/agent-development.md`.
+1. نفّذ شريحة صغيرة قابلة للتحليل والاختبار والبناء؛ لا تنشئ إعادة كتابة موازية.
+2. حافظ على اتجاه `presentation -> domain <- data`، واجعل `app/providers.dart`
+   نقطة تركيب الاعتماديات لا مستودعًا لمنطق الأعمال.
+3. استخدم Riverpod فقط لإدارة الحالة والـDI. لا تضف service locator أو نمط حالة
+   ثانٍ دون قرار موثق وإزالة المسار السابق.
+4. لا تستدعِ Firebase من Widget أو Controller. يمر الوصول عبر data source ثم
+   repository interface في domain.
+5. لا تنفذ async work داخل `build`، وتخلص من controllers والاشتراكات والموارد.
+6. حافظ على cache-first ثم server refresh. لا تضف listener دائمًا أو offline
+   store جديدًا قبل تحديد lifecycle وinvalidation واختبارهما.
+7. كل نص ظاهر للمستخدم يعيش في ARB، مع العربية وRTL وإمكانية الوصول وتكبير الخط.
+8. لا تسجل stream URLs أو UID أو بيانات المستخدم أو تفاصيل إعداد Firebase.
+9. لا تقرأ أو تعرض محتوى `google-services.json` أو `GoogleService-Info.plist`.
+10. التطبيق Development/read-only حاليًا. أي كتابة، Rules، بيئة production،
+    signing أو إطلاق خارجي يحتاج تفويضًا وعقدًا/قرارًا مستقلًا.
 
 ## Agent roles
 
-ملفات الأدوار في `.agents/roles/` هي عقود تسليم للوكلاء الفرعيين وليست إعدادًا
-سحريًا للتشغيل. عند التفويض، أرسل للوكيل مسار الدور والمهمة المحددة ومعايير
-القبول. لا تجعل وكيلين يعدّلان الملف نفسه بالتوازي.
+- قيادة وتسليم: `.agents/roles/delivery-lead.md`
+- معمارية Flutter: `.agents/roles/flutter-architecture.md`
+- Firebase والبيانات والأمان: `.agents/roles/firebase-data-security.md`
+- المنتج وUX وإمكانية الوصول: `.agents/roles/product-ux-accessibility.md`
+- التشغيل الصوتي: `.agents/roles/playback.md`
+- الجودة والإصدار: `.agents/roles/quality-release.md`
+
+ملفات الأدوار عقود تسليم عند التفويض، وليست صلاحية تلقائية أو وكلاء دائمين.
+أرسل لكل دور هدفًا واحدًا، نطاق ملفات، معايير قبول، وهل المهمة تنفيذ أم مراجعة.
+لا تجعل دورين يعدلان الملف نفسه بالتوازي.
 
 ## Verification
 
-شغّل من جذر `FM-Pro` وباستخدام JDK 17:
+شغّل من جذر `hudhud_fm`:
 
 ```bash
-./tools/verify-governance.sh
-./tools/audit-technical-debt.sh
-python3 -m unittest discover -s tests/tools -p 'test_*.py'
-./gradlew testHudhudOfficialDebugUnitTest
-./gradlew app:assembleHudhudOfficialDebug
+./tool/verify-governance.sh
+dart format --output=none --set-exit-if-changed lib test
+flutter analyze
+flutter test
+flutter build apk --debug
 ```
 
-للتغييرات المشتركة ابنِ أيضًا نكهتي `hudhudDev` و`internews` المتأثرتين.
-لا تدّع نجاح الاختبار إذا لم يعمل، وسجّل السبب والبديل المستخدم.
+لتغيير iOS أو المشغل أو إعدادات المنصة شغّل أيضًا:
+
+```bash
+flutter build ios --simulator --debug
+```
+
+لا تدّع نجاح أمر لم يُنفذ. سجّل البيئة، النتائج، وما لم يُختبر وسبب ذلك.

@@ -1,55 +1,89 @@
 # Firebase and data contract
 
 الحالة: ملزم
-المالك: Firebase security agent
-القرار المرجعي: [ADR-0003](../decisions/ADR-0003-standard-firebase-architecture.md)
+المالك: Firebase data and security role
 
-## 1. السلطة والمجموعات المعيارية
+## البيئة والمسارات
 
-- اسم جذر البيانات يأتي فقط من `BuildConfig.BASE_FB_DB` لكل flavor (`HudHudFM`, `HudHudFmGooglePlay`, `InterNews`).
-- أسماء المجموعات والمسارات المعيارية تعرف مركزياً في `com.sana.dev.fm.utils.AppConstant`:
-  - `stations`: محطات البث الإذاعي `/{root}/stations/{stationId}`
-  - `programs`: البرامج الإذاعية `/{root}/programs/{programId}`
-  - `episodes`: الحلقات المسجلة `/{root}/episodes/{episodeId}`
-  - `users`: ملفات المستخدمين `/{root}/users/{uid}`
-  - `banners`: اللافتات والإعلانات `/{root}/banners/{bannerId}`
+التطبيق مرتبط حاليًا ببيئة Development فقط، والجذر canonical هو `HudHudDev`:
 
-### المجموعات الفرعية (Subcollections):
-- `episodes/{episodeId}/likes/{uid}`: سجل إعجابات الحلقة
-- `episodes/{episodeId}/comments/{commentId}`: تعليقات المستمعين
-- `users/{uid}/favorites/{targetId}`: العناصر المفضلة للمستخدم
-- `users/{uid}/subscriptions/{programId}`: اشتراكات المستخدم في البرامج
+```text
+HudHudDev/stations/stations/{stationId}
+HudHudDev/banners/banners/{bannerId}
+HudHudDev/users/users/{uid}
+HudHudDev/locations/locations/{locationId}
+```
 
----
+`lib/core/config/firestore_paths.dart` هو المالك التنفيذي للمسارات. لا تبني path
+كسلسلة داخل feature ولا تضف fallback إلى جذور legacy. إدخال environments أو
+flavors متعددة يحتاج قرارًا يحدد الفصل، package IDs، configs وقواعد النشر.
 
-## 2. ملكية البيانات والصلاحيات
+## سياسة القراءة والتخزين
 
-| الكيان | المسار المعتمد | جهة الكتابة | سلوك الغياب / القراءة غير المصرح بها |
-|---|---|---|---|
-| Station | `/{root}/stations/{stationId}` | Admin فقط | استبعاد السجل وتسجيل خطأ schema |
-| Program | `/{root}/programs/{programId}` | Admin فقط | حالة محتوى غير متاح |
-| Episode | `/{root}/episodes/{episodeId}` | Admin فقط | لا تعرض رابطاً فارغاً |
-| Episode Like | `/{root}/episodes/{episodeId}/likes/{uid}` | المستخدم الموثق (UID) | قراءة الحالة للمستخدم فقط |
-| Comment | `/{root}/episodes/{episodeId}/comments/{commentId}` | الكاتب الموثق (UID) | رفض الكتابة مع رسالة تسجيل دخول |
-| User | `/{root}/users/{uid}` | صاحب الـ UID فقط / Admin | وضع المستمع الزائر (Anonymous) |
-| Banner | `/{root}/banners/{bannerId}` | Admin فقط | تجاهل اللافتة |
+- المستمع read-only حاليًا؛ لا كتابة أو migration من تطبيق العميل.
+- يبدأ Home بقراءة `Source.cache`، ثم يطلب `Source.server` عند الفتح والتحديث.
+- لا يوجد snapshot listener دائم. إضافته يحتاج lifecycle وتكلفة وoffline policy.
+- فشل cache الأول متوقع، وفشل server يعرض cache كـoffline إن كانت صالحة.
+- فشل banners أو locations لا يمنع عرض stations.
+- كل batch يعيد items غير قابلة للتعديل وعدد السجلات المرفوضة ومصدر cache.
+- المستند المخالف يُرفض منفردًا ولا يسقط المجموعة كلها، ولا تظهر قيم تقنية خام.
 
----
+## Station schema
 
-## 3. معايير أنواع البيانات والتسميات
+المعرف هو Firestore document ID غير الفارغ. الحقول الإلزامية:
 
-1. **التواريخ:** تستخدم كائنات `com.google.firebase.Timestamp` حصرياً مع `FieldValue.serverTimestamp()` لجميع حقول الوقت (`createdAt`, `updatedAt`, `publishedAt`, `broadcastDate`, `lastActiveAt`, `expiresAt`).
-2. **العدادات:** تجمع كافة الإحصاءات في خريطة `stats` وتحدث ذرياً بواسطة `FieldValue.increment()`.
-3. **الحالات المنطقية:** تصاغ بإيجابية دلالية (`isActive`, `isLive`, `isFeatured`, `isVerified`, `isPublished`).
-4. **التخزين في Storage:**
-   - مجلدات وظيفية: `/{root}/{category}/{id}/{assetType}.webp`.
-   - تحويل وضغط الصور محلياً بصيغة `WebP` قبل الرفع.
-   - ترويسات `Cache-Control: public, max-age=31536000`.
+```text
+name, streamUrl,
+countryCode, countryNameAr,
+cityCode, cityNameAr,
+priority,
+isLive, isActive, isVerified, isFeatured,
+stats.programsCount, stats.subscribersCount, stats.totalPlays
+```
 
----
+الحقول الاختيارية صحيحة النوع عند وجودها:
 
-## 4. حدود القراءة والكتابة والمعمارية
+```text
+nameEn, tagline, description, backupStreamUrl,
+logoUrl, thumbnailUrl, frequency
+```
 
-- لا وصول مباشر لـ Firebase من Activities أو Fragments أو Adapters. يمر كل طلب عبر Repository مخصص.
-- DTOs تطابق وثائق Firestore وتتحول إلى Domain Models نقية وغير قابلة للتعديل عبر Mappers دفاعية تضمن سلامة الـ Null-Safety.
-- استعلامات Realtime تملك Lifecycle منضبط يتم إلغاؤه فور تدمير واجهة العرض.
+- `streamUrl` و`backupStreamUrl` يقبلان HTTP أو HTTPS لأن بعض محطات البث legacy.
+- image URLs تقبل network URLs المصرح بها في mapper الحالي؛ لا تُعرض قيمة فاسدة.
+- counters أعداد غير سالبة، والـflags الإلزامية لا تملك defaults مخفية.
+- تعرض المحطات النشطة فقط، وترتب featured ثم priority ثم الاسم.
+
+## Location schema
+
+```text
+countryCode, countryNameAr,
+cityCode, cityNameAr,
+sortOrder, isActive
+```
+
+الـfilter يأخذ المدن النشطة من هذه المجموعة فقط، ويعرض مدينة عندما توجد محطة
+يمنية تحمل `cityCode` نفسه. لا يُنشأ filter من نص محطة غير موجود في المرجع.
+
+## Banner schema
+
+```text
+title, imageUrl, targetType, targetId, targetUrl,
+priority, isActive, startAt?, expiresAt?
+```
+
+`imageUrl` و`targetUrl` عند وجوده HTTPS، وتطبق نافذة البداية والانتهاء محليًا.
+التنقل الناتج من `targetType` غير منفذ بعد ولا يجوز تخمينه.
+
+## User projection
+
+- المستخدم غير الموثق ينتج `AppUser.guest` بلا UID أو بيانات مصطنعة.
+- عند وجود Firebase Auth، تقرأ وثيقة UID مباشرة.
+- فشل الوثيقة أو غياب الاسم يعود إلى بيانات Auth الآمنة ثم guest.
+- projection الحالي: `uid`, `displayName`, `username`, وHTTPS `avatarUrl` فقط.
+- لا تمرر document map أو token أو email أو phone إلى UI دون عقد جديد.
+
+## تغيير schema
+
+أي حقل أو collection أو index جديد يحتاج mapper واختبارات valid/invalid وتحديث
+هذا العقد في التغيير نفسه. migrations والإصلاحات الجماعية أدوات إدارية خارج
+التطبيق، مع dry-run وrollback وتفويض مستقل.

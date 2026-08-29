@@ -1,49 +1,53 @@
 # Quality and release contract
 
 الحالة: ملزم  
-المالك: Quality release agent
+المالك: Quality release role
 
 ## هرم الاختبار
 
-1. Unit: mappers, use cases, reducers/ViewModels, schedule and error mapping.
-2. Integration: repositories مع Firebase Emulator أو fakes contract-compatible.
-3. UI: المسارات الحرجة فقط، RTL، offline، empty، error وعودة العملية.
-4. End-to-end يدوي: تشغيل البث والخلفية والإشعار وBluetooth وتغيير الشبكة.
+1. Domain: filtering, sorting, schema-independent rules and state projections.
+2. Data: mappers valid/invalid، repository cache/server behavior عبر fakes.
+3. Controller: transitions, concurrency, retry, disposal and failure mapping.
+4. Widget: الرحلات الحرجة، RTL، empty/offline/error، playback controls.
+5. Platform/manual: Firebase config، audio lifecycle، Android/iOS build وتشغيل فعلي.
 
-كل bug fix يبدأ باختبار يفشل عندما يمكن عزله بصورة موثوقة.
+كل bug fix يبدأ باختبار يفشل عندما يمكن عزله دون ربط الاختبار بخطأ التنفيذ نفسه.
 
 ## بوابات الدمج
 
-- `./tools/verify-governance.sh`
-- unit tests الخاصة بالنكهات المتأثرة.
-- debug assemble للنكهات المتأثرة.
-- Android Lint دون خطأ جديد؛ baseline لا يخفي مشاكل الكود الجديد.
-- مراجعة screenshots لتغيير UI على جهاز صغير وكبير وRTL وخط 200%.
-- تحديث الخطة وسجل الدين عند تغير الحالة.
+```bash
+./tool/verify-governance.sh
+dart format --output=none --set-exit-if-changed lib test
+flutter analyze
+flutter test
+flutter build apk --debug
+```
 
-عند وجود label باسم `agent-change` تضاف البوابات التالية:
+أضف `flutter build ios --simulator --debug` عند تغيير Dart مشترك ذي أثر منصة،
+plugin، playback، Firebase bootstrap أو ملفات iOS. تغييرات UI تحتاج فحص هاتف صغير
+وكبير، RTL و200% text scale، ولقطات قبل/بعد عند تغير بصري جوهري.
 
-- عقد مهمة واحد صالح تحت `.agents/tasks/` ومربوط ببند roadmap.
-- كل ملف متغير يقع ضمن `allowed_paths` في العقد.
-- لا يتضمن التغيير أسرارًا أو توقيعًا أو workflow أو عقدًا ملزمًا أو Rules.
-- المنفذ لا يعلن المراجعة أو الاعتماد؛ نتيجة Quality release مستقلة.
+## قواعد الأدلة
 
-## بوابات المشغل
-
-- audio focus loss/gain، مكالمة، Bluetooth disconnect، تبديل الشبكة.
-- استعادة التشغيل من notification وprocess recreation.
-- foreground service وMediaSession metadata صحيحان.
-- لا يحتفظ Service بمرجع UI ولا يحدث View مباشرة.
+- سجل الأمر ونتيجته وإصدار Flutter والمنصة المستهدفة.
+- `not run` ليست `passed`; اذكر السبب وأثره.
+- لا تعتمد على Firebase production أو بيانات حقيقية في unit/widget tests.
+- لا تضف golden baseline لإخفاء regression بصري غير مفهوم.
+- warnings الجديدة إما تصلح أو تسجل بمالك وسبب؛ لا تخف بتعطيل lint عام.
 
 ## بوابات الإصدار
 
-- crash-free users ≥ 99.5% قبل توسيع rollout.
-- ANR ومعدل فشل بدء الصوت لا يتراجعان عن baseline.
-- rollout مرحلي 5% ثم 25% ثم 50% ثم 100% مع نافذة مراقبة.
-- rollback artifact وإصدار سابق قابلان للتثبيت.
-- لا release إذا كانت TD أمنية P0 مفتوحة دون قبول خطر موثق.
+- Firebase environment وpackage/bundle IDs محسومة لكل منصة.
+- Android production signing لا يستخدم debug key.
+- privacy/store declarations تطابق Firebase وaudio/network الفعلي.
+- playback matrix ناجحة على جهاز فعلي، لا simulator فقط.
+- artifact سابق وrollback موثقان قبل rollout.
+- لا production release من جذر `HudHudDev` أو مع قواعد غير مراجعة.
 
-## الأدلة المطلوبة
+## تعريف الاكتمال
 
-يحتوي التسليم على الأوامر والنتائج، النكهات المختبرة، الأجهزة/الإصدارات، حالات
-لم تُختبر، وروابط البنود المغلقة. النجاح غير المنفذ لا يسجل كنجاح.
+- معايير القبول تعمل والحالات البديلة ممثلة.
+- العقود محدثة فقط إن تغير قرار ملزم.
+- الاختبارات والتحليل والبناء المتأثر ناجحة أو القيود معلنة.
+- لا secret أو PII أو stream URL في diff/logs.
+- المخاطر وما لم يختبر وخطة rollback مذكورة.

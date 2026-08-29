@@ -1,4 +1,0 @@
-interface:
-  display_name: "Migrate FM-Pro Playback"
-  short_description: "Move radio playback safely to Media3"
-  default_prompt: "Use $migrate-fm-pro-playback to migrate one FM-Pro playback slice with full lifecycle evidence."
