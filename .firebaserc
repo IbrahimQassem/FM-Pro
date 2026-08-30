@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "sanadev-fm"
+  },
+  "targets": {
+    "sanadev-fm": {
+      "hosting": {
+        "hudhud_admin": [
+          "hudhud-fm-admin-sanadev"
+        ]
+      }
+    }
+  }
+}

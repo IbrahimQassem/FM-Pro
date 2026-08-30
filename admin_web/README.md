@@ -28,8 +28,14 @@ npm install
 npm run dev
 ```
 
-`.env.local` مستبعد من Git. إعداد الإنتاج يمر عبر environment variables ولا
-يوضع داخل المصدر.
+`.env.local` مستبعد من Git. تُحقن إعدادات Firebase العامة في حزمة المتصفح وقت
+البناء، ولا توضع قيمها داخل ملفات المصدر.
+
+## الاستضافة
+
+تُبنى اللوحة كتطبيق React ثابت وتُنشر إلى موقع Firebase Hosting المستقل
+`hudhud-fm-admin-sanadev` عبر target باسم `hudhud_admin`، لذلك لا يتأثر موقع
+المشروع الافتراضي.
 
 ## نطاق الإدارة
 

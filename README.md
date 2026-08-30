@@ -59,6 +59,8 @@ npm run emulators:test
 لوحة إدارة الويب موجودة في [`admin_web`](admin_web/README.md)، وتغطي المحتوى
 والجداول والحلقات والإعلانات وتعليقات الجمهور والمفضلة والاشتراكات. الدخول يتطلب
 حساب Firebase Auth يحمل `admin=true` ولا تعتمد اللوحة على أسرار داخل المصدر.
+النسخة المنشورة متاحة عبر Firebase Hosting على
+[`hudhud-fm-admin-sanadev.web.app`](https://hudhud-fm-admin-sanadev.web.app).
 
 لـ iOS، يجب أن يطابق `ios/Runner/GoogleService-Info.plist` تطبيق Firebase المسجل
 بالحزمة `com.sana.dev.fm`. الملف مضاف إلى Runner Target ويُقرأ عند بدء التطبيق.
