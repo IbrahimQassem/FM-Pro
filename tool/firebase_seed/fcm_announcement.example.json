@@ -1,0 +1,9 @@
+{
+  "message": {
+    "topic": "hudhud_fm_announcements",
+    "notification": {
+      "title": "حلقة جديدة على هدهد إف إم",
+      "body": "استمع إلى الحلقة التجريبية وافتح التعليقات من التطبيق."
+    }
+  }
+}

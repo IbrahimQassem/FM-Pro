@@ -144,3 +144,13 @@ HTTPS فقط. القراءة فقط؛ لا يكتب التطبيق counters.
 أي حقل أو collection أو index جديد يحتاج mapper واختبارات valid/invalid وتحديث
 هذا العقد في التغيير نفسه. migrations والإصلاحات الجماعية أدوات إدارية خارج
 التطبيق، مع dry-run وrollback وتفويض مستقل.
+
+## Development demo seed
+
+- `tool/firebase_seed/development_seed.json` هو سيناريو العرض canonical الوحيد.
+- يلزم قبل الاتصال تحقق metadata وIDs والعلاقات station/program/episode/comment/
+  user، ومطابقة counters للعلاقات، وصحة التواريخ.
+- full وcontent-only يستخدمان `create` داخل batch ذري؛ لا upsert ولا overwrite.
+- content-only يشتق عدادات المحطات من البرامج ولا يحتوي IDs مكتوبة يدويًا.
+- مستخدمو seed projections لعرض كتّاب التعليقات فقط، وليسوا Auth credentials.
+- تشغيل apply أو نشر Rules أو إرسال FCM يحتاج تفويضًا خارجيًا مستقلًا.

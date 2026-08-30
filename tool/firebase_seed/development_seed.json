@@ -1,6 +1,44 @@
 {
   "projectId": "sanadev-fm",
   "root": "HudHudDev",
+  "users": [
+    {
+      "id": "demo-listener-amal",
+      "data": {
+        "displayName": "أمل الصبري",
+        "username": "amal_demo",
+        "avatarUrl": "",
+        "isActive": true,
+        "role": "listener",
+        "createdAt": "2026-08-20T09:00:00Z",
+        "updatedAt": "2026-08-20T09:00:00Z"
+      }
+    },
+    {
+      "id": "demo-listener-salim",
+      "data": {
+        "displayName": "سالم باحارثة",
+        "username": "salim_demo",
+        "avatarUrl": "",
+        "isActive": true,
+        "role": "listener",
+        "createdAt": "2026-08-21T10:00:00Z",
+        "updatedAt": "2026-08-21T10:00:00Z"
+      }
+    },
+    {
+      "id": "demo-listener-noura",
+      "data": {
+        "displayName": "نورة الحكيمي",
+        "username": "noura_demo",
+        "avatarUrl": "",
+        "isActive": true,
+        "role": "listener",
+        "createdAt": "2026-08-22T11:00:00Z",
+        "updatedAt": "2026-08-22T11:00:00Z"
+      }
+    }
+  ],
   "locations": [
     {
       "id": "ye-sanaa",
@@ -29,12 +67,12 @@
     {
       "id": "sanaa-radio",
       "data": {
-        "name": "إذاعة صنعاء",
-        "nameEn": "Sana'a Radio",
-        "tagline": "صوت صنعاء",
-        "description": "محطة إذاعية يمنية من صنعاء.",
-        "streamUrl": "https://dc5.serverse.com/proxy/pbmhbvxs/stream",
-        "frequency": "92.5 MHz",
+        "name": "محطة هدهد التجريبية - صنعاء",
+        "nameEn": "HudHud Demo Sana'a",
+        "tagline": "بث آمن لتجربة التطبيق",
+        "description": "محطة تجريبية تستخدم ملفًا صوتيًا عامًا للتحقق من رحلة التشغيل.",
+        "streamUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
+        "frequency": "بث تجريبي",
         "countryCode": "YE",
         "countryNameAr": "اليمن",
         "cityCode": "sanaa",
@@ -46,8 +84,8 @@
         "isFeatured": true,
         "stats": {
           "programsCount": 2,
-          "subscribersCount": 0,
-          "totalPlays": 0
+          "subscribersCount": 24,
+          "totalPlays": 860
         }
       }
     },
@@ -70,9 +108,9 @@
         "isVerified": false,
         "isFeatured": false,
         "stats": {
-          "programsCount": 0,
-          "subscribersCount": 0,
-          "totalPlays": 0
+          "programsCount": 1,
+          "subscribersCount": 12,
+          "totalPlays": 420
         }
       }
     },
@@ -96,8 +134,8 @@
         "isFeatured": true,
         "stats": {
           "programsCount": 1,
-          "subscribersCount": 0,
-          "totalPlays": 0
+          "subscribersCount": 18,
+          "totalPlays": 650
         }
       }
     },
@@ -119,9 +157,9 @@
         "isVerified": false,
         "isFeatured": false,
         "stats": {
-          "programsCount": 0,
-          "subscribersCount": 0,
-          "totalPlays": 0
+          "programsCount": 1,
+          "subscribersCount": 8,
+          "totalPlays": 310
         }
       }
     }
@@ -149,8 +187,8 @@
         },
         "stats": {
           "episodesCount": 2,
-          "subscribersCount": 0,
-          "totalPlays": 0
+          "subscribersCount": 14,
+          "totalPlays": 470
         }
       }
     },
@@ -173,9 +211,9 @@
           "utcOffsetMinutes": 180
         },
         "stats": {
-          "episodesCount": 0,
-          "subscribersCount": 0,
-          "totalPlays": 0
+          "episodesCount": 1,
+          "subscribersCount": 6,
+          "totalPlays": 190
         }
       }
     },
@@ -199,8 +237,58 @@
         },
         "stats": {
           "episodesCount": 1,
-          "subscribersCount": 0,
-          "totalPlays": 0
+          "subscribersCount": 10,
+          "totalPlays": 330
+        }
+      }
+    },
+    {
+      "id": "quran-daily-reflection",
+      "data": {
+        "stationId": "quran-radio-sanaa",
+        "title": "نفحات يومية",
+        "titleEn": "Daily Reflections",
+        "description": "مساحة إذاعية يومية قصيرة للتلاوة والتأمل.",
+        "categories": ["قرآن", "يومي"],
+        "presenters": ["عبد الرحمن الآنسي"],
+        "priority": 95,
+        "isActive": true,
+        "isFeatured": true,
+        "schedule": {
+          "weekdays": [1, 2, 3, 4, 5, 6, 7],
+          "startMinute": 360,
+          "endMinute": 390,
+          "utcOffsetMinutes": 180
+        },
+        "stats": {
+          "episodesCount": 1,
+          "subscribersCount": 9,
+          "totalPlays": 260
+        }
+      }
+    },
+    {
+      "id": "ibn-listener-provisions",
+      "data": {
+        "stationId": "ibn-alqayyim-radio",
+        "title": "زاد المستمع",
+        "titleEn": "Listener Provisions",
+        "description": "لقاءات قصيرة في القيم والسلوك المجتمعي.",
+        "categories": ["توعوي", "مجتمعي"],
+        "presenters": ["محمد اليافعي"],
+        "priority": 85,
+        "isActive": true,
+        "isFeatured": false,
+        "schedule": {
+          "weekdays": [2, 5],
+          "startMinute": 750,
+          "endMinute": 810,
+          "utcOffsetMinutes": 180
+        },
+        "stats": {
+          "episodesCount": 1,
+          "subscribersCount": 5,
+          "totalPlays": 140
         }
       }
     }
@@ -224,7 +312,7 @@
         "broadcastAt": "2026-08-29T05:00:00Z",
         "utcOffsetMinutes": 180,
         "publishedAt": "2026-08-29T07:30:00Z",
-        "stats": {"playsCount": 0, "likesCount": 0, "commentsCount": 0}
+        "stats": {"playsCount": 210, "likesCount": 18, "commentsCount": 2}
       }
     },
     {
@@ -243,7 +331,7 @@
         "broadcastAt": "2026-08-28T05:00:00Z",
         "utcOffsetMinutes": 180,
         "publishedAt": "2026-08-28T07:00:00Z",
-        "stats": {"playsCount": 0, "likesCount": 0, "commentsCount": 0}
+        "stats": {"playsCount": 160, "likesCount": 11, "commentsCount": 2}
       }
     },
     {
@@ -262,7 +350,199 @@
         "broadcastAt": "2026-08-29T15:00:00Z",
         "utcOffsetMinutes": 180,
         "publishedAt": "2026-08-29T16:00:00Z",
-        "stats": {"playsCount": 0, "likesCount": 0, "commentsCount": 0}
+        "stats": {"playsCount": 190, "likesCount": 15, "commentsCount": 2}
+      }
+    },
+    {
+      "id": "sanaa-community-volunteering",
+      "data": {
+        "programId": "sanaa-community",
+        "stationId": "sanaa-radio",
+        "title": "التطوع وصناعة الأثر",
+        "description": "تجارب شبابية في المبادرات المجتمعية والعمل التطوعي.",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+        "durationSeconds": 1680,
+        "presenter": "منى القاضي",
+        "guest": "فريق مبادرة أثر",
+        "priority": 100,
+        "isPublished": true,
+        "isFeatured": true,
+        "broadcastAt": "2026-08-27T14:00:00Z",
+        "utcOffsetMinutes": 180,
+        "publishedAt": "2026-08-27T15:30:00Z",
+        "stats": {"playsCount": 145, "likesCount": 13, "commentsCount": 2}
+      }
+    },
+    {
+      "id": "quran-reflection-demo",
+      "data": {
+        "programId": "quran-daily-reflection",
+        "stationId": "quran-radio-sanaa",
+        "title": "عينة صوتية تجريبية",
+        "description": "حلقة تجريبية للتحقق من رحلة عرض وتشغيل محتوى البرنامج.",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+        "durationSeconds": 1320,
+        "presenter": "عبد الرحمن الآنسي",
+        "priority": 100,
+        "isPublished": true,
+        "isFeatured": false,
+        "broadcastAt": "2026-08-29T03:00:00Z",
+        "utcOffsetMinutes": 180,
+        "publishedAt": "2026-08-29T04:00:00Z",
+        "stats": {"playsCount": 120, "likesCount": 8, "commentsCount": 2}
+      }
+    },
+    {
+      "id": "ibn-provisions-demo",
+      "data": {
+        "programId": "ibn-listener-provisions",
+        "stationId": "ibn-alqayyim-radio",
+        "title": "عينة الحلقة الأولى",
+        "description": "حلقة تجريبية لاختبار تفاصيل البرنامج والتعليقات والتشغيل.",
+        "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
+        "durationSeconds": 1440,
+        "presenter": "محمد اليافعي",
+        "priority": 100,
+        "isPublished": true,
+        "isFeatured": false,
+        "broadcastAt": "2026-08-28T09:30:00Z",
+        "utcOffsetMinutes": 180,
+        "publishedAt": "2026-08-28T10:30:00Z",
+        "stats": {"playsCount": 95, "likesCount": 6, "commentsCount": 2}
+      }
+    }
+  ],
+  "comments": [
+    {
+      "id": "comment-education-amal",
+      "data": {
+        "episodeId": "sanaa-morning-education",
+        "authorId": "demo-listener-amal",
+        "authorName": "أمل الصبري",
+        "content": "حلقة ثرية، خصوصًا الجزء المتعلق بفرص التدريب للشباب.",
+        "createdAt": "2026-08-29T08:10:00Z",
+        "isEdited": false
+      }
+    },
+    {
+      "id": "comment-education-salim",
+      "data": {
+        "episodeId": "sanaa-morning-education",
+        "authorId": "demo-listener-salim",
+        "authorName": "سالم باحارثة",
+        "content": "أتمنى حلقة لاحقة عن التعليم التقني في المحافظات.",
+        "createdAt": "2026-08-29T08:25:00Z",
+        "isEdited": true
+      }
+    },
+    {
+      "id": "comment-environment-noura",
+      "data": {
+        "episodeId": "sanaa-morning-environment",
+        "authorId": "demo-listener-noura",
+        "authorName": "نورة الحكيمي",
+        "content": "المبادرات المحلية المذكورة ملهمة وقابلة للتطبيق.",
+        "createdAt": "2026-08-28T07:40:00Z",
+        "isEdited": false
+      }
+    },
+    {
+      "id": "comment-environment-amal",
+      "data": {
+        "episodeId": "sanaa-morning-environment",
+        "authorId": "demo-listener-amal",
+        "authorName": "أمل الصبري",
+        "content": "شكرًا على الأمثلة العملية حول التشجير.",
+        "createdAt": "2026-08-28T08:05:00Z",
+        "isEdited": false
+      }
+    },
+    {
+      "id": "comment-culture-salim",
+      "data": {
+        "episodeId": "aden-evening-culture",
+        "authorId": "demo-listener-salim",
+        "authorName": "سالم باحارثة",
+        "content": "سرد جميل لذاكرة عدن الفنية والمسرحية.",
+        "createdAt": "2026-08-29T16:20:00Z",
+        "isEdited": false
+      }
+    },
+    {
+      "id": "comment-culture-noura",
+      "data": {
+        "episodeId": "aden-evening-culture",
+        "authorId": "demo-listener-noura",
+        "authorName": "نورة الحكيمي",
+        "content": "أحببت تنوع الضيوف والموضوعات في الحلقة.",
+        "createdAt": "2026-08-29T16:45:00Z",
+        "isEdited": false
+      }
+    },
+    {
+      "id": "comment-volunteer-amal",
+      "data": {
+        "episodeId": "sanaa-community-volunteering",
+        "authorId": "demo-listener-amal",
+        "authorName": "أمل الصبري",
+        "content": "تجارب الفريق أعطت أفكارًا واضحة لبدء مبادرة صغيرة.",
+        "createdAt": "2026-08-27T15:50:00Z",
+        "isEdited": false
+      }
+    },
+    {
+      "id": "comment-volunteer-salim",
+      "data": {
+        "episodeId": "sanaa-community-volunteering",
+        "authorId": "demo-listener-salim",
+        "authorName": "سالم باحارثة",
+        "content": "نحتاج مزيدًا من الحلقات عن إدارة المبادرات.",
+        "createdAt": "2026-08-27T16:10:00Z",
+        "isEdited": false
+      }
+    },
+    {
+      "id": "comment-quran-noura",
+      "data": {
+        "episodeId": "quran-reflection-demo",
+        "authorId": "demo-listener-noura",
+        "authorName": "نورة الحكيمي",
+        "content": "ظهرت الحلقة والتشغيل والتعليقات بشكل واضح في النسخة التجريبية.",
+        "createdAt": "2026-08-29T04:20:00Z",
+        "isEdited": false
+      }
+    },
+    {
+      "id": "comment-quran-amal",
+      "data": {
+        "episodeId": "quran-reflection-demo",
+        "authorId": "demo-listener-amal",
+        "authorName": "أمل الصبري",
+        "content": "أتطلع إلى إضافة المحتوى الصوتي النهائي لهذا البرنامج.",
+        "createdAt": "2026-08-29T04:35:00Z",
+        "isEdited": false
+      }
+    },
+    {
+      "id": "comment-ibn-salim",
+      "data": {
+        "episodeId": "ibn-provisions-demo",
+        "authorId": "demo-listener-salim",
+        "authorName": "سالم باحارثة",
+        "content": "رحلة البرنامج والحلقة تعمل بصورة مترابطة.",
+        "createdAt": "2026-08-28T10:50:00Z",
+        "isEdited": false
+      }
+    },
+    {
+      "id": "comment-ibn-noura",
+      "data": {
+        "episodeId": "ibn-provisions-demo",
+        "authorId": "demo-listener-noura",
+        "authorName": "نورة الحكيمي",
+        "content": "واجهة التعليقات سهلة وواضحة في هذه الحلقة التجريبية.",
+        "createdAt": "2026-08-28T11:05:00Z",
+        "isEdited": false
       }
     }
   ],

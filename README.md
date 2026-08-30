@@ -51,6 +51,11 @@ npm install
 npm run emulators:test
 ```
 
+سيناريو بيانات العرض المترابط وتعليمات تشغيله موثقان في
+[`tool/firebase_seed/README.md`](tool/firebase_seed/README.md)، وخريطة الرحلات في
+[`DEMO_COVERAGE.md`](tool/firebase_seed/DEMO_COVERAGE.md). ابدأ دائمًا بـdry-run؛
+لا يشغّل المشروع apply تلقائيًا.
+
 لـ iOS، يجب أن يطابق `ios/Runner/GoogleService-Info.plist` تطبيق Firebase المسجل
 بالحزمة `com.sana.dev.fm`. الملف مضاف إلى Runner Target ويُقرأ عند بدء التطبيق.
 يلزم أيضًا رفع APNs key في Firebase واستخدام provisioning يدعم Push Notifications

@@ -16,19 +16,24 @@ void main() {
     final locations = seed['locations'] as List<dynamic>;
     final stations = seed['stations'] as List<dynamic>;
     final banners = seed['banners'] as List<dynamic>;
+    final users = seed['users'] as List<dynamic>;
     final programs = seed['programs'] as List<dynamic>;
     final episodes = seed['episodes'] as List<dynamic>;
+    final comments = seed['comments'] as List<dynamic>;
 
     expect(seed['projectId'], 'sanadev-fm');
     expect(seed['root'], 'HudHudDev');
     expect(locations, hasLength(2));
     expect(stations, hasLength(4));
     expect(banners, hasLength(1));
-    expect(programs, hasLength(3));
-    expect(episodes, hasLength(3));
+    expect(users, hasLength(3));
+    expect(programs, hasLength(5));
+    expect(episodes, hasLength(6));
+    expect(comments, hasLength(12));
 
     final cityCodes = <String>{};
     final declaredProgramCounts = <String, int>{};
+    final stationIds = <String>{};
     for (final value in locations) {
       final entry = value as Map<String, dynamic>;
       final location = LocationMapper.fromMap(
@@ -46,6 +51,7 @@ void main() {
       expect(Uri.parse(station.streamUrl).scheme, 'https');
       expect(cityCodes, contains(station.cityCode));
       expect(station.isVerified, isFalse);
+      stationIds.add(station.id);
       declaredProgramCounts[station.id] = station.programsCount;
     }
 
@@ -58,6 +64,8 @@ void main() {
     expect(banner.isActive, isTrue);
 
     final programIds = <String>{};
+    final programStationIds = <String, String>{};
+    final declaredEpisodeCounts = <String, int>{};
     final actualProgramCounts = <String, int>{};
     for (final value in programs) {
       final entry = value as Map<String, dynamic>;
@@ -66,23 +74,24 @@ void main() {
         data: entry['data'] as Map<String, dynamic>,
       );
       programIds.add(program.id);
+      programStationIds[program.id] = program.stationId;
+      declaredEpisodeCounts[program.id] = program.episodesCount;
       actualProgramCounts.update(
         program.stationId,
         (currentCount) => currentCount + 1,
         ifAbsent: () => 1,
       );
-      expect(
-        stations.any(
-          (value) => (value as Map<String, dynamic>)['id'] == program.stationId,
-        ),
-        isTrue,
-      );
+      expect(stationIds, contains(program.stationId));
     }
 
     for (final entry in declaredProgramCounts.entries) {
       expect(entry.value, actualProgramCounts[entry.key] ?? 0);
+      expect(entry.value, greaterThan(0));
     }
 
+    final episodeIds = <String>{};
+    final declaredCommentCounts = <String, int>{};
+    final actualEpisodeCounts = <String, int>{};
     for (final value in episodes) {
       final entry = value as Map<String, dynamic>;
       final data = Map<String, dynamic>.from(
@@ -100,6 +109,63 @@ void main() {
         data: data,
       );
       expect(programIds, contains(episode.programId));
+      expect(episode.stationId, programStationIds[episode.programId]);
+      episodeIds.add(episode.id);
+      declaredCommentCounts[episode.id] = episode.commentsCount;
+      actualEpisodeCounts.update(
+        episode.programId,
+        (currentCount) => currentCount + 1,
+        ifAbsent: () => 1,
+      );
     }
+
+    for (final entry in declaredEpisodeCounts.entries) {
+      expect(entry.value, actualEpisodeCounts[entry.key] ?? 0);
+      expect(entry.value, greaterThan(0));
+    }
+
+    final userNames = <String, String>{};
+    for (final value in users) {
+      final entry = value as Map<String, dynamic>;
+      final id = entry['id'] as String;
+      final data = entry['data'] as Map<String, dynamic>;
+      expect(id, isNotEmpty);
+      expect(data['displayName'], isA<String>());
+      expect((data['displayName'] as String).trim(), isNotEmpty);
+      expect(data['isActive'], isTrue);
+      expect(data['role'], 'listener');
+      expect(DateTime.tryParse(data['createdAt'] as String), isNotNull);
+      expect(DateTime.tryParse(data['updatedAt'] as String), isNotNull);
+      userNames[id] = data['displayName'] as String;
+    }
+
+    final actualCommentCounts = <String, int>{};
+    final usedAuthors = <String>{};
+    for (final value in comments) {
+      final entry = value as Map<String, dynamic>;
+      final data = entry['data'] as Map<String, dynamic>;
+      final episodeId = data['episodeId'] as String;
+      final authorId = data['authorId'] as String;
+      final content = (data['content'] as String).trim();
+      expect(episodeIds, contains(episodeId));
+      expect(userNames, contains(authorId));
+      expect(data['authorName'], userNames[authorId]);
+      expect(content, isNotEmpty);
+      expect(content.length, lessThanOrEqualTo(1000));
+      expect(DateTime.tryParse(data['createdAt'] as String), isNotNull);
+      expect(data['isEdited'], isA<bool>());
+      usedAuthors.add(authorId);
+      actualCommentCounts.update(
+        episodeId,
+        (currentCount) => currentCount + 1,
+        ifAbsent: () => 1,
+      );
+    }
+
+    for (final entry in declaredCommentCounts.entries) {
+      expect(entry.value, actualCommentCounts[entry.key] ?? 0);
+      expect(entry.value, greaterThan(0));
+    }
+    expect(usedAuthors, unorderedEquals(userNames.keys));
   });
 }

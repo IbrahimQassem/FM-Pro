@@ -1,6 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
+import { buildSeedPlan, validateSeed } from './seed_contract.mjs';
+
 const expectedProjectId = 'sanadev-fm';
 const seedFile = fileURLToPath(
   new URL('./development_seed.json', import.meta.url),
@@ -19,62 +21,16 @@ if (projectId !== expectedProjectId) {
 }
 
 const seed = JSON.parse(await readFile(seedFile, 'utf8'));
-if (seed.projectId !== projectId || seed.root !== 'HudHudDev') {
-  throw new Error('Seed metadata does not match the Development target.');
-}
-
-const discoveryEntries = [
-  ...seed.locations.map((entry) => ({
-    path: `${seed.root}/locations/locations/${entry.id}`,
-    data: entry.data,
-  })),
-  ...seed.stations.map((entry) => ({
-    path: `${seed.root}/stations/stations/${entry.id}`,
-    data: entry.data,
-  })),
-  ...seed.banners.map((entry) => ({
-    path: `${seed.root}/banners/banners/${entry.id}`,
-    data: entry.data,
-  })),
-];
-const contentEntries = [
-  ...seed.programs.map((entry) => ({
-    path: `${seed.root}/programs/programs/${entry.id}`,
-    data: entry.data,
-  })),
-  ...seed.episodes.map((entry) => ({
-    path: `${seed.root}/episodes/episodes/${entry.id}`,
-    data: {
-      ...entry.data,
-      broadcastAt: new Date(entry.data.broadcastAt),
-      publishedAt: entry.data.publishedAt
-        ? new Date(entry.data.publishedAt)
-        : null,
-    },
-  })),
-];
-const entries = contentOnly
-  ? contentEntries
-  : [...discoveryEntries, ...contentEntries];
-const stationCountUpdates = contentOnly
-  ? [
-      {
-        path: `${seed.root}/stations/stations/sanaa-radio`,
-        count: 2,
-      },
-      {
-        path: `${seed.root}/stations/stations/huna-aden-fm`,
-        count: 1,
-      },
-    ]
-  : [];
+const counts = validateSeed(seed, expectedProjectId);
+const { entries, stationCountUpdates } = buildSeedPlan(seed, { contentOnly });
 
 console.log(
   `Seed plan: mode=${contentOnly ? 'content-only' : 'full'}, ` +
     `project=${projectId}, root=${seed.root}, ` +
-    `locations=${seed.locations.length}, stations=${seed.stations.length}, ` +
-    `programs=${seed.programs.length}, episodes=${seed.episodes.length}, ` +
-    `banners=${seed.banners.length}.`,
+    `locations=${counts.locations}, stations=${counts.stations}, ` +
+    `users=${counts.users}, programs=${counts.programs}, ` +
+    `episodes=${counts.episodes}, comments=${counts.comments}, ` +
+    `banners=${counts.banners}.`,
 );
 
 if (!shouldApply) {

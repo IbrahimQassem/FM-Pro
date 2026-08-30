@@ -6,6 +6,8 @@
     "node": ">=22"
   },
   "scripts": {
+    "test": "node --test test/seed_contract.test.mjs",
+    "verify:urls": "node verify_urls.mjs",
     "seed:dry": "node seed.mjs --project sanadev-fm",
     "seed:apply": "node seed.mjs --project sanadev-fm --apply",
     "seed:content:dry": "node seed.mjs --project sanadev-fm --content-only",
