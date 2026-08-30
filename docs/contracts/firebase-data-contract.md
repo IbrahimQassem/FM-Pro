@@ -11,6 +11,8 @@
 HudHudDev/stations/stations/{stationId}
 HudHudDev/banners/banners/{bannerId}
 HudHudDev/users/users/{uid}
+HudHudDev/users/users/{uid}/favorites/{favoriteId}
+HudHudDev/users/users/{uid}/subscriptions/{subscriptionId}
 HudHudDev/locations/locations/{locationId}
 HudHudDev/programs/programs/{programId}
 HudHudDev/episodes/episodes/{episodeId}
@@ -24,7 +26,8 @@ flavors متعددة يحتاج قرارًا يحدد الفصل، package IDs،
 ## سياسة القراءة والتخزين
 
 - القراءة العامة للمحتوى read-only. الكتابتان الوحيدتان من العميل هما إنشاء ملف
-  المستمع عند التسجيل وإضافة تعليق؛ كلاهما محمي بقواعد واختبارات emulator.
+  المستمع عند التسجيل، وإضافة تعليق، وإدارة مفضلته واشتراكاته؛ جميعها محمية
+  بقواعد واختبارات emulator.
 - يبدأ Home بقراءة `Source.cache`، ثم يطلب `Source.server` عند الفتح والتحديث.
 - لا يوجد snapshot listener دائم. إضافته يحتاج lifecycle وتكلفة وoffline policy.
 - التعليقات استثناء محدد: listener لحظي حتى 100 تعليق يعمل فقط أثناء شاشة
@@ -112,6 +115,29 @@ episodeId, authorId, authorName, content, createdAt, isEdited=false
 - `authorId` يساوي UID، و`authorName` يطابق ملف المستخدم النشط وفق Rules.
 - القراءة عامة؛ الإنشاء لمستمع موثق نشط؛ التعديل والحذف للمشرف فقط حاليًا.
 - لا يكتب العميل `stats.commentsCount`، ولا توجد likes للتعليقات في هذه المرحلة.
+
+## Favorite schema
+
+المسار تابع للمستخدم ولا يحتوي UID مكررًا داخل الوثيقة:
+
+```text
+targetType=station|program|episode, targetId, createdAt
+```
+
+- القراءة والإنشاء والحذف للمالك فقط، أو للمشرف للمراجعة والإدارة.
+- لا تعديل من العميل؛ تغيير الهدف يعني حذف المفضلة وإنشاء واحدة جديدة.
+- يمنع تخزين البريد أو token أو بيانات خاصة داخل الوثيقة.
+
+## Subscription schema
+
+```text
+targetType=station|program, targetId,
+notificationsEnabled, isActive, createdAt, updatedAt
+```
+
+- المالك يدير اشتراكاته فقط، والمشرف يستطيع القراءة والإدارة.
+- `createdAt` ثابت بعد الإنشاء و`updatedAt` يساوي وقت الطلب في تحديث العميل.
+- الاشتراك تفضيل محتوى وإشعار، وليس عقد دفع أو اشتراك مالي.
 
 ## Program schema
 

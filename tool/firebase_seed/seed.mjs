@@ -12,6 +12,11 @@ const projectIndex = args.indexOf('--project');
 const projectId = projectIndex >= 0 ? args[projectIndex + 1] : '';
 const shouldApply = args.includes('--apply');
 const contentOnly = args.includes('--content-only');
+const engagementOnly = args.includes('--engagement-only');
+
+if (contentOnly && engagementOnly) {
+  throw new Error('Choose either --content-only or --engagement-only.');
+}
 
 if (projectId !== expectedProjectId) {
   throw new Error(
@@ -22,14 +27,18 @@ if (projectId !== expectedProjectId) {
 
 const seed = JSON.parse(await readFile(seedFile, 'utf8'));
 const counts = validateSeed(seed, expectedProjectId);
-const { entries, stationCountUpdates } = buildSeedPlan(seed, { contentOnly });
+const { entries, stationCountUpdates } = buildSeedPlan(seed, {
+  contentOnly,
+  engagementOnly,
+});
 
 console.log(
-  `Seed plan: mode=${contentOnly ? 'content-only' : 'full'}, ` +
+  `Seed plan: mode=${engagementOnly ? 'engagement-only' : contentOnly ? 'content-only' : 'full'}, ` +
     `project=${projectId}, root=${seed.root}, ` +
     `locations=${counts.locations}, stations=${counts.stations}, ` +
     `users=${counts.users}, programs=${counts.programs}, ` +
     `episodes=${counts.episodes}, comments=${counts.comments}, ` +
+    `favorites=${counts.favorites}, subscriptions=${counts.subscriptions}, ` +
     `banners=${counts.banners}.`,
 );
 

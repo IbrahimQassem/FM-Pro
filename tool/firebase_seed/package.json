@@ -8,12 +8,16 @@
   "scripts": {
     "test": "node --test test/seed_contract.test.mjs",
     "verify:urls": "node verify_urls.mjs",
+    "admin:grant": "node grant_admin.mjs",
     "seed:dry": "node seed.mjs --project sanadev-fm",
     "seed:apply": "node seed.mjs --project sanadev-fm --apply",
     "seed:content:dry": "node seed.mjs --project sanadev-fm --content-only",
-    "seed:content:apply": "node seed.mjs --project sanadev-fm --content-only --apply"
+    "seed:content:apply": "node seed.mjs --project sanadev-fm --content-only --apply",
+    "seed:engagement:dry": "node seed.mjs --project sanadev-fm --engagement-only",
+    "seed:engagement:apply": "node seed.mjs --project sanadev-fm --engagement-only --apply"
   },
   "dependencies": {
-    "@google-cloud/firestore": "9.0.0"
+    "@google-cloud/firestore": "9.0.0",
+    "firebase-admin": "^14.3.0"
   }
 }

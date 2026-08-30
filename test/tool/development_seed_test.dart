@@ -20,6 +20,8 @@ void main() {
     final programs = seed['programs'] as List<dynamic>;
     final episodes = seed['episodes'] as List<dynamic>;
     final comments = seed['comments'] as List<dynamic>;
+    final favorites = seed['favorites'] as List<dynamic>;
+    final subscriptions = seed['subscriptions'] as List<dynamic>;
 
     expect(seed['projectId'], 'sanadev-fm');
     expect(seed['root'], 'HudHudDev');
@@ -30,6 +32,8 @@ void main() {
     expect(programs, hasLength(5));
     expect(episodes, hasLength(6));
     expect(comments, hasLength(12));
+    expect(favorites, hasLength(6));
+    expect(subscriptions, hasLength(4));
 
     final cityCodes = <String>{};
     final declaredProgramCounts = <String, int>{};
@@ -167,5 +171,31 @@ void main() {
       expect(entry.value, greaterThan(0));
     }
     expect(usedAuthors, unorderedEquals(userNames.keys));
+
+    final engagementUsers = <String>{};
+    for (final value in favorites) {
+      final entry = value as Map<String, dynamic>;
+      final userId = entry['userId'] as String;
+      final data = entry['data'] as Map<String, dynamic>;
+      expect(userNames, contains(userId));
+      expect(['station', 'program', 'episode'], contains(data['targetType']));
+      expect(data['targetId'], isA<String>());
+      expect(DateTime.tryParse(data['createdAt'] as String), isNotNull);
+      engagementUsers.add(userId);
+    }
+    for (final value in subscriptions) {
+      final entry = value as Map<String, dynamic>;
+      final userId = entry['userId'] as String;
+      final data = entry['data'] as Map<String, dynamic>;
+      expect(userNames, contains(userId));
+      expect(['station', 'program'], contains(data['targetType']));
+      expect(data['targetId'], isA<String>());
+      expect(data['notificationsEnabled'], isA<bool>());
+      expect(data['isActive'], isTrue);
+      expect(DateTime.tryParse(data['createdAt'] as String), isNotNull);
+      expect(DateTime.tryParse(data['updatedAt'] as String), isNotNull);
+      engagementUsers.add(userId);
+    }
+    expect(engagementUsers, unorderedEquals(userNames.keys));
   });
 }

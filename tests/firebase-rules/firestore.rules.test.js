@@ -8,6 +8,8 @@ import {
 } from "@firebase/rules-unit-testing";
 import {
   collection,
+  collectionGroup,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -22,6 +24,10 @@ const episodePath = (id = "episode-1") =>
   `HudHudDev/episodes/episodes/${id}`;
 const commentPath = (id = "comment-1") =>
   `${episodePath()}/comments/${id}`;
+const favoritePath = (uid, id = "station-1") =>
+  `${userPath(uid)}/favorites/${id}`;
+const subscriptionPath = (uid, id = "program-1") =>
+  `${userPath(uid)}/subscriptions/${id}`;
 
 let testEnv;
 
@@ -60,6 +66,27 @@ function validComment(uid, overrides = {}) {
     content: "A useful comment",
     createdAt: serverTimestamp(),
     isEdited: false,
+    ...overrides,
+  };
+}
+
+function validFavorite(overrides = {}) {
+  return {
+    targetType: "station",
+    targetId: "station-1",
+    createdAt: serverTimestamp(),
+    ...overrides,
+  };
+}
+
+function validSubscription(overrides = {}) {
+  return {
+    targetType: "program",
+    targetId: "program-1",
+    notificationsEnabled: true,
+    isActive: true,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
     ...overrides,
   };
 }
@@ -177,6 +204,74 @@ describe("episode comments", () => {
         content: "Edited",
       }),
     );
+  });
+});
+
+describe("favorites and subscriptions", () => {
+  test("a listener owns canonical favorites and cannot forge their shape", async () => {
+    const owner = userDb("user-a");
+    const favorite = doc(owner, favoritePath("user-a"));
+    await assertSucceeds(setDoc(favorite, validFavorite()));
+    await assertSucceeds(getDoc(favorite));
+    await assertFails(getDoc(doc(userDb("user-b"), favoritePath("user-a"))));
+    await assertFails(
+      setDoc(
+        doc(owner, favoritePath("user-a", "invalid")),
+        validFavorite({ targetType: "banner" }),
+      ),
+    );
+    await assertFails(
+      setDoc(
+        doc(owner, favoritePath("user-a", "private")),
+        validFavorite({ email: "private@example.com" }),
+      ),
+    );
+    await assertSucceeds(deleteDoc(favorite));
+  });
+
+  test("a listener can update only their canonical subscription", async () => {
+    const owner = userDb("user-a");
+    const subscription = doc(owner, subscriptionPath("user-a"));
+    await assertSucceeds(setDoc(subscription, validSubscription()));
+    await assertSucceeds(
+      updateDoc(subscription, {
+        notificationsEnabled: false,
+        updatedAt: serverTimestamp(),
+      }),
+    );
+    await assertFails(
+      updateDoc(doc(userDb("user-b"), subscriptionPath("user-a")), {
+        isActive: false,
+        updatedAt: serverTimestamp(),
+      }),
+    );
+    await assertFails(
+      setDoc(
+        doc(owner, subscriptionPath("user-a", "invalid")),
+        validSubscription({ targetType: "episode" }),
+      ),
+    );
+  });
+
+  test("guests are denied and administrators can audit collection groups", async () => {
+    await seed(favoritePath("user-a"), {
+      targetType: "station",
+      targetId: "station-1",
+      createdAt: new Date(),
+    });
+    await seed(subscriptionPath("user-a"), {
+      targetType: "program",
+      targetId: "program-1",
+      notificationsEnabled: true,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    await assertFails(getDoc(doc(anonymousDb(), favoritePath("user-a"))));
+    const admin = userDb("admin-a", { admin: true });
+    await assertSucceeds(getDocs(collectionGroup(admin, "favorites")));
+    await assertSucceeds(getDocs(collectionGroup(admin, "subscriptions")));
+    await assertSucceeds(deleteDoc(doc(admin, favoritePath("user-a"))));
   });
 });
 

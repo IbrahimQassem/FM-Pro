@@ -546,6 +546,112 @@
       }
     }
   ],
+  "favorites": [
+    {
+      "id": "favorite-amal-sanaa",
+      "userId": "demo-listener-amal",
+      "data": {
+        "targetType": "station",
+        "targetId": "sanaa-radio",
+        "createdAt": "2026-08-29T08:00:00Z"
+      }
+    },
+    {
+      "id": "favorite-amal-education",
+      "userId": "demo-listener-amal",
+      "data": {
+        "targetType": "episode",
+        "targetId": "sanaa-morning-education",
+        "createdAt": "2026-08-29T08:05:00Z"
+      }
+    },
+    {
+      "id": "favorite-salim-aden",
+      "userId": "demo-listener-salim",
+      "data": {
+        "targetType": "station",
+        "targetId": "huna-aden-fm",
+        "createdAt": "2026-08-29T09:00:00Z"
+      }
+    },
+    {
+      "id": "favorite-salim-morning",
+      "userId": "demo-listener-salim",
+      "data": {
+        "targetType": "program",
+        "targetId": "sanaa-morning",
+        "createdAt": "2026-08-29T09:10:00Z"
+      }
+    },
+    {
+      "id": "favorite-noura-quran",
+      "userId": "demo-listener-noura",
+      "data": {
+        "targetType": "program",
+        "targetId": "quran-daily-reflection",
+        "createdAt": "2026-08-29T10:00:00Z"
+      }
+    },
+    {
+      "id": "favorite-noura-reflection",
+      "userId": "demo-listener-noura",
+      "data": {
+        "targetType": "episode",
+        "targetId": "quran-reflection-demo",
+        "createdAt": "2026-08-29T10:05:00Z"
+      }
+    }
+  ],
+  "subscriptions": [
+    {
+      "id": "subscription-amal-sanaa",
+      "userId": "demo-listener-amal",
+      "data": {
+        "targetType": "station",
+        "targetId": "sanaa-radio",
+        "notificationsEnabled": true,
+        "isActive": true,
+        "createdAt": "2026-08-29T08:10:00Z",
+        "updatedAt": "2026-08-29T08:10:00Z"
+      }
+    },
+    {
+      "id": "subscription-amal-morning",
+      "userId": "demo-listener-amal",
+      "data": {
+        "targetType": "program",
+        "targetId": "sanaa-morning",
+        "notificationsEnabled": true,
+        "isActive": true,
+        "createdAt": "2026-08-29T08:15:00Z",
+        "updatedAt": "2026-08-29T08:15:00Z"
+      }
+    },
+    {
+      "id": "subscription-salim-aden",
+      "userId": "demo-listener-salim",
+      "data": {
+        "targetType": "station",
+        "targetId": "huna-aden-fm",
+        "notificationsEnabled": false,
+        "isActive": true,
+        "createdAt": "2026-08-29T09:15:00Z",
+        "updatedAt": "2026-08-29T09:15:00Z"
+      }
+    },
+    {
+      "id": "subscription-noura-quran",
+      "userId": "demo-listener-noura",
+      "data": {
+        "targetType": "program",
+        "targetId": "quran-daily-reflection",
+        "notificationsEnabled": true,
+        "isActive": true,
+        "createdAt": "2026-08-29T10:10:00Z",
+        "updatedAt": "2026-08-29T10:10:00Z"
+      }
+    }
+  ],
   "banners": [
     {
       "id": "welcome-v1",

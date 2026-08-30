@@ -6,6 +6,8 @@ const collectionNames = [
   'programs',
   'episodes',
   'comments',
+  'favorites',
+  'subscriptions',
 ];
 
 export function validateSeed(seed, expectedProjectId = 'sanadev-fm') {
@@ -28,6 +30,8 @@ export function validateSeed(seed, expectedProjectId = 'sanadev-fm') {
   const episodes = indexEntries(seed.episodes, 'episodes', errors);
   indexEntries(seed.banners, 'banners', errors);
   indexEntries(seed.comments, 'comments', errors);
+  indexEntries(seed.favorites, 'favorites', errors);
+  indexEntries(seed.subscriptions, 'subscriptions', errors);
 
   const locationCityCodes = new Set(
     [...locations.values()].map((entry) => entry.data.cityCode),
@@ -156,6 +160,74 @@ export function validateSeed(seed, expectedProjectId = 'sanadev-fm') {
     }
   }
 
+  const targetIndexes = new Map([
+    ['station', stations],
+    ['program', programs],
+    ['episode', episodes],
+  ]);
+  const engagementUsers = new Set();
+  for (const favorite of seed.favorites) {
+    validateEngagementOwner(favorite, users, engagementUsers, 'Favorite', errors);
+    const targetIndex = targetIndexes.get(favorite.data.targetType);
+    if (!targetIndex?.has(favorite.data.targetId)) {
+      errors.push(`Favorite ${favorite.id} references a missing target.`);
+    }
+    if (
+      Object.keys(favorite.data).some(
+        (key) => !['targetType', 'targetId', 'createdAt'].includes(key),
+      )
+    ) {
+      errors.push(`Favorite ${favorite.id} contains a forbidden field.`);
+    }
+    requireIsoDate(favorite, 'createdAt', errors);
+  }
+  for (const subscription of seed.subscriptions) {
+    validateEngagementOwner(
+      subscription,
+      users,
+      engagementUsers,
+      'Subscription',
+      errors,
+    );
+    const targetIndex =
+      subscription.data.targetType === 'station'
+        ? stations
+        : subscription.data.targetType === 'program'
+          ? programs
+          : null;
+    if (!targetIndex?.has(subscription.data.targetId)) {
+      errors.push(`Subscription ${subscription.id} references a missing target.`);
+    }
+    if (
+      typeof subscription.data.notificationsEnabled !== 'boolean' ||
+      subscription.data.isActive !== true
+    ) {
+      errors.push(`Subscription ${subscription.id} flags are invalid.`);
+    }
+    if (
+      Object.keys(subscription.data).some(
+        (key) =>
+          ![
+            'targetType',
+            'targetId',
+            'notificationsEnabled',
+            'isActive',
+            'createdAt',
+            'updatedAt',
+          ].includes(key),
+      )
+    ) {
+      errors.push(`Subscription ${subscription.id} contains a forbidden field.`);
+    }
+    requireIsoDate(subscription, 'createdAt', errors);
+    requireIsoDate(subscription, 'updatedAt', errors);
+  }
+  for (const user of users.keys()) {
+    if (!engagementUsers.has(user)) {
+      errors.push(`Demo user ${user} has no favorite or subscription.`);
+    }
+  }
+
   if (errors.length > 0) throw new Error(errors.join('\n'));
   return {
     locations: locations.size,
@@ -165,10 +237,15 @@ export function validateSeed(seed, expectedProjectId = 'sanadev-fm') {
     programs: programs.size,
     episodes: episodes.size,
     comments: seed.comments.length,
+    favorites: seed.favorites.length,
+    subscriptions: seed.subscriptions.length,
   };
 }
 
-export function buildSeedPlan(seed, { contentOnly = false } = {}) {
+export function buildSeedPlan(
+  seed,
+  { contentOnly = false, engagementOnly = false } = {},
+) {
   const discoveryEntries = [
     ...seed.locations.map((entry) => documentEntry(
       `${seed.root}/locations/locations/${entry.id}`,
@@ -181,6 +258,16 @@ export function buildSeedPlan(seed, { contentOnly = false } = {}) {
     ...seed.banners.map((entry) => documentEntry(
       `${seed.root}/banners/banners/${entry.id}`,
       entry.data,
+    )),
+  ];
+  const engagementEntries = [
+    ...seed.favorites.map((entry) => documentEntry(
+      `${seed.root}/users/users/${entry.userId}/favorites/${entry.id}`,
+      withDates(entry.data, ['createdAt']),
+    )),
+    ...seed.subscriptions.map((entry) => documentEntry(
+      `${seed.root}/users/users/${entry.userId}/subscriptions/${entry.id}`,
+      withDates(entry.data, ['createdAt', 'updatedAt']),
     )),
   ];
   const contentEntries = [
@@ -200,6 +287,7 @@ export function buildSeedPlan(seed, { contentOnly = false } = {}) {
       `${seed.root}/episodes/episodes/${entry.data.episodeId}/comments/${entry.id}`,
       withDates(entry.data, ['createdAt']),
     )),
+    ...engagementEntries,
   ];
   const stationCountUpdates = contentOnly
     ? seed.stations.map((station) => ({
@@ -210,11 +298,27 @@ export function buildSeedPlan(seed, { contentOnly = false } = {}) {
       }))
     : [];
   return {
-    entries: contentOnly
-      ? contentEntries
-      : [...discoveryEntries, ...contentEntries],
+    entries: engagementOnly
+      ? engagementEntries
+      : contentOnly
+        ? contentEntries
+        : [...discoveryEntries, ...contentEntries],
     stationCountUpdates,
   };
+}
+
+function validateEngagementOwner(entry, users, usedUsers, type, errors) {
+  if (typeof entry.userId !== 'string' || !users.has(entry.userId)) {
+    errors.push(`${type} ${entry.id} references a missing user.`);
+    return;
+  }
+  usedUsers.add(entry.userId);
+  if (
+    typeof entry.data.targetId !== 'string' ||
+    entry.data.targetId.trim().length === 0
+  ) {
+    errors.push(`${type} ${entry.id} targetId is invalid.`);
+  }
 }
 
 function indexEntries(entries, name, errors) {

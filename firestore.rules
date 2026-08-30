@@ -68,6 +68,49 @@ service cloud.firestore {
         && data.isEdited == false;
     }
 
+    function validFavoriteCreate(uid) {
+      let data = request.resource.data;
+      return isOwner(uid)
+        && data.keys().hasOnly(['targetType', 'targetId', 'createdAt'])
+        && data.keys().hasAll(['targetType', 'targetId', 'createdAt'])
+        && data.targetType in ['station', 'program', 'episode']
+        && data.targetId is string
+        && data.targetId.size() > 0
+        && data.targetId.size() <= 128
+        && data.createdAt == request.time;
+    }
+
+    function validSubscription(uid) {
+      let data = request.resource.data;
+      return isOwner(uid)
+        && data.keys().hasOnly([
+          'targetType', 'targetId', 'notificationsEnabled', 'isActive',
+          'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasAll([
+          'targetType', 'targetId', 'notificationsEnabled', 'isActive',
+          'createdAt', 'updatedAt'
+        ])
+        && data.targetType in ['station', 'program']
+        && data.targetId is string
+        && data.targetId.size() > 0
+        && data.targetId.size() <= 128
+        && data.notificationsEnabled is bool
+        && data.isActive is bool;
+    }
+
+    function validSubscriptionCreate(uid) {
+      return validSubscription(uid)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    function validSubscriptionUpdate(uid) {
+      return validSubscription(uid)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time;
+    }
+
     match /HudHudDev/stations/stations/{stationId} {
       allow read: if true;
       allow create, update, delete: if isAdmin();
@@ -104,6 +147,34 @@ service cloud.firestore {
       allow list: if isAdmin();
       allow create: if isAdmin() || validListenerProfile(uid);
       allow update, delete: if isAdmin();
+
+      match /favorites/{favoriteId} {
+        allow read: if isOwner(uid) || isAdmin();
+        allow create: if isAdmin() || validFavoriteCreate(uid);
+        allow update: if isAdmin();
+        allow delete: if isOwner(uid) || isAdmin();
+      }
+
+      match /subscriptions/{subscriptionId} {
+        allow read: if isOwner(uid) || isAdmin();
+        allow create: if isAdmin() || validSubscriptionCreate(uid);
+        allow update: if isAdmin() || validSubscriptionUpdate(uid);
+        allow delete: if isOwner(uid) || isAdmin();
+      }
+    }
+
+    // Collection-group audits used by the admin console. Document-level
+    // listener permissions remain constrained by the canonical matches above.
+    match /{path=**}/favorites/{favoriteId} {
+      allow list: if isAdmin();
+    }
+
+    match /{path=**}/subscriptions/{subscriptionId} {
+      allow list: if isAdmin();
+    }
+
+    match /{path=**}/comments/{commentId} {
+      allow list: if isAdmin();
     }
 
     match /{document=**} {

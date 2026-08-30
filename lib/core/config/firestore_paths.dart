@@ -16,6 +16,16 @@ abstract final class FirestorePaths {
     FirebaseFirestore firestore,
   ) => firestore.collection(root).doc('users').collection('users');
 
+  static CollectionReference<Map<String, dynamic>> favorites(
+    FirebaseFirestore firestore,
+    String uid,
+  ) => users(firestore).doc(uid).collection('favorites');
+
+  static CollectionReference<Map<String, dynamic>> subscriptions(
+    FirebaseFirestore firestore,
+    String uid,
+  ) => users(firestore).doc(uid).collection('subscriptions');
+
   static CollectionReference<Map<String, dynamic>> locations(
     FirebaseFirestore firestore,
   ) => firestore.collection(root).doc('locations').collection('locations');

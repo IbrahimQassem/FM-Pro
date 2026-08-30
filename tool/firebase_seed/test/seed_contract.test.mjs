@@ -23,6 +23,8 @@ test('validates the complete relational demo graph', () => {
     programs: 5,
     episodes: 6,
     comments: 12,
+    favorites: 6,
+    subscriptions: 4,
   });
 
   for (const station of seed.stations) {
@@ -47,7 +49,7 @@ test('validates the complete relational demo graph', () => {
 
 test('builds canonical paths and converts timestamps', () => {
   const plan = buildSeedPlan(seed);
-  assert.equal(plan.entries.length, 33);
+  assert.equal(plan.entries.length, 43);
   assert.equal(plan.stationCountUpdates.length, 0);
 
   const comment = plan.entries.find((entry) =>
@@ -68,13 +70,27 @@ test('builds canonical paths and converts timestamps', () => {
 
 test('content-only derives station counter updates from program relations', () => {
   const plan = buildSeedPlan(seed, { contentOnly: true });
-  assert.equal(plan.entries.length, 26);
+  assert.equal(plan.entries.length, 36);
   assert.deepEqual(plan.stationCountUpdates, [
     { path: 'HudHudDev/stations/stations/sanaa-radio', count: 2 },
     { path: 'HudHudDev/stations/stations/quran-radio-sanaa', count: 1 },
     { path: 'HudHudDev/stations/stations/huna-aden-fm', count: 1 },
     { path: 'HudHudDev/stations/stations/ibn-alqayyim-radio', count: 1 },
   ]);
+});
+
+test('builds an engagement-only plan under each user', () => {
+  const plan = buildSeedPlan(seed, { engagementOnly: true });
+  assert.equal(plan.entries.length, 10);
+  assert.equal(plan.stationCountUpdates.length, 0);
+  assert.ok(
+    plan.entries.some(
+      (entry) =>
+        entry.path ===
+        'HudHudDev/users/users/demo-listener-amal/favorites/favorite-amal-sanaa',
+    ),
+  );
+  assert.ok(plan.entries.every((entry) => entry.data.createdAt instanceof Date));
 });
 
 test('rejects orphaned relations and mismatched counters before Firestore', () => {
