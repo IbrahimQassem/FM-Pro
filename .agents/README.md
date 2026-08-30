@@ -11,6 +11,7 @@
 | Product UX/accessibility | `roles/product-ux-accessibility.md` | الرحلات وRTL والتوطين والوصول |
 | Playback | `roles/playback.md` | الصوت والحالة والمقاطعات والمنصات |
 | Station content | `roles/station-content.md` | البرامج والحلقات والجدول وربط صوت الحلقة |
+| Account/community/notifications | `roles/account-community-notifications.md` | الحساب والتعليقات وإعلانات FCM وخصوصيتها |
 | Quality release | `roles/quality-release.md` | الأدلة والاختبارات والبناء والإصدار |
 
 ## نموذج التفويض

@@ -14,6 +14,7 @@ HudHudDev/users/users/{uid}
 HudHudDev/locations/locations/{locationId}
 HudHudDev/programs/programs/{programId}
 HudHudDev/episodes/episodes/{episodeId}
+HudHudDev/episodes/episodes/{episodeId}/comments/{commentId}
 ```
 
 `lib/core/config/firestore_paths.dart` هو المالك التنفيذي للمسارات. لا تبني path
@@ -22,9 +23,12 @@ flavors متعددة يحتاج قرارًا يحدد الفصل، package IDs،
 
 ## سياسة القراءة والتخزين
 
-- المستمع read-only حاليًا؛ لا كتابة أو migration من تطبيق العميل.
+- القراءة العامة للمحتوى read-only. الكتابتان الوحيدتان من العميل هما إنشاء ملف
+  المستمع عند التسجيل وإضافة تعليق؛ كلاهما محمي بقواعد واختبارات emulator.
 - يبدأ Home بقراءة `Source.cache`، ثم يطلب `Source.server` عند الفتح والتحديث.
 - لا يوجد snapshot listener دائم. إضافته يحتاج lifecycle وتكلفة وoffline policy.
+- التعليقات استثناء محدد: listener لحظي حتى 100 تعليق يعمل فقط أثناء شاشة
+  تعليقات الحلقة ويُلغى بواسطة `autoDispose` عند مغادرتها.
 - فشل cache الأول متوقع، وفشل server يعرض cache كـoffline إن كانت صالحة.
 - فشل banners أو locations لا يمنع عرض stations.
 - كل batch يعيد items غير قابلة للتعديل وعدد السجلات المرفوضة ومصدر cache.
@@ -83,6 +87,31 @@ priority, isActive, startAt?, expiresAt?
 - فشل الوثيقة أو غياب الاسم يعود إلى بيانات Auth الآمنة ثم guest.
 - projection الحالي: `uid`, `displayName`, `username`, وHTTPS `avatarUrl` فقط.
 - لا تمرر document map أو token أو email أو phone إلى UI دون عقد جديد.
+- البريد يظهر داخل شاشة الحساب من Firebase Auth فقط، ولا يكتب في Firestore ولا
+  يمر إلى Home أو التعليقات.
+
+## Listener profile write schema
+
+ينشئ التطبيق الوثيقة `users/{uid}` مرة واحدة بعد نجاح إنشاء Auth:
+
+```text
+displayName, username, avatarUrl, isActive=true, role=listener,
+createdAt, updatedAt
+```
+
+لا يسمح العميل بتغيير الدور أو الحالة أو تحديث الوثيقة في هذه المرحلة. فشل
+إنشاء الوثيقة بعد Auth يؤدي إلى محاولة حذف الحساب الجزئي ولا يُخفى كنجاح.
+
+## Comment schema
+
+```text
+episodeId, authorId, authorName, content, createdAt, isEdited=false
+```
+
+- `content` بعد trim من 1 إلى 1000 حرف.
+- `authorId` يساوي UID، و`authorName` يطابق ملف المستخدم النشط وفق Rules.
+- القراءة عامة؛ الإنشاء لمستمع موثق نشط؛ التعديل والحذف للمشرف فقط حاليًا.
+- لا يكتب العميل `stats.commentsCount`، ولا توجد likes للتعليقات في هذه المرحلة.
 
 ## Program schema
 

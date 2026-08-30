@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../comments/presentation/episode_comments_screen.dart';
 import '../../home/domain/models/station.dart';
 import '../../player/presentation/controllers/station_player_state.dart';
 import '../../player/presentation/widgets/mini_player.dart';
@@ -33,6 +34,13 @@ class ProgramDetailsScreen extends ConsumerWidget {
       playerState: playerState,
       onEpisodePlayPressed: (episode) =>
           playerController.playEpisode(episode, station),
+      onEpisodeCommentsPressed: (episode) {
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => EpisodeCommentsScreen(episode: episode),
+          ),
+        );
+      },
       playerBar: !playerState.hasSelection
           ? null
           : MiniPlayer(
@@ -51,6 +59,7 @@ class ProgramDetailsView extends StatelessWidget {
     required this.episodes,
     required this.playerState,
     required this.onEpisodePlayPressed,
+    this.onEpisodeCommentsPressed,
     this.playerBar,
     super.key,
   });
@@ -60,6 +69,7 @@ class ProgramDetailsView extends StatelessWidget {
   final List<Episode> episodes;
   final StationPlayerState playerState;
   final ValueChanged<Episode> onEpisodePlayPressed;
+  final ValueChanged<Episode>? onEpisodeCommentsPressed;
   final Widget? playerBar;
 
   @override
@@ -161,6 +171,9 @@ class ProgramDetailsView extends StatelessWidget {
                     episode: episode,
                     status: status,
                     onPlayPressed: () => onEpisodePlayPressed(episode),
+                    onCommentsPressed: onEpisodeCommentsPressed == null
+                        ? null
+                        : () => onEpisodeCommentsPressed!(episode),
                   );
                 },
               ),
@@ -230,11 +243,13 @@ class _EpisodeCard extends StatelessWidget {
     required this.episode,
     required this.status,
     required this.onPlayPressed,
+    this.onCommentsPressed,
   });
 
   final Episode episode;
   final StationPlaybackStatus status;
   final VoidCallback onPlayPressed;
+  final VoidCallback? onCommentsPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -282,6 +297,13 @@ class _EpisodeCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    key: Key('episode-comments-${episode.id}'),
+                    onPressed: onCommentsPressed,
+                    icon: const Icon(Icons.chat_bubble_outline_rounded),
+                    label: Text(strings.commentsCount(episode.commentsCount)),
+                  ),
                 ],
               ),
             ),

@@ -158,6 +158,270 @@ abstract class AppLocalizations {
   /// **'Coming in a later step'**
   String get comingSoon;
 
+  /// No description provided for @account.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get account;
+
+  /// No description provided for @listenerInitial.
+  ///
+  /// In en, this message translates to:
+  /// **'L'**
+  String get listenerInitial;
+
+  /// No description provided for @signInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signInTitle;
+
+  /// No description provided for @createAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a listener account'**
+  String get createAccountTitle;
+
+  /// No description provided for @accountGuestNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You can keep listening as a guest; an account is only required to interact.'**
+  String get accountGuestNote;
+
+  /// No description provided for @displayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get displayName;
+
+  /// No description provided for @displayNameValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name with at least two characters'**
+  String get displayNameValidation;
+
+  /// No description provided for @email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email;
+
+  /// No description provided for @emailValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address'**
+  String get emailValidation;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @passwordValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must contain at least 8 characters'**
+  String get passwordValidation;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// No description provided for @hidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePassword;
+
+  /// No description provided for @signIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signIn;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get createAccount;
+
+  /// No description provided for @signOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get signOut;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @needAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'No account? Create one'**
+  String get needAccount;
+
+  /// No description provided for @haveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Sign in'**
+  String get haveAccount;
+
+  /// No description provided for @enterEmailFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email first'**
+  String get enterEmailFirst;
+
+  /// No description provided for @passwordResetSent.
+  ///
+  /// In en, this message translates to:
+  /// **'A password reset email was sent if the address is registered.'**
+  String get passwordResetSent;
+
+  /// No description provided for @invalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'The sign-in details are incorrect'**
+  String get invalidCredentials;
+
+  /// No description provided for @emailAlreadyInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already used by another account'**
+  String get emailAlreadyInUse;
+
+  /// No description provided for @weakPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a stronger password'**
+  String get weakPassword;
+
+  /// No description provided for @accountNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'The account service could not be reached. Try again.'**
+  String get accountNetworkError;
+
+  /// No description provided for @accountUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be completed now. Try later.'**
+  String get accountUnavailable;
+
+  /// No description provided for @episodeComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments on {title}'**
+  String episodeComments(Object title);
+
+  /// No description provided for @commentsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Comments} =1{One comment} other{{count} comments}}'**
+  String commentsCount(num count);
+
+  /// No description provided for @commentsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments could not be loaded. Check your connection and reopen the screen.'**
+  String get commentsLoadError;
+
+  /// No description provided for @noCommentsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet. Be the first to share your thoughts.'**
+  String get noCommentsYet;
+
+  /// No description provided for @signInToComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to add a comment'**
+  String get signInToComment;
+
+  /// No description provided for @writeComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a respectful comment…'**
+  String get writeComment;
+
+  /// No description provided for @sendComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Send comment'**
+  String get sendComment;
+
+  /// No description provided for @commentValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a comment between 1 and 1000 characters'**
+  String get commentValidation;
+
+  /// No description provided for @commentSubmitError.
+  ///
+  /// In en, this message translates to:
+  /// **'The comment could not be sent. Try again.'**
+  String get commentSubmitError;
+
+  /// No description provided for @editedComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited'**
+  String get editedComment;
+
+  /// No description provided for @notificationAnnouncements.
+  ///
+  /// In en, this message translates to:
+  /// **'HudHud FM announcements'**
+  String get notificationAnnouncements;
+
+  /// No description provided for @notificationsEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled; you will receive new HudHud FM announcements.'**
+  String get notificationsEnabled;
+
+  /// No description provided for @notificationsDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Off; enable to opt into announcements.'**
+  String get notificationsDisabled;
+
+  /// No description provided for @notificationsDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission is denied in system settings.'**
+  String get notificationsDenied;
+
+  /// No description provided for @notificationSetupError.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification settings could not be updated now.'**
+  String get notificationSetupError;
+
+  /// No description provided for @recentNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently received'**
+  String get recentNotifications;
+
+  /// No description provided for @noRecentNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications were received in this session.'**
+  String get noRecentNotifications;
+
+  /// No description provided for @notificationSessionNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This list only shows the current session; background notifications remain in the device notification center.'**
+  String get notificationSessionNote;
+
   /// No description provided for @searchHint.
   ///
   /// In en, this message translates to:

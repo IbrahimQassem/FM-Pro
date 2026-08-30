@@ -40,6 +40,163 @@ class AppLocalizationsEn extends AppLocalizations {
   String get comingSoon => 'Coming in a later step';
 
   @override
+  String get account => 'Account';
+
+  @override
+  String get listenerInitial => 'L';
+
+  @override
+  String get signInTitle => 'Sign in';
+
+  @override
+  String get createAccountTitle => 'Create a listener account';
+
+  @override
+  String get accountGuestNote =>
+      'You can keep listening as a guest; an account is only required to interact.';
+
+  @override
+  String get displayName => 'Display name';
+
+  @override
+  String get displayNameValidation =>
+      'Enter a name with at least two characters';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get emailValidation => 'Enter a valid email address';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get passwordValidation =>
+      'Password must contain at least 8 characters';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
+
+  @override
+  String get signIn => 'Sign in';
+
+  @override
+  String get createAccount => 'Create account';
+
+  @override
+  String get signOut => 'Sign out';
+
+  @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get needAccount => 'No account? Create one';
+
+  @override
+  String get haveAccount => 'Already have an account? Sign in';
+
+  @override
+  String get enterEmailFirst => 'Enter your email first';
+
+  @override
+  String get passwordResetSent =>
+      'A password reset email was sent if the address is registered.';
+
+  @override
+  String get invalidCredentials => 'The sign-in details are incorrect';
+
+  @override
+  String get emailAlreadyInUse =>
+      'This email is already used by another account';
+
+  @override
+  String get weakPassword => 'Choose a stronger password';
+
+  @override
+  String get accountNetworkError =>
+      'The account service could not be reached. Try again.';
+
+  @override
+  String get accountUnavailable =>
+      'This action cannot be completed now. Try later.';
+
+  @override
+  String episodeComments(Object title) {
+    return 'Comments on $title';
+  }
+
+  @override
+  String commentsCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count comments',
+      one: 'One comment',
+      zero: 'Comments',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentsLoadError =>
+      'Comments could not be loaded. Check your connection and reopen the screen.';
+
+  @override
+  String get noCommentsYet =>
+      'No comments yet. Be the first to share your thoughts.';
+
+  @override
+  String get signInToComment => 'Sign in to add a comment';
+
+  @override
+  String get writeComment => 'Write a respectful comment…';
+
+  @override
+  String get sendComment => 'Send comment';
+
+  @override
+  String get commentValidation =>
+      'Write a comment between 1 and 1000 characters';
+
+  @override
+  String get commentSubmitError => 'The comment could not be sent. Try again.';
+
+  @override
+  String get editedComment => 'Edited';
+
+  @override
+  String get notificationAnnouncements => 'HudHud FM announcements';
+
+  @override
+  String get notificationsEnabled =>
+      'Enabled; you will receive new HudHud FM announcements.';
+
+  @override
+  String get notificationsDisabled => 'Off; enable to opt into announcements.';
+
+  @override
+  String get notificationsDenied => 'Permission is denied in system settings.';
+
+  @override
+  String get notificationSetupError =>
+      'Notification settings could not be updated now.';
+
+  @override
+  String get recentNotifications => 'Recently received';
+
+  @override
+  String get noRecentNotifications =>
+      'No notifications were received in this session.';
+
+  @override
+  String get notificationSessionNote =>
+      'This list only shows the current session; background notifications remain in the device notification center.';
+
+  @override
   String get searchHint => 'Search by station, city, or frequency';
 
   @override

@@ -23,6 +23,12 @@ flutter test
 flutter build apk --debug
 ```
 
+عند إضافة أو تغيير Firestore write أو Rules شغّل أيضًا:
+
+```bash
+npm run emulators:test
+```
+
 أضف `flutter build ios --simulator --debug` عند تغيير Dart مشترك ذي أثر منصة،
 plugin، playback، Firebase bootstrap أو ملفات iOS. تغييرات UI تحتاج فحص هاتف صغير
 وكبير، RTL و200% text scale، ولقطات قبل/بعد عند تغير بصري جوهري.

@@ -40,6 +40,159 @@ class AppLocalizationsAr extends AppLocalizations {
   String get comingSoon => 'ستتوفر في خطوة لاحقة';
 
   @override
+  String get account => 'الحساب';
+
+  @override
+  String get listenerInitial => 'م';
+
+  @override
+  String get signInTitle => 'تسجيل الدخول';
+
+  @override
+  String get createAccountTitle => 'إنشاء حساب مستمع';
+
+  @override
+  String get accountGuestNote =>
+      'يمكنك مواصلة الاستماع كضيف، ويُطلب الحساب فقط عند التفاعل.';
+
+  @override
+  String get displayName => 'الاسم الظاهر';
+
+  @override
+  String get displayNameValidation => 'أدخل اسمًا من حرفين على الأقل';
+
+  @override
+  String get email => 'البريد الإلكتروني';
+
+  @override
+  String get emailValidation => 'أدخل بريدًا إلكترونيًا صحيحًا';
+
+  @override
+  String get password => 'كلمة المرور';
+
+  @override
+  String get passwordValidation => 'يجب ألا تقل كلمة المرور عن 8 أحرف';
+
+  @override
+  String get showPassword => 'إظهار كلمة المرور';
+
+  @override
+  String get hidePassword => 'إخفاء كلمة المرور';
+
+  @override
+  String get signIn => 'دخول';
+
+  @override
+  String get createAccount => 'إنشاء الحساب';
+
+  @override
+  String get signOut => 'تسجيل الخروج';
+
+  @override
+  String get forgotPassword => 'نسيت كلمة المرور؟';
+
+  @override
+  String get needAccount => 'ليس لديك حساب؟ أنشئ حسابًا';
+
+  @override
+  String get haveAccount => 'لديك حساب؟ سجّل الدخول';
+
+  @override
+  String get enterEmailFirst => 'أدخل البريد الإلكتروني أولًا';
+
+  @override
+  String get passwordResetSent =>
+      'أُرسلت رسالة استعادة كلمة المرور إن كان البريد مسجلًا.';
+
+  @override
+  String get invalidCredentials => 'بيانات الدخول غير صحيحة';
+
+  @override
+  String get emailAlreadyInUse => 'هذا البريد مستخدم في حساب آخر';
+
+  @override
+  String get weakPassword => 'اختر كلمة مرور أقوى';
+
+  @override
+  String get accountNetworkError =>
+      'تعذر الاتصال بخدمة الحسابات. حاول مرة أخرى.';
+
+  @override
+  String get accountUnavailable => 'تعذر إكمال العملية الآن. حاول لاحقًا.';
+
+  @override
+  String episodeComments(Object title) {
+    return 'تعليقات $title';
+  }
+
+  @override
+  String commentsCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count تعليق',
+      many: '$count تعليقًا',
+      few: '$count تعليقات',
+      two: 'تعليقان',
+      one: 'تعليق واحد',
+      zero: 'التعليقات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentsLoadError =>
+      'تعذر تحميل التعليقات. تحقق من الاتصال ثم أعد فتح الشاشة.';
+
+  @override
+  String get noCommentsYet => 'لا توجد تعليقات بعد. كن أول من يشارك رأيه.';
+
+  @override
+  String get signInToComment => 'سجّل الدخول لإضافة تعليق';
+
+  @override
+  String get writeComment => 'اكتب تعليقًا محترمًا…';
+
+  @override
+  String get sendComment => 'إرسال التعليق';
+
+  @override
+  String get commentValidation => 'اكتب تعليقًا من 1 إلى 1000 حرف';
+
+  @override
+  String get commentSubmitError => 'تعذر إرسال التعليق. حاول مرة أخرى.';
+
+  @override
+  String get editedComment => 'معدّل';
+
+  @override
+  String get notificationAnnouncements => 'إعلانات هدهد إف إم';
+
+  @override
+  String get notificationsEnabled =>
+      'مفعّلة؛ ستصلك الإعلانات الجديدة من هدهد إف إم.';
+
+  @override
+  String get notificationsDisabled =>
+      'متوقفة؛ فعّلها لاختيار استقبال الإعلانات.';
+
+  @override
+  String get notificationsDenied => 'الإذن مرفوض من إعدادات النظام.';
+
+  @override
+  String get notificationSetupError => 'تعذر تحديث إعداد الإشعارات الآن.';
+
+  @override
+  String get recentNotifications => 'وصل حديثًا';
+
+  @override
+  String get noRecentNotifications => 'لا توجد إشعارات مستلمة في هذه الجلسة.';
+
+  @override
+  String get notificationSessionNote =>
+      'تعرض هذه القائمة إشعارات الجلسة الحالية فقط؛ إشعارات الخلفية تبقى في مركز إشعارات الجهاز.';
+
+  @override
   String get searchHint => 'ابحث باسم الإذاعة أو المدينة أو التردد';
 
   @override

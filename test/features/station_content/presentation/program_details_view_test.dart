@@ -15,6 +15,7 @@ void main() {
   ) async {
     final episode = _episode();
     Episode? selectedEpisode;
+    Episode? selectedCommentsEpisode;
     await tester.pumpWidget(
       _TestApp(
         child: ProgramDetailsView(
@@ -23,6 +24,7 @@ void main() {
           episodes: [episode],
           playerState: const StationPlayerState(),
           onEpisodePlayPressed: (value) => selectedEpisode = value,
+          onEpisodeCommentsPressed: (value) => selectedCommentsEpisode = value,
         ),
       ),
     );
@@ -32,6 +34,8 @@ void main() {
     expect(find.text('حلقة التعليم'), findsOneWidget);
     await tester.tap(find.byKey(const Key('episode-play-episode-1')));
     expect(selectedEpisode?.id, 'episode-1');
+    await tester.tap(find.byKey(const Key('episode-comments-episode-1')));
+    expect(selectedCommentsEpisode?.id, 'episode-1');
   });
 
   testWidgets('remains usable on a small screen at 200% text scale', (

@@ -11,6 +11,7 @@
 - [المنتج وUX وإمكانية الوصول](contracts/product-ux-contract.md)
 - [التشغيل الصوتي](contracts/playback-contract.md)
 - [البرامج والحلقات والجدول](contracts/station-content-contract.md)
+- [الحسابات والتعليقات والإشعارات](contracts/account-comments-notifications-contract.md)
 - [الجودة والإصدار](contracts/quality-release-contract.md)
 
 ## التشغيل

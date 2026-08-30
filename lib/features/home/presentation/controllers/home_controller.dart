@@ -53,6 +53,8 @@ class HomeController extends StateNotifier<HomeState> {
     if (mounted) state = state.copyWith(user: user);
   }
 
+  Future<void> refreshUser() => _loadUser();
+
   Future<void> _loadStationCache() async {
     try {
       final stations = await _stationsRepository.readCache();

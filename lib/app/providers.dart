@@ -1,7 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../features/account/data/repositories/firebase_account_repository.dart';
+import '../features/account/domain/repositories/account_repository.dart';
+import '../features/account/presentation/controllers/account_controller.dart';
+import '../features/account/presentation/controllers/account_state.dart';
+import '../features/comments/data/datasources/comments_firestore_data_source.dart';
+import '../features/comments/data/repositories/firebase_comments_repository.dart';
+import '../features/comments/domain/repositories/comments_repository.dart';
+import '../features/comments/presentation/controllers/comments_controller.dart';
+import '../features/comments/presentation/controllers/comments_state.dart';
 import '../features/home/data/datasources/home_firestore_data_source.dart';
 import '../features/home/data/repositories/firebase_banners_repository.dart';
 import '../features/home/data/repositories/firebase_locations_repository.dart';
@@ -13,6 +23,10 @@ import '../features/home/domain/repositories/stations_repository.dart';
 import '../features/home/domain/repositories/user_repository.dart';
 import '../features/home/presentation/controllers/home_controller.dart';
 import '../features/home/presentation/controllers/home_state.dart';
+import '../features/notifications/data/repositories/firebase_notifications_repository.dart';
+import '../features/notifications/domain/repositories/notifications_repository.dart';
+import '../features/notifications/presentation/controllers/notifications_controller.dart';
+import '../features/notifications/presentation/controllers/notifications_state.dart';
 import '../features/player/data/datasources/audio_player_data_source.dart';
 import '../features/player/data/datasources/just_audio_player_data_source.dart';
 import '../features/player/data/repositories/default_audio_playback_repository.dart';
@@ -47,6 +61,50 @@ final locationsRepositoryProvider = Provider<LocationsRepository>((ref) {
 final userRepositoryProvider = Provider<UserRepository>((ref) {
   return FirebaseUserRepository(ref.watch(homeDataSourceProvider));
 });
+
+final accountRepositoryProvider = Provider<AccountRepository>((ref) {
+  return FirebaseAccountRepository(
+    FirebaseAuth.instance,
+    FirebaseFirestore.instance,
+  );
+});
+
+final accountControllerProvider =
+    StateNotifierProvider<AccountController, AccountState>((ref) {
+      return AccountController(ref.watch(accountRepositoryProvider));
+    });
+
+final commentsDataSourceProvider = Provider<CommentsFirestoreDataSource>((ref) {
+  return CommentsFirestoreDataSource(
+    FirebaseFirestore.instance,
+    FirebaseAuth.instance,
+  );
+});
+
+final commentsRepositoryProvider = Provider<CommentsRepository>((ref) {
+  return FirebaseCommentsRepository(ref.watch(commentsDataSourceProvider));
+});
+
+final commentsControllerProvider = StateNotifierProvider.autoDispose
+    .family<CommentsController, CommentsState, String>((ref, episodeId) {
+      return CommentsController(
+        episodeId,
+        ref.watch(commentsRepositoryProvider),
+      );
+    });
+
+final notificationsRepositoryProvider = Provider<NotificationsRepository>((
+  ref,
+) {
+  return FirebaseNotificationsRepository(FirebaseMessaging.instance);
+});
+
+final notificationsControllerProvider =
+    StateNotifierProvider<NotificationsController, NotificationsState>((ref) {
+      return NotificationsController(
+        ref.watch(notificationsRepositoryProvider),
+      );
+    });
 
 final homeControllerProvider =
     StateNotifierProvider.autoDispose<HomeController, HomeState>((ref) {

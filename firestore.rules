@@ -1,0 +1,113 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.get('admin', false) == true;
+    }
+
+    function validListenerProfile(uid) {
+      let data = request.resource.data;
+      return isOwner(uid)
+        && data.keys().hasOnly([
+          'displayName', 'username', 'avatarUrl', 'isActive', 'role',
+          'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasAll([
+          'displayName', 'username', 'avatarUrl', 'isActive', 'role',
+          'createdAt', 'updatedAt'
+        ])
+        && data.displayName is string
+        && data.displayName.size() >= 2
+        && data.displayName.size() <= 120
+        && data.username is string
+        && data.username.size() <= 60
+        && data.avatarUrl is string
+        && data.avatarUrl.size() <= 2048
+        && data.isActive == true
+        && data.role == 'listener'
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+    }
+
+    function listenerProfile(uid) {
+      return get(
+        /databases/$(database)/documents/HudHudDev/users/users/$(uid)
+      ).data;
+    }
+
+    function validCommentCreate(episodeId) {
+      let data = request.resource.data;
+      let profile = listenerProfile(request.auth.uid);
+      return isSignedIn()
+        && data.keys().hasOnly([
+          'episodeId', 'authorId', 'authorName', 'content', 'createdAt',
+          'isEdited'
+        ])
+        && data.keys().hasAll([
+          'episodeId', 'authorId', 'authorName', 'content', 'createdAt',
+          'isEdited'
+        ])
+        && data.episodeId == episodeId
+        && data.authorId == request.auth.uid
+        && profile.isActive == true
+        && profile.role == 'listener'
+        && data.authorName == profile.displayName
+        && data.content is string
+        && data.content.size() > 0
+        && data.content.size() <= 1000
+        && data.createdAt == request.time
+        && data.isEdited == false;
+    }
+
+    match /HudHudDev/stations/stations/{stationId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /HudHudDev/banners/banners/{bannerId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /HudHudDev/locations/locations/{locationId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /HudHudDev/programs/programs/{programId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /HudHudDev/episodes/episodes/{episodeId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if validCommentCreate(episodeId);
+        allow update, delete: if isAdmin();
+      }
+    }
+
+    match /HudHudDev/users/users/{uid} {
+      allow get: if isOwner(uid) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isAdmin() || validListenerProfile(uid);
+      allow update, delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

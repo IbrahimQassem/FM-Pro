@@ -7,12 +7,15 @@ Android القديم ولا يحتوي طبقات توافق مع نماذج leg
 
 - Android وiOS مدعومان في بيئة التطوير، مع بقاء Android هدف الإصدار الأول.
 - Splash ثم شاشة رئيسية واحدة بلا Bottom Navigation.
-- مستخدم Firebase الحالي عند توفره، وإلا هوية مستمع ضيف.
+- تصفح ضيف وحساب Email/password مع إنشاء واستعادة وخروج.
 - بانرات Development غير حاجبة للشاشة.
 - بحث بالاسم والمدينة والتردد.
 - فلترة المدن من بيانات Firebase المرجعية فقط.
 - Grid/List محفوظ محليًا.
 - قراءة cache أولًا ثم تحديث يدوي/عند الفتح، دون listener دائم.
+- برامج وحلقات وجدول أسبوعي وتشغيل live/episode موحد في الخلفية.
+- تعليقات الحلقة لحظيًا أثناء الشاشة وإضافة للمستخدم المسجل.
+- إعلانات FCM اختيارية، بلا حفظ token أو device identifier في Firestore.
 
 ## Firebase Development
 
@@ -23,6 +26,9 @@ HudHudDev/stations/stations/{stationId}
 HudHudDev/banners/banners/{bannerId}
 HudHudDev/users/users/{uid}
 HudHudDev/locations/locations/{locationId}
+HudHudDev/programs/programs/{programId}
+HudHudDev/episodes/episodes/{episodeId}
+HudHudDev/episodes/episodes/{episodeId}/comments/{commentId}
 ```
 
 لا ينسخ هذا المستودع أي إعداد Firebase من `FM-Pro`. لربط Android، سجّل تطبيق
@@ -34,11 +40,21 @@ flutterfire configure \
   --android-package-name=com.sanaadev.hudhudfm
 ```
 
-ملفات Firebase المحلية مستبعدة من Git. قبل تشغيل التطبيق مع البيانات الحقيقية، يجب
-أن تسمح قواعد Development بالقراءة من المسارات الأربعة أعلاه.
+ملفات Firebase المحلية مستبعدة من Git. فعّل Email/password في Firebase Auth،
+وراجع `firestore.rules` ثم انشرها إلى بيئة Development بإجراء مستقل قبل اختبار
+إنشاء الحساب أو التعليق على البيانات الحقيقية. المشروع لا ينشر القواعد تلقائيًا.
+
+اختبار القواعد محليًا:
+
+```bash
+npm install
+npm run emulators:test
+```
 
 لـ iOS، يجب أن يطابق `ios/Runner/GoogleService-Info.plist` تطبيق Firebase المسجل
 بالحزمة `com.sana.dev.fm`. الملف مضاف إلى Runner Target ويُقرأ عند بدء التطبيق.
+يلزم أيضًا رفع APNs key في Firebase واستخدام provisioning يدعم Push Notifications
+لاختبار FCM على جهاز iOS فعلي.
 
 ## العقود والأدوار
 

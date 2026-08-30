@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../features/notifications/data/firebase_messaging_background.dart';
+
 class FirebaseBootstrapState {
   const FirebaseBootstrapState._({required this.isReady});
 
@@ -16,6 +18,7 @@ final firebaseBootstrapProvider = FutureProvider<FirebaseBootstrapState>((
 ) async {
   try {
     if (Firebase.apps.isEmpty) await Firebase.initializeApp();
+    configureFirebaseMessagingBackgroundHandler();
     return const FirebaseBootstrapState.ready();
   } on FirebaseException {
     return const FirebaseBootstrapState.unavailable();
