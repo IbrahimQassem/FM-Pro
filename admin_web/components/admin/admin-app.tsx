@@ -27,6 +27,7 @@ import {
   type User,
   getIdTokenResult,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth';
@@ -184,15 +185,60 @@ function SignInScreen({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(initialError);
+  const [notice, setNotice] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
 
   async function submit(event: { preventDefault: () => void }) {
     event.preventDefault();
     setError('');
+    setNotice('');
     try {
       const { auth } = await getFirebaseServices();
       await signInWithEmailAndPassword(auth, email.trim(), password);
     } catch {
       setError('تعذر تسجيل الدخول. تحقق من البيانات وصلاحية الحساب.');
+    }
+  }
+
+  async function resetPassword() {
+    const normalizedEmail = email.trim();
+    setError('');
+    setNotice('');
+    if (!normalizedEmail) {
+      setError('اكتب بريد حساب المشرف أولًا.');
+      return;
+    }
+
+    setIsResetting(true);
+    try {
+      const { auth } = await getFirebaseServices();
+      await sendPasswordResetEmail(auth, normalizedEmail, {
+        url: window.location.origin,
+      });
+      setNotice(
+        'إذا كان البريد مرتبطًا بحساب Firebase فستصلك رسالة إعادة تعيين خلال دقائق.',
+      );
+    } catch (resetError) {
+      const code =
+        typeof resetError === 'object' &&
+        resetError !== null &&
+        'code' in resetError
+          ? String(resetError.code)
+          : '';
+      if (code === 'auth/invalid-email') {
+        setError('صيغة البريد الإلكتروني غير صحيحة.');
+      } else if (
+        code === 'auth/network-request-failed' ||
+        code === 'auth/too-many-requests'
+      ) {
+        setError('تعذر إرسال الرسالة الآن. حاول مرة أخرى بعد قليل.');
+      } else {
+        setNotice(
+          'إذا كان البريد مرتبطًا بحساب Firebase فستصلك رسالة إعادة تعيين خلال دقائق.',
+        );
+      }
+    } finally {
+      setIsResetting(false);
     }
   }
 
@@ -250,6 +296,13 @@ function SignInScreen({
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
+          {notice && (
+            <Alert className="mt-5">
+              <CheckCircle2 />
+              <AlertTitle>تم استلام الطلب</AlertTitle>
+              <AlertDescription>{notice}</AlertDescription>
+            </Alert>
+          )}
           <form className="mt-7 space-y-5" onSubmit={submit}>
             <div className="space-y-2">
               <Label htmlFor="email">البريد الإلكتروني</Label>
@@ -263,7 +316,18 @@ function SignInScreen({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">كلمة المرور</Label>
+              <div className="flex items-center justify-between gap-3">
+                <Label htmlFor="password">كلمة المرور</Label>
+                <Button
+                  type="button"
+                  variant="link"
+                  className="h-auto p-0 text-xs"
+                  disabled={status === 'config-error' || isResetting}
+                  onClick={resetPassword}
+                >
+                  {isResetting ? 'جارٍ الإرسال…' : 'نسيت كلمة المرور؟'}
+                </Button>
+              </div>
               <Input
                 id="password"
                 type="password"
