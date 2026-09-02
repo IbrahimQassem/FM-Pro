@@ -9,6 +9,8 @@
     "test": "node --test test/seed_contract.test.mjs",
     "verify:urls": "node verify_urls.mjs",
     "admin:grant": "node grant_admin.mjs",
+    "comments:status:dry": "node migrate_comment_status.mjs --project sanadev-fm",
+    "comments:status:apply": "node migrate_comment_status.mjs --project sanadev-fm --apply",
     "seed:dry": "node seed.mjs --project sanadev-fm",
     "seed:apply": "node seed.mjs --project sanadev-fm --apply",
     "seed:content:dry": "node seed.mjs --project sanadev-fm --content-only",

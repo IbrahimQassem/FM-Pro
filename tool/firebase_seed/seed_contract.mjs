@@ -120,6 +120,9 @@ export function validateSeed(seed, expectedProjectId = 'sanadev-fm') {
     if (typeof comment.data.isEdited !== 'boolean') {
       errors.push(`Comment ${comment.id} isEdited must be boolean.`);
     }
+    if (comment.data.status !== 'published') {
+      errors.push(`Comment ${comment.id} status must be published.`);
+    }
     requireIsoDate(comment, 'createdAt', errors);
   }
   compareCounters(

@@ -5,6 +5,7 @@ export type ResourceKey =
   | 'banners'
   | 'users'
   | 'comments'
+  | 'reports'
   | 'favorites'
   | 'subscriptions';
 
@@ -162,7 +163,19 @@ export const resourceDefinitions: Record<ResourceKey, ResourceDefinition> = {
     relationField: 'authorName',
     editable: false,
     creatable: false,
-    deletable: true,
+    deletable: false,
+  },
+  reports: {
+    key: 'reports',
+    label: 'طابور الإشراف',
+    singular: 'بلاغ',
+    group: 'moderationReports',
+    titleField: 'reason',
+    relationField: 'commentId',
+    statusField: 'status',
+    editable: false,
+    creatable: false,
+    deletable: false,
   },
   favorites: {
     key: 'favorites',

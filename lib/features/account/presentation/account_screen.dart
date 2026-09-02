@@ -81,6 +81,30 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         : const Icon(Icons.logout_rounded),
                     label: Text(strings.signOut),
                   ),
+                  const SizedBox(height: 28),
+                  const Divider(),
+                  const SizedBox(height: 12),
+                  Text(
+                    strings.deleteAccountSectionTitle,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(strings.deleteAccountSectionMessage),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    key: const Key('account-delete'),
+                    onPressed: state.isSubmitting
+                        ? null
+                        : () => _confirmDeleteAccount(),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                    ),
+                    icon: const Icon(Icons.delete_forever_outlined),
+                    label: Text(strings.deleteAccount),
+                  ),
                   if (state.failure case final failure?) ...[
                     const SizedBox(height: 14),
                     _ErrorMessage(message: _failureText(strings, failure)),
@@ -108,6 +132,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(strings.accountGuestNote, textAlign: TextAlign.center),
+                    if (state.accountDeleted) ...[
+                      const SizedBox(height: 14),
+                      _SuccessMessage(message: strings.accountDeleted),
+                    ],
                     const SizedBox(height: 24),
                     if (state.mode == AccountMode.register) ...[
                       TextFormField(
@@ -260,6 +288,15 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     await ref.read(accountControllerProvider.notifier).sendPasswordReset(email);
   }
 
+  Future<void> _confirmDeleteAccount() async {
+    final password = await showDialog<String>(
+      context: context,
+      builder: (_) => const _DeleteAccountDialog(),
+    );
+    if (password == null || !mounted) return;
+    await ref.read(accountControllerProvider.notifier).deleteAccount(password);
+  }
+
   String _failureText(AppLocalizations strings, AccountFailure failure) {
     return switch (failure) {
       AccountFailure.invalidCredentials => strings.invalidCredentials,
@@ -267,8 +304,102 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
       AccountFailure.weakPassword => strings.weakPassword,
       AccountFailure.invalidEmail => strings.emailValidation,
       AccountFailure.network => strings.accountNetworkError,
+      AccountFailure.reauthenticationFailed =>
+        strings.accountReauthenticationFailed,
+      AccountFailure.deletionFailed => strings.accountDeletionFailed,
       AccountFailure.unavailable => strings.accountUnavailable,
     };
+  }
+}
+
+class _DeleteAccountDialog extends StatefulWidget {
+  const _DeleteAccountDialog();
+
+  @override
+  State<_DeleteAccountDialog> createState() => _DeleteAccountDialogState();
+}
+
+class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
+  final _passwordController = TextEditingController();
+  bool _acknowledged = false;
+  bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
+    return AlertDialog(
+      scrollable: true,
+      title: Text(strings.deleteAccountTitle),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 520),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(strings.deleteAccountWarning),
+            const SizedBox(height: 12),
+            Text(
+              strings.deleteAccountDataScope,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              key: const Key('account-delete-password'),
+              controller: _passwordController,
+              obscureText: _obscurePassword,
+              autofillHints: const [AutofillHints.password],
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                labelText: strings.currentPassword,
+                suffixIcon: IconButton(
+                  onPressed: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
+                  tooltip: _obscurePassword
+                      ? strings.showPassword
+                      : strings.hidePassword,
+                  icon: Icon(
+                    _obscurePassword
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            CheckboxListTile(
+              key: const Key('account-delete-acknowledgement'),
+              contentPadding: EdgeInsets.zero,
+              value: _acknowledged,
+              onChanged: (value) =>
+                  setState(() => _acknowledged = value ?? false),
+              title: Text(strings.deleteAccountAcknowledgement),
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(strings.cancel),
+        ),
+        FilledButton(
+          key: const Key('account-confirm-delete'),
+          onPressed: _acknowledged && _passwordController.text.isNotEmpty
+              ? () => Navigator.of(context).pop(_passwordController.text)
+              : null,
+          style: FilledButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+          child: Text(strings.deleteAccountConfirm),
+        ),
+      ],
+    );
   }
 }
 

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../core/config/firestore_paths.dart';
@@ -6,10 +7,11 @@ import '../../domain/models/account_user.dart';
 import '../../domain/repositories/account_repository.dart';
 
 class FirebaseAccountRepository implements AccountRepository {
-  const FirebaseAccountRepository(this._auth, this._firestore);
+  const FirebaseAccountRepository(this._auth, this._firestore, this._functions);
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
+  final FirebaseFunctions _functions;
 
   @override
   Stream<AccountUser?> watchAccount() {
@@ -97,6 +99,46 @@ class FirebaseAccountRepository implements AccountRepository {
       throw AccountException(_mapAuthFailure(error.code));
     } on FirebaseException {
       throw const AccountException(AccountFailure.network);
+    }
+  }
+
+  @override
+  Future<void> deleteAccount({required String currentPassword}) async {
+    final user = _auth.currentUser;
+    final email = user?.email;
+    if (user == null || email == null || email.isEmpty) {
+      throw const AccountException(AccountFailure.unavailable);
+    }
+    try {
+      final credential = EmailAuthProvider.credential(
+        email: email,
+        password: currentPassword,
+      );
+      await user.reauthenticateWithCredential(credential);
+      await user.getIdToken(true);
+      final callable = _functions.httpsCallable('deleteAccountData');
+      final result = await callable.call<Map<String, dynamic>>();
+      if (result.data['deleted'] != true) {
+        throw const AccountException(AccountFailure.deletionFailed);
+      }
+      await _auth.signOut();
+    } on FirebaseAuthException catch (error) {
+      if (error.code == 'wrong-password' ||
+          error.code == 'invalid-credential' ||
+          error.code == 'user-mismatch') {
+        throw const AccountException(AccountFailure.reauthenticationFailed);
+      }
+      throw AccountException(_mapAuthFailure(error.code));
+    } on FirebaseFunctionsException catch (error) {
+      throw AccountException(
+        error.code == 'failed-precondition'
+            ? AccountFailure.reauthenticationFailed
+            : error.code == 'unavailable'
+            ? AccountFailure.network
+            : AccountFailure.deletionFailed,
+      );
+    } on FirebaseException {
+      throw const AccountException(AccountFailure.deletionFailed);
     }
   }
 

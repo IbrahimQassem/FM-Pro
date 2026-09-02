@@ -11,12 +11,17 @@
 HudHudDev/stations/stations/{stationId}
 HudHudDev/banners/banners/{bannerId}
 HudHudDev/users/users/{uid}
+HudHudDev/users/users/{uid}/agreements/ugc
+HudHudDev/users/users/{uid}/blockedUsers/{blockedUid}
+HudHudDev/users/users/{uid}/commentReportEpisodes/{episodeId}/moderationReports/{commentId}
+HudHudDev/users/users/{uid}/userReportTargets/{reportedUid}/moderationReports/{sourceCommentId}
 HudHudDev/users/users/{uid}/favorites/{favoriteId}
 HudHudDev/users/users/{uid}/subscriptions/{subscriptionId}
 HudHudDev/locations/locations/{locationId}
 HudHudDev/programs/programs/{programId}
 HudHudDev/episodes/episodes/{episodeId}
 HudHudDev/episodes/episodes/{episodeId}/comments/{commentId}
+HudHudDev/accountDeletionRequests/requests/{uid}
 ```
 
 `lib/core/config/firestore_paths.dart` هو المالك التنفيذي للمسارات. لا تبني path
@@ -25,9 +30,9 @@ flavors متعددة يحتاج قرارًا يحدد الفصل، package IDs،
 
 ## سياسة القراءة والتخزين
 
-- القراءة العامة للمحتوى read-only. الكتابتان الوحيدتان من العميل هما إنشاء ملف
-  المستمع عند التسجيل، وإضافة تعليق، وإدارة مفضلته واشتراكاته؛ جميعها محمية
-  بقواعد واختبارات emulator.
+- القراءة العامة للمحتوى read-only. كتابات العميل المحددة هي إنشاء ملف المستمع
+  عند التسجيل، وقبول شروط UGC، وإضافة تعليق، والإبلاغ عن تعليق أو مستخدم، وإدارة قائمة
+  الحظر والمفضلة والاشتراكات؛ جميعها محمية بقواعد واختبارات emulator.
 - يبدأ Home بقراءة `Source.cache`، ثم يطلب `Source.server` عند الفتح والتحديث.
 - لا يوجد snapshot listener دائم. إضافته يحتاج lifecycle وتكلفة وoffline policy.
 - التعليقات استثناء محدد: listener لحظي حتى 100 تعليق يعمل فقط أثناء شاشة
@@ -108,13 +113,83 @@ createdAt, updatedAt
 ## Comment schema
 
 ```text
-episodeId, authorId, authorName, content, createdAt, isEdited=false
+episodeId, authorId, authorName, content, createdAt, isEdited=false,
+status=published|hidden|removed
 ```
 
 - `content` بعد trim من 1 إلى 1000 حرف.
 - `authorId` يساوي UID، و`authorName` يطابق ملف المستخدم النشط وفق Rules.
-- القراءة عامة؛ الإنشاء لمستمع موثق نشط؛ التعديل والحذف للمشرف فقط حاليًا.
+- القراءة العامة مقيدة باستعلام `status=published`؛ لا تسمح Rules بقراءة
+  `hidden` أو `removed`. الإنشاء لمستمع نشط بعد قبول شروط UGC الحالية، وتغيير
+  الحالة للمشرف فقط.
 - لا يكتب العميل `stats.commentsCount`، ولا توجد likes للتعليقات في هذه المرحلة.
+
+## UGC agreement schema
+
+الوثيقة الثابتة `users/{uid}/agreements/ugc`:
+
+```text
+termsVersion, acceptedAt
+```
+
+- يقرأ المالك وثيقته، ويستطيع المشرف قراءتها للتدقيق.
+- ينشئ المالك الوثيقة أو يحدثها فقط إلى الإصدار الحالي وبوقت الخادم.
+- لا يرسل العميل UID أو email أو نص الشروط داخل الوثيقة.
+- Rules تتحقق من الإصدار قبل إنشاء كل تعليق؛ إخفاء المحرر في UI ليس صلاحية.
+- الإصدار التنفيذي الحالي `2026-09-01` ويجب تحديث Dart وRules والعقد معًا عند
+  تغيير جوهري في شروط المشاركة.
+
+## Moderation report schema
+
+بلاغ التعليق وثيقة حتمية في
+`users/{uid}/commentReportEpisodes/{episodeId}/moderationReports/{commentId}`،
+وبلاغ المستخدم وثيقة حتمية في
+`users/{uid}/userReportTargets/{reportedUid}/moderationReports/{sourceCommentId}`.
+يمنع ذلك تكرار البلاغ عن السياق نفسه، ويسمح ببلاغ جديد عند وجود تعليق جديد:
+
+```text
+targetType=comment|user, episodeId, commentId, reportedAuthorId,
+reason=harassment|hate|sexualContent|violence|spam|privacy|other,
+details, status=open, createdAt
+```
+
+- لا يبلّغ المستخدم عن نفسه أو تعليقه، وتتحقق Rules من وجود تعليق سياق منشور
+  ومطابقة مؤلفه.
+- `details` اختيارية بحد 500 حرف ولا ينسخ التطبيق نص التعليق أو البريد إلى البلاغ.
+- المالك ينشئ البلاغ ويقرأ وثيقته فقط؛ لا يسرد البلاغات ولا يعدلها أو يحذفها.
+- المشرف يسرد `moderationReports` كـcollection group ويغلق البلاغ بإضافة
+  `status=resolved|dismissed` و
+  `resolution=commentHidden|commentRemoved|userDisabled|noAction`,
+  و`reviewedAt` بوقت الخادم و`reviewedBy` المطابق لهويته.
+- تغيير حالة التعليق أو تعطيل الحساب وحسم البلاغات المرتبطة يتم في batch واحد
+  من لوحة الإدارة، مع تحديث عداد التعليقات عند خروج تعليق منشور من العرض.
+
+## Blocked user schema
+
+الوثيقة `users/{uid}/blockedUsers/{blockedUid}`:
+
+```text
+blockedUserId, createdAt
+```
+
+- المالك فقط ينشئ الحظر أو يحذفه، ولا يستطيع حظر نفسه أو إضافة حقول خاصة.
+- تحمل الشاشة قائمة الحظر عند فتحها أو تغير الحساب، وتخفي كل تعليق يطابق مؤلفه.
+- الحظر شخصي ولا يحذف التعليق ولا يؤثر في تجربة مستخدم آخر.
+- الحساب ذو `isActive=false` لا يستطيع إنشاء حظر أو بلاغ أو موافقة أو مفضلة أو
+  اشتراك جديد، ولا يستطيع إضافة تعليق.
+
+## Account deletion
+
+الدالة callable باسم `deleteAccountData` تتطلب Firebase Auth ومصادقة حديثة خلال
+خمس دقائق. تعطل ملف المستمع أولًا، ثم تحذف تعليقاته وتعيد احتساب عدادات الحلقات،
+وتزيل البلاغات والحظر المرتبطين به، وتحذف ملفه وكل مجموعاته التابعة، ثم تحذف
+Firebase Auth أخيرًا. وثيقة العمل المؤقتة تحت
+`accountDeletionRequests/requests/{uid}` تحفظ معرّفات الحلقات لضمان استئناف آمن
+إذا فشل التنفيذ بين الخطوات، ولا يقرأها العميل.
+
+تحتاج الاستعلامات الخادمية فهارس collection-group للحقول `comments.authorId`،
+`moderationReports.reportedAuthorId` و`blockedUsers.blockedUserId`. يجب نشر
+`firestore.indexes.json` قبل نشر الدالة.
 
 ## Favorite schema
 
@@ -180,3 +255,6 @@ HTTPS فقط. القراءة فقط؛ لا يكتب التطبيق counters.
 - content-only يشتق عدادات المحطات من البرامج ولا يحتوي IDs مكتوبة يدويًا.
 - مستخدمو seed projections لعرض كتّاب التعليقات فقط، وليسوا Auth credentials.
 - تشغيل apply أو نشر Rules أو إرسال FCM يحتاج تفويضًا خارجيًا مستقلًا.
+- قبل تشديد Rules على بيئة تحتوي تعليقات قديمة، شغّل
+  `npm run comments:status:dry` ثم `comments:status:apply` بتفويض مستقل لإضافة
+  `status=published` للتعليقات التي لا تملك حالة.

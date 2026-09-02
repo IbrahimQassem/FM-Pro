@@ -11,6 +11,7 @@ class AccountState {
     this.isSubmitting = false,
     this.failure,
     this.passwordResetSent = false,
+    this.accountDeleted = false,
   });
 
   final AccountUser? user;
@@ -19,6 +20,7 @@ class AccountState {
   final bool isSubmitting;
   final AccountFailure? failure;
   final bool passwordResetSent;
+  final bool accountDeleted;
 
   bool get isSignedIn => user != null;
 
@@ -31,6 +33,7 @@ class AccountState {
     AccountFailure? failure,
     bool clearFailure = false,
     bool? passwordResetSent,
+    bool? accountDeleted,
   }) {
     return AccountState(
       user: clearUser ? null : user ?? this.user,
@@ -39,6 +42,7 @@ class AccountState {
       isSubmitting: isSubmitting ?? this.isSubmitting,
       failure: clearFailure ? null : failure ?? this.failure,
       passwordResetSent: passwordResetSent ?? this.passwordResetSent,
+      accountDeleted: accountDeleted ?? this.accountDeleted,
     );
   }
 }

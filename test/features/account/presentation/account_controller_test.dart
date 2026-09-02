@@ -28,6 +28,20 @@ void main() {
     expect(repository.didSignOut, isTrue);
   });
 
+  test('deletes the account only after repository reauthentication', () async {
+    final repository = _FakeAccountRepository();
+    final controller = AccountController(repository);
+    addTearDown(controller.dispose);
+    addTearDown(repository.dispose);
+    repository.emit(_user);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(await controller.deleteAccount('current-password'), isTrue);
+    expect(repository.deletionPassword, 'current-password');
+    expect(controller.state.user, isNull);
+    expect(controller.state.accountDeleted, isTrue);
+  });
+
   test('exposes safe account failures', () async {
     final repository = _FakeAccountRepository(
       actionFailure: AccountFailure.invalidCredentials,
@@ -55,6 +69,7 @@ class _FakeAccountRepository implements AccountRepository {
   final _controller = StreamController<AccountUser?>.broadcast();
   bool didRegister = false;
   bool didSignOut = false;
+  String? deletionPassword;
 
   void emit(AccountUser? user) => _controller.add(user);
 
@@ -73,6 +88,12 @@ class _FakeAccountRepository implements AccountRepository {
 
   @override
   Future<void> sendPasswordReset(String email) async => _throwIfNeeded();
+
+  @override
+  Future<void> deleteAccount({required String currentPassword}) async {
+    _throwIfNeeded();
+    deletionPassword = currentPassword;
+  }
 
   @override
   Future<void> signIn({required String email, required String password}) async {

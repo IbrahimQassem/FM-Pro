@@ -7,7 +7,9 @@ import {
   CalendarDays,
   CheckCircle2,
   Database,
+  EyeOff,
   Heart,
+  Flag,
   LayoutDashboard,
   LogOut,
   Megaphone,
@@ -22,6 +24,7 @@ import {
   ShieldCheck,
   Trash2,
   Users,
+  UserX,
 } from 'lucide-react';
 import {
   type User,
@@ -41,6 +44,7 @@ import {
   limit,
   onSnapshot,
   query,
+  serverTimestamp,
   writeBatch,
   type DocumentReference,
   type Firestore,
@@ -101,6 +105,7 @@ const emptyRecords: RecordsState = {
   comments: [],
   favorites: [],
   subscriptions: [],
+  reports: [],
 };
 
 const navigation: Array<{
@@ -115,6 +120,7 @@ const navigation: Array<{
   { section: 'banners', label: 'الإعلانات', icon: Megaphone },
   { section: 'users', label: 'المستخدمون', icon: Users },
   { section: 'comments', label: 'التعليقات', icon: MessageSquare },
+  { section: 'reports', label: 'طابور الإشراف', icon: Flag },
   { section: 'favorites', label: 'المفضلة', icon: Heart },
   { section: 'subscriptions', label: 'الاشتراكات', icon: BarChart3 },
 ];
@@ -493,6 +499,14 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
                 lastSync={lastSync}
                 onNavigate={setSection}
               />
+            ) : section === 'reports' ? (
+              <ModerationQueue
+                firestore={firestore}
+                adminUid={user.uid}
+                reports={records.reports}
+                comments={records.comments}
+                error={errors.reports}
+              />
             ) : (
               <ResourceView
                 firestore={firestore}
@@ -521,6 +535,14 @@ function Overview({
   onNavigate: (section: Section) => void;
 }) {
   const metrics = [
+    {
+      key: 'reports' as const,
+      label: 'بلاغات تنتظر المراجعة',
+      value: records.reports.filter((item) => item.data.status === 'open')
+        .length,
+      detail: `${records.reports.length} بلاغًا إجمالًا`,
+      icon: Flag,
+    },
     {
       key: 'stations' as const,
       label: 'المحطات النشطة',
@@ -701,6 +723,295 @@ function Overview({
           </CardContent>
         </Card>
       </section>
+    </div>
+  );
+}
+
+function ModerationQueue({
+  firestore,
+  adminUid,
+  reports,
+  comments,
+  error,
+}: {
+  firestore: Firestore;
+  adminUid: string;
+  reports: AdminRecord[];
+  comments: AdminRecord[];
+  error?: string;
+}) {
+  const [showClosed, setShowClosed] = useState(false);
+  const [busyPath, setBusyPath] = useState('');
+  const [feedback, setFeedback] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
+  const visibleReports = useMemo(
+    () =>
+      reports
+        .filter((report) => showClosed || report.data.status === 'open')
+        .toSorted((a, b) => {
+          const statusOrder =
+            Number(a.data.status !== 'open') - Number(b.data.status !== 'open');
+          if (statusOrder !== 0) return statusOrder;
+          return (
+            timestampMillis(b.data.createdAt) -
+            timestampMillis(a.data.createdAt)
+          );
+        }),
+    [reports, showClosed],
+  );
+
+  function sourceComment(report: AdminRecord) {
+    return comments.find(
+      (comment) =>
+        comment.id === report.data.commentId &&
+        comment.data.episodeId === report.data.episodeId,
+    );
+  }
+
+  async function review(
+    report: AdminRecord,
+    resolution:
+      | 'commentHidden'
+      | 'commentRemoved'
+      | 'userDisabled'
+      | 'noAction',
+  ) {
+    const changingComment =
+      resolution === 'commentHidden' || resolution === 'commentRemoved';
+    const disablingUser = resolution === 'userDisabled';
+    if (
+      resolution !== 'noAction' &&
+      !window.confirm(
+        resolution === 'userDisabled'
+          ? 'سيُعطّل الحساب ويُمنع من نشر تعليقات جديدة. هل تريد المتابعة؟'
+          : resolution === 'commentHidden'
+            ? 'سيُخفى التعليق عن الجمهور مع الاحتفاظ به للمراجعة. هل تريد المتابعة؟'
+            : 'سيُزال التعليق من الجمهور ويُغلق كل بلاغ مفتوح مرتبط به. هل تريد المتابعة؟',
+      )
+    )
+      return;
+    setBusyPath(report.path);
+    setFeedback(null);
+    try {
+      const batch = writeBatch(firestore);
+      const reviewData = {
+        status: resolution === 'noAction' ? 'dismissed' : 'resolved',
+        resolution,
+        reviewedAt: serverTimestamp(),
+        reviewedBy: adminUid,
+      };
+      const matchingReports = changingComment
+        ? reports.filter(
+            (candidate) =>
+              candidate.data.status === 'open' &&
+              candidate.data.commentId === report.data.commentId &&
+              candidate.data.episodeId === report.data.episodeId,
+          )
+        : disablingUser
+          ? reports.filter(
+              (candidate) =>
+                candidate.data.status === 'open' &&
+                candidate.data.reportedAuthorId ===
+                  report.data.reportedAuthorId,
+            )
+          : [report];
+      for (const matchingReport of matchingReports)
+        batch.update(matchingReport.reference, reviewData);
+
+      if (changingComment) {
+        const comment = sourceComment(report);
+        const episodeId = readString(report.data, 'episodeId');
+        if (comment) {
+          batch.update(comment.reference, {
+            status: resolution === 'commentHidden' ? 'hidden' : 'removed',
+            moderatedAt: serverTimestamp(),
+            moderatedBy: adminUid,
+          });
+        }
+        if (comment?.data.status === 'published')
+          batch.update(
+            doc(firestore, 'HudHudDev/episodes/episodes', episodeId),
+            { 'stats.commentsCount': increment(-1) },
+          );
+      }
+      if (disablingUser) {
+        const reportedAuthorId = readString(report.data, 'reportedAuthorId');
+        batch.update(
+          doc(firestore, 'HudHudDev/users/users', reportedAuthorId),
+          { isActive: false, updatedAt: serverTimestamp() },
+        );
+        const comment = sourceComment(report);
+        if (comment?.data.status === 'published') {
+          batch.update(comment.reference, {
+            status: 'removed',
+            moderatedAt: serverTimestamp(),
+            moderatedBy: adminUid,
+          });
+          batch.update(
+            doc(
+              firestore,
+              'HudHudDev/episodes/episodes',
+              readString(report.data, 'episodeId'),
+            ),
+            { 'stats.commentsCount': increment(-1) },
+          );
+        }
+      }
+      await batch.commit();
+      setFeedback({
+        type: 'success',
+        message:
+          resolution === 'commentHidden'
+            ? 'أُخفي التعليق وأُغلقت بلاغاته المفتوحة.'
+            : resolution === 'commentRemoved'
+              ? 'أُزيل التعليق وأُغلقت بلاغاته المفتوحة.'
+              : resolution === 'userDisabled'
+                ? 'عُطّل الحساب وحُسمت بلاغاته المفتوحة.'
+                : 'أُغلق البلاغ دون اتخاذ إجراء.',
+      });
+    } catch {
+      setFeedback({
+        type: 'error',
+        message: 'تعذر حفظ قرار الإشراف. لم يُسجل قرار جزئي.',
+      });
+    } finally {
+      setBusyPath('');
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <section className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div>
+          <h2 className="text-2xl font-bold">طابور الإشراف</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {reports.filter((item) => item.data.status === 'open').length} بلاغًا
+            مفتوحًا · لا تظهر هوية المبلّغ في هذه الواجهة
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => setShowClosed((current) => !current)}
+        >
+          {showClosed ? 'عرض المفتوحة فقط' : 'عرض السجل المغلق'}
+        </Button>
+      </section>
+      {error && (
+        <Alert variant="destructive">
+          <AlertTitle>تعذر تحميل البلاغات</AlertTitle>
+          <AlertDescription>
+            تحقق من صلاحية admin وقواعد collection group للبلاغات.
+          </AlertDescription>
+        </Alert>
+      )}
+      {feedback && (
+        <Alert variant={feedback.type === 'error' ? 'destructive' : 'default'}>
+          <AlertTitle>
+            {feedback.type === 'error' ? 'لم يكتمل القرار' : 'تم حفظ القرار'}
+          </AlertTitle>
+          <AlertDescription>{feedback.message}</AlertDescription>
+        </Alert>
+      )}
+      <div className="grid gap-4">
+        {visibleReports.map((report) => {
+          const comment = sourceComment(report);
+          const isOpen = report.data.status === 'open';
+          return (
+            <Card key={report.path}>
+              <CardHeader>
+                <CardTitle className="flex flex-wrap items-center gap-2 text-base">
+                  <Badge variant={isOpen ? 'destructive' : 'secondary'}>
+                    {isOpen ? 'مفتوح' : reportStatusLabel(report.data.status)}
+                  </Badge>
+                  {report.data.targetType === 'user'
+                    ? 'بلاغ مستخدم'
+                    : 'بلاغ تعليق'}{' '}
+                  · {reportReasonLabel(report.data.reason)}
+                </CardTitle>
+                <CardDescription>
+                  {formatAdminTimestamp(report.data.createdAt)} · الحلقة{' '}
+                  <span dir="ltr">{readString(report.data, 'episodeId')}</span>
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="rounded-xl bg-muted p-4">
+                  <p className="text-xs font-semibold text-muted-foreground">
+                    التعليق المبلّغ عنه
+                  </p>
+                  <p className="mt-2 whitespace-pre-wrap text-sm">
+                    {comment
+                      ? readString(comment.data, 'content')
+                      : 'التعليق غير موجود أو حُذف سابقًا.'}
+                  </p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    الكاتب:{' '}
+                    {comment ? readString(comment.data, 'authorName') : '—'}
+                  </p>
+                </div>
+                {readString(report.data, 'details') && (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground">
+                      تفاصيل المبلّغ
+                    </p>
+                    <p className="mt-1 whitespace-pre-wrap text-sm">
+                      {readString(report.data, 'details')}
+                    </p>
+                  </div>
+                )}
+                {isOpen && (
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      disabled={busyPath === report.path}
+                      onClick={() => review(report, 'noAction')}
+                    >
+                      رفض البلاغ
+                    </Button>
+                    <Button
+                      variant="outline"
+                      disabled={
+                        busyPath === report.path ||
+                        !comment ||
+                        comment.data.status !== 'published'
+                      }
+                      onClick={() => review(report, 'commentHidden')}
+                    >
+                      <EyeOff /> إخفاء التعليق
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      disabled={
+                        busyPath === report.path ||
+                        !comment ||
+                        comment.data.status !== 'published'
+                      }
+                      onClick={() => review(report, 'commentRemoved')}
+                    >
+                      <Trash2 /> إزالة التعليق
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      disabled={busyPath === report.path}
+                      onClick={() => review(report, 'userDisabled')}
+                    >
+                      <UserX /> تعطيل الحساب
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
+        {visibleReports.length === 0 && (
+          <Card>
+            <CardContent className="grid min-h-52 place-items-center text-sm text-muted-foreground">
+              لا توجد بلاغات في هذا العرض.
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
@@ -1197,6 +1508,36 @@ function toEditable(value: unknown): unknown {
       Object.entries(value).map(([key, child]) => [key, toEditable(child)]),
     );
   return value;
+}
+
+function timestampMillis(value: unknown) {
+  return value instanceof Timestamp ? value.toMillis() : 0;
+}
+
+function formatAdminTimestamp(value: unknown) {
+  return value instanceof Timestamp
+    ? value.toDate().toLocaleString('ar-YE', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      })
+    : 'وقت غير متاح';
+}
+
+function reportReasonLabel(value: unknown) {
+  const labels: Record<string, string> = {
+    harassment: 'إساءة أو تحرش',
+    hate: 'كراهية أو تمييز',
+    sexualContent: 'محتوى جنسي أو استغلال',
+    violence: 'تهديد أو عنف',
+    spam: 'رسائل مزعجة أو تضليل',
+    privacy: 'خصوصية أو انتحال هوية',
+    other: 'سبب آخر',
+  };
+  return labels[String(value)] ?? 'سبب غير معروف';
+}
+
+function reportStatusLabel(value: unknown) {
+  return value === 'resolved' ? 'تمت المعالجة' : 'مرفوض';
 }
 
 function recordTitle(record: AdminRecord, definition: ResourceDefinition) {

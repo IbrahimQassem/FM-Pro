@@ -14,6 +14,105 @@ service cloud.firestore {
       return isSignedIn() && request.auth.token.get('admin', false) == true;
     }
 
+    function currentUgcTermsVersion() {
+      return '2026-09-01';
+    }
+
+    function hasAcceptedCurrentUgcTerms(uid) {
+      let path = /databases/$(database)/documents/HudHudDev/users/users/$(uid)/agreements/ugc;
+      return exists(path)
+        && get(path).data.termsVersion == currentUgcTermsVersion();
+    }
+
+    function isActiveListener(uid) {
+      let path = /databases/$(database)/documents/HudHudDev/users/users/$(uid);
+      return exists(path)
+        && get(path).data.isActive == true
+        && get(path).data.role == 'listener';
+    }
+
+    function validUgcAgreement(uid, agreementId) {
+      let data = request.resource.data;
+      return isOwner(uid)
+        && isActiveListener(uid)
+        && agreementId == 'ugc'
+        && data.keys().hasOnly(['termsVersion', 'acceptedAt'])
+        && data.keys().hasAll(['termsVersion', 'acceptedAt'])
+        && data.termsVersion == currentUgcTermsVersion()
+        && data.acceptedAt == request.time;
+    }
+
+    function validBlockedUser(uid, blockedUid) {
+      let data = request.resource.data;
+      return isOwner(uid)
+        && isActiveListener(uid)
+        && blockedUid != uid
+        && data.keys().hasOnly(['blockedUserId', 'createdAt'])
+        && data.keys().hasAll(['blockedUserId', 'createdAt'])
+        && data.blockedUserId == blockedUid
+        && data.createdAt == request.time;
+    }
+
+    function validModerationReport(
+      uid,
+      targetType,
+      episodeId,
+      commentId,
+      reportedAuthorId
+    ) {
+      let data = request.resource.data;
+      let target = /databases/$(database)/documents/HudHudDev/episodes/episodes/$(episodeId)/comments/$(commentId);
+      return isOwner(uid)
+        && isActiveListener(uid)
+        && data.keys().hasOnly([
+          'targetType', 'episodeId', 'commentId', 'reportedAuthorId', 'reason',
+          'details', 'status', 'createdAt'
+        ])
+        && data.keys().hasAll([
+          'targetType', 'episodeId', 'commentId', 'reportedAuthorId', 'reason',
+          'details', 'status', 'createdAt'
+        ])
+        && data.targetType == targetType
+        && data.episodeId == episodeId
+        && data.commentId == commentId
+        && data.reportedAuthorId == reportedAuthorId
+        && data.reportedAuthorId != uid
+        && data.reason in [
+          'harassment', 'hate', 'sexualContent', 'violence', 'spam',
+          'privacy', 'other'
+        ]
+        && data.details is string
+        && data.details.size() <= 500
+        && data.status == 'open'
+        && data.createdAt == request.time
+        && exists(target)
+        && get(target).data.episodeId == data.episodeId
+        && get(target).data.status == 'published'
+        && get(target).data.authorId == data.reportedAuthorId;
+    }
+
+    function validCommentReportReview() {
+      let data = request.resource.data;
+      return isAdmin()
+        && resource.data.status == 'open'
+        && data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'resolution', 'reviewedAt', 'reviewedBy'
+        ])
+        && data.keys().hasAll([
+          'targetType', 'episodeId', 'commentId', 'reportedAuthorId', 'reason',
+          'details', 'status', 'createdAt', 'resolution', 'reviewedAt',
+          'reviewedBy'
+        ])
+        && (
+          (data.status == 'resolved' && data.resolution in [
+            'commentHidden', 'commentRemoved', 'userDisabled'
+          ])
+          || (data.status == 'dismissed' && data.resolution == 'noAction')
+        )
+        && data.reviewedAt == request.time
+        && data.reviewedBy == request.auth.uid;
+    }
+
     function validListenerProfile(uid) {
       let data = request.resource.data;
       return isOwner(uid)
@@ -50,27 +149,30 @@ service cloud.firestore {
       return isSignedIn()
         && data.keys().hasOnly([
           'episodeId', 'authorId', 'authorName', 'content', 'createdAt',
-          'isEdited'
+          'isEdited', 'status'
         ])
         && data.keys().hasAll([
           'episodeId', 'authorId', 'authorName', 'content', 'createdAt',
-          'isEdited'
+          'isEdited', 'status'
         ])
         && data.episodeId == episodeId
         && data.authorId == request.auth.uid
         && profile.isActive == true
         && profile.role == 'listener'
+        && hasAcceptedCurrentUgcTerms(request.auth.uid)
         && data.authorName == profile.displayName
         && data.content is string
         && data.content.size() > 0
         && data.content.size() <= 1000
         && data.createdAt == request.time
-        && data.isEdited == false;
+        && data.isEdited == false
+        && data.status == 'published';
     }
 
     function validFavoriteCreate(uid) {
       let data = request.resource.data;
       return isOwner(uid)
+        && isActiveListener(uid)
         && data.keys().hasOnly(['targetType', 'targetId', 'createdAt'])
         && data.keys().hasAll(['targetType', 'targetId', 'createdAt'])
         && data.targetType in ['station', 'program', 'episode']
@@ -83,6 +185,7 @@ service cloud.firestore {
     function validSubscription(uid) {
       let data = request.resource.data;
       return isOwner(uid)
+        && isActiveListener(uid)
         && data.keys().hasOnly([
           'targetType', 'targetId', 'notificationsEnabled', 'isActive',
           'createdAt', 'updatedAt'
@@ -136,7 +239,7 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
 
       match /comments/{commentId} {
-        allow read: if true;
+        allow read: if isAdmin() || resource.data.status == 'published';
         allow create: if validCommentCreate(episodeId);
         allow update, delete: if isAdmin();
       }
@@ -147,6 +250,53 @@ service cloud.firestore {
       allow list: if isAdmin();
       allow create: if isAdmin() || validListenerProfile(uid);
       allow update, delete: if isAdmin();
+
+      match /agreements/{agreementId} {
+        allow get: if isOwner(uid) || isAdmin();
+        allow list: if isAdmin();
+        allow create, update: if validUgcAgreement(uid, agreementId);
+        allow delete: if isAdmin();
+      }
+
+      match /blockedUsers/{blockedUid} {
+        allow get, list: if isOwner(uid) || isAdmin();
+        allow create: if validBlockedUser(uid, blockedUid);
+        allow delete: if isOwner(uid) || isAdmin();
+        allow update: if false;
+      }
+
+      match /commentReportEpisodes/{episodeId} {
+        match /moderationReports/{commentId} {
+          allow get: if isOwner(uid) || isAdmin();
+          allow list: if isAdmin();
+          allow create: if validModerationReport(
+            uid,
+            'comment',
+            episodeId,
+            commentId,
+            request.resource.data.reportedAuthorId
+          );
+          allow update: if validCommentReportReview();
+          allow delete: if false;
+        }
+      }
+
+      match /userReportTargets/{reportedUid} {
+        match /moderationReports/{reportId} {
+          allow get: if isOwner(uid) || isAdmin();
+          allow list: if isAdmin();
+          allow create: if reportId == request.resource.data.commentId
+            && validModerationReport(
+              uid,
+              'user',
+              request.resource.data.episodeId,
+              request.resource.data.commentId,
+              reportedUid
+            );
+          allow update: if validCommentReportReview();
+          allow delete: if false;
+        }
+      }
 
       match /favorites/{favoriteId} {
         allow read: if isOwner(uid) || isAdmin();
@@ -174,6 +324,10 @@ service cloud.firestore {
     }
 
     match /{path=**}/comments/{commentId} {
+      allow list: if isAdmin();
+    }
+
+    match /{path=**}/moderationReports/{reportId} {
       allow list: if isAdmin();
     }
 

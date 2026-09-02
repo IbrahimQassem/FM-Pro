@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../core/config/firestore_paths.dart';
+import '../../domain/models/episode_comment.dart';
+import '../../domain/repositories/comments_repository.dart';
 
 class CommentsFirestoreDataSource {
   const CommentsFirestoreDataSource(this._firestore, this._auth);
@@ -10,10 +12,40 @@ class CommentsFirestoreDataSource {
   final FirebaseAuth _auth;
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchComments(String episodeId) {
-    return FirestorePaths.episodeComments(
+    return FirestorePaths.episodeComments(_firestore, episodeId)
+        .where('status', isEqualTo: 'published')
+        .orderBy('createdAt', descending: true)
+        .limit(100)
+        .snapshots();
+  }
+
+  Future<Set<String>> loadBlockedAuthorIds() async {
+    final user = _auth.currentUser;
+    if (user == null) return const <String>{};
+    final snapshot = await FirestorePaths.blockedUsers(
       _firestore,
-      episodeId,
-    ).orderBy('createdAt', descending: true).limit(100).snapshots();
+      user.uid,
+    ).get();
+    return snapshot.docs.map((document) => document.id).toSet();
+  }
+
+  Future<bool> hasAcceptedCurrentTerms() async {
+    final user = _auth.currentUser;
+    if (user == null) return false;
+    final snapshot = await FirestorePaths.ugcAgreement(
+      _firestore,
+      user.uid,
+    ).get();
+    return snapshot.data()?['termsVersion'] == currentUgcTermsVersion;
+  }
+
+  Future<void> acceptCurrentTerms() async {
+    final user = _auth.currentUser;
+    if (user == null) throw const CommentAuthRequiredException();
+    await FirestorePaths.ugcAgreement(_firestore, user.uid).set({
+      'termsVersion': currentUgcTermsVersion,
+      'acceptedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   Future<void> addComment({
@@ -22,6 +54,9 @@ class CommentsFirestoreDataSource {
   }) async {
     final user = _auth.currentUser;
     if (user == null) throw const CommentAuthRequiredException();
+    if (!await hasAcceptedCurrentTerms()) {
+      throw const CommentTermsAcceptanceRequiredException();
+    }
 
     final userSnapshot = await FirestorePaths.users(
       _firestore,
@@ -42,7 +77,95 @@ class CommentsFirestoreDataSource {
       'content': content.trim(),
       'createdAt': FieldValue.serverTimestamp(),
       'isEdited': false,
+      'status': 'published',
     });
+  }
+
+  Future<void> reportComment({
+    required EpisodeComment comment,
+    required CommentReportReason reason,
+    required String details,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null) throw const CommentAuthRequiredException();
+    final report = FirestorePaths.commentReports(
+      _firestore,
+      user.uid,
+      comment.episodeId,
+    ).doc(comment.id);
+    await _firestore.runTransaction((transaction) async {
+      if ((await transaction.get(report)).exists) {
+        throw const CommentAlreadyReportedException();
+      }
+      transaction.set(report, {
+        'targetType': 'comment',
+        'episodeId': comment.episodeId,
+        'commentId': comment.id,
+        'reportedAuthorId': comment.authorId,
+        'reason': reason.name,
+        'details': details.trim(),
+        'status': 'open',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    });
+  }
+
+  Future<void> reportUser({
+    required EpisodeComment sourceComment,
+    required CommentReportReason reason,
+    required String details,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null) throw const CommentAuthRequiredException();
+    final report = FirestorePaths.userReport(
+      _firestore,
+      user.uid,
+      sourceComment.authorId,
+      sourceComment.id,
+    );
+    await _firestore.runTransaction((transaction) async {
+      if ((await transaction.get(report)).exists) {
+        throw const CommentAlreadyReportedException();
+      }
+      transaction.set(report, {
+        'targetType': 'user',
+        'episodeId': sourceComment.episodeId,
+        'commentId': sourceComment.id,
+        'reportedAuthorId': sourceComment.authorId,
+        'reason': reason.name,
+        'details': details.trim(),
+        'status': 'open',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    });
+  }
+
+  Future<void> blockAuthor(String authorId) async {
+    final user = _auth.currentUser;
+    if (user == null) throw const CommentAuthRequiredException();
+    if (authorId.isEmpty || authorId == user.uid) {
+      throw const CommentModerationInputException();
+    }
+    final block = FirestorePaths.blockedUsers(
+      _firestore,
+      user.uid,
+    ).doc(authorId);
+    await _firestore.runTransaction((transaction) async {
+      if ((await transaction.get(block)).exists) return;
+      transaction.set(block, {
+        'blockedUserId': authorId,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    });
+  }
+
+  Future<void> unblockAuthor(String authorId) async {
+    final user = _auth.currentUser;
+    if (user == null) throw const CommentAuthRequiredException();
+    await FirestorePaths.blockedUsers(
+      _firestore,
+      user.uid,
+    ).doc(authorId).delete();
   }
 }
 
@@ -52,4 +175,16 @@ class CommentAuthRequiredException implements Exception {
 
 class CommentProfileUnavailableException implements Exception {
   const CommentProfileUnavailableException();
+}
+
+class CommentTermsAcceptanceRequiredException implements Exception {
+  const CommentTermsAcceptanceRequiredException();
+}
+
+class CommentAlreadyReportedException implements Exception {
+  const CommentAlreadyReportedException();
+}
+
+class CommentModerationInputException implements Exception {
+  const CommentModerationInputException();
 }

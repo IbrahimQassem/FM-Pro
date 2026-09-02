@@ -421,7 +421,8 @@
         "authorName": "أمل الصبري",
         "content": "حلقة ثرية، خصوصًا الجزء المتعلق بفرص التدريب للشباب.",
         "createdAt": "2026-08-29T08:10:00Z",
-        "isEdited": false
+        "isEdited": false,
+        "status": "published"
       }
     },
     {
@@ -432,7 +433,8 @@
         "authorName": "سالم باحارثة",
         "content": "أتمنى حلقة لاحقة عن التعليم التقني في المحافظات.",
         "createdAt": "2026-08-29T08:25:00Z",
-        "isEdited": true
+        "isEdited": true,
+        "status": "published"
       }
     },
     {
@@ -443,7 +445,8 @@
         "authorName": "نورة الحكيمي",
         "content": "المبادرات المحلية المذكورة ملهمة وقابلة للتطبيق.",
         "createdAt": "2026-08-28T07:40:00Z",
-        "isEdited": false
+        "isEdited": false,
+        "status": "published"
       }
     },
     {
@@ -454,7 +457,8 @@
         "authorName": "أمل الصبري",
         "content": "شكرًا على الأمثلة العملية حول التشجير.",
         "createdAt": "2026-08-28T08:05:00Z",
-        "isEdited": false
+        "isEdited": false,
+        "status": "published"
       }
     },
     {
@@ -465,7 +469,8 @@
         "authorName": "سالم باحارثة",
         "content": "سرد جميل لذاكرة عدن الفنية والمسرحية.",
         "createdAt": "2026-08-29T16:20:00Z",
-        "isEdited": false
+        "isEdited": false,
+        "status": "published"
       }
     },
     {
@@ -476,7 +481,8 @@
         "authorName": "نورة الحكيمي",
         "content": "أحببت تنوع الضيوف والموضوعات في الحلقة.",
         "createdAt": "2026-08-29T16:45:00Z",
-        "isEdited": false
+        "isEdited": false,
+        "status": "published"
       }
     },
     {
@@ -487,7 +493,8 @@
         "authorName": "أمل الصبري",
         "content": "تجارب الفريق أعطت أفكارًا واضحة لبدء مبادرة صغيرة.",
         "createdAt": "2026-08-27T15:50:00Z",
-        "isEdited": false
+        "isEdited": false,
+        "status": "published"
       }
     },
     {
@@ -498,7 +505,8 @@
         "authorName": "سالم باحارثة",
         "content": "نحتاج مزيدًا من الحلقات عن إدارة المبادرات.",
         "createdAt": "2026-08-27T16:10:00Z",
-        "isEdited": false
+        "isEdited": false,
+        "status": "published"
       }
     },
     {
@@ -509,7 +517,8 @@
         "authorName": "نورة الحكيمي",
         "content": "ظهرت الحلقة والتشغيل والتعليقات بشكل واضح في النسخة التجريبية.",
         "createdAt": "2026-08-29T04:20:00Z",
-        "isEdited": false
+        "isEdited": false,
+        "status": "published"
       }
     },
     {
@@ -520,7 +529,8 @@
         "authorName": "أمل الصبري",
         "content": "أتطلع إلى إضافة المحتوى الصوتي النهائي لهذا البرنامج.",
         "createdAt": "2026-08-29T04:35:00Z",
-        "isEdited": false
+        "isEdited": false,
+        "status": "published"
       }
     },
     {
@@ -531,7 +541,8 @@
         "authorName": "سالم باحارثة",
         "content": "رحلة البرنامج والحلقة تعمل بصورة مترابطة.",
         "createdAt": "2026-08-28T10:50:00Z",
-        "isEdited": false
+        "isEdited": false,
+        "status": "published"
       }
     },
     {
@@ -542,7 +553,8 @@
         "authorName": "نورة الحكيمي",
         "content": "واجهة التعليقات سهلة وواضحة في هذه الحلقة التجريبية.",
         "createdAt": "2026-08-28T11:05:00Z",
-        "isEdited": false
+        "isEdited": false,
+        "status": "published"
       }
     }
   ],

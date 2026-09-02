@@ -29,6 +29,14 @@ flutter build apk --debug
 npm run emulators:test
 ```
 
+وعند تغيير حذف الحساب أو لوحة الإشراف:
+
+```bash
+cd functions && npm run lint && npm test
+cd ../admin_web && npm run lint && npm run build
+cd .. && npm run emulators:account-deletion
+```
+
 أضف `flutter build ios --simulator --debug` عند تغيير Dart مشترك ذي أثر منصة،
 plugin، playback، Firebase bootstrap أو ملفات iOS. تغييرات UI تحتاج فحص هاتف صغير
 وكبير، RTL و200% text scale، ولقطات قبل/بعد عند تغير بصري جوهري.
@@ -46,6 +54,10 @@ plugin، playback، Firebase bootstrap أو ملفات iOS. تغييرات UI ت
 - Firebase environment وpackage/bundle IDs محسومة لكل منصة.
 - Android production signing لا يستخدم debug key.
 - privacy/store declarations تطابق Firebase وaudio/network الفعلي.
+- رابطا `/community-guidelines` و`/account-deletion` منشوران ويعملان، ووظيفة
+  الحذف والفهارس والقواعد منشورة بالترتيب الموثق في دليل الإصدار.
+- أدلة UGC الملتقطة من نسخة Development تطابق checklist ولا تحتوي حسابات أو
+  تعليقات حقيقية أو أي بيانات شخصية.
 - playback matrix ناجحة على جهاز فعلي، لا simulator فقط.
 - artifact سابق وrollback موثقان قبل rollout.
 - لا production release من جذر `HudHudDev` أو مع قواعد غير مراجعة.

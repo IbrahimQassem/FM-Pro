@@ -26,6 +26,38 @@ abstract final class FirestorePaths {
     String uid,
   ) => users(firestore).doc(uid).collection('subscriptions');
 
+  static DocumentReference<Map<String, dynamic>> ugcAgreement(
+    FirebaseFirestore firestore,
+    String uid,
+  ) => users(firestore).doc(uid).collection('agreements').doc('ugc');
+
+  static CollectionReference<Map<String, dynamic>> blockedUsers(
+    FirebaseFirestore firestore,
+    String uid,
+  ) => users(firestore).doc(uid).collection('blockedUsers');
+
+  static CollectionReference<Map<String, dynamic>> commentReports(
+    FirebaseFirestore firestore,
+    String uid,
+    String episodeId,
+  ) => users(firestore)
+      .doc(uid)
+      .collection('commentReportEpisodes')
+      .doc(episodeId)
+      .collection('moderationReports');
+
+  static DocumentReference<Map<String, dynamic>> userReport(
+    FirebaseFirestore firestore,
+    String uid,
+    String reportedUid,
+    String sourceCommentId,
+  ) => users(firestore)
+      .doc(uid)
+      .collection('userReportTargets')
+      .doc(reportedUid)
+      .collection('moderationReports')
+      .doc(sourceCommentId);
+
   static CollectionReference<Map<String, dynamic>> locations(
     FirebaseFirestore firestore,
   ) => firestore.collection(root).doc('locations').collection('locations');

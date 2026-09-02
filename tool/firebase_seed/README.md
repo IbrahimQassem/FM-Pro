@@ -43,6 +43,17 @@ npm run seed:engagement:dry
 npm run seed:engagement:apply
 ```
 
+لتهيئة التعليقات الموجودة قبل نشر Rules التي تتطلب `status`:
+
+```bash
+npm run comments:status:dry
+npm run comments:status:apply
+```
+
+يعرض dry-run عدد التعليقات القديمة دون كتابة. يقبل apply مشروع `sanadev-fm`
+فقط، ويضيف `status=published` للوثائق التي لا تملك حالة؛ يتوقف إذا وجد قيمة
+حالة غير معروفة ولا يغيرها.
+
 `seed:dry` لا يتصل بـ Firestore. أما `seed:apply` فيقبل مشروع `sanadev-fm`
 فقط، وينشئ جميع الوثائق داخل batch ذري باستخدام `create`. إذا وجد أي Document
 ID مسبقًا تفشل العملية كاملة بدل استبداله.

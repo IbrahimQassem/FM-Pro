@@ -121,6 +121,48 @@ class AppLocalizationsAr extends AppLocalizations {
   String get accountUnavailable => 'تعذر إكمال العملية الآن. حاول لاحقًا.';
 
   @override
+  String get deleteAccountSectionTitle => 'حذف الحساب والبيانات';
+
+  @override
+  String get deleteAccountSectionMessage =>
+      'يمكنك حذف حسابك وبياناتك المرتبطة نهائيًا من داخل التطبيق.';
+
+  @override
+  String get deleteAccount => 'حذف حسابي';
+
+  @override
+  String get deleteAccountTitle => 'حذف الحساب نهائيًا؟';
+
+  @override
+  String get deleteAccountWarning =>
+      'هذا الإجراء دائم ولا يمكن التراجع عنه. لن تتمكن من استعادة الحساب بعد اكتمال الحذف.';
+
+  @override
+  String get deleteAccountDataScope =>
+      'سيُحذف ملف الحساب والتعليقات والمفضلة والاشتراكات والموافقات والبلاغات وقائمة الحظر المرتبطة به.';
+
+  @override
+  String get currentPassword => 'كلمة المرور الحالية';
+
+  @override
+  String get deleteAccountAcknowledgement =>
+      'أفهم أن الحساب والبيانات سيُحذفان نهائيًا.';
+
+  @override
+  String get deleteAccountConfirm => 'حذف الحساب نهائيًا';
+
+  @override
+  String get accountDeleted => 'تم حذف حسابك وبياناتك المرتبطة.';
+
+  @override
+  String get accountReauthenticationFailed =>
+      'كلمة المرور غير صحيحة أو تحتاج إلى تسجيل الدخول مجددًا.';
+
+  @override
+  String get accountDeletionFailed =>
+      'تعذر إكمال حذف الحساب. لم يُعتبر الطلب مكتملًا؛ أعد المحاولة.';
+
+  @override
   String episodeComments(Object title) {
     return 'تعليقات $title';
   }
@@ -164,6 +206,165 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get editedComment => 'معدّل';
+
+  @override
+  String get ugcTermsGateTitle => 'شروط المشاركة مطلوبة';
+
+  @override
+  String get ugcTermsGateMessage =>
+      'راجع شروط المشاركة ووافق عليها قبل إضافة أول تعليق.';
+
+  @override
+  String get ugcReviewTerms => 'عرض شروط المشاركة';
+
+  @override
+  String get ugcTermsTitle => 'شروط المشاركة والتعليقات';
+
+  @override
+  String get ugcTermsIntro =>
+      'بالموافقة، تتعهد بأن تكون مشاركاتك محترمة وآمنة وقانونية.';
+
+  @override
+  String get ugcTermsRespectRule =>
+      'احترم الآخرين، ولا تنشر تهديدًا أو تحرشًا أو خطاب كراهية.';
+
+  @override
+  String get ugcTermsSafetyRule =>
+      'يُمنع المحتوى الجنسي أو الاستغلال أو أي محتوى يعرّض الأطفال للخطر.';
+
+  @override
+  String get ugcTermsPrivacyRule =>
+      'لا تنشر بيانات شخصية، ولا تنتحل هوية شخص آخر.';
+
+  @override
+  String get ugcTermsSpamRule =>
+      'يُمنع المحتوى غير القانوني والرسائل المزعجة والترويج المضلل.';
+
+  @override
+  String get ugcTermsModerationNotice =>
+      'قد تُخفى أو تُحذف المشاركات المخالفة، وقد يُقيّد الحساب عند تكرار المخالفات.';
+
+  @override
+  String get ugcAcceptAndContinue => 'أوافق وأتابع';
+
+  @override
+  String get ugcTermsSaveError =>
+      'تعذر حفظ موافقتك الآن. تحقق من الاتصال وحاول مرة أخرى.';
+
+  @override
+  String get ugcTermsRequired => 'وافق على شروط المشاركة قبل إرسال التعليق.';
+
+  @override
+  String get retryTerms => 'إعادة التحقق';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
+  String get close => 'إغلاق';
+
+  @override
+  String get commentSafetyActions => 'إجراءات أمان التعليق';
+
+  @override
+  String get reportComment => 'الإبلاغ عن التعليق';
+
+  @override
+  String get reportUser => 'الإبلاغ عن المستخدم';
+
+  @override
+  String get reportCommentTitle => 'الإبلاغ عن تعليق';
+
+  @override
+  String get reportCommentPrivacyNotice =>
+      'سيصل البلاغ إلى فريق الإشراف، ولن نكشف هويتك لصاحب التعليق.';
+
+  @override
+  String get reportUserTitle => 'الإبلاغ عن مستخدم';
+
+  @override
+  String get reportUserPrivacyNotice =>
+      'سيُراجع فريق الإشراف سلوك هذا المستخدم والسياق المرتبط، ولن نكشف له هويتك.';
+
+  @override
+  String get reportReason => 'سبب البلاغ';
+
+  @override
+  String get reportReasonHarassment => 'إساءة أو تحرش';
+
+  @override
+  String get reportReasonHate => 'كراهية أو تمييز';
+
+  @override
+  String get reportReasonSexual => 'محتوى جنسي أو استغلال';
+
+  @override
+  String get reportReasonViolence => 'تهديد أو عنف';
+
+  @override
+  String get reportReasonSpam => 'رسائل مزعجة أو تضليل';
+
+  @override
+  String get reportReasonPrivacy => 'خصوصية أو انتحال هوية';
+
+  @override
+  String get reportReasonOther => 'سبب آخر';
+
+  @override
+  String get reportDetailsOptional => 'تفاصيل إضافية (اختياري)';
+
+  @override
+  String get reportDetailsHint => 'اشرح المشكلة دون إضافة بيانات شخصية.';
+
+  @override
+  String get submitReport => 'إرسال البلاغ';
+
+  @override
+  String get commentReportSubmitted => 'تم إرسال البلاغ إلى فريق الإشراف.';
+
+  @override
+  String get commentAlreadyReported => 'سبق أن أبلغت عن هذا التعليق.';
+
+  @override
+  String get userReportSubmitted => 'تم إرسال بلاغ المستخدم إلى فريق الإشراف.';
+
+  @override
+  String get userAlreadyReported =>
+      'سبق أن أبلغت عن هذا المستخدم من هذا التعليق.';
+
+  @override
+  String get blockUser => 'حظر المستخدم';
+
+  @override
+  String get blockUserTitle => 'حظر صاحب التعليق؟';
+
+  @override
+  String blockUserConfirmation(Object name) {
+    return 'ستختفي جميع تعليقات $name من تجربتك. لا يؤدي الحظر إلى حذفها لدى الآخرين.';
+  }
+
+  @override
+  String userBlocked(Object name) {
+    return 'تم حظر $name وإخفاء تعليقاته.';
+  }
+
+  @override
+  String get undo => 'تراجع';
+
+  @override
+  String get signInForCommentSafetyActions =>
+      'سجّل الدخول للإبلاغ أو حظر المستخدم.';
+
+  @override
+  String get commentSafetyInvalid => 'تعذر تنفيذ الإجراء على هذا التعليق.';
+
+  @override
+  String get commentSafetyError =>
+      'تعذر تنفيذ إجراء الأمان الآن. حاول مرة أخرى.';
+
+  @override
+  String get moderationPreferencesLoadError =>
+      'تعذر تحميل قائمة الحظر بأمان. تحقق من الاتصال ثم أعد المحاولة.';
 
   @override
   String get notificationAnnouncements => 'إعلانات هدهد إف إم';

@@ -13,6 +13,8 @@ abstract interface class AccountRepository {
 
   Future<void> sendPasswordReset(String email);
 
+  Future<void> deleteAccount({required String currentPassword});
+
   Future<void> signOut();
 }
 
@@ -22,6 +24,8 @@ enum AccountFailure {
   weakPassword,
   invalidEmail,
   network,
+  reauthenticationFailed,
+  deletionFailed,
   unavailable,
 }
 

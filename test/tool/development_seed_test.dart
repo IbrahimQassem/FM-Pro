@@ -158,6 +158,7 @@ void main() {
       expect(content.length, lessThanOrEqualTo(1000));
       expect(DateTime.tryParse(data['createdAt'] as String), isNotNull);
       expect(data['isEdited'], isA<bool>());
+      expect(data['status'], 'published');
       usedAuthors.add(authorId);
       actualCommentCounts.update(
         episodeId,

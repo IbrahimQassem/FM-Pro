@@ -10,6 +10,17 @@ class FirebaseCommentsRepository implements CommentsRepository {
   final CommentsFirestoreDataSource _dataSource;
 
   @override
+  Future<Set<String>> loadBlockedAuthorIds() async {
+    try {
+      return await _dataSource.loadBlockedAuthorIds();
+    } on FirebaseException {
+      throw const CommentModerationException(
+        CommentModerationFailure.unavailable,
+      );
+    }
+  }
+
+  @override
   Stream<List<EpisodeComment>> watchComments(String episodeId) {
     return _dataSource.watchComments(episodeId).map((snapshot) {
       final comments = <EpisodeComment>[];
@@ -19,6 +30,26 @@ class FirebaseCommentsRepository implements CommentsRepository {
       }
       return List.unmodifiable(comments);
     });
+  }
+
+  @override
+  Future<bool> hasAcceptedCurrentTerms() async {
+    try {
+      return await _dataSource.hasAcceptedCurrentTerms();
+    } on FirebaseException {
+      throw const CommentException(CommentFailure.unavailable);
+    }
+  }
+
+  @override
+  Future<void> acceptCurrentTerms() async {
+    try {
+      await _dataSource.acceptCurrentTerms();
+    } on CommentAuthRequiredException {
+      throw const CommentException(CommentFailure.authenticationRequired);
+    } on FirebaseException {
+      throw const CommentException(CommentFailure.unavailable);
+    }
   }
 
   @override
@@ -34,10 +65,112 @@ class FirebaseCommentsRepository implements CommentsRepository {
       await _dataSource.addComment(episodeId: episodeId, content: cleanContent);
     } on CommentAuthRequiredException {
       throw const CommentException(CommentFailure.authenticationRequired);
+    } on CommentTermsAcceptanceRequiredException {
+      throw const CommentException(CommentFailure.termsAcceptanceRequired);
     } on CommentProfileUnavailableException {
       throw const CommentException(CommentFailure.unavailable);
     } on FirebaseException {
       throw const CommentException(CommentFailure.unavailable);
+    }
+  }
+
+  @override
+  Future<void> reportComment({
+    required EpisodeComment comment,
+    required CommentReportReason reason,
+    required String details,
+  }) async {
+    final cleanDetails = details.trim();
+    if (comment.id.isEmpty ||
+        comment.episodeId.isEmpty ||
+        comment.authorId.isEmpty ||
+        cleanDetails.length > 500) {
+      throw const CommentModerationException(CommentModerationFailure.invalid);
+    }
+    try {
+      await _dataSource.reportComment(
+        comment: comment,
+        reason: reason,
+        details: cleanDetails,
+      );
+    } on CommentAuthRequiredException {
+      throw const CommentModerationException(
+        CommentModerationFailure.authenticationRequired,
+      );
+    } on CommentAlreadyReportedException {
+      throw const CommentModerationException(
+        CommentModerationFailure.alreadyReported,
+      );
+    } on FirebaseException {
+      throw const CommentModerationException(
+        CommentModerationFailure.unavailable,
+      );
+    }
+  }
+
+  @override
+  Future<void> reportUser({
+    required EpisodeComment sourceComment,
+    required CommentReportReason reason,
+    required String details,
+  }) async {
+    final cleanDetails = details.trim();
+    if (sourceComment.id.isEmpty ||
+        sourceComment.episodeId.isEmpty ||
+        sourceComment.authorId.isEmpty ||
+        cleanDetails.length > 500) {
+      throw const CommentModerationException(CommentModerationFailure.invalid);
+    }
+    try {
+      await _dataSource.reportUser(
+        sourceComment: sourceComment,
+        reason: reason,
+        details: cleanDetails,
+      );
+    } on CommentAuthRequiredException {
+      throw const CommentModerationException(
+        CommentModerationFailure.authenticationRequired,
+      );
+    } on CommentAlreadyReportedException {
+      throw const CommentModerationException(
+        CommentModerationFailure.alreadyReported,
+      );
+    } on FirebaseException {
+      throw const CommentModerationException(
+        CommentModerationFailure.unavailable,
+      );
+    }
+  }
+
+  @override
+  Future<void> blockAuthor(String authorId) async {
+    try {
+      await _dataSource.blockAuthor(authorId.trim());
+    } on CommentAuthRequiredException {
+      throw const CommentModerationException(
+        CommentModerationFailure.authenticationRequired,
+      );
+    } on CommentModerationInputException {
+      throw const CommentModerationException(CommentModerationFailure.invalid);
+    } on FirebaseException {
+      throw const CommentModerationException(
+        CommentModerationFailure.unavailable,
+      );
+    }
+  }
+
+  @override
+  Future<void> unblockAuthor(String authorId) async {
+    try {
+      await _dataSource.unblockAuthor(authorId.trim());
+    } on CommentAuthRequiredException {
+      throw const CommentModerationException(
+        CommentModerationFailure.authenticationRequired,
+      );
+    } on FirebaseException {
+      throw const CommentModerationException(
+        CommentModerationFailure.unavailable,
+      );
     }
   }
 
@@ -51,6 +184,7 @@ class FirebaseCommentsRepository implements CommentsRepository {
     final content = _text(data['content']);
     final createdAt = data['createdAt'];
     final isEdited = data['isEdited'];
+    final status = _text(data['status']);
     if (document.id.isEmpty ||
         episodeId.isEmpty ||
         authorId.isEmpty ||
@@ -58,7 +192,8 @@ class FirebaseCommentsRepository implements CommentsRepository {
         content.isEmpty ||
         content.length > 1000 ||
         createdAt is! Timestamp ||
-        isEdited is! bool) {
+        isEdited is! bool ||
+        status != 'published') {
       return null;
     }
     return EpisodeComment(

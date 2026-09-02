@@ -125,6 +125,48 @@ class AppLocalizationsEn extends AppLocalizations {
       'This action cannot be completed now. Try later.';
 
   @override
+  String get deleteAccountSectionTitle => 'Delete account and data';
+
+  @override
+  String get deleteAccountSectionMessage =>
+      'You can permanently delete your account and its associated data from the app.';
+
+  @override
+  String get deleteAccount => 'Delete my account';
+
+  @override
+  String get deleteAccountTitle => 'Permanently delete account?';
+
+  @override
+  String get deleteAccountWarning =>
+      'This action is permanent and cannot be undone. You will not be able to recover the account after deletion completes.';
+
+  @override
+  String get deleteAccountDataScope =>
+      'Your profile, comments, favorites, subscriptions, agreements, reports, and block list will be deleted.';
+
+  @override
+  String get currentPassword => 'Current password';
+
+  @override
+  String get deleteAccountAcknowledgement =>
+      'I understand that the account and data will be permanently deleted.';
+
+  @override
+  String get deleteAccountConfirm => 'Permanently delete account';
+
+  @override
+  String get accountDeleted => 'Your account and associated data were deleted.';
+
+  @override
+  String get accountReauthenticationFailed =>
+      'The password is incorrect or you need to sign in again.';
+
+  @override
+  String get accountDeletionFailed =>
+      'Account deletion could not be completed. The request was not considered complete; try again.';
+
+  @override
   String episodeComments(Object title) {
     return 'Comments on $title';
   }
@@ -167,6 +209,171 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editedComment => 'Edited';
+
+  @override
+  String get ugcTermsGateTitle => 'Participation terms required';
+
+  @override
+  String get ugcTermsGateMessage =>
+      'Review and accept the participation terms before adding your first comment.';
+
+  @override
+  String get ugcReviewTerms => 'View participation terms';
+
+  @override
+  String get ugcTermsTitle => 'Participation and comment terms';
+
+  @override
+  String get ugcTermsIntro =>
+      'By accepting, you agree to keep your contributions respectful, safe, and lawful.';
+
+  @override
+  String get ugcTermsRespectRule =>
+      'Respect others. Do not post threats, harassment, or hateful content.';
+
+  @override
+  String get ugcTermsSafetyRule =>
+      'Sexual, exploitative, or child-endangering content is prohibited.';
+
+  @override
+  String get ugcTermsPrivacyRule =>
+      'Do not share personal information or impersonate another person.';
+
+  @override
+  String get ugcTermsSpamRule =>
+      'Illegal content, spam, and deceptive promotion are prohibited.';
+
+  @override
+  String get ugcTermsModerationNotice =>
+      'Violating contributions may be hidden or removed, and repeated violations may restrict the account.';
+
+  @override
+  String get ugcAcceptAndContinue => 'Accept and continue';
+
+  @override
+  String get ugcTermsSaveError =>
+      'Your acceptance could not be saved. Check your connection and try again.';
+
+  @override
+  String get ugcTermsRequired =>
+      'Accept the participation terms before sending a comment.';
+
+  @override
+  String get retryTerms => 'Check again';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get commentSafetyActions => 'Comment safety actions';
+
+  @override
+  String get reportComment => 'Report comment';
+
+  @override
+  String get reportUser => 'Report user';
+
+  @override
+  String get reportCommentTitle => 'Report a comment';
+
+  @override
+  String get reportCommentPrivacyNotice =>
+      'The report will go to the moderation team. Your identity will not be shown to the comment author.';
+
+  @override
+  String get reportUserTitle => 'Report a user';
+
+  @override
+  String get reportUserPrivacyNotice =>
+      'The moderation team will review this user\'s behavior and the related context. Your identity will not be shown to them.';
+
+  @override
+  String get reportReason => 'Report reason';
+
+  @override
+  String get reportReasonHarassment => 'Abuse or harassment';
+
+  @override
+  String get reportReasonHate => 'Hate or discrimination';
+
+  @override
+  String get reportReasonSexual => 'Sexual or exploitative content';
+
+  @override
+  String get reportReasonViolence => 'Threats or violence';
+
+  @override
+  String get reportReasonSpam => 'Spam or deception';
+
+  @override
+  String get reportReasonPrivacy => 'Privacy or impersonation';
+
+  @override
+  String get reportReasonOther => 'Other reason';
+
+  @override
+  String get reportDetailsOptional => 'Additional details (optional)';
+
+  @override
+  String get reportDetailsHint =>
+      'Explain the issue without adding personal information.';
+
+  @override
+  String get submitReport => 'Submit report';
+
+  @override
+  String get commentReportSubmitted =>
+      'The report was sent to the moderation team.';
+
+  @override
+  String get commentAlreadyReported =>
+      'You have already reported this comment.';
+
+  @override
+  String get userReportSubmitted =>
+      'The user report was sent to the moderation team.';
+
+  @override
+  String get userAlreadyReported =>
+      'You have already reported this user from this comment.';
+
+  @override
+  String get blockUser => 'Block user';
+
+  @override
+  String get blockUserTitle => 'Block this comment author?';
+
+  @override
+  String blockUserConfirmation(Object name) {
+    return 'All comments from $name will be hidden from your experience. Blocking does not remove them for others.';
+  }
+
+  @override
+  String userBlocked(Object name) {
+    return '$name was blocked and their comments were hidden.';
+  }
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get signInForCommentSafetyActions =>
+      'Sign in to report or block a user.';
+
+  @override
+  String get commentSafetyInvalid =>
+      'This safety action cannot be applied to the comment.';
+
+  @override
+  String get commentSafetyError =>
+      'The safety action could not be completed. Try again.';
+
+  @override
+  String get moderationPreferencesLoadError =>
+      'Your block list could not be loaded safely. Check your connection and try again.';
 
   @override
   String get notificationAnnouncements => 'HudHud FM announcements';

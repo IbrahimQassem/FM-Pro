@@ -314,6 +314,78 @@ abstract class AppLocalizations {
   /// **'This action cannot be completed now. Try later.'**
   String get accountUnavailable;
 
+  /// No description provided for @deleteAccountSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account and data'**
+  String get deleteAccountSectionTitle;
+
+  /// No description provided for @deleteAccountSectionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You can permanently delete your account and its associated data from the app.'**
+  String get deleteAccountSectionMessage;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete account?'**
+  String get deleteAccountTitle;
+
+  /// No description provided for @deleteAccountWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This action is permanent and cannot be undone. You will not be able to recover the account after deletion completes.'**
+  String get deleteAccountWarning;
+
+  /// No description provided for @deleteAccountDataScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile, comments, favorites, subscriptions, agreements, reports, and block list will be deleted.'**
+  String get deleteAccountDataScope;
+
+  /// No description provided for @currentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get currentPassword;
+
+  /// No description provided for @deleteAccountAcknowledgement.
+  ///
+  /// In en, this message translates to:
+  /// **'I understand that the account and data will be permanently deleted.'**
+  String get deleteAccountAcknowledgement;
+
+  /// No description provided for @deleteAccountConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete account'**
+  String get deleteAccountConfirm;
+
+  /// No description provided for @accountDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account and associated data were deleted.'**
+  String get accountDeleted;
+
+  /// No description provided for @accountReauthenticationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The password is incorrect or you need to sign in again.'**
+  String get accountReauthenticationFailed;
+
+  /// No description provided for @accountDeletionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deletion could not be completed. The request was not considered complete; try again.'**
+  String get accountDeletionFailed;
+
   /// No description provided for @episodeComments.
   ///
   /// In en, this message translates to:
@@ -373,6 +445,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edited'**
   String get editedComment;
+
+  /// No description provided for @ugcTermsGateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Participation terms required'**
+  String get ugcTermsGateTitle;
+
+  /// No description provided for @ugcTermsGateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and accept the participation terms before adding your first comment.'**
+  String get ugcTermsGateMessage;
+
+  /// No description provided for @ugcReviewTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'View participation terms'**
+  String get ugcReviewTerms;
+
+  /// No description provided for @ugcTermsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Participation and comment terms'**
+  String get ugcTermsTitle;
+
+  /// No description provided for @ugcTermsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'By accepting, you agree to keep your contributions respectful, safe, and lawful.'**
+  String get ugcTermsIntro;
+
+  /// No description provided for @ugcTermsRespectRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Respect others. Do not post threats, harassment, or hateful content.'**
+  String get ugcTermsRespectRule;
+
+  /// No description provided for @ugcTermsSafetyRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Sexual, exploitative, or child-endangering content is prohibited.'**
+  String get ugcTermsSafetyRule;
+
+  /// No description provided for @ugcTermsPrivacyRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not share personal information or impersonate another person.'**
+  String get ugcTermsPrivacyRule;
+
+  /// No description provided for @ugcTermsSpamRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Illegal content, spam, and deceptive promotion are prohibited.'**
+  String get ugcTermsSpamRule;
+
+  /// No description provided for @ugcTermsModerationNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Violating contributions may be hidden or removed, and repeated violations may restrict the account.'**
+  String get ugcTermsModerationNotice;
+
+  /// No description provided for @ugcAcceptAndContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept and continue'**
+  String get ugcAcceptAndContinue;
+
+  /// No description provided for @ugcTermsSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Your acceptance could not be saved. Check your connection and try again.'**
+  String get ugcTermsSaveError;
+
+  /// No description provided for @ugcTermsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept the participation terms before sending a comment.'**
+  String get ugcTermsRequired;
+
+  /// No description provided for @retryTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get retryTerms;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @commentSafetyActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment safety actions'**
+  String get commentSafetyActions;
+
+  /// No description provided for @reportComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Report comment'**
+  String get reportComment;
+
+  /// No description provided for @reportUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Report user'**
+  String get reportUser;
+
+  /// No description provided for @reportCommentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a comment'**
+  String get reportCommentTitle;
+
+  /// No description provided for @reportCommentPrivacyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'The report will go to the moderation team. Your identity will not be shown to the comment author.'**
+  String get reportCommentPrivacyNotice;
+
+  /// No description provided for @reportUserTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a user'**
+  String get reportUserTitle;
+
+  /// No description provided for @reportUserPrivacyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'The moderation team will review this user\'s behavior and the related context. Your identity will not be shown to them.'**
+  String get reportUserPrivacyNotice;
+
+  /// No description provided for @reportReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Report reason'**
+  String get reportReason;
+
+  /// No description provided for @reportReasonHarassment.
+  ///
+  /// In en, this message translates to:
+  /// **'Abuse or harassment'**
+  String get reportReasonHarassment;
+
+  /// No description provided for @reportReasonHate.
+  ///
+  /// In en, this message translates to:
+  /// **'Hate or discrimination'**
+  String get reportReasonHate;
+
+  /// No description provided for @reportReasonSexual.
+  ///
+  /// In en, this message translates to:
+  /// **'Sexual or exploitative content'**
+  String get reportReasonSexual;
+
+  /// No description provided for @reportReasonViolence.
+  ///
+  /// In en, this message translates to:
+  /// **'Threats or violence'**
+  String get reportReasonViolence;
+
+  /// No description provided for @reportReasonSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam or deception'**
+  String get reportReasonSpam;
+
+  /// No description provided for @reportReasonPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy or impersonation'**
+  String get reportReasonPrivacy;
+
+  /// No description provided for @reportReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other reason'**
+  String get reportReasonOther;
+
+  /// No description provided for @reportDetailsOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional details (optional)'**
+  String get reportDetailsOptional;
+
+  /// No description provided for @reportDetailsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain the issue without adding personal information.'**
+  String get reportDetailsHint;
+
+  /// No description provided for @submitReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit report'**
+  String get submitReport;
+
+  /// No description provided for @commentReportSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'The report was sent to the moderation team.'**
+  String get commentReportSubmitted;
+
+  /// No description provided for @commentAlreadyReported.
+  ///
+  /// In en, this message translates to:
+  /// **'You have already reported this comment.'**
+  String get commentAlreadyReported;
+
+  /// No description provided for @userReportSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'The user report was sent to the moderation team.'**
+  String get userReportSubmitted;
+
+  /// No description provided for @userAlreadyReported.
+  ///
+  /// In en, this message translates to:
+  /// **'You have already reported this user from this comment.'**
+  String get userAlreadyReported;
+
+  /// No description provided for @blockUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Block user'**
+  String get blockUser;
+
+  /// No description provided for @blockUserTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Block this comment author?'**
+  String get blockUserTitle;
+
+  /// No description provided for @blockUserConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'All comments from {name} will be hidden from your experience. Blocking does not remove them for others.'**
+  String blockUserConfirmation(Object name);
+
+  /// No description provided for @userBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} was blocked and their comments were hidden.'**
+  String userBlocked(Object name);
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @signInForCommentSafetyActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to report or block a user.'**
+  String get signInForCommentSafetyActions;
+
+  /// No description provided for @commentSafetyInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'This safety action cannot be applied to the comment.'**
+  String get commentSafetyInvalid;
+
+  /// No description provided for @commentSafetyError.
+  ///
+  /// In en, this message translates to:
+  /// **'The safety action could not be completed. Try again.'**
+  String get commentSafetyError;
+
+  /// No description provided for @moderationPreferencesLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Your block list could not be loaded safely. Check your connection and try again.'**
+  String get moderationPreferencesLoadError;
 
   /// No description provided for @notificationAnnouncements.
   ///

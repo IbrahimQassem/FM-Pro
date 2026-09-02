@@ -14,7 +14,10 @@ Android القديم ولا يحتوي طبقات توافق مع نماذج leg
 - Grid/List محفوظ محليًا.
 - قراءة cache أولًا ثم تحديث يدوي/عند الفتح، دون listener دائم.
 - برامج وحلقات وجدول أسبوعي وتشغيل live/episode موحد في الخلفية.
-- تعليقات الحلقة لحظيًا أثناء الشاشة وإضافة للمستخدم المسجل.
+- تعليقات الحلقة لحظيًا أثناء الشاشة، مع شروط المشاركة وبلاغ التعليق/المستخدم
+  والحظر الشخصي وطابور إشراف للإخفاء والإزالة وتعطيل الحساب.
+- حذف الحساب داخل التطبيق وصفحة حذف عامة، تنفذهما Cloud Function بعد إعادة
+  مصادقة حديثة وتحذف البيانات التابعة.
 - إعلانات FCM اختيارية، بلا حفظ token أو device identifier في Firestore.
 
 ## Firebase Development
@@ -25,6 +28,10 @@ Android القديم ولا يحتوي طبقات توافق مع نماذج leg
 HudHudDev/stations/stations/{stationId}
 HudHudDev/banners/banners/{bannerId}
 HudHudDev/users/users/{uid}
+HudHudDev/users/users/{uid}/agreements/ugc
+HudHudDev/users/users/{uid}/blockedUsers/{blockedUid}
+HudHudDev/users/users/{uid}/commentReportEpisodes/{episodeId}/moderationReports/{commentId}
+HudHudDev/users/users/{uid}/userReportTargets/{reportedUid}/moderationReports/{sourceCommentId}
 HudHudDev/locations/locations/{locationId}
 HudHudDev/programs/programs/{programId}
 HudHudDev/episodes/episodes/{episodeId}
@@ -51,16 +58,34 @@ npm install
 npm run emulators:test
 ```
 
+وظيفة حذف الحساب في `functions/`، وتختبر محليًا بـ:
+
+```bash
+cd functions
+npm install
+npm run lint
+npm test
+cd ..
+npm run emulators:account-deletion
+```
+
+قبل نشر Rules التي تشترط `status=published` على بيئة فيها تعليقات قديمة، اتبع
+ترتيب migration والفهارس والدالة الموثق في
+[`docs/release/google-play-ugc-evidence.md`](docs/release/google-play-ugc-evidence.md).
+
 سيناريو بيانات العرض المترابط وتعليمات تشغيله موثقان في
 [`tool/firebase_seed/README.md`](tool/firebase_seed/README.md)، وخريطة الرحلات في
 [`DEMO_COVERAGE.md`](tool/firebase_seed/DEMO_COVERAGE.md). ابدأ دائمًا بـdry-run؛
 لا يشغّل المشروع apply تلقائيًا.
 
 لوحة إدارة الويب موجودة في [`admin_web`](admin_web/README.md)، وتغطي المحتوى
-والجداول والحلقات والإعلانات وتعليقات الجمهور والمفضلة والاشتراكات. الدخول يتطلب
+والجداول والحلقات والإعلانات وتعليقات الجمهور وطابور الإشراف والمفضلة
+والاشتراكات. الدخول يتطلب
 حساب Firebase Auth يحمل `admin=true` ولا تعتمد اللوحة على أسرار داخل المصدر.
 النسخة المنشورة متاحة عبر Firebase Hosting على
 [`hudhud-fm-admin-sanadev.web.app`](https://hudhud-fm-admin-sanadev.web.app).
+بعد نشر الحزمة الحالية ستتوفر صفحتا `/community-guidelines` و
+`/account-deletion` دون بوابة الإدارة؛ الروابط الحالية لن تعكسهما قبل النشر.
 
 لـ iOS، يجب أن يطابق `ios/Runner/GoogleService-Info.plist` تطبيق Firebase المسجل
 بالحزمة `com.sana.dev.fm`. الملف مضاف إلى Runner Target ويُقرأ عند بدء التطبيق.

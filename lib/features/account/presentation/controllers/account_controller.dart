@@ -38,6 +38,7 @@ class AccountController extends StateNotifier<AccountState> {
       mode: mode,
       clearFailure: true,
       passwordResetSent: false,
+      accountDeleted: false,
     );
   }
 
@@ -90,11 +91,46 @@ class AccountController extends StateNotifier<AccountState> {
 
   Future<void> signOut() => _run(_repository.signOut);
 
+  Future<bool> deleteAccount(String currentPassword) async {
+    state = state.copyWith(
+      isSubmitting: true,
+      clearFailure: true,
+      passwordResetSent: false,
+      accountDeleted: false,
+    );
+    try {
+      await _repository.deleteAccount(currentPassword: currentPassword);
+      if (mounted) {
+        state = state.copyWith(
+          isSubmitting: false,
+          clearUser: true,
+          clearFailure: true,
+          accountDeleted: true,
+        );
+      }
+      return true;
+    } on AccountException catch (error) {
+      if (mounted) {
+        state = state.copyWith(isSubmitting: false, failure: error.failure);
+      }
+      return false;
+    } on Object {
+      if (mounted) {
+        state = state.copyWith(
+          isSubmitting: false,
+          failure: AccountFailure.deletionFailed,
+        );
+      }
+      return false;
+    }
+  }
+
   Future<void> _run(Future<void> Function() action) async {
     state = state.copyWith(
       isSubmitting: true,
       clearFailure: true,
       passwordResetSent: false,
+      accountDeleted: false,
     );
     try {
       await action();
