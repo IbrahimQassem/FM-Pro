@@ -35,8 +35,9 @@
 
 1. أنشئ Meta app واربط Android package وiOS bundle ID الفعليين.
 2. فعّل Facebook في Firebase Authentication وأدخل App ID وApp Secret في Console.
-3. مرر Android App ID وClient Token كـGradle properties باسم
-   `HUDHUD_FACEBOOK_APP_ID` و`HUDHUD_FACEBOOK_CLIENT_TOKEN`؛ لا تضع القيم في Git.
+3. أنشئ الملف المحلي المستبعد `android/auth-providers.properties` وأضف Gradle
+   properties باسم `HUDHUD_FACEBOOK_APP_ID` و`HUDHUD_FACEBOOK_CLIENT_TOKEN`؛ لا
+   تضع القيم في Git. يمكن أيضًا تمريرهما من user-level Gradle properties في CI.
 4. أضف App ID وClient Token إلى `AuthProviders.xcconfig` المحلي؛ يستخدم
    `Info.plist` القيم كـbuild settings ولا يحتوي قيمة حقيقية في Git.
 5. سجل key hashes لكل توقيع واختبر حسابًا لا يعيد بريدًا؛ يجب أن ينتقل إلى رمز
@@ -50,6 +51,8 @@
 
 ## بوابة التحقق
 
+- شغّل `./tool/verify-auth-readiness.sh` للتحقق من وجود إعدادات Android وiOS
+  المحلية وعدم دخولها Git. لا يطبع السكربت أي قيمة OAuth أو token.
 - لا قيمة سرية أو token في Git أو logs.
 - كل provider يختبر فعليًا على Development في Android وiOS.
 - ربط المزود يحافظ على UID والتعليقات والبيانات التابعة.

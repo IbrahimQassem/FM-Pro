@@ -12,7 +12,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { connectFunctionsEmulator, getFunctions, httpsCallable } from "firebase/functions";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, Timestamp, updateDoc } from "firebase/firestore";
 
 const projectId = "demo-hudhud-fm-email-verification";
 const email = "verify-me@example.test";
@@ -90,6 +90,99 @@ test("delivers a code, verifies Auth, and creates the canonical profile", async 
     assert.equal(profile.get("role"), "listener");
     assert.equal(challenge.exists(), false);
   });
+
+  await assert.rejects(
+    httpsCallable(functions, "verifyEmailCode")({ code: deliveredCode }),
+    (error) => error.code === "functions/not-found",
+  );
+});
+
+test("rejects a wrong code and preserves the remaining attempt count", async () => {
+  await signOut(auth);
+  const credential = await signInAnonymously(auth);
+  await httpsCallable(functions, "requestEmailVerificationCode")({
+    email: "wrong-code@example.test",
+  });
+  const correctCode = deliveredCode;
+  const wrongCode = correctCode === "000000" ? "000001" : "000000";
+
+  await assert.rejects(
+    httpsCallable(functions, "verifyEmailCode")({ code: wrongCode }),
+    (error) => error.code === "functions/invalid-argument",
+  );
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const challenge = await getDoc(
+      doc(
+        context.firestore(),
+        `HudHudDev/emailVerificationChallenges/challenges/${credential.user.uid}`,
+      ),
+    );
+    assert.equal(challenge.get("attemptsRemaining"), 4);
+    assert.equal(challenge.get("status"), "active");
+  });
+
+  await httpsCallable(functions, "verifyEmailCode")({ code: correctCode });
+});
+
+test("expires and locks challenges without exposing them to clients", async () => {
+  await signOut(auth);
+  const expiredCredential = await signInAnonymously(auth);
+  await httpsCallable(functions, "requestEmailVerificationCode")({
+    email: "expired-code@example.test",
+  });
+  const expiredCode = deliveredCode;
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await updateDoc(
+      doc(
+        context.firestore(),
+        `HudHudDev/emailVerificationChallenges/challenges/${expiredCredential.user.uid}`,
+      ),
+      { expiresAt: Timestamp.fromMillis(Date.now() - 1_000) },
+    );
+  });
+  await assert.rejects(
+    httpsCallable(functions, "verifyEmailCode")({ code: expiredCode }),
+    (error) => error.code === "functions/deadline-exceeded",
+  );
+
+  await signOut(auth);
+  const lockedCredential = await signInAnonymously(auth);
+  await httpsCallable(functions, "requestEmailVerificationCode")({
+    email: "locked-code@example.test",
+  });
+  const lockedCode = deliveredCode;
+  const wrongLockedCode = lockedCode === "000000" ? "000001" : "000000";
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    await updateDoc(
+      doc(
+        context.firestore(),
+        `HudHudDev/emailVerificationChallenges/challenges/${lockedCredential.user.uid}`,
+      ),
+      { attemptsRemaining: 1 },
+    );
+  });
+  await assert.rejects(
+    httpsCallable(functions, "verifyEmailCode")({ code: wrongLockedCode }),
+    (error) => error.code === "functions/resource-exhausted",
+  );
+
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const expired = await getDoc(
+      doc(
+        context.firestore(),
+        `HudHudDev/emailVerificationChallenges/challenges/${expiredCredential.user.uid}`,
+      ),
+    );
+    const locked = await getDoc(
+      doc(
+        context.firestore(),
+        `HudHudDev/emailVerificationChallenges/challenges/${lockedCredential.user.uid}`,
+      ),
+    );
+    assert.equal(expired.get("status"), "expired");
+    assert.equal(locked.get("status"), "locked");
+    assert.equal(locked.get("attemptsRemaining"), 0);
+  });
 });
 
 test("limits delivery to the same email across different accounts", async () => {
@@ -99,6 +192,12 @@ test("limits delivery to the same email across different accounts", async () => 
     await signInAnonymously(auth);
     const result = await requestCode({ email: "shared-rate-limit@example.test" });
     assert.equal(result.data.sent, true);
+    if (attempt === 0) {
+      await assert.rejects(
+        requestCode({ email: "shared-rate-limit@example.test" }),
+        (error) => error.code === "functions/resource-exhausted",
+      );
+    }
     await signOut(auth);
   }
 

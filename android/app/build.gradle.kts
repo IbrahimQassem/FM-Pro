@@ -1,8 +1,22 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+val authProviderProperties = Properties().apply {
+    val localFile = rootProject.file("auth-providers.properties")
+    if (localFile.exists()) {
+        localFile.inputStream().use { input -> load(input) }
+    }
+}
+val authProviderProperty: (String) -> String = { name ->
+    providers.gradleProperty(name)
+        .orElse(authProviderProperties.getProperty(name, "0"))
+        .get()
 }
 
 android {
@@ -31,12 +45,12 @@ android {
         resValue(
             "string",
             "facebook_app_id",
-            providers.gradleProperty("HUDHUD_FACEBOOK_APP_ID").orElse("0").get(),
+            authProviderProperty("HUDHUD_FACEBOOK_APP_ID"),
         )
         resValue(
             "string",
             "facebook_client_token",
-            providers.gradleProperty("HUDHUD_FACEBOOK_CLIENT_TOKEN").orElse("0").get(),
+            authProviderProperty("HUDHUD_FACEBOOK_CLIENT_TOKEN"),
         )
     }
 

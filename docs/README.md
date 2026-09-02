@@ -23,6 +23,8 @@
   Manager وإعداد Google وFacebook وApple لكل منصة.
 - [أدلة Google Play لـUGC والحذف](release/google-play-ugc-evidence.md): ترتيب
   النشر ومصفوفة اللقطات والتحقق.
+- [جاهزية المصادقة في Development](release/auth-readiness-development.md): نتيجة
+  تدقيق AUTH-01..05 والفجوات الخارجية المتبقية دون أسرار.
 - `AGENTS.md`: حدود العمل، قراءة العقود، توزيع الأدوار والتحقق.
 - `.agents/roles/`: مسؤوليات التسليم وحدود كل دور.
 

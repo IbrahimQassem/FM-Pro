@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hudhud_fm/features/account/data/datasources/account_auth_data_source.dart';
 import 'package:hudhud_fm/features/account/data/repositories/firebase_account_repository.dart';
@@ -38,35 +39,97 @@ void main() {
     expect(dataSource.provider, AccountSignInProvider.facebook);
   });
 
-  test('maps safe provider and verification failures', () async {
-    final repository = FirebaseAccountRepository(
-      _FakeAccountAuthDataSource(errorCode: 'provider-cancelled'),
-    );
-    await expectLater(
-      repository.continueWithProvider(AccountSignInProvider.google),
-      throwsA(
-        isA<AccountException>().having(
-          (error) => error.failure,
-          'failure',
-          AccountFailure.providerCancelled,
+  test('maps safe provider cancellation and failure states', () async {
+    const cases = {
+      'provider-cancelled': AccountFailure.providerCancelled,
+      'provider-failed': AccountFailure.providerFailed,
+      'provider-not-configured': AccountFailure.providerNotConfigured,
+    };
+    for (final entry in cases.entries) {
+      final repository = FirebaseAccountRepository(
+        _FakeAccountAuthDataSource(dataErrorCode: entry.key),
+      );
+      await expectLater(
+        repository.continueWithProvider(AccountSignInProvider.google),
+        throwsA(
+          isA<AccountException>().having(
+            (error) => error.failure,
+            'failure',
+            entry.value,
+          ),
         ),
-      ),
-    );
+      );
+    }
   });
+
+  test(
+    'maps Firebase provider conflicts without exposing credentials',
+    () async {
+      const conflictCodes = {
+        'account-exists-with-different-credential',
+        'credential-already-in-use',
+      };
+      for (final code in conflictCodes) {
+        final repository = FirebaseAccountRepository(
+          _FakeAccountAuthDataSource(authErrorCode: code),
+        );
+        await expectLater(
+          repository.continueWithProvider(AccountSignInProvider.facebook),
+          throwsA(
+            isA<AccountException>().having(
+              (error) => error.failure,
+              'failure',
+              AccountFailure.accountConflict,
+            ),
+          ),
+        );
+      }
+    },
+  );
+
+  test(
+    'keeps a provider account without email in verification state',
+    () async {
+      final repository = FirebaseAccountRepository(
+        _FakeAccountAuthDataSource(
+          snapshot: const AccountAuthSnapshot(
+            uid: 'social-without-email',
+            displayName: 'Listener',
+            email: '',
+            emailVerified: false,
+            providerIds: {'facebook.com'},
+          ),
+        ),
+      );
+
+      final account = await repository.watchAccount().first;
+      expect(account?.uid, 'social-without-email');
+      expect(account?.email, isEmpty);
+      expect(account?.emailVerified, isFalse);
+      expect(account?.linkedProviders, {AccountSignInProvider.facebook});
+    },
+  );
 }
 
 class _FakeAccountAuthDataSource implements AccountAuthDataSource {
-  _FakeAccountAuthDataSource({this.snapshot, this.errorCode});
+  _FakeAccountAuthDataSource({
+    this.snapshot,
+    this.dataErrorCode,
+    this.authErrorCode,
+  });
 
   final AccountAuthSnapshot? snapshot;
-  final String? errorCode;
+  final String? dataErrorCode;
+  final String? authErrorCode;
   String? requestedEmail;
   String? code;
   AccountSignInProvider? provider;
 
   void _throwIfNeeded() {
-    final value = errorCode;
-    if (value != null) throw AccountDataException(value);
+    final dataCode = dataErrorCode;
+    if (dataCode != null) throw AccountDataException(dataCode);
+    final authCode = authErrorCode;
+    if (authCode != null) throw FirebaseAuthException(code: authCode);
   }
 
   @override

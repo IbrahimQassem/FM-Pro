@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -104,6 +105,50 @@ void main() {
     await tester.pump();
     expect(repository.provider, AccountSignInProvider.facebook);
   });
+
+  testWidgets(
+    'provider account without email can request a code for an email',
+    (tester) async {
+      final repository = _FakeAccountRepository(user: _socialWithoutEmail);
+      await tester.pumpWidget(_TestApp(repository: repository));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const Key('account-verification-email')),
+        'social@example.com',
+      );
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('account-resend-code')),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.byKey(const Key('account-resend-code')));
+      await tester.pump();
+
+      expect(repository.requestedEmail, 'social@example.com');
+    },
+  );
+
+  testWidgets('iOS offers Apple sign in and delegates the action', (
+    tester,
+  ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    addTearDown(() => debugDefaultTargetPlatformOverride = null);
+    final repository = _FakeAccountRepository(user: null);
+    await tester.pumpWidget(_TestApp(repository: repository));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('account-apple')),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.byKey(const Key('account-apple')));
+    await tester.pump();
+
+    expect(repository.provider, AccountSignInProvider.apple);
+    debugDefaultTargetPlatformOverride = null;
+  });
 }
 
 class _TestApp extends StatelessWidget {
@@ -143,6 +188,7 @@ class _FakeAccountRepository implements AccountRepository {
   final AccountUser? user;
   String? deletionPassword;
   String? verificationCode;
+  String? requestedEmail;
   AccountSignInProvider? provider;
 
   @override
@@ -154,7 +200,9 @@ class _FakeAccountRepository implements AccountRepository {
   }
 
   @override
-  Future<void> requestEmailVerificationCode({String? email}) async {}
+  Future<void> requestEmailVerificationCode({String? email}) async {
+    requestedEmail = email;
+  }
 
   @override
   Future<void> verifyEmailCode(String code) async {
@@ -198,4 +246,11 @@ const _unverifiedUser = AccountUser(
   uid: 'user-2',
   displayName: 'New listener',
   email: 'new@example.com',
+);
+
+const _socialWithoutEmail = AccountUser(
+  uid: 'user-3',
+  displayName: 'Social listener',
+  email: '',
+  linkedProviders: {AccountSignInProvider.facebook},
 );
