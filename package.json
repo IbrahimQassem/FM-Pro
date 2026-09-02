@@ -7,7 +7,8 @@
   },
   "scripts": {
     "emulators:test": "firebase emulators:exec --only firestore --project demo-hudhud-fm-rules-test \"node --test tests/firebase-rules/firestore.rules.test.js\"",
-    "emulators:account-deletion": "firebase emulators:exec --only auth,firestore,functions --project demo-hudhud-fm-account-deletion \"node --test tests/firebase-emulators/account-deletion.test.js\""
+    "emulators:account-deletion": "firebase emulators:exec --only auth,firestore,functions --project demo-hudhud-fm-account-deletion \"node --test tests/firebase-emulators/account-deletion.test.js\"",
+    "emulators:email-verification": "EMAIL_VERIFICATION_CONFIG='{\"resendApiKey\":\"test-key\",\"from\":\"HudHud Test <test@example.test>\",\"otpPepper\":\"test-pepper-with-at-least-thirty-two-characters\",\"apiUrl\":\"http://127.0.0.1:8787/emails\"}' firebase emulators:exec --only auth,firestore,functions --project demo-hudhud-fm-email-verification \"node --test tests/firebase-emulators/email-verification.test.js\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "5.0.2",

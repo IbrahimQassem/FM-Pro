@@ -1225,6 +1225,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Online radio'**
   String get onlineStation;
+
+  /// No description provided for @emailVerificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your email'**
+  String get emailVerificationTitle;
+
+  /// No description provided for @emailVerificationMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the six-digit code sent to your email. The code expires after 10 minutes.'**
+  String get emailVerificationMessage;
+
+  /// No description provided for @emailVerificationMissingEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'This provider did not return an email. Enter an email you can access before requesting a code.'**
+  String get emailVerificationMissingEmail;
+
+  /// No description provided for @verificationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification code'**
+  String get verificationCode;
+
+  /// No description provided for @verificationCodeValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the six-digit code.'**
+  String get verificationCodeValidation;
+
+  /// No description provided for @verifyEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify email'**
+  String get verifyEmail;
+
+  /// No description provided for @sendVerificationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send verification code'**
+  String get sendVerificationCode;
+
+  /// No description provided for @resendVerificationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get resendVerificationCode;
+
+  /// No description provided for @verificationCodeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'A new verification code was sent. Check your inbox and spam folder.'**
+  String get verificationCodeSent;
+
+  /// No description provided for @emailVerifiedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your email was verified successfully.'**
+  String get emailVerifiedMessage;
+
+  /// No description provided for @socialSignInDivider.
+  ///
+  /// In en, this message translates to:
+  /// **'or continue with'**
+  String get socialSignInDivider;
+
+  /// No description provided for @continueWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get continueWithGoogle;
+
+  /// No description provided for @continueWithFacebook.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Facebook'**
+  String get continueWithFacebook;
+
+  /// No description provided for @continueWithApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Apple'**
+  String get continueWithApple;
+
+  /// No description provided for @linkedSignInMethods.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked sign-in methods'**
+  String get linkedSignInMethods;
+
+  /// No description provided for @linkAnotherMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Link another sign-in method'**
+  String get linkAnotherMethod;
+
+  /// No description provided for @providerLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'The sign-in method was linked to your account.'**
+  String get providerLinked;
+
+  /// No description provided for @socialDeleteReauthentication.
+  ///
+  /// In en, this message translates to:
+  /// **'You will confirm your identity using your linked sign-in provider before deletion.'**
+  String get socialDeleteReauthentication;
+
+  /// No description provided for @invalidVerificationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'The verification code is incorrect.'**
+  String get invalidVerificationCode;
+
+  /// No description provided for @expiredVerificationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'The verification code expired. Request a new one.'**
+  String get expiredVerificationCode;
+
+  /// No description provided for @verificationRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests or attempts. Wait before trying again.'**
+  String get verificationRateLimited;
+
+  /// No description provided for @verificationDeliveryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The verification email could not be sent. Try again later.'**
+  String get verificationDeliveryFailed;
+
+  /// No description provided for @providerCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in was cancelled.'**
+  String get providerCancelled;
+
+  /// No description provided for @providerFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The sign-in provider could not complete the request.'**
+  String get providerFailed;
+
+  /// No description provided for @providerNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'This sign-in method is not configured yet.'**
+  String get providerNotConfigured;
+
+  /// No description provided for @providerAlreadyLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'This sign-in method is already linked.'**
+  String get providerAlreadyLinked;
+
+  /// No description provided for @accountConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'This email belongs to another sign-in method. Sign in with the existing method, then link this one from your account.'**
+  String get accountConflict;
+
+  /// No description provided for @verifyEmailToComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your email to comment or use safety actions'**
+  String get verifyEmailToComment;
 }
 
 class _AppLocalizationsDelegate

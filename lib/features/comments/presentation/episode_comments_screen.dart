@@ -38,8 +38,12 @@ class _EpisodeCommentsScreenState extends ConsumerState<EpisodeCommentsScreen> {
       commentsControllerProvider(widget.episode.id).notifier,
     );
     final account = ref.watch(accountControllerProvider);
+    final canInteract = account.user?.emailVerified == true;
     ref.listen<String?>(
-      accountControllerProvider.select((value) => value.user?.uid),
+      accountControllerProvider.select((value) {
+        final user = value.user;
+        return user == null ? null : '${user.uid}:${user.emailVerified}';
+      }),
       (previous, next) {
         if (previous != next) {
           unawaited(commentsController.refreshTermsAcceptance());
@@ -84,25 +88,19 @@ class _EpisodeCommentsScreenState extends ConsumerState<EpisodeCommentsScreen> {
                           comment: comment,
                           showActions: account.user?.uid != comment.authorId,
                           isBusy: state.busyModerationCommentId == comment.id,
-                          onReport: () => _reportComment(
-                            comment,
-                            isSignedIn: account.isSignedIn,
-                          ),
-                          onReportUser: () => _reportUser(
-                            comment,
-                            isSignedIn: account.isSignedIn,
-                          ),
-                          onBlock: () => _blockAuthor(
-                            comment,
-                            isSignedIn: account.isSignedIn,
-                          ),
+                          onReport: () =>
+                              _reportComment(comment, canInteract: canInteract),
+                          onReportUser: () =>
+                              _reportUser(comment, canInteract: canInteract),
+                          onBlock: () =>
+                              _blockAuthor(comment, canInteract: canInteract),
                         );
                       },
                     ),
             ),
             if (account.isInitializing)
               const LinearProgressIndicator()
-            else if (account.isSignedIn)
+            else if (canInteract)
               state.isTermsLoading
                   ? const LinearProgressIndicator()
                   : state.hasAcceptedTerms
@@ -141,7 +139,11 @@ class _EpisodeCommentsScreenState extends ConsumerState<EpisodeCommentsScreen> {
                         );
                       },
                       icon: const Icon(Icons.login_rounded),
-                      label: Text(strings.signInToComment),
+                      label: Text(
+                        account.isSignedIn
+                            ? strings.verifyEmailToComment
+                            : strings.signInToComment,
+                      ),
                     ),
                   ),
                 ),
@@ -170,8 +172,8 @@ class _EpisodeCommentsScreenState extends ConsumerState<EpisodeCommentsScreen> {
         .acceptCurrentTerms();
   }
 
-  Future<bool> _ensureSignedIn(bool isSignedIn) async {
-    if (isSignedIn) return true;
+  Future<bool> _ensureVerifiedAccount(bool canInteract) async {
+    if (canInteract) return true;
     await Navigator.of(
       context,
     ).push(MaterialPageRoute<void>(builder: (_) => const AccountScreen()));
@@ -180,9 +182,9 @@ class _EpisodeCommentsScreenState extends ConsumerState<EpisodeCommentsScreen> {
 
   Future<void> _reportComment(
     EpisodeComment comment, {
-    required bool isSignedIn,
+    required bool canInteract,
   }) async {
-    if (!await _ensureSignedIn(isSignedIn) || !mounted) return;
+    if (!await _ensureVerifiedAccount(canInteract) || !mounted) return;
     final request = await showDialog<_ReportRequest>(
       context: context,
       builder: (_) => const _ReportDialog(target: _ReportTarget.comment),
@@ -211,9 +213,9 @@ class _EpisodeCommentsScreenState extends ConsumerState<EpisodeCommentsScreen> {
 
   Future<void> _reportUser(
     EpisodeComment sourceComment, {
-    required bool isSignedIn,
+    required bool canInteract,
   }) async {
-    if (!await _ensureSignedIn(isSignedIn) || !mounted) return;
+    if (!await _ensureVerifiedAccount(canInteract) || !mounted) return;
     final request = await showDialog<_ReportRequest>(
       context: context,
       builder: (_) => const _ReportDialog(target: _ReportTarget.user),
@@ -241,9 +243,9 @@ class _EpisodeCommentsScreenState extends ConsumerState<EpisodeCommentsScreen> {
 
   Future<void> _blockAuthor(
     EpisodeComment comment, {
-    required bool isSignedIn,
+    required bool canInteract,
   }) async {
-    if (!await _ensureSignedIn(isSignedIn) || !mounted) return;
+    if (!await _ensureVerifiedAccount(canInteract) || !mounted) return;
     final strings = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,

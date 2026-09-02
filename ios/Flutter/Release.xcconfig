@@ -1,1 +1,2 @@
+#include? "AuthProviders.xcconfig"
 #include "Generated.xcconfig"

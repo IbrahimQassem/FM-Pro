@@ -3,7 +3,10 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
+import '../features/account/data/datasources/account_auth_data_source.dart';
 import '../features/account/data/repositories/firebase_account_repository.dart';
 import '../features/account/domain/repositories/account_repository.dart';
 import '../features/account/presentation/controllers/account_controller.dart';
@@ -63,12 +66,18 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
   return FirebaseUserRepository(ref.watch(homeDataSourceProvider));
 });
 
-final accountRepositoryProvider = Provider<AccountRepository>((ref) {
-  return FirebaseAccountRepository(
+final accountAuthDataSourceProvider = Provider<AccountAuthDataSource>((ref) {
+  return FirebaseAccountAuthDataSource(
     FirebaseAuth.instance,
     FirebaseFirestore.instance,
     FirebaseFunctions.instance,
+    GoogleSignIn.instance,
+    FacebookAuth.instance,
   );
+});
+
+final accountRepositoryProvider = Provider<AccountRepository>((ref) {
+  return FirebaseAccountRepository(ref.watch(accountAuthDataSourceProvider));
 });
 
 final accountControllerProvider =

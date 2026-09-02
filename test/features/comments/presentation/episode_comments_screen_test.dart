@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hudhud_fm/app/providers.dart';
 import 'package:hudhud_fm/features/account/domain/models/account_user.dart';
+import 'package:hudhud_fm/features/account/domain/models/account_sign_in_provider.dart';
 import 'package:hudhud_fm/features/account/domain/repositories/account_repository.dart';
 import 'package:hudhud_fm/features/comments/domain/models/episode_comment.dart';
 import 'package:hudhud_fm/features/comments/domain/repositories/comments_repository.dart';
@@ -173,7 +174,16 @@ class _TestApp extends StatelessWidget {
 
 class _FakeAccountRepository implements AccountRepository {
   @override
-  Future<void> deleteAccount({required String currentPassword}) async {}
+  Future<void> deleteAccount({String? currentPassword}) async {}
+
+  @override
+  Future<void> continueWithProvider(AccountSignInProvider provider) async {}
+
+  @override
+  Future<void> requestEmailVerificationCode({String? email}) async {}
+
+  @override
+  Future<void> verifyEmailCode(String code) async {}
 
   @override
   Stream<AccountUser?> watchAccount() => Stream.value(_accountUser);
@@ -272,6 +282,7 @@ const _accountUser = AccountUser(
   uid: 'user-1',
   displayName: 'Listener',
   email: 'listener@example.com',
+  emailVerified: true,
 );
 
 final _episode = Episode(

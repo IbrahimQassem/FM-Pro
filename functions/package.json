@@ -8,7 +8,7 @@
     "node": "22"
   },
   "scripts": {
-    "lint": "node --check index.js && node --check lib/account-deletion.js",
+    "lint": "node --check index.js && node --check lib/account-deletion.js && node --check lib/email-verification.js",
     "test": "node --test test/*.test.js"
   },
   "dependencies": {

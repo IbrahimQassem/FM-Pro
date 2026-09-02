@@ -10,6 +10,10 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    buildFeatures {
+        resValues = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -24,6 +28,16 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        resValue(
+            "string",
+            "facebook_app_id",
+            providers.gradleProperty("HUDHUD_FACEBOOK_APP_ID").orElse("0").get(),
+        )
+        resValue(
+            "string",
+            "facebook_client_token",
+            providers.gradleProperty("HUDHUD_FACEBOOK_CLIENT_TOKEN").orElse("0").get(),
+        )
     }
 
     buildTypes {

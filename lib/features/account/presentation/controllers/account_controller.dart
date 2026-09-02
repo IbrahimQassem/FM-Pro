@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/repositories/account_repository.dart';
+import '../../domain/models/account_sign_in_provider.dart';
 import 'account_state.dart';
 
 class AccountController extends StateNotifier<AccountState> {
@@ -39,25 +40,53 @@ class AccountController extends StateNotifier<AccountState> {
       clearFailure: true,
       passwordResetSent: false,
       accountDeleted: false,
+      verificationCodeSent: false,
+      providerLinked: false,
     );
   }
 
-  Future<void> signIn({required String email, required String password}) {
-    return _run(() => _repository.signIn(email: email, password: password));
+  Future<void> signIn({required String email, required String password}) async {
+    await _run(() => _repository.signIn(email: email, password: password));
   }
 
   Future<void> register({
     required String displayName,
     required String email,
     required String password,
-  }) {
-    return _run(
+  }) async {
+    final succeeded = await _run(
       () => _repository.register(
         displayName: displayName,
         email: email,
         password: password,
       ),
     );
+    if (succeeded && mounted) {
+      state = state.copyWith(verificationCodeSent: true);
+    }
+  }
+
+  Future<void> requestEmailVerificationCode({String? email}) async {
+    final succeeded = await _run(
+      () => _repository.requestEmailVerificationCode(email: email),
+    );
+    if (succeeded && mounted) {
+      state = state.copyWith(verificationCodeSent: true);
+    }
+  }
+
+  Future<void> verifyEmailCode(String code) async {
+    await _run(() => _repository.verifyEmailCode(code));
+  }
+
+  Future<void> continueWithProvider(AccountSignInProvider provider) async {
+    final wasSignedIn = state.isSignedIn;
+    final succeeded = await _run(
+      () => _repository.continueWithProvider(provider),
+    );
+    if (succeeded && wasSignedIn && mounted) {
+      state = state.copyWith(providerLinked: true);
+    }
   }
 
   Future<void> sendPasswordReset(String email) async {
@@ -89,9 +118,11 @@ class AccountController extends StateNotifier<AccountState> {
     }
   }
 
-  Future<void> signOut() => _run(_repository.signOut);
+  Future<void> signOut() async {
+    await _run(_repository.signOut);
+  }
 
-  Future<bool> deleteAccount(String currentPassword) async {
+  Future<bool> deleteAccount(String? currentPassword) async {
     state = state.copyWith(
       isSubmitting: true,
       clearFailure: true,
@@ -125,20 +156,23 @@ class AccountController extends StateNotifier<AccountState> {
     }
   }
 
-  Future<void> _run(Future<void> Function() action) async {
+  Future<bool> _run(Future<void> Function() action) async {
     state = state.copyWith(
       isSubmitting: true,
       clearFailure: true,
       passwordResetSent: false,
       accountDeleted: false,
+      providerLinked: false,
     );
     try {
       await action();
       if (mounted) state = state.copyWith(isSubmitting: false);
+      return true;
     } on AccountException catch (error) {
       if (mounted) {
         state = state.copyWith(isSubmitting: false, failure: error.failure);
       }
+      return false;
     } on Object {
       if (mounted) {
         state = state.copyWith(
@@ -146,6 +180,7 @@ class AccountController extends StateNotifier<AccountState> {
           failure: AccountFailure.unavailable,
         );
       }
+      return false;
     }
   }
 

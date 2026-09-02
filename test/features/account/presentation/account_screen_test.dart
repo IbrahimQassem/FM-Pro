@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hudhud_fm/app/providers.dart';
 import 'package:hudhud_fm/features/account/domain/models/account_user.dart';
+import 'package:hudhud_fm/features/account/domain/models/account_sign_in_provider.dart';
 import 'package:hudhud_fm/features/account/domain/repositories/account_repository.dart';
 import 'package:hudhud_fm/features/account/presentation/account_screen.dart';
 import 'package:hudhud_fm/l10n/generated/app_localizations.dart';
@@ -16,6 +17,11 @@ void main() {
     await tester.pumpWidget(_TestApp(repository: repository));
     await tester.pumpAndSettle();
 
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('account-delete')),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.byKey(const Key('account-delete')));
     await tester.pumpAndSettle();
     final confirm = find.byKey(const Key('account-confirm-delete'));
@@ -49,13 +55,54 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.drag(find.byType(ListView), const Offset(0, -600));
-    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('account-delete')),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.byKey(const Key('account-delete')));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('account-delete-password')), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('unverified account enters and submits a six digit code', (
+    tester,
+  ) async {
+    final repository = _FakeAccountRepository(user: _unverifiedUser);
+    await tester.pumpWidget(_TestApp(repository: repository));
+    await tester.pumpAndSettle();
+
+    final verify = find.byKey(const Key('account-verify-email'));
+    expect(tester.widget<FilledButton>(verify).onPressed, isNull);
+    await tester.enterText(
+      find.byKey(const Key('account-verification-code')),
+      '123456',
+    );
+    await tester.pump();
+    expect(tester.widget<FilledButton>(verify).onPressed, isNotNull);
+    await tester.tap(verify);
+    await tester.pump();
+    expect(repository.verificationCode, '123456');
+  });
+
+  testWidgets('guest can start Google or Facebook sign in', (tester) async {
+    final repository = _FakeAccountRepository(user: null);
+    await tester.pumpWidget(_TestApp(repository: repository));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('account-google')),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.byKey(const Key('account-google')));
+    await tester.pump();
+    expect(repository.provider, AccountSignInProvider.google);
+    await tester.tap(find.byKey(const Key('account-facebook')));
+    await tester.pump();
+    expect(repository.provider, AccountSignInProvider.facebook);
   });
 }
 
@@ -91,14 +138,32 @@ class _TestApp extends StatelessWidget {
 }
 
 class _FakeAccountRepository implements AccountRepository {
+  _FakeAccountRepository({this.user = _user});
+
+  final AccountUser? user;
   String? deletionPassword;
+  String? verificationCode;
+  AccountSignInProvider? provider;
 
   @override
-  Stream<AccountUser?> watchAccount() => Stream.value(_user);
+  Stream<AccountUser?> watchAccount() => Stream.value(user);
 
   @override
-  Future<void> deleteAccount({required String currentPassword}) async {
+  Future<void> deleteAccount({String? currentPassword}) async {
     deletionPassword = currentPassword;
+  }
+
+  @override
+  Future<void> requestEmailVerificationCode({String? email}) async {}
+
+  @override
+  Future<void> verifyEmailCode(String code) async {
+    verificationCode = code;
+  }
+
+  @override
+  Future<void> continueWithProvider(AccountSignInProvider provider) async {
+    this.provider = provider;
   }
 
   @override
@@ -125,4 +190,12 @@ const _user = AccountUser(
   uid: 'user-1',
   displayName: 'Listener',
   email: 'listener@example.com',
+  emailVerified: true,
+  linkedProviders: {AccountSignInProvider.password},
+);
+
+const _unverifiedUser = AccountUser(
+  uid: 'user-2',
+  displayName: 'New listener',
+  email: 'new@example.com',
 );

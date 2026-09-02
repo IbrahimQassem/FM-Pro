@@ -14,6 +14,18 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>$(HUDHUD_GOOGLE_REVERSED_CLIENT_ID)</string>
+				<string>fb$(HUDHUD_FACEBOOK_APP_ID)</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleName</key>
 	<string>hudhud_fm</string>
 	<key>CFBundlePackageType</key>
@@ -24,6 +36,20 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>FacebookAppID</key>
+	<string>$(HUDHUD_FACEBOOK_APP_ID)</string>
+	<key>FacebookClientToken</key>
+	<string>$(HUDHUD_FACEBOOK_CLIENT_TOKEN)</string>
+	<key>FacebookDisplayName</key>
+	<string>HudHud FM</string>
+	<key>GIDClientID</key>
+	<string>$(HUDHUD_GOOGLE_IOS_CLIENT_ID)</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
+		<string>fbauth2</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

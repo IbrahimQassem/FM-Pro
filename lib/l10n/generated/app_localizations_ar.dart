@@ -654,4 +654,99 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get onlineStation => 'إذاعة عبر الإنترنت';
+
+  @override
+  String get emailVerificationTitle => 'تحقق من بريدك الإلكتروني';
+
+  @override
+  String get emailVerificationMessage =>
+      'أدخل الرمز المكوّن من ستة أرقام المرسل إلى بريدك. تنتهي صلاحية الرمز بعد 10 دقائق.';
+
+  @override
+  String get emailVerificationMissingEmail =>
+      'لم يرسل مزود الدخول بريدًا إلكترونيًا. أدخل بريدًا يمكنك الوصول إليه قبل طلب الرمز.';
+
+  @override
+  String get verificationCode => 'رمز التحقق';
+
+  @override
+  String get verificationCodeValidation =>
+      'أدخل رمز التحقق المكوّن من ستة أرقام.';
+
+  @override
+  String get verifyEmail => 'تحقق من البريد';
+
+  @override
+  String get sendVerificationCode => 'إرسال رمز التحقق';
+
+  @override
+  String get resendVerificationCode => 'إعادة إرسال الرمز';
+
+  @override
+  String get verificationCodeSent =>
+      'أُرسل رمز تحقق جديد. راجع صندوق الوارد والرسائل غير المرغوبة.';
+
+  @override
+  String get emailVerifiedMessage => 'تم توثيق بريدك الإلكتروني بنجاح.';
+
+  @override
+  String get socialSignInDivider => 'أو المتابعة بواسطة';
+
+  @override
+  String get continueWithGoogle => 'المتابعة بواسطة Google';
+
+  @override
+  String get continueWithFacebook => 'المتابعة بواسطة Facebook';
+
+  @override
+  String get continueWithApple => 'المتابعة بواسطة Apple';
+
+  @override
+  String get linkedSignInMethods => 'طرق الدخول المرتبطة';
+
+  @override
+  String get linkAnotherMethod => 'ربط طريقة دخول أخرى';
+
+  @override
+  String get providerLinked => 'تم ربط طريقة الدخول بحسابك.';
+
+  @override
+  String get socialDeleteReauthentication =>
+      'ستؤكد هويتك بواسطة مزود الدخول المرتبط قبل الحذف.';
+
+  @override
+  String get invalidVerificationCode => 'رمز التحقق غير صحيح.';
+
+  @override
+  String get expiredVerificationCode =>
+      'انتهت صلاحية رمز التحقق. اطلب رمزًا جديدًا.';
+
+  @override
+  String get verificationRateLimited =>
+      'تجاوزت عدد الطلبات أو المحاولات. انتظر قبل المحاولة مجددًا.';
+
+  @override
+  String get verificationDeliveryFailed =>
+      'تعذر إرسال رسالة التحقق. حاول مرة أخرى لاحقًا.';
+
+  @override
+  String get providerCancelled => 'تم إلغاء تسجيل الدخول.';
+
+  @override
+  String get providerFailed => 'تعذر على مزود الدخول إكمال الطلب.';
+
+  @override
+  String get providerNotConfigured => 'طريقة تسجيل الدخول هذه غير مهيأة بعد.';
+
+  @override
+  String get providerAlreadyLinked =>
+      'طريقة تسجيل الدخول هذه مرتبطة بالحساب بالفعل.';
+
+  @override
+  String get accountConflict =>
+      'هذا البريد مرتبط بطريقة دخول أخرى. سجل الدخول بالطريقة الحالية ثم اربط هذه الطريقة من حسابك.';
+
+  @override
+  String get verifyEmailToComment =>
+      'وثّق بريدك للتعليق أو استخدام أدوات الأمان';
 }

@@ -49,6 +49,8 @@ dependencies:
   audio_service: ^0.18.19
   firebase_messaging: ^16.6.0
   cloud_functions: ^6.4.0
+  google_sign_in: ^7.2.0
+  flutter_facebook_auth: ^7.2.0
 
 dev_dependencies:
   flutter_test:

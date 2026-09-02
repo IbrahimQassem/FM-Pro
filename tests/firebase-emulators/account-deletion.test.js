@@ -42,6 +42,7 @@ test("deletes Auth, authored comments, dependent data, and reconciles counts", a
   const episode = "HudHudDev/episodes/episodes/episode-1";
   const comment = `${episode}/comments/comment-1`;
   const user = `HudHudDev/users/users/${uid}`;
+  const challenge = `HudHudDev/emailVerificationChallenges/challenges/${uid}`;
 
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     const firestore = context.firestore();
@@ -51,6 +52,10 @@ test("deletes Auth, authored comments, dependent data, and reconciles counts", a
         displayName: "Delete me",
         isActive: true,
         role: "listener",
+      }),
+      setDoc(doc(firestore, challenge), {
+        codeHash: "private-hash",
+        status: "active",
       }),
       setDoc(doc(firestore, `${user}/favorites/station-1`), {
         targetType: "station",
@@ -96,8 +101,9 @@ test("deletes Auth, authored comments, dependent data, and reconciles counts", a
 
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     const firestore = context.firestore();
-    const [profile, authoredComment, favorite, block, report, episodeSnapshot] = await Promise.all([
+    const [profile, verification, authoredComment, favorite, block, report, episodeSnapshot] = await Promise.all([
       getDoc(doc(firestore, user)),
+      getDoc(doc(firestore, challenge)),
       getDoc(doc(firestore, comment)),
       getDoc(doc(firestore, `${user}/favorites/station-1`)),
       getDoc(doc(firestore, `HudHudDev/users/users/${otherUid}/blockedUsers/${uid}`)),
@@ -110,6 +116,7 @@ test("deletes Auth, authored comments, dependent data, and reconciles counts", a
       getDoc(doc(firestore, episode)),
     ]);
     assert.equal(profile.exists(), false);
+    assert.equal(verification.exists(), false);
     assert.equal(authoredComment.exists(), false);
     assert.equal(favorite.exists(), false);
     assert.equal(block.exists(), false);

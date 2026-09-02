@@ -12,6 +12,8 @@ class AccountState {
     this.failure,
     this.passwordResetSent = false,
     this.accountDeleted = false,
+    this.verificationCodeSent = false,
+    this.providerLinked = false,
   });
 
   final AccountUser? user;
@@ -21,6 +23,8 @@ class AccountState {
   final AccountFailure? failure;
   final bool passwordResetSent;
   final bool accountDeleted;
+  final bool verificationCodeSent;
+  final bool providerLinked;
 
   bool get isSignedIn => user != null;
 
@@ -34,6 +38,8 @@ class AccountState {
     bool clearFailure = false,
     bool? passwordResetSent,
     bool? accountDeleted,
+    bool? verificationCodeSent,
+    bool? providerLinked,
   }) {
     return AccountState(
       user: clearUser ? null : user ?? this.user,
@@ -43,6 +49,8 @@ class AccountState {
       failure: clearFailure ? null : failure ?? this.failure,
       passwordResetSent: passwordResetSent ?? this.passwordResetSent,
       accountDeleted: accountDeleted ?? this.accountDeleted,
+      verificationCodeSent: verificationCodeSent ?? this.verificationCodeSent,
+      providerLinked: providerLinked ?? this.providerLinked,
     );
   }
 }

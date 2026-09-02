@@ -19,6 +19,8 @@
 - `README.md`: إعداد المطور والأوامر المختصرة.
 - [دليل تشغيل إشراف UGC](operations/ugc-moderation-runbook.md): المهل، القرارات،
   التصعيد والمراجعة الدورية.
+- [إعداد توثيق البريد ومزودي الدخول](operations/auth-provider-setup.md): Secret
+  Manager وإعداد Google وFacebook وApple لكل منصة.
 - [أدلة Google Play لـUGC والحذف](release/google-play-ugc-evidence.md): ترتيب
   النشر ومصفوفة اللقطات والتحقق.
 - `AGENTS.md`: حدود العمل، قراءة العقود، توزيع الأدوار والتحقق.
@@ -26,6 +28,8 @@
 
 ## مراجع التخطيط
 
+- [قرار توثيق البريد برمز رقمي](decisions/0001-email-verification-code.md): اختيار
+  الرمز وضوابط الأمان والاحتفاظ والرجوع.
 - [خارطة طريق مقترحات التطوير](roadmap/development-proposals.md):
   امتثال UGC وتوثيق الحساب والدخول الاجتماعي، ثم ترتيب شرائح المفضلة
   والاشتراكات والمزايا الناتجة وجاهزية الإصدار.

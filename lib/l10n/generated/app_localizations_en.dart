@@ -663,4 +663,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onlineStation => 'Online radio';
+
+  @override
+  String get emailVerificationTitle => 'Verify your email';
+
+  @override
+  String get emailVerificationMessage =>
+      'Enter the six-digit code sent to your email. The code expires after 10 minutes.';
+
+  @override
+  String get emailVerificationMissingEmail =>
+      'This provider did not return an email. Enter an email you can access before requesting a code.';
+
+  @override
+  String get verificationCode => 'Verification code';
+
+  @override
+  String get verificationCodeValidation => 'Enter the six-digit code.';
+
+  @override
+  String get verifyEmail => 'Verify email';
+
+  @override
+  String get sendVerificationCode => 'Send verification code';
+
+  @override
+  String get resendVerificationCode => 'Resend code';
+
+  @override
+  String get verificationCodeSent =>
+      'A new verification code was sent. Check your inbox and spam folder.';
+
+  @override
+  String get emailVerifiedMessage => 'Your email was verified successfully.';
+
+  @override
+  String get socialSignInDivider => 'or continue with';
+
+  @override
+  String get continueWithGoogle => 'Continue with Google';
+
+  @override
+  String get continueWithFacebook => 'Continue with Facebook';
+
+  @override
+  String get continueWithApple => 'Continue with Apple';
+
+  @override
+  String get linkedSignInMethods => 'Linked sign-in methods';
+
+  @override
+  String get linkAnotherMethod => 'Link another sign-in method';
+
+  @override
+  String get providerLinked => 'The sign-in method was linked to your account.';
+
+  @override
+  String get socialDeleteReauthentication =>
+      'You will confirm your identity using your linked sign-in provider before deletion.';
+
+  @override
+  String get invalidVerificationCode => 'The verification code is incorrect.';
+
+  @override
+  String get expiredVerificationCode =>
+      'The verification code expired. Request a new one.';
+
+  @override
+  String get verificationRateLimited =>
+      'Too many requests or attempts. Wait before trying again.';
+
+  @override
+  String get verificationDeliveryFailed =>
+      'The verification email could not be sent. Try again later.';
+
+  @override
+  String get providerCancelled => 'Sign-in was cancelled.';
+
+  @override
+  String get providerFailed =>
+      'The sign-in provider could not complete the request.';
+
+  @override
+  String get providerNotConfigured =>
+      'This sign-in method is not configured yet.';
+
+  @override
+  String get providerAlreadyLinked => 'This sign-in method is already linked.';
+
+  @override
+  String get accountConflict =>
+      'This email belongs to another sign-in method. Sign in with the existing method, then link this one from your account.';
+
+  @override
+  String get verifyEmailToComment =>
+      'Verify your email to comment or use safety actions';
 }

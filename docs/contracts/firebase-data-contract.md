@@ -22,6 +22,8 @@ HudHudDev/programs/programs/{programId}
 HudHudDev/episodes/episodes/{episodeId}
 HudHudDev/episodes/episodes/{episodeId}/comments/{commentId}
 HudHudDev/accountDeletionRequests/requests/{uid}
+HudHudDev/emailVerificationChallenges/challenges/{uid}
+HudHudDev/emailVerificationRateLimits/emails/{emailHmac}
 ```
 
 `lib/core/config/firestore_paths.dart` هو المالك التنفيذي للمسارات. لا تبني path
@@ -30,8 +32,9 @@ flavors متعددة يحتاج قرارًا يحدد الفصل، package IDs،
 
 ## سياسة القراءة والتخزين
 
-- القراءة العامة للمحتوى read-only. كتابات العميل المحددة هي إنشاء ملف المستمع
-  عند التسجيل، وقبول شروط UGC، وإضافة تعليق، والإبلاغ عن تعليق أو مستخدم، وإدارة قائمة
+- القراءة العامة للمحتوى read-only. ملف المستمع ينشأ من Cloud Function فقط بعد
+  توثيق البريد. كتابات العميل المحددة هي قبول شروط UGC، وإضافة تعليق، والإبلاغ
+  عن تعليق أو مستخدم، وإدارة قائمة
   الحظر والمفضلة والاشتراكات؛ جميعها محمية بقواعد واختبارات emulator.
 - يبدأ Home بقراءة `Source.cache`، ثم يطلب `Source.server` عند الفتح والتحديث.
 - لا يوجد snapshot listener دائم. إضافته يحتاج lifecycle وتكلفة وoffline policy.
@@ -41,6 +44,27 @@ flavors متعددة يحتاج قرارًا يحدد الفصل، package IDs،
 - فشل banners أو locations لا يمنع عرض stations.
 - كل batch يعيد items غير قابلة للتعديل وعدد السجلات المرفوضة ومصدر cache.
 - المستند المخالف يُرفض منفردًا ولا يسقط المجموعة كلها، ولا تظهر قيم تقنية خام.
+
+## Email verification challenge schema
+
+```text
+email, displayName, codeHash, status, attemptsRemaining,
+expiresAt, resendAvailableAt, sendWindowStartedAt, sendCount,
+createdAt, updatedAt, consumedAt?
+```
+
+- المسار خادمي بالكامل؛ Firestore Rules تمنع كل قراءة وكتابة من العميل حتى
+  لصاحب UID.
+- `codeHash` هو HMAC يربط UID والرمز بـpepper خادمي، ولا يخزن الرمز الصريح.
+- يطبق مسار `emailVerificationRateLimits` حد الإرسال نفسه على HMAC للبريد عبر
+  الحسابات المختلفة لمنع إساءة الإرسال، ولا يخزن البريد أو يسمح بوصول العميل.
+- نجاح التحقق يحدث `emailVerified` في Firebase Auth وينشئ ملف المستمع canonical
+  ثم يحذف challenge. إعادة المحاولة بعد فشل جزئي idempotent.
+- يحتفظ الخادم بالتحدي المنتهي أو المقفل لأغراض التنظيف فقط. بعد 30 يومًا تحذف
+  مهمة يومية حساب Auth غير الموثق والتحدي إذا لم يوجد ملف مستمع؛ وتحذف التحدي
+  وحده إذا أصبح الحساب موثقًا أو كان الملف موجودًا.
+- كل كتابة شخصية وUGC تتطلب claim `email_verified=true` إضافة إلى نشاط الملف
+  وملكيته؛ إخفاء الأزرار في الواجهة لا يعد صلاحية.
 
 ## Station schema
 

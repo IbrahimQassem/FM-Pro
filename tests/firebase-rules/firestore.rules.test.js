@@ -43,7 +43,10 @@ function anonymousDb() {
 }
 
 function userDb(uid, claims = {}) {
-  return testEnv.authenticatedContext(uid, claims).firestore();
+  return testEnv.authenticatedContext(uid, {
+    email_verified: true,
+    ...claims,
+  }).firestore();
 }
 
 async function seed(path, data) {
@@ -145,9 +148,10 @@ after(async () => {
 });
 
 describe("listener account profiles", () => {
-  test("a listener can create and read only their canonical profile", async () => {
+  test("only the backend creates a profile and its owner can read it", async () => {
     const db = userDb("user-a");
-    await assertSucceeds(setDoc(doc(db, userPath("user-a")), listenerProfile()));
+    await assertFails(setDoc(doc(db, userPath("user-a")), listenerProfile()));
+    await seed(userPath("user-a"), listenerProfile());
     await assertSucceeds(getDoc(doc(db, userPath("user-a"))));
     await assertFails(getDoc(doc(db, userPath("user-b"))));
   });
@@ -170,6 +174,24 @@ describe("listener account profiles", () => {
     await assertSucceeds(
       getDocs(collection(userDb("admin-a", { admin: true }), "HudHudDev/users/users")),
     );
+  });
+
+  test("verification challenges are private and unverified users cannot write", async () => {
+    const unverified = userDb("user-a", { email_verified: false });
+    const challenge = "HudHudDev/emailVerificationChallenges/challenges/user-a";
+    const emailLimit = "HudHudDev/emailVerificationRateLimits/emails/hash-a";
+    await seed(challenge, { codeHash: "private" });
+    await seed(emailLimit, { sendCount: 1 });
+    await seed(userPath("user-a"), {
+      ...listenerProfile(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    await assertFails(getDoc(doc(unverified, challenge)));
+    await assertFails(getDoc(doc(unverified, emailLimit)));
+    await assertFails(setDoc(doc(unverified, favoritePath("user-a")), validFavorite()));
+    await assertFails(setDoc(doc(unverified, ugcAgreementPath("user-a")), validUgcAgreement()));
+    await assertFails(setDoc(doc(unverified, commentPath()), validComment("user-a")));
   });
 });
 

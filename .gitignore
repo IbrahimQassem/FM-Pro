@@ -48,5 +48,6 @@ app.*.map.json
 # Firebase environment files are supplied locally and must not be committed.
 /android/app/google-services.json
 /ios/Runner/GoogleService-Info.plist
+/ios/Flutter/AuthProviders.xcconfig
 /lib/firebase_options.dart
 /.firebase/
