@@ -19,11 +19,13 @@ import com.sana.dev.fm.R;
  */
 public class StateLayout extends FrameLayout {
 
-    public static final int STATE_LOADING = 1;
-    public static final int STATE_CONTENT = 2;
-    public static final int STATE_EMPTY = 3;
-    public static final int STATE_ERROR = 4;
-    public static final int STATE_OFFLINE = 5;
+    public enum State {
+        LOADING,
+        CONTENT,
+        EMPTY,
+        ERROR,
+        OFFLINE
+    }
 
     private View contentView;
     private View loadingView;
@@ -31,7 +33,7 @@ public class StateLayout extends FrameLayout {
     private View errorView;
     private View offlineView;
 
-    private int currentState = STATE_CONTENT;
+    private State currentState = State.CONTENT;
 
     public StateLayout(@NonNull Context context) {
         super(context);
@@ -67,25 +69,25 @@ public class StateLayout extends FrameLayout {
         }
     }
 
-    public int getCurrentState() {
+    public State getCurrentState() {
         return currentState;
     }
 
     public void showLoading() {
-        currentState = STATE_LOADING;
+        currentState = State.LOADING;
         ensureLoadingView();
         hideAllExcept(loadingView);
     }
 
     public void showContent() {
-        currentState = STATE_CONTENT;
+        currentState = State.CONTENT;
         if (contentView != null) {
             hideAllExcept(contentView);
         }
     }
 
     public void showEmpty(@Nullable String title, @Nullable String description, @Nullable Runnable onActionClick) {
-        currentState = STATE_EMPTY;
+        currentState = State.EMPTY;
         ensureEmptyView();
 
         TextView tvTitle = emptyView.findViewById(R.id.state_empty_title);
@@ -112,7 +114,7 @@ public class StateLayout extends FrameLayout {
     }
 
     public void showError(@Nullable String title, @Nullable String description, @Nullable Runnable onRetryClick) {
-        currentState = STATE_ERROR;
+        currentState = State.ERROR;
         ensureErrorView();
 
         TextView tvTitle = errorView.findViewById(R.id.state_error_title);
@@ -134,7 +136,7 @@ public class StateLayout extends FrameLayout {
     }
 
     public void showOffline(@Nullable Runnable onRetryClick) {
-        currentState = STATE_OFFLINE;
+        currentState = State.OFFLINE;
         ensureOfflineView();
 
         MaterialButton btnRetry = offlineView.findViewById(R.id.state_offline_retry_button);
