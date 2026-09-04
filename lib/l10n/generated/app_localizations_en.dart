@@ -822,4 +822,57 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get ugcGuidelinesSubtitle =>
       'Community standards and acceptable conduct';
+
+  @override
+  String get onboardingTitle1 => 'Welcome to Hudhud FM';
+
+  @override
+  String get onboardingSubtitle1 =>
+      'Your premier gateway to Yemeni radio stations with crystal clear sound wherever you are.';
+
+  @override
+  String get onboardingTitle2 => 'Your Favorites at Hand';
+
+  @override
+  String get onboardingSubtitle2 =>
+      'Save your favorite stations with one tap to access them quickly anytime with ease.';
+
+  @override
+  String get onboardingTitle3 => 'Shows, Episodes & Community';
+
+  @override
+  String get onboardingSubtitle3 =>
+      'Listen to recorded episodes, join the discussion, and enjoy a safe radio community.';
+
+  @override
+  String get startListening => 'Start Listening Now';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get appTour => 'App Tour';
+
+  @override
+  String get appTourSubtitle => 'Explore the features of Hudhud FM';
+
+  @override
+  String get shareStation => 'Share Station';
+
+  @override
+  String get shareEpisode => 'Share Episode';
+
+  @override
+  String shareStationMessage(String stationName, String url) {
+    return 'Listen now to $stationName on Hudhud FM 📻🇾🇪\n$url';
+  }
+
+  @override
+  String shareEpisodeMessage(String episodeTitle, String programTitle,
+      String stationName, String url) {
+    return 'Listen to \"$episodeTitle\" from $programTitle - $stationName on Hudhud FM 🎙️\n$url';
+  }
 }

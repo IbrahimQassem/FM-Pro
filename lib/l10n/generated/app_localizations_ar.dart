@@ -812,4 +812,57 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get ugcGuidelinesSubtitle =>
       'معايير النشر والسلوك المقبول في التعليقات';
+
+  @override
+  String get onboardingTitle1 => 'مرحبًا بك في هدهد FM';
+
+  @override
+  String get onboardingSubtitle1 =>
+      'دليلك وصوتك الأول لإذاعات ومحطات اليمن بجودة صوتية فائقة ونقاء تام أينما كنت.';
+
+  @override
+  String get onboardingTitle2 => 'محطاتك المفضلة في متناول يدك';
+
+  @override
+  String get onboardingSubtitle2 =>
+      'احفظ إذاعاتك المفضلة بنقرة واحدة لتصل إليها فورًا في أي وقت وبكل سهولة.';
+
+  @override
+  String get onboardingTitle3 => 'برامج وحلقات وتفاعل مجتمعي';
+
+  @override
+  String get onboardingSubtitle3 =>
+      'استمع للحلقات المسجلة، وشارك في النقاشات، واستمتع بمجتمع إذاعي آمن ومحترم.';
+
+  @override
+  String get startListening => 'ابدأ الاستماع الآن';
+
+  @override
+  String get skip => 'تخطي';
+
+  @override
+  String get next => 'التالي';
+
+  @override
+  String get appTour => 'جولة في التطبيق';
+
+  @override
+  String get appTourSubtitle => 'استعرض مميزات ومزايا تطبيق هدهد FM';
+
+  @override
+  String get shareStation => 'مشاركة المحطة';
+
+  @override
+  String get shareEpisode => 'مشاركة الحلقة';
+
+  @override
+  String shareStationMessage(String stationName, String url) {
+    return 'استمع الآن إلى إذاعة $stationName عبر تطبيق هدهد FM 📻🇾🇪\n$url';
+  }
+
+  @override
+  String shareEpisodeMessage(String episodeTitle, String programTitle,
+      String stationName, String url) {
+    return 'استمع لحلقة \"$episodeTitle\" من برنامج $programTitle - $stationName عبر تطبيق هدهد FM 🎙️\n$url';
+  }
 }

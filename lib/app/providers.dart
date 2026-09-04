@@ -1,3 +1,6 @@
+import "../features/onboarding/data/repositories/onboarding_repository.dart";
+import "../features/onboarding/presentation/controllers/onboarding_controller.dart";
+import "../features/onboarding/presentation/controllers/onboarding_state.dart";
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -192,4 +195,14 @@ final favoritesControllerProvider =
         favoritesRepository: ref.watch(favoritesRepositoryProvider),
         accountRepository: ref.watch(accountRepositoryProvider),
       );
+    });
+
+
+final onboardingRepositoryProvider = Provider<OnboardingRepository>((ref) {
+  return SharedPreferencesOnboardingRepository();
+});
+
+final onboardingControllerProvider =
+    StateNotifierProvider<OnboardingController, OnboardingState>((ref) {
+      return OnboardingController(ref.watch(onboardingRepositoryProvider));
     });

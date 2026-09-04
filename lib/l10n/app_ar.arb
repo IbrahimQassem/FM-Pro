@@ -233,5 +233,46 @@
   "favoriteRemovedMessage": "تمت إزالة المحطة من المفضلة",
   "favoriteActionFailed": "تعذر تحديث المفضلة. حاول مرة أخرى.",
   "ugcGuidelinesMenu": "إرشادات المجتمع وأمان المحتوى",
-  "ugcGuidelinesSubtitle": "معايير النشر والسلوك المقبول في التعليقات"
+  "ugcGuidelinesSubtitle": "معايير النشر والسلوك المقبول في التعليقات",
+  "onboardingTitle1": "مرحبًا بك في هدهد FM",
+  "onboardingSubtitle1": "دليلك وصوتك الأول لإذاعات ومحطات اليمن بجودة صوتية فائقة ونقاء تام أينما كنت.",
+  "onboardingTitle2": "محطاتك المفضلة في متناول يدك",
+  "onboardingSubtitle2": "احفظ إذاعاتك المفضلة بنقرة واحدة لتصل إليها فورًا في أي وقت وبكل سهولة.",
+  "onboardingTitle3": "برامج وحلقات وتفاعل مجتمعي",
+  "onboardingSubtitle3": "استمع للحلقات المسجلة، وشارك في النقاشات، واستمتع بمجتمع إذاعي آمن ومحترم.",
+  "startListening": "ابدأ الاستماع الآن",
+  "skip": "تخطي",
+  "next": "التالي",
+  "appTour": "جولة في التطبيق",
+  "appTourSubtitle": "استعرض مميزات ومزايا تطبيق هدهد FM",
+  "shareStation": "مشاركة المحطة",
+  "shareEpisode": "مشاركة الحلقة",
+  "shareStationMessage": "استمع الآن إلى إذاعة {stationName} عبر تطبيق هدهد FM 📻🇾🇪\n{url}",
+  "@shareStationMessage": {
+    "placeholders": {
+      "stationName": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "shareEpisodeMessage": "استمع لحلقة \"{episodeTitle}\" من برنامج {programTitle} - {stationName} عبر تطبيق هدهد FM 🎙️\n{url}",
+  "@shareEpisodeMessage": {
+    "placeholders": {
+      "episodeTitle": {
+        "type": "String"
+      },
+      "programTitle": {
+        "type": "String"
+      },
+      "stationName": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  }
 }

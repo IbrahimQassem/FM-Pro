@@ -94,6 +94,28 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('صباح اليمن'), findsOneWidget);
   });
+
+  testWidgets('shows share button and forwards action', (tester) async {
+    var sharePressed = false;
+    await tester.pumpWidget(
+      _TestApp(
+        child: StationDetailsView(
+          station: _station,
+          playbackStatus: StationPlaybackStatus.idle,
+          onPlayPressed: () {},
+          onStopPressed: () {},
+          onSharePressed: () => sharePressed = true,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final shareButton = find.byKey(const Key('station-share-button'));
+    expect(shareButton, findsOneWidget);
+
+    await tester.tap(shareButton);
+    expect(sharePressed, isTrue);
+  });
 }
 
 class _TestApp extends StatelessWidget {

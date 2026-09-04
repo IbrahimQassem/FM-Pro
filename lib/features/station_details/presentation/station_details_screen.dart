@@ -1,3 +1,4 @@
+import "../../../core/services/share_service.dart";
 import '../../../core/theme/app_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -151,6 +152,7 @@ class StationDetailsView extends StatelessWidget {
     required this.onStopPressed,
     this.isFavorite = false,
     this.onFavoriteToggle,
+    this.onSharePressed,
     this.contentState = const StationContentState(isInitialLoading: false),
     this.onContentRefresh,
     this.onProgramPressed,
@@ -165,6 +167,7 @@ class StationDetailsView extends StatelessWidget {
   final VoidCallback onStopPressed;
   final bool isFavorite;
   final VoidCallback? onFavoriteToggle;
+  final VoidCallback? onSharePressed;
   final StationContentState contentState;
   final Future<void> Function()? onContentRefresh;
   final ValueChanged<StationProgram>? onProgramPressed;
@@ -192,6 +195,7 @@ class StationDetailsView extends StatelessWidget {
               actions: [
                 if (onFavoriteToggle != null)
                   IconButton(
+                    key: const Key('station-favorite-button'),
                     onPressed: onFavoriteToggle,
                     tooltip: isFavorite
                         ? strings.removeFromFavorites
@@ -203,6 +207,13 @@ class StationDetailsView extends StatelessWidget {
                       color: isFavorite ? Colors.redAccent : Colors.white,
                     ),
                   ),
+                IconButton(
+                  key: const Key('station-share-button'),
+                  onPressed: onSharePressed ??
+                      () => const ShareService().shareStation(context, station),
+                  tooltip: strings.shareStation,
+                  icon: const Icon(Icons.share_rounded),
+                ),
               ],
               flexibleSpace: FlexibleSpaceBar(
                 background: _StationHero(

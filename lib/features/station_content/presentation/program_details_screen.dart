@@ -1,3 +1,4 @@
+import "../../../core/services/share_service.dart";
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -174,6 +175,8 @@ class ProgramDetailsView extends StatelessWidget {
                     onCommentsPressed: onEpisodeCommentsPressed == null
                         ? null
                         : () => onEpisodeCommentsPressed!(episode),
+                    onSharePressed: () =>
+                        const ShareService().shareEpisode(context, episode, station),
                   );
                 },
               ),
@@ -244,12 +247,14 @@ class _EpisodeCard extends StatelessWidget {
     required this.status,
     required this.onPlayPressed,
     this.onCommentsPressed,
+    this.onSharePressed,
   });
 
   final Episode episode;
   final StationPlaybackStatus status;
   final VoidCallback onPlayPressed;
   final VoidCallback? onCommentsPressed;
+  final VoidCallback? onSharePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -298,11 +303,23 @@ class _EpisodeCard extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 8),
-                  TextButton.icon(
-                    key: Key('episode-comments-${episode.id}'),
-                    onPressed: onCommentsPressed,
-                    icon: const Icon(Icons.chat_bubble_outline_rounded),
-                    label: Text(strings.commentsCount(episode.commentsCount)),
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: [
+                      TextButton.icon(
+                        key: Key('episode-comments-${episode.id}'),
+                        onPressed: onCommentsPressed,
+                        icon: const Icon(Icons.chat_bubble_outline_rounded),
+                        label: Text(strings.commentsCount(episode.commentsCount)),
+                      ),
+                      IconButton(
+                        key: Key('episode-share-${episode.id}'),
+                        tooltip: strings.shareEpisode,
+                        onPressed: onSharePressed,
+                        icon: const Icon(Icons.share_outlined, size: 20),
+                      ),
+                    ],
                   ),
                 ],
               ),

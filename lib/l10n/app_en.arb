@@ -233,5 +233,46 @@
   "favoriteRemovedMessage": "Station removed from favorites",
   "favoriteActionFailed": "Could not update favorites. Try again.",
   "ugcGuidelinesMenu": "Community & Safety Guidelines",
-  "ugcGuidelinesSubtitle": "Community standards and acceptable conduct"
+  "ugcGuidelinesSubtitle": "Community standards and acceptable conduct",
+  "onboardingTitle1": "Welcome to Hudhud FM",
+  "onboardingSubtitle1": "Your premier gateway to Yemeni radio stations with crystal clear sound wherever you are.",
+  "onboardingTitle2": "Your Favorites at Hand",
+  "onboardingSubtitle2": "Save your favorite stations with one tap to access them quickly anytime with ease.",
+  "onboardingTitle3": "Shows, Episodes & Community",
+  "onboardingSubtitle3": "Listen to recorded episodes, join the discussion, and enjoy a safe radio community.",
+  "startListening": "Start Listening Now",
+  "skip": "Skip",
+  "next": "Next",
+  "appTour": "App Tour",
+  "appTourSubtitle": "Explore the features of Hudhud FM",
+  "shareStation": "Share Station",
+  "shareEpisode": "Share Episode",
+  "shareStationMessage": "Listen now to {stationName} on Hudhud FM 📻🇾🇪\n{url}",
+  "@shareStationMessage": {
+    "placeholders": {
+      "stationName": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "shareEpisodeMessage": "Listen to \"{episodeTitle}\" from {programTitle} - {stationName} on Hudhud FM 🎙️\n{url}",
+  "@shareEpisodeMessage": {
+    "placeholders": {
+      "episodeTitle": {
+        "type": "String"
+      },
+      "programTitle": {
+        "type": "String"
+      },
+      "stationName": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  }
 }

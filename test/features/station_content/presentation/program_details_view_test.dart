@@ -36,6 +36,7 @@ void main() {
     expect(selectedEpisode?.id, 'episode-1');
     await tester.tap(find.byKey(const Key('episode-comments-episode-1')));
     expect(selectedCommentsEpisode?.id, 'episode-1');
+    expect(find.byKey(const Key('episode-share-episode-1')), findsOneWidget);
   });
 
   testWidgets('remains usable on a small screen at 200% text scale', (

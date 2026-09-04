@@ -1507,6 +1507,97 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Community standards and acceptable conduct'**
   String get ugcGuidelinesSubtitle;
+
+  /// No description provided for @onboardingTitle1.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Hudhud FM'**
+  String get onboardingTitle1;
+
+  /// No description provided for @onboardingSubtitle1.
+  ///
+  /// In en, this message translates to:
+  /// **'Your premier gateway to Yemeni radio stations with crystal clear sound wherever you are.'**
+  String get onboardingSubtitle1;
+
+  /// No description provided for @onboardingTitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Favorites at Hand'**
+  String get onboardingTitle2;
+
+  /// No description provided for @onboardingSubtitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your favorite stations with one tap to access them quickly anytime with ease.'**
+  String get onboardingSubtitle2;
+
+  /// No description provided for @onboardingTitle3.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows, Episodes & Community'**
+  String get onboardingTitle3;
+
+  /// No description provided for @onboardingSubtitle3.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen to recorded episodes, join the discussion, and enjoy a safe radio community.'**
+  String get onboardingSubtitle3;
+
+  /// No description provided for @startListening.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Listening Now'**
+  String get startListening;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @appTour.
+  ///
+  /// In en, this message translates to:
+  /// **'App Tour'**
+  String get appTour;
+
+  /// No description provided for @appTourSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore the features of Hudhud FM'**
+  String get appTourSubtitle;
+
+  /// No description provided for @shareStation.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Station'**
+  String get shareStation;
+
+  /// No description provided for @shareEpisode.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Episode'**
+  String get shareEpisode;
+
+  /// No description provided for @shareStationMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen now to {stationName} on Hudhud FM 📻🇾🇪\n{url}'**
+  String shareStationMessage(String stationName, String url);
+
+  /// No description provided for @shareEpisodeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen to \"{episodeTitle}\" from {programTitle} - {stationName} on Hudhud FM 🎙️\n{url}'**
+  String shareEpisodeMessage(
+      String episodeTitle, String programTitle, String stationName, String url);
 }
 
 class _AppLocalizationsDelegate

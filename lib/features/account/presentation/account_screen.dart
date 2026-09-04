@@ -1,3 +1,4 @@
+import "../../onboarding/presentation/onboarding_screen.dart";
 import "../../comments/presentation/widgets/ugc_guidelines_dialog.dart";
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/mascot_avatar.dart';
@@ -398,21 +399,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           label: Text(strings.signOut),
         ),
         const SizedBox(height: 20),
-        Card(
-          child: ListTile(
-            key: const Key("account-ugc-guidelines"),
-            leading: Image.asset(
-              "assets/images/mascot/mascot_ugc_guidelines.webp",
-              height: 36,
-              fit: BoxFit.contain,
-            ),
-            title: Text(strings.ugcGuidelinesMenu),
-            subtitle: Text(strings.ugcGuidelinesSubtitle),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => UgcGuidelinesDialog.show(context),
-          ),
-        ),
-        const SizedBox(height: 20),
+
         const Divider(),
         const SizedBox(height: 12),
         Text(
@@ -440,6 +427,42 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const SizedBox(height: 14),
           _ErrorMessage(message: _failureText(strings, failure)),
         ],
+        const SizedBox(height: 24),
+        const Divider(),
+        const SizedBox(height: 12),
+        Card(
+          child: ListTile(
+            key: const Key("account-app-tour"),
+            leading: Image.asset(
+              "assets/images/mascot/mascot_onboarding.webp",
+              height: 36,
+              fit: BoxFit.contain,
+            ),
+            title: Text(strings.appTour),
+            subtitle: Text(strings.appTourSubtitle),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const OnboardingScreen(isAppTour: true),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Card(
+          child: ListTile(
+            key: const Key("account-ugc-guidelines"),
+            leading: Image.asset(
+              "assets/images/mascot/mascot_ugc_guidelines.webp",
+              height: 36,
+              fit: BoxFit.contain,
+            ),
+            title: Text(strings.ugcGuidelinesMenu),
+            subtitle: Text(strings.ugcGuidelinesSubtitle),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => UgcGuidelinesDialog.show(context),
+          ),
+        ),
       ],
     );
   }
