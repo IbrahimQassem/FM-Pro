@@ -48,7 +48,7 @@ class StationProgramsTab extends StatelessWidget {
         key: const PageStorageKey('station-programs-tab'),
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 32),
         itemCount: state.programs.length + (state.isOffline ? 1 : 0),
-        separatorBuilder: (_, _) => const SizedBox(height: 10),
+        separatorBuilder: (_, __) => const SizedBox(height: 10),
         itemBuilder: (context, index) {
           if (state.isOffline && index == 0) {
             return _OfflineNotice(onRefresh: onRefresh);
@@ -176,7 +176,7 @@ class _Artwork extends StatelessWidget {
           : CachedNetworkImage(
               imageUrl: url,
               fit: BoxFit.cover,
-              errorWidget: (_, _, _) =>
+              errorWidget: (_, __, ___) =>
                   Icon(Icons.mic_rounded, color: colors.onPrimaryContainer),
             ),
     );

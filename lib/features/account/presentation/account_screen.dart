@@ -1,3 +1,4 @@
+import '../../../core/theme/app_colors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -744,7 +745,7 @@ class _SuccessMessage extends StatelessWidget {
       child: Text(
         message,
         textAlign: TextAlign.center,
-        style: const TextStyle(color: Color(0xFF1A8F5A)),
+        style: TextStyle(color: context.appTheme.statusOnline),
       ),
     );
   }

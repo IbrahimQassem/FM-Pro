@@ -81,7 +81,7 @@ class _EpisodeCommentsScreenState extends ConsumerState<EpisodeCommentsScreen> {
                       reverse: false,
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
                       itemCount: state.comments.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: 10),
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
                       itemBuilder: (context, index) {
                         final comment = state.comments[index];
                         return _CommentCard(

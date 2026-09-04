@@ -96,7 +96,7 @@ class StationScheduleTab extends StatelessWidget {
                   key: const PageStorageKey('station-schedule-tab'),
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
                   itemCount: programs.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
                     final program = programs[index];
                     final status = program.schedule!.statusAt(now, selected);

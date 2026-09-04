@@ -1,3 +1,4 @@
+import '../../../../core/theme/app_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -70,7 +71,7 @@ class UserHeader extends StatelessWidget {
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: isOffline ? colors.error : const Color(0xFF1A8F5A),
+                      color: isOffline ? colors.error : context.appTheme.statusOnline,
                       shape: BoxShape.circle,
                     ),
                   ),

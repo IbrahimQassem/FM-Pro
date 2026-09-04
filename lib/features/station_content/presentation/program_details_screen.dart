@@ -160,7 +160,7 @@ class ProgramDetailsView extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
               sliver: SliverList.separated(
                 itemCount: episodes.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 9),
+                separatorBuilder: (_, __) => const SizedBox(height: 9),
                 itemBuilder: (context, index) {
                   final episode = episodes[index];
                   final isSelected = playerState.isEpisodeSelected(episode.id);
@@ -208,7 +208,7 @@ class _ProgramHeader extends StatelessWidget {
               : CachedNetworkImage(
                   imageUrl: program.coverUrl,
                   fit: BoxFit.cover,
-                  errorWidget: (_, _, _) =>
+                  errorWidget: (_, __, ___) =>
                       Icon(Icons.mic_rounded, color: colors.onPrimaryContainer),
                 ),
         ),

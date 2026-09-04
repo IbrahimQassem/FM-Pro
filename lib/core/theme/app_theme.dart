@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'app_colors.dart';
+
 abstract final class AppTheme {
   static ThemeData light() {
-    const seed = Color(0xFF176B5B);
     final colors = ColorScheme.fromSeed(
-      seedColor: seed,
+      seedColor: AppColors.primary,
       brightness: Brightness.light,
-      surface: const Color(0xFFF8FAF8),
+      surface: AppColors.surface,
     );
 
     return ThemeData(
@@ -14,6 +15,15 @@ abstract final class AppTheme {
       colorScheme: colors,
       scaffoldBackgroundColor: colors.surface,
       visualDensity: VisualDensity.standard,
+      extensions: const [
+        AppThemeExtension.defaultTheme,
+      ],
+      tabBarTheme: TabBarThemeData(
+        labelColor: colors.primary,
+        unselectedLabelColor: colors.onSurfaceVariant,
+        indicatorColor: colors.primary,
+        indicatorSize: TabBarIndicatorSize.tab,
+      ),
       cardTheme: CardThemeData(
         elevation: 0,
         margin: EdgeInsets.zero,
