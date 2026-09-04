@@ -12,7 +12,8 @@ Splash/Firebase gate -> Home discovery -> Station details
                                   |        -> Programs -> Program episodes
                                   |                    -> Episode comments
                                   |        -> Weekly schedule
-                                  |-> Settings & Account Hub (Profile, Guest CTA, Share, Rate, About, UGC, App Tour)
+                                  |-> Settings & Account Hub -> ManageAccountScreen / AuthScreen (Sub-screens)
+                                  |                         -> Share, Rate, About, UGC, App Tour
                                   |-> Announcement notifications (opt in)
                                   \-> shared live/episode mini player
 ```
