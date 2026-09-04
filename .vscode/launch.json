@@ -2,7 +2,35 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "hudhud_fm (Debug)",
+      "name": "hudhud_fm (Real iPhone - Wireless)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "deviceId": "00008110-001C55AC1106801E",
+      "args": [
+        "--device-timeout=30"
+      ]
+    },
+    {
+      "name": "hudhud_fm (Real iPhone - Release)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release",
+      "program": "lib/main.dart",
+      "deviceId": "00008110-001C55AC1106801E",
+      "args": [
+        "--device-timeout=30"
+      ]
+    },
+    {
+      "name": "hudhud_fm (Simulator - iPhone 17 Pro Max)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "deviceId": "C04506A7-6F3C-4418-93C3-1046365A40AC"
+    },
+    {
+      "name": "hudhud_fm (Selected / Active Device)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart"
