@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/mascot_feedback_view.dart';
 import '../../../l10n/generated/app_localizations.dart';
 
 class FirebaseSetupScreen extends StatelessWidget {
@@ -12,43 +13,12 @@ class FirebaseSetupScreen extends StatelessWidget {
     final strings = AppLocalizations.of(context);
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 520),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.cloud_off_rounded,
-                    size: 72,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    strings.firebaseSetupTitle,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    strings.firebaseSetupMessage,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 24),
-                  FilledButton.icon(
-                    onPressed: onRetry,
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: Text(strings.retry),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        child: MascotFeedbackView(
+          imageAsset: 'assets/images/mascot/mascot_offline.webp',
+          title: strings.firebaseSetupTitle,
+          subtitle: strings.firebaseSetupMessage,
+          actionLabel: strings.retry,
+          onAction: onRetry,
         ),
       ),
     );

@@ -758,4 +758,36 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get verifyEmailToComment =>
       'Verify your email to comment or use safety actions';
+
+  @override
+  String get mascotEmptyCommentsTitle => 'No comments yet';
+
+  @override
+  String get mascotEmptyCommentsSubtitle =>
+      'Be the first to share your thoughts and start the conversation!';
+
+  @override
+  String get mascotEmptySearchTitle => 'No matching results found';
+
+  @override
+  String get mascotEmptySearchSubtitle =>
+      'Try searching for a different station name or category.';
+
+  @override
+  String get mascotOfflineTitle => 'Stream connection lost';
+
+  @override
+  String get mascotOfflineSubtitle =>
+      'Radio signal was interrupted. Check your internet connection and try again.';
+
+  @override
+  String get mascotEmptyFavoritesTitle => 'Your favorites list is empty';
+
+  @override
+  String get mascotEmptyFavoritesSubtitle =>
+      'Add your favorite stations to access them anytime with one tap.';
+
+  @override
+  String get mascotUgcGuidelinesBadge =>
+      'Hudhud Guidelines for a respectful community';
 }

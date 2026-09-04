@@ -1393,6 +1393,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Verify your email to comment or use safety actions'**
   String get verifyEmailToComment;
+
+  /// No description provided for @mascotEmptyCommentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet'**
+  String get mascotEmptyCommentsTitle;
+
+  /// No description provided for @mascotEmptyCommentsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Be the first to share your thoughts and start the conversation!'**
+  String get mascotEmptyCommentsSubtitle;
+
+  /// No description provided for @mascotEmptySearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching results found'**
+  String get mascotEmptySearchTitle;
+
+  /// No description provided for @mascotEmptySearchSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try searching for a different station name or category.'**
+  String get mascotEmptySearchSubtitle;
+
+  /// No description provided for @mascotOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stream connection lost'**
+  String get mascotOfflineTitle;
+
+  /// No description provided for @mascotOfflineSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Radio signal was interrupted. Check your internet connection and try again.'**
+  String get mascotOfflineSubtitle;
+
+  /// No description provided for @mascotEmptyFavoritesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your favorites list is empty'**
+  String get mascotEmptyFavoritesTitle;
+
+  /// No description provided for @mascotEmptyFavoritesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your favorite stations to access them anytime with one tap.'**
+  String get mascotEmptyFavoritesSubtitle;
+
+  /// No description provided for @mascotUgcGuidelinesBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Hudhud Guidelines for a respectful community'**
+  String get mascotUgcGuidelinesBadge;
 }
 
 class _AppLocalizationsDelegate

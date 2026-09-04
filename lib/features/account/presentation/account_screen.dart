@@ -1,4 +1,5 @@
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/mascot_avatar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -319,13 +320,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        CircleAvatar(
-          radius: 42,
-          child: Text(
-            user.displayName.isEmpty
-                ? strings.listenerInitial
-                : user.displayName.characters.first,
-            style: Theme.of(context).textTheme.headlineMedium,
+        const Center(
+          child: MascotAvatar(
+            radius: 44,
           ),
         ),
         const SizedBox(height: 16),

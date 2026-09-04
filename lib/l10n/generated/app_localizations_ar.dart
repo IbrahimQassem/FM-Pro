@@ -749,4 +749,35 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get verifyEmailToComment =>
       'وثّق بريدك للتعليق أو استخدام أدوات الأمان';
+
+  @override
+  String get mascotEmptyCommentsTitle => 'لا توجد تعليقات بعد';
+
+  @override
+  String get mascotEmptyCommentsSubtitle =>
+      'كن أول من يشارك برأيه ويبدأ النقاش حول هذه الحلقة!';
+
+  @override
+  String get mascotEmptySearchTitle => 'لم نعثر على نتائج مطابقة';
+
+  @override
+  String get mascotEmptySearchSubtitle =>
+      'جرّب البحث باسم محطة أخرى أو فئة مختلفة وسنبحث معك فورًا.';
+
+  @override
+  String get mascotOfflineTitle => 'انقطع الاتصال بالبث';
+
+  @override
+  String get mascotOfflineSubtitle =>
+      'يبدو أن إشارة الراديو انقطعت مؤقتًا. تأكد من اتصال الإنترنت وحاول مجددًا.';
+
+  @override
+  String get mascotEmptyFavoritesTitle => 'قائمتك المفضلة فارغة';
+
+  @override
+  String get mascotEmptyFavoritesSubtitle =>
+      'أضف محطاتك المفضلة لتصل إليها بنقرة واحدة في أي وقت.';
+
+  @override
+  String get mascotUgcGuidelinesBadge => 'إرشادات هدهد لمجتمع محترم وآمن';
 }

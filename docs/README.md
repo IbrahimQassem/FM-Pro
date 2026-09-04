@@ -13,6 +13,7 @@
 - [البرامج والحلقات والجدول](contracts/station-content-contract.md)
 - [الحسابات والتعليقات والإشعارات](contracts/account-comments-notifications-contract.md)
 - [الجودة والإصدار](contracts/quality-release-contract.md)
+- [هوية الماركة وشخصية الماسكوت](contracts/mascot-brand-identity-contract.md)
 
 ## التشغيل
 

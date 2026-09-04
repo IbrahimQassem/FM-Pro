@@ -1,5 +1,5 @@
 import '../../../../core/theme/app_colors.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/widgets/mascot_avatar.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../l10n/generated/app_localizations.dart';
@@ -30,24 +30,9 @@ class UserHeader extends StatelessWidget {
         Semantics(
           image: true,
           label: strings.profileImage,
-          child: Container(
-            width: 56,
-            height: 56,
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              color: colors.primaryContainer,
-              shape: BoxShape.circle,
-            ),
-            child: user.avatarUrl.isEmpty
-                ? Icon(Icons.person_rounded, color: colors.onPrimaryContainer)
-                : CachedNetworkImage(
-                    imageUrl: user.avatarUrl,
-                    fit: BoxFit.cover,
-                    errorWidget: (context, url, error) => Icon(
-                      Icons.person_rounded,
-                      color: colors.onPrimaryContainer,
-                    ),
-                  ),
+          child: MascotAvatar(
+            radius: 28,
+            imageUrl: user.avatarUrl,
           ),
         ),
         const SizedBox(width: 12),

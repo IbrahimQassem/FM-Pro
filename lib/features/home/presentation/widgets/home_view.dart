@@ -171,9 +171,10 @@ class HomeView extends StatelessWidget {
                 const HomeLoading()
               else if (state.failure == HomeFailure.load)
                 HomeEmptyState(
+                  imageAsset: 'assets/images/mascot/mascot_offline.webp',
                   icon: Icons.wifi_off_rounded,
-                  title: strings.loadErrorTitle,
-                  message: strings.loadErrorMessage,
+                  title: strings.mascotOfflineTitle,
+                  message: strings.mascotOfflineSubtitle,
                   actionLabel: strings.retry,
                   onAction: onRefresh,
                 )
@@ -187,9 +188,10 @@ class HomeView extends StatelessWidget {
                 )
               else if (visibleStations.isEmpty)
                 HomeEmptyState(
+                  imageAsset: 'assets/images/mascot/mascot_empty_search.webp',
                   icon: Icons.search_off_rounded,
-                  title: strings.noSearchResultsTitle,
-                  message: strings.noSearchResultsMessage,
+                  title: strings.mascotEmptySearchTitle,
+                  message: strings.mascotEmptySearchSubtitle,
                 )
               else if (useGrid)
                 SliverPadding(

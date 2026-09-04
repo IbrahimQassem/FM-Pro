@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../app/providers.dart';
+import '../../../core/widgets/mascot_avatar.dart';
+import '../../../core/widgets/mascot_feedback_view.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../account/presentation/account_screen.dart';
 import '../../station_content/domain/models/episode.dart';
@@ -73,9 +75,12 @@ class _EpisodeCommentsScreenState extends ConsumerState<EpisodeCommentsScreen> {
                           : null,
                     )
                   : state.comments.isEmpty
-                  ? _MessageState(
-                      icon: Icons.chat_bubble_outline_rounded,
-                      title: strings.noCommentsYet,
+                  ? MascotFeedbackView(
+                      imageAsset:
+                          'assets/images/mascot/mascot_empty_comments.webp',
+                      title: strings.mascotEmptyCommentsTitle,
+                      subtitle: strings.mascotEmptyCommentsSubtitle,
+                      imageHeight: 140,
                     )
                   : ListView.separated(
                       reverse: false,
@@ -362,9 +367,8 @@ class _CommentCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                CircleAvatar(
+                const MascotAvatar(
                   radius: 18,
-                  child: Text(comment.authorName.characters.first),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -629,6 +633,25 @@ class _UgcTermsDialog extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Center(
+              child: Image.asset(
+                'assets/images/mascot/mascot_ugc_guidelines.webp',
+                height: 84,
+                fit: BoxFit.contain,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Center(
+              child: Text(
+                strings.mascotUgcGuidelinesBadge,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+              ),
+            ),
+            const SizedBox(height: 12),
             Text(strings.ugcTermsIntro),
             const SizedBox(height: 14),
             for (final rule in rules)
@@ -831,26 +854,3 @@ class _RetryMessageState extends StatelessWidget {
   }
 }
 
-class _MessageState extends StatelessWidget {
-  const _MessageState({required this.icon, required this.title});
-
-  final IconData icon;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 52),
-            const SizedBox(height: 12),
-            Text(title, textAlign: TextAlign.center),
-          ],
-        ),
-      ),
-    );
-  }
-}

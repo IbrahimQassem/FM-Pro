@@ -25,9 +25,10 @@ class StationProgramsTab extends StatelessWidget {
     }
     if (state.failure == StationContentFailure.load) {
       return _ContentMessage(
+        imageAsset: 'assets/images/mascot/mascot_offline.webp',
         icon: Icons.cloud_off_rounded,
-        title: strings.programsLoadErrorTitle,
-        message: strings.programsLoadErrorMessage,
+        title: strings.mascotOfflineTitle,
+        message: strings.mascotOfflineSubtitle,
         actionLabel: strings.retry,
         onAction: onRefresh,
       );
@@ -239,14 +240,16 @@ class _OfflineNotice extends StatelessWidget {
 
 class _ContentMessage extends StatelessWidget {
   const _ContentMessage({
-    required this.icon,
     required this.title,
     required this.message,
     required this.actionLabel,
     required this.onAction,
+    this.icon,
+    this.imageAsset,
   });
 
-  final IconData icon;
+  final IconData? icon;
+  final String? imageAsset;
   final String title;
   final String message;
   final String actionLabel;
@@ -260,7 +263,19 @@ class _ContentMessage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 58, color: Theme.of(context).colorScheme.primary),
+            if (imageAsset != null)
+              Image.asset(
+                imageAsset!,
+                height: 130,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => Icon(
+                  icon ?? Icons.cloud_off_rounded,
+                  size: 58,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              )
+            else if (icon != null)
+              Icon(icon, size: 58, color: Theme.of(context).colorScheme.primary),
             const SizedBox(height: 14),
             Text(
               title,

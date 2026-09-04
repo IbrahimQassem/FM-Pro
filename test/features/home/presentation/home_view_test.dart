@@ -151,4 +151,59 @@ void main() {
     expect(playedStation?.id, station.id);
     expect(openedStation?.id, station.id);
   });
+
+  testWidgets("displays mascot empty search state when filter has no matches", (
+    tester,
+  ) async {
+    final station = Station(
+      id: "sanaa",
+      name: "إذاعة صنعاء",
+      streamUrl: "https://radio.example.com/live",
+      countryCode: "YE",
+      countryNameAr: "اليمن",
+      cityCode: "sanaa",
+      cityNameAr: "صنعاء",
+      frequency: "92.5 MHz",
+      priority: 10,
+      isLive: true,
+      isActive: true,
+      isVerified: true,
+      isFeatured: true,
+      programsCount: 4,
+      subscribersCount: 120,
+      totalPlays: 400,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale("ar"),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: HomeView(
+          state: HomeState(
+            stations: [station],
+            searchQuery: "غير موجود",
+            isInitialLoading: false,
+          ),
+          onRefresh: () async {},
+          onSearchChanged: (_) {},
+          onCitySelected: (_) {},
+          onViewModeChanged: (_) {},
+          onNotificationsPressed: () {},
+          onSettingsPressed: () {},
+          onStationPressed: (_) {},
+          onStationPlayPressed: (_) {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text("لم نعثر على نتائج مطابقة"), findsOneWidget);
+    expect(find.text("جرّب البحث باسم محطة أخرى أو فئة مختلفة وسنبحث معك فورًا."), findsOneWidget);
+  });
 }
