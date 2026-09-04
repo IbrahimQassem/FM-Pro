@@ -36,7 +36,8 @@ class _AppRatingDialogState extends State<AppRatingDialog> {
       title: Text(
         strings.rateAppDialogTitle,
         textAlign: TextAlign.center,
-        style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+        style:
+            theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
       ),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 400),
@@ -69,8 +70,11 @@ class _AppRatingDialogState extends State<AppRatingDialog> {
                   key: Key("rating-star-$starIndex"),
                   onPressed: () => setState(() => _selectedStars = starIndex),
                   icon: Icon(
-                    isSelected ? Icons.star_rounded : Icons.star_outline_rounded,
-                    color: isSelected ? Colors.amber : theme.colorScheme.outline,
+                    isSelected
+                        ? Icons.star_rounded
+                        : Icons.star_outline_rounded,
+                    color:
+                        isSelected ? Colors.amber : theme.colorScheme.outline,
                     size: 36,
                   ),
                   tooltip: "$starIndex ${strings.rateAppTitle}",
