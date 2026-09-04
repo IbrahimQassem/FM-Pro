@@ -45,6 +45,18 @@ class AccountController extends StateNotifier<AccountState> {
     );
   }
 
+  Future<bool> updateProfile({
+    required String displayName,
+    String? photoUrl,
+  }) async {
+    return _run(
+      () => _repository.updateProfile(
+        displayName: displayName,
+        photoUrl: photoUrl,
+      ),
+    );
+  }
+
   Future<void> signIn({required String email, required String password}) async {
     await _run(() => _repository.signIn(email: email, password: password));
   }

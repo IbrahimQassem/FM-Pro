@@ -966,4 +966,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get termsOfService => 'Terms of Service';
+
+  @override
+  String get takePhoto => 'Take Photo with Camera';
+
+  @override
+  String get chooseFromGallery => 'Choose from Gallery';
+
+  @override
+  String get chooseMascotAvatar => 'Hudhud Mascots';
+
+  @override
+  String get editProfile => 'Edit Profile';
+
+  @override
+  String get saveChanges => 'Save Changes';
+
+  @override
+  String get profileUpdated => 'Profile updated successfully';
+
+  @override
+  String get currentSignInMethod => 'Current Sign-In Method';
+
+  @override
+  String get dontHaveAccount => 'Don\'t have an account?';
+
+  @override
+  String get registerNow => 'Register Now';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account?';
+
+  @override
+  String get signInNow => 'Sign In';
+
+  @override
+  String get deleteAccountDiscrete => 'Permanently delete account and data';
+
+  @override
+  String get pickAvatarPrompt => 'Choose profile avatar';
 }

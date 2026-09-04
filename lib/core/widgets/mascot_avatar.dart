@@ -1,4 +1,6 @@
+import 'dart:io' show File;
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Circular avatar that displays the user profile image or falls back to
@@ -11,7 +13,7 @@ class MascotAvatar extends StatelessWidget {
     super.key,
   });
 
-  /// Optional remote profile image URL.
+  /// Optional profile image URL, asset path, or local file path.
   final String? imageUrl;
 
   /// Avatar radius in logical pixels.
@@ -41,6 +43,45 @@ class MascotAvatar extends StatelessWidget {
           ),
         );
 
+    Widget buildImage() {
+      final raw = imageUrl?.trim();
+      if (raw == null || raw.isEmpty) return fallback();
+
+      if (raw.startsWith('assets/')) {
+        return Image.asset(
+          raw,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => fallback(),
+        );
+      }
+
+      if (raw.startsWith('http://') || raw.startsWith('https://')) {
+        return CachedNetworkImage(
+          imageUrl: raw,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorWidget: (_, __, ___) => fallback(),
+          placeholder: (_, __) => fallback(),
+        );
+      }
+
+      if (!kIsWeb) {
+        final file = File(raw.replaceFirst('file://', ''));
+        return Image.file(
+          file,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => fallback(),
+        );
+      }
+
+      return fallback();
+    }
+
     return Container(
       width: size,
       height: size,
@@ -53,16 +94,7 @@ class MascotAvatar extends StatelessWidget {
         ),
       ),
       clipBehavior: Clip.antiAlias,
-      child: (imageUrl != null && imageUrl!.trim().isNotEmpty)
-          ? CachedNetworkImage(
-              imageUrl: imageUrl!.trim(),
-              width: size,
-              height: size,
-              fit: BoxFit.cover,
-              errorWidget: (_, __, ___) => fallback(),
-              placeholder: (_, __) => fallback(),
-            )
-          : fallback(),
+      child: buildImage(),
     );
   }
 }

@@ -1760,6 +1760,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Terms of Service'**
   String get termsOfService;
+
+  /// No description provided for @takePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo with Camera'**
+  String get takePhoto;
+
+  /// No description provided for @chooseFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Gallery'**
+  String get chooseFromGallery;
+
+  /// No description provided for @chooseMascotAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Hudhud Mascots'**
+  String get chooseMascotAvatar;
+
+  /// No description provided for @editProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get editProfile;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get saveChanges;
+
+  /// No description provided for @profileUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully'**
+  String get profileUpdated;
+
+  /// No description provided for @currentSignInMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Sign-In Method'**
+  String get currentSignInMethod;
+
+  /// No description provided for @dontHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account?'**
+  String get dontHaveAccount;
+
+  /// No description provided for @registerNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Register Now'**
+  String get registerNow;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get alreadyHaveAccount;
+
+  /// No description provided for @signInNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get signInNow;
+
+  /// No description provided for @deleteAccountDiscrete.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete account and data'**
+  String get deleteAccountDiscrete;
+
+  /// No description provided for @pickAvatarPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose profile avatar'**
+  String get pickAvatarPrompt;
 }
 
 class _AppLocalizationsDelegate

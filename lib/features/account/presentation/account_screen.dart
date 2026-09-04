@@ -7,8 +7,9 @@ import "../../../core/widgets/mascot_avatar.dart";
 import "../../../l10n/generated/app_localizations.dart";
 import "../../comments/presentation/widgets/ugc_guidelines_dialog.dart";
 import "../../onboarding/presentation/onboarding_screen.dart";
-import "auth_screen.dart";
 import "manage_account_screen.dart";
+import "register_screen.dart";
+import "sign_in_screen.dart";
 import "widgets/about_app_dialog.dart";
 import "widgets/app_rating_dialog.dart";
 
@@ -29,7 +30,8 @@ class AccountScreen extends ConsumerWidget {
         child: state.isInitializing
             ? const Center(child: CircularProgressIndicator())
             : ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 children: [
                   _buildUserCard(context, strings, state, theme),
                   const SizedBox(height: 20),
@@ -116,15 +118,34 @@ class AccountScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 14),
-              FilledButton.icon(
-                key: const Key("open-auth-button"),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const AuthScreen(),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.icon(
+                      key: const Key("open-sign-in-button"),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const SignInScreen(),
+                        ),
+                      ),
+                      icon: const Icon(Icons.login_rounded, size: 18),
+                      label: Text(strings.signInNow),
+                    ),
                   ),
-                ),
-                icon: const Icon(Icons.login_rounded, size: 20),
-                label: Text(strings.signInOrRegister),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      key: const Key("open-register-button"),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const RegisterScreen(),
+                        ),
+                      ),
+                      icon: const Icon(Icons.person_add_outlined, size: 18),
+                      label: Text(strings.registerNow),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -147,7 +168,10 @@ class AccountScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              const MascotAvatar(radius: 28),
+              MascotAvatar(
+                imageUrl: user.photoUrl,
+                radius: 28,
+              ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -175,7 +199,9 @@ class AccountScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      user.email.isNotEmpty ? user.email : strings.verifiedAccountBadge,
+                      user.email.isNotEmpty
+                          ? user.email
+                          : strings.verifiedAccountBadge,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),

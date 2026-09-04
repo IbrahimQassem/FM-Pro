@@ -109,6 +109,14 @@ void main() {
       expect(account?.linkedProviders, {AccountSignInProvider.facebook});
     },
   );
+
+  test('updates profile successfully', () async {
+    final dataSource = _FakeAccountAuthDataSource();
+    final repository = FirebaseAccountRepository(dataSource);
+    await repository.updateProfile(displayName: 'Updated Listener', photoUrl: 'https://example.com/pic.jpg');
+    expect(dataSource.updatedDisplayName, 'Updated Listener');
+    expect(dataSource.updatedPhotoUrl, 'https://example.com/pic.jpg');
+  });
 }
 
 class _FakeAccountAuthDataSource implements AccountAuthDataSource {
@@ -124,6 +132,8 @@ class _FakeAccountAuthDataSource implements AccountAuthDataSource {
   String? requestedEmail;
   String? code;
   AccountSignInProvider? provider;
+  String? updatedDisplayName;
+  String? updatedPhotoUrl;
 
   void _throwIfNeeded() {
     final dataCode = dataErrorCode;
@@ -174,6 +184,16 @@ class _FakeAccountAuthDataSource implements AccountAuthDataSource {
   @override
   Future<void> signOut() async {
     _throwIfNeeded();
+  }
+
+  @override
+  Future<void> updateProfile({
+    required String displayName,
+    String? photoUrl,
+  }) async {
+    _throwIfNeeded();
+    updatedDisplayName = displayName;
+    updatedPhotoUrl = photoUrl;
   }
 
   @override

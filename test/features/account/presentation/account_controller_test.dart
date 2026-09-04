@@ -108,6 +108,8 @@ class _FakeAccountRepository implements AccountRepository {
   String? deletionPassword;
   String? verificationCode;
   AccountSignInProvider? provider;
+  String? updatedDisplayName;
+  String? updatedPhotoUrl;
 
   void emit(AccountUser? user) => _controller.add(user);
 
@@ -159,6 +161,16 @@ class _FakeAccountRepository implements AccountRepository {
   Future<void> signOut() async {
     _throwIfNeeded();
     didSignOut = true;
+  }
+
+  @override
+  Future<void> updateProfile({
+    required String displayName,
+    String? photoUrl,
+  }) async {
+    _throwIfNeeded();
+    updatedDisplayName = displayName;
+    updatedPhotoUrl = photoUrl;
   }
 
   void _throwIfNeeded() {

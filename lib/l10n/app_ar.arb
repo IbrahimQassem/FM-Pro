@@ -309,5 +309,18 @@
     }
   },
   "privacyPolicy": "سياسة الخصوصية",
-  "termsOfService": "شروط الخدمة"
+  "termsOfService": "شروط الخدمة",
+  "takePhoto": "التقاط صورة بالكاميرا",
+  "chooseFromGallery": "اختيار من المعرض",
+  "chooseMascotAvatar": "شخصيات الهدهد",
+  "editProfile": "تعديل الملف الشخصي",
+  "saveChanges": "حفظ التعديلات",
+  "profileUpdated": "تم تحديث الملف الشخصي بنجاح",
+  "currentSignInMethod": "وسيلة الدخول الحالية",
+  "dontHaveAccount": "ليس لديك حساب؟",
+  "registerNow": "سجّل الآن",
+  "alreadyHaveAccount": "لديك حساب بالفعل؟",
+  "signInNow": "تسجيل الدخول",
+  "deleteAccountDiscrete": "حذف الحساب والبيانات نهائياً",
+  "pickAvatarPrompt": "اختر صورة للملف الشخصي"
 }

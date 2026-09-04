@@ -12,6 +12,11 @@ abstract interface class AccountRepository {
     required String password,
   });
 
+  Future<void> updateProfile({
+    required String displayName,
+    String? photoUrl,
+  });
+
   Future<void> requestEmailVerificationCode({String? email});
 
   Future<void> verifyEmailCode(String code);

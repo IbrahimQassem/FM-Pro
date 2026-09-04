@@ -952,4 +952,43 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get termsOfService => 'شروط الخدمة';
+
+  @override
+  String get takePhoto => 'التقاط صورة بالكاميرا';
+
+  @override
+  String get chooseFromGallery => 'اختيار من المعرض';
+
+  @override
+  String get chooseMascotAvatar => 'شخصيات الهدهد';
+
+  @override
+  String get editProfile => 'تعديل الملف الشخصي';
+
+  @override
+  String get saveChanges => 'حفظ التعديلات';
+
+  @override
+  String get profileUpdated => 'تم تحديث الملف الشخصي بنجاح';
+
+  @override
+  String get currentSignInMethod => 'وسيلة الدخول الحالية';
+
+  @override
+  String get dontHaveAccount => 'ليس لديك حساب؟';
+
+  @override
+  String get registerNow => 'سجّل الآن';
+
+  @override
+  String get alreadyHaveAccount => 'لديك حساب بالفعل؟';
+
+  @override
+  String get signInNow => 'تسجيل الدخول';
+
+  @override
+  String get deleteAccountDiscrete => 'حذف الحساب والبيانات نهائياً';
+
+  @override
+  String get pickAvatarPrompt => 'اختر صورة للملف الشخصي';
 }

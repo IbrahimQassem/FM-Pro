@@ -7,26 +7,41 @@ import "package:hudhud_fm/features/account/domain/models/account_sign_in_provide
 import "package:hudhud_fm/features/account/domain/models/account_user.dart";
 import "package:hudhud_fm/features/account/domain/repositories/account_repository.dart";
 import "package:hudhud_fm/features/account/presentation/account_screen.dart";
-import "package:hudhud_fm/features/account/presentation/auth_screen.dart";
 import "package:hudhud_fm/features/account/presentation/manage_account_screen.dart";
+import "package:hudhud_fm/features/account/presentation/register_screen.dart";
+import "package:hudhud_fm/features/account/presentation/sign_in_screen.dart";
 import "package:hudhud_fm/features/account/presentation/widgets/about_app_dialog.dart";
 import "package:hudhud_fm/features/onboarding/presentation/onboarding_screen.dart";
 import "package:hudhud_fm/l10n/generated/app_localizations.dart";
 
 void main() {
-  testWidgets("guest sees guest card and can open AuthScreen", (tester) async {
+  testWidgets("guest sees guest card and can open SignInScreen", (tester) async {
     final repository = _FakeAccountRepository(user: null);
     await tester.pumpWidget(_TestApp(repository: repository));
     await tester.pumpAndSettle();
 
     expect(find.text("مرحباً بك في هدهد FM"), findsOneWidget);
-    final openAuthButton = find.byKey(const Key("open-auth-button"));
-    expect(openAuthButton, findsOneWidget);
+    final openSignInButton = find.byKey(const Key("open-sign-in-button"));
+    expect(openSignInButton, findsOneWidget);
 
-    await tester.tap(openAuthButton);
+    await tester.tap(openSignInButton);
     await tester.pumpAndSettle();
 
-    expect(find.byType(AuthScreen), findsOneWidget);
+    expect(find.byType(SignInScreen), findsOneWidget);
+  });
+
+  testWidgets("guest can open RegisterScreen from guest card", (tester) async {
+    final repository = _FakeAccountRepository(user: null);
+    await tester.pumpWidget(_TestApp(repository: repository));
+    await tester.pumpAndSettle();
+
+    final openRegisterButton = find.byKey(const Key("open-register-button"));
+    expect(openRegisterButton, findsOneWidget);
+
+    await tester.tap(openRegisterButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(RegisterScreen), findsOneWidget);
   });
 
   testWidgets("verified user sees profile and can open ManageAccountScreen", (tester) async {
@@ -153,6 +168,8 @@ class _FakeAccountRepository implements AccountRepository {
   Future<void> signIn({required String email, required String password}) async {}
   @override
   Future<void> signOut() async {}
+  @override
+  Future<void> updateProfile({required String displayName, String? photoUrl}) async {}
 }
 
 const _user = AccountUser(

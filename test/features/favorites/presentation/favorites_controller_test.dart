@@ -88,6 +88,9 @@ class FakeAccountRepository implements AccountRepository {
 
   @override
   Future<void> verifyEmailCode(String code) async {}
+
+  @override
+  Future<void> updateProfile({required String displayName, String? photoUrl}) async {}
 }
 
 void main() {

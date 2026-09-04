@@ -19,6 +19,7 @@ class FirebaseAccountRepository implements AccountRepository {
         uid: snapshot.uid,
         displayName: snapshot.displayName,
         email: snapshot.email,
+        photoUrl: snapshot.photoUrl,
         emailVerified: snapshot.emailVerified,
         linkedProviders: AccountSignInProvider.values
             .where(
@@ -32,6 +33,19 @@ class FirebaseAccountRepository implements AccountRepository {
   @override
   Future<void> signIn({required String email, required String password}) {
     return _guard(() => _dataSource.signIn(email: email, password: password));
+  }
+
+  @override
+  Future<void> updateProfile({
+    required String displayName,
+    String? photoUrl,
+  }) {
+    return _guard(
+      () => _dataSource.updateProfile(
+        displayName: displayName,
+        photoUrl: photoUrl,
+      ),
+    );
   }
 
   @override

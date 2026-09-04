@@ -1,4 +1,3 @@
-import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -7,11 +6,37 @@ import "package:hudhud_fm/app/providers.dart";
 import "package:hudhud_fm/features/account/domain/models/account_sign_in_provider.dart";
 import "package:hudhud_fm/features/account/domain/models/account_user.dart";
 import "package:hudhud_fm/features/account/domain/repositories/account_repository.dart";
-import "package:hudhud_fm/features/account/presentation/auth_screen.dart";
+import "package:hudhud_fm/features/account/presentation/register_screen.dart";
+import "package:hudhud_fm/features/account/presentation/sign_in_screen.dart";
 import "package:hudhud_fm/l10n/generated/app_localizations.dart";
 
 void main() {
-  testWidgets("guest can start Google or Facebook sign in from AuthScreen", (tester) async {
+  testWidgets("signs in with valid email and password", (tester) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = _FakeAccountRepository();
+    await tester.pumpWidget(_TestApp(repository: repository));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key("account-email")),
+      "listener@example.com",
+    );
+    await tester.enterText(
+      find.byKey(const Key("account-password")),
+      "password123",
+    );
+    await tester.tap(find.byKey(const Key("account-submit")));
+    await tester.pump();
+
+    expect(repository.signInEmail, "listener@example.com");
+    expect(repository.signInPassword, "password123");
+  });
+
+  testWidgets("starts Google sign in from SignInScreen", (tester) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -24,67 +49,45 @@ void main() {
     await tester.tap(find.byKey(const Key("account-google")));
     await tester.pump();
     expect(repository.provider, AccountSignInProvider.google);
+  });
 
-    await tester.tap(find.byKey(const Key("account-facebook")));
+  testWidgets("can navigate to RegisterScreen via go-to-register-button", (tester) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = _FakeAccountRepository();
+    await tester.pumpWidget(_TestApp(repository: repository));
+    await tester.pumpAndSettle();
+
+    final registerButton = find.byKey(const Key("go-to-register-button"));
+    expect(registerButton, findsOneWidget);
+
+    await tester.tap(registerButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(RegisterScreen), findsOneWidget);
+  });
+
+  testWidgets("requests password reset for entered email", (tester) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = _FakeAccountRepository();
+    await tester.pumpWidget(_TestApp(repository: repository));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key("account-email")),
+      "forgot@example.com",
+    );
+    await tester.tap(find.text("نسيت كلمة المرور؟"));
     await tester.pump();
-    expect(repository.provider, AccountSignInProvider.facebook);
-  });
 
-  testWidgets("iOS offers Apple sign in on AuthScreen", (tester) async {
-    tester.view.physicalSize = const Size(800, 1400);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-    addTearDown(() => debugDefaultTargetPlatformOverride = null);
-
-    final repository = _FakeAccountRepository();
-    await tester.pumpWidget(_TestApp(repository: repository));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const Key("account-apple")), findsOneWidget);
-    await tester.tap(find.byKey(const Key("account-apple")));
-    await tester.pump();
-
-    expect(repository.provider, AccountSignInProvider.apple);
-    debugDefaultTargetPlatformOverride = null;
-  });
-
-  testWidgets("can toggle between sign in and register modes", (tester) async {
-    tester.view.physicalSize = const Size(800, 1400);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final repository = _FakeAccountRepository();
-    await tester.pumpWidget(_TestApp(repository: repository));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const Key("account-name")), findsNothing);
-    await tester.tap(find.byKey(const Key("account-switch-mode")));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const Key("account-name")), findsOneWidget);
-  });
-
-  testWidgets("can open UGC guidelines from AuthScreen", (tester) async {
-    tester.view.physicalSize = const Size(800, 1400);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final repository = _FakeAccountRepository();
-    await tester.pumpWidget(_TestApp(repository: repository));
-    await tester.pumpAndSettle();
-
-    final guidelinesButton = find.byKey(const Key("account-auth-ugc-guidelines"));
-    expect(guidelinesButton, findsOneWidget);
-
-    await tester.tap(guidelinesButton);
-    await tester.pumpAndSettle();
-
-    expect(find.text("شروط المشاركة والتعليقات"), findsOneWidget);
+    expect(repository.resetEmail, "forgot@example.com");
   });
 }
 
@@ -106,7 +109,7 @@ class _TestApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        home: AuthScreen(),
+        home: SignInScreen(),
       ),
     );
   }
@@ -114,6 +117,9 @@ class _TestApp extends StatelessWidget {
 
 class _FakeAccountRepository implements AccountRepository {
   AccountSignInProvider? provider;
+  String? signInEmail;
+  String? signInPassword;
+  String? resetEmail;
 
   @override
   Stream<AccountUser?> watchAccount() => Stream.value(null);
@@ -130,11 +136,23 @@ class _FakeAccountRepository implements AccountRepository {
   @override
   Future<void> verifyEmailCode(String code) async {}
   @override
-  Future<void> register({required String displayName, required String email, required String password}) async {}
+  Future<void> register({
+    required String displayName,
+    required String email,
+    required String password,
+  }) async {}
   @override
-  Future<void> sendPasswordReset(String email) async {}
+  Future<void> sendPasswordReset(String email) async {
+    resetEmail = email;
+  }
   @override
-  Future<void> signIn({required String email, required String password}) async {}
+  Future<void> signIn({
+    required String email,
+    required String password,
+  }) async {
+    signInEmail = email;
+    signInPassword = password;
+  }
   @override
   Future<void> signOut() async {}
   @override

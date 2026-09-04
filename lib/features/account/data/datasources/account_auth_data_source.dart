@@ -17,6 +17,7 @@ class AccountAuthSnapshot {
     required this.email,
     required this.emailVerified,
     required this.providerIds,
+    this.photoUrl,
   });
 
   final String uid;
@@ -24,6 +25,7 @@ class AccountAuthSnapshot {
   final String email;
   final bool emailVerified;
   final Set<String> providerIds;
+  final String? photoUrl;
 }
 
 class AccountDataException implements Exception {
@@ -41,6 +43,11 @@ abstract interface class AccountAuthDataSource {
     required String displayName,
     required String email,
     required String password,
+  });
+
+  Future<void> updateProfile({
+    required String displayName,
+    String? photoUrl,
   });
 
   Future<void> requestEmailVerificationCode({String? email});
@@ -107,6 +114,34 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
     if (credential.user?.emailVerified == true) {
       await _ensureAccountProfile();
     }
+  }
+
+  @override
+  Future<void> updateProfile({
+    required String displayName,
+    String? photoUrl,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null) throw const AccountDataException('user-unavailable');
+    final trimmedName = displayName.trim();
+    if (trimmedName.length < 2) {
+      throw const AccountDataException('invalid-display-name');
+    }
+    await user.updateDisplayName(trimmedName);
+    if (photoUrl != null) {
+      await user.updatePhotoURL(photoUrl);
+    }
+    try {
+      final userRef = FirestorePaths.users(_firestore).doc(user.uid);
+      await userRef.set({
+        'displayName': trimmedName,
+        if (photoUrl != null) 'avatarUrl': photoUrl,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (_) {
+      // Non-blocking Firestore cache update
+    }
+    await user.reload();
   }
 
   @override

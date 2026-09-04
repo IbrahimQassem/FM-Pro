@@ -11,12 +11,14 @@ import "../domain/models/account_sign_in_provider.dart";
 import "../domain/models/account_user.dart";
 import "../domain/repositories/account_repository.dart";
 import "controllers/account_state.dart";
+import "widgets/edit_profile_bottom_sheet.dart";
 
 class ManageAccountScreen extends ConsumerStatefulWidget {
   const ManageAccountScreen({super.key});
 
   @override
-  ConsumerState<ManageAccountScreen> createState() => _ManageAccountScreenState();
+  ConsumerState<ManageAccountScreen> createState() =>
+      _ManageAccountScreenState();
 }
 
 class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
@@ -66,34 +68,62 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
     AccountState state,
     AccountUser user,
   ) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
         Card(
           elevation: 0,
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          color: colors.surfaceContainerHighest,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                const MascotAvatar(radius: 44),
+                Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    MascotAvatar(
+                      imageUrl: user.photoUrl,
+                      radius: 44,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: colors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        key: const Key('edit-profile-avatar-button'),
+                        iconSize: 16,
+                        padding: const EdgeInsets.all(6),
+                        constraints: const BoxConstraints(),
+                        color: colors.onPrimary,
+                        icon: const Icon(Icons.camera_alt_outlined),
+                        tooltip: strings.editProfile,
+                        onPressed: () =>
+                            EditProfileBottomSheet.show(context, user),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 12),
                 Text(
                   user.displayName,
                   textAlign: TextAlign.center,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
                 if (user.email.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(
                     user.email,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                    style: TextStyle(color: colors.onSurfaceVariant),
                   ),
                 ],
                 const SizedBox(height: 10),
@@ -106,16 +136,24 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
                   label: Text(strings.verifiedAccountBadge),
                   visualDensity: VisualDensity.compact,
                 ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  key: const Key('edit-profile-button'),
+                  onPressed: () => EditProfileBottomSheet.show(context, user),
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  label: Text(strings.editProfile),
+                ),
               ],
             ),
           ),
         ),
         const SizedBox(height: 24),
         Text(
-          strings.linkedSignInMethods,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+          strings.currentSignInMethod,
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: colors.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -130,24 +168,7 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
               )
               .toList(),
         ),
-        if (state.providerLinked) ...[
-          const SizedBox(height: 12),
-          _SuccessMessage(message: strings.providerLinked),
-        ],
-        const SizedBox(height: 20),
-        Text(
-          strings.linkAnotherMethod,
-          style: Theme.of(
-            context,
-          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 8),
-        ..._providerButtons(
-          strings,
-          state,
-          linkedProviders: user.linkedProviders,
-        ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         FilledButton.tonalIcon(
           key: const Key('account-sign-out'),
           onPressed: state.isSubmitting
@@ -156,34 +177,31 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
           icon: const Icon(Icons.logout_rounded),
           label: Text(strings.signOut),
         ),
-        const SizedBox(height: 24),
-        const Divider(),
-        const SizedBox(height: 12),
-        Text(
-          strings.deleteAccountSectionTitle,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: Theme.of(context).colorScheme.error,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(strings.deleteAccountSectionMessage),
-        const SizedBox(height: 12),
-        OutlinedButton.icon(
-          key: const Key('account-delete'),
-          onPressed: state.isSubmitting
-              ? null
-              : () => _confirmDeleteAccount(user),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: Theme.of(context).colorScheme.error,
-          ),
-          icon: const Icon(Icons.delete_forever_outlined),
-          label: Text(strings.deleteAccount),
-        ),
         if (state.failure case final failure?) ...[
           const SizedBox(height: 14),
           _ErrorMessage(message: _failureText(strings, failure)),
         ],
+        const SizedBox(height: 48),
+        Center(
+          child: TextButton.icon(
+            key: const Key('account-delete'),
+            onPressed:
+                state.isSubmitting ? null : () => _confirmDeleteAccount(user),
+            icon: Icon(
+              Icons.delete_outline,
+              size: 16,
+              color: colors.outline,
+            ),
+            label: Text(
+              strings.deleteAccountDiscrete,
+              style: TextStyle(
+                fontSize: 12,
+                color: colors.outline,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
       ],
     );
   }
@@ -228,7 +246,6 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             autofillHints: const [AutofillHints.email],
-            autocorrect: false,
             decoration: InputDecoration(
               labelText: strings.email,
               prefixIcon: const Icon(Icons.email_outlined),
@@ -240,22 +257,30 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
           key: const Key('account-verification-code'),
           controller: _verificationCodeController,
           keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(6),
+          ],
           textInputAction: TextInputAction.done,
-          maxLength: 6,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onChanged: (_) => setState(() {}),
-          onSubmitted: (_) => _verifyEmailCode(),
           decoration: InputDecoration(
             labelText: strings.verificationCode,
             prefixIcon: const Icon(Icons.pin_outlined),
           ),
         ),
-        _feedback(strings, state),
-        const SizedBox(height: 14),
+        if (state.verificationCodeSent) ...[
+          const SizedBox(height: 12),
+          _SuccessMessage(message: strings.verificationCodeSent),
+        ],
+        if (state.failure case final failure?) ...[
+          const SizedBox(height: 14),
+          _ErrorMessage(message: _failureText(strings, failure)),
+        ],
+        const SizedBox(height: 20),
         FilledButton(
           key: const Key('account-verify-email'),
-          onPressed:
-              state.isSubmitting || _verificationCodeController.text.length != 6
+          onPressed: state.isSubmitting ||
+                  _verificationCodeController.text.length != 6
               ? null
               : _verifyEmailCode,
           child: state.isSubmitting
@@ -265,26 +290,16 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
                 )
               : Text(strings.verifyEmail),
         ),
+        const SizedBox(height: 8),
         TextButton(
           key: const Key('account-resend-code'),
           onPressed: state.isSubmitting
               ? null
               : () => _requestVerificationCode(user),
-          child: Text(
-            state.verificationCodeSent
-                ? strings.resendVerificationCode
-                : strings.sendVerificationCode,
-          ),
-        ),
-        const SizedBox(height: 10),
-        _socialDivider(strings),
-        ..._providerButtons(
-          strings,
-          state,
-          linkedProviders: user.linkedProviders,
+          child: Text(strings.resendVerificationCode),
         ),
         const SizedBox(height: 12),
-        OutlinedButton.icon(
+        FilledButton.tonalIcon(
           key: const Key('account-sign-out'),
           onPressed: state.isSubmitting
               ? null
@@ -292,91 +307,8 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
           icon: const Icon(Icons.logout_rounded),
           label: Text(strings.signOut),
         ),
-        const SizedBox(height: 20),
-        TextButton.icon(
-          key: const Key('account-delete'),
-          onPressed: state.isSubmitting
-              ? null
-              : () => _confirmDeleteAccount(user),
-          style: TextButton.styleFrom(
-            foregroundColor: Theme.of(context).colorScheme.error,
-          ),
-          icon: const Icon(Icons.delete_forever_outlined),
-          label: Text(strings.deleteAccount),
-        ),
       ],
     );
-  }
-
-  Widget _feedback(AppLocalizations strings, AccountState state) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (state.failure case final failure?) ...[
-          const SizedBox(height: 14),
-          _ErrorMessage(message: _failureText(strings, failure)),
-        ],
-        if (state.passwordResetSent) ...[
-          const SizedBox(height: 14),
-          _SuccessMessage(message: strings.passwordResetSent),
-        ],
-        if (state.verificationCodeSent) ...[
-          const SizedBox(height: 14),
-          _SuccessMessage(message: strings.verificationCodeSent),
-        ],
-      ],
-    );
-  }
-
-  Widget _socialDivider(AppLocalizations strings) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      child: Row(
-        children: [
-          const Expanded(child: Divider()),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(
-              strings.socialSignInDivider,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-          const Expanded(child: Divider()),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _providerButtons(
-    AppLocalizations strings,
-    AccountState state, {
-    Set<AccountSignInProvider> linkedProviders = const {},
-  }) {
-    final providers = <AccountSignInProvider>[
-      AccountSignInProvider.google,
-      AccountSignInProvider.facebook,
-      if (_supportsAppleSignIn) AccountSignInProvider.apple,
-    ];
-    return providers
-        .where((provider) => !linkedProviders.contains(provider))
-        .map(
-          (provider) => Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: OutlinedButton.icon(
-              key: Key("account-${provider.name}"),
-              onPressed: state.isSubmitting
-                  ? null
-                  : () => ref
-                        .read(accountControllerProvider.notifier)
-                        .continueWithProvider(provider),
-              icon: Icon(_providerIcon(provider)),
-              label: Text(_providerLabel(strings, provider)),
-            ),
-          ),
-        )
-        .toList();
   }
 
   Future<void> _requestVerificationCode(AccountUser user) async {
@@ -498,8 +430,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final canConfirm =
-        _acknowledged &&
+    final canConfirm = _acknowledged &&
         (!widget.requiresPassword || _passwordController.text.isNotEmpty);
     return AlertDialog(
       scrollable: true,

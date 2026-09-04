@@ -309,5 +309,18 @@
     }
   },
   "privacyPolicy": "Privacy Policy",
-  "termsOfService": "Terms of Service"
+  "termsOfService": "Terms of Service",
+  "takePhoto": "Take Photo with Camera",
+  "chooseFromGallery": "Choose from Gallery",
+  "chooseMascotAvatar": "Hudhud Mascots",
+  "editProfile": "Edit Profile",
+  "saveChanges": "Save Changes",
+  "profileUpdated": "Profile updated successfully",
+  "currentSignInMethod": "Current Sign-In Method",
+  "dontHaveAccount": "Don't have an account?",
+  "registerNow": "Register Now",
+  "alreadyHaveAccount": "Already have an account?",
+  "signInNow": "Sign In",
+  "deleteAccountDiscrete": "Permanently delete account and data",
+  "pickAvatarPrompt": "Choose profile avatar"
 }

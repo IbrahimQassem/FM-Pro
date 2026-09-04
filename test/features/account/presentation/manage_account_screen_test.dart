@@ -119,6 +119,34 @@ void main() {
 
     expect(repository.signedOut, isTrue);
   });
+
+  testWidgets("can open edit profile sheet and save new display name and mascot", (tester) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = _FakeAccountRepository(user: _user);
+    await tester.pumpWidget(_TestApp(repository: repository));
+    await tester.pumpAndSettle();
+
+    final editButton = find.byKey(const Key("edit-profile-button"));
+    expect(editButton, findsOneWidget);
+    await tester.tap(editButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key("edit-display-name")), findsOneWidget);
+    await tester.enterText(find.byKey(const Key("edit-display-name")), "Ahmed Updated");
+    await tester.tap(find.byKey(const Key("mascot-avatar-1")));
+    await tester.pump();
+
+    final saveButton = find.byKey(const Key("save-profile-button"));
+    await tester.tap(saveButton);
+    await tester.pumpAndSettle();
+
+    expect(repository.updatedDisplayName, "Ahmed Updated");
+    expect(repository.updatedPhotoUrl, "assets/images/mascot/mascot_onboarding.webp");
+  });
 }
 
 class _TestApp extends StatelessWidget {
@@ -153,6 +181,8 @@ class _FakeAccountRepository implements AccountRepository {
   String? verificationCode;
   String? requestedEmail;
   bool signedOut = false;
+  String? updatedDisplayName;
+  String? updatedPhotoUrl;
 
   @override
   Stream<AccountUser?> watchAccount() => Stream.value(user);
@@ -183,6 +213,12 @@ class _FakeAccountRepository implements AccountRepository {
   @override
   Future<void> signOut() async {
     signedOut = true;
+  }
+
+  @override
+  Future<void> updateProfile({required String displayName, String? photoUrl}) async {
+    updatedDisplayName = displayName;
+    updatedPhotoUrl = photoUrl;
   }
 }
 
