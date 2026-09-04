@@ -71,138 +71,164 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
-    return ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        Card(
-          elevation: 0,
-          color: colors.surfaceContainerHighest,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight - 40,
+            ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Stack(
-                  alignment: Alignment.bottomRight,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    MascotAvatar(
-                      imageUrl: user.photoUrl,
-                      radius: 44,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: colors.primary,
-                        shape: BoxShape.circle,
+                    Card(
+                      elevation: 0,
+                      color: colors.surfaceContainerHighest,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      child: IconButton(
-                        key: const Key('edit-profile-avatar-button'),
-                        iconSize: 16,
-                        padding: const EdgeInsets.all(6),
-                        constraints: const BoxConstraints(),
-                        color: colors.onPrimary,
-                        icon: const Icon(Icons.camera_alt_outlined),
-                        tooltip: strings.editProfile,
-                        onPressed: () =>
-                            EditProfileBottomSheet.show(context, user),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          children: [
+                            Stack(
+                              alignment: Alignment.bottomRight,
+                              children: [
+                                MascotAvatar(
+                                  imageUrl: user.photoUrl,
+                                  radius: 44,
+                                ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: colors.primary,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: IconButton(
+                                    key: const Key('edit-profile-avatar-button'),
+                                    iconSize: 16,
+                                    padding: const EdgeInsets.all(6),
+                                    constraints: const BoxConstraints(),
+                                    color: colors.onPrimary,
+                                    icon: const Icon(Icons.camera_alt_outlined),
+                                    tooltip: strings.editProfile,
+                                    onPressed: () =>
+                                        EditProfileBottomSheet.show(context, user),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              user.displayName,
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            if (user.email.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                user.email,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: colors.onSurfaceVariant),
+                              ),
+                            ],
+                            const SizedBox(height: 10),
+                            Chip(
+                              avatar: const Icon(
+                                Icons.verified_rounded,
+                                size: 16,
+                                color: Colors.green,
+                              ),
+                              label: Text(strings.verifiedAccountBadge),
+                              visualDensity: VisualDensity.compact,
+                            ),
+                            const SizedBox(height: 12),
+                            OutlinedButton.icon(
+                              key: const Key('edit-profile-button'),
+                              onPressed: () =>
+                                  EditProfileBottomSheet.show(context, user),
+                              icon: const Icon(Icons.edit_outlined, size: 18),
+                              label: Text(strings.editProfile),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 24),
+                    Text(
+                      strings.currentSignInMethod,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: user.linkedProviders
+                          .map(
+                            (provider) => Chip(
+                              avatar: Icon(_providerIcon(provider), size: 18),
+                              label: Text(_providerLabel(strings, provider)),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                    if (state.failure case final failure?) ...[
+                      const SizedBox(height: 14),
+                      _ErrorMessage(message: _failureText(strings, failure)),
+                    ],
                   ],
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  user.displayName,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w900,
+                Padding(
+                  padding: const EdgeInsets.only(top: 32, bottom: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      FilledButton.tonalIcon(
+                        key: const Key('account-sign-out'),
+                        onPressed: state.isSubmitting
+                            ? null
+                            : ref.read(accountControllerProvider.notifier).signOut,
+                        icon: const Icon(Icons.logout_rounded),
+                        label: Text(strings.signOut),
+                      ),
+                      const SizedBox(height: 12),
+                      Center(
+                        child: TextButton.icon(
+                          key: const Key('account-delete'),
+                          onPressed: state.isSubmitting
+                              ? null
+                              : () => _confirmDeleteAccount(user),
+                          icon: Icon(
+                            Icons.delete_outline,
+                            size: 16,
+                            color: colors.outline,
+                          ),
+                          label: Text(
+                            strings.deleteAccountDiscrete,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colors.outline,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                if (user.email.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    user.email,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: colors.onSurfaceVariant),
-                  ),
-                ],
-                const SizedBox(height: 10),
-                Chip(
-                  avatar: const Icon(
-                    Icons.verified_rounded,
-                    size: 16,
-                    color: Colors.green,
-                  ),
-                  label: Text(strings.verifiedAccountBadge),
-                  visualDensity: VisualDensity.compact,
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  key: const Key('edit-profile-button'),
-                  onPressed: () => EditProfileBottomSheet.show(context, user),
-                  icon: const Icon(Icons.edit_outlined, size: 18),
-                  label: Text(strings.editProfile),
                 ),
               ],
             ),
           ),
-        ),
-        const SizedBox(height: 24),
-        Text(
-          strings.currentSignInMethod,
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: colors.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: user.linkedProviders
-              .map(
-                (provider) => Chip(
-                  avatar: Icon(_providerIcon(provider), size: 18),
-                  label: Text(_providerLabel(strings, provider)),
-                ),
-              )
-              .toList(),
-        ),
-        const SizedBox(height: 24),
-        FilledButton.tonalIcon(
-          key: const Key('account-sign-out'),
-          onPressed: state.isSubmitting
-              ? null
-              : ref.read(accountControllerProvider.notifier).signOut,
-          icon: const Icon(Icons.logout_rounded),
-          label: Text(strings.signOut),
-        ),
-        if (state.failure case final failure?) ...[
-          const SizedBox(height: 14),
-          _ErrorMessage(message: _failureText(strings, failure)),
-        ],
-        const SizedBox(height: 48),
-        Center(
-          child: TextButton.icon(
-            key: const Key('account-delete'),
-            onPressed:
-                state.isSubmitting ? null : () => _confirmDeleteAccount(user),
-            icon: Icon(
-              Icons.delete_outline,
-              size: 16,
-              color: colors.outline,
-            ),
-            label: Text(
-              strings.deleteAccountDiscrete,
-              style: TextStyle(
-                fontSize: 12,
-                color: colors.outline,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-      ],
+        );
+      },
     );
   }
 
