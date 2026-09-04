@@ -42,6 +42,34 @@ class CommentsFirestoreDataSource {
   Future<void> acceptCurrentTerms() async {
     final user = _auth.currentUser;
     if (user == null) throw const CommentAuthRequiredException();
+    try {
+      await user.reload();
+      await user.getIdToken(true);
+    } on Object {
+      // Best-effort token refresh.
+    }
+
+    try {
+      final userDoc = FirestorePaths.users(_firestore).doc(user.uid);
+      final userSnapshot = await userDoc.get();
+      if (!userSnapshot.exists) {
+        final displayName = user.displayName?.trim().isNotEmpty == true
+            ? user.displayName!.trim()
+            : (user.email?.split('@').first ?? 'Listener');
+        await userDoc.set({
+          'displayName': displayName,
+          'username': '',
+          'avatarUrl': user.photoURL ?? '',
+          'isActive': true,
+          'role': 'listener',
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+    } on Object {
+      // Best-effort profile provisioning.
+    }
+
     await FirestorePaths.ugcAgreement(_firestore, user.uid).set({
       'termsVersion': currentUgcTermsVersion,
       'acceptedAt': FieldValue.serverTimestamp(),
@@ -58,9 +86,27 @@ class CommentsFirestoreDataSource {
       throw const CommentTermsAcceptanceRequiredException();
     }
 
-    final userSnapshot = await FirestorePaths.users(
-      _firestore,
-    ).doc(user.uid).get();
+    final userRef = FirestorePaths.users(_firestore).doc(user.uid);
+    var userSnapshot = await userRef.get();
+    if (!userSnapshot.exists) {
+      final displayName = user.displayName?.trim().isNotEmpty == true
+          ? user.displayName!.trim()
+          : (user.email?.split('@').first ?? 'Listener');
+      try {
+        await userRef.set({
+          'displayName': displayName,
+          'username': '',
+          'avatarUrl': user.photoURL ?? '',
+          'isActive': true,
+          'role': 'listener',
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+        userSnapshot = await userRef.get();
+      } on Object {
+        // Fallback to existing check below.
+      }
+    }
     final profile = userSnapshot.data();
     final displayName = profile?['displayName'];
     final isActive = profile?['isActive'];

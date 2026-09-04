@@ -173,9 +173,18 @@ class _EpisodeCommentsScreenState extends ConsumerState<EpisodeCommentsScreen> {
       allowAcceptance: allowAcceptance,
     );
     if (accepted != true || !mounted) return;
-    await ref
+    final succeeded = await ref
         .read(commentsControllerProvider(widget.episode.id).notifier)
         .acceptCurrentTerms();
+    if (!mounted) return;
+    if (!succeeded) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).ugcTermsSaveError),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   Future<bool> _ensureVerifiedAccount(bool canInteract) async {

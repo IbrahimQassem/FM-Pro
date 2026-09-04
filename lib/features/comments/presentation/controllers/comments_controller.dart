@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -104,7 +105,8 @@ class CommentsController extends StateNotifier<CommentsState> {
         );
       }
       return true;
-    } on Object {
+    } on Object catch (error, stackTrace) {
+      debugPrint('CommentsController.acceptCurrentTerms error: $error\n$stackTrace');
       if (mounted) {
         state = state.copyWith(
           isAcceptingTerms: false,

@@ -133,11 +133,24 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
     }
     try {
       final userRef = FirestorePaths.users(_firestore).doc(user.uid);
-      await userRef.set({
-        'displayName': trimmedName,
-        if (photoUrl != null) 'avatarUrl': photoUrl,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      final snapshot = await userRef.get();
+      if (snapshot.exists) {
+        await userRef.update({
+          'displayName': trimmedName,
+          if (photoUrl != null) 'avatarUrl': photoUrl,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      } else {
+        await userRef.set({
+          'displayName': trimmedName,
+          'username': '',
+          'avatarUrl': photoUrl ?? '',
+          'isActive': true,
+          'role': 'listener',
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
     } catch (_) {
       // Non-blocking Firestore cache update
     }
@@ -330,11 +343,39 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
   }
 
   Future<void> _ensureAccountProfile() async {
-    final callable = _functions.httpsCallable('ensureAccountProfile');
-    final result = await callable.call<Map<String, dynamic>>();
-    if (result.data['ready'] != true) {
-      throw const AccountDataException('profile-unavailable');
+    try {
+      final callable = _functions.httpsCallable('ensureAccountProfile');
+      final result = await callable.call<Map<String, dynamic>>();
+      if (result.data['ready'] == true) return;
+    } on Object {
+      // Cloud Function may not be deployed or failed; fall back to client provisioning.
     }
+
+    final user = _auth.currentUser;
+    if (user != null && user.emailVerified) {
+      try {
+        final userRef = FirestorePaths.users(_firestore).doc(user.uid);
+        final snapshot = await userRef.get();
+        if (!snapshot.exists) {
+          final displayName = user.displayName?.trim().isNotEmpty == true
+              ? user.displayName!.trim()
+              : (user.email?.split('@').first ?? 'Listener');
+          await userRef.set({
+            'displayName': displayName,
+            'username': '',
+            'avatarUrl': user.photoURL ?? '',
+            'isActive': true,
+            'role': 'listener',
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+        }
+        return;
+      } on Object {
+        // Continue to exception below if profile cannot be ensured.
+      }
+    }
+    throw const AccountDataException('profile-unavailable');
   }
 
   Future<void> _signOutProviderSessions() async {

@@ -43,6 +43,33 @@ void main() {
     expect(find.byKey(const Key('comments-review-ugc-terms')), findsOneWidget);
   });
 
+  testWidgets('shows snackbar when terms acceptance fails and stays on terms gate', (
+    tester,
+  ) async {
+    final commentsRepository = _FakeCommentsRepository();
+    commentsRepository.throwOnAcceptTerms = true;
+    await tester.pumpWidget(_TestApp(commentsRepository: commentsRepository));
+    await tester.pumpAndSettle();
+
+    expect(find.text('شروط المشاركة مطلوبة'), findsOneWidget);
+    expect(find.byKey(const Key('comment-input')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('comments-open-ugc-terms')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('comments-accept-ugc-terms')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('comments-accept-ugc-terms')));
+    await tester.pumpAndSettle();
+
+    expect(commentsRepository.didAcceptTerms, isFalse);
+    expect(find.byKey(const Key('comment-input')), findsNothing);
+    expect(find.byType(SnackBar), findsOneWidget);
+    expect(
+      find.text('تعذر حفظ موافقتك الآن. تحقق من الاتصال وحاول مرة أخرى.'),
+      findsAtLeastNWidgets(1),
+    );
+  });
+
   testWidgets('UGC terms remain usable on a small screen at 200% text scale', (
     tester,
   ) async {
@@ -259,6 +286,7 @@ class _FakeCommentsRepository implements CommentsRepository {
 
   final List<EpisodeComment> initialComments;
   bool didAcceptTerms = false;
+  bool throwOnAcceptTerms = false;
   final Set<String> blockedAuthorIds = {};
   EpisodeComment? reportedComment;
   String? reportedUserId;
@@ -272,6 +300,9 @@ class _FakeCommentsRepository implements CommentsRepository {
 
   @override
   Future<void> acceptCurrentTerms() async {
+    if (throwOnAcceptTerms) {
+      throw Exception('Failed to save terms');
+    }
     didAcceptTerms = true;
   }
 
