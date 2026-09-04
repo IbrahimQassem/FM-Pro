@@ -930,6 +930,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get rateAppThankYou => 'شكراً لدعمك وتقييمك الرائع!';
 
   @override
+  String get rateAppOnStore => 'التقييم في المتجر';
+
+  @override
+  String get rateAppSendFeedback => 'إرسال التعليق';
+
+  @override
+  String get rateAppFeedbackHint => 'شاركنا رأيك أو اقتراحك لتحسين التطبيق...';
+
+  @override
+  String get rateAppAddComment => 'أضف تعليقاً أو ملاحظة';
+
+  @override
   String get aboutAppTitle => 'عن هدهد FM';
 
   @override

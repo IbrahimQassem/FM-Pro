@@ -944,6 +944,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'Thank you for your wonderful rating and support!';
 
   @override
+  String get rateAppOnStore => 'Rate on App Store';
+
+  @override
+  String get rateAppSendFeedback => 'Send Feedback';
+
+  @override
+  String get rateAppFeedbackHint =>
+      'Share your feedback or suggestions to improve the app...';
+
+  @override
+  String get rateAppAddComment => 'Add a comment or note';
+
+  @override
   String get aboutAppTitle => 'About Hudhud FM';
 
   @override

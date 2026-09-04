@@ -1719,6 +1719,30 @@ abstract class AppLocalizations {
   /// **'Thank you for your wonderful rating and support!'**
   String get rateAppThankYou;
 
+  /// No description provided for @rateAppOnStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate on App Store'**
+  String get rateAppOnStore;
+
+  /// No description provided for @rateAppSendFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Feedback'**
+  String get rateAppSendFeedback;
+
+  /// No description provided for @rateAppFeedbackHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your feedback or suggestions to improve the app...'**
+  String get rateAppFeedbackHint;
+
+  /// No description provided for @rateAppAddComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a comment or note'**
+  String get rateAppAddComment;
+
   /// No description provided for @aboutAppTitle.
   ///
   /// In en, this message translates to:
