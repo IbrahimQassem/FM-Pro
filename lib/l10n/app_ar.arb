@@ -223,5 +223,13 @@
   "mascotOfflineSubtitle": "يبدو أن إشارة الراديو انقطعت مؤقتًا. تأكد من اتصال الإنترنت وحاول مجددًا.",
   "mascotEmptyFavoritesTitle": "قائمتك المفضلة فارغة",
   "mascotEmptyFavoritesSubtitle": "أضف محطاتك المفضلة لتصل إليها بنقرة واحدة في أي وقت.",
-  "mascotUgcGuidelinesBadge": "إرشادات هدهد لمجتمع محترم وآمن"
+  "mascotUgcGuidelinesBadge": "إرشادات هدهد لمجتمع محترم وآمن",
+  "favoritesFilter": "المفضلة",
+  "addToFavorites": "إضافة إلى المفضلة",
+  "removeFromFavorites": "إزالة من المفضلة",
+  "signInToFavoritePrompt": "سجّل الدخول لحفظ محطاتك في المفضلة",
+  "verifyEmailToFavoritePrompt": "وثّق بريدك الإلكتروني لتتمكن من حفظ محطاتك في المفضلة",
+  "favoriteAddedMessage": "تمت إضافة المحطة إلى المفضلة",
+  "favoriteRemovedMessage": "تمت إزالة المحطة من المفضلة",
+  "favoriteActionFailed": "تعذر تحديث المفضلة. حاول مرة أخرى."
 }

@@ -790,4 +790,29 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mascotUgcGuidelinesBadge =>
       'Hudhud Guidelines for a respectful community';
+
+  @override
+  String get favoritesFilter => 'Favorites';
+
+  @override
+  String get addToFavorites => 'Add to favorites';
+
+  @override
+  String get removeFromFavorites => 'Remove from favorites';
+
+  @override
+  String get signInToFavoritePrompt => 'Sign in to save stations to favorites';
+
+  @override
+  String get verifyEmailToFavoritePrompt =>
+      'Verify your email to save stations to favorites';
+
+  @override
+  String get favoriteAddedMessage => 'Station added to favorites';
+
+  @override
+  String get favoriteRemovedMessage => 'Station removed from favorites';
+
+  @override
+  String get favoriteActionFailed => 'Could not update favorites. Try again.';
 }

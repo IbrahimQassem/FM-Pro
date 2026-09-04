@@ -16,6 +16,11 @@ import '../features/comments/data/repositories/firebase_comments_repository.dart
 import '../features/comments/domain/repositories/comments_repository.dart';
 import '../features/comments/presentation/controllers/comments_controller.dart';
 import '../features/comments/presentation/controllers/comments_state.dart';
+import '../features/favorites/data/datasources/favorites_firestore_data_source.dart';
+import '../features/favorites/data/repositories/firebase_favorites_repository.dart';
+import '../features/favorites/domain/repositories/favorites_repository.dart';
+import '../features/favorites/presentation/controllers/favorites_controller.dart';
+import '../features/favorites/presentation/controllers/favorites_state.dart';
 import '../features/home/data/datasources/home_firestore_data_source.dart';
 import '../features/home/data/repositories/firebase_banners_repository.dart';
 import '../features/home/data/repositories/firebase_locations_repository.dart';
@@ -169,5 +174,22 @@ final stationPlayerControllerProvider =
     StateNotifierProvider<StationPlayerController, StationPlayerState>((ref) {
       return StationPlayerController(
         ref.watch(audioPlaybackRepositoryProvider),
+      );
+    });
+
+
+final favoritesDataSourceProvider = Provider<FavoritesFirestoreDataSource>((ref) {
+  return FavoritesFirestoreDataSource(FirebaseFirestore.instance);
+});
+
+final favoritesRepositoryProvider = Provider<FavoritesRepository>((ref) {
+  return FirebaseFavoritesRepository(ref.watch(favoritesDataSourceProvider));
+});
+
+final favoritesControllerProvider =
+    StateNotifierProvider<FavoritesController, FavoritesState>((ref) {
+      return FavoritesController(
+        favoritesRepository: ref.watch(favoritesRepositoryProvider),
+        accountRepository: ref.watch(accountRepositoryProvider),
       );
     });

@@ -27,6 +27,8 @@ class HomeState {
     this.referenceLocations = const [],
     this.searchQuery = '',
     this.selectedCityCode = '',
+    this.isFavoritesOnly = false,
+    this.favoriteStationIds = const {},
     this.viewMode = StationViewMode.grid,
     this.isInitialLoading = true,
     this.isRefreshing = false,
@@ -43,6 +45,8 @@ class HomeState {
   final List<LocationReference> referenceLocations;
   final String searchQuery;
   final String selectedCityCode;
+  final bool isFavoritesOnly;
+  final Set<String> favoriteStationIds;
   final StationViewMode viewMode;
   final bool isInitialLoading;
   final bool isRefreshing;
@@ -89,6 +93,9 @@ class HomeState {
           if (station.countryCode.toUpperCase() != defaultCountryCode) {
             return false;
           }
+          if (isFavoritesOnly && !favoriteStationIds.contains(station.id)) {
+            return false;
+          }
           if (selectedCityCode.isNotEmpty &&
               station.cityCode != selectedCityCode) {
             return false;
@@ -113,6 +120,8 @@ class HomeState {
     List<LocationReference>? referenceLocations,
     String? searchQuery,
     String? selectedCityCode,
+    bool? isFavoritesOnly,
+    Set<String>? favoriteStationIds,
     StationViewMode? viewMode,
     bool? isInitialLoading,
     bool? isRefreshing,
@@ -127,6 +136,8 @@ class HomeState {
       referenceLocations: referenceLocations ?? this.referenceLocations,
       searchQuery: searchQuery ?? this.searchQuery,
       selectedCityCode: selectedCityCode ?? this.selectedCityCode,
+      isFavoritesOnly: isFavoritesOnly ?? this.isFavoritesOnly,
+      favoriteStationIds: favoriteStationIds ?? this.favoriteStationIds,
       viewMode: viewMode ?? this.viewMode,
       isInitialLoading: isInitialLoading ?? this.isInitialLoading,
       isRefreshing: isRefreshing ?? this.isRefreshing,

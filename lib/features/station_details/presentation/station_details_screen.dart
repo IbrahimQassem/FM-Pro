@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
+import '../../account/presentation/account_screen.dart';
+import '../../favorites/presentation/controllers/favorites_controller.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../home/domain/models/station.dart';
 import '../../player/presentation/controllers/station_player_state.dart';
@@ -37,6 +39,69 @@ class StationDetailsScreen extends ConsumerWidget {
     );
     final isSelected = playerState.isSelected(station.id);
     final status = isSelected ? playerState.status : StationPlaybackStatus.idle;
+    final favoritesState = ref.watch(favoritesControllerProvider);
+    final favoritesController = ref.read(favoritesControllerProvider.notifier);
+    final isFavorite = favoritesState.isFavorite(station.id);
+
+    Future<void> handleFavoriteToggle() async {
+      final strings = AppLocalizations.of(context);
+      final messenger = ScaffoldMessenger.of(context);
+      final outcome = await favoritesController.toggleFavoriteStation(station.id);
+      switch (outcome) {
+        case FavoriteActionOutcome.successAdded:
+          messenger.hideCurrentSnackBar();
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(strings.favoriteAddedMessage),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          break;
+        case FavoriteActionOutcome.successRemoved:
+          messenger.hideCurrentSnackBar();
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(strings.favoriteRemovedMessage),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          break;
+        case FavoriteActionOutcome.requireSignIn:
+          messenger.hideCurrentSnackBar();
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(strings.signInToFavoritePrompt),
+              action: SnackBarAction(
+                label: strings.signIn,
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const AccountScreen()),
+                ),
+              ),
+            ),
+          );
+          break;
+        case FavoriteActionOutcome.requireEmailVerification:
+          messenger.hideCurrentSnackBar();
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(strings.verifyEmailToFavoritePrompt),
+              action: SnackBarAction(
+                label: strings.verifyEmail,
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const AccountScreen()),
+                ),
+              ),
+            ),
+          );
+          break;
+        case FavoriteActionOutcome.failed:
+          messenger.hideCurrentSnackBar();
+          messenger.showSnackBar(
+            SnackBar(content: Text(strings.favoriteActionFailed)),
+          );
+          break;
+      }
+    }
 
     void openProgram(StationProgram program) {
       Navigator.of(context).push(
@@ -53,6 +118,8 @@ class StationDetailsScreen extends ConsumerWidget {
     return StationDetailsView(
       station: station,
       playbackStatus: status,
+      isFavorite: isFavorite,
+      onFavoriteToggle: handleFavoriteToggle,
       onPlayPressed: () {
         if (isSelected && status == StationPlaybackStatus.failure) {
           playerController.retry();
@@ -82,6 +149,8 @@ class StationDetailsView extends StatelessWidget {
     required this.playbackStatus,
     required this.onPlayPressed,
     required this.onStopPressed,
+    this.isFavorite = false,
+    this.onFavoriteToggle,
     this.contentState = const StationContentState(isInitialLoading: false),
     this.onContentRefresh,
     this.onProgramPressed,
@@ -94,6 +163,8 @@ class StationDetailsView extends StatelessWidget {
   final StationPlaybackStatus playbackStatus;
   final VoidCallback onPlayPressed;
   final VoidCallback onStopPressed;
+  final bool isFavorite;
+  final VoidCallback? onFavoriteToggle;
   final StationContentState contentState;
   final Future<void> Function()? onContentRefresh;
   final ValueChanged<StationProgram>? onProgramPressed;
@@ -118,6 +189,21 @@ class StationDetailsView extends StatelessWidget {
               foregroundColor: Colors.white,
               backgroundColor: Theme.of(context).colorScheme.primary,
               title: Text(station.name),
+              actions: [
+                if (onFavoriteToggle != null)
+                  IconButton(
+                    onPressed: onFavoriteToggle,
+                    tooltip: isFavorite
+                        ? strings.removeFromFavorites
+                        : strings.addToFavorites,
+                    icon: Icon(
+                      isFavorite
+                          ? Icons.favorite_rounded
+                          : Icons.favorite_border_rounded,
+                      color: isFavorite ? Colors.redAccent : Colors.white,
+                    ),
+                  ),
+              ],
               flexibleSpace: FlexibleSpaceBar(
                 background: _StationHero(
                   station: station,

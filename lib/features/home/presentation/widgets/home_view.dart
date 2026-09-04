@@ -20,6 +20,8 @@ class HomeView extends StatelessWidget {
     required this.onSettingsPressed,
     required this.onStationPressed,
     required this.onStationPlayPressed,
+    this.onFavoritesFilterToggled,
+    this.onFavoriteToggle,
     this.playerBar,
     super.key,
   });
@@ -33,6 +35,8 @@ class HomeView extends StatelessWidget {
   final VoidCallback onSettingsPressed;
   final ValueChanged<Station> onStationPressed;
   final ValueChanged<Station> onStationPlayPressed;
+  final ValueChanged<bool>? onFavoritesFilterToggled;
+  final ValueChanged<Station>? onFavoriteToggle;
   final Widget? playerBar;
 
   @override
@@ -107,15 +111,35 @@ class HomeView extends StatelessWidget {
                       children: [
                         ChoiceChip(
                           label: Text(strings.allCities),
-                          selected: state.selectedCityCode.isEmpty,
-                          onSelected: (_) => onCitySelected(''),
+                          selected: !state.isFavoritesOnly && state.selectedCityCode.isEmpty,
+                          onSelected: (_) {
+                            onFavoritesFilterToggled?.call(false);
+                            onCitySelected('');
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          avatar: Icon(
+                            state.isFavoritesOnly
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
+                            size: 16,
+                          ),
+                          label: Text(strings.favoritesFilter),
+                          selected: state.isFavoritesOnly,
+                          onSelected: (selected) {
+                            onFavoritesFilterToggled?.call(selected);
+                          },
                         ),
                         for (final city in state.cities) ...[
                           const SizedBox(width: 8),
                           ChoiceChip(
                             label: Text(city.nameAr),
-                            selected: state.selectedCityCode == city.code,
-                            onSelected: (_) => onCitySelected(city.code),
+                            selected: !state.isFavoritesOnly && state.selectedCityCode == city.code,
+                            onSelected: (_) {
+                              onFavoritesFilterToggled?.call(false);
+                              onCitySelected(city.code);
+                            },
                           ),
                         ],
                       ],
@@ -186,6 +210,12 @@ class HomeView extends StatelessWidget {
                   actionLabel: strings.retry,
                   onAction: onRefresh,
                 )
+              else if (state.isFavoritesOnly && visibleStations.isEmpty)
+                HomeEmptyState(
+                  imageAsset: 'assets/images/mascot/mascot_empty_favorites.webp',
+                  title: strings.mascotEmptyFavoritesTitle,
+                  message: strings.mascotEmptyFavoritesSubtitle,
+                )
               else if (visibleStations.isEmpty)
                 HomeEmptyState(
                   imageAsset: 'assets/images/mascot/mascot_empty_search.webp',
@@ -207,6 +237,10 @@ class HomeView extends StatelessWidget {
                     itemCount: visibleStations.length,
                     itemBuilder: (context, index) => StationCard.grid(
                       station: visibleStations[index],
+                      isFavorite: state.favoriteStationIds.contains(visibleStations[index].id),
+                      onFavoriteToggle: onFavoriteToggle == null
+                          ? null
+                          : () => onFavoriteToggle!(visibleStations[index]),
                       onOpen: () => onStationPressed(visibleStations[index]),
                       onPlay: () =>
                           onStationPlayPressed(visibleStations[index]),
@@ -222,6 +256,10 @@ class HomeView extends StatelessWidget {
                         const SizedBox(height: 10),
                     itemBuilder: (context, index) => StationCard.list(
                       station: visibleStations[index],
+                      isFavorite: state.favoriteStationIds.contains(visibleStations[index].id),
+                      onFavoriteToggle: onFavoriteToggle == null
+                          ? null
+                          : () => onFavoriteToggle!(visibleStations[index]),
                       onOpen: () => onStationPressed(visibleStations[index]),
                       onPlay: () =>
                           onStationPlayPressed(visibleStations[index]),

@@ -223,5 +223,13 @@
   "mascotOfflineSubtitle": "Radio signal was interrupted. Check your internet connection and try again.",
   "mascotEmptyFavoritesTitle": "Your favorites list is empty",
   "mascotEmptyFavoritesSubtitle": "Add your favorite stations to access them anytime with one tap.",
-  "mascotUgcGuidelinesBadge": "Hudhud Guidelines for a respectful community"
+  "mascotUgcGuidelinesBadge": "Hudhud Guidelines for a respectful community",
+  "favoritesFilter": "Favorites",
+  "addToFavorites": "Add to favorites",
+  "removeFromFavorites": "Remove from favorites",
+  "signInToFavoritePrompt": "Sign in to save stations to favorites",
+  "verifyEmailToFavoritePrompt": "Verify your email to save stations to favorites",
+  "favoriteAddedMessage": "Station added to favorites",
+  "favoriteRemovedMessage": "Station removed from favorites",
+  "favoriteActionFailed": "Could not update favorites. Try again."
 }

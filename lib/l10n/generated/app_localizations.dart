@@ -1447,6 +1447,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hudhud Guidelines for a respectful community'**
   String get mascotUgcGuidelinesBadge;
+
+  /// No description provided for @favoritesFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favoritesFilter;
+
+  /// No description provided for @addToFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get addToFavorites;
+
+  /// No description provided for @removeFromFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get removeFromFavorites;
+
+  /// No description provided for @signInToFavoritePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to save stations to favorites'**
+  String get signInToFavoritePrompt;
+
+  /// No description provided for @verifyEmailToFavoritePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your email to save stations to favorites'**
+  String get verifyEmailToFavoritePrompt;
+
+  /// No description provided for @favoriteAddedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Station added to favorites'**
+  String get favoriteAddedMessage;
+
+  /// No description provided for @favoriteRemovedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Station removed from favorites'**
+  String get favoriteRemovedMessage;
+
+  /// No description provided for @favoriteActionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update favorites. Try again.'**
+  String get favoriteActionFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -206,4 +206,120 @@ void main() {
     expect(find.text("لم نعثر على نتائج مطابقة"), findsOneWidget);
     expect(find.text("جرّب البحث باسم محطة أخرى أو فئة مختلفة وسنبحث معك فورًا."), findsOneWidget);
   });
+
+  testWidgets("displays mascot empty favorites state when favorites filter has no stations", (
+    tester,
+  ) async {
+    final station = Station(
+      id: "sanaa",
+      name: "إذاعة صنعاء",
+      streamUrl: "https://radio.example.com/live",
+      countryCode: "YE",
+      countryNameAr: "اليمن",
+      cityCode: "sanaa",
+      cityNameAr: "صنعاء",
+      frequency: "92.5 MHz",
+      priority: 10,
+      isLive: true,
+      isActive: true,
+      isVerified: true,
+      isFeatured: true,
+      programsCount: 4,
+      subscribersCount: 120,
+      totalPlays: 400,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale("ar"),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: HomeView(
+          state: HomeState(
+            stations: [station],
+            isFavoritesOnly: true,
+            favoriteStationIds: const {},
+            isInitialLoading: false,
+          ),
+          onRefresh: () async {},
+          onSearchChanged: (_) {},
+          onCitySelected: (_) {},
+          onFavoritesFilterToggled: (_) {},
+          onViewModeChanged: (_) {},
+          onNotificationsPressed: () {},
+          onSettingsPressed: () {},
+          onStationPressed: (_) {},
+          onStationPlayPressed: (_) {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text("قائمتك المفضلة فارغة"), findsOneWidget);
+    expect(find.text("أضف محطاتك المفضلة لتصل إليها بنقرة واحدة في أي وقت."), findsOneWidget);
+  });
+
+  testWidgets("triggers onFavoriteToggle when favorite button is pressed on station card", (
+    tester,
+  ) async {
+    final station = Station(
+      id: "sanaa",
+      name: "إذاعة صنعاء",
+      streamUrl: "https://radio.example.com/live",
+      countryCode: "YE",
+      countryNameAr: "اليمن",
+      cityCode: "sanaa",
+      cityNameAr: "صنعاء",
+      frequency: "92.5 MHz",
+      priority: 10,
+      isLive: true,
+      isActive: true,
+      isVerified: true,
+      isFeatured: true,
+      programsCount: 4,
+      subscribersCount: 120,
+      totalPlays: 400,
+    );
+
+    Station? favoritedStation;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale("ar"),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: HomeView(
+          state: HomeState(
+            stations: [station],
+            favoriteStationIds: const {"sanaa"},
+            isInitialLoading: false,
+          ),
+          onRefresh: () async {},
+          onSearchChanged: (_) {},
+          onCitySelected: (_) {},
+          onFavoriteToggle: (s) => favoritedStation = s,
+          onViewModeChanged: (_) {},
+          onNotificationsPressed: () {},
+          onSettingsPressed: () {},
+          onStationPressed: (_) {},
+          onStationPlayPressed: (_) {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Icons.favorite_rounded), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.favorite_rounded));
+    expect(favoritedStation?.id, "sanaa");
+  });
 }

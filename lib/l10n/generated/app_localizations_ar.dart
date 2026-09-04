@@ -780,4 +780,29 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get mascotUgcGuidelinesBadge => 'إرشادات هدهد لمجتمع محترم وآمن';
+
+  @override
+  String get favoritesFilter => 'المفضلة';
+
+  @override
+  String get addToFavorites => 'إضافة إلى المفضلة';
+
+  @override
+  String get removeFromFavorites => 'إزالة من المفضلة';
+
+  @override
+  String get signInToFavoritePrompt => 'سجّل الدخول لحفظ محطاتك في المفضلة';
+
+  @override
+  String get verifyEmailToFavoritePrompt =>
+      'وثّق بريدك الإلكتروني لتتمكن من حفظ محطاتك في المفضلة';
+
+  @override
+  String get favoriteAddedMessage => 'تمت إضافة المحطة إلى المفضلة';
+
+  @override
+  String get favoriteRemovedMessage => 'تمت إزالة المحطة من المفضلة';
+
+  @override
+  String get favoriteActionFailed => 'تعذر تحديث المفضلة. حاول مرة أخرى.';
 }

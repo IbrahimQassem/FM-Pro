@@ -9,6 +9,8 @@ class StationCard extends StatelessWidget {
     required this.station,
     required this.onOpen,
     required this.onPlay,
+    this.isFavorite = false,
+    this.onFavoriteToggle,
     super.key,
   }) : isGrid = true;
 
@@ -16,12 +18,16 @@ class StationCard extends StatelessWidget {
     required this.station,
     required this.onOpen,
     required this.onPlay,
+    this.isFavorite = false,
+    this.onFavoriteToggle,
     super.key,
   }) : isGrid = false;
 
   final Station station;
   final VoidCallback onOpen;
   final VoidCallback onPlay;
+  final bool isFavorite;
+  final VoidCallback? onFavoriteToggle;
   final bool isGrid;
 
   @override
@@ -45,7 +51,32 @@ class StationCard extends StatelessWidget {
                 children: [
                   Expanded(child: _StationLogo(station: station, size: 78)),
                   const SizedBox(width: 8),
-                  _StatusBadges(station: station),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _StatusBadges(station: station),
+                      if (onFavoriteToggle != null) ...[
+                        const SizedBox(height: 6),
+                        IconButton(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                          iconSize: 22,
+                          onPressed: onFavoriteToggle,
+                          tooltip: isFavorite
+                              ? strings.removeFromFavorites
+                              : strings.addToFavorites,
+                          icon: Icon(
+                            isFavorite
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
+                            color: isFavorite
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ],
               ),
               const SizedBox(height: 14),
@@ -127,7 +158,22 @@ class StationCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 4),
+              if (onFavoriteToggle != null)
+                IconButton(
+                  onPressed: onFavoriteToggle,
+                  tooltip: isFavorite
+                      ? AppLocalizations.of(context).removeFromFavorites
+                      : AppLocalizations.of(context).addToFavorites,
+                  icon: Icon(
+                    isFavorite
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_border_rounded,
+                    color: isFavorite
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
               IconButton.filledTonal(
                 onPressed: onPlay,
                 tooltip: AppLocalizations.of(context).playStation(station.name),

@@ -161,7 +161,18 @@ class HomeController extends StateNotifier<HomeState> {
   }
 
   void selectCity(String code) {
-    state = state.copyWith(selectedCityCode: code);
+    state = state.copyWith(selectedCityCode: code, isFavoritesOnly: false);
+  }
+
+  void toggleFavoritesFilter(bool enabled) {
+    state = state.copyWith(
+      isFavoritesOnly: enabled,
+      selectedCityCode: enabled ? '' : state.selectedCityCode,
+    );
+  }
+
+  void updateFavoriteStationIds(Set<String> ids) {
+    state = state.copyWith(favoriteStationIds: ids);
   }
 
   Future<void> setViewMode(StationViewMode mode) async {
