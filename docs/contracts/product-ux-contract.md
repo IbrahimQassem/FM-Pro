@@ -12,7 +12,7 @@ Splash/Firebase gate -> Home discovery -> Station details
                                   |        -> Programs -> Program episodes
                                   |                    -> Episode comments
                                   |        -> Weekly schedule
-                                  |-> Account (guest/sign in/register/reset/logout)
+                                  |-> Settings & Account Hub (Profile, Guest CTA, Share, Rate, About, UGC, App Tour)
                                   |-> Announcement notifications (opt in)
                                   \-> shared live/episode mini player
 ```

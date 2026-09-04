@@ -1,3 +1,4 @@
+import "package:hudhud_fm/features/account/presentation/widgets/about_app_dialog.dart";
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -195,7 +196,47 @@ void main() {
     expect(find.text('شروط المشاركة والتعليقات'), findsOneWidget);
     expect(find.text('إرشادات هدهد لمجتمع محترم وآمن'), findsOneWidget);
   });
+
+  testWidgets("can open rate app dialog from verified account screen", (tester) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = _FakeAccountRepository(user: _user);
+    await tester.pumpWidget(_TestApp(repository: repository));
+    await tester.pumpAndSettle();
+
+    final rateTile = find.byKey(const Key("account-rate-app"));
+    expect(rateTile, findsOneWidget);
+
+    await tester.tap(rateTile);
+    await tester.pumpAndSettle();
+
+    expect(find.text("ما رأيك في هدهد FM؟"), findsOneWidget);
+  });
+
+  testWidgets("can open about app dialog from verified account screen", (tester) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = _FakeAccountRepository(user: _user);
+    await tester.pumpWidget(_TestApp(repository: repository));
+    await tester.pumpAndSettle();
+
+    final aboutTile = find.byKey(const Key("account-about-app"));
+    expect(aboutTile, findsOneWidget);
+
+    await tester.tap(aboutTile);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AboutAppDialog), findsOneWidget);
+    expect(find.textContaining("1.0.0 (1)"), findsOneWidget);
+  });
 }
+
 
 class _TestApp extends StatelessWidget {
   const _TestApp({required this.repository, this.textScaler});

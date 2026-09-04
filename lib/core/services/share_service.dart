@@ -50,4 +50,18 @@ class ShareService {
       ),
     );
   }
+  Future<void> shareApp(BuildContext context) async {
+    final strings = AppLocalizations.of(context);
+    final text = strings.shareAppMessage;
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+
+    await _plugin.share(
+      ShareParams(
+        text: text,
+        subject: strings.shareAppTitle,
+        sharePositionOrigin: origin,
+      ),
+    );
+  }
 }

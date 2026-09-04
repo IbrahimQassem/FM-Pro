@@ -882,4 +882,88 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mascotEmptyNotificationsSubtitle =>
       'We will notify you about live broadcasts and new shows as soon as they are available.';
+
+  @override
+  String get settingsTitle => 'Settings & Account';
+
+  @override
+  String get accountSectionTitle => 'Listener Account';
+
+  @override
+  String get appSectionTitle => 'App & Community';
+
+  @override
+  String get legalSectionTitle => 'About & Info';
+
+  @override
+  String get guestAccountTitle => 'Welcome to Hudhud FM';
+
+  @override
+  String get guestAccountSubtitle =>
+      'Sign in to sync your favorite stations and join the radio community.';
+
+  @override
+  String get signInOrRegister => 'Sign In / Create Account';
+
+  @override
+  String get verifiedAccountBadge => 'Verified Account';
+
+  @override
+  String get manageAccount => 'Manage Account Details';
+
+  @override
+  String get shareAppTitle => 'Invite a Friend & Share App';
+
+  @override
+  String get shareAppSubtitle =>
+      'Share Hudhud FM with your friends and radio lovers';
+
+  @override
+  String get shareAppMessage =>
+      'Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: https://hudhudfm.com/download';
+
+  @override
+  String get rateAppTitle => 'Rate App';
+
+  @override
+  String get rateAppSubtitle =>
+      'Your feedback helps us continue improving Hudhud FM';
+
+  @override
+  String get rateAppDialogTitle => 'How is your experience with Hudhud FM?';
+
+  @override
+  String get rateAppDialogPrompt =>
+      'Select stars to rate your listening experience';
+
+  @override
+  String get rateAppSubmit => 'Submit Rating';
+
+  @override
+  String get rateAppThankYou =>
+      'Thank you for your wonderful rating and support!';
+
+  @override
+  String get aboutAppTitle => 'About Hudhud FM';
+
+  @override
+  String get aboutAppSubtitle => 'Brand story, app version, and legal info';
+
+  @override
+  String get appVersionLabel => 'Version';
+
+  @override
+  String get aboutAppDescription =>
+      'Hudhud FM is your premier guide to listening to Yemeni radio stations with crystal-clear digital streaming, program episodes, and engaging community discussions.';
+
+  @override
+  String allRightsReserved(String year) {
+    return 'All rights reserved © $year Hudhud FM';
+  }
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get termsOfService => 'Terms of Service';
 }

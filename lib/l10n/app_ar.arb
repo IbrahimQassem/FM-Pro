@@ -276,5 +276,38 @@
     }
   },
   "mascotEmptyNotificationsTitle": "لا توجد إشعارات جديدة",
-  "mascotEmptyNotificationsSubtitle": "سنوافيك بآخر تنبيهات البث المباشر والبرامج الجديدة فور صدورها."
+  "mascotEmptyNotificationsSubtitle": "سنوافيك بآخر تنبيهات البث المباشر والبرامج الجديدة فور صدورها.",
+  "settingsTitle": "الإعدادات والحساب",
+  "accountSectionTitle": "حساب المستمع",
+  "appSectionTitle": "التفاعل والمجتمع",
+  "legalSectionTitle": "عن التطبيق والمعلومات",
+  "guestAccountTitle": "مرحباً بك في هدهد FM",
+  "guestAccountSubtitle": "سجّل دخولك لمزامنة محطاتك المفضلة والمشاركة في المجتمع الإذاعي.",
+  "signInOrRegister": "تسجيل الدخول / حساب جديد",
+  "verifiedAccountBadge": "حساب موثق",
+  "manageAccount": "إدارة بيانات الحساب",
+  "shareAppTitle": "دعوة صديق ومشاركة التطبيق",
+  "shareAppSubtitle": "شارك تطبيق هدهد FM مع أصدقائك ومحبي الإذاعة",
+  "shareAppMessage": "استمع لأجمل الإذاعات والبرامج اليمنية عبر تطبيق هدهد FM 📻🇾🇪\nحمل التطبيق الآن: https://hudhudfm.com/download",
+  "rateAppTitle": "تقييم التطبيق",
+  "rateAppSubtitle": "رأيك يهمنا لمواصلة تحسين هدهد FM",
+  "rateAppDialogTitle": "ما رأيك في هدهد FM؟",
+  "rateAppDialogPrompt": "اختر عدد النجوم لتقييم تجربتك الاستماعية",
+  "rateAppSubmit": "إرسال التقييم",
+  "rateAppThankYou": "شكراً لدعمك وتقييمك الرائع!",
+  "aboutAppTitle": "عن هدهد FM",
+  "aboutAppSubtitle": "قصة الهوية، الإصدار، والمعلومات القانونية",
+  "appVersionLabel": "الإصدار",
+  "aboutAppDescription": "هدهد FM هو دليلك الأول للاستماع إلى كافة الإذاعات اليمنية الرسمية والأهلية ببث رقمي عالي النقاء، مع متابعة البرامج والحلقات والتفاعل المجتمعي الراقي.",
+  "allRightsReserved": "جميع الحقوق محفوظة © {year} هدهد FM",
+  "@allRightsReserved": {
+    "description": "حقوق الملكية مع سنة النشر",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "privacyPolicy": "سياسة الخصوصية",
+  "termsOfService": "شروط الخدمة"
 }

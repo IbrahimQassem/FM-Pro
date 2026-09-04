@@ -1,18 +1,21 @@
-import "../../onboarding/presentation/onboarding_screen.dart";
-import "../../comments/presentation/widgets/ugc_guidelines_dialog.dart";
-import '../../../core/theme/app_colors.dart';
-import '../../../core/widgets/mascot_avatar.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import "package:flutter/foundation.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import '../../../app/providers.dart';
-import '../../../l10n/generated/app_localizations.dart';
-import '../domain/models/account_sign_in_provider.dart';
-import '../domain/models/account_user.dart';
-import '../domain/repositories/account_repository.dart';
-import 'controllers/account_state.dart';
+import "../../../app/providers.dart";
+import "../../../core/services/share_service.dart";
+import "../../../core/theme/app_colors.dart";
+import "../../../core/widgets/mascot_avatar.dart";
+import "../../../l10n/generated/app_localizations.dart";
+import "../../comments/presentation/widgets/ugc_guidelines_dialog.dart";
+import "../../onboarding/presentation/onboarding_screen.dart";
+import "../domain/models/account_sign_in_provider.dart";
+import "../domain/models/account_user.dart";
+import "../domain/repositories/account_repository.dart";
+import "controllers/account_state.dart";
+import "widgets/about_app_dialog.dart";
+import "widgets/app_rating_dialog.dart";
 
 class AccountScreen extends ConsumerStatefulWidget {
   const AccountScreen({super.key});
@@ -23,18 +26,18 @@ class AccountScreen extends ConsumerStatefulWidget {
 
 class _AccountScreenState extends ConsumerState<AccountScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _nameController = TextEditingController();
   final _verificationCodeController = TextEditingController();
   final _verificationEmailController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _nameController.dispose();
     _verificationCodeController.dispose();
     _verificationEmailController.dispose();
     super.dispose();
@@ -45,7 +48,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     final strings = AppLocalizations.of(context);
     final state = ref.watch(accountControllerProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(strings.account)),
+      appBar: AppBar(title: Text(strings.settingsTitle)),
       body: SafeArea(
         child: state.isInitializing
             ? const Center(child: CircularProgressIndicator())
@@ -67,10 +70,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
       child: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Icon(
-            Icons.account_circle_rounded,
-            size: 82,
-            color: Theme.of(context).colorScheme.primary,
+          const Center(
+            child: MascotAvatar(radius: 40),
           ),
           const SizedBox(height: 12),
           Text(
@@ -195,6 +196,76 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             onPressed: () => UgcGuidelinesDialog.show(context),
             icon: const Icon(Icons.policy_outlined),
             label: Text(strings.ugcGuidelinesMenu),
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 8),
+          Text(
+            strings.appSectionTitle,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              key: const Key("account-auth-share-app"),
+              leading: const Icon(Icons.share_rounded),
+              title: Text(strings.shareAppTitle),
+              subtitle: Text(strings.shareAppSubtitle),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => const ShareService().shareApp(context),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              key: const Key("account-auth-rate-app"),
+              leading: const Icon(Icons.star_rounded, color: Colors.amber),
+              title: Text(strings.rateAppTitle),
+              subtitle: Text(strings.rateAppSubtitle),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => AppRatingDialog.show(context),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              key: const Key("account-app-tour"),
+              leading: Image.asset(
+                "assets/images/mascot/mascot_onboarding.webp",
+                height: 36,
+                fit: BoxFit.contain,
+              ),
+              title: Text(strings.appTour),
+              subtitle: Text(strings.appTourSubtitle),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const OnboardingScreen(isAppTour: true),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 8),
+          Text(
+            strings.legalSectionTitle,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              key: const Key("account-auth-about-app"),
+              leading: const Icon(Icons.info_outline_rounded),
+              title: Text(strings.aboutAppTitle),
+              subtitle: Text(strings.aboutAppSubtitle),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => AboutAppDialog.show(context),
+            ),
           ),
         ],
       ),
@@ -329,30 +400,48 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        const Center(
-          child: MascotAvatar(
-            radius: 44,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          user.displayName,
-          textAlign: TextAlign.center,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
-        ),
-        if (user.email.isNotEmpty) ...[
-          const SizedBox(height: 5),
-          Text(
-            user.email,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+        Card(
+          elevation: 0,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                const MascotAvatar(radius: 40),
+                const SizedBox(height: 12),
+                Text(
+                  user.displayName,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+                ),
+                if (user.email.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    user.email,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 10),
+                Chip(
+                  avatar: const Icon(
+                    Icons.verified_rounded,
+                    size: 16,
+                    color: Colors.green,
+                  ),
+                  label: Text(strings.verifiedAccountBadge),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ],
             ),
           ),
-        ],
-        const SizedBox(height: 24),
+        ),
+        const SizedBox(height: 20),
         Text(
           strings.linkedSignInMethods,
           style: Theme.of(
@@ -376,7 +465,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const SizedBox(height: 12),
           _SuccessMessage(message: strings.providerLinked),
         ],
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         Text(
           strings.linkAnotherMethod,
           style: Theme.of(
@@ -398,8 +487,92 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           icon: const Icon(Icons.logout_rounded),
           label: Text(strings.signOut),
         ),
-        const SizedBox(height: 20),
-
+        const SizedBox(height: 24),
+        const Divider(),
+        const SizedBox(height: 8),
+        Text(
+          strings.appSectionTitle,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Card(
+          child: ListTile(
+            key: const Key("account-share-app"),
+            leading: const Icon(Icons.share_rounded),
+            title: Text(strings.shareAppTitle),
+            subtitle: Text(strings.shareAppSubtitle),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => const ShareService().shareApp(context),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Card(
+          child: ListTile(
+            key: const Key("account-rate-app"),
+            leading: const Icon(Icons.star_rounded, color: Colors.amber),
+            title: Text(strings.rateAppTitle),
+            subtitle: Text(strings.rateAppSubtitle),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => AppRatingDialog.show(context),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Card(
+          child: ListTile(
+            key: const Key("account-app-tour"),
+            leading: Image.asset(
+              "assets/images/mascot/mascot_onboarding.webp",
+              height: 36,
+              fit: BoxFit.contain,
+            ),
+            title: Text(strings.appTour),
+            subtitle: Text(strings.appTourSubtitle),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const OnboardingScreen(isAppTour: true),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+        const Divider(),
+        const SizedBox(height: 8),
+        Text(
+          strings.legalSectionTitle,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Card(
+          child: ListTile(
+            key: const Key("account-about-app"),
+            leading: const Icon(Icons.info_outline_rounded),
+            title: Text(strings.aboutAppTitle),
+            subtitle: Text(strings.aboutAppSubtitle),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => AboutAppDialog.show(context),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Card(
+          child: ListTile(
+            key: const Key("account-ugc-guidelines"),
+            leading: Image.asset(
+              "assets/images/mascot/mascot_ugc_guidelines.webp",
+              height: 36,
+              fit: BoxFit.contain,
+            ),
+            title: Text(strings.ugcGuidelinesMenu),
+            subtitle: Text(strings.ugcGuidelinesSubtitle),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => UgcGuidelinesDialog.show(context),
+          ),
+        ),
+        const SizedBox(height: 24),
         const Divider(),
         const SizedBox(height: 12),
         Text(
@@ -427,42 +600,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const SizedBox(height: 14),
           _ErrorMessage(message: _failureText(strings, failure)),
         ],
-        const SizedBox(height: 24),
-        const Divider(),
-        const SizedBox(height: 12),
-        Card(
-          child: ListTile(
-            key: const Key("account-app-tour"),
-            leading: Image.asset(
-              "assets/images/mascot/mascot_onboarding.webp",
-              height: 36,
-              fit: BoxFit.contain,
-            ),
-            title: Text(strings.appTour),
-            subtitle: Text(strings.appTourSubtitle),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => const OnboardingScreen(isAppTour: true),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Card(
-          child: ListTile(
-            key: const Key("account-ugc-guidelines"),
-            leading: Image.asset(
-              "assets/images/mascot/mascot_ugc_guidelines.webp",
-              height: 36,
-              fit: BoxFit.contain,
-            ),
-            title: Text(strings.ugcGuidelinesMenu),
-            subtitle: Text(strings.ugcGuidelinesSubtitle),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => UgcGuidelinesDialog.show(context),
-          ),
-        ),
       ],
     );
   }
@@ -489,13 +626,18 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
   Widget _socialDivider(AppLocalizations strings) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
+      padding: const EdgeInsets.symmetric(vertical: 20),
       child: Row(
         children: [
           const Expanded(child: Divider()),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(strings.socialSignInDivider),
+            child: Text(
+              strings.socialSignInDivider,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
           const Expanded(child: Divider()),
         ],
@@ -519,7 +661,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           (provider) => Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: OutlinedButton.icon(
-              key: Key('account-${provider.name}'),
+              key: Key("account-${provider.name}"),
               onPressed: state.isSubmitting
                   ? null
                   : () => ref
@@ -534,18 +676,17 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   }
 
   Future<void> _submit(AccountState state) async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (!_formKey.currentState!.validate()) return;
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
     final controller = ref.read(accountControllerProvider.notifier);
     if (state.mode == AccountMode.signIn) {
-      await controller.signIn(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
+      await controller.signIn(email: email, password: password);
     } else {
       await controller.register(
-        displayName: _nameController.text,
-        email: _emailController.text,
-        password: _passwordController.text,
+        displayName: _nameController.text.trim(),
+        email: email,
+        password: password,
       );
     }
   }

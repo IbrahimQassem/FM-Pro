@@ -276,5 +276,38 @@
     }
   },
   "mascotEmptyNotificationsTitle": "No new notifications",
-  "mascotEmptyNotificationsSubtitle": "We will notify you about live broadcasts and new shows as soon as they are available."
+  "mascotEmptyNotificationsSubtitle": "We will notify you about live broadcasts and new shows as soon as they are available.",
+  "settingsTitle": "Settings & Account",
+  "accountSectionTitle": "Listener Account",
+  "appSectionTitle": "App & Community",
+  "legalSectionTitle": "About & Info",
+  "guestAccountTitle": "Welcome to Hudhud FM",
+  "guestAccountSubtitle": "Sign in to sync your favorite stations and join the radio community.",
+  "signInOrRegister": "Sign In / Create Account",
+  "verifiedAccountBadge": "Verified Account",
+  "manageAccount": "Manage Account Details",
+  "shareAppTitle": "Invite a Friend & Share App",
+  "shareAppSubtitle": "Share Hudhud FM with your friends and radio lovers",
+  "shareAppMessage": "Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: https://hudhudfm.com/download",
+  "rateAppTitle": "Rate App",
+  "rateAppSubtitle": "Your feedback helps us continue improving Hudhud FM",
+  "rateAppDialogTitle": "How is your experience with Hudhud FM?",
+  "rateAppDialogPrompt": "Select stars to rate your listening experience",
+  "rateAppSubmit": "Submit Rating",
+  "rateAppThankYou": "Thank you for your wonderful rating and support!",
+  "aboutAppTitle": "About Hudhud FM",
+  "aboutAppSubtitle": "Brand story, app version, and legal info",
+  "appVersionLabel": "Version",
+  "aboutAppDescription": "Hudhud FM is your premier guide to listening to Yemeni radio stations with crystal-clear digital streaming, program episodes, and engaging community discussions.",
+  "allRightsReserved": "All rights reserved © {year} Hudhud FM",
+  "@allRightsReserved": {
+    "description": "Copyright notice with publication year",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "privacyPolicy": "Privacy Policy",
+  "termsOfService": "Terms of Service"
 }

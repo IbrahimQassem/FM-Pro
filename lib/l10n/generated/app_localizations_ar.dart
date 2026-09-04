@@ -872,4 +872,84 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get mascotEmptyNotificationsSubtitle =>
       'سنوافيك بآخر تنبيهات البث المباشر والبرامج الجديدة فور صدورها.';
+
+  @override
+  String get settingsTitle => 'الإعدادات والحساب';
+
+  @override
+  String get accountSectionTitle => 'حساب المستمع';
+
+  @override
+  String get appSectionTitle => 'التفاعل والمجتمع';
+
+  @override
+  String get legalSectionTitle => 'عن التطبيق والمعلومات';
+
+  @override
+  String get guestAccountTitle => 'مرحباً بك في هدهد FM';
+
+  @override
+  String get guestAccountSubtitle =>
+      'سجّل دخولك لمزامنة محطاتك المفضلة والمشاركة في المجتمع الإذاعي.';
+
+  @override
+  String get signInOrRegister => 'تسجيل الدخول / حساب جديد';
+
+  @override
+  String get verifiedAccountBadge => 'حساب موثق';
+
+  @override
+  String get manageAccount => 'إدارة بيانات الحساب';
+
+  @override
+  String get shareAppTitle => 'دعوة صديق ومشاركة التطبيق';
+
+  @override
+  String get shareAppSubtitle => 'شارك تطبيق هدهد FM مع أصدقائك ومحبي الإذاعة';
+
+  @override
+  String get shareAppMessage =>
+      'استمع لأجمل الإذاعات والبرامج اليمنية عبر تطبيق هدهد FM 📻🇾🇪\nحمل التطبيق الآن: https://hudhudfm.com/download';
+
+  @override
+  String get rateAppTitle => 'تقييم التطبيق';
+
+  @override
+  String get rateAppSubtitle => 'رأيك يهمنا لمواصلة تحسين هدهد FM';
+
+  @override
+  String get rateAppDialogTitle => 'ما رأيك في هدهد FM؟';
+
+  @override
+  String get rateAppDialogPrompt => 'اختر عدد النجوم لتقييم تجربتك الاستماعية';
+
+  @override
+  String get rateAppSubmit => 'إرسال التقييم';
+
+  @override
+  String get rateAppThankYou => 'شكراً لدعمك وتقييمك الرائع!';
+
+  @override
+  String get aboutAppTitle => 'عن هدهد FM';
+
+  @override
+  String get aboutAppSubtitle => 'قصة الهوية، الإصدار، والمعلومات القانونية';
+
+  @override
+  String get appVersionLabel => 'الإصدار';
+
+  @override
+  String get aboutAppDescription =>
+      'هدهد FM هو دليلك الأول للاستماع إلى كافة الإذاعات اليمنية الرسمية والأهلية ببث رقمي عالي النقاء، مع متابعة البرامج والحلقات والتفاعل المجتمعي الراقي.';
+
+  @override
+  String allRightsReserved(String year) {
+    return 'جميع الحقوق محفوظة © $year هدهد FM';
+  }
+
+  @override
+  String get privacyPolicy => 'سياسة الخصوصية';
+
+  @override
+  String get termsOfService => 'شروط الخدمة';
 }

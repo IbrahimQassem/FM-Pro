@@ -1610,6 +1610,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We will notify you about live broadcasts and new shows as soon as they are available.'**
   String get mascotEmptyNotificationsSubtitle;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings & Account'**
+  String get settingsTitle;
+
+  /// No description provided for @accountSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Listener Account'**
+  String get accountSectionTitle;
+
+  /// No description provided for @appSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App & Community'**
+  String get appSectionTitle;
+
+  /// No description provided for @legalSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About & Info'**
+  String get legalSectionTitle;
+
+  /// No description provided for @guestAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Hudhud FM'**
+  String get guestAccountTitle;
+
+  /// No description provided for @guestAccountSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to sync your favorite stations and join the radio community.'**
+  String get guestAccountSubtitle;
+
+  /// No description provided for @signInOrRegister.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In / Create Account'**
+  String get signInOrRegister;
+
+  /// No description provided for @verifiedAccountBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified Account'**
+  String get verifiedAccountBadge;
+
+  /// No description provided for @manageAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Account Details'**
+  String get manageAccount;
+
+  /// No description provided for @shareAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite a Friend & Share App'**
+  String get shareAppTitle;
+
+  /// No description provided for @shareAppSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Hudhud FM with your friends and radio lovers'**
+  String get shareAppSubtitle;
+
+  /// No description provided for @shareAppMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: https://hudhudfm.com/download'**
+  String get shareAppMessage;
+
+  /// No description provided for @rateAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate App'**
+  String get rateAppTitle;
+
+  /// No description provided for @rateAppSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your feedback helps us continue improving Hudhud FM'**
+  String get rateAppSubtitle;
+
+  /// No description provided for @rateAppDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How is your experience with Hudhud FM?'**
+  String get rateAppDialogTitle;
+
+  /// No description provided for @rateAppDialogPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Select stars to rate your listening experience'**
+  String get rateAppDialogPrompt;
+
+  /// No description provided for @rateAppSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Rating'**
+  String get rateAppSubmit;
+
+  /// No description provided for @rateAppThankYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your wonderful rating and support!'**
+  String get rateAppThankYou;
+
+  /// No description provided for @aboutAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About Hudhud FM'**
+  String get aboutAppTitle;
+
+  /// No description provided for @aboutAppSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Brand story, app version, and legal info'**
+  String get aboutAppSubtitle;
+
+  /// No description provided for @appVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get appVersionLabel;
+
+  /// No description provided for @aboutAppDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Hudhud FM is your premier guide to listening to Yemeni radio stations with crystal-clear digital streaming, program episodes, and engaging community discussions.'**
+  String get aboutAppDescription;
+
+  /// Copyright notice with publication year
+  ///
+  /// In en, this message translates to:
+  /// **'All rights reserved © {year} Hudhud FM'**
+  String allRightsReserved(String year);
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @termsOfService.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get termsOfService;
 }
 
 class _AppLocalizationsDelegate
