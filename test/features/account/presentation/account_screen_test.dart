@@ -149,6 +149,52 @@ void main() {
     expect(repository.provider, AccountSignInProvider.apple);
     debugDefaultTargetPlatformOverride = null;
   });
+
+  testWidgets('can open UGC guidelines from unauthenticated account screen', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = _FakeAccountRepository(user: null);
+    await tester.pumpWidget(_TestApp(repository: repository));
+    await tester.pumpAndSettle();
+
+    final guidelinesButton = find.byKey(
+      const Key('account-auth-ugc-guidelines'),
+    );
+    expect(guidelinesButton, findsOneWidget);
+
+    await tester.tap(guidelinesButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('شروط المشاركة والتعليقات'), findsOneWidget);
+    expect(find.text('إرشادات هدهد لمجتمع محترم وآمن'), findsOneWidget);
+  });
+
+  testWidgets('can open UGC guidelines from verified account screen', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = _FakeAccountRepository(user: _user);
+    await tester.pumpWidget(_TestApp(repository: repository));
+    await tester.pumpAndSettle();
+
+    final guidelinesTile = find.byKey(const Key('account-ugc-guidelines'));
+    expect(guidelinesTile, findsOneWidget);
+
+    await tester.tap(guidelinesTile);
+    await tester.pumpAndSettle();
+
+    expect(find.text('شروط المشاركة والتعليقات'), findsOneWidget);
+    expect(find.text('إرشادات هدهد لمجتمع محترم وآمن'), findsOneWidget);
+  });
 }
 
 class _TestApp extends StatelessWidget {

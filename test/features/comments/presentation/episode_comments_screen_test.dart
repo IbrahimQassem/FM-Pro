@@ -1,3 +1,4 @@
+import "package:hudhud_fm/features/comments/presentation/widgets/ugc_guidelines_dialog.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -135,6 +136,48 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('submit-comment-report')), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('displays mascot empty comments state when there are no comments', (
+    tester,
+  ) async {
+    final repository = _FakeCommentsRepository(initialComments: []);
+    repository.didAcceptTerms = true;
+
+    await tester.pumpWidget(_TestApp(commentsRepository: repository));
+    await tester.pumpAndSettle();
+
+    expect(find.text('لا توجد تعليقات بعد'), findsOneWidget);
+    expect(
+      find.text('كن أول من يشارك برأيه ويبدأ النقاش حول هذه الحلقة!'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('UgcGuidelinesDialog displays mascot and rules correctly', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        locale: Locale('ar'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: Scaffold(
+          body: UgcGuidelinesDialog(allowAcceptance: true),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('شروط المشاركة والتعليقات'), findsOneWidget);
+    expect(find.text('إرشادات هدهد لمجتمع محترم وآمن'), findsOneWidget);
+    expect(find.textContaining('لا تنشر تهديدًا أو تحرشًا'), findsOneWidget);
+    expect(find.byKey(const Key('comments-accept-ugc-terms')), findsOneWidget);
   });
 }
 

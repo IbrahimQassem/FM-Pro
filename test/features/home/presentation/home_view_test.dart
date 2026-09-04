@@ -205,6 +205,67 @@ void main() {
 
     expect(find.text("لم نعثر على نتائج مطابقة"), findsOneWidget);
     expect(find.text("جرّب البحث باسم محطة أخرى أو فئة مختلفة وسنبحث معك فورًا."), findsOneWidget);
+    expect(find.text("مسح البحث"), findsOneWidget);
+  });
+
+  testWidgets("clears search input when clear button is tapped", (tester) async {
+    final station = Station(
+      id: "sanaa",
+      name: "إذاعة صنعاء",
+      streamUrl: "https://radio.example.com/live",
+      countryCode: "YE",
+      countryNameAr: "اليمن",
+      cityCode: "sanaa",
+      cityNameAr: "صنعاء",
+      frequency: "92.5 MHz",
+      priority: 10,
+      isLive: true,
+      isActive: true,
+      isVerified: true,
+      isFeatured: true,
+      programsCount: 4,
+      subscribersCount: 120,
+      totalPlays: 400,
+    );
+
+    String? changedQuery;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale("ar"),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: HomeView(
+          state: HomeState(
+            stations: [station],
+            searchQuery: "صنعاء",
+            isInitialLoading: false,
+          ),
+          onRefresh: () async {},
+          onSearchChanged: (val) => changedQuery = val,
+          onCitySelected: (_) {},
+          onViewModeChanged: (_) {},
+          onNotificationsPressed: () {},
+          onSettingsPressed: () {},
+          onStationPressed: (_) {},
+          onStationPlayPressed: (_) {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final clearButton = find.byKey(const Key("search-clear-button"));
+    expect(clearButton, findsOneWidget);
+
+    await tester.tap(clearButton);
+    await tester.pumpAndSettle();
+
+    expect(changedQuery, "");
   });
 
   testWidgets("displays mascot empty favorites state when favorites filter has no stations", (

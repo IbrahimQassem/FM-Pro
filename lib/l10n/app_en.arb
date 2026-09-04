@@ -231,5 +231,7 @@
   "verifyEmailToFavoritePrompt": "Verify your email to save stations to favorites",
   "favoriteAddedMessage": "Station added to favorites",
   "favoriteRemovedMessage": "Station removed from favorites",
-  "favoriteActionFailed": "Could not update favorites. Try again."
+  "favoriteActionFailed": "Could not update favorites. Try again.",
+  "ugcGuidelinesMenu": "Community & Safety Guidelines",
+  "ugcGuidelinesSubtitle": "Community standards and acceptable conduct"
 }

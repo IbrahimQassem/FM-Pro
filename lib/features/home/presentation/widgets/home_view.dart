@@ -1,15 +1,15 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../../l10n/generated/app_localizations.dart';
-import '../../domain/models/station.dart';
-import '../controllers/home_state.dart';
-import 'banner_carousel.dart';
-import 'home_empty_state.dart';
-import 'home_loading.dart';
-import 'station_card.dart';
-import 'user_header.dart';
+import "../../../../l10n/generated/app_localizations.dart";
+import "../../domain/models/station.dart";
+import "../controllers/home_state.dart";
+import "banner_carousel.dart";
+import "home_empty_state.dart";
+import "home_loading.dart";
+import "station_card.dart";
+import "user_header.dart";
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({
     required this.state,
     required this.onRefresh,
@@ -40,18 +40,51 @@ class HomeView extends StatelessWidget {
   final Widget? playerBar;
 
   @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(text: widget.state.searchQuery);
+  }
+
+  @override
+  void didUpdateWidget(HomeView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.state.searchQuery != _searchController.text) {
+      _searchController.text = widget.state.searchQuery;
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    widget.onSearchChanged("");
+  }
+
+  @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final visibleStations = state.visibleStations;
+    final visibleStations = widget.state.visibleStations;
     final textScale = MediaQuery.textScalerOf(context).scale(1);
-    final useGrid = state.viewMode == StationViewMode.grid && textScale <= 1.4;
+    final useGrid =
+        widget.state.viewMode == StationViewMode.grid && textScale <= 1.4;
 
     return Scaffold(
-      bottomNavigationBar: playerBar,
+      bottomNavigationBar: widget.playerBar,
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
-          onRefresh: onRefresh,
+          onRefresh: widget.onRefresh,
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
@@ -59,14 +92,14 @@ class HomeView extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                 sliver: SliverToBoxAdapter(
                   child: UserHeader(
-                    user: state.user,
-                    isOffline: state.isOffline,
-                    onNotificationsPressed: onNotificationsPressed,
-                    onSettingsPressed: onSettingsPressed,
+                    user: widget.state.user,
+                    isOffline: widget.state.isOffline,
+                    onNotificationsPressed: widget.onNotificationsPressed,
+                    onSettingsPressed: widget.onSettingsPressed,
                   ),
                 ),
               ),
-              if (state.isOffline)
+              if (widget.state.isOffline)
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                   sliver: SliverToBoxAdapter(
@@ -75,34 +108,46 @@ class HomeView extends StatelessWidget {
                       leading: const Icon(Icons.cloud_off_rounded),
                       actions: [
                         TextButton(
-                          onPressed: onRefresh,
+                          onPressed: widget.onRefresh,
                           child: Text(strings.retry),
                         ),
                       ],
                     ),
                   ),
                 ),
-              if (state.banners.isNotEmpty)
+              if (widget.state.banners.isNotEmpty)
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
                   sliver: SliverToBoxAdapter(
-                    child: BannerCarousel(banners: state.banners),
+                    child: BannerCarousel(banners: widget.state.banners),
                   ),
                 ),
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
                 sliver: SliverToBoxAdapter(
                   child: TextField(
-                    onChanged: onSearchChanged,
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {});
+                      widget.onSearchChanged(value);
+                    },
                     textInputAction: TextInputAction.search,
                     decoration: InputDecoration(
                       hintText: strings.searchHint,
                       prefixIcon: const Icon(Icons.search_rounded),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              key: const Key("search-clear-button"),
+                              tooltip: strings.clearSearch,
+                              icon: const Icon(Icons.clear_rounded),
+                              onPressed: _clearSearch,
+                            )
+                          : null,
                     ),
                   ),
                 ),
               ),
-              if (state.cities.isNotEmpty)
+              if (widget.state.cities.isNotEmpty)
                 SliverToBoxAdapter(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -111,34 +156,38 @@ class HomeView extends StatelessWidget {
                       children: [
                         ChoiceChip(
                           label: Text(strings.allCities),
-                          selected: !state.isFavoritesOnly && state.selectedCityCode.isEmpty,
+                          selected:
+                              !widget.state.isFavoritesOnly &&
+                              widget.state.selectedCityCode.isEmpty,
                           onSelected: (_) {
-                            onFavoritesFilterToggled?.call(false);
-                            onCitySelected('');
+                            widget.onFavoritesFilterToggled?.call(false);
+                            widget.onCitySelected("");
                           },
                         ),
                         const SizedBox(width: 8),
                         ChoiceChip(
                           avatar: Icon(
-                            state.isFavoritesOnly
+                            widget.state.isFavoritesOnly
                                 ? Icons.favorite_rounded
                                 : Icons.favorite_border_rounded,
                             size: 16,
                           ),
                           label: Text(strings.favoritesFilter),
-                          selected: state.isFavoritesOnly,
+                          selected: widget.state.isFavoritesOnly,
                           onSelected: (selected) {
-                            onFavoritesFilterToggled?.call(selected);
+                            widget.onFavoritesFilterToggled?.call(selected);
                           },
                         ),
-                        for (final city in state.cities) ...[
+                        for (final city in widget.state.cities) ...[
                           const SizedBox(width: 8),
                           ChoiceChip(
                             label: Text(city.nameAr),
-                            selected: !state.isFavoritesOnly && state.selectedCityCode == city.code,
+                            selected:
+                                !widget.state.isFavoritesOnly &&
+                                widget.state.selectedCityCode == city.code,
                             onSelected: (_) {
-                              onFavoritesFilterToggled?.call(false);
-                              onCitySelected(city.code);
+                              widget.onFavoritesFilterToggled?.call(false);
+                              widget.onCitySelected(city.code);
                             },
                           ),
                         ],
@@ -173,16 +222,16 @@ class HomeView extends StatelessWidget {
                         ),
                       ),
                       IconButton.filledTonal(
-                        onPressed: () => onViewModeChanged(
-                          state.viewMode == StationViewMode.grid
+                        onPressed: () => widget.onViewModeChanged(
+                          widget.state.viewMode == StationViewMode.grid
                               ? StationViewMode.list
                               : StationViewMode.grid,
                         ),
-                        tooltip: state.viewMode == StationViewMode.grid
+                        tooltip: widget.state.viewMode == StationViewMode.grid
                             ? strings.listView
                             : strings.gridView,
                         icon: Icon(
-                          state.viewMode == StationViewMode.grid
+                          widget.state.viewMode == StationViewMode.grid
                               ? Icons.view_agenda_outlined
                               : Icons.grid_view_rounded,
                         ),
@@ -191,37 +240,44 @@ class HomeView extends StatelessWidget {
                   ),
                 ),
               ),
-              if (state.isInitialLoading)
+              if (widget.state.isInitialLoading)
                 const HomeLoading()
-              else if (state.failure == HomeFailure.load)
+              else if (widget.state.failure == HomeFailure.load)
                 HomeEmptyState(
-                  imageAsset: 'assets/images/mascot/mascot_offline.webp',
+                  imageAsset: "assets/images/mascot/mascot_offline.webp",
                   icon: Icons.wifi_off_rounded,
                   title: strings.mascotOfflineTitle,
                   message: strings.mascotOfflineSubtitle,
                   actionLabel: strings.retry,
-                  onAction: onRefresh,
+                  onAction: widget.onRefresh,
                 )
-              else if (!state.hasStations)
+              else if (!widget.state.hasStations)
                 HomeEmptyState(
                   icon: Icons.radio_outlined,
                   title: strings.noStationsTitle,
                   message: strings.noStationsMessage,
                   actionLabel: strings.retry,
-                  onAction: onRefresh,
+                  onAction: widget.onRefresh,
                 )
-              else if (state.isFavoritesOnly && visibleStations.isEmpty)
+              else if (widget.state.isFavoritesOnly && visibleStations.isEmpty)
                 HomeEmptyState(
-                  imageAsset: 'assets/images/mascot/mascot_empty_favorites.webp',
+                  imageAsset: "assets/images/mascot/mascot_empty_favorites.webp",
                   title: strings.mascotEmptyFavoritesTitle,
                   message: strings.mascotEmptyFavoritesSubtitle,
                 )
               else if (visibleStations.isEmpty)
                 HomeEmptyState(
-                  imageAsset: 'assets/images/mascot/mascot_empty_search.webp',
+                  imageAsset: "assets/images/mascot/mascot_empty_search.webp",
                   icon: Icons.search_off_rounded,
                   title: strings.mascotEmptySearchTitle,
                   message: strings.mascotEmptySearchSubtitle,
+                  actionLabel: widget.state.searchQuery.isNotEmpty
+                      ? strings.clearSearch
+                      : null,
+                  actionIcon: Icons.clear_rounded,
+                  onAction: widget.state.searchQuery.isNotEmpty
+                      ? () async => _clearSearch()
+                      : null,
                 )
               else if (useGrid)
                 SliverPadding(
@@ -237,13 +293,15 @@ class HomeView extends StatelessWidget {
                     itemCount: visibleStations.length,
                     itemBuilder: (context, index) => StationCard.grid(
                       station: visibleStations[index],
-                      isFavorite: state.favoriteStationIds.contains(visibleStations[index].id),
-                      onFavoriteToggle: onFavoriteToggle == null
+                      isFavorite: widget.state.favoriteStationIds.contains(
+                        visibleStations[index].id,
+                      ),
+                      onFavoriteToggle: widget.onFavoriteToggle == null
                           ? null
-                          : () => onFavoriteToggle!(visibleStations[index]),
-                      onOpen: () => onStationPressed(visibleStations[index]),
+                          : () => widget.onFavoriteToggle!(visibleStations[index]),
+                      onOpen: () => widget.onStationPressed(visibleStations[index]),
                       onPlay: () =>
-                          onStationPlayPressed(visibleStations[index]),
+                          widget.onStationPlayPressed(visibleStations[index]),
                     ),
                   ),
                 )
@@ -256,13 +314,15 @@ class HomeView extends StatelessWidget {
                         const SizedBox(height: 10),
                     itemBuilder: (context, index) => StationCard.list(
                       station: visibleStations[index],
-                      isFavorite: state.favoriteStationIds.contains(visibleStations[index].id),
-                      onFavoriteToggle: onFavoriteToggle == null
+                      isFavorite: widget.state.favoriteStationIds.contains(
+                        visibleStations[index].id,
+                      ),
+                      onFavoriteToggle: widget.onFavoriteToggle == null
                           ? null
-                          : () => onFavoriteToggle!(visibleStations[index]),
-                      onOpen: () => onStationPressed(visibleStations[index]),
+                          : () => widget.onFavoriteToggle!(visibleStations[index]),
+                      onOpen: () => widget.onStationPressed(visibleStations[index]),
                       onPlay: () =>
-                          onStationPlayPressed(visibleStations[index]),
+                          widget.onStationPlayPressed(visibleStations[index]),
                     ),
                   ),
                 ),

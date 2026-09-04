@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
 class HomeEmptyState extends StatelessWidget {
   const HomeEmptyState({
@@ -7,6 +7,7 @@ class HomeEmptyState extends StatelessWidget {
     this.icon,
     this.imageAsset,
     this.actionLabel,
+    this.actionIcon,
     this.onAction,
     super.key,
   });
@@ -16,6 +17,7 @@ class HomeEmptyState extends StatelessWidget {
   final String title;
   final String message;
   final String? actionLabel;
+  final IconData? actionIcon;
   final Future<void> Function()? onAction;
 
   @override
@@ -63,7 +65,7 @@ class HomeEmptyState extends StatelessWidget {
                 const SizedBox(height: 20),
                 FilledButton.icon(
                   onPressed: onAction,
-                  icon: const Icon(Icons.refresh_rounded),
+                  icon: Icon(actionIcon ?? Icons.refresh_rounded),
                   label: Text(actionLabel!),
                 ),
               ],

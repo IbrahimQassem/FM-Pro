@@ -231,5 +231,7 @@
   "verifyEmailToFavoritePrompt": "وثّق بريدك الإلكتروني لتتمكن من حفظ محطاتك في المفضلة",
   "favoriteAddedMessage": "تمت إضافة المحطة إلى المفضلة",
   "favoriteRemovedMessage": "تمت إزالة المحطة من المفضلة",
-  "favoriteActionFailed": "تعذر تحديث المفضلة. حاول مرة أخرى."
+  "favoriteActionFailed": "تعذر تحديث المفضلة. حاول مرة أخرى.",
+  "ugcGuidelinesMenu": "إرشادات المجتمع وأمان المحتوى",
+  "ugcGuidelinesSubtitle": "معايير النشر والسلوك المقبول في التعليقات"
 }

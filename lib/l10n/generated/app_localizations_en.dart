@@ -815,4 +815,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get favoriteActionFailed => 'Could not update favorites. Try again.';
+
+  @override
+  String get ugcGuidelinesMenu => 'Community & Safety Guidelines';
+
+  @override
+  String get ugcGuidelinesSubtitle =>
+      'Community standards and acceptable conduct';
 }

@@ -1,3 +1,4 @@
+import "../../comments/presentation/widgets/ugc_guidelines_dialog.dart";
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/mascot_avatar.dart';
 import 'package:flutter/foundation.dart';
@@ -187,6 +188,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           ),
           _socialDivider(strings),
           ..._providerButtons(strings, state),
+          const SizedBox(height: 16),
+          TextButton.icon(
+            key: const Key("account-auth-ugc-guidelines"),
+            onPressed: () => UgcGuidelinesDialog.show(context),
+            icon: const Icon(Icons.policy_outlined),
+            label: Text(strings.ugcGuidelinesMenu),
+          ),
         ],
       ),
     );
@@ -389,7 +397,22 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           icon: const Icon(Icons.logout_rounded),
           label: Text(strings.signOut),
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 20),
+        Card(
+          child: ListTile(
+            key: const Key("account-ugc-guidelines"),
+            leading: Image.asset(
+              "assets/images/mascot/mascot_ugc_guidelines.webp",
+              height: 36,
+              fit: BoxFit.contain,
+            ),
+            title: Text(strings.ugcGuidelinesMenu),
+            subtitle: Text(strings.ugcGuidelinesSubtitle),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => UgcGuidelinesDialog.show(context),
+          ),
+        ),
+        const SizedBox(height: 20),
         const Divider(),
         const SizedBox(height: 12),
         Text(

@@ -1495,6 +1495,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not update favorites. Try again.'**
   String get favoriteActionFailed;
+
+  /// No description provided for @ugcGuidelinesMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Community & Safety Guidelines'**
+  String get ugcGuidelinesMenu;
+
+  /// No description provided for @ugcGuidelinesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Community standards and acceptable conduct'**
+  String get ugcGuidelinesSubtitle;
 }
 
 class _AppLocalizationsDelegate

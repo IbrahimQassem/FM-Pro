@@ -1,3 +1,4 @@
+import "widgets/ugc_guidelines_dialog.dart";
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -167,9 +168,9 @@ class _EpisodeCommentsScreenState extends ConsumerState<EpisodeCommentsScreen> {
   }
 
   Future<void> _showTerms({required bool allowAcceptance}) async {
-    final accepted = await showDialog<bool>(
-      context: context,
-      builder: (context) => _UgcTermsDialog(allowAcceptance: allowAcceptance),
+    final accepted = await UgcGuidelinesDialog.show(
+      context,
+      allowAcceptance: allowAcceptance,
     );
     if (accepted != true || !mounted) return;
     await ref
@@ -607,96 +608,6 @@ class _TermsGate extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _UgcTermsDialog extends StatelessWidget {
-  const _UgcTermsDialog({required this.allowAcceptance});
-
-  final bool allowAcceptance;
-
-  @override
-  Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context);
-    final rules = [
-      strings.ugcTermsRespectRule,
-      strings.ugcTermsSafetyRule,
-      strings.ugcTermsPrivacyRule,
-      strings.ugcTermsSpamRule,
-    ];
-    return AlertDialog(
-      scrollable: true,
-      title: Text(strings.ugcTermsTitle),
-      content: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 520),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Image.asset(
-                'assets/images/mascot/mascot_ugc_guidelines.webp',
-                height: 84,
-                fit: BoxFit.contain,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Center(
-              child: Text(
-                strings.mascotUgcGuidelinesBadge,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(strings.ugcTermsIntro),
-            const SizedBox(height: 14),
-            for (final rule in rules)
-              Padding(
-                padding: const EdgeInsetsDirectional.only(bottom: 10),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsetsDirectional.only(top: 7),
-                      child: Icon(Icons.circle, size: 7),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(child: Text(rule)),
-                  ],
-                ),
-              ),
-            const SizedBox(height: 4),
-            Text(
-              strings.ugcTermsModerationNotice,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-      ),
-      actions: allowAcceptance
-          ? [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(strings.cancel),
-              ),
-              FilledButton(
-                key: const Key('comments-accept-ugc-terms'),
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text(strings.ugcAcceptAndContinue),
-              ),
-            ]
-          : [
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(strings.close),
-              ),
-            ],
     );
   }
 }

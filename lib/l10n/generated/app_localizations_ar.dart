@@ -805,4 +805,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get favoriteActionFailed => 'تعذر تحديث المفضلة. حاول مرة أخرى.';
+
+  @override
+  String get ugcGuidelinesMenu => 'إرشادات المجتمع وأمان المحتوى';
+
+  @override
+  String get ugcGuidelinesSubtitle =>
+      'معايير النشر والسلوك المقبول في التعليقات';
 }
