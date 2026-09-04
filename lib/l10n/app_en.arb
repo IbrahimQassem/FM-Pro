@@ -322,5 +322,6 @@
   "alreadyHaveAccount": "Already have an account?",
   "signInNow": "Sign In",
   "deleteAccountDiscrete": "Permanently delete account and data",
-  "pickAvatarPrompt": "Choose profile avatar"
+  "pickAvatarPrompt": "Choose profile avatar",
+  "imagePickError": "Unable to open or select image. Please check permissions."
 }

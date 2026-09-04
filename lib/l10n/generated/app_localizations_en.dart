@@ -1005,4 +1005,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pickAvatarPrompt => 'Choose profile avatar';
+
+  @override
+  String get imagePickError =>
+      'Unable to open or select image. Please check permissions.';
 }

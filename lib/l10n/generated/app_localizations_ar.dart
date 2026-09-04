@@ -991,4 +991,8 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pickAvatarPrompt => 'اختر صورة للملف الشخصي';
+
+  @override
+  String get imagePickError =>
+      'تعذر فتح أو اختيار الصورة. يرجى التحقق من الأذونات.';
 }

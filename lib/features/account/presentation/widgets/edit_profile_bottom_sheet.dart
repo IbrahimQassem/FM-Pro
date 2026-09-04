@@ -73,8 +73,14 @@ class _EditProfileBottomSheetState
           _selectedPhotoUrl = picked.path;
         });
       }
-    } catch (_) {
-      // Ignored if cancelled or unsupported
+    } catch (e) {
+      debugPrint("Error picking image from $source: $e");
+      if (mounted) {
+        final strings = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(strings.imagePickError)),
+        );
+      }
     }
   }
 

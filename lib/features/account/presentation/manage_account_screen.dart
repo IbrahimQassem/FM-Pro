@@ -104,12 +104,15 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
                                   radius: 44,
                                 ),
                                 Container(
+                                  width: 28,
+                                  height: 28,
                                   decoration: BoxDecoration(
                                     color: colors.primary,
                                     shape: BoxShape.circle,
                                   ),
                                   child: IconButton(
-                                    key: const Key('edit-profile-avatar-button'),
+                                    key:
+                                        const Key('edit-profile-avatar-button'),
                                     iconSize: 16,
                                     padding: const EdgeInsets.all(6),
                                     constraints: const BoxConstraints(),
@@ -117,7 +120,8 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
                                     icon: const Icon(Icons.camera_alt_outlined),
                                     tooltip: strings.editProfile,
                                     onPressed: () =>
-                                        EditProfileBottomSheet.show(context, user),
+                                        EditProfileBottomSheet.show(
+                                            context, user),
                                   ),
                                 ),
                               ],
@@ -135,7 +139,8 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
                               Text(
                                 user.email,
                                 textAlign: TextAlign.center,
-                                style: TextStyle(color: colors.onSurfaceVariant),
+                                style:
+                                    TextStyle(color: colors.onSurfaceVariant),
                               ),
                             ],
                             const SizedBox(height: 10),
@@ -196,7 +201,9 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
                         key: const Key('account-sign-out'),
                         onPressed: state.isSubmitting
                             ? null
-                            : ref.read(accountControllerProvider.notifier).signOut,
+                            : ref
+                                .read(accountControllerProvider.notifier)
+                                .signOut,
                         icon: const Icon(Icons.logout_rounded),
                         label: Text(strings.signOut),
                       ),
@@ -305,10 +312,10 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
         const SizedBox(height: 20),
         FilledButton(
           key: const Key('account-verify-email'),
-          onPressed: state.isSubmitting ||
-                  _verificationCodeController.text.length != 6
-              ? null
-              : _verifyEmailCode,
+          onPressed:
+              state.isSubmitting || _verificationCodeController.text.length != 6
+                  ? null
+                  : _verifyEmailCode,
           child: state.isSubmitting
               ? const SizedBox.square(
                   dimension: 20,
@@ -319,9 +326,8 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
         const SizedBox(height: 8),
         TextButton(
           key: const Key('account-resend-code'),
-          onPressed: state.isSubmitting
-              ? null
-              : () => _requestVerificationCode(user),
+          onPressed:
+              state.isSubmitting ? null : () => _requestVerificationCode(user),
           child: Text(strings.resendVerificationCode),
         ),
         const SizedBox(height: 12),

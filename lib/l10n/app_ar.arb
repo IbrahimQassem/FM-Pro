@@ -322,5 +322,6 @@
   "alreadyHaveAccount": "لديك حساب بالفعل؟",
   "signInNow": "تسجيل الدخول",
   "deleteAccountDiscrete": "حذف الحساب والبيانات نهائياً",
-  "pickAvatarPrompt": "اختر صورة للملف الشخصي"
+  "pickAvatarPrompt": "اختر صورة للملف الشخصي",
+  "imagePickError": "تعذر فتح أو اختيار الصورة. يرجى التحقق من الأذونات."
 }

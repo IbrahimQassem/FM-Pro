@@ -1838,6 +1838,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose profile avatar'**
   String get pickAvatarPrompt;
+
+  /// No description provided for @imagePickError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to open or select image. Please check permissions.'**
+  String get imagePickError;
 }
 
 class _AppLocalizationsDelegate
