@@ -1,3 +1,4 @@
+import "../../../core/widgets/mascot_feedback_view.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -56,20 +57,12 @@ class NotificationsScreen extends ConsumerWidget {
             const SizedBox(height: 10),
             if (state.messages.isEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 44),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.notifications_none_rounded,
-                      size: 52,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      strings.noRecentNotifications,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: MascotFeedbackView(
+                  imageAsset: "assets/images/mascot/mascot_avatar_default.webp",
+                  imageHeight: 140,
+                  title: strings.mascotEmptyNotificationsTitle,
+                  subtitle: strings.mascotEmptyNotificationsSubtitle,
                 ),
               )
             else

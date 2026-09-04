@@ -875,4 +875,11 @@ class AppLocalizationsEn extends AppLocalizations {
       String stationName, String url) {
     return 'Listen to \"$episodeTitle\" from $programTitle - $stationName on Hudhud FM 🎙️\n$url';
   }
+
+  @override
+  String get mascotEmptyNotificationsTitle => 'No new notifications';
+
+  @override
+  String get mascotEmptyNotificationsSubtitle =>
+      'We will notify you about live broadcasts and new shows as soon as they are available.';
 }

@@ -865,4 +865,11 @@ class AppLocalizationsAr extends AppLocalizations {
       String stationName, String url) {
     return 'استمع لحلقة \"$episodeTitle\" من برنامج $programTitle - $stationName عبر تطبيق هدهد FM 🎙️\n$url';
   }
+
+  @override
+  String get mascotEmptyNotificationsTitle => 'لا توجد إشعارات جديدة';
+
+  @override
+  String get mascotEmptyNotificationsSubtitle =>
+      'سنوافيك بآخر تنبيهات البث المباشر والبرامج الجديدة فور صدورها.';
 }

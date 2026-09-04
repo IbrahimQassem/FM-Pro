@@ -274,5 +274,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "mascotEmptyNotificationsTitle": "No new notifications",
+  "mascotEmptyNotificationsSubtitle": "We will notify you about live broadcasts and new shows as soon as they are available."
 }

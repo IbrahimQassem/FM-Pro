@@ -274,5 +274,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "mascotEmptyNotificationsTitle": "لا توجد إشعارات جديدة",
+  "mascotEmptyNotificationsSubtitle": "سنوافيك بآخر تنبيهات البث المباشر والبرامج الجديدة فور صدورها."
 }

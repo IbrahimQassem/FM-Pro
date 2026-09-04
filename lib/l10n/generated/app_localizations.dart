@@ -1598,6 +1598,18 @@ abstract class AppLocalizations {
   /// **'Listen to \"{episodeTitle}\" from {programTitle} - {stationName} on Hudhud FM 🎙️\n{url}'**
   String shareEpisodeMessage(
       String episodeTitle, String programTitle, String stationName, String url);
+
+  /// No description provided for @mascotEmptyNotificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No new notifications'**
+  String get mascotEmptyNotificationsTitle;
+
+  /// No description provided for @mascotEmptyNotificationsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We will notify you about live broadcasts and new shows as soon as they are available.'**
+  String get mascotEmptyNotificationsSubtitle;
 }
 
 class _AppLocalizationsDelegate
