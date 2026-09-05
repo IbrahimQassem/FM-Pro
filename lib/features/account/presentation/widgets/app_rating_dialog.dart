@@ -1,21 +1,22 @@
 import "package:flutter/material.dart";
 import "package:url_launcher/url_launcher.dart";
 
+import "../../../../core/utils/store_url_helper.dart";
 import "../../../../l10n/generated/app_localizations.dart";
 
 class AppRatingDialog extends StatefulWidget {
   const AppRatingDialog({
     super.key,
-    this.storeUrl = "https://hudhudfm.com/download",
+    this.storeUrl,
   });
 
-  final String storeUrl;
+  final String? storeUrl;
 
   static Future<int?> show(BuildContext context, {String? storeUrl}) {
     return showDialog<int>(
       context: context,
       builder: (_) => AppRatingDialog(
-        storeUrl: storeUrl ?? "https://hudhudfm.com/download",
+        storeUrl: storeUrl,
       ),
     );
   }
@@ -43,7 +44,8 @@ class _AppRatingDialogState extends State<AppRatingDialog> {
   }
 
   Future<void> _openStore() async {
-    final uri = Uri.parse(widget.storeUrl);
+    final targetUrl = widget.storeUrl ?? StoreUrlHelper.getStoreUrl();
+    final uri = Uri.parse(targetUrl);
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {

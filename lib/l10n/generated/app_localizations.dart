@@ -1680,7 +1680,7 @@ abstract class AppLocalizations {
   /// No description provided for @shareAppMessage.
   ///
   /// In en, this message translates to:
-  /// **'Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: https://hudhudfm.com/download'**
+  /// **'Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: https://hudhud-fm-admin-sanadev.web.app/download'**
   String get shareAppMessage;
 
   /// No description provided for @rateAppTitle.

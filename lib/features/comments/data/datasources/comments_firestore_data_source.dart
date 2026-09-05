@@ -1,15 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../core/config/firestore_paths.dart';
 import '../../domain/models/episode_comment.dart';
 import '../../domain/repositories/comments_repository.dart';
 
 class CommentsFirestoreDataSource {
-  const CommentsFirestoreDataSource(this._firestore, this._auth);
+  const CommentsFirestoreDataSource(
+    this._firestore,
+    this._auth, [
+    this._functions,
+  ]);
 
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
+  final FirebaseFunctions? _functions;
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchComments(String episodeId) {
     return FirestorePaths.episodeComments(_firestore, episodeId)
@@ -41,33 +48,26 @@ class CommentsFirestoreDataSource {
 
   Future<void> acceptCurrentTerms() async {
     final user = _auth.currentUser;
-    if (user == null) throw const CommentAuthRequiredException();
+    if (user == null) {
+      debugPrint('acceptCurrentTerms: user is null!');
+      throw const CommentAuthRequiredException();
+    }
+    debugPrint('acceptCurrentTerms: user.uid=${user.uid}, emailVerified=${user.emailVerified}, providers=${user.providerData.map((p) => p.providerId).toList()}');
     try {
       await user.reload();
       await user.getIdToken(true);
-    } on Object {
-      // Best-effort token refresh.
+    } on Object catch (e) {
+      debugPrint('acceptCurrentTerms token refresh error: $e');
     }
 
     try {
-      final userDoc = FirestorePaths.users(_firestore).doc(user.uid);
-      final userSnapshot = await userDoc.get();
-      if (!userSnapshot.exists) {
-        final displayName = user.displayName?.trim().isNotEmpty == true
-            ? user.displayName!.trim()
-            : (user.email?.split('@').first ?? 'Listener');
-        await userDoc.set({
-          'displayName': displayName,
-          'username': '',
-          'avatarUrl': user.photoURL ?? '',
-          'isActive': true,
-          'role': 'listener',
-          'createdAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-      }
+      final callable = (_functions ?? FirebaseFunctions.instance)
+          .httpsCallable('ensureAccountProfile');
+      await callable.call<Map<String, dynamic>>({
+        'root': FirestorePaths.root,
+      });
     } on Object {
-      // Best-effort profile provisioning.
+      // Best-effort profile provisioning via cloud function.
     }
 
     await FirestorePaths.ugcAgreement(_firestore, user.uid).set({
@@ -89,18 +89,11 @@ class CommentsFirestoreDataSource {
     final userRef = FirestorePaths.users(_firestore).doc(user.uid);
     var userSnapshot = await userRef.get();
     if (!userSnapshot.exists) {
-      final displayName = user.displayName?.trim().isNotEmpty == true
-          ? user.displayName!.trim()
-          : (user.email?.split('@').first ?? 'Listener');
       try {
-        await userRef.set({
-          'displayName': displayName,
-          'username': '',
-          'avatarUrl': user.photoURL ?? '',
-          'isActive': true,
-          'role': 'listener',
-          'createdAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
+        final callable = (_functions ?? FirebaseFunctions.instance)
+            .httpsCallable('ensureAccountProfile');
+        await callable.call<Map<String, dynamic>>({
+          'root': FirestorePaths.root,
         });
         userSnapshot = await userRef.get();
       } on Object {

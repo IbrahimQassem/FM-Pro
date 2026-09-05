@@ -36,7 +36,8 @@ const verificationChallengePath = (uid) =>
   `HudHudDev/emailVerificationChallenges/challenges/${uid}`;
 const verificationEmailLimitPath = (emailIdentifier) =>
   `HudHudDev/emailVerificationRateLimits/emails/${emailIdentifier}`;
-const listenerProfilePath = (uid) => `HudHudDev/users/users/${uid}`;
+const listenerProfilePath = (uid, root = 'HudHudDev') =>
+  `${root}/users/users/${uid}`;
 const verificationChallengesCollection = () => getFirestore().collection(
   'HudHudDev/emailVerificationChallenges/challenges',
 );
@@ -269,14 +270,22 @@ export const ensureAccountProfile = onCall(
   async (request) => {
     const uid = requireAuthenticatedUid(request);
     const auth = getAuth();
-    const user = await auth.getUser(uid);
+    let user = await auth.getUser(uid);
+    const isSocial = user.providerData?.some((p) =>
+      ['google.com', 'apple.com', 'facebook.com'].includes(p.providerId),
+    );
     if (!user.emailVerified) {
-      throw new HttpsError(
-        'failed-precondition',
-        'Email verification is required.',
-      );
+      if (isSocial) {
+        user = await auth.updateUser(uid, { emailVerified: true });
+      } else {
+        throw new HttpsError(
+          'failed-precondition',
+          'Email verification or social sign-in is required.',
+        );
+      }
     }
-    await ensureListenerProfile(getFirestore(), user);
+    const root = request.data?.root === 'HudHudOfficial' ? 'HudHudOfficial' : 'HudHudDev';
+    await ensureListenerProfile(getFirestore(), user, root);
     return { ready: true };
   },
 );
@@ -486,8 +495,8 @@ function verificationError(status) {
   }
 }
 
-async function ensureListenerProfile(firestore, user) {
-  const reference = firestore.doc(listenerProfilePath(user.uid));
+async function ensureListenerProfile(firestore, user, root = 'HudHudDev') {
+  const reference = firestore.doc(listenerProfilePath(user.uid, root));
   await firestore.runTransaction(async (transaction) => {
     const profile = await transaction.get(reference);
     if (profile.exists) return;

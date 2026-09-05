@@ -920,7 +920,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareAppMessage =>
-      'Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: https://hudhudfm.com/download';
+      'Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: https://hudhud-fm-admin-sanadev.web.app/download';
 
   @override
   String get rateAppTitle => 'Rate App';

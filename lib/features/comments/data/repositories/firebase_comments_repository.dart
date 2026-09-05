@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../domain/models/episode_comment.dart';
 import '../../domain/repositories/comments_repository.dart';
@@ -47,7 +48,11 @@ class FirebaseCommentsRepository implements CommentsRepository {
       await _dataSource.acceptCurrentTerms();
     } on CommentAuthRequiredException {
       throw const CommentException(CommentFailure.authenticationRequired);
-    } on FirebaseException {
+    } on FirebaseException catch (e, st) {
+      debugPrint('FirebaseCommentsRepository.acceptCurrentTerms FirebaseException: code=${e.code}, message=${e.message}\n$st');
+      throw const CommentException(CommentFailure.unavailable);
+    } catch (e, st) {
+      debugPrint('FirebaseCommentsRepository.acceptCurrentTerms unexpected error: $e\n$st');
       throw const CommentException(CommentFailure.unavailable);
     }
   }

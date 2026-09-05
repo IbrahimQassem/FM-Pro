@@ -93,11 +93,15 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
       } on FirebaseException {
         // Unverified accounts intentionally have no readable profile yet.
       }
+      final isSocial = user.providerData.any((provider) =>
+          provider.providerId == 'google.com' ||
+          provider.providerId == 'apple.com' ||
+          provider.providerId == 'facebook.com');
       return AccountAuthSnapshot(
         uid: user.uid,
         displayName: _fallbackDisplayName(displayName, user.email),
         email: _text(user.email),
-        emailVerified: user.emailVerified,
+        emailVerified: user.emailVerified || isSocial,
         providerIds: user.providerData
             .map((provider) => provider.providerId)
             .toSet(),
@@ -214,7 +218,7 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
         await _continueWithApple();
         break;
     }
-    if (_auth.currentUser?.emailVerified == true) {
+    if (_auth.currentUser != null) {
       await _ensureAccountProfile();
     }
   }
@@ -345,34 +349,43 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
   Future<void> _ensureAccountProfile() async {
     try {
       final callable = _functions.httpsCallable('ensureAccountProfile');
-      final result = await callable.call<Map<String, dynamic>>();
+      final result = await callable.call<Map<String, dynamic>>({
+        'root': FirestorePaths.root,
+      });
       if (result.data['ready'] == true) return;
     } on Object {
       // Cloud Function may not be deployed or failed; fall back to client provisioning.
     }
 
     final user = _auth.currentUser;
-    if (user != null && user.emailVerified) {
-      try {
-        final userRef = FirestorePaths.users(_firestore).doc(user.uid);
-        final snapshot = await userRef.get();
-        if (!snapshot.exists) {
-          final displayName = user.displayName?.trim().isNotEmpty == true
-              ? user.displayName!.trim()
-              : (user.email?.split('@').first ?? 'Listener');
-          await userRef.set({
-            'displayName': displayName,
-            'username': '',
-            'avatarUrl': user.photoURL ?? '',
-            'isActive': true,
-            'role': 'listener',
-            'createdAt': FieldValue.serverTimestamp(),
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
+    if (user != null) {
+      final isSocial = user.providerData.any((p) =>
+          p.providerId == 'google.com' ||
+          p.providerId == 'apple.com' ||
+          p.providerId == 'facebook.com');
+      if (user.emailVerified || isSocial) {
+        try {
+          final userRef = FirestorePaths.users(_firestore).doc(user.uid);
+          final snapshot = await userRef.get();
+          if (!snapshot.exists) {
+            final displayName = _fallbackDisplayName(
+              _text(user.displayName),
+              user.email,
+            );
+            await userRef.set({
+              'displayName': displayName,
+              'username': '',
+              'avatarUrl': user.photoURL ?? '',
+              'isActive': true,
+              'role': 'listener',
+              'createdAt': FieldValue.serverTimestamp(),
+              'updatedAt': FieldValue.serverTimestamp(),
+            });
+          }
+          return;
+        } on Object {
+          // Continue to exception below if profile cannot be ensured.
         }
-        return;
-      } on Object {
-        // Continue to exception below if profile cannot be ensured.
       }
     }
     throw const AccountDataException('profile-unavailable');

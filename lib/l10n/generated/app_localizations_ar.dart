@@ -909,7 +909,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get shareAppMessage =>
-      'استمع لأجمل الإذاعات والبرامج اليمنية عبر تطبيق هدهد FM 📻🇾🇪\nحمل التطبيق الآن: https://hudhudfm.com/download';
+      'استمع لأجمل الإذاعات والبرامج اليمنية عبر تطبيق هدهد FM 📻🇾🇪\nحمل التطبيق الآن: https://hudhud-fm-admin-sanadev.web.app/download';
 
   @override
   String get rateAppTitle => 'تقييم التطبيق';

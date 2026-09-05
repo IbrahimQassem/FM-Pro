@@ -21,4 +21,6 @@ class AccountUser {
 
   bool get usesPassword =>
       linkedProviders.contains(AccountSignInProvider.password);
+
+  bool get isVerified => emailVerified;
 }

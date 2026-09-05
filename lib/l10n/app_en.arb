@@ -288,7 +288,8 @@
   "manageAccount": "Manage Account Details",
   "shareAppTitle": "Invite a Friend & Share App",
   "shareAppSubtitle": "Share Hudhud FM with your friends and radio lovers",
-  "shareAppMessage": "Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: https://hudhudfm.com/download",
+  "shareAppMessage": "Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: https://hudhud-fm-admin-sanadev.web.app/download",
+
   "rateAppTitle": "Rate App",
   "rateAppSubtitle": "Your feedback helps us continue improving Hudhud FM",
   "rateAppDialogTitle": "How is your experience with Hudhud FM?",

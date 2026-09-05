@@ -10,39 +10,47 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
-    function hasVerifiedEmail() {
-      return isSignedIn()
-        && request.auth.token.get('email_verified', false) == true;
+    function isKnownRoot(root) {
+      return root == 'HudHudDev' || root == 'HudHudOfficial';
     }
 
     function isAdmin() {
       return isSignedIn() && request.auth.token.get('admin', false) == true;
     }
 
+    // Unified single source of truth for verified accounts
+    function isVerifiedUser() {
+      return isSignedIn() && (
+        isAdmin() ||
+        request.auth.token.get('email_verified', false) == true ||
+        request.auth.token.firebase.sign_in_provider in ['google.com', 'apple.com', 'facebook.com']
+      );
+    }
+
     function currentUgcTermsVersion() {
       return '2026-09-01';
     }
 
-    function hasAcceptedCurrentUgcTerms(uid) {
-      let path = /databases/$(database)/documents/HudHudDev/users/users/$(uid)/agreements/ugc;
+    function hasAcceptedCurrentUgcTerms(root, uid) {
+      let path = /databases/$(database)/documents/$(root)/users/users/$(uid)/agreements/ugc;
       return exists(path)
         && get(path).data.termsVersion == currentUgcTermsVersion();
     }
 
-    function isActiveListener(uid) {
-      let path = /databases/$(database)/documents/HudHudDev/users/users/$(uid);
-      return hasVerifiedEmail()
+    function isActiveListener(root, uid) {
+      let path = /databases/$(database)/documents/$(root)/users/users/$(uid);
+      return isVerifiedUser()
         && exists(path)
-        && get(path).data.isActive == true
-        && get(path).data.role == 'listener';
+        && get(path).data.get('isActive', true) == true
+        && (get(path).data.get('role', 'listener') == 'listener' || isAdmin());
     }
 
-    function validUgcAgreement(uid, agreementId) {
+    function validUgcAgreement(root, uid, agreementId) {
       let data = request.resource.data;
-      let path = /databases/$(database)/documents/HudHudDev/users/users/$(uid);
+      let path = /databases/$(database)/documents/$(root)/users/users/$(uid);
       return isOwner(uid)
-        && hasVerifiedEmail()
-        && (!exists(path) || (get(path).data.isActive == true && get(path).data.role == 'listener'))
+        && isVerifiedUser()
+        && (!exists(path) || (get(path).data.get('isActive', true) == true && (get(path).data.get('role', 'listener') == 'listener' || isAdmin())))
         && agreementId == 'ugc'
         && data.keys().hasOnly(['termsVersion', 'acceptedAt'])
         && data.keys().hasAll(['termsVersion', 'acceptedAt'])
@@ -50,57 +58,10 @@ service cloud.firestore {
         && data.acceptedAt == request.time;
     }
 
-    function validListenerProfileCreate(uid) {
+    function validBlockedUser(root, uid, blockedUid) {
       let data = request.resource.data;
       return isOwner(uid)
-        && hasVerifiedEmail()
-        && data.keys().hasOnly([
-          'displayName', 'username', 'avatarUrl', 'isActive', 'role',
-          'createdAt', 'updatedAt'
-        ])
-        && data.keys().hasAll([
-          'displayName', 'username', 'avatarUrl', 'isActive', 'role',
-          'createdAt', 'updatedAt'
-        ])
-        && data.isActive == true
-        && data.role == 'listener'
-        && data.displayName is string
-        && data.displayName.size() > 0
-        && data.displayName.size() <= 100
-        && data.username is string
-        && data.avatarUrl is string
-        && data.createdAt == request.time
-        && data.updatedAt == request.time;
-    }
-
-    function validListenerProfileUpdate(uid) {
-      let data = request.resource.data;
-      let existing = resource.data;
-      return isOwner(uid)
-        && hasVerifiedEmail()
-        && data.keys().hasOnly([
-          'displayName', 'username', 'avatarUrl', 'isActive', 'role',
-          'createdAt', 'updatedAt'
-        ])
-        && data.keys().hasAll([
-          'displayName', 'username', 'avatarUrl', 'isActive', 'role',
-          'createdAt', 'updatedAt'
-        ])
-        && data.isActive == existing.isActive
-        && data.role == existing.role
-        && data.displayName is string
-        && data.displayName.size() > 0
-        && data.displayName.size() <= 100
-        && data.username is string
-        && data.avatarUrl is string
-        && data.createdAt == existing.createdAt
-        && data.updatedAt == request.time;
-    }
-
-    function validBlockedUser(uid, blockedUid) {
-      let data = request.resource.data;
-      return isOwner(uid)
-        && isActiveListener(uid)
+        && isActiveListener(root, uid)
         && blockedUid != uid
         && data.keys().hasOnly(['blockedUserId', 'createdAt'])
         && data.keys().hasAll(['blockedUserId', 'createdAt'])
@@ -109,6 +70,7 @@ service cloud.firestore {
     }
 
     function validModerationReport(
+      root,
       uid,
       targetType,
       episodeId,
@@ -116,9 +78,9 @@ service cloud.firestore {
       reportedAuthorId
     ) {
       let data = request.resource.data;
-      let target = /databases/$(database)/documents/HudHudDev/episodes/episodes/$(episodeId)/comments/$(commentId);
+      let target = /databases/$(database)/documents/$(root)/episodes/episodes/$(episodeId)/comments/$(commentId);
       return isOwner(uid)
-        && isActiveListener(uid)
+        && isActiveListener(root, uid)
         && data.keys().hasOnly([
           'targetType', 'episodeId', 'commentId', 'reportedAuthorId', 'reason',
           'details', 'status', 'createdAt'
@@ -168,17 +130,11 @@ service cloud.firestore {
         && data.reviewedBy == request.auth.uid;
     }
 
-    function listenerProfile(uid) {
-      return get(
-        /databases/$(database)/documents/HudHudDev/users/users/$(uid)
-      ).data;
-    }
-
-    function validCommentCreate(episodeId) {
+    function validCommentCreate(root, episodeId) {
       let data = request.resource.data;
-      let profile = listenerProfile(request.auth.uid);
+      let userDocPath = /databases/$(database)/documents/$(root)/users/users/$(request.auth.uid);
       return isSignedIn()
-        && hasVerifiedEmail()
+        && isVerifiedUser()
         && data.keys().hasOnly([
           'episodeId', 'authorId', 'authorName', 'content', 'createdAt',
           'isEdited', 'status'
@@ -189,10 +145,11 @@ service cloud.firestore {
         ])
         && data.episodeId == episodeId
         && data.authorId == request.auth.uid
-        && profile.isActive == true
-        && profile.role == 'listener'
-        && hasAcceptedCurrentUgcTerms(request.auth.uid)
-        && data.authorName == profile.displayName
+        && exists(userDocPath)
+        && get(userDocPath).data.get('isActive', true) == true
+        && (get(userDocPath).data.get('role', 'listener') == 'listener' || isAdmin())
+        && hasAcceptedCurrentUgcTerms(root, request.auth.uid)
+        && data.authorName == get(userDocPath).data.displayName
         && data.content is string
         && data.content.size() > 0
         && data.content.size() <= 1000
@@ -201,10 +158,10 @@ service cloud.firestore {
         && data.status == 'published';
     }
 
-    function validFavoriteCreate(uid) {
+    function validFavoriteCreate(root, uid) {
       let data = request.resource.data;
       return isOwner(uid)
-        && isActiveListener(uid)
+        && isActiveListener(root, uid)
         && data.keys().hasOnly(['targetType', 'targetId', 'createdAt'])
         && data.keys().hasAll(['targetType', 'targetId', 'createdAt'])
         && data.targetType in ['station', 'program', 'episode']
@@ -214,10 +171,10 @@ service cloud.firestore {
         && data.createdAt == request.time;
     }
 
-    function validSubscription(uid) {
+    function validSubscription(root, uid) {
       let data = request.resource.data;
       return isOwner(uid)
-        && isActiveListener(uid)
+        && isActiveListener(root, uid)
         && data.keys().hasOnly([
           'targetType', 'targetId', 'notificationsEnabled', 'isActive',
           'createdAt', 'updatedAt'
@@ -234,123 +191,124 @@ service cloud.firestore {
         && data.isActive is bool;
     }
 
-    function validSubscriptionCreate(uid) {
-      return validSubscription(uid)
+    function validSubscriptionCreate(root, uid) {
+      return validSubscription(root, uid)
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time;
     }
 
-    function validSubscriptionUpdate(uid) {
-      return validSubscription(uid)
+    function validSubscriptionUpdate(root, uid) {
+      return validSubscription(root, uid)
         && request.resource.data.createdAt == resource.data.createdAt
         && request.resource.data.updatedAt == request.time;
     }
 
-    match /HudHudDev/stations/stations/{stationId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
+    match /{root}/stations/stations/{stationId} {
+      allow read: if isKnownRoot(root);
+      allow create, update, delete: if isKnownRoot(root) && isAdmin();
     }
 
-    match /HudHudDev/banners/banners/{bannerId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
+    match /{root}/banners/banners/{bannerId} {
+      allow read: if isKnownRoot(root);
+      allow create, update, delete: if isKnownRoot(root) && isAdmin();
     }
 
-    match /HudHudDev/locations/locations/{locationId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
+    match /{root}/locations/locations/{locationId} {
+      allow read: if isKnownRoot(root);
+      allow create, update, delete: if isKnownRoot(root) && isAdmin();
     }
 
-    match /HudHudDev/programs/programs/{programId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
+    match /{root}/programs/programs/{programId} {
+      allow read: if isKnownRoot(root);
+      allow create, update, delete: if isKnownRoot(root) && isAdmin();
     }
 
-    match /HudHudDev/episodes/episodes/{episodeId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
+    match /{root}/episodes/episodes/{episodeId} {
+      allow read: if isKnownRoot(root);
+      allow create, update, delete: if isKnownRoot(root) && isAdmin();
 
       match /comments/{commentId} {
-        allow read: if isAdmin() || resource.data.status == 'published';
-        allow create: if validCommentCreate(episodeId);
-        allow update, delete: if isAdmin();
+        allow read: if isKnownRoot(root) && (isAdmin() || resource.data.status == 'published');
+        allow create: if isKnownRoot(root) && validCommentCreate(root, episodeId);
+        allow update, delete: if isKnownRoot(root) && isAdmin();
       }
     }
 
-    match /HudHudDev/users/users/{uid} {
-      allow get: if isOwner(uid) || isAdmin();
-      allow list: if isAdmin();
-      allow create: if isAdmin() || validListenerProfileCreate(uid);
-      allow update: if isAdmin() || validListenerProfileUpdate(uid);
-      allow delete: if isAdmin();
+    match /{root}/users/users/{uid} {
+      allow get: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+      allow list: if isKnownRoot(root) && isAdmin();
+      allow create, update, delete: if isKnownRoot(root) && isAdmin();
 
       match /agreements/{agreementId} {
-        allow get: if isOwner(uid) || isAdmin();
-        allow list: if isAdmin();
-        allow create, update: if validUgcAgreement(uid, agreementId);
-        allow delete: if isAdmin();
+        allow get: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+        allow list: if isKnownRoot(root) && isAdmin();
+        allow create, update: if isKnownRoot(root) && validUgcAgreement(root, uid, agreementId);
+        allow delete: if isKnownRoot(root) && isAdmin();
       }
 
       match /blockedUsers/{blockedUid} {
-        allow get, list: if isOwner(uid) || isAdmin();
-        allow create: if validBlockedUser(uid, blockedUid);
-        allow delete: if isOwner(uid) || isAdmin();
+        allow get, list: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+        allow create: if isKnownRoot(root) && validBlockedUser(root, uid, blockedUid);
+        allow delete: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
         allow update: if false;
       }
 
       match /commentReportEpisodes/{episodeId} {
         match /moderationReports/{commentId} {
-          allow get: if isOwner(uid) || isAdmin();
-          allow list: if isAdmin();
-          allow create: if validModerationReport(
+          allow get: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+          allow list: if isKnownRoot(root) && isAdmin();
+          allow create: if isKnownRoot(root) && validModerationReport(
+            root,
             uid,
             'comment',
             episodeId,
             commentId,
             request.resource.data.reportedAuthorId
           );
-          allow update: if validCommentReportReview();
+          allow update: if isKnownRoot(root) && validCommentReportReview();
           allow delete: if false;
         }
       }
 
       match /userReportTargets/{reportedUid} {
         match /moderationReports/{reportId} {
-          allow get: if isOwner(uid) || isAdmin();
-          allow list: if isAdmin();
-          allow create: if reportId == request.resource.data.commentId
+          allow get: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+          allow list: if isKnownRoot(root) && isAdmin();
+          allow create: if isKnownRoot(root)
+            && reportId == request.resource.data.commentId
             && validModerationReport(
+              root,
               uid,
               'user',
               request.resource.data.episodeId,
               request.resource.data.commentId,
               reportedUid
             );
-          allow update: if validCommentReportReview();
+          allow update: if isKnownRoot(root) && validCommentReportReview();
           allow delete: if false;
         }
       }
 
       match /favorites/{favoriteId} {
-        allow read: if isOwner(uid) || isAdmin();
-        allow create: if isAdmin() || validFavoriteCreate(uid);
-        allow update: if isAdmin();
-        allow delete: if isOwner(uid) || isAdmin();
+        allow read: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+        allow create: if isKnownRoot(root) && (isAdmin() || validFavoriteCreate(root, uid));
+        allow update: if isKnownRoot(root) && isAdmin();
+        allow delete: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
       }
 
       match /subscriptions/{subscriptionId} {
-        allow read: if isOwner(uid) || isAdmin();
-        allow create: if isAdmin() || validSubscriptionCreate(uid);
-        allow update: if isAdmin() || validSubscriptionUpdate(uid);
-        allow delete: if isOwner(uid) || isAdmin();
+        allow read: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+        allow create: if isKnownRoot(root) && (isAdmin() || validSubscriptionCreate(root, uid));
+        allow update: if isKnownRoot(root) && (isAdmin() || validSubscriptionUpdate(root, uid));
+        allow delete: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
       }
     }
 
-    match /HudHudDev/emailVerificationChallenges/{document=**} {
+    match /{root}/emailVerificationChallenges/{document=**} {
       allow read, write: if false;
     }
 
-    match /HudHudDev/emailVerificationRateLimits/{document=**} {
+    match /{root}/emailVerificationRateLimits/{document=**} {
       allow read, write: if false;
     }
 

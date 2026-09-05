@@ -1,8 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
-/// Canonical development-only Firestore paths for the new application.
+/// Canonical Firestore paths for HudHud FM supporting HudHudOfficial (prod) and HudHudDev (dev).
 abstract final class FirestorePaths {
-  static const root = 'HudHudDev';
+  static const devRoot = 'HudHudDev';
+  static const officialRoot = 'HudHudOfficial';
+
+  /// Environment-aware root: HudHudOfficial in release builds, HudHudDev in debug/tests,
+  /// with optional override via --dart-define=FIRESTORE_ROOT=...
+  static const root = String.fromEnvironment(
+    'FIRESTORE_ROOT',
+    defaultValue: kReleaseMode ? officialRoot : devRoot,
+  );
 
   static CollectionReference<Map<String, dynamic>> stations(
     FirebaseFirestore firestore,

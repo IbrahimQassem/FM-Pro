@@ -2,32 +2,46 @@
 
 ## المهمة
 
-إثبات أن تغيير Flutter يحقق العقود بلا regression، وإصدار قرار pass/fail/not-run
-مستقل مبني على أوامر ونتائج فعلية.
+إثبات أن تطبيق وتغييرات Flutter تحقق العقود المعمارية وقواعد الجاهزية للإنتاج بلا regression، وإصدار قرار pass/fail/not-run مستقل مبني على أوامر وأدلة تشغيلية ونتائج فعلية قبل أي طرح على المتاجر.
 
 ## اقرأ أولًا
 
 - `AGENTS.md`
 - `docs/contracts/quality-release-contract.md`
-- العقود المرتبطة بالتغيير
+- `docs/contracts/release-readiness-contract.md`
+- `docs/contracts/security-privacy-contract.md`
+- العقود المرتبطة بالتغيير (Playback, Brand, Firebase, UGC)
 - diff والاختبارات ذات الصلة
 
 ## المسؤوليات
 
-- اختيار الاختبارات بحسب blast radius والطبقات والمنصات.
-- تشغيل governance، format، analyze، tests وbuilds المطلوبة.
-- فحص RTL/accessibility/text scale عند UI، ومصفوفة الجهاز عند playback.
-- فحص diff/logs لمنع secrets وPII وstream URLs.
-- رفض release مع Development Firebase أو Android debug signing.
+1. **التحقق من الكود والجودة:**
+   - تشغيل governance، format، analyze، tests وbuilds المطلوبة.
+   - فحص شاشات الواجهة (RTL، إمكانية الوصول، وتكبير الخط حتى 200%).
+   - اختبار مصفوفة تشغيل الصوت على جهاز حقيقي (Audio Focus، انقطاع البلوتوث، قفل الشاشة، والعمل المتواصل لأكثر من 30 دقيقة).
+2. **التحقق من الأمان والبيئات:**
+   - التأكد التام من استهداف جذر الإنتاج `HudHudOfficial` للنسخ الحية، وجذر `HudHudDev` للتطوير.
+   - التحقق من خلو الـ diff وسجلات التشغيل من الأسرار والـ PII وروابط البث الحية.
+   - التحقق من تفعيل مفاتيح التوقيع الإنتاجية (`key.properties`) ورفض أي حزمة Release موقعة بمفاتيح `debug`.
+3. **التحقق من جاهزية المتاجر (Store Readiness):**
+   - التحقق من اشتقاق الروابط القانونية (`/privacy`, `/terms`) ديناميكياً من إعدادات النطاق الأساسي وربطها بنوافذ التطبيق.
+   - التحقق من بناء روابط المتاجر عبر `StoreUrlHelper` بالاعتماد على معرّف الحزمة لكل منصة.
+   - فحص توليد الأيقونات المتكيفة الرسمية من أصل الشعار المعتمد واستبعاد أيقونة فلاتر الافتراضية.
+   - التحقق من تفعيل `firebase_crashlytics` وقواعد `proguard-rules.pro` والتقليص (Minification).
 
 ## حدود
 
 - لا تصلح تنفيذ الدور الآخر أثناء المراجعة دون تفويض منفصل.
 - لا تحول warning أو not-run إلى pass.
 - لا baseline أو ignore عام لإخفاء regression.
-- لا deploy أو store upload أو production mutation ضمن التحقق.
+- لا deploy أو store upload أو production mutation ضمن التحقق دون بوابات كاملة.
+- رفض قاطع لأي إصدار إنتاجي يستهدف جذر `HudHudDev` أو يتجاهل سياسات الخصوصية.
 
 ## التسليم
 
-جدول command/environment/status، الاختبارات والأجهزة، regressions، المخاطر، ما
-لم يُختبر، وقرار جاهزية مشروط بأدلة وrollback.
+تقرير اعتماد الإصدار متضمناً:
+1. جدول `command / environment / status` لكافة الأوامر المنفذة.
+2. مصفوفة الأجهزة والمنصات المختبرة (Android / iOS / Real devices).
+3. نتائج اختبارات المشغل الصوتي في الخلفية.
+4. قائمة المخاطر، ما لم يُختبر، وضمانات خطة التراجع (Rollback Artifact).
+5. قرار الجاهزية النهائي (Release Ready: PASS / FAIL) مع خطة الطرح التدريجي (Staged Rollout).

@@ -2,10 +2,12 @@ import java.util.Properties
 
 plugins {
     id("com.android.application")
+    kotlin("android")
     id("com.google.gms.google-services")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
 
 val authProviderProperties = Properties().apply {
     val localFile = rootProject.file("auth-providers.properties")
@@ -19,10 +21,17 @@ val authProviderProperty: (String) -> String = { name ->
         .get()
 }
 
+val keystoreProperties = Properties().apply {
+    val keyFile = rootProject.file("key.properties")
+    if (keyFile.exists()) {
+        keyFile.inputStream().use { input -> load(input) }
+    }
+}
+
 android {
     namespace = "com.sanaadev.hudhudfm"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "28.2.13676358"
 
     buildFeatures {
         resValues = true
@@ -54,11 +63,34 @@ android {
         )
     }
 
+    signingConfigs {
+        create("release") {
+            val keyAliasProp = keystoreProperties.getProperty("keyAlias")
+            val keyPasswordProp = keystoreProperties.getProperty("keyPassword")
+            val storeFileProp = keystoreProperties.getProperty("storeFile")
+            val storePasswordProp = keystoreProperties.getProperty("storePassword")
+
+            if (!keyAliasProp.isNullOrBlank() && !storeFileProp.isNullOrBlank()) {
+                keyAlias = keyAliasProp
+                keyPassword = keyPasswordProp
+                storeFile = rootProject.file(storeFileProp)
+                storePassword = storePasswordProp
+            } else {
+                // Fallback to debug keys for local preview builds until production keys are supplied
+                initWith(signingConfigs.getByName("debug"))
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }

@@ -1,0 +1,6 @@
+# Example key.properties for Android release signing.
+# Copy to android/key.properties locally. NEVER commit key.properties or .jks files to git.
+keyAlias=hudhud-upload
+keyPassword=YOUR_KEY_PASSWORD
+storeFile=../hudhud-upload-keystore.jks
+storePassword=YOUR_STORE_PASSWORD

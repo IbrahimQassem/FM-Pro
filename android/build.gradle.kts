@@ -17,7 +17,16 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(":app")
+    if (project.name == "audio_session") {
+        plugins.withId("com.android.library") {
+            if (!plugins.hasPlugin("org.jetbrains.kotlin.android")) {
+                plugins.apply("org.jetbrains.kotlin.android")
+            }
+        }
+    }
 }
+
+
 
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)

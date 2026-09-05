@@ -1,5 +1,7 @@
 import "package:flutter/material.dart";
+import "package:url_launcher/url_launcher.dart";
 
+import "../../../../core/config/app_config.dart";
 import "../../../../l10n/generated/app_localizations.dart";
 
 class AboutAppDialog extends StatelessWidget {
@@ -68,19 +70,25 @@ class AboutAppDialog extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(strings.privacyPolicy)),
-                    );
+                  onPressed: () async {
+                    final uri = Uri.parse(AppConfig.privacyPolicyUrl);
+                    try {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    } catch (e) {
+                      debugPrint("Failed to launch privacy policy url: $e");
+                    }
                   },
                   child: Text(strings.privacyPolicy),
                 ),
                 const Text(" • "),
                 TextButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(strings.termsOfService)),
-                    );
+                  onPressed: () async {
+                    final uri = Uri.parse(AppConfig.termsOfServiceUrl);
+                    try {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    } catch (e) {
+                      debugPrint("Failed to launch terms of service url: $e");
+                    }
                   },
                   child: Text(strings.termsOfService),
                 ),

@@ -5,30 +5,33 @@
 
 ## البيئة والمسارات
 
-التطبيق مرتبط حاليًا ببيئة Development فقط، والجذر canonical هو `HudHudDev`:
+يدعم التطبيق جذرين رسميين معتمدين: جذر الإنتاج `HudHudOfficial` لإصدارات المتاجر الحية، وجذر التطوير `HudHudDev` لبيئات التجارب والفحص:
 
 ```text
-HudHudDev/stations/stations/{stationId}
-HudHudDev/banners/banners/{bannerId}
-HudHudDev/users/users/{uid}
-HudHudDev/users/users/{uid}/agreements/ugc
-HudHudDev/users/users/{uid}/blockedUsers/{blockedUid}
-HudHudDev/users/users/{uid}/commentReportEpisodes/{episodeId}/moderationReports/{commentId}
-HudHudDev/users/users/{uid}/userReportTargets/{reportedUid}/moderationReports/{sourceCommentId}
-HudHudDev/users/users/{uid}/favorites/{favoriteId}
-HudHudDev/users/users/{uid}/subscriptions/{subscriptionId}
-HudHudDev/locations/locations/{locationId}
-HudHudDev/programs/programs/{programId}
-HudHudDev/episodes/episodes/{episodeId}
-HudHudDev/episodes/episodes/{episodeId}/comments/{commentId}
-HudHudDev/accountDeletionRequests/requests/{uid}
-HudHudDev/emailVerificationChallenges/challenges/{uid}
-HudHudDev/emailVerificationRateLimits/emails/{emailHmac}
+{root}/stations/stations/{stationId}
+{root}/banners/banners/{bannerId}
+{root}/users/users/{uid}
+{root}/users/users/{uid}/agreements/ugc
+{root}/users/users/{uid}/blockedUsers/{blockedUid}
+{root}/users/users/{uid}/commentReportEpisodes/{episodeId}/moderationReports/{commentId}
+{root}/users/users/{uid}/userReportTargets/{reportedUid}/moderationReports/{sourceCommentId}
+{root}/users/users/{uid}/favorites/{favoriteId}
+{root}/users/users/{uid}/subscriptions/{subscriptionId}
+{root}/locations/locations/{locationId}
+{root}/programs/programs/{programId}
+{root}/episodes/episodes/{episodeId}
+{root}/episodes/episodes/{episodeId}/comments/{commentId}
+{root}/accountDeletionRequests/requests/{uid}
+{root}/emailVerificationChallenges/challenges/{uid}
+{root}/emailVerificationRateLimits/emails/{emailHmac}
 ```
+حيث يكون `{root}` إما `HudHudOfficial` أو `HudHudDev`.
 
 `lib/core/config/firestore_paths.dart` هو المالك التنفيذي للمسارات. لا تبني path
-كسلسلة داخل feature ولا تضف fallback إلى جذور legacy. إدخال environments أو
-flavors متعددة يحتاج قرارًا يحدد الفصل، package IDs، configs وقواعد النشر.
+كسلسلة داخل feature ولا تضف fallback إلى جذور legacy. وتتكفل قواعد Firestore Rules
+بالتحقق من مطابقة الجذر لأحد الجذور المعتمدة `isKnownRoot(root)`، والسماح للمستخدمين
+الموثقين أو المسجلين عبر مزودي الهوية المعتمدين (Google, Apple, Facebook) بالمشاركة في UGC.
+
 
 ## سياسة القراءة والتخزين
 
@@ -62,9 +65,8 @@ createdAt, updatedAt, consumedAt?
   ثم يحذف challenge. إعادة المحاولة بعد فشل جزئي idempotent.
 - يحتفظ الخادم بالتحدي المنتهي أو المقفل لأغراض التنظيف فقط. بعد 30 يومًا تحذف
   مهمة يومية حساب Auth غير الموثق والتحدي إذا لم يوجد ملف مستمع؛ وتحذف التحدي
-  وحده إذا أصبح الحساب موثقًا أو كان الملف موجودًا.
-- كل كتابة شخصية وUGC تتطلب claim `email_verified=true` إضافة إلى نشاط الملف
-  وملكيته؛ إخفاء الأزرار في الواجهة لا يعد صلاحية.
+- حالة التوثيق المعتمدة في Firebase Auth هي المرجع الوحيد (Single Source of Truth) لكافة الكتابات الشخصية وUGC. الحسابات الاجتماعية المعتمدة (Google, Facebook, Apple) ترفعها Cloud Function خادمياً إلى حالة التوثيق المعتمدة نفسها عند الإنشاء، وتعتمد قواعد Firestore على الفحص الموحد `isVerifiedUser()` المستند إلى راية التوثيق المعتمدة إضافة إلى نشاط الملف وملكيته؛ إخفاء الأزرار في الواجهة لا يعد صلاحية.
+
 
 ## Station schema
 

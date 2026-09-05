@@ -16,6 +16,7 @@
 | المنتج وRTL وإمكانية الوصول | `docs/contracts/product-ux-contract.md` |
 | التشغيل الصوتي | `docs/contracts/playback-contract.md` |
 | الجودة والإصدار | `docs/contracts/quality-release-contract.md` |
+| جاهزية الإطلاق والإنتاج | `docs/contracts/release-readiness-contract.md` |
 
 `README.md` مدخل تشغيل فقط ولا يكرر العقود. عند اختلاف الكود مع عقد، لا تفترض
 أن أحدهما صحيح: وثّق الفرق، ثم حدّثهما معًا أو أوقف التغيير حتى يُحسم القرار.

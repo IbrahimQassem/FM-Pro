@@ -51,16 +51,16 @@ plugin، playback، Firebase bootstrap أو ملفات iOS. تغييرات UI ت
 
 ## بوابات الإصدار
 
-- Firebase environment وpackage/bundle IDs محسومة لكل منصة.
-- Android production signing لا يستخدم debug key.
-- privacy/store declarations تطابق Firebase وaudio/network الفعلي.
-- رابطا `/community-guidelines` و`/account-deletion` منشوران ويعملان، ووظيفة
-  الحذف والفهارس والقواعد منشورة بالترتيب الموثق في دليل الإصدار.
-- أدلة UGC الملتقطة من نسخة Development تطابق checklist ولا تحتوي حسابات أو
-  تعليقات حقيقية أو أي بيانات شخصية.
-- playback matrix ناجحة على جهاز فعلي، لا simulator فقط.
-- artifact سابق وrollback موثقان قبل rollout.
-- لا production release من جذر `HudHudDev` أو مع قواعد غير مراجعة.
+- تطبيق بنود [عقد جاهزية الإطلاق والإنتاج](release-readiness-contract.md) بكافة معاييره الإلزامية.
+- استهداف جذر الإنتاج الحقيقي `HudHudOfficial`، والرفض القاطع لأي حزمة Release من جذر `HudHudDev`.
+- Firebase environment وpackage/bundle IDs محسومة لكل منصة (`com.sanaadev.hudhudfm` / `com.sana.dev.fm`).
+- Android production signing لا يستخدم debug key، ويرتبط بـ `key.properties`.
+- privacy/store declarations تطابق Firebase وaudio/network الفعلي، والروابط مشتقة من إعدادات النطاق الأساسي.
+- رابطا `/community-guidelines` و`/account-deletion` وروابط `/privacy` و`/terms` منشورة وتعمل عبر لوحة الإشراف (`admin_web`).
+- تفعيل أصل الأيقونة الرسمي المعتمد بدلاً من أيقونة فلاتر الافتراضية.
+- أدلة UGC الملتقطة من نسخة Development تطابق checklist ولا تحتوي حسابات أو تعليقات حقيقية أو أي بيانات شخصية.
+- playback matrix ناجحة على جهاز فعلي، لا simulator فقط، واستقرار في الخلفية لأكثر من 30 دقيقة.
+- artifact سابق وrollback موثقان قبل rollout، واعتماد الطرح التدريجي (Staged Rollout) مع شرط `Crash-Free ≥ 99.5%`.
 
 ## تعريف الاكتمال
 
