@@ -101,35 +101,38 @@ class _AppRatingDialogState extends State<AppRatingDialog> {
               ),
             ),
             const SizedBox(height: 16),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(5, (index) {
-                  final starIndex = index + 1;
-                  final isSelected = starIndex <= _selectedStars;
-                  return IconButton(
-                    key: Key("rating-star-$starIndex"),
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    constraints: const BoxConstraints(),
-                    onPressed: () => setState(() {
-                      _selectedStars = starIndex;
-                      if (_selectedStars <= 3) {
-                        _showCommentField = true;
-                      }
-                    }),
-                    icon: Icon(
-                      isSelected
-                          ? Icons.star_rounded
-                          : Icons.star_outline_rounded,
-                      color:
-                          isSelected ? Colors.amber : theme.colorScheme.outline,
-                      size: 38,
-                    ),
-                    tooltip: "$starIndex ${strings.rateAppTitle}",
-                  );
-                }),
+            SizedBox(
+              width: double.infinity,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: List.generate(5, (index) {
+                    final starIndex = index + 1;
+                    final isSelected = starIndex <= _selectedStars;
+                    return IconButton(
+                      key: Key("rating-star-$starIndex"),
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      constraints: const BoxConstraints(),
+                      onPressed: () => setState(() {
+                        _selectedStars = starIndex;
+                        if (_selectedStars <= 3) {
+                          _showCommentField = true;
+                        }
+                      }),
+                      icon: Icon(
+                        isSelected
+                            ? Icons.star_rounded
+                            : Icons.star_outline_rounded,
+                        color:
+                            isSelected ? Colors.amber : theme.colorScheme.outline,
+                        size: 38,
+                      ),
+                      tooltip: "$starIndex ${strings.rateAppTitle}",
+                    );
+                  }),
+                ),
               ),
             ),
             if (!_showCommentField && isHighRating) ...[
