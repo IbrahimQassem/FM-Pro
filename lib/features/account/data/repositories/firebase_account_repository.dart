@@ -117,14 +117,18 @@ class FirebaseAccountRepository implements AccountRepository {
     return switch (code) {
       'provider-cancelled' => AccountFailure.providerCancelled,
       'provider-not-configured' ||
-      'unsupported-provider' => AccountFailure.providerNotConfigured,
+      'unsupported-provider' =>
+        AccountFailure.providerNotConfigured,
       'provider-credential-missing' ||
-      'provider-failed' => AccountFailure.providerFailed,
+      'provider-failed' =>
+        AccountFailure.providerFailed,
       'reauthentication-required' => AccountFailure.reauthenticationFailed,
       'deletion-failed' => AccountFailure.deletionFailed,
       'verification-delivery-failed' =>
         AccountFailure.verificationDeliveryFailed,
       'invalid-verification-code' => AccountFailure.invalidVerificationCode,
+      'verification-sign-in-required' =>
+        AccountFailure.verificationSignInRequired,
       _ =>
         deletion ? AccountFailure.deletionFailed : AccountFailure.unavailable,
     };
@@ -143,7 +147,8 @@ class FirebaseAccountRepository implements AccountRepository {
     return switch (code) {
       'invalid-credential' ||
       'user-not-found' ||
-      'wrong-password' => AccountFailure.invalidCredentials,
+      'wrong-password' =>
+        AccountFailure.invalidCredentials,
       'email-already-in-use' ||
       'credential-already-in-use' ||
       'account-exists-with-different-credential' =>
@@ -153,7 +158,8 @@ class FirebaseAccountRepository implements AccountRepository {
       'invalid-email' => AccountFailure.invalidEmail,
       'network-request-failed' => AccountFailure.network,
       'web-context-cancelled' ||
-      'popup-closed-by-user' => AccountFailure.providerCancelled,
+      'popup-closed-by-user' =>
+        AccountFailure.providerCancelled,
       'operation-not-allowed' => AccountFailure.providerNotConfigured,
       _ =>
         deletion ? AccountFailure.deletionFailed : AccountFailure.unavailable,
@@ -168,8 +174,8 @@ class FirebaseAccountRepository implements AccountRepository {
       return code == 'failed-precondition'
           ? AccountFailure.reauthenticationFailed
           : code == 'unavailable'
-          ? AccountFailure.network
-          : AccountFailure.deletionFailed;
+              ? AccountFailure.network
+              : AccountFailure.deletionFailed;
     }
     return switch (code) {
       'invalid-argument' => AccountFailure.invalidVerificationCode,

@@ -391,6 +391,8 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
       AccountFailure.invalidVerificationCode => strings.invalidVerificationCode,
       AccountFailure.expiredVerificationCode => strings.expiredVerificationCode,
       AccountFailure.verificationRateLimited => strings.verificationRateLimited,
+      AccountFailure.verificationSignInRequired =>
+        strings.verificationSignInRequired,
       AccountFailure.verificationDeliveryFailed =>
         strings.verificationDeliveryFailed,
       AccountFailure.providerCancelled => strings.providerCancelled,

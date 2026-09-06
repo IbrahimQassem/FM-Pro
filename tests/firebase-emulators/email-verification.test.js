@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
 import { createServer } from "node:http";
@@ -8,6 +9,7 @@ import {
   createUserWithEmailAndPassword,
   getAuth,
   signInAnonymously,
+  signInWithEmailAndPassword,
   signOut,
   updateProfile,
 } from "firebase/auth";
@@ -22,6 +24,10 @@ let auth;
 let functions;
 let emailServer;
 let deliveredCode;
+const require = createRequire(new URL('../../functions/package.json', import.meta.url));
+const { initializeApp: initializeAdminApp } = require('firebase-admin/app');
+const { getAuth: getAdminAuth } = require('firebase-admin/auth');
+const adminAuth = getAdminAuth(initializeAdminApp({ projectId }, 'email-test-admin'));
 
 before(async () => {
   emailServer = createServer((request, response) => {
@@ -206,4 +212,98 @@ test("limits delivery to the same email across different accounts", async () => 
     requestCode({ email: "shared-rate-limit@example.test" }),
     (error) => error.code === "functions/resource-exhausted",
   );
+});
+
+test('rejects the correct code after lockout and never spends further attempts', async () => {
+  await signOut(auth);
+  const { user } = await signInAnonymously(auth);
+  await httpsCallable(functions, 'requestEmailVerificationCode')({ email: 'locked-correct@example.test', root: 'HudHudOfficial' });
+  const code = deliveredCode;
+  const path = `HudHudOfficial/emailVerificationChallenges/challenges/${user.uid}`;
+  await testEnvironment.withSecurityRulesDisabled(async (context) => updateDoc(doc(context.firestore(), path), { status: 'locked', attemptsRemaining: 0 }));
+  for (const attempt of [code, code === '000000' ? '000001' : '000000']) {
+    await assert.rejects(httpsCallable(functions, 'verifyEmailCode')({ code: attempt, root: 'HudHudOfficial' }), (error) => error.code === 'functions/resource-exhausted');
+  }
+  await user.reload();
+  assert.equal(user.emailVerified, false);
+});
+
+test('only one concurrent verification consumes the proof in Official', async () => {
+  await signOut(auth);
+  const { user } = await signInAnonymously(auth);
+  await httpsCallable(functions, 'requestEmailVerificationCode')({ email: 'concurrent@example.test', root: 'HudHudOfficial' });
+  const request = { code: deliveredCode, root: 'HudHudOfficial' };
+  const results = await Promise.allSettled([httpsCallable(functions, 'verifyEmailCode')(request), httpsCallable(functions, 'verifyEmailCode')(request)]);
+  assert.equal(results.filter((result) => result.status === 'fulfilled').length, 1);
+  await assert.rejects(httpsCallable(functions, 'verifyEmailCode')(request));
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    assert.equal((await getDoc(doc(context.firestore(), `HudHudOfficial/users/users/${user.uid}`))).exists(), true);
+    assert.equal((await getDoc(doc(context.firestore(), `HudHudDev/users/users/${user.uid}`))).exists(), false);
+  });
+});
+
+test('recovers accepted proof through profile callable without reusing code', async () => {
+  await signOut(auth);
+  const { user } = await signInAnonymously(auth);
+  await httpsCallable(functions, 'requestEmailVerificationCode')({ email: 'recover@example.test' });
+  const code = deliveredCode;
+  const path = `HudHudDev/emailVerificationChallenges/challenges/${user.uid}`;
+  await testEnvironment.withSecurityRulesDisabled(async (context) => updateDoc(doc(context.firestore(), path), {
+    status: 'consumed', operationId: 'accepted-proof-test', leaseUntil: Timestamp.fromMillis(0), consumedAt: Timestamp.now(), expiresAt: Timestamp.fromMillis(0), resendAvailableAt: Timestamp.fromMillis(0),
+  }));
+  await assert.rejects(httpsCallable(functions, 'verifyEmailCode')({ code }), (error) => error.code === 'functions/not-found');
+  await assert.rejects(httpsCallable(functions, 'requestEmailVerificationCode')({ email: 'replacement@example.test' }), (error) => error.code === 'functions/failed-precondition');
+  assert.equal((await httpsCallable(functions, 'ensureAccountProfile')()).data.ready, true);
+  const recovered = await adminAuth.getUser(user.uid);
+  assert.equal(recovered.emailVerified, true);
+  assert.equal(recovered.email, 'recover@example.test');
+});
+
+test('rejects unknown roots and unverified provisioning, and persists validated profile edits', async () => {
+  await signOut(auth);
+  await createUserWithEmailAndPassword(auth, 'profile-edit@example.test', password);
+  for (const name of ['requestEmailVerificationCode', 'verifyEmailCode', 'ensureAccountProfile', 'updateAccountProfile']) {
+    await assert.rejects(httpsCallable(functions, name)({ root: 'Unknown' }), (error) => error.code === 'functions/invalid-argument');
+  }
+  await assert.rejects(httpsCallable(functions, 'ensureAccountProfile')(), (error) => error.code === 'functions/failed-precondition');
+  await httpsCallable(functions, 'requestEmailVerificationCode')();
+  await httpsCallable(functions, 'verifyEmailCode')({ code: deliveredCode });
+  const edit = httpsCallable(functions, 'updateAccountProfile');
+  await assert.rejects(edit({ displayName: 'Listener', avatarUrl: '/private/tmp/photo.jpg' }), (error) => error.code === 'functions/invalid-argument');
+  await assert.rejects(edit({ displayName: 'Listener', avatarUrl: 'https://name:password@example.test/photo' }), (error) => error.code === 'functions/invalid-argument');
+  assert.equal((await edit({ displayName: 'Updated listener', avatarUrl: 'assets/images/mascot/mascot_onboarding.webp', role: 'admin' })).data.updated, true);
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const profile = await getDoc(doc(context.firestore(), `HudHudDev/users/users/${auth.currentUser.uid}`));
+    assert.equal(profile.get('displayName'), 'Updated listener');
+    assert.equal(profile.get('role'), 'listener');
+    assert.equal(profile.get('avatarUrl'), 'assets/images/mascot/mascot_onboarding.webp');
+  });
+});
+
+test('downstream Auth failure retains proof and allows recovery after conflict resolution', async () => {
+  await signOut(auth);
+  const { user } = await signInAnonymously(auth);
+  await httpsCallable(functions, 'requestEmailVerificationCode')({ email: 'conflict-recovery@example.test' });
+  const code = deliveredCode;
+  const conflicting = await adminAuth.createUser({ email: 'conflict-recovery@example.test' });
+  await assert.rejects(httpsCallable(functions, 'verifyEmailCode')({ code }), (error) => error.code === 'functions/already-exists');
+  await testEnvironment.withSecurityRulesDisabled(async (context) => {
+    const pending = await getDoc(doc(context.firestore(), `HudHudDev/emailVerificationChallenges/challenges/${user.uid}`));
+    assert.equal(pending.get('status'), 'consumed');
+    assert.equal(pending.get('leaseUntil').toMillis(), 0);
+  });
+  await assert.rejects(httpsCallable(functions, 'verifyEmailCode')({ code }), (error) => error.code === 'functions/not-found');
+  await adminAuth.deleteUser(conflicting.uid);
+  assert.equal((await httpsCallable(functions, 'ensureAccountProfile')()).data.ready, true);
+  assert.equal((await adminAuth.getUser(user.uid)).emailVerified, true);
+});
+
+test('linked social provider cannot promote unverified Auth email', async () => {
+  await signOut(auth);
+  const uid = 'unverified-linked-social';
+  await adminAuth.importUsers([{ uid, email: 'linked-social@example.test', emailVerified: false, providerData: [{ providerId: 'facebook.com', uid: 'facebook-linked-id' }] }]);
+  await adminAuth.updateUser(uid, { password });
+  await signInWithEmailAndPassword(auth, 'linked-social@example.test', password);
+  await assert.rejects(httpsCallable(functions, 'ensureAccountProfile')({ root: 'HudHudOfficial' }), (error) => error.code === 'functions/failed-precondition');
+  assert.equal((await adminAuth.getUser(uid)).emailVerified, false);
 });

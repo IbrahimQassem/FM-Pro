@@ -41,8 +41,10 @@
 7. كل نص ظاهر للمستخدم يعيش في ARB، مع العربية وRTL وإمكانية الوصول وتكبير الخط.
 8. لا تسجل stream URLs أو UID أو بيانات المستخدم أو تفاصيل إعداد Firebase.
 9. لا تقرأ أو تعرض محتوى `google-services.json` أو `GoogleService-Info.plist`.
-10. التطبيق Development/read-only حاليًا. أي كتابة، Rules، بيئة production،
-    signing أو إطلاق خارجي يحتاج تفويضًا وعقدًا/قرارًا مستقلًا.
+10. تنفيذ جاهزية الإصدار يتبع `docs/release/store-release-execution-plan.md`
+    وقرار `docs/decisions/0002-store-release-boundaries.md`. تعديلات الكود
+    والاختبارات لا تعني نشرًا؛ أي إنتاج أو signing أو إطلاق خارجي يخضع
+    للتفويض القائم وبوابات الإصدار. لا يكرر طلب تفويض سبق منحه.
 
 ## Agent roles
 

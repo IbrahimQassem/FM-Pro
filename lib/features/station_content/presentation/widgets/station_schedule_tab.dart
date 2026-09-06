@@ -140,9 +140,9 @@ class _ScheduleCard extends StatelessWidget {
             _time(context, program.schedule!.startMinute),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: isLive ? colors.primary : colors.onSurfaceVariant,
-              fontWeight: FontWeight.w800,
-            ),
+                  color: isLive ? colors.primary : colors.onSurfaceVariant,
+                  fontWeight: FontWeight.w800,
+                ),
           ),
         ),
         title: Text(
@@ -163,9 +163,9 @@ class _ScheduleCard extends StatelessWidget {
             child: Text(
               _statusLabel(strings, status),
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: isLive ? colors.onPrimary : colors.onSurfaceVariant,
-                fontWeight: FontWeight.w800,
-              ),
+                    color: isLive ? colors.onPrimary : colors.onSurfaceVariant,
+                    fontWeight: FontWeight.w800,
+                  ),
             ),
           ),
         ),

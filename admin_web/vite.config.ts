@@ -2,6 +2,7 @@ import tailwindcss from '@tailwindcss/postcss';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig, loadEnv } from 'vite';
+import { resolveFirestoreRoot } from './lib/firestore-environment.ts';
 
 const firebaseKeys = {
   apiKey: 'FIREBASE_API_KEY',
@@ -12,7 +13,12 @@ const firebaseKeys = {
   appId: 'FIREBASE_APP_ID',
 } as const;
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
+  const rootEnvironment = loadEnv(mode, '.', 'VITE_FIRESTORE_ROOT');
+  const firestoreRoot = resolveFirestoreRoot(
+    rootEnvironment.VITE_FIRESTORE_ROOT,
+    command === 'serve' && mode === 'development',
+  );
   const environment = loadEnv(mode, '.', 'FIREBASE_');
   const firebaseConfig = Object.fromEntries(
     Object.entries(firebaseKeys).map(([key, environmentKey]) => [
@@ -32,6 +38,7 @@ export default defineConfig(({ mode }) => {
   return {
     css: { postcss: { plugins: [tailwindcss()] } },
     define: {
+      __FIRESTORE_ROOT__: JSON.stringify(firestoreRoot),
       __FIREBASE_CONFIG__: JSON.stringify(firebaseConfig),
     },
     plugins: [react()],

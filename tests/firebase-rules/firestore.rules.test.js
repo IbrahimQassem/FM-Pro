@@ -10,6 +10,8 @@ import {
   collection,
   collectionGroup,
   deleteDoc,
+  documentId,
+  limit,
   doc,
   getDoc,
   getDocs,
@@ -572,4 +574,48 @@ describe("default denial", () => {
     );
     assert.ok(true);
   });
+});
+
+test('social providers cannot replace email verification in either root', async () => {
+  for (const root of ['HudHudDev', 'HudHudOfficial']) {
+    await seed(`${root}/users/users/social-user`, listenerProfile());
+    for (const provider of ['facebook.com', 'google.com', 'apple.com', 'password']) {
+      const db = userDb('social-user', { email_verified: false, firebase: { sign_in_provider: provider, identities: { 'google.com': ['linked-identity'] } } });
+      await assertFails(setDoc(doc(db, `${root}/users/users/social-user/favorites/item`), validFavorite()));
+      await assertFails(setDoc(doc(db, `${root}/users/users/social-user/agreements/ugc`), validUgcAgreement()));
+    }
+    await assertSucceeds(setDoc(doc(userDb('social-user'), `${root}/users/users/social-user/favorites/item`), validFavorite()));
+  }
+});
+
+test('admin document-ID bounds restrict collection-group audits to selected root', async () => {
+  for (const root of ['HudHudDev', 'HudHudOfficial']) {
+    await seed(`${root}/episodes/episodes/episode/comments/comment`, { authorId: 'listener', status: 'published' });
+    await seed(`${root}/users/users/listener/favorites/favorite`, validFavorite());
+    await seed(`${root}/users/users/listener/subscriptions/subscription`, { targetId: 'station' });
+    await seed(`${root}/users/users/listener/commentReportEpisodes/episode/moderationReports/report`, { reportedAuthorId: 'other' });
+  }
+  const db = userDb('admin', { admin: true });
+  for (const root of ['HudHudDev', 'HudHudOfficial']) {
+    for (const group of ['comments', 'favorites', 'subscriptions', 'moderationReports']) {
+      const result = await assertSucceeds(getDocs(query(collectionGroup(db, group), where(documentId(), '>=', doc(db, root, 'episodes')), where(documentId(), '<', doc(db, root, 'users\uf8ff')), limit(200))));
+      assert.equal(result.size, 1, `${root}/${group}`);
+      assert.ok(result.docs.every((item) => item.ref.path.startsWith(`${root}/`)));
+    }
+  }
+});
+
+test('cached verified tokens cannot recreate deleted-user data or bypass either-root barriers', async () => {
+  const uid = 'deleted-user';
+  const db = userDb(uid);
+  for (const root of ['HudHudDev', 'HudHudOfficial']) {
+    await assertFails(setDoc(doc(db, `${root}/users/users/${uid}/agreements/ugc`), validUgcAgreement()));
+    await seed(`${root}/users/users/${uid}`, listenerProfile());
+  }
+  await seed(`HudHudOfficial/accountDeletionRequests/requests/${uid}`, { status: 'completed', expiresAt: new Date(Date.now() + 86400000) });
+  for (const root of ['HudHudDev', 'HudHudOfficial']) {
+    await assertFails(setDoc(doc(db, `${root}/users/users/${uid}/agreements/ugc`), validUgcAgreement()));
+    await assertFails(setDoc(doc(db, `${root}/users/users/${uid}/favorites/item`), validFavorite()));
+    await assertFails(getDoc(doc(db, `${root}/accountDeletionRequests/requests/${uid}`)));
+  }
 });

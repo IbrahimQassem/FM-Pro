@@ -12,7 +12,7 @@ import 'station_player_state.dart';
 
 class StationPlayerController extends StateNotifier<StationPlayerState> {
   StationPlayerController(this._repository)
-    : super(const StationPlayerState()) {
+      : super(const StationPlayerState()) {
     _phaseSubscription = _repository.phaseChanges.listen(
       _onPhaseChanged,
       onError: _onPlaybackError,
@@ -81,9 +81,8 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
           id: 'episode:${episode.id}',
           title: episode.title,
           album: station.name,
-          artworkUrl: episode.coverUrl.isEmpty
-              ? station.logoUrl
-              : episode.coverUrl,
+          artworkUrl:
+              episode.coverUrl.isEmpty ? station.logoUrl : episode.coverUrl,
           streamUrls: [episode.audioUrl],
         ),
       );
@@ -159,7 +158,8 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
       AudioPlaybackPhase.loading => StationPlaybackStatus.loading,
       AudioPlaybackPhase.playing => StationPlaybackStatus.playing,
       AudioPlaybackPhase.paused ||
-      AudioPlaybackPhase.completed => StationPlaybackStatus.paused,
+      AudioPlaybackPhase.completed =>
+        StationPlaybackStatus.paused,
     };
     state = state.copyWith(status: status);
   }

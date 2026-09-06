@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../../../core/config/profile_avatar.dart';
+
 import '../../domain/models/app_user.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../datasources/home_firestore_data_source.dart';
@@ -26,7 +28,7 @@ class FirebaseUserRepository implements UserRepository {
         uid: authUser.uid,
         displayName: displayName,
         username: _string(data['username']),
-        avatarUrl: _safeHttpsUrl(data['avatarUrl']),
+        avatarUrl: ProfileAvatar.sanitize(data['avatarUrl']),
         isGuest: false,
       );
     } on FirebaseException {
@@ -40,18 +42,12 @@ class FirebaseUserRepository implements UserRepository {
     return AppUser(
       uid: user.uid,
       displayName: displayName,
-      avatarUrl: _safeHttpsUrl(user.photoURL),
+      avatarUrl: ProfileAvatar.sanitize(user.photoURL),
       isGuest: false,
     );
   }
 
   static String _string(Object? value) {
     return value is String ? value.trim() : '';
-  }
-
-  static String _safeHttpsUrl(Object? value) {
-    final text = _string(value);
-    final uri = Uri.tryParse(text);
-    return uri != null && uri.scheme == 'https' && uri.hasAuthority ? text : '';
   }
 }

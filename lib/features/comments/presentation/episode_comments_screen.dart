@@ -66,43 +66,47 @@ class _EpisodeCommentsScreenState extends ConsumerState<EpisodeCommentsScreen> {
               child: state.isLoading || state.isVisibilityLoading
                   ? const Center(child: CircularProgressIndicator())
                   : state.loadFailed || state.visibilityLoadFailed
-                  ? _RetryMessageState(
-                      icon: Icons.cloud_off_rounded,
-                      title: state.visibilityLoadFailed
-                          ? strings.moderationPreferencesLoadError
-                          : strings.commentsLoadError,
-                      onRetry: state.visibilityLoadFailed
-                          ? commentsController.refreshBlockedAuthors
-                          : null,
-                    )
-                  : state.comments.isEmpty
-                  ? MascotFeedbackView(
-                      imageAsset:
-                          'assets/images/mascot/mascot_empty_comments.webp',
-                      title: strings.mascotEmptyCommentsTitle,
-                      subtitle: strings.mascotEmptyCommentsSubtitle,
-                      imageHeight: 140,
-                    )
-                  : ListView.separated(
-                      reverse: false,
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-                      itemCount: state.comments.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 10),
-                      itemBuilder: (context, index) {
-                        final comment = state.comments[index];
-                        return _CommentCard(
-                          comment: comment,
-                          showActions: account.user?.uid != comment.authorId,
-                          isBusy: state.busyModerationCommentId == comment.id,
-                          onReport: () =>
-                              _reportComment(comment, canInteract: canInteract),
-                          onReportUser: () =>
-                              _reportUser(comment, canInteract: canInteract),
-                          onBlock: () =>
-                              _blockAuthor(comment, canInteract: canInteract),
-                        );
-                      },
-                    ),
+                      ? _RetryMessageState(
+                          icon: Icons.cloud_off_rounded,
+                          title: state.visibilityLoadFailed
+                              ? strings.moderationPreferencesLoadError
+                              : strings.commentsLoadError,
+                          onRetry: state.visibilityLoadFailed
+                              ? commentsController.refreshBlockedAuthors
+                              : null,
+                        )
+                      : state.comments.isEmpty
+                          ? MascotFeedbackView(
+                              imageAsset:
+                                  'assets/images/mascot/mascot_empty_comments.webp',
+                              title: strings.mascotEmptyCommentsTitle,
+                              subtitle: strings.mascotEmptyCommentsSubtitle,
+                              imageHeight: 140,
+                            )
+                          : ListView.separated(
+                              reverse: false,
+                              padding:
+                                  const EdgeInsets.fromLTRB(16, 12, 16, 20),
+                              itemCount: state.comments.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 10),
+                              itemBuilder: (context, index) {
+                                final comment = state.comments[index];
+                                return _CommentCard(
+                                  comment: comment,
+                                  showActions:
+                                      account.user?.uid != comment.authorId,
+                                  isBusy: state.busyModerationCommentId ==
+                                      comment.id,
+                                  onReport: () => _reportComment(comment,
+                                      canInteract: canInteract),
+                                  onReportUser: () => _reportUser(comment,
+                                      canInteract: canInteract),
+                                  onBlock: () => _blockAuthor(comment,
+                                      canInteract: canInteract),
+                                );
+                              },
+                            ),
             ),
             if (account.isInitializing)
               const LinearProgressIndicator()
@@ -110,23 +114,24 @@ class _EpisodeCommentsScreenState extends ConsumerState<EpisodeCommentsScreen> {
               state.isTermsLoading
                   ? const LinearProgressIndicator()
                   : state.hasAcceptedTerms
-                  ? _Composer(
-                      controller: _commentController,
-                      isSubmitting: state.isSubmitting,
-                      errorText: _commentFailureText(
-                        strings,
-                        state.submitFailure,
-                      ),
-                      onSubmit: _submit,
-                      onReviewTerms: () => _showTerms(allowAcceptance: false),
-                    )
-                  : _TermsGate(
-                      isAccepting: state.isAcceptingTerms,
-                      hasFailure: state.termsFailure,
-                      onReviewAndAccept: () =>
-                          _showTerms(allowAcceptance: true),
-                      onRetry: commentsController.refreshTermsAcceptance,
-                    )
+                      ? _Composer(
+                          controller: _commentController,
+                          isSubmitting: state.isSubmitting,
+                          errorText: _commentFailureText(
+                            strings,
+                            state.submitFailure,
+                          ),
+                          onSubmit: _submit,
+                          onReviewTerms: () =>
+                              _showTerms(allowAcceptance: false),
+                        )
+                      : _TermsGate(
+                          isAccepting: state.isAcceptingTerms,
+                          hasFailure: state.termsFailure,
+                          onReviewAndAccept: () =>
+                              _showTerms(allowAcceptance: true),
+                          onRetry: commentsController.refreshTermsAcceptance,
+                        )
             else
               Material(
                 elevation: 6,
@@ -392,8 +397,8 @@ class _CommentCard extends StatelessWidget {
                     timestamp,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                   ),
                 ),
                 if (showActions)
@@ -773,4 +778,3 @@ class _RetryMessageState extends StatelessWidget {
     );
   }
 }
-

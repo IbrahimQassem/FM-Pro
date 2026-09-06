@@ -87,17 +87,14 @@ class FirebaseNotificationsRepository implements NotificationsRepository {
   void _emit(RemoteMessage message) {
     if (_controller.isClosed) return;
     final notification = message.notification;
-    final title = (notification?.title ?? message.data['title'] ?? '')
-        .toString()
-        .trim();
-    final body = (notification?.body ?? message.data['body'] ?? '')
-        .toString()
-        .trim();
+    final title =
+        (notification?.title ?? message.data['title'] ?? '').toString().trim();
+    final body =
+        (notification?.body ?? message.data['body'] ?? '').toString().trim();
     if (title.isEmpty && body.isEmpty) return;
     _controller.add(
       AppNotification(
-        id:
-            message.messageId ??
+        id: message.messageId ??
             '${message.sentTime?.millisecondsSinceEpoch ?? DateTime.now().millisecondsSinceEpoch}',
         title: title,
         body: body,
@@ -111,8 +108,10 @@ class FirebaseNotificationsRepository implements NotificationsRepository {
   ) {
     return switch (status) {
       AuthorizationStatus.authorized ||
-      AuthorizationStatus.provisional => NotificationPermissionState.enabled,
-      AuthorizationStatus.denied || AuthorizationStatus.deniedPermanently =>
+      AuthorizationStatus.provisional =>
+        NotificationPermissionState.enabled,
+      AuthorizationStatus.denied ||
+      AuthorizationStatus.deniedPermanently =>
         NotificationPermissionState.denied,
       AuthorizationStatus.notDetermined =>
         NotificationPermissionState.notDetermined,

@@ -30,7 +30,8 @@ void main() {
       expect(actionTriggered, isTrue);
     });
 
-    testWidgets('renders cleanly at 200% text scale without overflow', (tester) async {
+    testWidgets('renders cleanly at 200% text scale without overflow',
+        (tester) async {
       tester.view.physicalSize = const Size(640, 1136);
       tester.view.devicePixelRatio = 2;
       addTearDown(tester.view.resetPhysicalSize);

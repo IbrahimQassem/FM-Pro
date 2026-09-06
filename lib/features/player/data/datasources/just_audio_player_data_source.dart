@@ -7,25 +7,31 @@ import 'package:just_audio/just_audio.dart';
 import '../../domain/models/audio_playback_item.dart';
 import '../../domain/models/audio_playback_phase.dart';
 import 'audio_player_data_source.dart';
+import '../../../../core/services/crash_reporting.dart';
 
 class JustAudioPlayerDataSource implements AudioPlayerDataSource {
   JustAudioPlayerDataSource({AudioPlayer? player})
-    : _player =
-          player ??
-          AudioPlayer(
-            handleInterruptions: true,
-            androidApplyAudioAttributes: true,
-            handleAudioSessionActivation: true,
-          ) {
+      : _player = player ??
+            AudioPlayer(
+              handleInterruptions: true,
+              androidApplyAudioAttributes: true,
+              handleAudioSessionActivation: true,
+            ) {
     _playerStateSubscription = _player.playerStateStream.listen((state) {
       if (_isReplacingSource && state.processingState == ProcessingState.idle) {
         return;
       }
-      _phaseController.add(_mapPhase(state));
+      final phase = _mapPhase(state);
+      if (_lastReportedPhase != phase) {
+        _lastReportedPhase = phase;
+        unawaited(CrashReporting.playbackEvent(phase.name));
+      }
+      _phaseController.add(phase);
     });
     _playbackErrorSubscription = _player.playbackEventStream.listen(
       (_) {},
       onError: (Object error, StackTrace stackTrace) {
+        unawaited(CrashReporting.playbackEvent('failure'));
         _phaseController.addError(error, stackTrace);
       },
     );
@@ -38,6 +44,7 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
   late final StreamSubscription<PlaybackEvent> _playbackErrorSubscription;
   bool _isSessionConfigured = false;
   bool _isReplacingSource = false;
+  AudioPlaybackPhase? _lastReportedPhase;
 
   @override
   Stream<AudioPlaybackPhase> get phaseChanges => _phaseController.stream;
@@ -46,7 +53,8 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
     return switch (state.processingState) {
       ProcessingState.idle => AudioPlaybackPhase.idle,
       ProcessingState.loading ||
-      ProcessingState.buffering => AudioPlaybackPhase.loading,
+      ProcessingState.buffering =>
+        AudioPlaybackPhase.loading,
       ProcessingState.ready =>
         state.playing ? AudioPlaybackPhase.playing : AudioPlaybackPhase.paused,
       ProcessingState.completed => AudioPlaybackPhase.completed,

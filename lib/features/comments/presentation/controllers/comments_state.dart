@@ -54,9 +54,8 @@ class CommentsState {
       isLoading: isLoading ?? this.isLoading,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       loadFailed: loadFailed ?? this.loadFailed,
-      submitFailure: clearSubmitFailure
-          ? null
-          : submitFailure ?? this.submitFailure,
+      submitFailure:
+          clearSubmitFailure ? null : submitFailure ?? this.submitFailure,
       isTermsLoading: isTermsLoading ?? this.isTermsLoading,
       isAcceptingTerms: isAcceptingTerms ?? this.isAcceptingTerms,
       hasAcceptedTerms: hasAcceptedTerms ?? this.hasAcceptedTerms,

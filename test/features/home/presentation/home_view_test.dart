@@ -204,11 +204,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text("لم نعثر على نتائج مطابقة"), findsOneWidget);
-    expect(find.text("جرّب البحث باسم محطة أخرى أو فئة مختلفة وسنبحث معك فورًا."), findsOneWidget);
+    expect(
+        find.text("جرّب البحث باسم محطة أخرى أو فئة مختلفة وسنبحث معك فورًا."),
+        findsOneWidget);
     expect(find.text("مسح البحث"), findsOneWidget);
   });
 
-  testWidgets("clears search input when clear button is tapped", (tester) async {
+  testWidgets("clears search input when clear button is tapped",
+      (tester) async {
     final station = Station(
       id: "sanaa",
       name: "إذاعة صنعاء",
@@ -268,7 +271,9 @@ void main() {
     expect(changedQuery, "");
   });
 
-  testWidgets("displays mascot empty favorites state when favorites filter has no stations", (
+  testWidgets(
+      "displays mascot empty favorites state when favorites filter has no stations",
+      (
     tester,
   ) async {
     final station = Station(
@@ -322,10 +327,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text("قائمتك المفضلة فارغة"), findsOneWidget);
-    expect(find.text("أضف محطاتك المفضلة لتصل إليها بنقرة واحدة في أي وقت."), findsOneWidget);
+    expect(find.text("أضف محطاتك المفضلة لتصل إليها بنقرة واحدة في أي وقت."),
+        findsOneWidget);
   });
 
-  testWidgets("triggers onFavoriteToggle when favorite button is pressed on station card", (
+  testWidgets(
+      "triggers onFavoriteToggle when favorite button is pressed on station card",
+      (
     tester,
   ) async {
     final station = Station(

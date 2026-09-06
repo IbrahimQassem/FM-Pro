@@ -44,12 +44,12 @@ class _AppRatingDialogState extends State<AppRatingDialog> {
   }
 
   Future<void> _openStore() async {
-    final targetUrl = widget.storeUrl ?? StoreUrlHelper.getStoreUrl();
-    final uri = Uri.parse(targetUrl);
     try {
+      final targetUrl = widget.storeUrl ?? StoreUrlHelper.getStoreUrl();
+      final uri = Uri.parse(targetUrl);
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      debugPrint("Failed to launch store url: $e");
+    } on Object {
+      // Configuration and launcher failures must not leak URLs or platform data.
     }
   }
 
@@ -127,8 +127,9 @@ class _AppRatingDialogState extends State<AppRatingDialog> {
                         isSelected
                             ? Icons.star_rounded
                             : Icons.star_outline_rounded,
-                        color:
-                            isSelected ? Colors.amber : theme.colorScheme.outline,
+                        color: isSelected
+                            ? Colors.amber
+                            : theme.colorScheme.outline,
                         size: 38,
                       ),
                       tooltip: "$starIndex ${strings.rateAppTitle}",

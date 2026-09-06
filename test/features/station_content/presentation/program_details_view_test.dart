@@ -91,31 +91,31 @@ class _TestApp extends StatelessWidget {
       builder: textScaler == null
           ? null
           : (context, child) => MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaler: textScaler),
-              child: child!,
-            ),
+                data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+                child: child!,
+              ),
       home: child,
     );
   }
 }
 
 Episode _episode() => Episode(
-  id: 'episode-1',
-  programId: 'morning',
-  stationId: 'sanaa-radio',
-  title: 'حلقة التعليم',
-  description: 'حلقة عن التعليم ومستقبل الشباب.',
-  audioUrl: 'https://audio.example.com/episode.mp3',
-  durationSeconds: 1800,
-  priority: 10,
-  isPublished: true,
-  isFeatured: false,
-  broadcastAt: DateTime.utc(2026, 8, 29, 5),
-  utcOffsetMinutes: 180,
-  playsCount: 10,
-  likesCount: 2,
-  commentsCount: 1,
-);
+      id: 'episode-1',
+      programId: 'morning',
+      stationId: 'sanaa-radio',
+      title: 'حلقة التعليم',
+      description: 'حلقة عن التعليم ومستقبل الشباب.',
+      audioUrl: 'https://audio.example.com/episode.mp3',
+      durationSeconds: 1800,
+      priority: 10,
+      isPublished: true,
+      isFeatured: false,
+      broadcastAt: DateTime.utc(2026, 8, 29, 5),
+      utcOffsetMinutes: 180,
+      playsCount: 10,
+      likesCount: 2,
+      commentsCount: 1,
+    );
 
 const _program = StationProgram(
   id: 'morning',

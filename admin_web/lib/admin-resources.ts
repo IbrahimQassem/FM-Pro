@@ -1,3 +1,5 @@
+import { firestoreRoot as root } from './firestore-root';
+
 export type ResourceKey =
   | 'stations'
   | 'programs'
@@ -24,7 +26,7 @@ export type ResourceDefinition = {
   template?: Record<string, unknown>;
 };
 
-const root = 'HudHudDev';
+
 
 export const resourceDefinitions: Record<ResourceKey, ResourceDefinition> = {
   stations: {

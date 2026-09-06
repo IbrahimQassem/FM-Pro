@@ -1,6 +1,5 @@
-import 'dart:io' show File;
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
+import '../config/profile_avatar.dart';
 import 'package:flutter/material.dart';
 
 /// Circular avatar that displays the user profile image or falls back to
@@ -13,7 +12,7 @@ class MascotAvatar extends StatelessWidget {
     super.key,
   });
 
-  /// Optional profile image URL, asset path, or local file path.
+  /// Optional validated HTTPS image or approved bundled avatar.
   final String? imageUrl;
 
   /// Avatar radius in logical pixels.
@@ -28,7 +27,8 @@ class MascotAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final bg = backgroundColor ?? colors.primaryContainer.withValues(alpha: 0.6);
+    final bg =
+        backgroundColor ?? colors.primaryContainer.withValues(alpha: 0.6);
     final size = radius * 2;
 
     Widget fallback() => Image.asset(
@@ -44,8 +44,8 @@ class MascotAvatar extends StatelessWidget {
         );
 
     Widget buildImage() {
-      final raw = imageUrl?.trim();
-      if (raw == null || raw.isEmpty) return fallback();
+      final raw = ProfileAvatar.sanitize(imageUrl);
+      if (raw.isEmpty) return fallback();
 
       if (raw.startsWith('assets/')) {
         return Image.asset(
@@ -65,17 +65,6 @@ class MascotAvatar extends StatelessWidget {
           fit: BoxFit.cover,
           errorWidget: (_, __, ___) => fallback(),
           placeholder: (_, __) => fallback(),
-        );
-      }
-
-      if (!kIsWeb) {
-        final file = File(raw.replaceFirst('file://', ''));
-        return Image.file(
-          file,
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => fallback(),
         );
       }
 

@@ -61,8 +61,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 strings.signInTitle,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w900,
-                ),
+                      fontWeight: FontWeight.w900,
+                    ),
               ),
               const SizedBox(height: 6),
               Text(strings.accountGuestNote, textAlign: TextAlign.center),
@@ -109,8 +109,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     ),
                   ),
                 ),
-                validator: (value) =>
-                    (value?.length ?? 0) < 8 ? strings.passwordValidation : null,
+                validator: (value) => (value?.length ?? 0) < 8
+                    ? strings.passwordValidation
+                    : null,
               ),
               _feedback(strings, state),
               const SizedBox(height: 20),
@@ -215,8 +216,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               onPressed: state.isSubmitting
                   ? null
                   : () => ref
-                        .read(accountControllerProvider.notifier)
-                        .continueWithProvider(provider),
+                      .read(accountControllerProvider.notifier)
+                      .continueWithProvider(provider),
               icon: Icon(_providerIcon(provider)),
               label: Text(_providerLabel(strings, provider)),
             ),
@@ -258,6 +259,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       AccountFailure.invalidVerificationCode => strings.invalidVerificationCode,
       AccountFailure.expiredVerificationCode => strings.expiredVerificationCode,
       AccountFailure.verificationRateLimited => strings.verificationRateLimited,
+      AccountFailure.verificationSignInRequired =>
+        strings.verificationSignInRequired,
       AccountFailure.verificationDeliveryFailed =>
         strings.verificationDeliveryFailed,
       AccountFailure.providerCancelled => strings.providerCancelled,

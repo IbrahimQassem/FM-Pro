@@ -18,10 +18,11 @@ abstract final class StoreUrlHelper {
         final pkg = androidPackageId ?? AppConfig.androidPackageId;
         return 'https://play.google.com/store/apps/details?id=$pkg';
       case TargetPlatform.iOS:
-        if (iosAppId != null && iosAppId.isNotEmpty) {
-          return 'https://apps.apple.com/app/id$iosAppId';
+        final id = iosAppId ?? AppConfig.iosAppId;
+        if (!AppConfig.isValidIosAppId(id)) {
+          throw StateError('A numeric IOS_APP_ID is required.');
         }
-        return 'https://apps.apple.com/app/${AppConfig.iosBundleId}';
+        return 'https://apps.apple.com/app/id$id';
       default:
         return '${AppConfig.domain}/download';
     }

@@ -49,10 +49,12 @@ class FirebaseCommentsRepository implements CommentsRepository {
     } on CommentAuthRequiredException {
       throw const CommentException(CommentFailure.authenticationRequired);
     } on FirebaseException catch (e, st) {
-      debugPrint('FirebaseCommentsRepository.acceptCurrentTerms FirebaseException: code=${e.code}, message=${e.message}\n$st');
+      debugPrint(
+          'FirebaseCommentsRepository.acceptCurrentTerms FirebaseException: code=${e.code}, message=${e.message}\n$st');
       throw const CommentException(CommentFailure.unavailable);
     } catch (e, st) {
-      debugPrint('FirebaseCommentsRepository.acceptCurrentTerms unexpected error: $e\n$st');
+      debugPrint(
+          'FirebaseCommentsRepository.acceptCurrentTerms unexpected error: $e\n$st');
       throw const CommentException(CommentFailure.unavailable);
     }
   }

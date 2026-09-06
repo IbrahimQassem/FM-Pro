@@ -43,7 +43,8 @@ void main() {
     expect(find.byKey(const Key('comments-review-ugc-terms')), findsOneWidget);
   });
 
-  testWidgets('shows snackbar when terms acceptance fails and stays on terms gate', (
+  testWidgets(
+      'shows snackbar when terms acceptance fails and stays on terms gate', (
     tester,
   ) async {
     final commentsRepository = _FakeCommentsRepository();
@@ -165,7 +166,8 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('displays mascot empty comments state when there are no comments', (
+  testWidgets('displays mascot empty comments state when there are no comments',
+      (
     tester,
   ) async {
     final repository = _FakeCommentsRepository(initialComments: []);
@@ -233,9 +235,9 @@ class _TestApp extends StatelessWidget {
         builder: textScaler == null
             ? null
             : (context, child) => MediaQuery(
-                data: MediaQuery.of(context).copyWith(textScaler: textScaler),
-                child: child!,
-              ),
+                  data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+                  child: child!,
+                ),
         home: EpisodeCommentsScreen(episode: _episode),
       ),
     );
@@ -278,7 +280,8 @@ class _FakeAccountRepository implements AccountRepository {
   Future<void> signOut() async {}
 
   @override
-  Future<void> updateProfile({required String displayName, String? photoUrl}) async {}
+  Future<void> updateProfile(
+      {required String displayName, String? photoUrl}) async {}
 }
 
 class _FakeCommentsRepository implements CommentsRepository {

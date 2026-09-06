@@ -37,21 +37,25 @@ void main() {
 }
 
 Map<String, dynamic> _validData() => {
-  'name': 'إذاعة صنعاء',
-  'nameEn': 'Sanaa Radio',
-  'streamUrl': 'https://radio.example.com/live',
-  'backupStreamUrl': '',
-  'logoUrl': 'https://images.example.com/sanaa.webp',
-  'thumbnailUrl': '',
-  'frequency': '92.5 MHz',
-  'countryCode': 'YE',
-  'countryNameAr': 'اليمن',
-  'cityCode': 'sanaa',
-  'cityNameAr': 'صنعاء',
-  'priority': 90,
-  'isLive': true,
-  'isActive': true,
-  'isVerified': true,
-  'isFeatured': false,
-  'stats': {'programsCount': 14, 'subscribersCount': 1200, 'totalPlays': 5200},
-};
+      'name': 'إذاعة صنعاء',
+      'nameEn': 'Sanaa Radio',
+      'streamUrl': 'https://radio.example.com/live',
+      'backupStreamUrl': '',
+      'logoUrl': 'https://images.example.com/sanaa.webp',
+      'thumbnailUrl': '',
+      'frequency': '92.5 MHz',
+      'countryCode': 'YE',
+      'countryNameAr': 'اليمن',
+      'cityCode': 'sanaa',
+      'cityNameAr': 'صنعاء',
+      'priority': 90,
+      'isLive': true,
+      'isActive': true,
+      'isVerified': true,
+      'isFeatured': false,
+      'stats': {
+        'programsCount': 14,
+        'subscribersCount': 1200,
+        'totalPlays': 5200
+      },
+    };

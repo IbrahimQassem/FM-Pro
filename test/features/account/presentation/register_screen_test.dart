@@ -41,7 +41,8 @@ void main() {
     expect(repository.registeredPassword, "password123");
   });
 
-  testWidgets("can navigate to SignInScreen via go-to-sign-in-button", (tester) async {
+  testWidgets("can navigate to SignInScreen via go-to-sign-in-button",
+      (tester) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -130,6 +131,7 @@ class _FakeAccountRepository implements AccountRepository {
     registeredEmail = email;
     registeredPassword = password;
   }
+
   @override
   Future<void> sendPasswordReset(String email) async {}
   @override
@@ -140,5 +142,6 @@ class _FakeAccountRepository implements AccountRepository {
   @override
   Future<void> signOut() async {}
   @override
-  Future<void> updateProfile({required String displayName, String? photoUrl}) async {}
+  Future<void> updateProfile(
+      {required String displayName, String? photoUrl}) async {}
 }

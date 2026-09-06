@@ -11,7 +11,8 @@ import "package:hudhud_fm/features/account/presentation/auth_screen.dart";
 import "package:hudhud_fm/l10n/generated/app_localizations.dart";
 
 void main() {
-  testWidgets("guest can start Google or Facebook sign in from AuthScreen", (tester) async {
+  testWidgets("guest can start Google or Facebook sign in from AuthScreen",
+      (tester) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -78,7 +79,8 @@ void main() {
     await tester.pumpWidget(_TestApp(repository: repository));
     await tester.pumpAndSettle();
 
-    final guidelinesButton = find.byKey(const Key("account-auth-ugc-guidelines"));
+    final guidelinesButton =
+        find.byKey(const Key("account-auth-ugc-guidelines"));
     expect(guidelinesButton, findsOneWidget);
 
     await tester.tap(guidelinesButton);
@@ -130,13 +132,18 @@ class _FakeAccountRepository implements AccountRepository {
   @override
   Future<void> verifyEmailCode(String code) async {}
   @override
-  Future<void> register({required String displayName, required String email, required String password}) async {}
+  Future<void> register(
+      {required String displayName,
+      required String email,
+      required String password}) async {}
   @override
   Future<void> sendPasswordReset(String email) async {}
   @override
-  Future<void> signIn({required String email, required String password}) async {}
+  Future<void> signIn(
+      {required String email, required String password}) async {}
   @override
   Future<void> signOut() async {}
   @override
-  Future<void> updateProfile({required String displayName, String? photoUrl}) async {}
+  Future<void> updateProfile(
+      {required String displayName, String? photoUrl}) async {}
 }

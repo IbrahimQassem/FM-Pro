@@ -208,6 +208,7 @@
   "invalidVerificationCode": "The verification code is incorrect.",
   "expiredVerificationCode": "The verification code expired. Request a new one.",
   "verificationRateLimited": "Too many requests or attempts. Wait before trying again.",
+  "verificationSignInRequired": "Your email is verified. Sign out, then sign in again to continue.",
   "verificationDeliveryFailed": "The verification email could not be sent. Try again later.",
   "providerCancelled": "Sign-in was cancelled.",
   "providerFailed": "The sign-in provider could not complete the request.",
@@ -288,7 +289,8 @@
   "manageAccount": "Manage Account Details",
   "shareAppTitle": "Invite a Friend & Share App",
   "shareAppSubtitle": "Share Hudhud FM with your friends and radio lovers",
-  "shareAppMessage": "Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: https://hudhud-fm-admin-sanadev.web.app/download",
+  "@shareAppMessage": {"placeholders": {"url": {"type": "String"}}},
+  "shareAppMessage": "Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: {url}",
 
   "rateAppTitle": "Rate App",
   "rateAppSubtitle": "Your feedback helps us continue improving Hudhud FM",

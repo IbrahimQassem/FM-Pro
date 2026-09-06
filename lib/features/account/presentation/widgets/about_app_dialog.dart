@@ -33,7 +33,8 @@ class AboutAppDialog extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             strings.aboutAppTitle,
-            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            style: theme.textTheme.titleLarge
+                ?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 2),
           Container(
@@ -73,7 +74,8 @@ class AboutAppDialog extends StatelessWidget {
                   onPressed: () async {
                     final uri = Uri.parse(AppConfig.privacyPolicyUrl);
                     try {
-                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      await launchUrl(uri,
+                          mode: LaunchMode.externalApplication);
                     } catch (e) {
                       debugPrint("Failed to launch privacy policy url: $e");
                     }
@@ -85,7 +87,8 @@ class AboutAppDialog extends StatelessWidget {
                   onPressed: () async {
                     final uri = Uri.parse(AppConfig.termsOfServiceUrl);
                     try {
-                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      await launchUrl(uri,
+                          mode: LaunchMode.externalApplication);
                     } catch (e) {
                       debugPrint("Failed to launch terms of service url: $e");
                     }

@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:share_plus/share_plus.dart";
 
+import "../utils/store_url_helper.dart";
 import "../../features/home/domain/models/station.dart";
 import "../../features/station_content/domain/models/episode.dart";
 import "../../l10n/generated/app_localizations.dart";
@@ -14,9 +15,11 @@ class ShareService {
 
   Future<void> shareStation(BuildContext context, Station station) async {
     final strings = AppLocalizations.of(context);
-    final text = strings.shareStationMessage(station.name, station.streamUrl);
+    final text =
+        strings.shareStationMessage(station.name, StoreUrlHelper.getStoreUrl());
     final box = context.findRenderObject() as RenderBox?;
-    final origin = box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+    final origin =
+        box != null ? box.localToGlobal(Offset.zero) & box.size : null;
 
     await _plugin.share(
       ShareParams(
@@ -37,10 +40,11 @@ class ShareService {
       episode.title,
       station.name,
       station.name,
-      episode.audioUrl,
+      StoreUrlHelper.getStoreUrl(),
     );
     final box = context.findRenderObject() as RenderBox?;
-    final origin = box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+    final origin =
+        box != null ? box.localToGlobal(Offset.zero) & box.size : null;
 
     await _plugin.share(
       ShareParams(
@@ -50,11 +54,13 @@ class ShareService {
       ),
     );
   }
+
   Future<void> shareApp(BuildContext context) async {
     final strings = AppLocalizations.of(context);
-    final text = strings.shareAppMessage;
+    final text = strings.shareAppMessage(StoreUrlHelper.getStoreUrl());
     final box = context.findRenderObject() as RenderBox?;
-    final origin = box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+    final origin =
+        box != null ? box.localToGlobal(Offset.zero) & box.size : null;
 
     await _plugin.share(
       ShareParams(

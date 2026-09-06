@@ -51,7 +51,8 @@ void main() {
     expect(repository.provider, AccountSignInProvider.google);
   });
 
-  testWidgets("can navigate to RegisterScreen via go-to-register-button", (tester) async {
+  testWidgets("can navigate to RegisterScreen via go-to-register-button",
+      (tester) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -145,6 +146,7 @@ class _FakeAccountRepository implements AccountRepository {
   Future<void> sendPasswordReset(String email) async {
     resetEmail = email;
   }
+
   @override
   Future<void> signIn({
     required String email,
@@ -153,8 +155,10 @@ class _FakeAccountRepository implements AccountRepository {
     signInEmail = email;
     signInPassword = password;
   }
+
   @override
   Future<void> signOut() async {}
   @override
-  Future<void> updateProfile({required String displayName, String? photoUrl}) async {}
+  Future<void> updateProfile(
+      {required String displayName, String? photoUrl}) async {}
 }

@@ -50,16 +50,16 @@ class SplashScreen extends StatelessWidget {
                   Text(
                     strings.appName,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: colors.onSurface,
-                    ),
+                          fontWeight: FontWeight.w800,
+                          color: colors.onSurface,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     strings.splashTagline,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
+                          color: colors.onSurfaceVariant,
+                        ),
                   ),
                   const SizedBox(height: 32),
                   const SizedBox(

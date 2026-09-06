@@ -19,7 +19,7 @@
 
 لا تحفظ ملف القيم. استخدم `firebase functions:secrets:set` بصورة تفاعلية، ثم
 انشر `requestEmailVerificationCode` و`verifyEmailCode` و`ensureAccountProfile`
-و`cleanupUnverifiedAccounts`. تحتفظ الخدمة بتحدي الحساب غير الموثق 30 يومًا،
+و`updateAccountProfile` و`cleanupUnverifiedAccounts`. تحتفظ الخدمة بتحدي الحساب غير الموثق 30 يومًا،
 ثم تحذف المهمة اليومية حساب Auth إذا ظل غير موثق ولم يكن له ملف مستمع؛ أما
 الحساب الموثق أو ذو الملف القائم فلا يُحذف.
 

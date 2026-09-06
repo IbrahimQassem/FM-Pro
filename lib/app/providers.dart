@@ -90,8 +90,8 @@ final accountRepositoryProvider = Provider<AccountRepository>((ref) {
 
 final accountControllerProvider =
     StateNotifierProvider<AccountController, AccountState>((ref) {
-      return AccountController(ref.watch(accountRepositoryProvider));
-    });
+  return AccountController(ref.watch(accountRepositoryProvider));
+});
 
 final commentsDataSourceProvider = Provider<CommentsFirestoreDataSource>((ref) {
   return CommentsFirestoreDataSource(
@@ -106,11 +106,11 @@ final commentsRepositoryProvider = Provider<CommentsRepository>((ref) {
 
 final commentsControllerProvider = StateNotifierProvider.autoDispose
     .family<CommentsController, CommentsState, String>((ref, episodeId) {
-      return CommentsController(
-        episodeId,
-        ref.watch(commentsRepositoryProvider),
-      );
-    });
+  return CommentsController(
+    episodeId,
+    ref.watch(commentsRepositoryProvider),
+  );
+});
 
 final notificationsRepositoryProvider = Provider<NotificationsRepository>((
   ref,
@@ -120,25 +120,25 @@ final notificationsRepositoryProvider = Provider<NotificationsRepository>((
 
 final notificationsControllerProvider =
     StateNotifierProvider<NotificationsController, NotificationsState>((ref) {
-      return NotificationsController(
-        ref.watch(notificationsRepositoryProvider),
-      );
-    });
+  return NotificationsController(
+    ref.watch(notificationsRepositoryProvider),
+  );
+});
 
 final homeControllerProvider =
     StateNotifierProvider.autoDispose<HomeController, HomeState>((ref) {
-      return HomeController(
-        ref.watch(stationsRepositoryProvider),
-        ref.watch(bannersRepositoryProvider),
-        ref.watch(locationsRepositoryProvider),
-        ref.watch(userRepositoryProvider),
-      );
-    });
+  return HomeController(
+    ref.watch(stationsRepositoryProvider),
+    ref.watch(bannersRepositoryProvider),
+    ref.watch(locationsRepositoryProvider),
+    ref.watch(userRepositoryProvider),
+  );
+});
 
 final stationContentDataSourceProvider =
     Provider<StationContentFirestoreDataSource>((ref) {
-      return StationContentFirestoreDataSource(FirebaseFirestore.instance);
-    });
+  return StationContentFirestoreDataSource(FirebaseFirestore.instance);
+});
 
 final stationContentRepositoryProvider = Provider<StationContentRepository>((
   ref,
@@ -150,14 +150,14 @@ final stationContentRepositoryProvider = Provider<StationContentRepository>((
 
 final stationContentControllerProvider = StateNotifierProvider.autoDispose
     .family<StationContentController, StationContentState, String>((
-      ref,
-      stationId,
-    ) {
-      return StationContentController(
-        stationId,
-        ref.watch(stationContentRepositoryProvider),
-      );
-    });
+  ref,
+  stationId,
+) {
+  return StationContentController(
+    stationId,
+    ref.watch(stationContentRepositoryProvider),
+  );
+});
 
 final audioPlayerDataSourceProvider = Provider<AudioPlayerDataSource>((ref) {
   final dataSource = JustAudioPlayerDataSource();
@@ -175,13 +175,13 @@ final audioPlaybackRepositoryProvider = Provider<AudioPlaybackRepository>((
 
 final stationPlayerControllerProvider =
     StateNotifierProvider<StationPlayerController, StationPlayerState>((ref) {
-      return StationPlayerController(
-        ref.watch(audioPlaybackRepositoryProvider),
-      );
-    });
+  return StationPlayerController(
+    ref.watch(audioPlaybackRepositoryProvider),
+  );
+});
 
-
-final favoritesDataSourceProvider = Provider<FavoritesFirestoreDataSource>((ref) {
+final favoritesDataSourceProvider =
+    Provider<FavoritesFirestoreDataSource>((ref) {
   return FavoritesFirestoreDataSource(FirebaseFirestore.instance);
 });
 
@@ -191,12 +191,11 @@ final favoritesRepositoryProvider = Provider<FavoritesRepository>((ref) {
 
 final favoritesControllerProvider =
     StateNotifierProvider<FavoritesController, FavoritesState>((ref) {
-      return FavoritesController(
-        favoritesRepository: ref.watch(favoritesRepositoryProvider),
-        accountRepository: ref.watch(accountRepositoryProvider),
-      );
-    });
-
+  return FavoritesController(
+    favoritesRepository: ref.watch(favoritesRepositoryProvider),
+    accountRepository: ref.watch(accountRepositoryProvider),
+  );
+});
 
 final onboardingRepositoryProvider = Provider<OnboardingRepository>((ref) {
   return SharedPreferencesOnboardingRepository();
@@ -204,5 +203,5 @@ final onboardingRepositoryProvider = Provider<OnboardingRepository>((ref) {
 
 final onboardingControllerProvider =
     StateNotifierProvider<OnboardingController, OnboardingState>((ref) {
-      return OnboardingController(ref.watch(onboardingRepositoryProvider));
-    });
+  return OnboardingController(ref.watch(onboardingRepositoryProvider));
+});

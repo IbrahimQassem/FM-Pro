@@ -1,9 +1,11 @@
 import java.util.Properties
+import java.util.Base64
 
 plugins {
     id("com.android.application")
     kotlin("android")
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -70,15 +72,10 @@ android {
             val storeFileProp = keystoreProperties.getProperty("storeFile")
             val storePasswordProp = keystoreProperties.getProperty("storePassword")
 
-            if (!keyAliasProp.isNullOrBlank() && !storeFileProp.isNullOrBlank()) {
-                keyAlias = keyAliasProp
-                keyPassword = keyPasswordProp
-                storeFile = rootProject.file(storeFileProp)
-                storePassword = storePasswordProp
-            } else {
-                // Fallback to debug keys for local preview builds until production keys are supplied
-                initWith(signingConfigs.getByName("debug"))
-            }
+            keyAlias = keyAliasProp
+            keyPassword = keyPasswordProp
+            storeFile = storeFileProp?.takeIf { it.isNotBlank() }?.let(rootProject::file)
+            storePassword = storePasswordProp
         }
     }
 
@@ -92,6 +89,56 @@ android {
             )
             signingConfig = signingConfigs.getByName("release")
         }
+    }
+}
+
+val releaseDartDefines = providers.gradleProperty("dart-defines").orElse("")
+val validateProductionEnvironment = tasks.register("validateProductionEnvironment") {
+    group = "verification"
+    description = "Rejects release builds targeting a non-production Firestore root."
+    doLast {
+        val definitions = try {
+            releaseDartDefines.get().split(',').filter { it.isNotBlank() }.map {
+                String(Base64.getDecoder().decode(it), Charsets.UTF_8)
+            }
+        } catch (_: IllegalArgumentException) {
+            throw GradleException("Release dart-defines must use valid Base64 encoding.")
+        }
+        check(definitions.filter { it.substringBefore('=') == "FIRESTORE_ROOT" }.all {
+            it == "FIRESTORE_ROOT=HudHudOfficial"
+        }) {
+            "Release FIRESTORE_ROOT must be HudHudOfficial."
+        }
+    }
+}
+
+val validateProductionSigning = tasks.register("validateProductionSigning") {
+    group = "verification"
+    description = "Rejects missing or debug signing configuration for release builds."
+    dependsOn(validateProductionEnvironment)
+    doLast {
+        val requiredProperties = listOf("keyAlias", "keyPassword", "storeFile", "storePassword")
+        check(requiredProperties.all { !keystoreProperties.getProperty(it).isNullOrBlank() }) {
+            "Release requires complete production signing in android/key.properties."
+        }
+        val releaseSigning = android.signingConfigs.getByName("release")
+        val debugSigning = android.signingConfigs.getByName("debug")
+        check(releaseSigning.storeFile?.isFile == true) {
+            "Release requires an existing production keystore."
+        }
+        check(
+            !releaseSigning.keyAlias.equals("androiddebugkey", ignoreCase = true) &&
+                releaseSigning.storeFile?.name != "debug.keystore" &&
+                releaseSigning.storeFile?.canonicalFile != debugSigning.storeFile?.canonicalFile
+        ) {
+            "Release must not use the Android debug signing key."
+        }
+    }
+}
+
+tasks.configureEach {
+    if (name == "preReleaseBuild" || name == "validateSigningRelease") {
+        dependsOn(validateProductionSigning)
     }
 }
 

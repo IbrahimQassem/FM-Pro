@@ -27,18 +27,18 @@ void main() {
 }
 
 NotificationPreference _preference(bool enabled) => NotificationPreference(
-  isEnabled: enabled,
-  permission: enabled
-      ? NotificationPermissionState.enabled
-      : NotificationPermissionState.notDetermined,
-);
+      isEnabled: enabled,
+      permission: enabled
+          ? NotificationPermissionState.enabled
+          : NotificationPermissionState.notDetermined,
+    );
 
 AppNotification _message(String id) => AppNotification(
-  id: id,
-  title: 'Title $id',
-  body: 'Body',
-  receivedAt: DateTime.utc(2026, 8, 30),
-);
+      id: id,
+      title: 'Title $id',
+      body: 'Body',
+      receivedAt: DateTime.utc(2026, 8, 30),
+    );
 
 class _FakeNotificationsRepository implements NotificationsRepository {
   final _controller = StreamController<AppNotification>.broadcast();

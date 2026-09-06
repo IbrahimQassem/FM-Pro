@@ -74,7 +74,8 @@ class HomeScreen extends ConsumerWidget {
     Future<void> handleFavoriteToggle(Station station) async {
       final strings = AppLocalizations.of(context);
       final messenger = ScaffoldMessenger.of(context);
-      final outcome = await favoritesController.toggleFavoriteStation(station.id);
+      final outcome =
+          await favoritesController.toggleFavoriteStation(station.id);
       switch (outcome) {
         case FavoriteActionOutcome.successAdded:
           messenger.hideCurrentSnackBar();

@@ -7,7 +7,7 @@ import 'station_content_state.dart';
 
 class StationContentController extends StateNotifier<StationContentState> {
   StationContentController(this._stationId, this._repository)
-    : super(const StationContentState()) {
+      : super(const StationContentState()) {
     unawaited(_initialize());
   }
 

@@ -8,7 +8,7 @@ import 'notifications_state.dart';
 
 class NotificationsController extends StateNotifier<NotificationsState> {
   NotificationsController(this._repository)
-    : super(const NotificationsState()) {
+      : super(const NotificationsState()) {
     _subscription = _repository.incomingNotifications.listen(_onNotification);
     unawaited(_initialize());
   }

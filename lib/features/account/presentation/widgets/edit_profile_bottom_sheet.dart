@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:image_picker/image_picker.dart";
+import "../../../../core/config/profile_avatar.dart";
 
 import "../../../../app/providers.dart";
 import "../../../../core/widgets/mascot_avatar.dart";
@@ -39,18 +39,13 @@ class _EditProfileBottomSheetState
   late String? _selectedPhotoUrl;
   bool _isSaving = false;
 
-  static const _mascotAvatars = <String>[
-    'assets/images/mascot/mascot_avatar_default.webp',
-    'assets/images/mascot/mascot_onboarding.webp',
-    'assets/images/mascot/mascot_empty_favorites.webp',
-    'assets/images/mascot/mascot_empty_comments.webp',
-  ];
+  static const _mascotAvatars = ProfileAvatar.assets;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.user.displayName);
-    _selectedPhotoUrl = widget.user.photoUrl;
+    _selectedPhotoUrl = ProfileAvatar.sanitize(widget.user.photoUrl);
   }
 
   @override
@@ -59,41 +54,15 @@ class _EditProfileBottomSheetState
     super.dispose();
   }
 
-  Future<void> _pickImage(ImageSource source) async {
-    try {
-      final picker = ImagePicker();
-      final picked = await picker.pickImage(
-        source: source,
-        maxWidth: 512,
-        maxHeight: 512,
-        imageQuality: 85,
-      );
-      if (picked != null && mounted) {
-        setState(() {
-          _selectedPhotoUrl = picked.path;
-        });
-      }
-    } catch (e) {
-      debugPrint("Error picking image from $source: $e");
-      if (mounted) {
-        final strings = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(strings.imagePickError)),
-        );
-      }
-    }
-  }
-
   Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (_isSaving || !_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
 
-    final success = await ref
-        .read(accountControllerProvider.notifier)
-        .updateProfile(
-          displayName: _nameController.text.trim(),
-          photoUrl: _selectedPhotoUrl,
-        );
+    final success =
+        await ref.read(accountControllerProvider.notifier).updateProfile(
+              displayName: _nameController.text.trim(),
+              photoUrl: _selectedPhotoUrl,
+            );
 
     if (mounted) {
       setState(() => _isSaving = false);
@@ -152,30 +121,6 @@ class _EditProfileBottomSheetState
                   imageUrl: _selectedPhotoUrl,
                   radius: 44,
                 ),
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 12,
-                runSpacing: 8,
-                children: [
-                  OutlinedButton.icon(
-                    key: const Key('pick-from-camera-button'),
-                    onPressed: _isSaving
-                        ? null
-                        : () => _pickImage(ImageSource.camera),
-                    icon: const Icon(Icons.photo_camera_outlined, size: 18),
-                    label: Text(strings.takePhoto),
-                  ),
-                  OutlinedButton.icon(
-                    key: const Key('pick-from-gallery-button'),
-                    onPressed: _isSaving
-                        ? null
-                        : () => _pickImage(ImageSource.gallery),
-                    icon: const Icon(Icons.photo_library_outlined, size: 18),
-                    label: Text(strings.chooseFromGallery),
-                  ),
-                ],
               ),
               const SizedBox(height: 16),
               Text(

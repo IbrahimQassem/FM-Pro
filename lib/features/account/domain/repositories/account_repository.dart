@@ -42,6 +42,7 @@ enum AccountFailure {
   expiredVerificationCode,
   verificationRateLimited,
   verificationDeliveryFailed,
+  verificationSignInRequired,
   providerCancelled,
   providerFailed,
   providerNotConfigured,

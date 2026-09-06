@@ -103,7 +103,9 @@ class _ProgramCard extends StatelessWidget {
                             program.title,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleMedium
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
                                 ?.copyWith(fontWeight: FontWeight.w800),
                           ),
                         ),
@@ -123,8 +125,8 @@ class _ProgramCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                        ),
+                              color: colors.onSurfaceVariant,
+                            ),
                       ),
                     ],
                     const SizedBox(height: 8),
@@ -275,7 +277,8 @@ class _ContentMessage extends StatelessWidget {
                 ),
               )
             else if (icon != null)
-              Icon(icon, size: 58, color: Theme.of(context).colorScheme.primary),
+              Icon(icon,
+                  size: 58, color: Theme.of(context).colorScheme.primary),
             const SizedBox(height: 14),
             Text(
               title,

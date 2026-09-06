@@ -52,7 +52,8 @@ class CommentsFirestoreDataSource {
       debugPrint('acceptCurrentTerms: user is null!');
       throw const CommentAuthRequiredException();
     }
-    debugPrint('acceptCurrentTerms: user.uid=${user.uid}, emailVerified=${user.emailVerified}, providers=${user.providerData.map((p) => p.providerId).toList()}');
+    debugPrint(
+        'acceptCurrentTerms: user.uid=${user.uid}, emailVerified=${user.emailVerified}, providers=${user.providerData.map((p) => p.providerId).toList()}');
     try {
       await user.reload();
       await user.getIdToken(true);

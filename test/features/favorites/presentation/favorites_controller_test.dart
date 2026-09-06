@@ -11,7 +11,8 @@ import 'package:hudhud_fm/features/favorites/presentation/controllers/favorites_
 class FakeFavoritesRepository implements FavoritesRepository {
   final Set<String> currentFavorites = {};
   bool shouldFail = false;
-  final StreamController<Set<String>> _controller = StreamController<Set<String>>.broadcast();
+  final StreamController<Set<String>> _controller =
+      StreamController<Set<String>>.broadcast();
 
   @override
   Stream<Set<String>> watchFavoriteTargetIds({
@@ -56,7 +57,8 @@ class FakeFavoritesRepository implements FavoritesRepository {
 }
 
 class FakeAccountRepository implements AccountRepository {
-  final StreamController<AccountUser?> _userController = StreamController<AccountUser?>.broadcast();
+  final StreamController<AccountUser?> _userController =
+      StreamController<AccountUser?>.broadcast();
 
   void emitUser(AccountUser? user) {
     _userController.add(user);
@@ -72,7 +74,10 @@ class FakeAccountRepository implements AccountRepository {
   Future<void> deleteAccount({String? currentPassword}) async {}
 
   @override
-  Future<void> register({required String displayName, required String email, required String password}) async {}
+  Future<void> register(
+      {required String displayName,
+      required String email,
+      required String password}) async {}
 
   @override
   Future<void> requestEmailVerificationCode({String? email}) async {}
@@ -81,7 +86,8 @@ class FakeAccountRepository implements AccountRepository {
   Future<void> sendPasswordReset(String email) async {}
 
   @override
-  Future<void> signIn({required String email, required String password}) async {}
+  Future<void> signIn(
+      {required String email, required String password}) async {}
 
   @override
   Future<void> signOut() async {}
@@ -90,7 +96,8 @@ class FakeAccountRepository implements AccountRepository {
   Future<void> verifyEmailCode(String code) async {}
 
   @override
-  Future<void> updateProfile({required String displayName, String? photoUrl}) async {}
+  Future<void> updateProfile(
+      {required String displayName, String? photoUrl}) async {}
 }
 
 void main() {
@@ -133,7 +140,8 @@ void main() {
     expect(controller.state.favoriteStationIds, isEmpty);
   });
 
-  test('adds and removes favorite with optimistic update for verified user', () async {
+  test('adds and removes favorite with optimistic update for verified user',
+      () async {
     accountRepo.emitUser(
       const AccountUser(
         uid: 'user_1',

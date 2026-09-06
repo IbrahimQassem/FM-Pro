@@ -81,9 +81,8 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
       heroGradientStart:
           Color.lerp(heroGradientStart, other.heroGradientStart, t) ??
               heroGradientStart,
-      heroGradientEnd:
-          Color.lerp(heroGradientEnd, other.heroGradientEnd, t) ??
-              heroGradientEnd,
+      heroGradientEnd: Color.lerp(heroGradientEnd, other.heroGradientEnd, t) ??
+          heroGradientEnd,
       statusOnline:
           Color.lerp(statusOnline, other.statusOnline, t) ?? statusOnline,
       episodePlayAccent:

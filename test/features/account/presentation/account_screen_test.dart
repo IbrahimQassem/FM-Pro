@@ -15,7 +15,8 @@ import "package:hudhud_fm/features/onboarding/presentation/onboarding_screen.dar
 import "package:hudhud_fm/l10n/generated/app_localizations.dart";
 
 void main() {
-  testWidgets("guest sees guest card and can open SignInScreen", (tester) async {
+  testWidgets("guest sees guest card and can open SignInScreen",
+      (tester) async {
     final repository = _FakeAccountRepository(user: null);
     await tester.pumpWidget(_TestApp(repository: repository));
     await tester.pumpAndSettle();
@@ -44,7 +45,8 @@ void main() {
     expect(find.byType(RegisterScreen), findsOneWidget);
   });
 
-  testWidgets("verified user sees profile and can open ManageAccountScreen", (tester) async {
+  testWidgets("verified user sees profile and can open ManageAccountScreen",
+      (tester) async {
     final repository = _FakeAccountRepository(user: _user);
     await tester.pumpWidget(_TestApp(repository: repository));
     await tester.pumpAndSettle();
@@ -98,6 +100,9 @@ void main() {
     final guidelinesTile = find.byKey(const Key("account-ugc-guidelines"));
     expect(guidelinesTile, findsOneWidget);
 
+    await tester.ensureVisible(guidelinesTile);
+    await tester.pumpAndSettle();
+    expect(guidelinesTile.hitTestable(), findsOneWidget);
     await tester.tap(guidelinesTile);
     await tester.pumpAndSettle();
 
@@ -161,15 +166,20 @@ class _FakeAccountRepository implements AccountRepository {
   @override
   Future<void> continueWithProvider(AccountSignInProvider provider) async {}
   @override
-  Future<void> register({required String displayName, required String email, required String password}) async {}
+  Future<void> register(
+      {required String displayName,
+      required String email,
+      required String password}) async {}
   @override
   Future<void> sendPasswordReset(String email) async {}
   @override
-  Future<void> signIn({required String email, required String password}) async {}
+  Future<void> signIn(
+      {required String email, required String password}) async {}
   @override
   Future<void> signOut() async {}
   @override
-  Future<void> updateProfile({required String displayName, String? photoUrl}) async {}
+  Future<void> updateProfile(
+      {required String displayName, String? photoUrl}) async {}
 }
 
 const _user = AccountUser(

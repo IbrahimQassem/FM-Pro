@@ -36,7 +36,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Future<void> _complete() async {
     if (!widget.isAppTour) {
-      await ref.read(onboardingControllerProvider.notifier).completeOnboarding();
+      await ref
+          .read(onboardingControllerProvider.notifier)
+          .completeOnboarding();
     }
     if (widget.onCompleted != null) {
       widget.onCompleted!();
@@ -200,7 +202,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     width: double.infinity,
                     height: 52,
                     child: FilledButton(
-                      key: Key(_currentPage == 2 ? "onboarding-start" : "onboarding-next"),
+                      key: Key(_currentPage == 2
+                          ? "onboarding-start"
+                          : "onboarding-next"),
                       style: FilledButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(

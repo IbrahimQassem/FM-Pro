@@ -71,7 +71,9 @@ class _BannerCarouselState extends State<BannerCarousel> {
                             banner.title,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleMedium
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
                                 ?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w800,

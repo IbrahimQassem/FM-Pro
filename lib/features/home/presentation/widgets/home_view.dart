@@ -156,8 +156,7 @@ class _HomeViewState extends State<HomeView> {
                       children: [
                         ChoiceChip(
                           label: Text(strings.allCities),
-                          selected:
-                              !widget.state.isFavoritesOnly &&
+                          selected: !widget.state.isFavoritesOnly &&
                               widget.state.selectedCityCode.isEmpty,
                           onSelected: (_) {
                             widget.onFavoritesFilterToggled?.call(false);
@@ -182,8 +181,7 @@ class _HomeViewState extends State<HomeView> {
                           const SizedBox(width: 8),
                           ChoiceChip(
                             label: Text(city.nameAr),
-                            selected:
-                                !widget.state.isFavoritesOnly &&
+                            selected: !widget.state.isFavoritesOnly &&
                                 widget.state.selectedCityCode == city.code,
                             onSelected: (_) {
                               widget.onFavoritesFilterToggled?.call(false);
@@ -206,12 +204,16 @@ class _HomeViewState extends State<HomeView> {
                           children: [
                             Text(
                               strings.availableStations,
-                              style: Theme.of(context).textTheme.titleLarge
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
                                   ?.copyWith(fontWeight: FontWeight.w800),
                             ),
                             Text(
                               strings.stationCount(visibleStations.length),
-                              style: Theme.of(context).textTheme.bodyMedium
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
                                   ?.copyWith(
                                     color: Theme.of(
                                       context,
@@ -261,7 +263,8 @@ class _HomeViewState extends State<HomeView> {
                 )
               else if (widget.state.isFavoritesOnly && visibleStations.isEmpty)
                 HomeEmptyState(
-                  imageAsset: "assets/images/mascot/mascot_empty_favorites.webp",
+                  imageAsset:
+                      "assets/images/mascot/mascot_empty_favorites.webp",
                   title: strings.mascotEmptyFavoritesTitle,
                   message: strings.mascotEmptyFavoritesSubtitle,
                 )
@@ -285,11 +288,11 @@ class _HomeViewState extends State<HomeView> {
                   sliver: SliverGrid.builder(
                     gridDelegate:
                         const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 260,
-                          mainAxisExtent: 292,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                        ),
+                      maxCrossAxisExtent: 260,
+                      mainAxisExtent: 292,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                    ),
                     itemCount: visibleStations.length,
                     itemBuilder: (context, index) => StationCard.grid(
                       station: visibleStations[index],
@@ -298,8 +301,10 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       onFavoriteToggle: widget.onFavoriteToggle == null
                           ? null
-                          : () => widget.onFavoriteToggle!(visibleStations[index]),
-                      onOpen: () => widget.onStationPressed(visibleStations[index]),
+                          : () =>
+                              widget.onFavoriteToggle!(visibleStations[index]),
+                      onOpen: () =>
+                          widget.onStationPressed(visibleStations[index]),
                       onPlay: () =>
                           widget.onStationPlayPressed(visibleStations[index]),
                     ),
@@ -319,8 +324,10 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       onFavoriteToggle: widget.onFavoriteToggle == null
                           ? null
-                          : () => widget.onFavoriteToggle!(visibleStations[index]),
-                      onOpen: () => widget.onStationPressed(visibleStations[index]),
+                          : () =>
+                              widget.onFavoriteToggle!(visibleStations[index]),
+                      onOpen: () =>
+                          widget.onStationPressed(visibleStations[index]),
                       onPlay: () =>
                           widget.onStationPlayPressed(visibleStations[index]),
                     ),

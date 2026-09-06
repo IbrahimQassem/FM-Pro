@@ -56,28 +56,28 @@ class FavoritesController extends StateNotifier<FavoritesState> {
     state = state.copyWith(isLoading: true, clearFailure: true);
     _favoritesSubscription = _favoritesRepository
         .watchFavoriteTargetIds(
-          uid: user.uid,
-          targetType: FavoriteTargetType.station,
-        )
+      uid: user.uid,
+      targetType: FavoriteTargetType.station,
+    )
         .listen(
-          (ids) {
-            if (mounted) {
-              state = state.copyWith(
-                favoriteStationIds: ids,
-                isLoading: false,
-                clearFailure: true,
-              );
-            }
-          },
-          onError: (error) {
-            if (mounted) {
-              final failure = error is FavoritesException
-                  ? error.failure
-                  : FavoritesFailure.unknown;
-              state = state.copyWith(isLoading: false, lastFailure: failure);
-            }
-          },
-        );
+      (ids) {
+        if (mounted) {
+          state = state.copyWith(
+            favoriteStationIds: ids,
+            isLoading: false,
+            clearFailure: true,
+          );
+        }
+      },
+      onError: (error) {
+        if (mounted) {
+          final failure = error is FavoritesException
+              ? error.failure
+              : FavoritesFailure.unknown;
+          state = state.copyWith(isLoading: false, lastFailure: failure);
+        }
+      },
+    );
   }
 
   Future<FavoriteActionOutcome> toggleFavoriteStation(String stationId) async {

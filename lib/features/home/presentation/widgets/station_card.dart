@@ -59,7 +59,8 @@ class StationCard extends StatelessWidget {
                         const SizedBox(height: 6),
                         IconButton(
                           padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                          constraints:
+                              const BoxConstraints(minWidth: 32, minHeight: 32),
                           iconSize: 22,
                           onPressed: onFavoriteToggle,
                           tooltip: isFavorite
@@ -71,7 +72,9 @@ class StationCard extends StatelessWidget {
                                 : Icons.favorite_border_rounded,
                             color: isFavorite
                                 ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -94,8 +97,8 @@ class StationCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
               const Spacer(),
               _StationStats(station: station),
@@ -136,7 +139,9 @@ class StationCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             station.name,
-                            style: Theme.of(context).textTheme.titleMedium
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
                                 ?.copyWith(fontWeight: FontWeight.w800),
                           ),
                         ),
@@ -150,8 +155,9 @@ class StationCard extends StatelessWidget {
                         station.frequency,
                       ].where((value) => value.isNotEmpty).join(' · '),
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                     ),
                     const SizedBox(height: 10),
                     _StationStats(station: station),

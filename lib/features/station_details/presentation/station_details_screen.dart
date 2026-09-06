@@ -47,7 +47,8 @@ class StationDetailsScreen extends ConsumerWidget {
     Future<void> handleFavoriteToggle() async {
       final strings = AppLocalizations.of(context);
       final messenger = ScaffoldMessenger.of(context);
-      final outcome = await favoritesController.toggleFavoriteStation(station.id);
+      final outcome =
+          await favoritesController.toggleFavoriteStation(station.id);
       switch (outcome) {
         case FavoriteActionOutcome.successAdded:
           messenger.hideCurrentSnackBar();
@@ -75,7 +76,8 @@ class StationDetailsScreen extends ConsumerWidget {
               action: SnackBarAction(
                 label: strings.signIn,
                 onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const AccountScreen()),
+                  MaterialPageRoute<void>(
+                      builder: (_) => const AccountScreen()),
                 ),
               ),
             ),
@@ -89,7 +91,8 @@ class StationDetailsScreen extends ConsumerWidget {
               action: SnackBarAction(
                 label: strings.verifyEmail,
                 onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const AccountScreen()),
+                  MaterialPageRoute<void>(
+                      builder: (_) => const AccountScreen()),
                 ),
               ),
             ),
@@ -312,7 +315,9 @@ class _StationHero extends StatelessWidget {
                                 station.name,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.titleLarge
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
                                     ?.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w900,
@@ -344,7 +349,9 @@ class _StationHero extends StatelessWidget {
                               ),
                               child: Text(
                                 subtitle,
-                                style: Theme.of(context).textTheme.labelMedium
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
                                     ?.copyWith(color: Colors.white),
                               ),
                             ),
@@ -355,15 +362,15 @@ class _StationHero extends StatelessWidget {
                           station.description.isNotEmpty
                               ? station.description
                               : station.tagline.isNotEmpty
-                              ? station.tagline
-                              : strings.stationDescriptionFallback,
+                                  ? station.tagline
+                                  : strings.stationDescriptionFallback,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: Colors.white.withValues(alpha: 0.85),
-                                height: 1.45,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.85),
+                                    height: 1.45,
+                                  ),
                         ),
                       ],
                     ),
@@ -394,17 +401,17 @@ class _StationHero extends StatelessWidget {
                               hasFailed
                                   ? Icons.refresh_rounded
                                   : isPlaying
-                                  ? Icons.pause_rounded
-                                  : Icons.play_arrow_rounded,
+                                      ? Icons.pause_rounded
+                                      : Icons.play_arrow_rounded,
                             ),
                       label: Text(
                         isLoading
                             ? strings.connecting
                             : hasFailed
-                            ? strings.retryPlayback
-                            : isPlaying
-                            ? strings.pause
-                            : strings.listenLive,
+                                ? strings.retryPlayback
+                                : isPlaying
+                                    ? strings.pause
+                                    : strings.listenLive,
                       ),
                     ),
                   ),
@@ -486,9 +493,9 @@ class _AboutTab extends StatelessWidget {
                 Text(
                   strings.stationInformation,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: colors.primary,
-                    fontWeight: FontWeight.w800,
-                  ),
+                        color: colors.primary,
+                        fontWeight: FontWeight.w800,
+                      ),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -553,9 +560,8 @@ class _StationArtwork extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = station.logoUrl.isNotEmpty
-        ? station.logoUrl
-        : station.thumbnailUrl;
+    final imageUrl =
+        station.logoUrl.isNotEmpty ? station.logoUrl : station.thumbnailUrl;
     return Semantics(
       image: true,
       label: AppLocalizations.of(context).stationLogo(station.name),
@@ -598,17 +604,17 @@ class _HeroStat extends StatelessWidget {
           Text(
             value,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w900,
-            ),
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                ),
           ),
           Text(
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.white.withValues(alpha: 0.7),
-            ),
+                  color: Colors.white.withValues(alpha: 0.7),
+                ),
           ),
         ],
       ),

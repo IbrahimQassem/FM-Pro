@@ -44,8 +44,7 @@ abstract final class ProgramMapper {
     final startMinute = _requiredInt(data, 'startMinute');
     final endMinute = _requiredInt(data, 'endMinute');
     final utcOffsetMinutes = _requiredInt(data, 'utcOffsetMinutes');
-    final isValid =
-        weekdays.isNotEmpty &&
+    final isValid = weekdays.isNotEmpty &&
         weekdays.every(
           (day) => day >= DateTime.monday && day <= DateTime.sunday,
         ) &&

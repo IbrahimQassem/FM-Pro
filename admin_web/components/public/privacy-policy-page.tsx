@@ -1,4 +1,4 @@
-import { Shield, Lock, Bell, Radio, Trash2, Mail } from 'lucide-react';
+import { Shield, Lock, Radio, Trash2, Mail } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function PrivacyPolicyPage() {
@@ -87,7 +87,7 @@ export function PrivacyPolicyPage() {
               <li>أو عبر زيارة صفحة طلب الحذف الرسمية على الرابط: <a href="/account-deletion" className="text-primary underline">طلب حذف الحساب</a>.</li>
             </ol>
             <p className="mt-2 text-muted-foreground text-xs sm:text-sm">
-              يتم مسح كافة السجلات الشخصية والتعليقات والمفضلات من خوادمنا بصورة نهائية وفورية.
+              تحذف عملية الحذف بيانات الحساب والتعليقات والمفضلات من بيئتي التطبيق المرتبطتين بالحساب. تبقى علامة أمان مؤقتة مرتبطة بمعرّف الحساب، لا تحتوي الاسم أو البريد أو المحتوى، لمنع إعادة البيانات برمز دخول قديم. تنتهي بعد 24 ساعة وتزال في دورة التنظيف اليومية التالية؛ نتابع أي تأخر ناتج عن عطل في التنظيف.
             </p>
           </CardContent>
         </Card>

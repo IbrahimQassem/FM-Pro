@@ -10,7 +10,8 @@ import "package:hudhud_fm/features/account/presentation/manage_account_screen.da
 import "package:hudhud_fm/l10n/generated/app_localizations.dart";
 
 void main() {
-  testWidgets("requires password and explicit acknowledgement to delete", (tester) async {
+  testWidgets("requires password and explicit acknowledgement to delete",
+      (tester) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -49,7 +50,8 @@ void main() {
     expect(repository.deletionPassword, "secret-pass");
   });
 
-  testWidgets("unverified account enters and submits a six digit code", (tester) async {
+  testWidgets("unverified account enters and submits a six digit code",
+      (tester) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -72,7 +74,8 @@ void main() {
     expect(repository.verificationCode, "123456");
   });
 
-  testWidgets("provider account without email can request a code for an email", (tester) async {
+  testWidgets("provider account without email can request a code for an email",
+      (tester) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -120,7 +123,9 @@ void main() {
     expect(repository.signedOut, isTrue);
   });
 
-  testWidgets("can open edit profile sheet and save new display name and mascot", (tester) async {
+  testWidgets(
+      "can open edit profile sheet and save new display name and mascot",
+      (tester) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -136,7 +141,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key("edit-display-name")), findsOneWidget);
-    await tester.enterText(find.byKey(const Key("edit-display-name")), "Ahmed Updated");
+    await tester.enterText(
+        find.byKey(const Key("edit-display-name")), "Ahmed Updated");
     await tester.tap(find.byKey(const Key("mascot-avatar-1")));
     await tester.pump();
 
@@ -145,7 +151,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(repository.updatedDisplayName, "Ahmed Updated");
-    expect(repository.updatedPhotoUrl, "assets/images/mascot/mascot_onboarding.webp");
+    expect(repository.updatedPhotoUrl,
+        "assets/images/mascot/mascot_onboarding.webp");
   });
 }
 
@@ -205,18 +212,23 @@ class _FakeAccountRepository implements AccountRepository {
   @override
   Future<void> continueWithProvider(AccountSignInProvider provider) async {}
   @override
-  Future<void> register({required String displayName, required String email, required String password}) async {}
+  Future<void> register(
+      {required String displayName,
+      required String email,
+      required String password}) async {}
   @override
   Future<void> sendPasswordReset(String email) async {}
   @override
-  Future<void> signIn({required String email, required String password}) async {}
+  Future<void> signIn(
+      {required String email, required String password}) async {}
   @override
   Future<void> signOut() async {
     signedOut = true;
   }
 
   @override
-  Future<void> updateProfile({required String displayName, String? photoUrl}) async {
+  Future<void> updateProfile(
+      {required String displayName, String? photoUrl}) async {
     updatedDisplayName = displayName;
     updatedPhotoUrl = photoUrl;
   }

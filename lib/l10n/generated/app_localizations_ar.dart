@@ -726,6 +726,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'تجاوزت عدد الطلبات أو المحاولات. انتظر قبل المحاولة مجددًا.';
 
   @override
+  String get verificationSignInRequired =>
+      'تم توثيق بريدك. سجّل الخروج ثم ادخل مرة أخرى للمتابعة.';
+
+  @override
   String get verificationDeliveryFailed =>
       'تعذر إرسال رسالة التحقق. حاول مرة أخرى لاحقًا.';
 
@@ -908,8 +912,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get shareAppSubtitle => 'شارك تطبيق هدهد FM مع أصدقائك ومحبي الإذاعة';
 
   @override
-  String get shareAppMessage =>
-      'استمع لأجمل الإذاعات والبرامج اليمنية عبر تطبيق هدهد FM 📻🇾🇪\nحمل التطبيق الآن: https://hudhud-fm-admin-sanadev.web.app/download';
+  String shareAppMessage(String url) {
+    return 'استمع لأجمل الإذاعات والبرامج اليمنية عبر تطبيق هدهد FM 📻🇾🇪\nحمل التطبيق الآن: $url';
+  }
 
   @override
   String get rateAppTitle => 'تقييم التطبيق';

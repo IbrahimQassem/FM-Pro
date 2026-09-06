@@ -94,8 +94,8 @@ class ProgramDetailsView extends StatelessWidget {
                     Text(
                       strings.aboutProgram,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
+                            fontWeight: FontWeight.w800,
+                          ),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -136,8 +136,8 @@ class ProgramDetailsView extends StatelessWidget {
                   Text(
                     strings.programEpisodesTitle(episodes.length),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w900,
-                    ),
+                          fontWeight: FontWeight.w900,
+                        ),
                   ),
                 ],
               ),
@@ -175,8 +175,8 @@ class ProgramDetailsView extends StatelessWidget {
                     onCommentsPressed: onEpisodeCommentsPressed == null
                         ? null
                         : () => onEpisodeCommentsPressed!(episode),
-                    onSharePressed: () =>
-                        const ShareService().shareEpisode(context, episode, station),
+                    onSharePressed: () => const ShareService()
+                        .shareEpisode(context, episode, station),
                   );
                 },
               ),
@@ -223,8 +223,8 @@ class _ProgramHeader extends StatelessWidget {
               Text(
                 program.title,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w900,
-                ),
+                      fontWeight: FontWeight.w900,
+                    ),
               ),
               const SizedBox(height: 8),
               Text(
@@ -264,8 +264,8 @@ class _EpisodeCard extends StatelessWidget {
     final isPlaying = status == StationPlaybackStatus.playing;
     final hasFailed = status == StationPlaybackStatus.failure;
     final stationDate = episode.broadcastAt.toUtc().add(
-      Duration(minutes: episode.utcOffsetMinutes),
-    );
+          Duration(minutes: episode.utcOffsetMinutes),
+        );
     final date = MaterialLocalizations.of(
       context,
     ).formatMediumDate(stationDate);
@@ -284,15 +284,15 @@ class _EpisodeCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+                          fontWeight: FontWeight.w800,
+                        ),
                   ),
                   const SizedBox(height: 5),
                   Text(
                     '$date • ${strings.minutesCount((episode.durationSeconds / 60).ceil())}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
+                          color: colors.onSurfaceVariant,
+                        ),
                   ),
                   if (episode.description.isNotEmpty) ...[
                     const SizedBox(height: 7),
@@ -311,7 +311,8 @@ class _EpisodeCard extends StatelessWidget {
                         key: Key('episode-comments-${episode.id}'),
                         onPressed: onCommentsPressed,
                         icon: const Icon(Icons.chat_bubble_outline_rounded),
-                        label: Text(strings.commentsCount(episode.commentsCount)),
+                        label:
+                            Text(strings.commentsCount(episode.commentsCount)),
                       ),
                       IconButton(
                         key: Key('episode-share-${episode.id}'),
@@ -331,8 +332,8 @@ class _EpisodeCard extends StatelessWidget {
               tooltip: hasFailed
                   ? strings.retryPlayback
                   : isPlaying
-                  ? strings.pause
-                  : strings.playEpisode(episode.title),
+                      ? strings.pause
+                      : strings.playEpisode(episode.title),
               icon: isLoading
                   ? const SizedBox.square(
                       dimension: 19,
@@ -342,8 +343,8 @@ class _EpisodeCard extends StatelessWidget {
                       hasFailed
                           ? Icons.refresh_rounded
                           : isPlaying
-                          ? Icons.pause_rounded
-                          : Icons.play_arrow_rounded,
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_rounded,
                     ),
             ),
           ],

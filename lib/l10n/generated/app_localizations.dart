@@ -1352,6 +1352,12 @@ abstract class AppLocalizations {
   /// **'Too many requests or attempts. Wait before trying again.'**
   String get verificationRateLimited;
 
+  /// No description provided for @verificationSignInRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your email is verified. Sign out, then sign in again to continue.'**
+  String get verificationSignInRequired;
+
   /// No description provided for @verificationDeliveryFailed.
   ///
   /// In en, this message translates to:
@@ -1680,8 +1686,8 @@ abstract class AppLocalizations {
   /// No description provided for @shareAppMessage.
   ///
   /// In en, this message translates to:
-  /// **'Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: https://hudhud-fm-admin-sanadev.web.app/download'**
-  String get shareAppMessage;
+  /// **'Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: {url}'**
+  String shareAppMessage(String url);
 
   /// No description provided for @rateAppTitle.
   ///

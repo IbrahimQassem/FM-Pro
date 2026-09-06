@@ -8,11 +8,11 @@ class AppUser {
   });
 
   const AppUser.guest()
-    : uid = '',
-      displayName = '',
-      username = '',
-      avatarUrl = '',
-      isGuest = true;
+      : uid = '',
+        displayName = '',
+        username = '',
+        avatarUrl = '',
+        isGuest = true;
 
   final String uid;
   final String displayName;

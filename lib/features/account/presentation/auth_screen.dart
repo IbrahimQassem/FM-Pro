@@ -68,8 +68,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     : strings.createAccountTitle,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w900,
-                ),
+                      fontWeight: FontWeight.w900,
+                    ),
               ),
               const SizedBox(height: 6),
               Text(strings.accountGuestNote, textAlign: TextAlign.center),
@@ -135,8 +135,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     ),
                   ),
                 ),
-                validator: (value) =>
-                    (value?.length ?? 0) < 8 ? strings.passwordValidation : null,
+                validator: (value) => (value?.length ?? 0) < 8
+                    ? strings.passwordValidation
+                    : null,
               ),
               _feedback(strings, state),
               const SizedBox(height: 20),
@@ -163,13 +164,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 key: const Key('account-switch-mode'),
                 onPressed: state.isSubmitting
                     ? null
-                    : () => ref
-                          .read(accountControllerProvider.notifier)
-                          .setMode(
-                            state.mode == AccountMode.signIn
-                                ? AccountMode.register
-                                : AccountMode.signIn,
-                          ),
+                    : () =>
+                        ref.read(accountControllerProvider.notifier).setMode(
+                              state.mode == AccountMode.signIn
+                                  ? AccountMode.register
+                                  : AccountMode.signIn,
+                            ),
                 child: Text(
                   state.mode == AccountMode.signIn
                       ? strings.needAccount
@@ -253,8 +253,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               onPressed: state.isSubmitting
                   ? null
                   : () => ref
-                        .read(accountControllerProvider.notifier)
-                        .continueWithProvider(provider),
+                      .read(accountControllerProvider.notifier)
+                      .continueWithProvider(provider),
               icon: Icon(_providerIcon(provider)),
               label: Text(_providerLabel(strings, provider)),
             ),
@@ -304,6 +304,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       AccountFailure.invalidVerificationCode => strings.invalidVerificationCode,
       AccountFailure.expiredVerificationCode => strings.expiredVerificationCode,
       AccountFailure.verificationRateLimited => strings.verificationRateLimited,
+      AccountFailure.verificationSignInRequired =>
+        strings.verificationSignInRequired,
       AccountFailure.verificationDeliveryFailed =>
         strings.verificationDeliveryFailed,
       AccountFailure.providerCancelled => strings.providerCancelled,

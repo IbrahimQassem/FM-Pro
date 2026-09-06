@@ -1,4 +1,5 @@
-'use client';
+import { firestoreRoot, assertSelectedRoot } from '@/lib/firestore-root';
+import { belongsToRoot } from '@/lib/firestore-environment';
 
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -39,6 +40,8 @@ import {
   collection,
   collectionGroup,
   doc,
+  documentId,
+  where,
   getCountFromServer,
   increment,
   limit,
@@ -274,7 +277,7 @@ function SignInScreen({
               الجمهور دون تجاوز عقود Firebase.
             </p>
           </div>
-          <p className="text-xs text-white/50">sanadev-fm · HudHudDev</p>
+          <p className="text-xs text-white/50">{firestoreRoot}</p>
         </section>
         <section className="p-7 md:p-10">
           <div className="mb-8 md:hidden">
@@ -377,9 +380,16 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
           ? collection(firestore, definition.path)
           : collectionGroup(firestore, definition.group!);
         return onSnapshot(
-          query(source, limit(250)),
+          definition.path
+            ? query(source, limit(250))
+            : query(source,
+                // Known group parents are episodes and users. Bound the query
+                // before applying the limit, so another root cannot starve it.
+                where(documentId(), '>=', doc(firestore, firestoreRoot, 'episodes')),
+                where(documentId(), '<', doc(firestore, firestoreRoot, 'users\uf8ff')),
+                limit(250)),
           (snapshot) => {
-            const next = snapshot.docs.map((document) => ({
+            const next = snapshot.docs.filter((document) => belongsToRoot(document.ref.path, firestoreRoot)).map((document) => ({
               id: document.id,
               path: document.ref.path,
               data: document.data(),
@@ -441,7 +451,7 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground">
-              sanadev-fm · HudHudDev
+              {firestoreRoot}
             </p>
           </div>
         </aside>
@@ -795,6 +805,8 @@ function ModerationQueue({
     setBusyPath(report.path);
     setFeedback(null);
     try {
+      assertSelectedRoot(report.reference.path);
+      for (const item of [...reports, ...comments]) assertSelectedRoot(item.reference.path);
       const batch = writeBatch(firestore);
       const reviewData = {
         status: resolution === 'noAction' ? 'dismissed' : 'resolved',
@@ -832,14 +844,14 @@ function ModerationQueue({
         }
         if (comment?.data.status === 'published')
           batch.update(
-            doc(firestore, 'HudHudDev/episodes/episodes', episodeId),
+            doc(firestore, `${firestoreRoot}/episodes/episodes`, episodeId),
             { 'stats.commentsCount': increment(-1) },
           );
       }
       if (disablingUser) {
         const reportedAuthorId = readString(report.data, 'reportedAuthorId');
         batch.update(
-          doc(firestore, 'HudHudDev/users/users', reportedAuthorId),
+          doc(firestore, `${firestoreRoot}/users/users`, reportedAuthorId),
           { isActive: false, updatedAt: serverTimestamp() },
         );
         const comment = sourceComment(report);
@@ -852,7 +864,7 @@ function ModerationQueue({
           batch.update(
             doc(
               firestore,
-              'HudHudDev/episodes/episodes',
+              `${firestoreRoot}/episodes/episodes`,
               readString(report.data, 'episodeId'),
             ),
             { 'stats.commentsCount': increment(-1) },
@@ -1341,6 +1353,8 @@ async function saveWithRelations(
   data: Record<string, unknown>,
   previous: AdminRecord | null,
 ) {
+  assertSelectedRoot(path);
+  if (previous) assertSelectedRoot(previous.reference.path);
   const reference = doc(firestore, path, id);
   const batch = writeBatch(firestore);
   batch.set(reference, data, { merge: previous !== null });
@@ -1348,15 +1362,15 @@ async function saveWithRelations(
     const nextStation = String(data.stationId);
     const previousStation = previous ? String(previous.data.stationId) : null;
     if (!previous)
-      batch.update(doc(firestore, 'HudHudDev/stations/stations', nextStation), {
+      batch.update(doc(firestore, `${firestoreRoot}/stations/stations`, nextStation), {
         'stats.programsCount': increment(1),
       });
     else if (previousStation !== nextStation) {
       batch.update(
-        doc(firestore, 'HudHudDev/stations/stations', previousStation!),
+        doc(firestore, `${firestoreRoot}/stations/stations`, previousStation!),
         { 'stats.programsCount': increment(-1) },
       );
-      batch.update(doc(firestore, 'HudHudDev/stations/stations', nextStation), {
+      batch.update(doc(firestore, `${firestoreRoot}/stations/stations`, nextStation), {
         'stats.programsCount': increment(1),
       });
     }
@@ -1365,15 +1379,15 @@ async function saveWithRelations(
     const nextProgram = String(data.programId);
     const previousProgram = previous ? String(previous.data.programId) : null;
     if (!previous)
-      batch.update(doc(firestore, 'HudHudDev/programs/programs', nextProgram), {
+      batch.update(doc(firestore, `${firestoreRoot}/programs/programs`, nextProgram), {
         'stats.episodesCount': increment(1),
       });
     else if (previousProgram !== nextProgram) {
       batch.update(
-        doc(firestore, 'HudHudDev/programs/programs', previousProgram!),
+        doc(firestore, `${firestoreRoot}/programs/programs`, previousProgram!),
         { 'stats.episodesCount': increment(-1) },
       );
-      batch.update(doc(firestore, 'HudHudDev/programs/programs', nextProgram), {
+      batch.update(doc(firestore, `${firestoreRoot}/programs/programs`, nextProgram), {
         'stats.episodesCount': increment(1),
       });
     }
@@ -1387,6 +1401,7 @@ async function deleteWithRelations(
   record: AdminRecord,
   allRecords: RecordsState,
 ) {
+  assertSelectedRoot(record.reference.path);
   if (
     key === 'stations' &&
     allRecords.programs.some((item) => item.data.stationId === record.id)
@@ -1414,7 +1429,7 @@ async function deleteWithRelations(
     batch.update(
       doc(
         firestore,
-        'HudHudDev/stations/stations',
+        `${firestoreRoot}/stations/stations`,
         String(record.data.stationId),
       ),
       { 'stats.programsCount': increment(-1) },
@@ -1423,7 +1438,7 @@ async function deleteWithRelations(
     batch.update(
       doc(
         firestore,
-        'HudHudDev/programs/programs',
+        `${firestoreRoot}/programs/programs`,
         String(record.data.programId),
       ),
       { 'stats.episodesCount': increment(-1) },
@@ -1432,7 +1447,7 @@ async function deleteWithRelations(
     batch.update(
       doc(
         firestore,
-        'HudHudDev/episodes/episodes',
+        `${firestoreRoot}/episodes/episodes`,
         String(record.data.episodeId),
       ),
       { 'stats.commentsCount': increment(-1) },

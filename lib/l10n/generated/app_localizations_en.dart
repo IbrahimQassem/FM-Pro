@@ -734,6 +734,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Too many requests or attempts. Wait before trying again.';
 
   @override
+  String get verificationSignInRequired =>
+      'Your email is verified. Sign out, then sign in again to continue.';
+
+  @override
   String get verificationDeliveryFailed =>
       'The verification email could not be sent. Try again later.';
 
@@ -919,8 +923,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Share Hudhud FM with your friends and radio lovers';
 
   @override
-  String get shareAppMessage =>
-      'Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: https://hudhud-fm-admin-sanadev.web.app/download';
+  String shareAppMessage(String url) {
+    return 'Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: $url';
+  }
 
   @override
   String get rateAppTitle => 'Rate App';

@@ -74,8 +74,8 @@ class NotificationsScreen extends ConsumerWidget {
               strings.notificationSessionNote,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
           ],
         ),
@@ -93,7 +93,8 @@ class NotificationsScreen extends ConsumerWidget {
       NotificationPermissionState.denied => strings.notificationsDenied,
       NotificationPermissionState.unavailable => strings.notificationSetupError,
       NotificationPermissionState.notDetermined ||
-      NotificationPermissionState.enabled => strings.notificationsDisabled,
+      NotificationPermissionState.enabled =>
+        strings.notificationsDisabled,
     };
   }
 }

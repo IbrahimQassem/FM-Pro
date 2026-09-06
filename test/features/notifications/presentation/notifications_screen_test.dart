@@ -18,7 +18,8 @@ class _FakeNotificationsRepo implements NotificationsRepository {
   Stream<AppNotification> get incomingNotifications => _controller.stream;
 
   @override
-  Future<NotificationPreference> initialize() async => const NotificationPreference(
+  Future<NotificationPreference> initialize() async =>
+      const NotificationPreference(
         isEnabled: false,
         permission: NotificationPermissionState.notDetermined,
       );
@@ -37,7 +38,8 @@ class _FakeNotificationsRepo implements NotificationsRepository {
 }
 
 void main() {
-  testWidgets("displays mascot feedback view when notifications list is empty", (
+  testWidgets("displays mascot feedback view when notifications list is empty",
+      (
     tester,
   ) async {
     final repo = _FakeNotificationsRepo();
@@ -65,7 +67,8 @@ void main() {
     expect(find.byType(MascotFeedbackView), findsOneWidget);
     expect(find.text("لا توجد إشعارات جديدة"), findsOneWidget);
     expect(
-      find.text("سنوافيك بآخر تنبيهات البث المباشر والبرامج الجديدة فور صدورها."),
+      find.text(
+          "سنوافيك بآخر تنبيهات البث المباشر والبرامج الجديدة فور صدورها."),
       findsOneWidget,
     );
   });

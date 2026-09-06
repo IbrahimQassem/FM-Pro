@@ -27,8 +27,8 @@ class StationContentState {
   bool get hasContent => programs.isNotEmpty || episodes.isNotEmpty;
 
   List<Episode> episodesFor(String programId) => List.unmodifiable(
-    episodes.where((episode) => episode.programId == programId),
-  );
+        episodes.where((episode) => episode.programId == programId),
+      );
 
   int resolvedWeekday(DateTime now) {
     if (selectedWeekday != 0) return selectedWeekday;

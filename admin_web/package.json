@@ -10,7 +10,8 @@
     "build": "vite build",
     "start": "vite preview",
     "lint": "oxlint",
-    "format": "oxfmt"
+    "format": "oxfmt",
+    "test": "node --experimental-strip-types --test test/*.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",

@@ -24,6 +24,18 @@ subprojects {
             }
         }
     }
+    if (project.name == "flutter_facebook_auth") {
+        plugins.withId("com.android.library") {
+            extensions.configure<com.android.build.api.variant.LibraryAndroidComponentsExtension> {
+                // 7.1.6 leaves Java at 11 while Flutter configures Kotlin at 17.
+                // Remove this scoped compatibility fix when the plugin aligns both targets.
+                finalizeDsl { extension ->
+                    extension.compileOptions.sourceCompatibility = JavaVersion.VERSION_17
+                    extension.compileOptions.targetCompatibility = JavaVersion.VERSION_17
+                }
+            }
+        }
+    }
 }
 
 

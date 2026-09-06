@@ -20,10 +20,12 @@ service cloud.firestore {
 
     // Unified single source of truth for verified accounts
     function isVerifiedUser() {
-      return isSignedIn() && (
+      return isSignedIn()
+        && !exists(/databases/$(database)/documents/HudHudDev/accountDeletionRequests/requests/$(request.auth.uid))
+        && !exists(/databases/$(database)/documents/HudHudOfficial/accountDeletionRequests/requests/$(request.auth.uid))
+        && (
         isAdmin() ||
-        request.auth.token.get('email_verified', false) == true ||
-        request.auth.token.firebase.sign_in_provider in ['google.com', 'apple.com', 'facebook.com']
+        request.auth.token.get('email_verified', false) == true
       );
     }
 
@@ -50,7 +52,9 @@ service cloud.firestore {
       let path = /databases/$(database)/documents/$(root)/users/users/$(uid);
       return isOwner(uid)
         && isVerifiedUser()
-        && (!exists(path) || (get(path).data.get('isActive', true) == true && (get(path).data.get('role', 'listener') == 'listener' || isAdmin())))
+        && exists(path)
+        && get(path).data.get('isActive', true) == true
+        && (get(path).data.get('role', 'listener') == 'listener' || isAdmin())
         && agreementId == 'ugc'
         && data.keys().hasOnly(['termsVersion', 'acceptedAt'])
         && data.keys().hasAll(['termsVersion', 'acceptedAt'])

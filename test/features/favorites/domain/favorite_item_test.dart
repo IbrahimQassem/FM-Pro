@@ -27,10 +27,14 @@ void main() {
     });
 
     test('parses FavoriteTargetType from string', () {
-      expect(FavoriteTargetType.fromString('station'), FavoriteTargetType.station);
-      expect(FavoriteTargetType.fromString('program'), FavoriteTargetType.program);
-      expect(FavoriteTargetType.fromString('episode'), FavoriteTargetType.episode);
-      expect(() => FavoriteTargetType.fromString('unknown'), throwsArgumentError);
+      expect(
+          FavoriteTargetType.fromString('station'), FavoriteTargetType.station);
+      expect(
+          FavoriteTargetType.fromString('program'), FavoriteTargetType.program);
+      expect(
+          FavoriteTargetType.fromString('episode'), FavoriteTargetType.episode);
+      expect(
+          () => FavoriteTargetType.fromString('unknown'), throwsArgumentError);
     });
   });
 }

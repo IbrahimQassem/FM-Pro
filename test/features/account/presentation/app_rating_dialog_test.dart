@@ -5,7 +5,9 @@ import "package:hudhud_fm/features/account/presentation/widgets/app_rating_dialo
 import "package:hudhud_fm/l10n/generated/app_localizations.dart";
 
 void main() {
-  testWidgets("shows rating dialog with 5 stars in a single row and submits rating", (tester) async {
+  testWidgets(
+      "shows rating dialog with 5 stars in a single row and submits rating",
+      (tester) async {
     int? submittedRating;
 
     await tester.pumpWidget(
@@ -54,7 +56,9 @@ void main() {
     expect(find.text("شكراً لدعمك وتقييمك الرائع!"), findsOneWidget);
   });
 
-  testWidgets("shows comment field automatically for 1-3 stars and allows in-app feedback", (tester) async {
+  testWidgets(
+      "shows comment field automatically for 1-3 stars and allows in-app feedback",
+      (tester) async {
     int? submittedRating;
 
     await tester.pumpWidget(
@@ -91,7 +95,8 @@ void main() {
     final feedbackInput = find.byKey(const Key("rating-feedback-input"));
     expect(feedbackInput, findsOneWidget);
 
-    await tester.enterText(feedbackInput, "يرجى إضافة المزيد من الإذاعات الرياضية");
+    await tester.enterText(
+        feedbackInput, "يرجى إضافة المزيد من الإذاعات الرياضية");
     await tester.pumpAndSettle();
 
     // Submit in-app feedback
@@ -102,7 +107,9 @@ void main() {
     expect(find.text("شكراً لدعمك وتقييمك الرائع!"), findsOneWidget);
   });
 
-  testWidgets("allows high rating users to toggle comment field and submit in-app feedback", (tester) async {
+  testWidgets(
+      "allows high rating users to toggle comment field and submit in-app feedback",
+      (tester) async {
     int? submittedRating;
 
     await tester.pumpWidget(

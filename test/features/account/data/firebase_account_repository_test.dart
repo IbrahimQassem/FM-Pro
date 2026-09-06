@@ -113,7 +113,9 @@ void main() {
   test('updates profile successfully', () async {
     final dataSource = _FakeAccountAuthDataSource();
     final repository = FirebaseAccountRepository(dataSource);
-    await repository.updateProfile(displayName: 'Updated Listener', photoUrl: 'https://example.com/pic.jpg');
+    await repository.updateProfile(
+        displayName: 'Updated Listener',
+        photoUrl: 'https://example.com/pic.jpg');
     expect(dataSource.updatedDisplayName, 'Updated Listener');
     expect(dataSource.updatedPhotoUrl, 'https://example.com/pic.jpg');
   });

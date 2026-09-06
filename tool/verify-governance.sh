@@ -14,6 +14,7 @@ docs/contracts/security-privacy-contract.md
 docs/contracts/product-ux-contract.md
 docs/contracts/playback-contract.md
 docs/contracts/quality-release-contract.md
+docs/contracts/release-readiness-contract.md
 docs/reference/legacy-app-capability-inventory.md
 .agents/README.md
 .agents/roles/delivery-lead.md

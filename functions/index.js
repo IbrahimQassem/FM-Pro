@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import {
@@ -12,7 +13,6 @@ import { HttpsError, onCall } from 'firebase-functions/v2/https';
 
 import {
   hasRecentAuthentication,
-  mergeEpisodeIds,
 } from './lib/account-deletion.js';
 import {
   createVerificationCode,
@@ -32,18 +32,16 @@ import {
 initializeApp();
 
 const emailVerificationConfig = defineJsonSecret('EMAIL_VERIFICATION_CONFIG');
-const verificationChallengePath = (uid) =>
-  `HudHudDev/emailVerificationChallenges/challenges/${uid}`;
-const verificationEmailLimitPath = (emailIdentifier) =>
-  `HudHudDev/emailVerificationRateLimits/emails/${emailIdentifier}`;
-const listenerProfilePath = (uid, root = 'HudHudDev') =>
-  `${root}/users/users/${uid}`;
-const verificationChallengesCollection = () => getFirestore().collection(
-  'HudHudDev/emailVerificationChallenges/challenges',
-);
-const verificationEmailLimitsCollection = () => getFirestore().collection(
-  'HudHudDev/emailVerificationRateLimits/emails',
-);
+const roots = ['HudHudDev', 'HudHudOfficial'];
+function requestRoot(request) {
+  const root = request.data?.root ?? 'HudHudDev';
+  if (!roots.includes(root)) throw new HttpsError('invalid-argument', 'Unknown environment.');
+  return root;
+}
+const verificationChallengePath = (uid, root) => `${root}/emailVerificationChallenges/challenges/${uid}`;
+const verificationEmailLimitPath = (id, root) => `${root}/emailVerificationRateLimits/emails/${id}`;
+const listenerProfilePath = (uid, root) => `${root}/users/users/${uid}`;
+const deletionJobPath = (uid, root) => `${root}/accountDeletionRequests/requests/${uid}`;
 
 export const requestEmailVerificationCode = onCall(
   {
@@ -53,6 +51,7 @@ export const requestEmailVerificationCode = onCall(
   },
   async (request) => {
     const uid = requireAuthenticatedUid(request);
+    const root = requestRoot(request);
     const auth = getAuth();
     const user = await auth.getUser(uid);
     if (user.emailVerified) {
@@ -84,9 +83,9 @@ export const requestEmailVerificationCode = onCall(
       pepper: config.otpPepper,
     });
     const firestore = getFirestore();
-    const challengeReference = firestore.doc(verificationChallengePath(uid));
+    const challengeReference = firestore.doc(verificationChallengePath(uid, root));
     const emailLimitReference = firestore.doc(
-      verificationEmailLimitPath(emailIdentifier),
+      verificationEmailLimitPath(emailIdentifier, root),
     );
     const now = Date.now();
     await firestore.runTransaction(async (transaction) => {
@@ -94,7 +93,13 @@ export const requestEmailVerificationCode = onCall(
         transaction.get(challengeReference),
         transaction.get(emailLimitReference),
       ]);
+      const sibling = await transaction.get(firestore.doc(verificationChallengePath(uid, roots.find((r) => r !== root))));
+      const jobs = await Promise.all(roots.map((r) => transaction.get(firestore.doc(deletionJobPath(uid, r)))));
+      if (jobs.some((job) => job.exists) || sibling.get('status') === 'consumed') throw new HttpsError('failed-precondition', 'An account operation is pending.');
       const previous = challenge.data();
+      if (previous?.status === 'consumed') {
+        throw new HttpsError('failed-precondition', 'Finish the pending verification before requesting a new code.');
+      }
       const resendAvailableAt = previous?.resendAvailableAt?.toMillis?.() ?? 0;
       if (resendAvailableAt > now) {
         throw new HttpsError(
@@ -111,6 +116,9 @@ export const requestEmailVerificationCode = onCall(
           'The verification email limit has been reached.',
         );
       }
+      const siblingEmailLimit = await transaction.get(firestore.doc(verificationEmailLimitPath(emailIdentifier, roots.find((r) => r !== root))));
+      const siblingWindowStart = siblingEmailLimit.get('sendWindowStartedAt')?.toMillis?.() ?? 0;
+      const siblingSendCount = now - siblingWindowStart < 60 * 60 * 1000 ? Number(siblingEmailLimit.get('sendCount') ?? 0) : 0;
       const previousEmailLimit = emailLimit.data();
       const emailWindowStart =
         previousEmailLimit?.sendWindowStartedAt?.toMillis?.() ?? 0;
@@ -118,7 +126,7 @@ export const requestEmailVerificationCode = onCall(
       const emailSendCount = sameEmailWindow
         ? Number(previousEmailLimit?.sendCount ?? 0)
         : 0;
-      if (emailSendCount >= verificationMaxSendsPerHour) {
+      if (emailSendCount + siblingSendCount >= verificationMaxSendsPerHour) {
         throw new HttpsError(
           'resource-exhausted',
           'The verification email limit has been reached.',
@@ -184,6 +192,7 @@ export const verifyEmailCode = onCall(
   },
   async (request) => {
     const uid = requireAuthenticatedUid(request);
+    const root = requestRoot(request);
     const code = typeof request.data?.code === 'string'
       ? request.data.code.trim()
       : '';
@@ -194,13 +203,22 @@ export const verifyEmailCode = onCall(
       );
     }
 
+    const currentUser = await getAuth().getUser(uid);
     const config = readEmailVerificationConfig();
     const firestore = getFirestore();
-    const challengeReference = firestore.doc(verificationChallengePath(uid));
+    const challengeReference = firestore.doc(verificationChallengePath(uid, root));
     const verification = await firestore.runTransaction(async (transaction) => {
       const snapshot = await transaction.get(challengeReference);
+      const sibling = await transaction.get(firestore.doc(verificationChallengePath(uid, roots.find((r) => r !== root))));
+      const jobs = await Promise.all(roots.map((r) => transaction.get(firestore.doc(deletionJobPath(uid, r)))));
+      if (jobs.some((job) => job.exists) || sibling.get('status') === 'consumed') throw new HttpsError('failed-precondition', 'An account operation is pending.');
       if (!snapshot.exists) return { status: 'missing' };
       const challenge = snapshot.data();
+      if (normalizeEmail(currentUser.email) && normalizeEmail(currentUser.email) !== challenge.email) return { status: 'missing' };
+      if (challenge.status === 'consumed') return { status: 'consumed' };
+      if (currentUser.emailVerified) return { status: 'missing' };
+      if (challenge.status === 'locked' || challenge.attemptsRemaining === 0) return { status: 'attempts-exhausted' };
+      if (challenge.status !== 'active' || !Number.isInteger(challenge.attemptsRemaining) || challenge.attemptsRemaining < 1) return { status: 'missing' };
       const expiresAt = challenge.expiresAt?.toMillis?.() ?? 0;
       if (expiresAt <= Date.now()) {
         transaction.update(challengeReference, {
@@ -236,6 +254,8 @@ export const verifyEmailCode = onCall(
       }
       transaction.update(challengeReference, {
         status: 'consumed',
+        operationId: randomUUID(),
+        leaseUntil: Timestamp.fromMillis(0),
         consumedAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       });
@@ -249,17 +269,7 @@ export const verifyEmailCode = onCall(
     if (verification.status !== 'verified') {
       throw verificationError(verification.status);
     }
-    const auth = getAuth();
-    await assertEmailIsAvailable(auth, verification.email, uid, {
-      revealConflict: true,
-    });
-    const user = await auth.updateUser(uid, {
-      email: verification.email,
-      emailVerified: true,
-      displayName: verification.displayName,
-    });
-    await ensureListenerProfile(firestore, user);
-    await challengeReference.delete();
+    await completePendingVerification(firestore, uid, root);
     logger.info('Email verification completed.');
     return { verified: true };
   },
@@ -269,22 +279,12 @@ export const ensureAccountProfile = onCall(
   { timeoutSeconds: 30, maxInstances: 20 },
   async (request) => {
     const uid = requireAuthenticatedUid(request);
-    const auth = getAuth();
-    let user = await auth.getUser(uid);
-    const isSocial = user.providerData?.some((p) =>
-      ['google.com', 'apple.com', 'facebook.com'].includes(p.providerId),
-    );
-    if (!user.emailVerified) {
-      if (isSocial) {
-        user = await auth.updateUser(uid, { emailVerified: true });
-      } else {
-        throw new HttpsError(
-          'failed-precondition',
-          'Email verification or social sign-in is required.',
-        );
-      }
+    const root = requestRoot(request);
+    await completePendingVerification(getFirestore(), uid, root);
+    const user = await getAuth().getUser(uid);
+    if (!user.emailVerified || !normalizeEmail(user.email)) {
+      throw new HttpsError('failed-precondition', 'Email verification is required.');
     }
-    const root = request.data?.root === 'HudHudOfficial' ? 'HudHudOfficial' : 'HudHudDev';
     await ensureListenerProfile(getFirestore(), user, root);
     return { ready: true };
   },
@@ -304,55 +304,77 @@ export const cleanupUnverifiedAccounts = onSchedule(
     const cutoff = Timestamp.fromMillis(
       now - unverifiedAccountRetentionDays * 24 * 60 * 60 * 1000,
     );
-    const [challenges, expiredEmailLimits] = await Promise.all([
-      verificationChallengesCollection()
-        .where('createdAt', '<=', cutoff)
-        .limit(500)
-        .get(),
-      verificationEmailLimitsCollection()
-        .where('expiresAt', '<=', Timestamp.fromMillis(now))
-        .limit(500)
-        .get(),
-    ]);
     let deletedCount = 0;
     let retainedCount = 0;
-    for (const challenge of challenges.docs) {
-      const uid = challenge.id;
-      try {
-        const [user, profile] = await Promise.all([
-          auth.getUser(uid),
-          firestore.doc(listenerProfilePath(uid)).get(),
-        ]);
-        if (user.emailVerified || profile.exists) {
-          await challenge.ref.delete();
-          retainedCount += 1;
-          continue;
+    let scannedCount = 0;
+    let deletedEmailLimitCount = 0;
+    for (const root of roots) {
+      const challenges = await firestore.collection(`${root}/emailVerificationChallenges/challenges`).where('createdAt', '<=', cutoff).limit(500).get();
+      scannedCount += challenges.size;
+      for (const challenge of challenges.docs) {
+        try {
+          const uid = challenge.id;
+          const user = await auth.getUser(uid);
+          const profiles = await Promise.all(roots.map((r) => firestore.doc(listenerProfilePath(uid, r)).get()));
+          const pending = await Promise.all(roots.map((r) => firestore.doc(verificationChallengePath(uid, r)).get()));
+          const jobs = await Promise.all(roots.map((r) => firestore.doc(deletionJobPath(uid, r)).get()));
+          if (pending.some((item) => item.get('status') === 'consumed') || jobs.some((item) => item.exists && item.get('source') !== 'retention')) {
+            retainedCount += 1;
+            continue;
+          }
+          if (user.emailVerified || profiles.some((item) => item.exists)) {
+            await releaseRetentionBarriers(firestore, uid);
+            await challenge.ref.delete();
+            retainedCount += 1;
+            continue;
+          }
+          // A newer challenge in either root still has an active retention period.
+          if (pending.some((item) => item.exists && (item.get('createdAt')?.toMillis?.() ?? now) > cutoff.toMillis())) continue;
+          // Recheck and reserve deletion atomically against profile/OTP callables.
+          const reserved = await firestore.runTransaction(async (transaction) => {
+            const currentProfiles = await Promise.all(roots.map((r) => transaction.get(firestore.doc(listenerProfilePath(uid, r)))));
+            const currentChallenges = await Promise.all(roots.map((r) => transaction.get(firestore.doc(verificationChallengePath(uid, r)))));
+            const currentJobs = await Promise.all(roots.map((r) => transaction.get(firestore.doc(deletionJobPath(uid, r)))));
+            if (currentProfiles.some((item) => item.exists) || currentJobs.some((item) => item.exists && item.get('source') !== 'retention') || currentChallenges.some((item) => item.exists && (item.get('status') === 'consumed' || (item.get('createdAt')?.toMillis?.() ?? now) > cutoff.toMillis()))) return false;
+            for (const r of roots) transaction.set(firestore.doc(deletionJobPath(uid, r)), { status: 'running', source: 'retention', updatedAt: FieldValue.serverTimestamp() });
+            return true;
+          });
+          if (!reserved) continue;
+          if ((await auth.getUser(uid)).emailVerified) {
+            await releaseRetentionBarriers(firestore, uid);
+            retainedCount += 1;
+            continue;
+          }
+          await deleteAccount(uid, 'retention');
+          deletedCount += 1;
+        } catch (error) {
+          if (safeErrorCode(error) === 'auth/user-not-found') await challenge.ref.delete();
+          else logger.error('Unverified account cleanup item failed.', { errorCode: safeErrorCode(error) });
         }
-        await auth.deleteUser(uid);
-        await challenge.ref.delete();
-        deletedCount += 1;
-      } catch (error) {
-        if (safeErrorCode(error) === 'auth/user-not-found') {
-          await challenge.ref.delete();
-          continue;
+      }
+      const limits = await firestore.collection(`${root}/emailVerificationRateLimits/emails`).where('expiresAt', '<=', Timestamp.fromMillis(now)).limit(500).get();
+      await deleteDocuments(firestore, limits.docs);
+      deletedEmailLimitCount += limits.size;
+      const expiredJobs = await firestore.collection(`${root}/accountDeletionRequests/requests`).where('expiresAt', '<=', Timestamp.fromMillis(now)).limit(500).get();
+      for (const job of expiredJobs.docs) {
+        if (job.get('status') !== 'completed') continue;
+        try { await auth.getUser(job.id); }
+        catch (error) {
+          if (safeErrorCode(error) === 'auth/user-not-found') {
+            await firestore.runTransaction(async (transaction) => {
+              const current = await transaction.get(job.ref);
+              if (current.get('status') === 'completed' && (current.get('expiresAt')?.toMillis?.() ?? Infinity) <= now) transaction.delete(job.ref);
+            });
+          }
+          else logger.error('Deletion barrier cleanup failed.', { errorCode: safeErrorCode(error) });
         }
-        logger.error('Unverified account cleanup item failed.', {
-          errorCode: safeErrorCode(error),
-        });
       }
-    }
-    if (!expiredEmailLimits.empty) {
-      const batch = firestore.batch();
-      for (const emailLimit of expiredEmailLimits.docs) {
-        batch.delete(emailLimit.ref);
-      }
-      await batch.commit();
     }
     logger.info('Unverified account cleanup completed.', {
-      scannedCount: challenges.size,
+      scannedCount,
       deletedCount,
       retainedCount,
-      deletedEmailLimitCount: expiredEmailLimits.size,
+      deletedEmailLimitCount,
     });
   },
 );
@@ -495,10 +517,12 @@ function verificationError(status) {
   }
 }
 
-async function ensureListenerProfile(firestore, user, root = 'HudHudDev') {
+async function ensureListenerProfile(firestore, user, root) {
   const reference = firestore.doc(listenerProfilePath(user.uid, root));
   await firestore.runTransaction(async (transaction) => {
     const profile = await transaction.get(reference);
+    const jobs = await Promise.all(roots.map((r) => transaction.get(firestore.doc(deletionJobPath(user.uid, r)))));
+    if (jobs.some((job) => job.exists)) throw new HttpsError('failed-precondition', 'Account deletion is in progress.');
     if (profile.exists) return;
     const email = normalizeEmail(user.email);
     transaction.create(reference, {
@@ -513,68 +537,57 @@ async function ensureListenerProfile(firestore, user, root = 'HudHudDev') {
   });
 }
 
-async function deleteAccount(uid) {
+function canonicalRelatedDocument(document, collection) {
+  const parts = document.ref.path.split('/');
+  if (!roots.includes(parts[0])) return false;
+  if (collection === 'comments') return parts.length === 6 && parts[1] === 'episodes' && parts[2] === 'episodes' && parts[4] === 'comments';
+  if (parts[1] !== 'users' || parts[2] !== 'users') return false;
+  if (collection === 'blockedUsers') return parts.length === 6 && parts[4] === 'blockedUsers';
+  return parts.length === 8 && ['commentReportEpisodes', 'userReportTargets'].includes(parts[4]) && parts[6] === 'moderationReports';
+}
+
+async function releaseRetentionBarriers(firestore, uid) {
+  await firestore.runTransaction(async (transaction) => {
+    const jobs = await Promise.all(roots.map((root) => transaction.get(firestore.doc(deletionJobPath(uid, root)))));
+    for (const job of jobs) if (job.get('source') === 'retention') transaction.delete(job.ref);
+  });
+}
+
+async function deleteAccount(uid, source = 'user') {
   const firestore = getFirestore();
-  const userReference = firestore.doc(`HudHudDev/users/users/${uid}`);
-  const jobReference = firestore.doc(
-    `HudHudDev/accountDeletionRequests/requests/${uid}`,
-  );
-  const [job, profile] = await Promise.all([
-    jobReference.get(),
-    userReference.get(),
-  ]);
-  if (profile.exists) {
-    await userReference.update({
-      isActive: false,
-      updatedAt: FieldValue.serverTimestamp(),
+  // Establish both deletion barriers before removing any profile or comment.
+  await firestore.runTransaction(async (transaction) => {
+    const profiles = await Promise.all(roots.map((root) => transaction.get(firestore.doc(listenerProfilePath(uid, root)))));
+    for (const root of roots) transaction.set(firestore.doc(deletionJobPath(uid, root)), { status: 'running', source, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    for (const profile of profiles) if (profile.exists) transaction.update(profile.ref, { isActive: false, updatedAt: FieldValue.serverTimestamp() });
+  });
+  for (const root of roots) {
+    const jobReference = firestore.doc(deletionJobPath(uid, root));
+    const comments = (await firestore.collectionGroup('comments').where('authorId', '==', uid).get()).docs.filter((doc) => canonicalRelatedDocument(doc, 'comments') && doc.ref.path.startsWith(`${root}/`));
+    const episodePaths = await firestore.runTransaction(async (transaction) => {
+      const job = await transaction.get(jobReference);
+      const saved = job.get('affectedEpisodePaths') ?? [];
+      const legacy = (job.get('affectedEpisodeIds') ?? []).filter((id) => typeof id === 'string' && id && !id.includes('/')).map((id) => `${root}/episodes/episodes/${id}`);
+      const paths = [...new Set([...saved, ...legacy, ...comments.map((doc) => doc.ref.parent.parent.path)])].filter((path) => typeof path === 'string' && path.startsWith(`${root}/episodes/episodes/`) && path.split('/').length === 4);
+      transaction.set(jobReference, { affectedEpisodePaths: paths }, { merge: true });
+      return paths;
     });
+    await deleteDocuments(firestore, comments);
+    await reconcileCommentCounts(firestore, episodePaths);
+    for (const [collection, field] of [['moderationReports', 'reportedAuthorId'], ['blockedUsers', 'blockedUserId']]) {
+      const documents = (await firestore.collectionGroup(collection).where(field, '==', uid).get()).docs.filter((doc) => canonicalRelatedDocument(doc, collection) && doc.ref.path.startsWith(`${root}/`));
+      await deleteDocuments(firestore, documents);
+    }
+    await firestore.recursiveDelete(firestore.doc(listenerProfilePath(uid, root)));
+    await firestore.doc(verificationChallengePath(uid, root)).delete();
   }
-  const comments = await firestore
-    .collectionGroup('comments')
-    .where('authorId', '==', uid)
-    .get();
-  const episodeIds = mergeEpisodeIds(
-    job.exists ? job.get('affectedEpisodeIds') : [],
-    comments.docs,
-  );
-  await jobReference.set(
-    {
-      status: 'running',
-      affectedEpisodeIds: episodeIds,
-      createdAt: job.exists
-        ? job.get('createdAt')
-        : FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
-    },
-    { merge: true },
-  );
-
-  await deleteDocuments(firestore, comments.docs);
-  await reconcileCommentCounts(firestore, episodeIds);
-
-  const [reportsAboutUser, blocksOfUser] = await Promise.all([
-    firestore
-      .collectionGroup('moderationReports')
-      .where('reportedAuthorId', '==', uid)
-      .get(),
-    firestore
-      .collectionGroup('blockedUsers')
-      .where('blockedUserId', '==', uid)
-      .get(),
-  ]);
-  await deleteDocuments(firestore, [
-    ...reportsAboutUser.docs,
-    ...blocksOfUser.docs,
-  ]);
-  await firestore.recursiveDelete(userReference);
-  await firestore.doc(verificationChallengePath(uid)).delete();
-  await jobReference.delete();
-
-  try {
-    await getAuth().deleteUser(uid);
-  } catch (error) {
-    if (safeErrorCode(error) !== 'auth/user-not-found') throw error;
-  }
+  try { await getAuth().deleteUser(uid); }
+  catch (error) { if (safeErrorCode(error) !== 'auth/user-not-found') throw error; }
+  // Keep a minimal barrier beyond cached-token and in-flight callable lifetimes.
+  for (const root of roots) await firestore.doc(deletionJobPath(uid, root)).set({
+    status: 'completed',
+    expiresAt: Timestamp.fromMillis(Date.now() + 24 * 60 * 60 * 1000),
+  });
 }
 
 async function deleteDocuments(firestore, documents) {
@@ -584,11 +597,9 @@ async function deleteDocuments(firestore, documents) {
   await writer.close();
 }
 
-async function reconcileCommentCounts(firestore, episodeIds) {
-  for (const episodeId of episodeIds) {
-    const episode = firestore.doc(
-      `HudHudDev/episodes/episodes/${episodeId}`,
-    );
+async function reconcileCommentCounts(firestore, episodePaths) {
+  for (const path of episodePaths) {
+    const episode = firestore.doc(path);
     const count = await episode
       .collection('comments')
       .where('status', '==', 'published')
@@ -609,3 +620,78 @@ function safeErrorCode(error) {
     ? error.code
     : 'unknown';
 }
+
+async function completePendingVerification(firestore, uid, root) {
+  const reference = firestore.doc(verificationChallengePath(uid, root));
+  const owner = randomUUID();
+  const reservation = await firestore.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(reference);
+    if (!snapshot.exists || snapshot.get('status') !== 'consumed') return null;
+    const jobs = await Promise.all(roots.map((r) => transaction.get(firestore.doc(deletionJobPath(uid, r)))));
+    if (jobs.some((job) => job.exists)) throw new HttpsError('failed-precondition', 'Account deletion is in progress.');
+    const data = snapshot.data();
+    if ((data.leaseUntil?.toMillis?.() ?? 0) > Date.now()) throw new HttpsError('aborted', 'Verification is already completing. Retry shortly.');
+    if (!normalizeEmail(data.email) || typeof data.operationId !== 'string') throw new HttpsError('failed-precondition', 'The pending verification is invalid.');
+    transaction.update(reference, { leaseOwner: owner, leaseUntil: Timestamp.fromMillis(Date.now() + 60_000) });
+    return data;
+  });
+  if (!reservation) return;
+  try {
+    const auth = getAuth();
+    await assertEmailIsAvailable(auth, reservation.email, uid, { revealConflict: true });
+    const current = await auth.getUser(uid);
+    if (normalizeEmail(current.email) && normalizeEmail(current.email) !== reservation.email) throw new HttpsError('failed-precondition', 'The account email changed.');
+    const user = current.emailVerified && normalizeEmail(current.email) === reservation.email
+      ? current
+      : await auth.updateUser(uid, { ...(normalizeEmail(current.email) !== reservation.email ? { email: reservation.email } : {}), emailVerified: true, displayName: reservation.displayName });
+    await ensureListenerProfile(firestore, user, root);
+    await firestore.runTransaction(async (transaction) => {
+      const current = await transaction.get(reference);
+      if (current.get('operationId') === reservation.operationId && current.get('leaseOwner') === owner) transaction.delete(reference);
+    });
+  } catch (error) {
+    await firestore.runTransaction(async (transaction) => {
+      const current = await transaction.get(reference);
+      if (current.get('operationId') === reservation.operationId && current.get('leaseOwner') === owner) transaction.update(reference, { leaseUntil: Timestamp.fromMillis(0) });
+    });
+    throw error;
+  }
+}
+
+const bundledAvatars = new Set([
+  'assets/images/mascot/mascot_avatar_default.webp',
+  'assets/images/mascot/mascot_onboarding.webp',
+  'assets/images/mascot/mascot_empty_favorites.webp',
+  'assets/images/mascot/mascot_empty_comments.webp',
+]);
+function validAvatar(value) {
+  if (typeof value !== 'string' || value.length > 2048) return false;
+  if (value === '' || bundledAvatars.has(value)) return true;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && !!url.hostname && !url.username && !url.password;
+  } catch { return false; }
+}
+export const updateAccountProfile = onCall(
+  { timeoutSeconds: 30, maxInstances: 20 },
+  async (request) => {
+    const uid = requireAuthenticatedUid(request);
+    const root = requestRoot(request);
+    const user = await getAuth().getUser(uid);
+    if (!user.emailVerified || !normalizeEmail(user.email)) throw new HttpsError('failed-precondition', 'Email verification is required.');
+    const displayName = typeof request.data?.displayName === 'string' ? request.data.displayName.trim() : '';
+    if (displayName.length < 2 || displayName.length > 120) throw new HttpsError('invalid-argument', 'Enter a valid display name.');
+    const hasAvatar = Object.hasOwn(request.data ?? {}, 'avatarUrl');
+    const avatarUrl = request.data?.avatarUrl ?? '';
+    if (hasAvatar && !validAvatar(avatarUrl)) throw new HttpsError('invalid-argument', 'Choose a supported avatar.');
+    const firestore = getFirestore();
+    const reference = firestore.doc(listenerProfilePath(uid, root));
+    await firestore.runTransaction(async (transaction) => {
+      const profile = await transaction.get(reference);
+      const jobs = await Promise.all(roots.map((r) => transaction.get(firestore.doc(deletionJobPath(uid, r)))));
+      if (jobs.some((job) => job.exists) || !profile.exists || profile.get('isActive') !== true || profile.get('role') !== 'listener') throw new HttpsError('failed-precondition', 'An active listener profile is required.');
+      transaction.update(reference, { displayName, ...(hasAvatar ? { avatarUrl } : {}), updatedAt: FieldValue.serverTimestamp() });
+    });
+    return { updated: true };
+  },
+);

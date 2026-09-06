@@ -13,10 +13,16 @@
 - [البرامج والحلقات والجدول](contracts/station-content-contract.md)
 - [الحسابات والتعليقات والإشعارات](contracts/account-comments-notifications-contract.md)
 - [الجودة والإصدار](contracts/quality-release-contract.md)
+- [جاهزية الإطلاق والإنتاج](contracts/release-readiness-contract.md)
 - [هوية الماركة وشخصية الماسكوت](contracts/mascot-brand-identity-contract.md)
 
 ## التشغيل
 
+- [تسليم مرشح الإصدار](release/release-candidate-handoff.md): إعداد الحزم والنشر
+  المتوافق وقائمة الأدلة الخارجية المتبقية قبل الاعتماد.
+
+- [مراجعة خطة جاهزية المتاجر — 2026-09-06](release/store-release-readiness-review-2026-09-06.md):
+  نتائج فحص الكود والاختبارات، موانع الإصدار وخطة إغلاقها؛ ليست اعتمادًا للنشر.
 - `README.md`: إعداد المطور والأوامر المختصرة.
 - [دليل تشغيل إشراف UGC](operations/ugc-moderation-runbook.md): المهل، القرارات،
   التصعيد والمراجعة الدورية.
@@ -31,6 +37,10 @@
 
 ## مراجع التخطيط
 
+- [قرار حدود بيئة الإصدار والحساب](decisions/0002-store-release-boundaries.md):
+  هوية Auth المشتركة، حذف الجذرين، التحقق الموثوق ونطاق صور الحساب والمشاركة.
+- [خطة تنفيذ الإصدار وتوزيع الوكلاء](release/store-release-execution-plan.md):
+  مهام إغلاق موانع المتاجر، الأدوار والاعتماديات وملكية الملفات وسجل أدلة الإنجاز.
 - [قرار توثيق البريد برمز رقمي](decisions/0001-email-verification-code.md): اختيار
   الرمز وضوابط الأمان والاحتفاظ والرجوع.
 - [خارطة طريق مقترحات التطوير](roadmap/development-proposals.md):

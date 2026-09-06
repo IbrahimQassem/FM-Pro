@@ -56,7 +56,9 @@ class UserHeader extends StatelessWidget {
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: isOffline ? colors.error : context.appTheme.statusOnline,
+                      color: isOffline
+                          ? colors.error
+                          : context.appTheme.statusOnline,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -67,8 +69,8 @@ class UserHeader extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
+                            color: colors.onSurfaceVariant,
+                          ),
                     ),
                   ),
                 ],

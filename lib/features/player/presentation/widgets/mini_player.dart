@@ -52,24 +52,24 @@ class MiniPlayer extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
+                              fontWeight: FontWeight.w800,
+                            ),
                       ),
                       Text(
                         hasFailed
                             ? strings.playbackErrorShort
                             : isLoading
-                            ? strings.connecting
-                            : isPlaying
-                            ? strings.nowPlaying
-                            : strings.playbackPaused,
+                                ? strings.connecting
+                                : isPlaying
+                                    ? strings.nowPlaying
+                                    : strings.playbackPaused,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: hasFailed
-                              ? colors.error
-                              : colors.onSurfaceVariant,
-                        ),
+                              color: hasFailed
+                                  ? colors.error
+                                  : colors.onSurfaceVariant,
+                            ),
                       ),
                     ],
                   ),
@@ -88,14 +88,14 @@ class MiniPlayer extends StatelessWidget {
                     tooltip: hasFailed
                         ? strings.retry
                         : isPlaying
-                        ? strings.pause
-                        : strings.resume,
+                            ? strings.pause
+                            : strings.resume,
                     icon: Icon(
                       hasFailed
                           ? Icons.refresh_rounded
                           : isPlaying
-                          ? Icons.pause_rounded
-                          : Icons.play_arrow_rounded,
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_rounded,
                     ),
                   ),
                 IconButton(

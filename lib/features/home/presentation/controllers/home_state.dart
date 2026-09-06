@@ -63,8 +63,7 @@ class HomeState {
     }
     final filtersByCode = <String, CityFilter>{};
     for (final location in referenceLocations) {
-      final isVisible =
-          location.isActive &&
+      final isVisible = location.isActive &&
           location.countryCode.toUpperCase() == defaultCountryCode &&
           stationCityCodes.contains(location.cityCode);
       if (isVisible) {
@@ -88,30 +87,27 @@ class HomeState {
 
   List<Station> get visibleStations {
     final normalizedQuery = searchQuery.trim().toLowerCase();
-    return stations
-        .where((station) {
-          if (station.countryCode.toUpperCase() != defaultCountryCode) {
-            return false;
-          }
-          if (isFavoritesOnly && !favoriteStationIds.contains(station.id)) {
-            return false;
-          }
-          if (selectedCityCode.isNotEmpty &&
-              station.cityCode != selectedCityCode) {
-            return false;
-          }
-          if (normalizedQuery.isEmpty) return true;
-          return station.name.toLowerCase().contains(normalizedQuery) ||
-              station.nameEn.toLowerCase().contains(normalizedQuery) ||
-              station.cityNameAr.toLowerCase().contains(normalizedQuery) ||
-              station.frequency.toLowerCase().contains(normalizedQuery);
-        })
-        .toList(growable: false);
+    return stations.where((station) {
+      if (station.countryCode.toUpperCase() != defaultCountryCode) {
+        return false;
+      }
+      if (isFavoritesOnly && !favoriteStationIds.contains(station.id)) {
+        return false;
+      }
+      if (selectedCityCode.isNotEmpty && station.cityCode != selectedCityCode) {
+        return false;
+      }
+      if (normalizedQuery.isEmpty) return true;
+      return station.name.toLowerCase().contains(normalizedQuery) ||
+          station.nameEn.toLowerCase().contains(normalizedQuery) ||
+          station.cityNameAr.toLowerCase().contains(normalizedQuery) ||
+          station.frequency.toLowerCase().contains(normalizedQuery);
+    }).toList(growable: false);
   }
 
   bool get hasStations => stations.any(
-    (station) => station.countryCode.toUpperCase() == defaultCountryCode,
-  );
+        (station) => station.countryCode.toUpperCase() == defaultCountryCode,
+      );
 
   HomeState copyWith({
     AppUser? user,

@@ -16,7 +16,8 @@ class UgcGuidelinesDialog extends StatelessWidget {
   }) {
     return showDialog<bool>(
       context: context,
-      builder: (context) => UgcGuidelinesDialog(allowAcceptance: allowAcceptance),
+      builder: (context) =>
+          UgcGuidelinesDialog(allowAcceptance: allowAcceptance),
     );
   }
 

@@ -9,7 +9,7 @@ import 'comments_state.dart';
 
 class CommentsController extends StateNotifier<CommentsState> {
   CommentsController(this.episodeId, this._repository)
-    : super(const CommentsState()) {
+      : super(const CommentsState()) {
     _subscribe();
     unawaited(refreshTermsAcceptance());
     unawaited(refreshBlockedAuthors());
@@ -22,25 +22,23 @@ class CommentsController extends StateNotifier<CommentsState> {
   int _visibilityRequestGeneration = 0;
 
   void _subscribe() {
-    _subscription = _repository
-        .watchComments(episodeId)
-        .listen(
-          (comments) {
-            if (mounted) {
-              _allComments = comments;
-              state = state.copyWith(
-                comments: _visibleComments(state.blockedAuthorIds),
-                isLoading: false,
-                loadFailed: false,
-              );
-            }
-          },
-          onError: (_) {
-            if (mounted) {
-              state = state.copyWith(isLoading: false, loadFailed: true);
-            }
-          },
-        );
+    _subscription = _repository.watchComments(episodeId).listen(
+      (comments) {
+        if (mounted) {
+          _allComments = comments;
+          state = state.copyWith(
+            comments: _visibleComments(state.blockedAuthorIds),
+            isLoading: false,
+            loadFailed: false,
+          );
+        }
+      },
+      onError: (_) {
+        if (mounted) {
+          state = state.copyWith(isLoading: false, loadFailed: true);
+        }
+      },
+    );
   }
 
   Future<void> refreshBlockedAuthors() async {
@@ -106,7 +104,8 @@ class CommentsController extends StateNotifier<CommentsState> {
       }
       return true;
     } on Object catch (error, stackTrace) {
-      debugPrint('CommentsController.acceptCurrentTerms error: $error\n$stackTrace');
+      debugPrint(
+          'CommentsController.acceptCurrentTerms error: $error\n$stackTrace');
       if (mounted) {
         state = state.copyWith(
           isAcceptingTerms: false,
