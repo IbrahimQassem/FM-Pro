@@ -166,54 +166,61 @@ class AccountScreen extends ConsumerWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              MascotAvatar(
-                imageUrl: user.photoUrl,
-                radius: 28,
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+              // ── Avatar + name/email row ──────────────────────────────
+              Row(
+                children: [
+                  MascotAvatar(
+                    imageUrl: user.photoUrl,
+                    radius: 28,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Flexible(
-                          child: Text(
-                            user.displayName,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w900,
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                user.displayName,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                            const SizedBox(width: 6),
+                            const Icon(
+                              Icons.verified_rounded,
+                              size: 16,
+                              color: Colors.green,
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 6),
-                        const Icon(
-                          Icons.verified_rounded,
-                          size: 16,
-                          color: Colors.green,
+                        const SizedBox(height: 2),
+                        Text(
+                          user.email.isNotEmpty
+                              ? user.email
+                              : strings.verifiedAccountBadge,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      user.email.isNotEmpty
-                          ? user.email
-                          : strings.verifiedAccountBadge,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
+              // ── Manage account button ────────────────────────────────
+              const SizedBox(height: 12),
               FilledButton.tonal(
-                key: const Key("open-manage-account-button"),
+                key: const Key('open-manage-account-button'),
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (_) => const ManageAccountScreen(),
