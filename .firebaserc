@@ -7,6 +7,9 @@
       "hosting": {
         "hudhud_admin": [
           "hudhud-fm-admin-sanadev"
+        ],
+        "hudhud_public": [
+          "sanadev-fm"
         ]
       }
     }
