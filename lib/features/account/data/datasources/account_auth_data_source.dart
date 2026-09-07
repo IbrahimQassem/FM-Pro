@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -49,6 +50,7 @@ abstract interface class AccountAuthDataSource {
   Future<void> updateProfile({
     required String displayName,
     String? photoUrl,
+    Uint8List? photoBytes,
   });
 
   Future<void> requestEmailVerificationCode({String? email});
@@ -125,6 +127,7 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
   Future<void> updateProfile({
     required String displayName,
     String? photoUrl,
+    Uint8List? photoBytes,
   }) async {
     final user = _auth.currentUser;
     if (user == null) throw const AccountDataException('user-unavailable');
@@ -140,12 +143,19 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
         ProfileAvatar.sanitize(photoUrl).isEmpty) {
       throw const AccountDataException('invalid-profile');
     }
+    if (photoBytes != null &&
+        (photoBytes.isEmpty || photoBytes.length > 1024 * 1024)) {
+      throw const AccountDataException('invalid-profile');
+    }
     final result = await _functions
         .httpsCallable('updateAccountProfile')
         .call<Map<String, dynamic>>({
       'root': FirestorePaths.root,
       'displayName': trimmedName,
-      if (photoUrl != null) 'avatarUrl': photoUrl,
+      if (photoBytes != null)
+        'imageBase64': base64Encode(photoBytes)
+      else if (photoUrl != null)
+        'avatarUrl': photoUrl,
     });
     if (result.data['updated'] != true) {
       throw const AccountDataException('profile-unavailable');

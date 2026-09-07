@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hudhud_fm/features/account/data/datasources/account_auth_data_source.dart';
@@ -192,6 +193,7 @@ class _FakeAccountAuthDataSource implements AccountAuthDataSource {
   Future<void> updateProfile({
     required String displayName,
     String? photoUrl,
+    Uint8List? photoBytes,
   }) async {
     _throwIfNeeded();
     updatedDisplayName = displayName;

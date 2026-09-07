@@ -1,3 +1,5 @@
+import '../features/account/domain/services/profile_image_picker.dart';
+import '../features/account/data/datasources/device_profile_image_picker.dart';
 import "../features/onboarding/data/repositories/onboarding_repository.dart";
 import "../features/onboarding/presentation/controllers/onboarding_controller.dart";
 import "../features/onboarding/presentation/controllers/onboarding_state.dart";
@@ -83,6 +85,9 @@ final accountAuthDataSourceProvider = Provider<AccountAuthDataSource>((ref) {
     FacebookAuth.instance,
   );
 });
+
+final profileImagePickerProvider =
+    Provider<ProfileImagePicker>((ref) => DeviceProfileImagePicker());
 
 final accountRepositoryProvider = Provider<AccountRepository>((ref) {
   return FirebaseAccountRepository(ref.watch(accountAuthDataSourceProvider));

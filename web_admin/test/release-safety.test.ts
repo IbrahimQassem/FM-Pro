@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   resolveFirestoreRoot,
+  resolveAdminEmulators,
   belongsToRoot,
 } from '../lib/firestore-environment.ts';
 import { completeAccountDeletion } from '../lib/account-deletion.ts';
@@ -80,4 +81,36 @@ void test('successful remote deletion remains successful when local sign-out fai
     },
   });
   assert.deepEqual(steps, ['revoke', 'delete', 'signOut']);
+});
+
+void test('emulator mode cannot target production or enter a build artifact', () => {
+  assert.equal(
+    resolveAdminEmulators(
+      true,
+      'serve',
+      'development',
+      'demo-preview',
+      'HudHudDev',
+    ),
+    true,
+  );
+  for (const args of [
+    ['build', 'development', 'demo-preview', 'HudHudDev'],
+    ['serve', 'production', 'demo-preview', 'HudHudDev'],
+    ['serve', 'development', 'live-project', 'HudHudDev'],
+    ['serve', 'development', 'demo-preview', 'HudHudOfficial'],
+  ] as const)
+    assert.throws(() =>
+      resolveAdminEmulators(true, args[0], args[1], args[2], args[3]),
+    );
+  assert.equal(
+    resolveAdminEmulators(
+      false,
+      'build',
+      'production',
+      'live-project',
+      'HudHudOfficial',
+    ),
+    false,
+  );
 });

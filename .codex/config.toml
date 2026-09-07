@@ -1,0 +1,12 @@
+# Project-scoped tools; inherit the user's model, approval and sandbox settings.
+# Open Codex in hudhud_fm (or a child directory) and trust the project layer.
+[mcp_servers.hudhud_openai_docs]
+url = "https://developers.openai.com/mcp"
+startup_timeout_sec = 30
+tool_timeout_sec = 60
+
+[mcp_servers.hudhud_dart]
+command = "dart"
+args = ["mcp-server"]
+startup_timeout_sec = 60
+tool_timeout_sec = 120

@@ -199,6 +199,7 @@ describe("listener account profiles", () => {
 
 describe("episode comments", () => {
   beforeEach(async () => {
+    await seed(episodePath(), { programId: "program-1" });
     await seed(userPath("user-a"), {
       displayName: "Listener",
       username: "",
@@ -206,6 +207,14 @@ describe("episode comments", () => {
       isActive: true,
       role: "listener",
     });
+  });
+
+  test("comments require an existing episode without an active deletion fence", async () => {
+    await seed(ugcAgreementPath("user-a"), validUgcAgreement());
+    await seed(episodePath(), { programId: "program-1", adminDeletionToken: "test-deletion" });
+    await assertFails(setDoc(doc(userDb("user-a"), commentPath()), validComment("user-a")));
+    await testEnv.withSecurityRulesDisabled(async context => deleteDoc(doc(context.firestore(), episodePath())));
+    await assertFails(setDoc(doc(userDb("user-a"), commentPath()), validComment("user-a")));
   });
 
   test("comments are public to read and authenticated listeners can add", async () => {
@@ -618,4 +627,18 @@ test('cached verified tokens cannot recreate deleted-user data or bypass either-
     await assertFails(setDoc(doc(db, `${root}/users/users/${uid}/favorites/item`), validFavorite()));
     await assertFails(getDoc(doc(db, `${root}/accountDeletionRequests/requests/${uid}`)));
   }
+});
+
+
+test("location identity catalog is private to admins in known roots", async () => {
+  for (const root of ["HudHudDev", "HudHudOfficial"]) {
+    const path = `${root}/locations`;
+    await assertSucceeds(setDoc(doc(userDb("admin", { admin: true }), path), { adminIdentityRevision: 1 }));
+    await assertSucceeds(getDoc(doc(userDb("admin", { admin: true }), path)));
+    for (const db of [anonymousDb(), userDb("listener"), userDb("forged", { role: "admin" })]) {
+      await assertFails(getDoc(doc(db, path)));
+      await assertFails(setDoc(doc(db, path), { adminIdentityRevision: 2 }));
+    }
+  }
+  await assertFails(setDoc(doc(userDb("admin", { admin: true }), "Unknown/locations"), { adminIdentityRevision: 1 }));
 });

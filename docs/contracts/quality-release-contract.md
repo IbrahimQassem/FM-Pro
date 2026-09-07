@@ -33,8 +33,10 @@ npm run emulators:test
 
 ```bash
 cd functions && npm run lint && npm test
-cd ../admin_web && npm run lint && npm run build
+cd ../web_admin && npm test && npm run lint && VITE_FIRESTORE_ROOT=HudHudDev npm run build
 cd .. && npm run emulators:account-deletion
+npm run emulators:admin
+npm run emulators:profile-images
 ```
 
 أضف `flutter build ios --simulator --debug` عند تغيير Dart مشترك ذي أثر منصة،
@@ -56,7 +58,7 @@ plugin، playback، Firebase bootstrap أو ملفات iOS. تغييرات UI ت
 - Firebase environment وpackage/bundle IDs محسومة لكل منصة (`com.sanaadev.hudhudfm` / `com.sana.dev.fm`).
 - Android production signing لا يستخدم debug key، ويرتبط بـ `key.properties`.
 - privacy/store declarations تطابق Firebase وaudio/network الفعلي، والروابط مشتقة من إعدادات النطاق الأساسي.
-- رابطا `/community-guidelines` و`/account-deletion` وروابط `/privacy` و`/terms` منشورة وتعمل عبر لوحة الإشراف (`admin_web`).
+- رابطا `/community-guidelines` و`/account-deletion` وروابط `/privacy` و`/terms` منشورة وتعمل عبر لوحة الإشراف (`web_admin`).
 - تفعيل أصل الأيقونة الرسمي المعتمد بدلاً من أيقونة فلاتر الافتراضية.
 - أدلة UGC الملتقطة من نسخة Development تطابق checklist ولا تحتوي حسابات أو تعليقات حقيقية أو أي بيانات شخصية.
 - playback matrix ناجحة على جهاز فعلي، لا simulator فقط، واستقرار في الخلفية لأكثر من 30 دقيقة.

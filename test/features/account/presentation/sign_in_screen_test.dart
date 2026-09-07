@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import "package:flutter/material.dart";
 import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -159,6 +160,9 @@ class _FakeAccountRepository implements AccountRepository {
   @override
   Future<void> signOut() async {}
   @override
-  Future<void> updateProfile(
-      {required String displayName, String? photoUrl}) async {}
+  Future<void> updateProfile({
+    required String displayName,
+    String? photoUrl,
+    Uint8List? photoBytes,
+  }) async {}
 }

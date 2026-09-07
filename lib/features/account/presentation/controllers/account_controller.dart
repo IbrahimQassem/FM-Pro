@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,11 +49,13 @@ class AccountController extends StateNotifier<AccountState> {
   Future<bool> updateProfile({
     required String displayName,
     String? photoUrl,
+    Uint8List? photoBytes,
   }) async {
     return _run(
       () => _repository.updateProfile(
         displayName: displayName,
         photoUrl: photoUrl,
+        photoBytes: photoBytes,
       ),
     );
   }

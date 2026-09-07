@@ -289,9 +289,14 @@
   "manageAccount": "Manage Account Details",
   "shareAppTitle": "Invite a Friend & Share App",
   "shareAppSubtitle": "Share Hudhud FM with your friends and radio lovers",
-  "@shareAppMessage": {"placeholders": {"url": {"type": "String"}}},
+  "@shareAppMessage": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
   "shareAppMessage": "Listen to the best Yemeni radio stations and shows on Hudhud FM 📻🇾🇪\nDownload the app now: {url}",
-
   "rateAppTitle": "Rate App",
   "rateAppSubtitle": "Your feedback helps us continue improving Hudhud FM",
   "rateAppDialogTitle": "How is your experience with Hudhud FM?",
@@ -330,5 +335,10 @@
   "signInNow": "Sign In",
   "deleteAccountDiscrete": "Permanently delete account and data",
   "pickAvatarPrompt": "Choose profile avatar",
-  "imagePickError": "Unable to open or select image. Please check permissions."
+  "imagePickError": "Unable to open or select image. Please check permissions.",
+  "takeProfilePhoto": "Take a photo",
+  "chooseProfilePhoto": "Choose from gallery",
+  "profileImagePickFailed": "Could not open this image. Check photo or camera access and try again.",
+  "profileImageTooLarge": "Choose a smaller photo. Profile images must be under 1 MB.",
+  "profileUpdateFailed": "Could not save your profile. Check your connection and photo, then try again."
 }

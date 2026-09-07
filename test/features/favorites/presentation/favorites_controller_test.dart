@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -96,8 +97,11 @@ class FakeAccountRepository implements AccountRepository {
   Future<void> verifyEmailCode(String code) async {}
 
   @override
-  Future<void> updateProfile(
-      {required String displayName, String? photoUrl}) async {}
+  Future<void> updateProfile({
+    required String displayName,
+    String? photoUrl,
+    Uint8List? photoBytes,
+  }) async {}
 }
 
 void main() {

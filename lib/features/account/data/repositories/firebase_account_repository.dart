@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -39,12 +40,15 @@ class FirebaseAccountRepository implements AccountRepository {
   Future<void> updateProfile({
     required String displayName,
     String? photoUrl,
+    Uint8List? photoBytes,
   }) {
     return _guard(
       () => _dataSource.updateProfile(
         displayName: displayName,
         photoUrl: photoUrl,
+        photoBytes: photoBytes,
       ),
+      profile: true,
     );
   }
 
@@ -97,6 +101,7 @@ class FirebaseAccountRepository implements AccountRepository {
   static Future<void> _guard(
     Future<void> Function() action, {
     bool deletion = false,
+    bool profile = false,
   }) async {
     try {
       await action();
@@ -106,7 +111,11 @@ class FirebaseAccountRepository implements AccountRepository {
       throw AccountException(_mapAuthFailure(error.code, deletion: deletion));
     } on FirebaseFunctionsException catch (error) {
       throw AccountException(
-        _mapFunctionsFailure(error.code, deletion: deletion),
+        profile
+            ? (error.code == 'unavailable'
+                ? AccountFailure.network
+                : AccountFailure.unavailable)
+            : _mapFunctionsFailure(error.code, deletion: deletion),
       );
     } on FirebaseException {
       throw const AccountException(AccountFailure.network);

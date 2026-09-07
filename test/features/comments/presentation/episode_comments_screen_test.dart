@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import "package:hudhud_fm/features/comments/presentation/widgets/ugc_guidelines_dialog.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -280,8 +281,11 @@ class _FakeAccountRepository implements AccountRepository {
   Future<void> signOut() async {}
 
   @override
-  Future<void> updateProfile(
-      {required String displayName, String? photoUrl}) async {}
+  Future<void> updateProfile({
+    required String displayName,
+    String? photoUrl,
+    Uint8List? photoBytes,
+  }) async {}
 }
 
 class _FakeCommentsRepository implements CommentsRepository {

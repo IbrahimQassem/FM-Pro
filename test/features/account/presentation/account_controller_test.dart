@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -167,6 +168,7 @@ class _FakeAccountRepository implements AccountRepository {
   Future<void> updateProfile({
     required String displayName,
     String? photoUrl,
+    Uint8List? photoBytes,
   }) async {
     _throwIfNeeded();
     updatedDisplayName = displayName;

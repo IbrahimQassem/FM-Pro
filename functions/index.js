@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
+import { getStorage } from 'firebase-admin/storage';
+import { activeProfile, updateProfileImage, cleanupProfileImage, cleanupAccountImages, collectProfileImages } from './lib/profile-images.js';
 import {
   FieldValue,
   getFirestore,
@@ -578,6 +580,7 @@ async function deleteAccount(uid, source = 'user') {
       const documents = (await firestore.collectionGroup(collection).where(field, '==', uid).get()).docs.filter((doc) => canonicalRelatedDocument(doc, collection) && doc.ref.path.startsWith(`${root}/`));
       await deleteDocuments(firestore, documents);
     }
+    await cleanupAccountImages(firestore, () => getStorage().bucket(), uid, root);
     await firestore.recursiveDelete(firestore.doc(listenerProfilePath(uid, root)));
     await firestore.doc(verificationChallengePath(uid, root)).delete();
   }
@@ -673,7 +676,7 @@ function validAvatar(value) {
   } catch { return false; }
 }
 export const updateAccountProfile = onCall(
-  { timeoutSeconds: 30, maxInstances: 20 },
+  { timeoutSeconds: 60, maxInstances: 20, memory: '512MiB' },
   async (request) => {
     const uid = requireAuthenticatedUid(request);
     const root = requestRoot(request);
@@ -681,17 +684,31 @@ export const updateAccountProfile = onCall(
     if (!user.emailVerified || !normalizeEmail(user.email)) throw new HttpsError('failed-precondition', 'Email verification is required.');
     const displayName = typeof request.data?.displayName === 'string' ? request.data.displayName.trim() : '';
     if (displayName.length < 2 || displayName.length > 120) throw new HttpsError('invalid-argument', 'Enter a valid display name.');
+    if (Object.hasOwn(request.data ?? {}, 'imageBase64')) {
+      if (Object.hasOwn(request.data ?? {}, 'avatarUrl')) throw new HttpsError('invalid-argument', 'Choose one profile image source.');
+      return updateProfileImage({firestore:getFirestore(),bucket:getStorage().bucket(),uid,root,displayName,imageBase64:request.data.imageBase64});
+    }
     const hasAvatar = Object.hasOwn(request.data ?? {}, 'avatarUrl');
     const avatarUrl = request.data?.avatarUrl ?? '';
     if (hasAvatar && !validAvatar(avatarUrl)) throw new HttpsError('invalid-argument', 'Choose a supported avatar.');
     const firestore = getFirestore();
     const reference = firestore.doc(listenerProfilePath(uid, root));
-    await firestore.runTransaction(async (transaction) => {
-      const profile = await transaction.get(reference);
-      const jobs = await Promise.all(roots.map((r) => transaction.get(firestore.doc(deletionJobPath(uid, r)))));
-      if (jobs.some((job) => job.exists) || !profile.exists || profile.get('isActive') !== true || profile.get('role') !== 'listener') throw new HttpsError('failed-precondition', 'An active listener profile is required.');
-      transaction.update(reference, { displayName, ...(hasAvatar ? { avatarUrl } : {}), updatedAt: FieldValue.serverTimestamp() });
+    const oldId = await firestore.runTransaction(async (transaction) => {
+      const profile = await activeProfile(transaction, firestore, uid, root);
+      const replacing = hasAvatar && avatarUrl !== profile.get('avatarUrl');
+      transaction.update(reference, { displayName, ...(replacing ? { avatarUrl, avatarStoragePath: FieldValue.delete(), avatarUploadId: FieldValue.delete() } : {}), updatedAt: FieldValue.serverTimestamp() });
+      return replacing ? profile.get('avatarUploadId') : null;
     });
+    if (typeof oldId === 'string' && oldId && !oldId.includes('/')) await cleanupProfileImage({firestore,bucket:getStorage().bucket(),reference:firestore.doc(`${root}/profileImageUploads/uploads/${oldId}`)}).catch(() => undefined);
     return { updated: true };
+  },
+);
+
+
+export const cleanupProfileImages = onSchedule(
+  { schedule: 'every 60 minutes', timeoutSeconds: 300, maxInstances: 1 },
+  async () => {
+    try { await collectProfileImages(getFirestore(), () => getStorage().bucket()); }
+    catch { logger.error('Profile image cleanup failed; pending jobs will be retried.'); }
   },
 );

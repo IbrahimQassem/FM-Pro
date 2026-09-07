@@ -289,9 +289,14 @@
   "manageAccount": "إدارة بيانات الحساب",
   "shareAppTitle": "دعوة صديق ومشاركة التطبيق",
   "shareAppSubtitle": "شارك تطبيق هدهد FM مع أصدقائك ومحبي الإذاعة",
-  "@shareAppMessage": {"placeholders": {"url": {"type": "String"}}},
+  "@shareAppMessage": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
   "shareAppMessage": "استمع لأجمل الإذاعات والبرامج اليمنية عبر تطبيق هدهد FM 📻🇾🇪\nحمل التطبيق الآن: {url}",
-
   "rateAppTitle": "تقييم التطبيق",
   "rateAppSubtitle": "رأيك يهمنا لمواصلة تحسين هدهد FM",
   "rateAppDialogTitle": "ما رأيك في هدهد FM؟",
@@ -330,5 +335,10 @@
   "signInNow": "تسجيل الدخول",
   "deleteAccountDiscrete": "حذف الحساب والبيانات نهائياً",
   "pickAvatarPrompt": "اختر صورة للملف الشخصي",
-  "imagePickError": "تعذر فتح أو اختيار الصورة. يرجى التحقق من الأذونات."
+  "imagePickError": "تعذر فتح أو اختيار الصورة. يرجى التحقق من الأذونات.",
+  "takeProfilePhoto": "التقاط صورة",
+  "chooseProfilePhoto": "اختيار من المعرض",
+  "profileImagePickFailed": "تعذر فتح الصورة. تحقق من صلاحية الصور أو الكاميرا وحاول مجددًا.",
+  "profileImageTooLarge": "اختر صورة أصغر. يجب ألا يتجاوز حجم صورة الحساب ١ ميغابايت.",
+  "profileUpdateFailed": "تعذر حفظ الحساب. تحقق من الاتصال والصورة ثم حاول مجددًا."
 }

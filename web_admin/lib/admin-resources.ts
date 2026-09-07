@@ -1,6 +1,7 @@
 import { firestoreRoot as root } from './firestore-root';
 
 export type ResourceKey =
+  | 'locations'
   | 'stations'
   | 'programs'
   | 'episodes'
@@ -26,9 +27,27 @@ export type ResourceDefinition = {
   template?: Record<string, unknown>;
 };
 
-
-
 export const resourceDefinitions: Record<ResourceKey, ResourceDefinition> = {
+  locations: {
+    key: 'locations',
+    label: 'المدن والمناطق',
+    singular: 'مدينة',
+    path: `${root}/locations/locations`,
+    titleField: 'cityNameAr',
+    relationField: 'cityCode',
+    statusField: 'isActive',
+    editable: true,
+    creatable: true,
+    deletable: false,
+    template: {
+      countryCode: 'YE',
+      countryNameAr: 'اليمن',
+      cityCode: '',
+      cityNameAr: '',
+      sortOrder: 0,
+      isActive: true,
+    },
+  },
   stations: {
     key: 'stations',
     label: 'المحطات',
@@ -82,12 +101,7 @@ export const resourceDefinitions: Record<ResourceKey, ResourceDefinition> = {
       priority: 0,
       isActive: true,
       isFeatured: false,
-      schedule: {
-        weekdays: [1, 2, 3, 4, 5, 6, 7],
-        startMinute: 480,
-        endMinute: 540,
-        utcOffsetMinutes: 180,
-      },
+      schedule: null,
       stats: { episodesCount: 0, subscribersCount: 0, totalPlays: 0 },
     },
   },
@@ -163,6 +177,7 @@ export const resourceDefinitions: Record<ResourceKey, ResourceDefinition> = {
     group: 'comments',
     titleField: 'content',
     relationField: 'authorName',
+    statusField: 'status',
     editable: false,
     creatable: false,
     deletable: false,

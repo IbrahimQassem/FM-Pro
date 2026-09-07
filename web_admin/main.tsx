@@ -15,6 +15,13 @@ if (!root) {
 }
 
 const pathname = window.location.pathname;
+const publicTitles: Record<string, string> = {
+  '/account-deletion': 'حذف الحساب | هدهد FM',
+  '/community-guidelines': 'إرشادات المجتمع | هدهد FM',
+  '/privacy': 'سياسة الخصوصية | هدهد FM',
+  '/terms': 'شروط الخدمة | هدهد FM',
+};
+document.title = publicTitles[pathname] ?? 'إدارة هدهد FM';
 
 const page =
   pathname === '/account-deletion' ? (

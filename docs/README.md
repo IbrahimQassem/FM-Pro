@@ -18,6 +18,12 @@
 
 ## التشغيل
 
+- [إعداد Gemini CLI لكل المشروع](operations/gemini-workspace-setup.md): إعادة استخدام
+  Skills والعقود المشتركة، مع إعدادات Gemini وMCP وHooks والإضافة المحلية.
+
+- [إعداد Codex لكل المشروع](operations/codex-workspace-setup.md): Skills وPlugins
+  وMCP وقواعد المكونات وHooks، مع خطوات التفعيل والتحقق وحدود الصلاحيات.
+
 - [تسليم مرشح الإصدار](release/release-candidate-handoff.md): إعداد الحزم والنشر
   المتوافق وقائمة الأدلة الخارجية المتبقية قبل الاعتماد.
 
@@ -36,6 +42,9 @@
 - `.agents/roles/`: مسؤوليات التسليم وحدود كل دور.
 
 ## مراجع التخطيط
+
+- [خطة إعادة تصميم لوحة الإدارة](roadmap/admin-web-redesign-plan.md): تغطية شاشات
+  التطبيق، فجوات التحكم، UI/UX والثيم، شرائح التنفيذ ومعايير التحقق للوحة `web_admin`.
 
 - [قرار حدود بيئة الإصدار والحساب](decisions/0002-store-release-boundaries.md):
   هوية Auth المشتركة، حذف الجذرين، التحقق الموثوق ونطاق صور الحساب والمشاركة.

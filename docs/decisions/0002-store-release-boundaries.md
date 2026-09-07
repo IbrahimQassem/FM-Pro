@@ -30,10 +30,16 @@ side effect of these fixes.
 - OTP acceptance atomically consumes a single active proof. Failed downstream
   work resumes from the immutable server reservation; it never makes a consumed
   code reusable or lets resend replace unfinished work.
-- Launch supports the four existing bundled mascot avatars and validated HTTPS
-  provider images. Camera/gallery upload is deferred until durable storage,
-  ownership, cleanup and deletion are designed. Canonical profile updates are
-  server-mediated; local filesystem paths are never persisted as avatars.
+- The confirmed scope includes camera/gallery uploads alongside the four bundled
+  mascot avatars and validated HTTPS provider images. Profile updates remain
+  server-mediated. JPEG/PNG uploads are capped at 1 MB and 16 million input pixels,
+  re-encoded without EXIF metadata and stored under owner/root-scoped paths.
+  Direct client Storage reads/writes are denied; the profile receives an unguessable
+  bearer download URL. Replacement removes the old object. Durable private jobs
+  retry interrupted cleanup hourly. Account deletion removes images in both roots
+  and retains cleanup tombstones for at least one hour to catch in-flight saves;
+  the next successful collector removes those tombstones and any late objects.
+  Local filesystem paths are never persisted as avatars.
 - Share actions use platform store destinations and content names. Canonical
   content deep links remain deferred; raw audio URLs are not shared.
 - Android release fails without complete non-debug signing configuration. iOS

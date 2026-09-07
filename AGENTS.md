@@ -1,5 +1,19 @@
 # HudHud FM Flutter agent instructions
 
+## Workspace tooling
+
+The repository includes the Flutter app, `web_admin`, `web_hudhud`, Firebase
+`functions`, emulator tests, and `tool/firebase_seed`. These shared safety and
+data contracts apply throughout; Flutter-specific layering, Riverpod and ARB
+rules apply to Flutter code. Web and backend conventions are in their nested
+`AGENTS.md` files. Do not create a second `admin_web` directory.
+
+Project skills, MCP, rules, hooks and plugin setup are documented in
+`docs/operations/codex-workspace-setup.md`. Gemini CLI reuses these skills and rules;
+its adapters and activation are in `docs/operations/gemini-workspace-setup.md`.
+Load only the relevant workflow.
+Tool availability does not expand the user's task or grant deployment authority.
+
 ## Scope
 
 هذه التعليمات تخص مشروع `hudhud_fm` فقط. لا تقرأ أو تنسخ أو تعدّل كودًا من

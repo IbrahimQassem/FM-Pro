@@ -1,0 +1,13 @@
+# Narrow inspection commands only. No new deployment or mutation approvals.
+prefix_rule(
+    pattern = ["git", "status"],
+    decision = "allow",
+    match = ["git status --short"],
+    not_match = ["git reset --hard"],
+)
+prefix_rule(
+    pattern = ["git", "diff"],
+    decision = "allow",
+    match = ["git diff --check"],
+    not_match = ["git push --force"],
+)

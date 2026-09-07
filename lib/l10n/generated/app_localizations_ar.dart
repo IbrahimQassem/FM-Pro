@@ -1012,4 +1012,22 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get imagePickError =>
       'تعذر فتح أو اختيار الصورة. يرجى التحقق من الأذونات.';
+
+  @override
+  String get takeProfilePhoto => 'التقاط صورة';
+
+  @override
+  String get chooseProfilePhoto => 'اختيار من المعرض';
+
+  @override
+  String get profileImagePickFailed =>
+      'تعذر فتح الصورة. تحقق من صلاحية الصور أو الكاميرا وحاول مجددًا.';
+
+  @override
+  String get profileImageTooLarge =>
+      'اختر صورة أصغر. يجب ألا يتجاوز حجم صورة الحساب ١ ميغابايت.';
+
+  @override
+  String get profileUpdateFailed =>
+      'تعذر حفظ الحساب. تحقق من الاتصال والصورة ثم حاول مجددًا.';
 }

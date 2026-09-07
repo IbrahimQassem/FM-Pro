@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import '../models/account_user.dart';
 import '../models/account_sign_in_provider.dart';
 
@@ -15,6 +16,7 @@ abstract interface class AccountRepository {
   Future<void> updateProfile({
     required String displayName,
     String? photoUrl,
+    Uint8List? photoBytes,
   });
 
   Future<void> requestEmailVerificationCode({String? email});

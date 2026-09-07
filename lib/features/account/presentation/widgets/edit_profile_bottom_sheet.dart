@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+import '../../domain/services/profile_image_picker.dart';
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "../../../../core/config/profile_avatar.dart";
@@ -38,6 +40,8 @@ class _EditProfileBottomSheetState
   late final TextEditingController _nameController;
   late String? _selectedPhotoUrl;
   bool _isSaving = false;
+  bool _isPicking = false;
+  Uint8List? _photoBytes;
 
   static const _mascotAvatars = ProfileAvatar.assets;
 
@@ -54,14 +58,39 @@ class _EditProfileBottomSheetState
     super.dispose();
   }
 
+  Future<void> _pick(ProfileImageSource source) async {
+    if (_isPicking || _isSaving) return;
+    setState(() => _isPicking = true);
+    try {
+      final bytes = await ref.read(profileImagePickerProvider).pick(source);
+      if (mounted && bytes != null) {
+        setState(() {
+          _photoBytes = bytes;
+          _selectedPhotoUrl = null;
+        });
+      }
+    } on ProfileImageException catch (error) {
+      if (mounted) {
+        final strings = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(error.tooLarge
+                ? strings.profileImageTooLarge
+                : strings.profileImagePickFailed)));
+      }
+    } finally {
+      if (mounted) setState(() => _isPicking = false);
+    }
+  }
+
   Future<void> _save() async {
-    if (_isSaving || !_formKey.currentState!.validate()) return;
+    if (_isSaving || _isPicking || !_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
 
     final success =
         await ref.read(accountControllerProvider.notifier).updateProfile(
               displayName: _nameController.text.trim(),
               photoUrl: _selectedPhotoUrl,
+              photoBytes: _photoBytes,
             );
 
     if (mounted) {
@@ -72,6 +101,9 @@ class _EditProfileBottomSheetState
           SnackBar(content: Text(strings.profileUpdated)),
         );
         Navigator.of(context).pop();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context).profileUpdateFailed)));
       }
     }
   }
@@ -117,10 +149,33 @@ class _EditProfileBottomSheetState
               ),
               const SizedBox(height: 20),
               Center(
-                child: MascotAvatar(
-                  imageUrl: _selectedPhotoUrl,
-                  radius: 44,
-                ),
+                child: _photoBytes == null
+                    ? MascotAvatar(imageUrl: _selectedPhotoUrl, radius: 44)
+                    : ClipOval(
+                        child: Image.memory(_photoBytes!,
+                            width: 88,
+                            height: 88,
+                            fit: BoxFit.cover,
+                            semanticLabel: strings.profileImage)),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                      onPressed: _isSaving || _isPicking
+                          ? null
+                          : () => _pick(ProfileImageSource.camera),
+                      icon: const Icon(Icons.photo_camera_outlined),
+                      label: Text(strings.takeProfilePhoto)),
+                  OutlinedButton.icon(
+                      onPressed: _isSaving || _isPicking
+                          ? null
+                          : () => _pick(ProfileImageSource.gallery),
+                      icon: const Icon(Icons.photo_library_outlined),
+                      label: Text(strings.chooseProfilePhoto)),
+                ],
               ),
               const SizedBox(height: 16),
               Text(
@@ -142,9 +197,12 @@ class _EditProfileBottomSheetState
                     final isSelected = _selectedPhotoUrl == asset;
                     return InkWell(
                       key: Key('mascot-avatar-$index'),
-                      onTap: _isSaving
+                      onTap: _isSaving || _isPicking
                           ? null
-                          : () => setState(() => _selectedPhotoUrl = asset),
+                          : () => setState(() {
+                                _selectedPhotoUrl = asset;
+                                _photoBytes = null;
+                              }),
                       borderRadius: BorderRadius.circular(32),
                       child: Container(
                         padding: const EdgeInsets.all(2),
@@ -183,7 +241,7 @@ class _EditProfileBottomSheetState
               const SizedBox(height: 24),
               FilledButton(
                 key: const Key('save-profile-button'),
-                onPressed: _isSaving ? null : _save,
+                onPressed: _isSaving || _isPicking ? null : _save,
                 child: _isSaving
                     ? const SizedBox.square(
                         dimension: 20,

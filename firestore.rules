@@ -135,6 +135,7 @@ service cloud.firestore {
     }
 
     function validCommentCreate(root, episodeId) {
+      let episodePath = /databases/$(database)/documents/$(root)/episodes/episodes/$(episodeId);
       let data = request.resource.data;
       let userDocPath = /databases/$(database)/documents/$(root)/users/users/$(request.auth.uid);
       return isSignedIn()
@@ -147,6 +148,8 @@ service cloud.firestore {
           'episodeId', 'authorId', 'authorName', 'content', 'createdAt',
           'isEdited', 'status'
         ])
+        && exists(episodePath)
+        && get(episodePath).data.get('adminDeletionToken', null) == null
         && data.episodeId == episodeId
         && data.authorId == request.auth.uid
         && exists(userDocPath)
@@ -205,6 +208,11 @@ service cloud.firestore {
       return validSubscription(root, uid)
         && request.resource.data.createdAt == resource.data.createdAt
         && request.resource.data.updatedAt == request.time;
+    }
+
+    // Private serialization point for admin location identity changes.
+    match /{root}/locations {
+      allow get, create, update: if isKnownRoot(root) && isAdmin();
     }
 
     match /{root}/stations/stations/{stationId} {

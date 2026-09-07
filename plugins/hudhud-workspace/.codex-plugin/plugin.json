@@ -1,0 +1,18 @@
+{
+  "name": "hudhud-workspace",
+  "version": "0.1.0",
+  "description": "Workspace verification and change-impact workflow for HudHud FM.",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Hudhud Workspace",
+    "shortDescription": "Review HudHud component impact and verification.",
+    "longDescription": "Workspace verification and change-impact workflow for HudHud FM.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Review changed HudHud components and run the relevant local checks."
+  }
+}

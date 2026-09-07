@@ -94,6 +94,26 @@ void main() {
     ]);
   });
 
+  test('profile upload sends bounded bytes without a device path or avatar URL',
+      () async {
+    await source.updateProfile(
+        displayName: 'Listener', photoBytes: Uint8List.fromList([1, 2, 3]));
+    expect(functions.calls.single, [
+      'updateAccountProfile',
+      {
+        'root': FirestorePaths.root,
+        'displayName': 'Listener',
+        'imageBase64': 'AQID'
+      }
+    ]);
+    functions.calls.clear();
+    await expectLater(
+        source.updateProfile(
+            displayName: 'Listener', photoBytes: Uint8List(1024 * 1024 + 1)),
+        throwsA(isA<AccountDataException>()));
+    expect(functions.calls, isEmpty);
+  });
+
   test('profile update sends selected root and portable avatar to server',
       () async {
     await source.updateProfile(

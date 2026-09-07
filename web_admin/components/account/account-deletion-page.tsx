@@ -165,7 +165,9 @@ export function AccountDeletionPage() {
         <Card className="w-full max-w-xl">
           <CardHeader className="items-center text-center">
             <CheckCircle2 className="size-12 text-emerald-600" />
-            <CardTitle>تم حذف حساب هدهد FM</CardTitle>
+            <CardTitle>
+              <h1>تم حذف حساب هدهد FM</h1>
+            </CardTitle>
             <CardDescription>
               حُذف الحساب وبياناته المرتبطة ولا يلزم اتخاذ خطوة أخرى.
             </CardDescription>
@@ -184,7 +186,9 @@ export function AccountDeletionPage() {
           <div className="mb-2 flex size-12 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
             <Trash2 className="size-6" />
           </div>
-          <CardTitle>حذف حساب هدهد FM وبياناته</CardTitle>
+          <CardTitle>
+            <h1>حذف حساب هدهد FM وبياناته</h1>
+          </CardTitle>
           <CardDescription>
             صفحة عامة لطلب حذف الحساب إذا لم يعد التطبيق مثبتًا على جهازك.
             Account deletion is also available from inside the app.

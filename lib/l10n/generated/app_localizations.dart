@@ -1874,6 +1874,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to open or select image. Please check permissions.'**
   String get imagePickError;
+
+  /// No description provided for @takeProfilePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get takeProfilePhoto;
+
+  /// No description provided for @chooseProfilePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get chooseProfilePhoto;
+
+  /// No description provided for @profileImagePickFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open this image. Check photo or camera access and try again.'**
+  String get profileImagePickFailed;
+
+  /// No description provided for @profileImageTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a smaller photo. Profile images must be under 1 MB.'**
+  String get profileImageTooLarge;
+
+  /// No description provided for @profileUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save your profile. Check your connection and photo, then try again.'**
+  String get profileUpdateFailed;
 }
 
 class _AppLocalizationsDelegate

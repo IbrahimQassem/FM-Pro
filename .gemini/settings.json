@@ -1,0 +1,47 @@
+{
+  "context": {
+    "fileName": ["AGENTS.md", "GEMINI.md"]
+  },
+  "skills": {
+    "enabled": true
+  },
+  "mcpServers": {
+    "hudhud-dart": {
+      "command": "dart",
+      "args": ["mcp-server"],
+      "timeout": 120000
+    },
+    "hudhud-openai-docs": {
+      "httpUrl": "https://developers.openai.com/mcp",
+      "timeout": 60000
+    }
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "name": "hudhud-session-context",
+            "type": "command",
+            "command": "python3 -B \"$(git rev-parse --show-toplevel)/.gemini/hooks/workspace.py\"",
+            "timeout": 15000,
+            "description": "Load the shared HudHud workspace instruction map."
+          }
+        ]
+      }
+    ],
+    "AfterAgent": [
+      {
+        "hooks": [
+          {
+            "name": "hudhud-advisory-checks",
+            "type": "command",
+            "command": "python3 -B \"$(git rev-parse --show-toplevel)/.gemini/hooks/workspace.py\"",
+            "timeout": 15000,
+            "description": "Run nonblocking governance and whitespace checks."
+          }
+        ]
+      }
+    ]
+  }
+}

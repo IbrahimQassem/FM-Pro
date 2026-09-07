@@ -1,3 +1,6 @@
+import 'dart:ui' as ui;
+import 'package:hudhud_fm/features/account/domain/services/profile_image_picker.dart';
+import 'dart:typed_data';
 import "package:flutter/material.dart";
 import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -10,6 +13,39 @@ import "package:hudhud_fm/features/account/presentation/widgets/edit_profile_bot
 import "package:hudhud_fm/l10n/generated/app_localizations.dart";
 
 void main() {
+  testWidgets(
+      'gallery selection previews and forwards image bytes; cancellation preserves selection',
+      (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final bytes = (await tester.runAsync(() async {
+      final recorder = ui.PictureRecorder();
+      Canvas(recorder).drawColor(Colors.red, BlendMode.src);
+      final picture = recorder.endRecording();
+      final image = await picture.toImage(2, 2);
+      final bytes = (await image.toByteData(format: ui.ImageByteFormat.png))!.buffer.asUint8List();
+      image.dispose(); picture.dispose();
+      return bytes;
+    }))!;
+    final picker = _FakeImagePicker(bytes);
+    final repository = _FakeAccountRepository();
+    await tester.pumpWidget(_TestApp(repository: repository, picker: picker));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('اختيار من المعرض'));
+    await tester.pumpAndSettle();
+    expect(picker.source, ProfileImageSource.gallery);
+    picker.bytes = null;
+    await tester.tap(find.text('التقاط صورة'));
+    await tester.pumpAndSettle();
+    expect(picker.source, ProfileImageSource.camera);
+    await tester.tap(find.byKey(const Key('save-profile-button')));
+    await tester.pumpAndSettle();
+    expect(repository.updatedPhotoBytes, bytes);
+    expect(repository.updatedPhotoUrl, isNull);
+  });
+
   testWidgets("edits profile name and chooses mascot avatar", (tester) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1;
@@ -42,14 +78,20 @@ void main() {
 }
 
 class _TestApp extends StatelessWidget {
-  const _TestApp({required this.repository});
+  const _TestApp({required this.repository, this.picker});
+
+  final ProfileImagePicker? picker;
 
   final AccountRepository repository;
 
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-      overrides: [accountRepositoryProvider.overrideWithValue(repository)],
+      overrides: [
+        accountRepositoryProvider.overrideWithValue(repository),
+        if (picker != null)
+          profileImagePickerProvider.overrideWithValue(picker!)
+      ],
       child: const MaterialApp(
         locale: Locale("ar"),
         supportedLocales: AppLocalizations.supportedLocales,
@@ -76,6 +118,7 @@ class _TestApp extends StatelessWidget {
 class _FakeAccountRepository implements AccountRepository {
   String? updatedDisplayName;
   String? updatedPhotoUrl;
+  Uint8List? updatedPhotoBytes;
 
   @override
   Stream<AccountUser?> watchAccount() => Stream.value(null);
@@ -107,8 +150,21 @@ class _FakeAccountRepository implements AccountRepository {
   Future<void> updateProfile({
     required String displayName,
     String? photoUrl,
+    Uint8List? photoBytes,
   }) async {
     updatedDisplayName = displayName;
     updatedPhotoUrl = photoUrl;
+    updatedPhotoBytes = photoBytes;
+  }
+}
+
+class _FakeImagePicker implements ProfileImagePicker {
+  _FakeImagePicker(this.bytes);
+  Uint8List? bytes;
+  ProfileImageSource? source;
+  @override
+  Future<Uint8List?> pick(ProfileImageSource source) async {
+    this.source = source;
+    return bytes;
   }
 }

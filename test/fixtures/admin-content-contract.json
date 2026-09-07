@@ -1,0 +1,99 @@
+{
+  "locations": {
+    "countryCode": "YE",
+    "countryNameAr": "اليمن",
+    "cityCode": "sanaa",
+    "cityNameAr": "صنعاء",
+    "sortOrder": 0,
+    "isActive": true
+  },
+  "stations": {
+    "countryCode": "YE",
+    "countryNameAr": "اليمن",
+    "cityCode": "sanaa",
+    "cityNameAr": "صنعاء",
+    "name": "إذاعة الاختبار",
+    "nameEn": "Test Radio",
+    "tagline": "",
+    "description": "",
+    "frequency": "100.1",
+    "streamUrl": "http://example.test/live",
+    "backupStreamUrl": "https://example.test/backup",
+    "logoUrl": "",
+    "thumbnailUrl": "",
+    "priority": 0,
+    "isLive": true,
+    "isActive": true,
+    "isVerified": false,
+    "isFeatured": false,
+    "stats": {
+      "programsCount": 0,
+      "subscribersCount": 0,
+      "totalPlays": 0
+    }
+  },
+  "programs": {
+    "stationId": "station",
+    "title": "برنامج الاختبار",
+    "titleEn": "Test Program",
+    "description": "",
+    "coverUrl": "",
+    "thumbnailUrl": "",
+    "presenters": [
+      "مقدم"
+    ],
+    "categories": [
+      "ثقافة"
+    ],
+    "priority": 0,
+    "isActive": true,
+    "isFeatured": false,
+    "schedule": {
+      "weekdays": [
+        1,
+        7
+      ],
+      "startMinute": 1380,
+      "endMinute": 1440,
+      "utcOffsetMinutes": 180
+    },
+    "stats": {
+      "episodesCount": 0,
+      "subscribersCount": 0,
+      "totalPlays": 0
+    }
+  },
+  "episodes": {
+    "programId": "program",
+    "stationId": "station",
+    "title": "حلقة الاختبار",
+    "description": "",
+    "audioUrl": "https://example.test/audio.mp3",
+    "durationSeconds": 60,
+    "coverUrl": "",
+    "presenter": "",
+    "guest": "",
+    "priority": 0,
+    "isPublished": false,
+    "isFeatured": false,
+    "broadcastAt": "2030-01-01T21:00:00.000Z",
+    "utcOffsetMinutes": 180,
+    "publishedAt": null,
+    "stats": {
+      "playsCount": 0,
+      "likesCount": 0,
+      "commentsCount": 0
+    }
+  },
+  "banners": {
+    "title": "إعلان الاختبار",
+    "imageUrl": "https://example.test/banner.jpg",
+    "targetType": "none",
+    "targetId": "",
+    "targetUrl": "",
+    "priority": 0,
+    "isActive": true,
+    "startAt": "2030-01-01T00:00:00.000Z",
+    "expiresAt": "2030-01-02T00:00:00.000Z"
+  }
+}

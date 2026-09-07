@@ -1027,4 +1027,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get imagePickError =>
       'Unable to open or select image. Please check permissions.';
+
+  @override
+  String get takeProfilePhoto => 'Take a photo';
+
+  @override
+  String get chooseProfilePhoto => 'Choose from gallery';
+
+  @override
+  String get profileImagePickFailed =>
+      'Could not open this image. Check photo or camera access and try again.';
+
+  @override
+  String get profileImageTooLarge =>
+      'Choose a smaller photo. Profile images must be under 1 MB.';
+
+  @override
+  String get profileUpdateFailed =>
+      'Could not save your profile. Check your connection and photo, then try again.';
 }

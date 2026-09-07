@@ -1,0 +1,10 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Uploads and lifecycle changes go through verified server callables.
+    // Profile image download URLs are bearer links supplied only by the backend.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

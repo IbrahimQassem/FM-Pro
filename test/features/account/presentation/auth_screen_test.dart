@@ -144,6 +144,9 @@ class _FakeAccountRepository implements AccountRepository {
   @override
   Future<void> signOut() async {}
   @override
-  Future<void> updateProfile(
-      {required String displayName, String? photoUrl}) async {}
+  Future<void> updateProfile({
+    required String displayName,
+    String? photoUrl,
+    Uint8List? photoBytes,
+  }) async {}
 }

@@ -11,7 +11,7 @@ StationDetails/ProgramDetails widgets
   -> StationContentRepository
   <- FirebaseStationContentRepository
   <- StationContentFirestoreDataSource
-  <- HudHudDev/programs + HudHudDev/episodes
+  <- {root}/programs + {root}/episodes (`HudHudDev` or `HudHudOfficial`)
 ```
 
 - شاشة تفاصيل المحطة تملك تبويبات البرامج والجدول وعن المحطة.

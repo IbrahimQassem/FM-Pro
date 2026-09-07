@@ -1,0 +1,20 @@
+{
+  "name": "hudhud-local",
+  "interface": {
+    "displayName": "Hudhud Local"
+  },
+  "plugins": [
+    {
+      "name": "hudhud-workspace",
+      "source": {
+        "source": "local",
+        "path": "./plugins/hudhud-workspace"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

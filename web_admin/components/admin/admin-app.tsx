@@ -1,13 +1,42 @@
 import { firestoreRoot, assertSelectedRoot } from '@/lib/firestore-root';
+import { ContentEditor, RelationPicker } from './content-editor';
+import { ScheduleAgenda } from './schedule-agenda';
+import { BannerStatusBadge } from './banner-status-badge';
+import { WorkspaceOverview, ScreenCoverage } from './workspace-overview';
+import {
+  isContentKind,
+  editableFingerprint,
+} from '@/lib/content-form';
+import { loadRelationLabels, reportCommentPath } from '@/lib/admin-relations';
+import { deleteEpisode } from '@/lib/delete-episode';
+import { reviewReport } from '@/lib/review-report';
+import { saveWithRelations } from '@/lib/save-content';
+
+import { resourceQuery } from '@/lib/admin-query';
 import { belongsToRoot } from '@/lib/firestore-environment';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { assertCounterAdjustment } from '@/lib/relationship-counter';
+import { createAdminSessionGuard } from '@/lib/admin-session';
+import { useAdminHash } from '@/lib/use-admin-hash';
+import {
+  readResourceStatus,
+  readResourceParent,
+  readResourceSearch,
+  readReportType,
+  resourceParentFilter,
+  resourceStatusChoices,
+  type StatusChoice,
+} from '@/lib/resource-filters';
 import {
   BarChart3,
-  Bell,
+  Sun,
+  Moon,
+  Monitor,
+  MapPin,
+  PanelsTopLeft,
   CalendarDays,
   CheckCircle2,
-  Database,
   EyeOff,
   Heart,
   Flag,
@@ -15,7 +44,6 @@ import {
   LogOut,
   Megaphone,
   MessageSquare,
-  Mic2,
   Pencil,
   PlayCircle,
   Plus,
@@ -30,25 +58,25 @@ import {
 import {
   type User,
   getIdTokenResult,
-  onAuthStateChanged,
+  onIdTokenChanged,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth';
 import {
   Timestamp,
+  getDocFromServer,
+  getDocsFromServer,
+  runTransaction,
+  startAfter,
+  type QueryDocumentSnapshot,
   collection,
-  collectionGroup,
   doc,
-  documentId,
   where,
-  getCountFromServer,
   increment,
   limit,
   onSnapshot,
   query,
-  serverTimestamp,
-  writeBatch,
   type DocumentReference,
   type Firestore,
 } from 'firebase/firestore';
@@ -58,20 +86,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -82,7 +101,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
 import {
   resourceDefinitions,
   type ResourceDefinition,
@@ -90,27 +108,14 @@ import {
 } from '@/lib/admin-resources';
 import { getFirebaseServices } from '@/lib/firebase-client';
 
-type Section = 'overview' | ResourceKey;
+type Section = 'overview' | 'coverage' | 'schedule' | ResourceKey;
 type AdminRecord = {
   id: string;
   path: string;
   data: Record<string, unknown>;
   reference: DocumentReference;
+  relationLabel?: string;
 };
-type RecordsState = Record<ResourceKey, AdminRecord[]>;
-
-const emptyRecords: RecordsState = {
-  stations: [],
-  programs: [],
-  episodes: [],
-  banners: [],
-  users: [],
-  comments: [],
-  favorites: [],
-  subscriptions: [],
-  reports: [],
-};
-
 const navigation: Array<{
   section: Section;
   label: string;
@@ -119,8 +124,11 @@ const navigation: Array<{
   { section: 'overview', label: 'نظرة عامة', icon: LayoutDashboard },
   { section: 'stations', label: 'المحطات', icon: Radio },
   { section: 'programs', label: 'البرامج والجداول', icon: CalendarDays },
+  { section: 'schedule', label: 'الجدول الأسبوعي', icon: CalendarDays },
   { section: 'episodes', label: 'الحلقات', icon: PlayCircle },
   { section: 'banners', label: 'الإعلانات', icon: Megaphone },
+  { section: 'locations', label: 'المدن والمناطق', icon: MapPin },
+  { section: 'coverage', label: 'تجربة التطبيق', icon: PanelsTopLeft },
   { section: 'users', label: 'المستخدمون', icon: Users },
   { section: 'comments', label: 'التعليقات', icon: MessageSquare },
   { section: 'reports', label: 'طابور الإشراف', icon: Flag },
@@ -139,35 +147,39 @@ export function AdminApp() {
   useEffect(() => {
     let unsubscribe: () => void = () => undefined;
     let cancelled = false;
+    let disposeGuard = () => {};
     getFirebaseServices()
       .then((services) => {
         if (cancelled) return;
         setFirestore(services.firestore);
-        unsubscribe = onAuthStateChanged(services.auth, async (nextUser) => {
-          if (!nextUser) {
-            setUser(null);
-            setAuthStatus('signed-out');
-            return;
-          }
-          try {
-            const token = await getIdTokenResult(nextUser, true);
-            if (token.claims.admin !== true) {
-              setAuthStatus('denied');
-              setAuthError('الحساب صحيح لكنه لا يحمل صلاحية admin.');
-              await signOut(services.auth);
-              return;
-            }
-            setUser(nextUser);
-            setAuthStatus('admin');
-          } catch {
-            setAuthStatus('denied');
-            setAuthError('تعذر التحقق من صلاحيات الحساب.');
-          }
+        const guard = createAdminSessionGuard<User>({
+          // Read the delivered token: forcing refresh here recurses into the observer.
+          isAdmin: async (nextUser) =>
+            (await getIdTokenResult(nextUser)).claims.admin === true,
+          signOut: () => signOut(services.auth),
+          emit: (state) => {
+            setUser(state.user);
+            setAuthStatus(state.status);
+            if (state.status === 'denied')
+              setAuthError(
+                state.reason === 'claims'
+                  ? 'الحساب صحيح لكنه لا يحمل صلاحية admin.'
+                  : 'تعذر التحقق من صلاحيات الحساب.',
+              );
+            else if (state.status === 'admin') setAuthError('');
+          },
+        });
+        disposeGuard = () => guard.dispose();
+        unsubscribe = onIdTokenChanged(services.auth, (nextUser) => {
+          void guard.changed(nextUser);
         });
       })
-      .catch(() => setAuthStatus('config-error'));
+      .catch(() => {
+        if (!cancelled) setAuthStatus('config-error');
+      });
     return () => {
       cancelled = true;
+      disposeGuard();
       unsubscribe();
     };
   }, []);
@@ -225,7 +237,7 @@ function SignInScreen({
         url: window.location.origin,
       });
       setNotice(
-        'إذا كان البريد مرتبطًا بحساب Firebase فستصلك رسالة إعادة تعيين خلال دقائق.',
+        'إذا كان البريد مرتبطًا بحساب فستصلك رسالة إعادة تعيين خلال دقائق.',
       );
     } catch (resetError) {
       const code =
@@ -243,7 +255,7 @@ function SignInScreen({
         setError('تعذر إرسال الرسالة الآن. حاول مرة أخرى بعد قليل.');
       } else {
         setNotice(
-          'إذا كان البريد مرتبطًا بحساب Firebase فستصلك رسالة إعادة تعيين خلال دقائق.',
+          'إذا كان البريد مرتبطًا بحساب فستصلك رسالة إعادة تعيين خلال دقائق.',
         );
       }
     } finally {
@@ -274,7 +286,7 @@ function SignInScreen({
             </h1>
             <p className="mt-4 max-w-md text-sm leading-7 text-white/70">
               إدارة المحطات والبرامج والجداول والحلقات والإعلانات، ومتابعة تفاعل
-              الجمهور دون تجاوز عقود Firebase.
+              الجمهور من مساحة عمل واحدة.
             </p>
           </div>
           <p className="text-xs text-white/50">{firestoreRoot}</p>
@@ -289,13 +301,13 @@ function SignInScreen({
           </Badge>
           <h2 className="text-2xl font-bold">مرحبًا بعودتك</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            استخدم حساب Firebase Auth الذي يحمل custom claim باسم admin.
+            سجّل الدخول بحساب المشرف المعتمد.
           </p>
           {status === 'config-error' && (
             <Alert variant="destructive" className="mt-5">
               <AlertTitle>الإعداد غير مكتمل</AlertTitle>
               <AlertDescription>
-                متغيرات Firebase غير متاحة في بيئة التشغيل.
+                تعذر تهيئة الاتصال. تواصل مع مسؤول النظام.
               </AlertDescription>
             </Alert>
           )}
@@ -356,8 +368,7 @@ function SignInScreen({
             </Button>
           </form>
           <p className="mt-6 text-xs leading-5 text-muted-foreground">
-            لا توفر اللوحة إنشاء حسابات إدارية. منح الصلاحية يتم من أداة خادم
-            موثوقة فقط.
+            للحصول على صلاحية الإدارة، تواصل مع مسؤول النظام.
           </p>
         </section>
       </div>
@@ -366,113 +377,152 @@ function SignInScreen({
 }
 
 function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
-  const [section, setSection] = useState<Section>('overview');
-  const [records, setRecords] = useState<RecordsState>(emptyRecords);
-  const [errors, setErrors] = useState<Partial<Record<ResourceKey, string>>>(
-    {},
-  );
-  const [lastSync, setLastSync] = useState<Date | null>(null);
-
+  const readSection = (): Section => {
+    const value = location.hash.slice(1).split('?')[0];
+    return navigation.some((n) => n.section === value)
+      ? (value as Section)
+      : 'overview';
+  };
+  const [section, setSection] = useState<Section>(readSection);
+  const acceptedHash = useRef(window.location.hash);
+  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>(() => {
+    try {
+      const t = localStorage.getItem('hudhud-admin-theme');
+      return t === 'light' || t === 'dark' ? t : 'system';
+    } catch {
+      return 'system';
+    }
+  });
   useEffect(() => {
-    const unsubscribers = Object.values(resourceDefinitions).map(
-      (definition) => {
-        const source = definition.path
-          ? collection(firestore, definition.path)
-          : collectionGroup(firestore, definition.group!);
-        return onSnapshot(
-          definition.path
-            ? query(source, limit(250))
-            : query(source,
-                // Known group parents are episodes and users. Bound the query
-                // before applying the limit, so another root cannot starve it.
-                where(documentId(), '>=', doc(firestore, firestoreRoot, 'episodes')),
-                where(documentId(), '<', doc(firestore, firestoreRoot, 'users\uf8ff')),
-                limit(250)),
-          (snapshot) => {
-            const next = snapshot.docs.filter((document) => belongsToRoot(document.ref.path, firestoreRoot)).map((document) => ({
-              id: document.id,
-              path: document.ref.path,
-              data: document.data(),
-              reference: document.ref,
-            }));
-            setRecords((current) => ({ ...current, [definition.key]: next }));
-            setErrors((current) => ({
-              ...current,
-              [definition.key]: undefined,
-            }));
-            setLastSync(new Date());
-          },
-          () =>
-            setErrors((current) => ({
-              ...current,
-              [definition.key]: 'تعذر قراءة هذه البيانات.',
-            })),
+    const changed = () => {
+      const next = readSection();
+      if (
+        window.location.hash !== acceptedHash.current &&
+        !window.dispatchEvent(
+          new Event('admin-before-navigate', { cancelable: true }),
+        )
+      ) {
+        window.history.replaceState(
+          null,
+          '',
+          acceptedHash.current || '#overview',
         );
-      },
-    );
-    return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
-  }, [firestore]);
-
-  const currentDefinition =
-    section === 'overview' ? null : resourceDefinitions[section];
+        return;
+      }
+      acceptedHash.current = window.location.hash;
+      setSection(next);
+    };
+    window.addEventListener('hashchange', changed, true);
+    return () => window.removeEventListener('hashchange', changed, true);
+  }, [section]);
+  useEffect(() => {
+    const media = matchMedia('(prefers-color-scheme: dark)');
+    const apply = () =>
+      document.documentElement.classList.toggle(
+        'dark',
+        theme === 'dark' || (theme === 'system' && media.matches),
+      );
+    apply();
+    media.addEventListener('change', apply);
+    try {
+      localStorage.setItem('hudhud-admin-theme', theme);
+    } catch {
+      /* Theme still works without storage. */
+    }
+    return () => media.removeEventListener('change', apply);
+  }, [theme]);
+  const navigate = (key: Section) => {
+    window.location.assign(`#${key}`);
+  };
+  const current = navigation.find((n) => n.section === section)!;
   return (
     <main className="min-h-screen bg-background text-foreground" dir="rtl">
-      <div className="mx-auto grid min-h-screen max-w-[1680px] lg:grid-cols-[264px_1fr]">
-        <aside className="hidden border-l border-sidebar-border bg-sidebar px-5 py-6 lg:flex lg:flex-col">
-          <div className="flex items-center gap-3 px-2">
-            <div className="grid size-11 place-items-center rounded-2xl bg-primary text-primary-foreground">
-              <Radio className="size-5" />
-            </div>
+      <a
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById('workspace-content')?.focus();
+        }}
+        href="#workspace-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:bg-card focus:p-4"
+      >
+        انتقل إلى المحتوى
+      </a>
+      <div className="mx-auto grid min-h-screen max-w-[1800px] lg:grid-cols-[248px_1fr]">
+        <aside className="hidden border-e bg-sidebar px-4 py-7 lg:flex lg:flex-col">
+          <div className="mb-9 flex items-center gap-3 px-3">
+            <span className="grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground">
+              <Radio />
+            </span>
             <div>
-              <p className="text-lg font-bold">هدهد FM</p>
-              <p className="text-xs text-muted-foreground">
-                مركز إدارة المحتوى
+              <p className="text-xl font-bold">هدهد FM</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                مساحة إدارة المحتوى
               </p>
             </div>
           </div>
-          <nav className="mt-9 space-y-1" aria-label="التنقل الرئيسي">
-            {navigation.map(({ section: itemSection, label, icon: Icon }) => (
+          <nav className="space-y-1" aria-label="التنقل الرئيسي">
+            {navigation.map(({ section: key, label, icon: Icon }) => (
               <button
-                key={itemSection}
-                type="button"
-                onClick={() => setSection(itemSection)}
-                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-right text-sm font-medium transition-colors ${section === itemSection ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm' : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}`}
+                key={key}
+                aria-current={section === key ? 'page' : undefined}
+                onClick={() => navigate(key)}
+                className={`flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-start text-sm transition-colors ${section === key ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
               >
                 <Icon className="size-[18px]" />
                 {label}
               </button>
             ))}
           </nav>
-          <div className="mt-auto rounded-2xl border border-sidebar-border bg-background/70 p-4">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-semibold">بيئة التشغيل</span>
-              <Badge className="bg-emerald-100 text-emerald-800">
-                Development
-              </Badge>
+          <div className="mt-auto pt-8">
+            <div className="rounded-2xl border bg-card p-4">
+              <ShieldCheck className="mb-3 size-5 text-primary" />
+              <p className="text-sm font-semibold">إدارة مسؤولة، محتوى موثوق</p>
+              <p className="mt-2 text-xs leading-6 text-muted-foreground">
+                قرارات واضحة تحافظ على المحتوى والمجتمع.
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {firestoreRoot}
-            </p>
           </div>
         </aside>
         <section className="min-w-0">
-          <header className="sticky top-0 z-20 flex h-20 items-center justify-between border-b bg-background/90 px-5 backdrop-blur-xl md:px-8">
+          <header className="sticky top-0 z-20 flex min-h-24 flex-wrap items-center justify-between gap-3 border-b bg-background/95 px-5 py-4 backdrop-blur-xl md:px-9">
             <div>
-              <p className="text-xs font-semibold text-primary">
-                {currentDefinition?.label ?? 'مركز العمليات'}
+              <p className="text-xs text-muted-foreground">
+                مساحة العمل / {current.label}
               </p>
-              <h1 className="mt-1 text-xl font-bold">
-                {currentDefinition
-                  ? `إدارة ${currentDefinition.label}`
-                  : 'لوحة التحكم'}
-              </h1>
+              <h1 className="mt-2 text-xl font-bold">{current.label}</h1>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="hidden sm:inline-flex">
-                {user.email}
+              <Badge
+                variant="outline"
+                className={
+                  firestoreRoot === 'HudHudOfficial'
+                    ? 'border-destructive text-destructive'
+                    : 'border-primary text-primary'
+                }
+              >
+                {firestoreRoot === 'HudHudOfficial' ? 'الإنتاج' : 'التطوير'}
               </Badge>
-              <Button variant="outline" size="icon" aria-label="الإشعارات">
-                <Bell />
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label={`المظهر: ${theme === 'system' ? 'تلقائي' : theme === 'dark' ? 'داكن' : 'فاتح'}. تغيير المظهر`}
+                onClick={() =>
+                  setTheme((t) =>
+                    t === 'system'
+                      ? 'light'
+                      : t === 'light'
+                        ? 'dark'
+                        : 'system',
+                  )
+                }
+              >
+                {theme === 'system' ? (
+                  <Monitor />
+                ) : theme === 'light' ? (
+                  <Sun />
+                ) : (
+                  <Moon />
+                )}
               </Button>
               <Button
                 variant="outline"
@@ -487,43 +537,42 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
               </Button>
             </div>
           </header>
-          <div className="border-b px-5 py-3 lg:hidden">
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {navigation.map(({ section: itemSection, label }) => (
-                <Button
-                  key={itemSection}
-                  size="sm"
-                  variant={section === itemSection ? 'default' : 'outline'}
-                  onClick={() => setSection(itemSection)}
-                >
-                  {label}
-                </Button>
+          <nav
+            className="border-b px-5 py-3 lg:hidden"
+            aria-label="أقسام الإدارة"
+          >
+            <label className="sr-only" htmlFor="mobile-section">
+              القسم
+            </label>
+            <select
+              id="mobile-section"
+              className="min-h-12 w-full rounded-xl border bg-card px-3"
+              value={section}
+              onChange={(e) => navigate(e.target.value as Section)}
+            >
+              {navigation.map((n) => (
+                <option key={n.section} value={n.section}>
+                  {n.label}
+                </option>
               ))}
-            </div>
-          </div>
-          <div className="p-5 md:p-8">
+            </select>
+          </nav>
+          <div id="workspace-content" tabIndex={-1} className="p-5 md:p-9">
             {section === 'overview' ? (
-              <Overview
-                records={records}
-                errors={errors}
-                lastSync={lastSync}
-                onNavigate={setSection}
-              />
-            ) : section === 'reports' ? (
-              <ModerationQueue
+              <WorkspaceOverview firestore={firestore} onNavigate={navigate} />
+            ) : section === 'schedule' ? (
+              <ScheduleAgenda
                 firestore={firestore}
-                adminUid={user.uid}
-                reports={records.reports}
-                comments={records.comments}
-                error={errors.reports}
+                onEdit={() => navigate('programs')}
               />
+            ) : section === 'coverage' ? (
+              <ScreenCoverage onNavigate={navigate} />
             ) : (
-              <ResourceView
+              <ResourcePanel
+                key={section}
                 firestore={firestore}
-                definition={resourceDefinitions[section]}
-                records={records[section]}
-                allRecords={records}
-                error={errors[section]}
+                user={user}
+                resource={section}
               />
             )}
           </div>
@@ -533,206 +582,328 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
   );
 }
 
-function Overview({
-  records,
-  errors,
-  lastSync,
-  onNavigate,
+function ResourcePanel({
+  firestore,
+  user,
+  resource,
 }: {
-  records: RecordsState;
-  errors: Partial<Record<ResourceKey, string>>;
-  lastSync: Date | null;
-  onNavigate: (section: Section) => void;
+  firestore: Firestore;
+  user: User;
+  resource: ResourceKey;
 }) {
-  const metrics = [
-    {
-      key: 'reports' as const,
-      label: 'بلاغات تنتظر المراجعة',
-      value: records.reports.filter((item) => item.data.status === 'open')
-        .length,
-      detail: `${records.reports.length} بلاغًا إجمالًا`,
-      icon: Flag,
-    },
-    {
-      key: 'stations' as const,
-      label: 'المحطات النشطة',
-      value: records.stations.filter((item) => item.data.isActive === true)
-        .length,
-      detail: `${records.stations.length} إجمالي`,
-      icon: Radio,
-    },
-    {
-      key: 'programs' as const,
-      label: 'البرامج',
-      value: records.programs.length,
-      detail: `${records.programs.filter((item) => item.data.schedule).length} جداول`,
-      icon: Mic2,
-    },
-    {
-      key: 'episodes' as const,
-      label: 'الحلقات المنشورة',
-      value: records.episodes.filter((item) => item.data.isPublished === true)
-        .length,
-      detail: `${records.comments.length} تعليقًا`,
-      icon: PlayCircle,
-    },
-    {
-      key: 'banners' as const,
-      label: 'الإعلانات النشطة',
-      value: records.banners.filter((item) => item.data.isActive === true)
-        .length,
-      detail: `${records.banners.length} إجمالي`,
-      icon: Megaphone,
-    },
-  ];
-  const stationCoverage = new Set(
-    records.programs.map((item) => item.data.stationId),
-  ).size;
-  const scheduledPrograms = records.programs.filter(
-    (item) => item.data.schedule,
-  ).length;
-  const playableEpisodes = records.episodes.filter(
-    (item) =>
-      typeof item.data.audioUrl === 'string' &&
-      item.data.audioUrl.startsWith('https://'),
-  ).length;
+  const hash = useAdminHash();
+  const status = readResourceStatus(resource, hash);
+  const choices = resourceStatusChoices(resource);
+  const parent = readResourceParent(resource, hash);
+  const reportType = readReportType(resource, hash);
+  const parentFilter = resourceParentFilter(resource);
+  const changeParent = (value: string) => {
+    const params = new URLSearchParams(hash.split('?')[1] ?? '');
+    if (value) params.set('parent', value);
+    else params.delete('parent');
+    window.location.hash = resource + (params.size ? `?${params}` : '');
+  };
   return (
-    <div className="space-y-7">
-      <section className="flex flex-col justify-between gap-3 md:flex-row md:items-end">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">
-            نظرة تشغيلية مباشرة
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            الأرقام أدناه تُقرأ لحظيًا من Firestore.
-          </p>
-        </div>
-        <Badge
-          variant="outline"
-          className="h-7 border-emerald-200 bg-emerald-50 px-3 text-emerald-700"
-        >
-          <RefreshCw className="size-3" />{' '}
-          {lastSync
-            ? `آخر مزامنة ${lastSync.toLocaleTimeString('ar-YE', { hour: '2-digit', minute: '2-digit' })}`
-            : 'جارٍ الاتصال'}
-        </Badge>
-      </section>
-      {Object.values(errors).some(Boolean) && (
-        <Alert variant="destructive">
-          <Database />
-          <AlertTitle>بعض المؤشرات غير متاحة</AlertTitle>
-          <AlertDescription>
-            راجع قواعد Firestore وصلاحية admin للمجموعات الجديدة.
-          </AlertDescription>
-        </Alert>
-      )}
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {metrics.map(({ key, label, value, detail, icon: Icon }) => (
-          <button
-            key={key}
-            type="button"
-            aria-label={`فتح ${label}`}
-            className="text-right"
-            onClick={() => onNavigate(key)}
+    <div className="space-y-5">
+      {choices.length > 0 && (
+        <label className="flex flex-wrap items-center gap-3 text-sm">
+          تصفية حسب الحالة
+          <select
+            className="min-h-12 rounded-xl border bg-card px-3"
+            aria-label="تصفية حسب الحالة"
+            value={status?.value ?? ''}
+            onChange={(event) => {
+              const params = new URLSearchParams(hash.split('?')[1] ?? '');
+              if (event.target.value) params.set('status', event.target.value);
+              else params.delete('status');
+              window.location.hash =
+                resource + (params.size ? `?${params}` : '');
+            }}
           >
-            <Card className="h-full border-none shadow-[0_1px_2px_rgb(15_38_34/5%),0_10px_32px_rgb(15_38_34/5%)] transition-transform hover:-translate-y-0.5">
-              <CardHeader>
-                <CardDescription>{label}</CardDescription>
-                <CardAction className="grid size-9 place-items-center rounded-xl bg-accent text-accent-foreground">
-                  <Icon className="size-4" />
-                </CardAction>
-                <CardTitle className="text-3xl font-bold">{value}</CardTitle>
-              </CardHeader>
-              <CardContent className="text-xs text-muted-foreground">
-                {detail}
-              </CardContent>
-            </Card>
-          </button>
-        ))}
-      </section>
-      <section className="grid gap-5 xl:grid-cols-[1.55fr_1fr]">
-        <Card className="border-none shadow-[0_1px_2px_rgb(15_38_34/5%),0_10px_32px_rgb(15_38_34/5%)]">
-          <CardHeader className="border-b">
-            <CardTitle>صحة المحتوى</CardTitle>
-            <CardDescription>
-              اكتمال العلاقات المطلوبة في التطبيق
-            </CardDescription>
-            <CardAction>
-              <Badge className="bg-emerald-100 text-emerald-800">
-                <CheckCircle2 /> مباشر
-              </Badge>
-            </CardAction>
-          </CardHeader>
-          <CardContent className="space-y-5 pt-1">
-            {[
-              [
-                'المحطات المرتبطة ببرامج',
-                `${stationCoverage} من ${records.stations.length}`,
-                percentage(stationCoverage, records.stations.length),
-              ],
-              [
-                'البرامج ذات جدول بث',
-                `${scheduledPrograms} من ${records.programs.length}`,
-                percentage(scheduledPrograms, records.programs.length),
-              ],
-              [
-                'الحلقات ذات ملفات صوت',
-                `${playableEpisodes} من ${records.episodes.length}`,
-                percentage(playableEpisodes, records.episodes.length),
-              ],
-            ].map(([label, value, width]) => (
-              <div key={label}>
-                <div className="mb-2 flex items-center justify-between text-sm">
-                  <span className="font-medium">{label}</span>
-                  <span className="text-muted-foreground">{value}</span>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-primary"
-                    style={{ width }}
-                  />
-                </div>
-              </div>
+            <option value="">كل الحالات</option>
+            {choices.map((choice) => (
+              <option key={choice.value} value={choice.value}>
+                {choice.label}
+              </option>
             ))}
-          </CardContent>
-        </Card>
-        <Card className="border-none bg-primary text-primary-foreground shadow-[0_16px_50px_rgb(22_79_69/20%)]">
-          <CardHeader>
-            <CardDescription className="text-primary-foreground/65">
-              نشاط الجمهور
-            </CardDescription>
-            <CardTitle className="text-xl">المفضلة والاشتراكات</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => onNavigate('favorites')}
-                className="rounded-xl bg-white/10 p-4 text-right hover:bg-white/15"
-              >
-                <Heart className="mb-5 size-5" />
-                <p className="text-2xl font-bold">{records.favorites.length}</p>
-                <p className="mt-1 text-xs text-white/65">عناصر مفضلة</p>
-              </button>
-              <button
-                type="button"
-                onClick={() => onNavigate('subscriptions')}
-                className="rounded-xl bg-white/10 p-4 text-right hover:bg-white/15"
-              >
-                <BarChart3 className="mb-5 size-5" />
-                <p className="text-2xl font-bold">
-                  {
-                    records.subscriptions.filter(
-                      (item) => item.data.isActive !== false,
-                    ).length
-                  }
-                </p>
-                <p className="mt-1 text-xs text-white/65">اشتراكات فعالة</p>
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
+          </select>
+          <span className="text-muted-foreground">
+            التصفية تشمل جميع سجلات البيئة قبل تقسيم الصفحات.
+          </span>
+        </label>
+      )}
+      {resource === 'reports' && (
+        <label className="flex flex-wrap items-center gap-3 text-sm">
+          نوع البلاغ
+          <select
+            aria-label="نوع البلاغ"
+            className="min-h-12 rounded-xl border bg-card px-3"
+            value={reportType}
+            onChange={(event) => {
+              const params = new URLSearchParams(hash.split('?')[1] ?? '');
+              if (event.target.value) params.set('type', event.target.value);
+              else params.delete('type');
+              window.location.hash =
+                resource + (params.size ? `?${params}` : '');
+            }}
+          >
+            <option value="">كل الأنواع</option>
+            <option value="comment">بلاغات التعليقات</option>
+            <option value="user">بلاغات المستخدمين</option>
+          </select>
+        </label>
+      )}
+      {parentFilter && (
+        <fieldset className="space-y-3 rounded-xl border p-4">
+          <legend className="px-2 text-sm font-medium">
+            {parentFilter.label}
+          </legend>
+          <RelationPicker
+            key={resource}
+            firestore={firestore}
+            kind={parentFilter.kind}
+            selected={parent}
+            onSelect={(option) =>
+              changeParent(
+                parentFilter.kind === 'locations'
+                  ? String(option.data.cityCode)
+                  : option.id,
+              )
+            }
+          />
+          {parent && (
+            <Button variant="outline" onClick={() => changeParent('')}>
+              إلغاء تصفية الارتباط
+            </Button>
+          )}
+        </fieldset>
+      )}
+      <ResourcePage
+        key={`${resource}:${status?.value ?? ''}:${parent}:${reportType}`}
+        firestore={firestore}
+        user={user}
+        resource={resource}
+        status={status}
+        parent={parent}
+        reportType={reportType}
+      />
+    </div>
+  );
+}
+function ResourcePage({
+  firestore,
+  user,
+  resource,
+  status,
+  parent,
+  reportType,
+}: {
+  firestore: Firestore;
+  user: User;
+  resource: ResourceKey;
+  status?: StatusChoice;
+  parent: string;
+  reportType: ReturnType<typeof readReportType>;
+}) {
+  const statusField = status?.field;
+  const statusMatch = status?.match;
+  const [records, setRecords] = useState<AdminRecord[]>([]);
+  const [comments, setComments] = useState<AdminRecord[]>([]);
+  const [commentContext, setCommentContext] = useState<
+    'loading' | 'ready' | 'error'
+  >('loading');
+  const [cursors, setCursors] = useState<QueryDocumentSnapshot[]>([]);
+  const [last, setLast] = useState<QueryDocumentSnapshot>();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [reload, setReload] = useState(0);
+  const [more, setMore] = useState(false);
+  const [cached, setCached] = useState(false);
+  useEffect(() => {
+    let active = true;
+    let contextVersion = 0;
+    const cursor = cursors.at(-1);
+    const parentFilter = resourceParentFilter(resource);
+    const request = query(
+      resourceQuery(firestore, resource),
+      ...(statusField ? [where(statusField, '==', statusMatch)] : []),
+      ...(reportType ? [where('targetType', '==', reportType)] : []),
+      ...(parent && parentFilter
+        ? [where(parentFilter.field, '==', parent)]
+        : []),
+      ...(parent && resource === 'stations'
+        ? [where('countryCode', '==', 'YE')]
+        : []),
+      ...(cursor ? [startAfter(cursor)] : []),
+      limit(50),
+    );
+    const unsubscribe = onSnapshot(
+      request,
+      { includeMetadataChanges: true },
+      async (snapshot) => {
+        if (!active) return;
+        const version = ++contextVersion;
+        setError('');
+        const next = snapshot.docs
+          .filter((d) => belongsToRoot(d.ref.path, firestoreRoot))
+          .map((d) => ({
+            id: d.id,
+            path: d.ref.path,
+            data: d.data(),
+            reference: d.ref,
+          }));
+        setRecords(next);
+        if (resource === 'reports') {
+          setComments([]);
+          setCommentContext('loading');
+        }
+        setLast(snapshot.docs.at(-1));
+        setMore(snapshot.size === 50);
+        setCached(snapshot.metadata.fromCache);
+        setLoading(false);
+        if (next.length > 0) {
+          try {
+            const labels = await loadRelationLabels(
+              firestore,
+              firestoreRoot,
+              resource,
+              next,
+            );
+            if (active && version === contextVersion)
+              setRecords(
+                next.map((record) => ({
+                  ...record,
+                  relationLabel: labels.get(record.path),
+                })),
+              );
+          } catch {
+            if (active && version === contextVersion)
+              setError(
+                'تعذر تحميل أسماء الارتباطات. البيانات الأساسية ما زالت متاحة.',
+              );
+          }
+        }
+        if (resource === 'reports') {
+          const paths = [
+            ...new Set(
+              next.flatMap((record) => {
+                const path = reportCommentPath(firestoreRoot, record.data);
+                return path ? [path] : [];
+              }),
+            ),
+          ];
+          const result = await Promise.allSettled(
+            paths.map((path) => getDocFromServer(doc(firestore, path))),
+          );
+          if (!active || version !== contextVersion) return;
+          setComments(
+            result.flatMap((r) =>
+              r.status === 'fulfilled' && r.value.exists()
+                ? [
+                    {
+                      id: r.value.id,
+                      path: r.value.ref.path,
+                      data: r.value.data(),
+                      reference: r.value.ref,
+                    },
+                  ]
+                : [],
+            ),
+          );
+          const failed = result.some((r) => r.status === 'rejected');
+          setCommentContext(failed ? 'error' : 'ready');
+          if (failed) setError('تعذر تحميل بعض سياق البلاغات. أعد المحاولة.');
+        }
+      },
+      () => {
+        if (active) {
+          setLoading(false);
+          setError('تعذر تحميل البيانات. تحقق من الاتصال والصلاحيات.');
+        }
+      },
+    );
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, [
+    firestore,
+    resource,
+    cursors,
+    reload,
+    statusField,
+    statusMatch,
+    parent,
+    reportType,
+  ]);
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+        <span className="text-muted-foreground">
+          {cached
+            ? 'نسخة مخزنة — قد لا تعكس أحدث البيانات'
+            : 'بيانات البيئة المحددة'}{' '}
+          · الصفحة {(cursors.length + 1).toLocaleString('ar-YE')}
+        </span>
+        <Button
+          variant="outline"
+          disabled={loading}
+          onClick={() => {
+            setLoading(true);
+            setReload((v) => v + 1);
+          }}
+        >
+          <RefreshCw /> تحديث
+        </Button>
+      </div>
+      {loading ? (
+        <output className="grid min-h-64 place-items-center rounded-2xl border bg-card text-muted-foreground">
+          جارٍ تحميل المحتوى…
+        </output>
+      ) : resource === 'reports' ? (
+        <ModerationQueue
+          firestore={firestore}
+          adminUid={user.uid}
+          reports={records}
+          comments={comments}
+          commentContext={commentContext}
+          error={error}
+        />
+      ) : (
+        <ResourceView
+          firestore={firestore}
+          definition={resourceDefinitions[resource]}
+          records={records}
+          error={error}
+        />
+      )}
+      <div className="flex items-center justify-between gap-3">
+        <Button
+          variant="outline"
+          disabled={loading || !cursors.length}
+          onClick={() => {
+            setLoading(true);
+            setCursors((c) => c.slice(0, -1));
+          }}
+        >
+          الصفحة السابقة
+        </Button>
+        <span className="text-xs text-muted-foreground">
+          حتى ٥٠ سجلًا في الصفحة · البحث داخل الصفحة الحالية
+        </span>
+        <Button
+          variant="outline"
+          disabled={loading || !more || !last}
+          onClick={() => {
+            if (last) {
+              setLoading(true);
+              setCursors((c) => [...c, last]);
+            }
+          }}
+        >
+          الصفحة التالية
+        </Button>
+      </div>
     </div>
   );
 }
@@ -742,15 +913,16 @@ function ModerationQueue({
   adminUid,
   reports,
   comments,
+  commentContext,
   error,
 }: {
   firestore: Firestore;
   adminUid: string;
   reports: AdminRecord[];
   comments: AdminRecord[];
+  commentContext: 'loading' | 'ready' | 'error';
   error?: string;
 }) {
-  const [showClosed, setShowClosed] = useState(false);
   const [busyPath, setBusyPath] = useState('');
   const [feedback, setFeedback] = useState<{
     type: 'success' | 'error';
@@ -758,18 +930,15 @@ function ModerationQueue({
   } | null>(null);
   const visibleReports = useMemo(
     () =>
-      reports
-        .filter((report) => showClosed || report.data.status === 'open')
-        .toSorted((a, b) => {
-          const statusOrder =
-            Number(a.data.status !== 'open') - Number(b.data.status !== 'open');
-          if (statusOrder !== 0) return statusOrder;
-          return (
-            timestampMillis(b.data.createdAt) -
-            timestampMillis(a.data.createdAt)
-          );
-        }),
-    [reports, showClosed],
+      reports.toSorted((a, b) => {
+        const statusOrder =
+          Number(a.data.status !== 'open') - Number(b.data.status !== 'open');
+        if (statusOrder !== 0) return statusOrder;
+        return (
+          timestampMillis(b.data.createdAt) - timestampMillis(a.data.createdAt)
+        );
+      }),
+    [reports],
   );
 
   function sourceComment(report: AdminRecord) {
@@ -788,9 +957,6 @@ function ModerationQueue({
       | 'userDisabled'
       | 'noAction',
   ) {
-    const changingComment =
-      resolution === 'commentHidden' || resolution === 'commentRemoved';
-    const disablingUser = resolution === 'userDisabled';
     if (
       resolution !== 'noAction' &&
       !window.confirm(
@@ -806,72 +972,13 @@ function ModerationQueue({
     setFeedback(null);
     try {
       assertSelectedRoot(report.reference.path);
-      for (const item of [...reports, ...comments]) assertSelectedRoot(item.reference.path);
-      const batch = writeBatch(firestore);
-      const reviewData = {
-        status: resolution === 'noAction' ? 'dismissed' : 'resolved',
+      await reviewReport(
+        firestore,
+        firestoreRoot,
+        report.reference,
         resolution,
-        reviewedAt: serverTimestamp(),
-        reviewedBy: adminUid,
-      };
-      const matchingReports = changingComment
-        ? reports.filter(
-            (candidate) =>
-              candidate.data.status === 'open' &&
-              candidate.data.commentId === report.data.commentId &&
-              candidate.data.episodeId === report.data.episodeId,
-          )
-        : disablingUser
-          ? reports.filter(
-              (candidate) =>
-                candidate.data.status === 'open' &&
-                candidate.data.reportedAuthorId ===
-                  report.data.reportedAuthorId,
-            )
-          : [report];
-      for (const matchingReport of matchingReports)
-        batch.update(matchingReport.reference, reviewData);
-
-      if (changingComment) {
-        const comment = sourceComment(report);
-        const episodeId = readString(report.data, 'episodeId');
-        if (comment) {
-          batch.update(comment.reference, {
-            status: resolution === 'commentHidden' ? 'hidden' : 'removed',
-            moderatedAt: serverTimestamp(),
-            moderatedBy: adminUid,
-          });
-        }
-        if (comment?.data.status === 'published')
-          batch.update(
-            doc(firestore, `${firestoreRoot}/episodes/episodes`, episodeId),
-            { 'stats.commentsCount': increment(-1) },
-          );
-      }
-      if (disablingUser) {
-        const reportedAuthorId = readString(report.data, 'reportedAuthorId');
-        batch.update(
-          doc(firestore, `${firestoreRoot}/users/users`, reportedAuthorId),
-          { isActive: false, updatedAt: serverTimestamp() },
-        );
-        const comment = sourceComment(report);
-        if (comment?.data.status === 'published') {
-          batch.update(comment.reference, {
-            status: 'removed',
-            moderatedAt: serverTimestamp(),
-            moderatedBy: adminUid,
-          });
-          batch.update(
-            doc(
-              firestore,
-              `${firestoreRoot}/episodes/episodes`,
-              readString(report.data, 'episodeId'),
-            ),
-            { 'stats.commentsCount': increment(-1) },
-          );
-        }
-      }
-      await batch.commit();
+        adminUid,
+      );
       setFeedback({
         type: 'success',
         message:
@@ -883,10 +990,13 @@ function ModerationQueue({
                 ? 'عُطّل الحساب وحُسمت بلاغاته المفتوحة.'
                 : 'أُغلق البلاغ دون اتخاذ إجراء.',
       });
-    } catch {
+    } catch (error) {
       setFeedback({
         type: 'error',
-        message: 'تعذر حفظ قرار الإشراف. لم يُسجل قرار جزئي.',
+        message:
+          error instanceof Error && error.name === 'ContentError'
+            ? error.message
+            : 'تعذر حفظ قرار الإشراف. أعد تحميل البلاغ للتحقق من حالته قبل المحاولة مجددًا.',
       });
     } finally {
       setBusyPath('');
@@ -900,15 +1010,9 @@ function ModerationQueue({
           <h2 className="text-2xl font-bold">طابور الإشراف</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {reports.filter((item) => item.data.status === 'open').length} بلاغًا
-            مفتوحًا · لا تظهر هوية المبلّغ في هذه الواجهة
+            مفتوحًا في الصفحة الحالية · لا تظهر هوية المبلّغ في هذه الواجهة
           </p>
         </div>
-        <Button
-          variant="outline"
-          onClick={() => setShowClosed((current) => !current)}
-        >
-          {showClosed ? 'عرض المفتوحة فقط' : 'عرض السجل المغلق'}
-        </Button>
       </section>
       {error && (
         <Alert variant="destructive">
@@ -930,6 +1034,19 @@ function ModerationQueue({
         {visibleReports.map((report) => {
           const comment = sourceComment(report);
           const isOpen = report.data.status === 'open';
+          const validContext =
+            reportCommentPath(firestoreRoot, report.data) !== null;
+          const unavailable = !validContext
+            ? 'ارتباط التعليق غير صالح. راجع بيانات البلاغ.'
+            : commentContext === 'loading'
+              ? 'جارٍ تحميل التعليق…'
+              : commentContext === 'error'
+                ? 'تعذر التحقق من التعليق. استخدم تحديث لإعادة المحاولة.'
+                : 'التعليق غير موجود أو حُذف سابقًا.';
+          const decisionDisabled =
+            busyPath === report.path ||
+            !validContext ||
+            commentContext !== 'ready';
           return (
             <Card key={report.path}>
               <CardHeader>
@@ -944,7 +1061,10 @@ function ModerationQueue({
                 </CardTitle>
                 <CardDescription>
                   {formatAdminTimestamp(report.data.createdAt)} · الحلقة{' '}
-                  <span dir="ltr">{readString(report.data, 'episodeId')}</span>
+                  <span>
+                    {report.relationLabel ??
+                      readString(report.data, 'episodeId')}
+                  </span>
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -955,7 +1075,7 @@ function ModerationQueue({
                   <p className="mt-2 whitespace-pre-wrap text-sm">
                     {comment
                       ? readString(comment.data, 'content')
-                      : 'التعليق غير موجود أو حُذف سابقًا.'}
+                      : unavailable}
                   </p>
                   <p className="mt-2 text-xs text-muted-foreground">
                     الكاتب:{' '}
@@ -972,11 +1092,32 @@ function ModerationQueue({
                     </p>
                   </div>
                 )}
+                {!isOpen && (
+                  <section
+                    aria-label="القرار المسجّل"
+                    className="rounded-xl border p-4 text-sm"
+                  >
+                    <h3 className="font-semibold">القرار المسجّل</h3>
+                    <p className="mt-2">
+                      {reportResolutionLabel(report.data.resolution)}
+                    </p>
+                    <p className="mt-1 text-muted-foreground">
+                      وقت المراجعة:{' '}
+                      {formatAdminTimestamp(report.data.reviewedAt)}
+                    </p>
+                    <p className="mt-1 text-muted-foreground">
+                      معرّف المسؤول:{' '}
+                      <span dir="ltr">
+                        {readString(report.data, 'reviewedBy') || 'غير مسجّل'}
+                      </span>
+                    </p>
+                  </section>
+                )}
                 {isOpen && (
                   <div className="flex flex-wrap justify-end gap-2">
                     <Button
                       variant="outline"
-                      disabled={busyPath === report.path}
+                      disabled={decisionDisabled}
                       onClick={() => review(report, 'noAction')}
                     >
                       رفض البلاغ
@@ -984,7 +1125,7 @@ function ModerationQueue({
                     <Button
                       variant="outline"
                       disabled={
-                        busyPath === report.path ||
+                        decisionDisabled ||
                         !comment ||
                         comment.data.status !== 'published'
                       }
@@ -995,7 +1136,7 @@ function ModerationQueue({
                     <Button
                       variant="destructive"
                       disabled={
-                        busyPath === report.path ||
+                        decisionDisabled ||
                         !comment ||
                         comment.data.status !== 'published'
                       }
@@ -1005,7 +1146,7 @@ function ModerationQueue({
                     </Button>
                     <Button
                       variant="destructive"
-                      disabled={busyPath === report.path}
+                      disabled={decisionDisabled}
                       onClick={() => review(report, 'userDisabled')}
                     >
                       <UserX /> تعطيل الحساب
@@ -1032,16 +1173,26 @@ function ResourceView({
   firestore,
   definition,
   records,
-  allRecords,
   error,
 }: {
   firestore: Firestore;
   definition: ResourceDefinition;
   records: AdminRecord[];
-  allRecords: RecordsState;
   error?: string;
 }) {
-  const [search, setSearch] = useState('');
+  const hash = useAdminHash();
+  const search = readResourceSearch(definition.key, hash);
+  const setSearch = (value: string) => {
+    const params = new URLSearchParams(hash.split('?')[1] ?? '');
+    if (value) params.set('q', value.slice(0, 200));
+    else params.delete('q');
+    window.history.replaceState(
+      null,
+      '',
+      '#' + definition.key + (params.size ? `?${params}` : ''),
+    );
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  };
   const [editor, setEditor] = useState<AdminRecord | 'new' | null>(null);
   const [busyId, setBusyId] = useState('');
   const [feedback, setFeedback] = useState<{
@@ -1052,7 +1203,7 @@ function ResourceView({
     const term = search.trim().toLowerCase();
     if (!term) return records;
     return records.filter((record) =>
-      `${record.id} ${readString(record.data, definition.titleField)} ${readString(record.data, definition.relationField)}`
+      `${record.id} ${readString(record.data, definition.titleField)} ${readString(record.data, definition.relationField)} ${record.relationLabel ?? ''}`
         .toLowerCase()
         .includes(term),
     );
@@ -1068,7 +1219,7 @@ function ResourceView({
     setBusyId(record.id);
     setFeedback(null);
     try {
-      await deleteWithRelations(firestore, definition.key, record, allRecords);
+      await deleteWithRelations(firestore, definition.key, record);
       setFeedback({
         type: 'success',
         message: 'تم الحذف وتحديث العلاقات بنجاح.',
@@ -1089,7 +1240,7 @@ function ResourceView({
         <div>
           <h2 className="text-2xl font-bold">{definition.label}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {records.length} سجلًا · حد العرض 250 سجلًا
+            {records.length} سجلًا في الصفحة الحالية
           </p>
         </div>
         {definition.creatable && (
@@ -1118,87 +1269,156 @@ function ResourceView({
             <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               className="pr-9"
-              placeholder={`ابحث في ${definition.label}...`}
+              aria-label={`البحث في ${definition.label} بالصفحة الحالية`}
+              placeholder={`ابحث في هذه الصفحة…`}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
           </div>
         </CardHeader>
         <CardContent className="px-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="px-4 text-right">الاسم/المحتوى</TableHead>
-                <TableHead className="text-right">المعرّف</TableHead>
-                <TableHead className="text-right">الارتباط</TableHead>
-                <TableHead className="text-right">الحالة</TableHead>
-                <TableHead className="px-4 text-left">الإجراءات</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((record) => (
-                <TableRow key={record.path}>
-                  <TableCell className="max-w-[340px] truncate px-4 font-medium">
+          <div className="divide-y md:hidden">
+            {filtered.map((record) => (
+              <article key={record.path} className="space-y-3 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="min-w-0 break-words font-semibold">
                     {recordTitle(record, definition)}
-                  </TableCell>
-                  <TableCell
-                    dir="ltr"
-                    className="text-right text-xs text-muted-foreground"
-                  >
-                    {record.id}
-                  </TableCell>
-                  <TableCell>
-                    {readString(record.data, definition.relationField) || '—'}
-                  </TableCell>
-                  <TableCell>
-                    {definition.statusField ? (
+                  </h3>
+                  {definition.key === 'banners' ? (
+                    <BannerStatusBadge data={record.data} />
+                  ) : (
+                    definition.statusField && (
                       <Badge
                         variant={
-                          record.data[definition.statusField] === true
+                          recordIsActive(record, definition)
                             ? 'default'
                             : 'secondary'
                         }
                       >
-                        {record.data[definition.statusField] === true
-                          ? 'نشط'
-                          : 'غير نشط'}
+                        {recordStatus(record, definition)}
                       </Badge>
-                    ) : (
-                      '—'
+                    )
+                  )}
+                </div>
+                <p className="break-words text-sm text-muted-foreground">
+                  {record.relationLabel ||
+                    readString(record.data, definition.relationField) ||
+                    '—'}
+                </p>
+                <p
+                  dir="ltr"
+                  className="break-all text-right font-mono text-xs text-muted-foreground"
+                >
+                  {record.id}
+                </p>
+                {(definition.editable || definition.deletable) && (
+                  <div className="flex gap-2">
+                    {definition.editable && (
+                      <Button
+                        variant="outline"
+                        className="min-h-11 flex-1"
+                        onClick={() => setEditor(record)}
+                      >
+                        <Pencil /> تعديل
+                      </Button>
                     )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex justify-end gap-1">
-                      {definition.editable && (
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label="تعديل"
-                          onClick={() => setEditor(record)}
-                        >
-                          <Pencil />
-                        </Button>
-                      )}
-                      {definition.deletable && (
-                        <Button
-                          variant="destructive"
-                          size="icon-sm"
-                          aria-label="حذف"
-                          disabled={busyId === record.id}
-                          onClick={() => remove(record)}
-                        >
-                          <Trash2 />
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
+                    {definition.deletable && (
+                      <Button
+                        variant="destructive"
+                        className="min-h-11"
+                        disabled={busyId === record.id}
+                        onClick={() => remove(record)}
+                      >
+                        <Trash2 /> حذف
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="px-4 text-right">
+                    الاسم/المحتوى
+                  </TableHead>
+                  <TableHead className="text-right">معرّف السجل</TableHead>
+                  <TableHead className="text-right">الارتباط</TableHead>
+                  <TableHead className="text-right">الحالة</TableHead>
+                  <TableHead className="px-4 text-left">الإجراءات</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((record) => (
+                  <TableRow key={record.path}>
+                    <TableCell className="max-w-[340px] truncate px-4 font-medium">
+                      {recordTitle(record, definition)}
+                    </TableCell>
+                    <TableCell
+                      dir="ltr"
+                      className="text-right text-xs text-muted-foreground"
+                    >
+                      {record.id}
+                    </TableCell>
+                    <TableCell>
+                      {record.relationLabel ||
+                        readString(record.data, definition.relationField) ||
+                        '—'}
+                    </TableCell>
+                    <TableCell>
+                      {definition.key === 'banners' ? (
+                        <BannerStatusBadge data={record.data} />
+                      ) : definition.statusField ? (
+                        <Badge
+                          variant={
+                            recordIsActive(record, definition)
+                              ? 'default'
+                              : 'secondary'
+                          }
+                        >
+                          {recordStatus(record, definition)}
+                        </Badge>
+                      ) : (
+                        '—'
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-1">
+                        {definition.editable && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="تعديل"
+                            onClick={() => setEditor(record)}
+                          >
+                            <Pencil />
+                          </Button>
+                        )}
+                        {definition.deletable && (
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            aria-label="حذف"
+                            disabled={busyId === record.id}
+                            onClick={() => remove(record)}
+                          >
+                            <Trash2 />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
           {filtered.length === 0 && (
             <div className="grid min-h-56 place-items-center text-sm text-muted-foreground">
-              لا توجد سجلات مطابقة.
+              {search
+                ? 'لا توجد نتائج في هذه الصفحة. جرّب صفحة أخرى أو امسح البحث.'
+                : 'لا توجد سجلات في هذه الصفحة.'}
             </div>
           )}
         </CardContent>
@@ -1208,7 +1428,6 @@ function ResourceView({
           firestore={firestore}
           definition={definition}
           record={editor === 'new' ? null : editor}
-          allRecords={allRecords}
           onClose={() => setEditor(null)}
           onSaved={() => {
             setEditor(null);
@@ -1227,274 +1446,170 @@ function ResourceEditor({
   firestore,
   definition,
   record,
-  allRecords,
   onClose,
   onSaved,
 }: {
   firestore: Firestore;
   definition: ResourceDefinition;
   record: AdminRecord | null;
-  allRecords: RecordsState;
   onClose: () => void;
   onSaved: () => void;
 }) {
-  const [documentId, setDocumentId] = useState(record?.id ?? '');
-  const [json, setJson] = useState(() =>
-    JSON.stringify(
-      toEditable(record?.data ?? definition.template ?? {}),
-      null,
-      2,
-    ),
+  const [id] = useState(
+    () =>
+      record?.id ??
+      (definition.path ? doc(collection(firestore, definition.path)).id : ''),
   );
-  const [error, setError] = useState('');
-  const [saving, setSaving] = useState(false);
-  async function save() {
-    setError('');
-    setSaving(true);
-    try {
-      if (!definition.path) throw new Error('هذا المورد غير قابل للتحرير.');
-      const id = (record?.id ?? documentId).trim();
-      if (!id || id.includes('/'))
-        throw new Error('المعرّف مطلوب ولا يجوز أن يحتوي /.');
-      const parsed = JSON.parse(json) as Record<string, unknown>;
-      validateResource(definition.key, parsed, allRecords);
-      const normalized = fromEditable(parsed);
-      if (
-        !normalized ||
-        typeof normalized !== 'object' ||
-        Array.isArray(normalized)
-      ) {
-        throw new Error('جذر الوثيقة يجب أن يكون object.');
-      }
-      await saveWithRelations(
-        firestore,
-        definition.key,
-        definition.path,
-        id,
-        normalized as Record<string, unknown>,
-        record,
-      );
-      onSaved();
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'تعذر حفظ البيانات.');
-    } finally {
-      setSaving(false);
-    }
-  }
-
+  const [initial] = useState(
+    () =>
+      record?.data ?? {
+        ...definition.template,
+        ...(definition.key === 'episodes'
+          ? { broadcastAt: new Date().toISOString() }
+          : {}),
+      },
+  );
+  if (!isContentKind(definition.key)) return null;
   return (
-    <Dialog
-      open
-      onOpenChange={(nextOpen) => {
-        if (!nextOpen) onClose();
+    <ContentEditor
+      firestore={firestore}
+      kind={definition.key}
+      label={definition.singular}
+      initial={initial}
+      isNew={!record}
+      onClose={onClose}
+      onSave={async (data) => {
+        if (!definition.path) return;
+        const location = await validateRelations(
+          firestore,
+          definition.key,
+          data,
+        );
+        await saveWithRelations(
+          firestore,
+          firestoreRoot,
+          definition.key,
+          definition.path,
+          id,
+          fromEditable(data) as Record<string, unknown>,
+          record,
+          location,
+          definition.template?.stats,
+        );
+        onSaved();
       }}
-    >
-      <DialogContent
-        className="max-h-[90vh] overflow-y-auto sm:max-w-2xl"
-        dir="rtl"
-      >
-        <DialogHeader>
-          <DialogTitle>
-            {record
-              ? `تعديل ${definition.singular}`
-              : `إضافة ${definition.singular}`}
-          </DialogTitle>
-          <DialogDescription>
-            المحرر المتقدم يحفظ جميع حقول العقد. التواريخ تُكتب بصيغة ISO.
-          </DialogDescription>
-        </DialogHeader>
-        {!record && (
-          <div className="space-y-2">
-            <Label htmlFor="document-id">Document ID</Label>
-            <Input
-              id="document-id"
-              dir="ltr"
-              value={documentId}
-              onChange={(event) => setDocumentId(event.target.value)}
-              placeholder="stable-document-id"
-            />
-          </div>
-        )}
-        <div className="space-y-2">
-          <Label htmlFor="json-editor">بيانات الوثيقة</Label>
-          <Textarea
-            id="json-editor"
-            dir="ltr"
-            className="min-h-[420px] resize-y font-mono text-xs leading-5"
-            value={json}
-            onChange={(event) => setJson(event.target.value)}
-            spellCheck={false}
-          />
-        </div>
-        {error && (
-          <Alert variant="destructive">
-            <AlertTitle>بيانات غير صالحة</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            إلغاء
-          </Button>
-          <Button onClick={save} disabled={saving}>
-            {saving ? 'جارٍ الحفظ...' : 'حفظ'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    />
   );
 }
 
-async function saveWithRelations(
+function contentError(message: string): Error {
+  const error = new Error(message);
+  error.name = 'ContentError';
+  return error;
+}
+async function validateRelations(
   firestore: Firestore,
   key: ResourceKey,
-  path: string,
-  id: string,
   data: Record<string, unknown>,
-  previous: AdminRecord | null,
 ) {
-  assertSelectedRoot(path);
-  if (previous) assertSelectedRoot(previous.reference.path);
-  const reference = doc(firestore, path, id);
-  const batch = writeBatch(firestore);
-  batch.set(reference, data, { merge: previous !== null });
-  if (key === 'programs') {
-    const nextStation = String(data.stationId);
-    const previousStation = previous ? String(previous.data.stationId) : null;
-    if (!previous)
-      batch.update(doc(firestore, `${firestoreRoot}/stations/stations`, nextStation), {
-        'stats.programsCount': increment(1),
-      });
-    else if (previousStation !== nextStation) {
-      batch.update(
-        doc(firestore, `${firestoreRoot}/stations/stations`, previousStation!),
-        { 'stats.programsCount': increment(-1) },
-      );
-      batch.update(doc(firestore, `${firestoreRoot}/stations/stations`, nextStation), {
-        'stats.programsCount': increment(1),
-      });
-    }
+  if (key === 'programs' || key === 'episodes') {
+    const kind = key === 'programs' ? 'stations' : 'programs';
+    const id = readString(data, key === 'programs' ? 'stationId' : 'programId');
+    if (!id || id.includes('/')) throw contentError('اختر ارتباطًا صالحًا.');
+    const parent = await getDocFromServer(
+      doc(firestore, `${firestoreRoot}/${kind}/${kind}`, id),
+    );
+    if (!parent.exists())
+      throw contentError('السجل المرتبط لم يعد موجودًا. اختر سجلًا آخر.');
+    if (key === 'episodes' && parent.data().stationId !== data.stationId)
+      throw contentError('تغيّرت محطة البرنامج. أعد اختيار البرنامج.');
   }
-  if (key === 'episodes') {
-    const nextProgram = String(data.programId);
-    const previousProgram = previous ? String(previous.data.programId) : null;
-    if (!previous)
-      batch.update(doc(firestore, `${firestoreRoot}/programs/programs`, nextProgram), {
-        'stats.episodesCount': increment(1),
-      });
-    else if (previousProgram !== nextProgram) {
-      batch.update(
-        doc(firestore, `${firestoreRoot}/programs/programs`, previousProgram!),
-        { 'stats.episodesCount': increment(-1) },
-      );
-      batch.update(doc(firestore, `${firestoreRoot}/programs/programs`, nextProgram), {
-        'stats.episodesCount': increment(1),
-      });
-    }
+  if (key === 'stations') {
+    const locations = await getDocsFromServer(
+      query(
+        collection(firestore, `${firestoreRoot}/locations/locations`),
+        where('cityCode', '==', data.cityCode),
+        where('countryCode', '==', data.countryCode),
+        limit(2),
+      ),
+    );
+    if (locations.size !== 1)
+      throw contentError('اختر مدينة موجودة برمز فريد في المرجع.');
+    return locations.docs[0].ref;
   }
-  await batch.commit();
 }
 
 async function deleteWithRelations(
   firestore: Firestore,
   key: ResourceKey,
   record: AdminRecord,
-  allRecords: RecordsState,
 ) {
   assertSelectedRoot(record.reference.path);
   if (
     key === 'stations' &&
-    allRecords.programs.some((item) => item.data.stationId === record.id)
+    (
+      await getDocsFromServer(
+        query(
+          collection(firestore, `${firestoreRoot}/programs/programs`),
+          where('stationId', '==', record.id),
+          limit(1),
+        ),
+      )
+    ).size > 0
   )
     throw new Error(
       'لا يمكن حذف محطة مرتبطة ببرامج. انقل البرامج أو احذفها أولًا.',
     );
   if (
     key === 'programs' &&
-    allRecords.episodes.some((item) => item.data.programId === record.id)
+    (
+      await getDocsFromServer(
+        query(
+          collection(firestore, `${firestoreRoot}/episodes/episodes`),
+          where('programId', '==', record.id),
+          limit(1),
+        ),
+      )
+    ).size > 0
   )
     throw new Error(
       'لا يمكن حذف برنامج مرتبط بحلقات. انقل الحلقات أو احذفها أولًا.',
     );
-  if (key === 'episodes') {
-    const count = await getCountFromServer(
-      query(collection(record.reference, 'comments'), limit(1)),
-    );
-    if (count.data().count > 0)
-      throw new Error('لا يمكن حذف حلقة لها تعليقات. راجع التعليقات أولًا.');
-  }
-  const batch = writeBatch(firestore);
-  batch.delete(record.reference);
-  if (key === 'programs')
-    batch.update(
-      doc(
-        firestore,
-        `${firestoreRoot}/stations/stations`,
-        String(record.data.stationId),
-      ),
-      { 'stats.programsCount': increment(-1) },
-    );
   if (key === 'episodes')
-    batch.update(
-      doc(
+    return deleteEpisode(firestore, record.reference, record.data);
+  await runTransaction(firestore, async (transaction) => {
+    const current = await transaction.get(record.reference);
+    if (!current.exists()) return;
+    const data = current.data();
+    if (editableFingerprint(data) !== editableFingerprint(record.data))
+      throw contentError('تغيّر السجل منذ تحميله. أعد تحميل الصفحة قبل الحذف.');
+    const counter =
+      key === 'stations'
+        ? 'programsCount'
+        : key === 'programs'
+          ? 'episodesCount'
+          : null;
+    if (counter && Number(data.stats?.[counter] ?? 0) > 0)
+      throw contentError('لا يمكن حذف سجل مرتبط بمحتوى آخر.');
+    if (key === 'programs') {
+      const parentKind = 'stations';
+      const relation = 'stationId';
+      const count = 'programsCount';
+      const parent = doc(
         firestore,
-        `${firestoreRoot}/programs/programs`,
-        String(record.data.programId),
-      ),
-      { 'stats.episodesCount': increment(-1) },
-    );
-  if (key === 'comments')
-    batch.update(
-      doc(
-        firestore,
-        `${firestoreRoot}/episodes/episodes`,
-        String(record.data.episodeId),
-      ),
-      { 'stats.commentsCount': increment(-1) },
-    );
-  await batch.commit();
-}
-
-function validateResource(
-  key: ResourceKey,
-  data: Record<string, unknown>,
-  allRecords: RecordsState,
-) {
-  const required =
-    key === 'stations'
-      ? ['name', 'streamUrl', 'cityCode']
-      : key === 'programs'
-        ? ['stationId', 'title']
-        : key === 'episodes'
-          ? ['stationId', 'programId', 'title', 'audioUrl']
-          : key === 'banners'
-            ? ['title', 'imageUrl', 'targetType']
-            : [];
-  for (const field of required)
-    if (typeof data[field] !== 'string' || !String(data[field]).trim())
-      throw new Error(`الحقل ${field} مطلوب.`);
-  for (const field of ['streamUrl', 'audioUrl', 'imageUrl'])
-    if (typeof data[field] === 'string' && !data[field].startsWith('https://'))
-      throw new Error(`الحقل ${field} يجب أن يبدأ بـ https://.`);
-  if (key === 'programs') {
-    if (!allRecords.stations.some((item) => item.id === data.stationId))
-      throw new Error('stationId لا يشير إلى محطة موجودة.');
-    const schedule = data.schedule as Record<string, unknown> | undefined;
-    if (
-      !schedule ||
-      !Array.isArray(schedule.weekdays) ||
-      schedule.weekdays.length === 0
-    )
-      throw new Error('جدول البرنامج مطلوب ويجب أن يحتوي أيام بث.');
-  }
-  if (key === 'episodes') {
-    const program = allRecords.programs.find(
-      (item) => item.id === data.programId,
-    );
-    if (!program) throw new Error('programId لا يشير إلى برنامج موجود.');
-    if (program.data.stationId !== data.stationId)
-      throw new Error('stationId للحلقة لا يطابق محطة البرنامج.');
-  }
+        `${firestoreRoot}/${parentKind}/${parentKind}`,
+        readString(data, relation),
+      );
+      const snapshot = await transaction.get(parent);
+      if (!snapshot.exists())
+        throw contentError(
+          'الارتباط السابق غير موجود. راجع البيانات قبل الحذف.',
+        );
+      assertCounterAdjustment(snapshot.get(`stats.${count}`), -1);
+      transaction.update(parent, { [`stats.${count}`]: increment(-1) });
+    }
+    transaction.delete(record.reference);
+  });
 }
 
 function fromEditable(value: unknown, key = ''): unknown {
@@ -1512,16 +1627,6 @@ function fromEditable(value: unknown, key = ''): unknown {
     Number.isFinite(Date.parse(value))
   )
     return Timestamp.fromDate(new Date(value));
-  return value;
-}
-
-function toEditable(value: unknown): unknown {
-  if (value instanceof Timestamp) return value.toDate().toISOString();
-  if (Array.isArray(value)) return value.map(toEditable);
-  if (value && typeof value === 'object')
-    return Object.fromEntries(
-      Object.entries(value).map(([key, child]) => [key, toEditable(child)]),
-    );
   return value;
 }
 
@@ -1555,15 +1660,31 @@ function reportStatusLabel(value: unknown) {
   return value === 'resolved' ? 'تمت المعالجة' : 'مرفوض';
 }
 
+function recordIsActive(record: AdminRecord, definition: ResourceDefinition) {
+  const status = record.data[definition.statusField ?? ''];
+  return status === true || status === 'published';
+}
+function recordStatus(record: AdminRecord, definition: ResourceDefinition) {
+  const status = record.data[definition.statusField ?? ''];
+  if (definition.key === 'episodes')
+    return status === true ? 'منشورة' : 'مسودة';
+  if (definition.key === 'comments')
+    return (
+      (
+        { published: 'منشور', hidden: 'مخفي', removed: 'مزال' } as Record<
+          string,
+          string
+        >
+      )[typeof status === 'string' ? status : ''] ?? 'حالة غير معروفة'
+    );
+  return status === true ? 'نشط' : 'غير نشط';
+}
 function recordTitle(record: AdminRecord, definition: ResourceDefinition) {
   return readString(record.data, definition.titleField) || record.id;
 }
 function readString(data: Record<string, unknown>, field?: string) {
   const value = field ? data[field] : '';
   return typeof value === 'string' ? value : '';
-}
-function percentage(value: number, total: number) {
-  return total === 0 ? '0%' : `${Math.round((value / total) * 100)}%`;
 }
 function LoadingScreen() {
   return (
@@ -1581,4 +1702,19 @@ function LoadingScreen() {
       </div>
     </main>
   );
+}
+
+function reportResolutionLabel(value: unknown) {
+  switch (value) {
+    case 'noAction':
+      return 'أُغلق البلاغ دون اتخاذ إجراء.';
+    case 'commentHidden':
+      return 'أُخفي التعليق عن الجمهور.';
+    case 'commentRemoved':
+      return 'أُزيل التعليق من الجمهور.';
+    case 'userDisabled':
+      return 'عُطّل حساب المستخدم.';
+    default:
+      return 'تفاصيل القرار غير مسجّلة.';
+  }
 }

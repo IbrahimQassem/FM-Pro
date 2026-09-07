@@ -108,6 +108,23 @@ cityCode, cityNameAr,
 sortOrder, isActive
 ```
 
+Optional internal field `adminRelationRevision` is incremented atomically by
+admin station saves using a location. Location edits read that document before
+querying dependent stations and update their copied country/city fields in the
+same transaction (up to 450 stations). The revision forces a retry when a station
+is created concurrently. Flutter ignores this metadata; it is not a station
+count or an editable field. Other administrative writers must preserve this
+protocol when modifying station location relationships.
+
+Admin location saves also read and increment `adminIdentityRevision` on the
+private parent document `{root}/locations` in the same transaction. After reading
+that document, they query country/city code matches and reject any other location
+with the same pair. Concurrent creates and renames therefore retry the uniqueness
+check. Existing location IDs remain unchanged. Only admins can get/create/update
+this parent document; public location collection reads do not expose it. Deploy
+the matching Rules before this admin workflow. Administrative seed/import writers
+must follow the same protocol or run without concurrent location editing.
+
 الـfilter يأخذ المدن النشطة من هذه المجموعة فقط، ويعرض مدينة عندما توجد محطة
 يمنية تحمل `cityCode` نفسه. لا يُنشأ filter من نص محطة غير موجود في المرجع.
 
@@ -294,3 +311,42 @@ HTTPS فقط. القراءة فقط؛ لا يكتب التطبيق counters.
 - قبل تشديد Rules على بيئة تحتوي تعليقات قديمة، شغّل
   `npm run comments:status:dry` ثم `comments:status:apply` بتفويض مستقل لإضافة
   `status=published` للتعليقات التي لا تملك حالة.
+
+
+## Admin episode deletion
+
+`web_admin` places a temporary server-authorized `adminDeletionToken` on an episode
+before querying its comments. Rules reject new comments when the episode is absent
+or this marker is present. A transaction then verifies the unchanged episode and
+marker, deletes the episode and decrements its program counter together. Existing
+comments block deletion; operators can unpublish that episode instead. Failure
+clears only the calling attempt's marker. A later attempt can recover an interrupted
+operation without recreating an absent episode or decrementing its counter twice.
+
+Deploy the matching Rules before releasing the updated deletion UI. The marker is
+operational metadata, never an editable content field. Direct administrative or
+backend deletion tools must use the same guard when listeners can write comments.
+The demo-only `npm run emulators:admin` suite exercises both roots, retries,
+concurrent deletion attempts and concurrent comment creation.
+
+
+## Profile image storage lifecycle
+
+Verified active listeners may send `imageBase64` instead of `avatarUrl` to
+`updateAccountProfile`. The callable validates/re-encodes JPEG/PNG, limits input to
+1 MB and 16 million pixels, and returns the existing `{updated: true}` contract.
+The profile receives `avatarUrl`, `avatarUploadId`, `avatarStoragePath` and a
+server-owned `lastImageUploadAt` rate-limit timestamp. The two roots share Auth
+but have distinct image paths: `{root}/profile-images/{uid}/{uploadId}.jpg`.
+
+`{root}/profileImageUploads/uploads/{uploadId}` is private server-owned cleanup
+state (`uid`, `root`, `objectPath`, `state`, `createdAt`, `settleAt`, `dueAt`). Client
+Firestore access is denied, including admin clients. Finalization checks both
+account-deletion barriers and the upload job in a transaction. The hourly
+collector reserves deletion before touching an unreferenced object; it cannot
+race a finalization into referencing that object. Referenced images are retained,
+including for moderated inactive profiles, until replaced or the account is deleted.
+Deletion tombstones survive the callable lifetime and are removed by a subsequent
+successful cleanup pass. Storage SDK reads and writes are denied; image display
+uses an unguessable, shareable HTTPS bearer URL from the backend. No device path,
+original EXIF or original upload bytes are persisted.
