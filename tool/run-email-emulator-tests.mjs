@@ -40,7 +40,7 @@ try {
       'emulators:exec',
       '--only', 'auth,firestore,functions',
       '--project', 'demo-hudhud-fm-email-verification',
-      'node --test tests/firebase-emulators/email-verification.test.js',
+      'node --test firebase_tests/firebase-emulators/email-verification.test.js',
     ], {
       cwd: projectDirectory,
       stdio: 'inherit',

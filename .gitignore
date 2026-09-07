@@ -58,3 +58,9 @@ app.*.map.json
 *.jks
 *.keystore
 
+# Local user exports & sensitive data
+users.json
+firestore-debug.log
+ui-debug.log
+
+

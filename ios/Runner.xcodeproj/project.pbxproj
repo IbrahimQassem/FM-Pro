@@ -209,6 +209,7 @@
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				5F9AE3B3DC82EA80BF33C29F /* [CP] Embed Pods Frameworks */,
 				D02609060000000000000001 /* Crashlytics Symbols */,
+				D9616D7F2F9C4692B44AA9CF /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -396,6 +397,23 @@
 			shellScript = "/bin/sh \"$SRCROOT/../tool/ios-crashlytics-symbols.sh\"";
 			showEnvVarsInLog = 0;
 		};
+		D9616D7F2F9C4692B44AA9CF /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -512,9 +530,9 @@
 				DEVELOPMENT_TEAM = ZVD32Y6N55;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				INFOPLIST_KEY_CFBundleDisplayName = "Hudhud FM";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -702,9 +720,9 @@
 				DEVELOPMENT_TEAM = ZVD32Y6N55;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				INFOPLIST_KEY_CFBundleDisplayName = "Hudhud FM";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -732,9 +750,9 @@
 				DEVELOPMENT_TEAM = ZVD32Y6N55;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				INFOPLIST_KEY_CFBundleDisplayName = "Hudhud FM";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

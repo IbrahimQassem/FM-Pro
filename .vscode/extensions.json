@@ -2,7 +2,13 @@
   "recommendations": [
     "dart-code.flutter",
     "dart-code.dart-code",
+    "nash.awesome-flutter-snippets",
     "usernamehw.errorlens",
-    "nash.awesome-flutter-snippets"
+    "bradlc.vscode-tailwindcss",
+    "oxc.oxc-vscode",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "timonwong.shellcheck",
+    "toba.vsfire"
   ]
 }

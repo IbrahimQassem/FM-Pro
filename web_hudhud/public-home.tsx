@@ -401,7 +401,7 @@ export function PublicHome() {
 
         <section className="about-section" id="about">
           <div className="about-mark"><Radio size={28} /></div>
-          <div><span className="section-eyebrow">هدهد FM</span><h2>صوت محلي، بتجربة أبسط.</h2><p>هدهد يجمع المحطات النشطة من الكتالوج الرسمي في مكان واحد. بيانات المحطات تُقرأ مباشرة من Firebase، والاقتراحات الذكية هنا محلية على جهازك.</p></div>
+          <div><span className="section-eyebrow">هدهد FM</span><h2>صوت محلي، بتجربة أبسط.</h2><p>هدهد يجمع المحطات النشطة من الكتالوج الرسمي في مكان واحد. بيانات المحطات تُقرأ مباشرة من المصدر الرسمي للمنصة.</p></div>
           <a className="about-link" href="#top">العودة إلى الأعلى <ChevronLeft size={17} /></a>
         </section>
       </main>

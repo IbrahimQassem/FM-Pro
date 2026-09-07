@@ -78,7 +78,7 @@ npm run emulators:account-deletion
 [`DEMO_COVERAGE.md`](tool/firebase_seed/DEMO_COVERAGE.md). ابدأ دائمًا بـdry-run؛
 لا يشغّل المشروع apply تلقائيًا.
 
-لوحة إدارة الويب موجودة في [`admin_web`](admin_web/README.md)، وتغطي المحتوى
+لوحة إدارة الويب موجودة في [`web_admin`](web_admin/README.md)، وتغطي المحتوى
 والجداول والحلقات والإعلانات وتعليقات الجمهور وطابور الإشراف والمفضلة
 والاشتراكات. الدخول يتطلب
 حساب Firebase Auth يحمل `admin=true` ولا تعتمد اللوحة على أسرار داخل المصدر.

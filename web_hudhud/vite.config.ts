@@ -22,10 +22,10 @@ const firebaseKeys = {
 } as const;
 
 export default defineConfig(({ command, mode }) => {
-  // The public site shares the existing admin_web environment file locally.
+  // The public site shares the existing web_admin environment file locally.
   // Values are still injected at build time and only the normal Firebase Web
   // configuration reaches the browser; no admin credentials are read.
-  const envDir = fileURLToPath(new URL('../admin_web', import.meta.url));
+  const envDir = fileURLToPath(new URL('../web_admin', import.meta.url));
   const env = loadEnv(mode, envDir, '');
   const root = resolveRoot(
     process.env.VITE_FIRESTORE_ROOT || env.VITE_FIRESTORE_ROOT,

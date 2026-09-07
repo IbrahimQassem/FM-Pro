@@ -15,12 +15,59 @@
   "dart.lineLength": 80,
   "dart.previewFlutterUiGuides": true,
   "dart.openDevTools": "flutter",
+  "dart.flutterAdditionalArgs": [
+    "--device-timeout=30"
+  ],
+  "dart.promptToRunIfNoDevices": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2
+  },
+  "[json]": {
+    "editor.tabSize": 2
+  },
+  "[jsonc]": {
+    "editor.tabSize": 2
+  },
+  "typescript.suggest.completeFunctionCalls": true,
+  "javascript.suggest.completeFunctionCalls": true,
+  "files.associations": {
+    "*.rules": "firebase-rules",
+    "*.sh": "shellscript",
+    "*.env*": "properties"
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.dart_tool": true,
+    "**/build": true,
+    "**/.firebase": true,
+    "**/dist": true,
+    "**/.git": true
+  },
   "files.watcherExclude": {
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
-    "**/node_modules/*/**": true,
+    "**/node_modules/**": true,
     "**/.dart_tool/**": true,
-    "**/build/**": true
+    "**/build/**": true,
+    "**/.firebase/**": true,
+    "**/dist/**": true
   },
   "files.exclude": {
     "**/.git": true,
@@ -30,9 +77,5 @@
     "**/.DS_Store": true,
     "**/.dart_tool": false,
     "**/build": false
-  },
-  "dart.flutterAdditionalArgs": [
-    "--device-timeout=30"
-  ],
-  "dart.promptToRunIfNoDevices": true
+  }
 }

@@ -12,6 +12,26 @@
       }
     },
     {
+      "label": "Flutter: Run on iOS Simulator",
+      "type": "shell",
+      "command": "flutter run -d C04506A7-6F3C-4418-93C3-1046365A40AC",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Flutter: Run on Chrome",
+      "type": "shell",
+      "command": "flutter run -d chrome",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
       "label": "iOS: Launch App on iPhone (devicectl)",
       "type": "shell",
       "command": "xcrun devicectl device process launch --device iPhone com.sana.dev.fm",
@@ -58,9 +78,9 @@
       }
     },
     {
-      "label": "Project: Verify Governance",
+      "label": "Flutter: Build iOS (Release)",
       "type": "shell",
-      "command": "./tool/verify-governance.sh",
+      "command": "flutter build ipa --release",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
@@ -68,9 +88,315 @@
       }
     },
     {
-      "label": "Project: Verify Auth Readiness",
+      "label": "Flutter: Build APK (Release)",
       "type": "shell",
-      "command": "./tool/verify-auth-readiness.sh",
+      "command": "flutter build apk --release",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Web Admin: Dev Server (Vite)",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/web_admin"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*(vite|VITE).*",
+          "endsPattern": ".*Local:.*http://localhost.*"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Web Admin: Build",
+      "type": "shell",
+      "command": "npm run build",
+      "options": {
+        "cwd": "${workspaceFolder}/web_admin"
+      },
+      "group": {
+        "kind": "build"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Web Admin: Lint (oxlint)",
+      "type": "shell",
+      "command": "npm run lint",
+      "options": {
+        "cwd": "${workspaceFolder}/web_admin"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Web Admin: Format (oxfmt)",
+      "type": "shell",
+      "command": "npm run format",
+      "options": {
+        "cwd": "${workspaceFolder}/web_admin"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Web Admin: Run Tests",
+      "type": "shell",
+      "command": "npm test",
+      "options": {
+        "cwd": "${workspaceFolder}/web_admin"
+      },
+      "group": {
+        "kind": "test"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Web Admin: npm install",
+      "type": "shell",
+      "command": "npm install",
+      "options": {
+        "cwd": "${workspaceFolder}/web_admin"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Web HudHud: Dev Server (Vite)",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/web_hudhud"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*(vite|VITE).*",
+          "endsPattern": ".*Local:.*http://localhost.*"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Web HudHud: Build",
+      "type": "shell",
+      "command": "npm run build",
+      "options": {
+        "cwd": "${workspaceFolder}/web_hudhud"
+      },
+      "group": {
+        "kind": "build"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Web HudHud: Lint (oxlint)",
+      "type": "shell",
+      "command": "npm run lint",
+      "options": {
+        "cwd": "${workspaceFolder}/web_hudhud"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Web HudHud: npm install",
+      "type": "shell",
+      "command": "npm install",
+      "options": {
+        "cwd": "${workspaceFolder}/web_hudhud"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Functions: Lint",
+      "type": "shell",
+      "command": "npm run lint",
+      "options": {
+        "cwd": "${workspaceFolder}/functions"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Functions: Run Tests",
+      "type": "shell",
+      "command": "npm test",
+      "options": {
+        "cwd": "${workspaceFolder}/functions"
+      },
+      "group": {
+        "kind": "test"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Functions: npm install",
+      "type": "shell",
+      "command": "npm install",
+      "options": {
+        "cwd": "${workspaceFolder}/functions"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Firebase: Start Emulators (Auth, Firestore, Functions)",
+      "type": "shell",
+      "command": "firebase emulators:start --only auth,firestore,functions",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Firebase: Run Rules Tests",
+      "type": "shell",
+      "command": "npm run emulators:test",
+      "group": {
+        "kind": "test"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Firebase: Run Account Deletion Tests",
+      "type": "shell",
+      "command": "npm run emulators:account-deletion",
+      "group": {
+        "kind": "test"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Firebase: Run Email Verification Tests",
+      "type": "shell",
+      "command": "npm run emulators:email-verification",
+      "group": {
+        "kind": "test"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Tool: Verify Governance",
+      "type": "shell",
+      "command": "bash ./tool/verify-governance.sh",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Tool: Verify Auth Readiness",
+      "type": "shell",
+      "command": "bash ./tool/verify-auth-readiness.sh",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Tool: iOS Release Preflight",
+      "type": "shell",
+      "command": "bash ./tool/ios-release-preflight.sh",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Tool: iOS Upload Crashlytics Symbols",
+      "type": "shell",
+      "command": "bash ./tool/ios-crashlytics-symbols.sh",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Tool: Run All Verifications",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Tool: Verify Governance",
+        "Tool: Verify Auth Readiness"
+      ],
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",

@@ -9,7 +9,7 @@
   "hosting": [
     {
       "target": "hudhud_admin",
-      "public": "admin_web/dist",
+      "public": "web_admin/dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "headers": [
         {
@@ -49,7 +49,7 @@
     },
     {
       "target": "hudhud_public",
-      "public": "public_web/dist",
+      "public": "web_hudhud/dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "headers": [
         {

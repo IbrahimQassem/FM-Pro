@@ -2,7 +2,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "hudhud_fm (Real iPhone - Wireless)",
+      "name": "Flutter: Selected / Active Device",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart"
+    },
+    {
+      "name": "Flutter: Real iPhone (Wireless)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
@@ -12,7 +18,7 @@
       ]
     },
     {
-      "name": "hudhud_fm (Real iPhone - Release)",
+      "name": "Flutter: Real iPhone (Release)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "release",
@@ -23,37 +29,144 @@
       ]
     },
     {
-      "name": "hudhud_fm (Simulator - iPhone 17 Pro Max)",
+      "name": "Flutter: Simulator (iPhone 17 Pro Max)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
       "deviceId": "C04506A7-6F3C-4418-93C3-1046365A40AC"
     },
     {
-      "name": "hudhud_fm (Selected / Active Device)",
+      "name": "Flutter: Chrome (Web)",
       "request": "launch",
       "type": "dart",
-      "program": "lib/main.dart"
+      "program": "lib/main.dart",
+      "deviceId": "chrome"
     },
     {
-      "name": "hudhud_fm (Profile Mode)",
+      "name": "Flutter: Profile Mode",
       "request": "launch",
       "type": "dart",
       "flutterMode": "profile",
       "program": "lib/main.dart"
     },
     {
-      "name": "hudhud_fm (Release Mode)",
+      "name": "Flutter: Release Mode",
       "request": "launch",
       "type": "dart",
       "flutterMode": "release",
       "program": "lib/main.dart"
     },
     {
-      "name": "hudhud_fm (Run All Tests)",
+      "name": "Flutter: Run All Tests",
       "request": "launch",
       "type": "dart",
       "program": "test"
+    },
+    {
+      "name": "Flutter: Test Current File",
+      "request": "launch",
+      "type": "dart",
+      "program": "${file}"
+    },
+    {
+      "name": "Web Admin: Debug in Chrome (Port 5174)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5174",
+      "webRoot": "${workspaceFolder}/web_admin",
+      "preLaunchTask": "Web Admin: Dev Server (Vite)"
+    },
+    {
+      "name": "Web Admin: Run Unit Tests",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/web_admin",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "test"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Web HudHud: Debug in Chrome (Port 5173)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/web_hudhud",
+      "preLaunchTask": "Web HudHud: Dev Server (Vite)"
+    },
+    {
+      "name": "Functions: Run Unit Tests",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/functions",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "test"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Functions: Debug Current Test File",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/functions",
+      "program": "${workspaceFolder}/functions/node_modules/.bin/node",
+      "args": [
+        "--test",
+        "${file}"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Firebase: Run Rules Tests",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "emulators:test"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Firebase: Run Account Deletion Tests",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "emulators:account-deletion"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Firebase: Run Email Verification Tests",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "emulators:email-verification"
+      ],
+      "console": "integratedTerminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Compound: Web Admin (Dev Server + Chrome)",
+      "configurations": [
+        "Web Admin: Debug in Chrome (Port 5174)"
+      ]
+    },
+    {
+      "name": "Compound: Web HudHud (Dev Server + Chrome)",
+      "configurations": [
+        "Web HudHud: Debug in Chrome (Port 5173)"
+      ]
     }
   ]
 }
