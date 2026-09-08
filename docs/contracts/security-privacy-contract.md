@@ -68,7 +68,8 @@
 
 ## التخزين والسجلات
 
-- `SharedPreferences` يخزن اختيار grid/list فقط حاليًا، لا credentials أو PII.
+- `SharedPreferences` يخزن اختيار grid/list وإكمال الجولة وتفضيلات الإشعارات
+  العامة وعلم تفعيل إشعارات المحطات على الجهاز؛ لا credentials أو tokens أو PII.
 - Firestore cache تديره SDK ولا يُعامل كصلاحية للوصول بعد تغير الهوية.
 - debug logging يقتصر على نوع الخطأ وأعداد accepted/rejected دون وثائق أو URLs.
 - لا تضف crash/analytics payload يحتوي user data قبل مراجعة الخصوصية.
@@ -89,3 +90,14 @@
 - لا release production مع debug signing أو إعداد Development.
 - لا يقدم رابط حذف الحساب إلى Play Console قبل نشر الدالة والصفحة العامة
   واختبارهما بحساب Development قابل للتخلص منه.
+
+
+## Station subscription development amendment — 2026-09-08
+
+[ADR 0003](../decisions/0003-station-subscriptions-and-alerts.md) owns the station
+follow flow, callable mutations, private device registrations, publication jobs,
+retention, consent and allowlisted episode notification navigation. This supersedes
+the earlier topic-only/no-payload-navigation boundary for version-1 episode alerts
+only. General announcements remain independent; arbitrary URLs remain rejected.
+Private device/job paths are denied by the default Rules, including admin clients.
+No production deployment or app release is included.

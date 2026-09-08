@@ -1,3 +1,9 @@
+import '../features/home/data/repositories/home_preferences_repository.dart';
+import '../features/subscriptions/data/station_alert_device_data_source.dart';
+import '../features/subscriptions/data/station_subscriptions_data_source.dart';
+import '../features/subscriptions/data/firebase_station_subscriptions_repository.dart';
+import '../features/subscriptions/domain/station_subscription.dart';
+import '../features/subscriptions/presentation/station_subscriptions_controller.dart';
 import '../features/account/domain/services/profile_image_picker.dart';
 import '../features/account/data/datasources/device_profile_image_picker.dart';
 import "../features/onboarding/data/repositories/onboarding_repository.dart";
@@ -83,6 +89,8 @@ final accountAuthDataSourceProvider = Provider<AccountAuthDataSource>((ref) {
     FirebaseFunctions.instance,
     GoogleSignIn.instance,
     FacebookAuth.instance,
+    beforeSignOut:
+        ref.watch(stationAlertDeviceDataSourceProvider).beforeSignOut,
   );
 });
 
@@ -137,6 +145,7 @@ final homeControllerProvider =
     ref.watch(bannersRepositoryProvider),
     ref.watch(locationsRepositoryProvider),
     ref.watch(userRepositoryProvider),
+    const SharedPreferencesHomeRepository(),
   );
 });
 
@@ -210,3 +219,22 @@ final onboardingControllerProvider =
     StateNotifierProvider<OnboardingController, OnboardingState>((ref) {
   return OnboardingController(ref.watch(onboardingRepositoryProvider));
 });
+
+final stationAlertDeviceDataSourceProvider =
+    Provider<StationAlertDeviceDataSource>((ref) {
+  final source = StationAlertDeviceDataSource(FirebaseMessaging.instance,
+      FirebaseFunctions.instance, FirebaseAuth.instance);
+  ref.onDispose(source.dispose);
+  return source;
+});
+final stationSubscriptionsRepositoryProvider =
+    Provider<StationSubscriptionsRepository>((ref) =>
+        FirebaseStationSubscriptionsRepository(
+            StationSubscriptionsDataSource(
+                FirebaseFirestore.instance, FirebaseFunctions.instance),
+            ref.watch(stationAlertDeviceDataSourceProvider)));
+final stationSubscriptionsControllerProvider = StateNotifierProvider<
+        StationSubscriptionsController, StationSubscriptionsState>(
+    (ref) => StationSubscriptionsController(
+        ref.watch(stationSubscriptionsRepositoryProvider),
+        ref.watch(accountRepositoryProvider)));

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../domain/repositories/home_preferences_repository.dart';
 
 import '../../domain/repositories/banners_repository.dart';
 import '../../domain/repositories/locations_repository.dart';
@@ -15,11 +15,15 @@ class HomeController extends StateNotifier<HomeState> {
     this._bannersRepository,
     this._locationsRepository,
     this._userRepository,
+    this._preferences,
   ) : super(const HomeState()) {
     unawaited(_initialize());
   }
 
-  static const _viewModePreferenceKey = 'home.stationViewMode';
+  final HomePreferencesRepository _preferences;
+  int _refreshGeneration = 0;
+  int _userGeneration = 0;
+  int _viewModeGeneration = 0;
 
   final StationsRepository _stationsRepository;
   final BannersRepository _bannersRepository;
@@ -27,6 +31,7 @@ class HomeController extends StateNotifier<HomeState> {
   final UserRepository _userRepository;
 
   Future<void> _initialize() async {
+    final generation = _refreshGeneration;
     await Future.wait([
       _loadViewMode(),
       _loadUser(),
@@ -34,31 +39,39 @@ class HomeController extends StateNotifier<HomeState> {
       _loadBannerCache(),
       _loadLocationCache(),
     ]);
-    await refresh();
+    if (mounted && generation == _refreshGeneration) await refresh();
   }
 
   Future<void> _loadViewMode() async {
-    final preferences = await SharedPreferences.getInstance();
-    final saved = preferences.getString(_viewModePreferenceKey);
-    if (!mounted) return;
-    state = state.copyWith(
-      viewMode: saved == StationViewMode.list.name
-          ? StationViewMode.list
-          : StationViewMode.grid,
-    );
+    final generation = _viewModeGeneration;
+    try {
+      final saved = await _preferences.readViewMode();
+      if (mounted && generation == _viewModeGeneration) {
+        state = state.copyWith(
+            viewMode: saved == StationViewMode.list.name
+                ? StationViewMode.list
+                : StationViewMode.grid);
+      }
+    } on Object {/* Optional preference must not block discovery. */}
   }
 
   Future<void> _loadUser() async {
-    final user = await _userRepository.currentUser();
-    if (mounted) state = state.copyWith(user: user);
+    final generation = ++_userGeneration;
+    try {
+      final user = await _userRepository.currentUser();
+      if (mounted && generation == _userGeneration) {
+        state = state.copyWith(user: user);
+      }
+    } on Object {/* Retain the safe guest/current projection. */}
   }
 
   Future<void> refreshUser() => _loadUser();
 
   Future<void> _loadStationCache() async {
+    final generation = _refreshGeneration;
     try {
       final stations = await _stationsRepository.readCache();
-      if (!mounted) return;
+      if (!mounted || generation != _refreshGeneration) return;
       if (stations.items.isNotEmpty) {
         state = state.copyWith(
           stations: stations.items,
@@ -73,18 +86,22 @@ class HomeController extends StateNotifier<HomeState> {
   }
 
   Future<void> _loadBannerCache() async {
+    final generation = _refreshGeneration;
     try {
       final banners = await _bannersRepository.readCache();
-      if (mounted) state = state.copyWith(banners: banners.items);
+      if (mounted && generation == _refreshGeneration) {
+        state = state.copyWith(banners: banners.items);
+      }
     } on Object {
       // Banners never block the home screen.
     }
   }
 
   Future<void> _loadLocationCache() async {
+    final generation = _refreshGeneration;
     try {
       final locations = await _locationsRepository.readCache();
-      if (mounted) {
+      if (mounted && generation == _refreshGeneration) {
         state = state.copyWith(referenceLocations: locations.items);
       }
     } on Object {
@@ -93,6 +110,8 @@ class HomeController extends StateNotifier<HomeState> {
   }
 
   Future<void> refresh() async {
+    if (!mounted) return;
+    final generation = ++_refreshGeneration;
     state = state.copyWith(
       isRefreshing: state.hasStations,
       isInitialLoading: !state.hasStations,
@@ -101,7 +120,7 @@ class HomeController extends StateNotifier<HomeState> {
 
     try {
       final stations = await _stationsRepository.refresh();
-      if (!mounted) return;
+      if (!mounted || generation != _refreshGeneration) return;
       final selectedCityStillExists = stations.items.any(
         (station) => station.cityCode == state.selectedCityCode,
       );
@@ -115,7 +134,7 @@ class HomeController extends StateNotifier<HomeState> {
         rejectedRecords: stations.rejectedRecords,
       );
     } on Object {
-      if (!mounted) return;
+      if (!mounted || generation != _refreshGeneration) return;
       state = state.copyWith(
         isInitialLoading: false,
         isRefreshing: false,
@@ -124,26 +143,30 @@ class HomeController extends StateNotifier<HomeState> {
       );
     }
 
-    unawaited(_refreshBanners());
-    unawaited(_refreshLocations());
+    unawaited(_refreshBanners(generation));
+    unawaited(_refreshLocations(generation));
     unawaited(_loadUser());
   }
 
-  Future<void> _refreshBanners() async {
+  Future<void> _refreshBanners(int generation) async {
     try {
       final result = await _bannersRepository.refresh();
-      if (mounted) state = state.copyWith(banners: result.items);
+      if (mounted && generation == _refreshGeneration) {
+        state = state.copyWith(banners: result.items);
+      }
     } on Object {
-      if (mounted && state.banners.isEmpty) {
+      if (mounted &&
+          generation == _refreshGeneration &&
+          state.banners.isEmpty) {
         state = state.copyWith(banners: const []);
       }
     }
   }
 
-  Future<void> _refreshLocations() async {
+  Future<void> _refreshLocations(int generation) async {
     try {
       final result = await _locationsRepository.refresh();
-      if (!mounted) return;
+      if (!mounted || generation != _refreshGeneration) return;
       final selectedCityStillExists = result.items.any(
         (location) => location.cityCode == state.selectedCityCode,
       );
@@ -176,8 +199,11 @@ class HomeController extends StateNotifier<HomeState> {
   }
 
   Future<void> setViewMode(StationViewMode mode) async {
+    if (!mounted) return;
+    _viewModeGeneration++;
     state = state.copyWith(viewMode: mode);
-    final preferences = await SharedPreferences.getInstance();
-    await preferences.setString(_viewModePreferenceKey, mode.name);
+    try {
+      await _preferences.saveViewMode(mode.name);
+    } on Object {/* Keep this session usable if local storage fails. */}
   }
 }

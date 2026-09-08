@@ -61,7 +61,8 @@ void main() {
       final service = ShareService(sharePlugin: plugin);
       await service.shareApp(shareContext);
       await service.shareStation(shareContext, station);
-      await service.shareEpisode(shareContext, episode, station);
+      await service.shareEpisode(shareContext, episode, station,
+          programTitle: 'Distinct Program');
       expect(plugin.calls, hasLength(3));
       for (final params in plugin.calls) {
         expect(params.text, contains(StoreUrlHelper.getStoreUrl()));
@@ -76,6 +77,7 @@ void main() {
       expect(plugin.calls[2].text, contains(episode.title));
       expect(plugin.calls[2].text, contains(station.name));
       expect(plugin.calls[2].subject, episode.title);
+      expect(plugin.calls[2].text, contains('Distinct Program'));
     });
   }
 }

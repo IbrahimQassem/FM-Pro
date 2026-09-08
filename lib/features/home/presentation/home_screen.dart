@@ -1,3 +1,4 @@
+import '../../notifications/presentation/episode_alert_navigation.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -22,9 +23,10 @@ class HomeScreen extends ConsumerWidget {
     final controller = ref.read(homeControllerProvider.notifier);
     final playerState = ref.watch(stationPlayerControllerProvider);
     final playerController = ref.read(stationPlayerControllerProvider.notifier);
-    ref.watch(favoritesControllerProvider);
+    final favoritesState = ref.watch(favoritesControllerProvider);
     final favoritesController = ref.read(favoritesControllerProvider.notifier);
     ref.watch(notificationsControllerProvider);
+    ref.watch(stationSubscriptionsControllerProvider);
 
     // Synchronize favorite IDs with HomeState
     ref.listen(favoritesControllerProvider, (previous, next) {
@@ -41,7 +43,18 @@ class HomeScreen extends ConsumerWidget {
 
     ref.listen(notificationsControllerProvider, (previous, next) {
       final latest = next.latest;
-      if (latest == null || previous?.latest?.id == latest.id) return;
+      if (latest == null) return;
+      if (latest.openRequested &&
+          latest.target != null &&
+          (previous?.latest?.id != latest.id ||
+              previous?.latest?.openRequested != true)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            unawaited(openEpisodeAlert(context, ref, latest.target!));
+          }
+        });
+      }
+      if (previous?.latest?.id == latest.id) return;
       final text = latest.title.isEmpty ? latest.body : latest.title;
       if (text.isEmpty) return;
       final messenger = ScaffoldMessenger.of(context);
@@ -76,7 +89,10 @@ class HomeScreen extends ConsumerWidget {
       final messenger = ScaffoldMessenger.of(context);
       final outcome =
           await favoritesController.toggleFavoriteStation(station.id);
+      if (!context.mounted) return;
       switch (outcome) {
+        case FavoriteActionOutcome.ignored:
+          break;
         case FavoriteActionOutcome.successAdded:
           messenger.hideCurrentSnackBar();
           messenger.showSnackBar(
@@ -129,7 +145,14 @@ class HomeScreen extends ConsumerWidget {
     }
 
     return HomeView(
-      state: state,
+      state:
+          state.copyWith(favoriteStationIds: favoritesState.favoriteStationIds),
+      pendingFavoriteIds: favoritesState.pendingStationIds,
+      onResume: () {
+        unawaited(ref
+            .read(stationSubscriptionsControllerProvider.notifier)
+            .reconcileDevice());
+      },
       onRefresh: controller.refresh,
       onSearchChanged: controller.updateSearch,
       onCitySelected: controller.selectCity,

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hudhud_fm/features/station_content/domain/models/program_schedule.dart';
 import 'package:hudhud_fm/features/station_content/domain/models/station_content_batch.dart';
@@ -7,6 +8,51 @@ import 'package:hudhud_fm/features/station_content/presentation/controllers/stat
 import 'package:hudhud_fm/features/station_content/presentation/controllers/station_content_state.dart';
 
 void main() {
+  test('late cache cannot replace an explicit server refresh', () async {
+    final repository = _DelayedRepository();
+    final controller = StationContentController('sanaa-radio', repository);
+    final refresh = controller.refresh();
+    repository.requests.single.complete(_batch(const [_program]));
+    await refresh;
+    repository.cache.complete(_batch(const []));
+    await pumpEventQueue();
+    expect(repository.requests, hasLength(1));
+    expect(controller.state.programs, [_program]);
+    expect(controller.state.isOffline, isFalse);
+    controller.dispose();
+  });
+
+  test('newer refresh wins over older success and failure', () async {
+    final repository = _DelayedRepository();
+    final controller = StationContentController('sanaa-radio', repository);
+    repository.cache.complete(_batch(const []));
+    await pumpEventQueue();
+    final latest = controller.refresh();
+    repository.requests.last.complete(_batch(const [_program]));
+    await latest;
+    repository.requests.first.completeError(Exception('stale'));
+    await pumpEventQueue();
+    expect(controller.state.programs, [_program]);
+    expect(controller.state.isOffline, isFalse);
+    final older = controller.refresh();
+    final newer = controller.refresh();
+    repository.requests.last.complete(_batch(const []));
+    await newer;
+    repository.requests[2].complete(_batch(const [_program]));
+    await older;
+    expect(controller.state.programs, isEmpty);
+    controller.dispose();
+  });
+
+  test('disposal during cache read starts no server request', () async {
+    final repository = _DelayedRepository();
+    final controller = StationContentController('sanaa-radio', repository);
+    controller.dispose();
+    repository.cache.complete(_batch(const [_program]));
+    await pumpEventQueue();
+    expect(repository.requests, isEmpty);
+  });
+
   test('publishes refreshed station content', () async {
     final repository = _FakeStationContentRepository();
     final controller = StationContentController('sanaa-radio', repository);
@@ -94,3 +140,23 @@ const _program = StationProgram(
   subscribersCount: 2,
   totalPlays: 3,
 );
+
+StationContentBatch _batch(List<StationProgram> programs) =>
+    StationContentBatch(
+        programs: programs,
+        episodes: const [],
+        rejectedRecords: 0,
+        isFromCache: false);
+
+class _DelayedRepository implements StationContentRepository {
+  final cache = Completer<StationContentBatch>();
+  final requests = <Completer<StationContentBatch>>[];
+  @override
+  Future<StationContentBatch> readCache(String stationId) => cache.future;
+  @override
+  Future<StationContentBatch> refresh(String stationId) {
+    final request = Completer<StationContentBatch>();
+    requests.add(request);
+    return request.future;
+  }
+}

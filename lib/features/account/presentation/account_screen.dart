@@ -1,3 +1,4 @@
+import '../../subscriptions/presentation/my_stations_screen.dart';
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
@@ -242,6 +243,11 @@ class AccountScreen extends ConsumerWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
+          ListTile(
+              leading: const Icon(Icons.radio_outlined),
+              title: Text(strings.myStations),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (_) => const MyStationsScreen()))),
           ListTile(
             key: const Key("account-share-app"),
             leading: const Icon(Icons.share_rounded),

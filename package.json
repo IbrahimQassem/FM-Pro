@@ -10,7 +10,8 @@
     "emulators:account-deletion": "firebase emulators:exec --only auth,firestore,functions --project demo-hudhud-fm-account-deletion \"node --test firebase_tests/firebase-emulators/account-deletion.test.js\"",
     "emulators:email-verification": "node tool/run-email-emulator-tests.mjs",
     "emulators:admin": "firebase emulators:exec --only firestore --project demo-hudhud-admin-test \"node --experimental-strip-types --test web_admin/test/*.emulator.test.ts\"",
-    "emulators:profile-images": "firebase emulators:exec --only auth,firestore,functions,storage --project demo-hudhud-profile-images \"node --test firebase_tests/firebase-emulators/profile-images.test.js\""
+    "emulators:profile-images": "firebase emulators:exec --only auth,firestore,functions,storage --project demo-hudhud-profile-images \"node --test firebase_tests/firebase-emulators/profile-images.test.js\"",
+    "emulators:subscriptions": "firebase emulators:exec --only firestore --project demo-hudhud-subscriptions \"node --test firebase_tests/firebase-emulators/station-subscriptions.test.js\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "5.0.2",

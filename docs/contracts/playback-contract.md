@@ -70,3 +70,10 @@ Widget أو Navigator أو Riverpod. يوجد controller مشترك واحد ل�
 - يدوي عند تغيير engine: stream فعلي، انقطاع شبكة، pause/resume، تبديل محطة،
   خلفية/مقدمة، interruption وسماعة/Bluetooth على المنصات المتأثرة.
 - لا build ناجح يعوض اختبار السلوك الصوتي الفعلي.
+
+Live stations and recorded episodes carry explicit `AudioPlaybackItem.isLive`
+metadata. Controller load requests are serialized and invalidated by new selections,
+stop and disposal; superseded load completions cannot start playback. Canonical
+Station/Episode models currently contain media URLs internally; UI text, logs and
+notification navigation payloads never expose them. This clarifies the earlier
+blanket presentation-state wording without adding duplicate content models.

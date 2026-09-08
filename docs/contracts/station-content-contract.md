@@ -46,8 +46,8 @@ StationDetails/ProgramDetails widgets
 - تشغيل حلقة يوقف/يستبدل المصدر الحالي ويعرض عنوان الحلقة واسم المحطة في جلسة
   الوسائط. أزرار التطبيق والإشعار تتحكم في نفس اللاعب.
 - لا كتابة لإحصاءات الاستماع أو الإعجاب أو عدادات التعليقات من العميل.
-- عرض/إضافة التعليقات مملوك لعقد الحساب والتعليقات؛ تنزيل الحلقات والمشاركة
-  وبقية التفاعل خارج النطاق.
+- عرض/إضافة التعليقات مملوك لعقد الحساب والتعليقات؛ تنزيل الحلقات خارج النطاق. المشاركة الحالية تستخدم وصف الحلقة والبرنامج
+  والمحطة ورابط المتجر العام، ولا تكشف رابط الصوت.
 
 ## التحقق
 
@@ -55,3 +55,9 @@ StationDetails/ProgramDetails widgets
 - domain tests لحالات الجدول وحدود المنطقة الزمنية.
 - controller tests لـserver/cache/offline/error واختيار اليوم.
 - widget tests للتنقل من البرنامج ولتشغيل الحلقة وحالات الفراغ والخطأ.
+
+
+Episode alerts may refresh canonical station content before opening ProgramDetails,
+with the selected episode highlighted first; they do not introduce another player
+or automatically play. The station-level snapshot/read contract remains unchanged;
+program-scoped pagination is deferred until measured catalog growth justifies it.

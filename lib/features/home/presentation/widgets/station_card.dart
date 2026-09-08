@@ -60,7 +60,7 @@ class StationCard extends StatelessWidget {
                         IconButton(
                           padding: EdgeInsets.zero,
                           constraints:
-                              const BoxConstraints(minWidth: 32, minHeight: 32),
+                              const BoxConstraints(minWidth: 48, minHeight: 48),
                           iconSize: 22,
                           onPressed: onFavoriteToggle,
                           tooltip: isFavorite
@@ -108,7 +108,7 @@ class StationCard extends StatelessWidget {
                 child: FilledButton.tonalIcon(
                   onPressed: onPlay,
                   icon: const Icon(Icons.play_arrow_rounded),
-                  label: Text(strings.playStation(station.name)),
+                  label: Text(strings.playNow),
                 ),
               ),
             ],
@@ -311,7 +311,7 @@ class _Stat extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: color),
         const SizedBox(width: 4),
-        Text(label, style: style?.copyWith(color: color)),
+        Flexible(child: Text(label, style: style?.copyWith(color: color))),
       ],
     );
   }

@@ -60,3 +60,8 @@ app/providers.dart -> composition and lifecycle only
 - الحالات غير المتزامنة قابلة للملاحظة والاختبار.
 - الموارد تملك lifecycle واضحًا.
 - `flutter analyze` والاختبارات والبناء المتأثر ناجحة.
+
+Home preferences now use a domain repository implemented in data. Station
+subscriptions have their own account-bound Riverpod controller and repository;
+normal logout invokes the injected device-cleanup data boundary before Auth
+sign-out. Episode alert navigation uses existing Navigator routes and repositories.

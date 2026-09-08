@@ -21,24 +21,32 @@ class ShareService {
     final origin =
         box != null ? box.localToGlobal(Offset.zero) & box.size : null;
 
-    await _plugin.share(
-      ShareParams(
-        text: text,
-        subject: station.name,
-        sharePositionOrigin: origin,
-      ),
-    );
+    try {
+      await _plugin.share(
+        ShareParams(
+          text: text,
+          subject: station.name,
+          sharePositionOrigin: origin,
+        ),
+      );
+    } on Object {
+      if (context.mounted) {
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context).shareFailed)));
+      }
+    }
   }
 
   Future<void> shareEpisode(
     BuildContext context,
     Episode episode,
-    Station station,
-  ) async {
+    Station station, {
+    String? programTitle,
+  }) async {
     final strings = AppLocalizations.of(context);
     final text = strings.shareEpisodeMessage(
       episode.title,
-      station.name,
+      programTitle ?? station.name,
       station.name,
       StoreUrlHelper.getStoreUrl(),
     );
@@ -46,13 +54,20 @@ class ShareService {
     final origin =
         box != null ? box.localToGlobal(Offset.zero) & box.size : null;
 
-    await _plugin.share(
-      ShareParams(
-        text: text,
-        subject: episode.title,
-        sharePositionOrigin: origin,
-      ),
-    );
+    try {
+      await _plugin.share(
+        ShareParams(
+          text: text,
+          subject: episode.title,
+          sharePositionOrigin: origin,
+        ),
+      );
+    } on Object {
+      if (context.mounted) {
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context).shareFailed)));
+      }
+    }
   }
 
   Future<void> shareApp(BuildContext context) async {
@@ -62,12 +77,19 @@ class ShareService {
     final origin =
         box != null ? box.localToGlobal(Offset.zero) & box.size : null;
 
-    await _plugin.share(
-      ShareParams(
-        text: text,
-        subject: strings.shareAppTitle,
-        sharePositionOrigin: origin,
-      ),
-    );
+    try {
+      await _plugin.share(
+        ShareParams(
+          text: text,
+          subject: strings.shareAppTitle,
+          sharePositionOrigin: origin,
+        ),
+      );
+    } on Object {
+      if (context.mounted) {
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context).shareFailed)));
+      }
+    }
   }
 }

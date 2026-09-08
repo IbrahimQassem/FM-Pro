@@ -11,13 +11,16 @@ class StationContentController extends StateNotifier<StationContentState> {
     unawaited(_initialize());
   }
 
+  int _generation = 0;
   final String _stationId;
   final StationContentRepository _repository;
 
   Future<void> _initialize() async {
+    final generation = _generation;
     try {
       final cached = await _repository.readCache(_stationId);
       if (mounted &&
+          generation == _generation &&
           (cached.programs.isNotEmpty || cached.episodes.isNotEmpty)) {
         state = state.copyWith(
           programs: cached.programs,
@@ -30,11 +33,13 @@ class StationContentController extends StateNotifier<StationContentState> {
     } on Object {
       // An unavailable content cache is expected on first launch.
     }
-    if (!mounted) return;
+    if (!mounted || generation != _generation) return;
     await refresh();
   }
 
   Future<void> refresh() async {
+    if (!mounted) return;
+    final generation = ++_generation;
     state = state.copyWith(
       isInitialLoading: !state.hasContent,
       isRefreshing: state.hasContent,
@@ -42,7 +47,7 @@ class StationContentController extends StateNotifier<StationContentState> {
     );
     try {
       final result = await _repository.refresh(_stationId);
-      if (!mounted) return;
+      if (!mounted || generation != _generation) return;
       state = state.copyWith(
         programs: result.programs,
         episodes: result.episodes,
@@ -53,7 +58,7 @@ class StationContentController extends StateNotifier<StationContentState> {
         rejectedRecords: result.rejectedRecords,
       );
     } on Object {
-      if (!mounted) return;
+      if (!mounted || generation != _generation) return;
       state = state.copyWith(
         isInitialLoading: false,
         isRefreshing: false,

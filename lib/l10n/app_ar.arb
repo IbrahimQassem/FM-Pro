@@ -340,5 +340,22 @@
   "chooseProfilePhoto": "اختيار من المعرض",
   "profileImagePickFailed": "تعذر فتح الصورة. تحقق من صلاحية الصور أو الكاميرا وحاول مجددًا.",
   "profileImageTooLarge": "اختر صورة أصغر. يجب ألا يتجاوز حجم صورة الحساب ١ ميغابايت.",
-  "profileUpdateFailed": "تعذر حفظ الحساب. تحقق من الاتصال والصورة ثم حاول مجددًا."
+  "profileUpdateFailed": "تعذر حفظ الحساب. تحقق من الاتصال والصورة ثم حاول مجددًا.",
+  "followStation": "متابعة المحطة",
+  "unfollowStation": "تتم المتابعة · إلغاء المتابعة",
+  "followSaving": "جارٍ الحفظ…",
+  "stationEpisodeAlerts": "إشعارات الحلقات الجديدة",
+  "stationEpisodeAlertsDescription": "أخبرني عندما تنشر المحطة حلقة جديدة.",
+  "stationAlertsDenied": "الإشعارات غير مسموحة على هذا الجهاز. تظل متابعة المحطة فعالة.",
+  "signInToFollow": "سجّل الدخول لمتابعة المحطات",
+  "verifyToFollow": "وثّق بريدك لمتابعة المحطات",
+  "followSaved": "تم حفظ تفضيل المحطة",
+  "followFailed": "تعذّر الحفظ. حاول مرة أخرى.",
+  "followRetry": "إعادة المحاولة",
+  "followOffline": "نعرض المعلومات المحفوظة. اتصل لتحديثها.",
+  "myStations": "محطاتي المتابَعة",
+  "myStationsEmpty": "ستظهر هنا المحطات التي تتابعها.",
+  "followStationUnavailable": "هذه المحطة غير متاحة حاليًا.",
+  "alertContentUnavailable": "هذه الحلقة لم تعد متاحة.",
+  "shareFailed": "تعذّر فتح المشاركة. حاول مرة أخرى."
 }

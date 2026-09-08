@@ -17,12 +17,14 @@ class ProgramDetailsScreen extends ConsumerWidget {
     required this.station,
     required this.program,
     required this.episodes,
+    this.highlightedEpisodeId,
     super.key,
   });
 
   final Station station;
   final StationProgram program;
   final List<Episode> episodes;
+  final String? highlightedEpisodeId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,6 +34,7 @@ class ProgramDetailsScreen extends ConsumerWidget {
       station: station,
       program: program,
       episodes: episodes,
+      highlightedEpisodeId: highlightedEpisodeId,
       playerState: playerState,
       onEpisodePlayPressed: (episode) =>
           playerController.playEpisode(episode, station),
@@ -58,6 +61,7 @@ class ProgramDetailsView extends StatelessWidget {
     required this.station,
     required this.program,
     required this.episodes,
+    this.highlightedEpisodeId,
     required this.playerState,
     required this.onEpisodePlayPressed,
     this.onEpisodeCommentsPressed,
@@ -68,6 +72,7 @@ class ProgramDetailsView extends StatelessWidget {
   final Station station;
   final StationProgram program;
   final List<Episode> episodes;
+  final String? highlightedEpisodeId;
   final StationPlayerState playerState;
   final ValueChanged<Episode> onEpisodePlayPressed;
   final ValueChanged<Episode>? onEpisodeCommentsPressed;
@@ -76,6 +81,10 @@ class ProgramDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
+    final displayedEpisodes = [
+      ...episodes.where((episode) => episode.id == highlightedEpisodeId),
+      ...episodes.where((episode) => episode.id != highlightedEpisodeId),
+    ];
     final presenter = program.presenters.join('، ');
     return Scaffold(
       appBar: AppBar(title: Text(program.title)),
@@ -163,20 +172,22 @@ class ProgramDetailsView extends StatelessWidget {
                 itemCount: episodes.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 9),
                 itemBuilder: (context, index) {
-                  final episode = episodes[index];
+                  final episode = displayedEpisodes[index];
                   final isSelected = playerState.isEpisodeSelected(episode.id);
                   final status = isSelected
                       ? playerState.status
                       : StationPlaybackStatus.idle;
                   return _EpisodeCard(
                     episode: episode,
+                    highlighted: episode.id == highlightedEpisodeId,
                     status: status,
                     onPlayPressed: () => onEpisodePlayPressed(episode),
                     onCommentsPressed: onEpisodeCommentsPressed == null
                         ? null
                         : () => onEpisodeCommentsPressed!(episode),
-                    onSharePressed: () => const ShareService()
-                        .shareEpisode(context, episode, station),
+                    onSharePressed: () => const ShareService().shareEpisode(
+                        context, episode, station,
+                        programTitle: program.title),
                   );
                 },
               ),
@@ -244,6 +255,7 @@ class _ProgramHeader extends StatelessWidget {
 class _EpisodeCard extends StatelessWidget {
   const _EpisodeCard({
     required this.episode,
+    this.highlighted = false,
     required this.status,
     required this.onPlayPressed,
     this.onCommentsPressed,
@@ -251,6 +263,7 @@ class _EpisodeCard extends StatelessWidget {
   });
 
   final Episode episode;
+  final bool highlighted;
   final StationPlaybackStatus status;
   final VoidCallback onPlayPressed;
   final VoidCallback? onCommentsPressed;
@@ -270,6 +283,7 @@ class _EpisodeCard extends StatelessWidget {
       context,
     ).formatMediumDate(stationDate);
     return Card(
+      color: highlighted ? colors.secondaryContainer : null,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(

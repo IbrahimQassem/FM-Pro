@@ -3,7 +3,7 @@ import "package:flutter/material.dart";
 import "../../../../l10n/generated/app_localizations.dart";
 import "../../domain/models/station.dart";
 import "../controllers/home_state.dart";
-import "banner_carousel.dart";
+import "visible_banners.dart";
 import "home_empty_state.dart";
 import "home_loading.dart";
 import "station_card.dart";
@@ -23,6 +23,8 @@ class HomeView extends StatefulWidget {
     this.onFavoritesFilterToggled,
     this.onFavoriteToggle,
     this.playerBar,
+    this.pendingFavoriteIds = const {},
+    this.onResume,
     super.key,
   });
 
@@ -38,17 +40,20 @@ class HomeView extends StatefulWidget {
   final ValueChanged<bool>? onFavoritesFilterToggled;
   final ValueChanged<Station>? onFavoriteToggle;
   final Widget? playerBar;
+  final Set<String> pendingFavoriteIds;
+  final VoidCallback? onResume;
 
   @override
   State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   late final TextEditingController _searchController;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _searchController = TextEditingController(text: widget.state.searchQuery);
   }
 
@@ -62,8 +67,14 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _searchController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) widget.onResume?.call();
   }
 
   void _clearSearch() {
@@ -119,7 +130,7 @@ class _HomeViewState extends State<HomeView> {
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
                   sliver: SliverToBoxAdapter(
-                    child: BannerCarousel(banners: widget.state.banners),
+                    child: VisibleBanners(banners: widget.state.banners),
                   ),
                 ),
               SliverPadding(
@@ -289,7 +300,7 @@ class _HomeViewState extends State<HomeView> {
                     gridDelegate:
                         const SliverGridDelegateWithMaxCrossAxisExtent(
                       maxCrossAxisExtent: 260,
-                      mainAxisExtent: 292,
+                      mainAxisExtent: 320,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
                     ),
@@ -299,7 +310,9 @@ class _HomeViewState extends State<HomeView> {
                       isFavorite: widget.state.favoriteStationIds.contains(
                         visibleStations[index].id,
                       ),
-                      onFavoriteToggle: widget.onFavoriteToggle == null
+                      onFavoriteToggle: widget.onFavoriteToggle == null ||
+                              widget.pendingFavoriteIds
+                                  .contains(visibleStations[index].id)
                           ? null
                           : () =>
                               widget.onFavoriteToggle!(visibleStations[index]),
@@ -322,7 +335,9 @@ class _HomeViewState extends State<HomeView> {
                       isFavorite: widget.state.favoriteStationIds.contains(
                         visibleStations[index].id,
                       ),
-                      onFavoriteToggle: widget.onFavoriteToggle == null
+                      onFavoriteToggle: widget.onFavoriteToggle == null ||
+                              widget.pendingFavoriteIds
+                                  .contains(visibleStations[index].id)
                           ? null
                           : () =>
                               widget.onFavoriteToggle!(visibleStations[index]),

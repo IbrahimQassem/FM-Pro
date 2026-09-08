@@ -20,6 +20,8 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
   }
 
   final AudioPlaybackRepository _repository;
+  int _generation = 0;
+  Future<void> _loads = Future.value();
   late final StreamSubscription<AudioPlaybackPhase> _phaseSubscription;
 
   Future<void> play(Station station) async {
@@ -35,12 +37,14 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
       if (state.status == StationPlaybackStatus.loading) return;
     }
 
+    final generation = ++_generation;
     state = StationPlayerState(
       station: station,
       status: StationPlaybackStatus.loading,
     );
     try {
-      await _repository.load(
+      await _loadCurrent(
+        generation,
         AudioPlaybackItem(
           id: station.id,
           title: station.name,
@@ -51,9 +55,9 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
           ],
         ),
       );
-      await _repository.play();
+      if (mounted && generation == _generation) await _repository.play();
     } on Object catch (error) {
-      _setFailure(error);
+      if (mounted && generation == _generation) _setFailure(error);
     }
   }
 
@@ -70,15 +74,18 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
       if (state.status == StationPlaybackStatus.loading) return;
     }
 
+    final generation = ++_generation;
     state = StationPlayerState(
       station: station,
       episode: episode,
       status: StationPlaybackStatus.loading,
     );
     try {
-      await _repository.load(
+      await _loadCurrent(
+        generation,
         AudioPlaybackItem(
           id: 'episode:${episode.id}',
+          isLive: false,
           title: episode.title,
           album: station.name,
           artworkUrl:
@@ -86,9 +93,9 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
           streamUrls: [episode.audioUrl],
         ),
       );
-      await _repository.play();
+      if (mounted && generation == _generation) await _repository.play();
     } on Object catch (error) {
-      _setFailure(error);
+      if (mounted && generation == _generation) _setFailure(error);
     }
   }
 
@@ -138,17 +145,20 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
   }
 
   Future<void> stop() async {
+    final generation = ++_generation;
     try {
       await _repository.stop();
     } on Object catch (error) {
       debugPrint('Audio stop failed: ${error.runtimeType}.');
     } finally {
-      state = const StationPlayerState();
+      if (mounted && generation == _generation) {
+        state = const StationPlayerState();
+      }
     }
   }
 
   void _onPhaseChanged(AudioPlaybackPhase phase) {
-    if (state.station == null) return;
+    if (!mounted || state.station == null) return;
     if (phase == AudioPlaybackPhase.idle) {
       state = const StationPlayerState();
       return;
@@ -170,13 +180,22 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
 
   void _setFailure(Object error) {
     debugPrint('Audio playback failed: ${error.runtimeType}.');
-    if (state.station != null) {
+    if (mounted && state.station != null) {
       state = state.copyWith(status: StationPlaybackStatus.failure);
     }
   }
 
+  Future<void> _loadCurrent(int generation, AudioPlaybackItem item) {
+    _loads = _loads.catchError((Object _) {}).then((_) async {
+      if (!mounted || generation != _generation) return;
+      await _repository.load(item);
+    });
+    return _loads;
+  }
+
   @override
   void dispose() {
+    ++_generation;
     unawaited(_phaseSubscription.cancel());
     super.dispose();
   }

@@ -1,3 +1,4 @@
+import 'package:hudhud_fm/features/notifications/domain/models/episode_alert_target.dart';
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -6,6 +7,35 @@ import 'package:hudhud_fm/features/notifications/domain/repositories/notificatio
 import 'package:hudhud_fm/features/notifications/presentation/controllers/notifications_controller.dart';
 
 void main() {
+  test(
+      'repeated open events are ignored even after a different message arrives',
+      () async {
+    final repository = _FakeNotificationsRepository();
+    final controller = NotificationsController(repository);
+    addTearDown(controller.dispose);
+    await pumpEventQueue();
+    final alert = AppNotification(
+        id: 'HudHudDev:e',
+        title: 'Episode',
+        body: 'Body',
+        receivedAt: DateTime.utc(2026),
+        openRequested: true,
+        target: const EpisodeAlertTarget(
+            root: 'HudHudDev',
+            eventId: 'HudHudDev:e',
+            stationId: 's',
+            programId: 'p',
+            episodeId: 'e'));
+    repository.emit(alert);
+    await pumpEventQueue();
+    repository.emit(_message('another'));
+    await pumpEventQueue();
+    repository.emit(alert);
+    await pumpEventQueue();
+    expect(controller.state.latest?.id, 'another');
+    expect(controller.state.messages.length, 2);
+  });
+
   test('loads opt-in and keeps the newest session message first', () async {
     final repository = _FakeNotificationsRepository();
     final controller = NotificationsController(repository);

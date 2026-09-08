@@ -84,13 +84,18 @@ void main() {
     await tester.pumpAndSettle();
 
     final aboutTile = find.byKey(const Key("account-about-app"));
+    await tester.scrollUntilVisible(aboutTile, 250);
     expect(aboutTile, findsOneWidget);
 
     await tester.tap(aboutTile);
     await tester.pumpAndSettle();
 
     expect(find.byType(AboutAppDialog), findsOneWidget);
-    expect(find.textContaining("1.0.0 (1)"), findsOneWidget);
+    expect(
+        find.descendant(
+            of: find.byType(AboutAppDialog),
+            matching: find.textContaining("1.0.0 (1)")),
+        findsOneWidget);
   });
 
   testWidgets("can open UGC guidelines from Settings Hub", (tester) async {
@@ -99,6 +104,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final guidelinesTile = find.byKey(const Key("account-ugc-guidelines"));
+    await tester.scrollUntilVisible(guidelinesTile, 250);
     expect(guidelinesTile, findsOneWidget);
 
     await tester.ensureVisible(guidelinesTile);

@@ -68,6 +68,8 @@ test("deletes Auth, authored comments, dependent data, and reconciles counts", a
         codeHash: "private-hash",
         status: "active",
       }),
+      setDoc(doc(firestore, `${user}/alertDevices/test-device`), { token: 'synthetic-device-registration', updatedAt: new Date() }),
+      setDoc(doc(firestore, 'notificationDeviceOwners/test-device'), { uid, root: 'HudHudDev', updatedAt: new Date() }),
       setDoc(doc(firestore, `${user}/favorites/station-1`), {
         targetType: "station",
         targetId: "station-1",
@@ -104,6 +106,8 @@ test("deletes Auth, authored comments, dependent data, and reconciles counts", a
 
   const result = await httpsCallable(functions, "deleteAccountData")();
   assert.deepEqual(result.data, { deleted: true });
+  assert.equal((await adminFirestore.doc("notificationDeviceOwners/test-device").get()).exists, false);
+  assert.equal((await adminFirestore.doc(`${user}/alertDevices/test-device`).get()).exists, false);
   await signOut(auth);
   await assert.rejects(
     signInWithEmailAndPassword(auth, email, password),

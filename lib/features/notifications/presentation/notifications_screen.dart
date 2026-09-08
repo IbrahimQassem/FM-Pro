@@ -1,3 +1,4 @@
+import 'episode_alert_navigation.dart';
 import "../../../core/widgets/mascot_feedback_view.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,6 +39,9 @@ class NotificationsScreen extends ConsumerWidget {
               ),
             ),
             if (state.hasFailure) ...[
+              TextButton(
+                  onPressed: controller.retry,
+                  child: Text(strings.followRetry)),
               const SizedBox(height: 10),
               Semantics(
                 liveRegion: true,
@@ -67,7 +71,12 @@ class NotificationsScreen extends ConsumerWidget {
               )
             else
               for (final message in state.messages) ...[
-                _NotificationCard(message: message),
+                _NotificationCard(
+                    message: message,
+                    onTap: message.target == null
+                        ? null
+                        : () =>
+                            openEpisodeAlert(context, ref, message.target!)),
                 const SizedBox(height: 9),
               ],
             Text(
@@ -100,7 +109,8 @@ class NotificationsScreen extends ConsumerWidget {
 }
 
 class _NotificationCard extends StatelessWidget {
-  const _NotificationCard({required this.message});
+  const _NotificationCard({required this.message, this.onTap});
+  final VoidCallback? onTap;
 
   final AppNotification message;
 
@@ -112,6 +122,7 @@ class _NotificationCard extends StatelessWidget {
     ).add_Hm().format(message.receivedAt);
     return Card(
       child: ListTile(
+        onTap: onTap,
         leading: const CircleAvatar(child: Icon(Icons.campaign_outlined)),
         title: message.title.isEmpty ? null : Text(message.title),
         subtitle: Column(

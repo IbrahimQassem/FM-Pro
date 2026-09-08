@@ -1,3 +1,7 @@
+import { getMessaging } from 'firebase-admin/messaging';
+import { onDocumentWritten } from 'firebase-functions/v2/firestore';
+import { verifiedUid, setSubscription, registerDevice, unregisterDevice, removeAccountDevices } from './lib/station-subscriptions.js';
+import { enqueueEpisodeAlert, collectEpisodeAlerts } from './lib/episode-alerts.js';
 import { randomUUID } from 'node:crypto';
 import { initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
@@ -580,6 +584,7 @@ async function deleteAccount(uid, source = 'user') {
       const documents = (await firestore.collectionGroup(collection).where(field, '==', uid).get()).docs.filter((doc) => canonicalRelatedDocument(doc, collection) && doc.ref.path.startsWith(`${root}/`));
       await deleteDocuments(firestore, documents);
     }
+    await removeAccountDevices(firestore, uid, root);
     await cleanupAccountImages(firestore, () => getStorage().bucket(), uid, root);
     await firestore.recursiveDelete(firestore.doc(listenerProfilePath(uid, root)));
     await firestore.doc(verificationChallengePath(uid, root)).delete();
@@ -712,3 +717,9 @@ export const cleanupProfileImages = onSchedule(
     catch { logger.error('Profile image cleanup failed; pending jobs will be retried.'); }
   },
 );
+
+export const setStationSubscription = onCall({ timeoutSeconds: 30, maxInstances: 20 }, async request => setSubscription({ firestore: getFirestore(), uid: await verifiedUid(request, getAuth()), data: request.data }));
+export const registerStationAlertDevice = onCall({ timeoutSeconds: 30, maxInstances: 20 }, async request => registerDevice({ firestore: getFirestore(), uid: await verifiedUid(request, getAuth()), data: request.data }));
+export const unregisterStationAlertDevice = onCall({ timeoutSeconds: 30, maxInstances: 20 }, async request => unregisterDevice({ firestore: getFirestore(), uid: requireAuthenticatedUid(request), data: request.data }));
+export const queuePublishedEpisodeAlert = onDocumentWritten({ document: '{root}/episodes/episodes/{episodeId}', retry: true }, async event => enqueueEpisodeAlert({ firestore: getFirestore(), root: event.params.root, episodeId: event.params.episodeId, before: event.data?.before.data(), after: event.data?.after.data() }));
+export const deliverEpisodeAlerts = onSchedule({ schedule: 'every 1 minutes', timeoutSeconds: 540, maxInstances: 1 }, async () => collectEpisodeAlerts({ firestore: getFirestore(), auth: getAuth(), send: message => getMessaging().sendEachForMulticast(message) }));

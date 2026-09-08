@@ -350,3 +350,14 @@ Deletion tombstones survive the callable lifetime and are removed by a subsequen
 successful cleanup pass. Storage SDK reads and writes are denied; image display
 uses an unguessable, shareable HTTPS bearer URL from the backend. No device path,
 original EXIF or original upload bytes are persisted.
+
+
+## Station subscription development amendment — 2026-09-08
+
+[ADR 0003](../decisions/0003-station-subscriptions-and-alerts.md) owns the station
+follow flow, callable mutations, private device registrations, publication jobs,
+retention, consent and allowlisted episode notification navigation. This supersedes
+the earlier topic-only/no-payload-navigation boundary for version-1 episode alerts
+only. General announcements remain independent; arbitrary URLs remain rejected.
+Private device/job paths are denied by the default Rules, including admin clients.
+No production deployment or app release is included.

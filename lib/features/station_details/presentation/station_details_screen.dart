@@ -1,3 +1,5 @@
+import 'dart:async';
+import '../../subscriptions/presentation/station_follow_controls.dart';
 import "../../../core/services/share_service.dart";
 import '../../../core/theme/app_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -23,13 +25,65 @@ void _ignoreProgram(StationProgram _) {}
 
 void _ignoreWeekday(int _) {}
 
-class StationDetailsScreen extends ConsumerWidget {
-  const StationDetailsScreen({required this.station, super.key});
+class StationDetailsScreen extends ConsumerStatefulWidget {
+  const StationDetailsScreen(
+      {required this.station, this.clock = DateTime.now, super.key});
+
+  final DateTime Function() clock;
 
   final Station station;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<StationDetailsScreen> createState() =>
+      _StationDetailsScreenState();
+}
+
+class _StationDetailsScreenState extends ConsumerState<StationDetailsScreen>
+    with WidgetsBindingObserver {
+  Timer? _clockTimer;
+  Station get station => widget.station;
+  void _startClock() {
+    _clockTimer?.cancel();
+    final now = widget.clock();
+    final nextMinute = DateTime.fromMillisecondsSinceEpoch(
+        (now.millisecondsSinceEpoch ~/ 60000 + 1) * 60000,
+        isUtc: now.isUtc);
+    _clockTimer = Timer(nextMinute.difference(now), () {
+      if (!mounted) return;
+      setState(() {});
+      _startClock();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _startClock();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() {});
+      _startClock();
+      unawaited(ref
+          .read(stationSubscriptionsControllerProvider.notifier)
+          .reconcileDevice());
+    } else {
+      _clockTimer?.cancel();
+    }
+  }
+
+  @override
+  void dispose() {
+    _clockTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final playerState = ref.watch(stationPlayerControllerProvider);
     final playerController = ref.read(stationPlayerControllerProvider.notifier);
     final contentState = ref.watch(
@@ -49,7 +103,10 @@ class StationDetailsScreen extends ConsumerWidget {
       final messenger = ScaffoldMessenger.of(context);
       final outcome =
           await favoritesController.toggleFavoriteStation(station.id);
+      if (!context.mounted) return;
       switch (outcome) {
+        case FavoriteActionOutcome.ignored:
+          break;
         case FavoriteActionOutcome.successAdded:
           messenger.hideCurrentSnackBar();
           messenger.showSnackBar(
@@ -120,10 +177,13 @@ class StationDetailsScreen extends ConsumerWidget {
     }
 
     return StationDetailsView(
+      now: widget.clock(),
       station: station,
       playbackStatus: status,
       isFavorite: isFavorite,
-      onFavoriteToggle: handleFavoriteToggle,
+      onFavoriteToggle:
+          favoritesState.isPending(station.id) ? null : handleFavoriteToggle,
+      followControls: StationFollowControls(stationId: station.id),
       onPlayPressed: () {
         if (isSelected && status == StationPlaybackStatus.failure) {
           playerController.retry();
@@ -150,6 +210,7 @@ class StationDetailsScreen extends ConsumerWidget {
 class StationDetailsView extends StatelessWidget {
   const StationDetailsView({
     required this.station,
+    this.now,
     required this.playbackStatus,
     required this.onPlayPressed,
     required this.onStopPressed,
@@ -161,10 +222,12 @@ class StationDetailsView extends StatelessWidget {
     this.onProgramPressed,
     this.onWeekdaySelected,
     this.playerBar,
+    this.followControls,
     super.key,
   });
 
   final Station station;
+  final DateTime? now;
   final StationPlaybackStatus playbackStatus;
   final VoidCallback onPlayPressed;
   final VoidCallback onStopPressed;
@@ -176,6 +239,7 @@ class StationDetailsView extends StatelessWidget {
   final ValueChanged<StationProgram>? onProgramPressed;
   final ValueChanged<int>? onWeekdaySelected;
   final Widget? playerBar;
+  final Widget? followControls;
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +255,6 @@ class StationDetailsView extends StatelessWidget {
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
               pinned: true,
-              expandedHeight: 430,
               foregroundColor: Colors.white,
               backgroundColor: Theme.of(context).colorScheme.primary,
               title: Text(station.name),
@@ -218,19 +281,25 @@ class StationDetailsView extends StatelessWidget {
                   icon: const Icon(Icons.share_rounded),
                 ),
               ],
-              flexibleSpace: FlexibleSpaceBar(
-                background: _StationHero(
-                  station: station,
-                  playbackStatus: playbackStatus,
-                  onPlayPressed: onPlayPressed,
-                  onStopPressed: onStopPressed,
-                ),
+            ),
+            SliverToBoxAdapter(
+              child: _StationHero(
+                station: station,
+                playbackStatus: playbackStatus,
+                onPlayPressed: onPlayPressed,
+                onStopPressed: onStopPressed,
               ),
             ),
+            if (followControls != null)
+              SliverToBoxAdapter(
+                  child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: followControls)),
             SliverPersistentHeader(
               pinned: true,
               delegate: _TabBarHeaderDelegate(
                 TabBar(
+                  isScrollable: MediaQuery.textScalerOf(context).scale(14) > 20,
                   tabs: [
                     Tab(text: strings.programs),
                     Tab(text: strings.schedule),
@@ -249,7 +318,7 @@ class StationDetailsView extends StatelessWidget {
               ),
               StationScheduleTab(
                 state: contentState,
-                now: DateTime.now(),
+                now: now ?? DateTime.now(),
                 onRefresh: onContentRefresh ?? _completedRefresh,
                 onWeekdaySelected: onWeekdaySelected ?? _ignoreWeekday,
                 onProgramPressed: onProgramPressed ?? _ignoreProgram,
@@ -295,7 +364,7 @@ class _StationHero extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 68, 20, 18),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 18),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [

@@ -10,6 +10,47 @@ import 'package:hudhud_fm/features/player/presentation/controllers/station_playe
 import 'package:hudhud_fm/features/station_content/domain/models/episode.dart';
 
 void main() {
+  test('a newer episode selection supersedes a slow station load', () async {
+    final repository = _FakeAudioPlaybackRepository()
+      ..delayedLoad = Completer<void>();
+    final controller = StationPlayerController(repository);
+    final first = controller.play(_station());
+    await pumpEventQueue();
+    final episode = _episode();
+    final second = controller.playEpisode(episode, _station());
+    repository.delayedLoad!.complete();
+    await Future.wait([first, second]);
+    expect(repository.loadedItem?.id, 'episode:${episode.id}');
+    expect(repository.playCalls, 1);
+    controller.dispose();
+    await repository.dispose();
+  });
+  test('stop during a pending load cannot restart playback', () async {
+    final repository = _FakeAudioPlaybackRepository()
+      ..delayedLoad = Completer<void>();
+    final controller = StationPlayerController(repository);
+    final loading = controller.play(_station());
+    await pumpEventQueue();
+    await controller.stop();
+    repository.delayedLoad!.complete();
+    await loading;
+    expect(repository.playCalls, 0);
+    expect(controller.state.station, isNull);
+    controller.dispose();
+    await repository.dispose();
+  });
+  test('dispose during a pending load ignores its late failure', () async {
+    final repository = _FakeAudioPlaybackRepository()
+      ..delayedLoad = Completer<void>();
+    final controller = StationPlayerController(repository);
+    final loading = controller.play(_station());
+    await pumpEventQueue();
+    controller.dispose();
+    repository.delayedLoad!.completeError(Exception('failure'));
+    await loading;
+    expect(repository.playCalls, 0);
+    await repository.dispose();
+  });
   test(
     'loads the primary and backup streams before starting playback',
     () async {
@@ -94,6 +135,7 @@ void main() {
     await controller.playEpisode(episode, station);
 
     expect(repository.loadedItem?.id, 'episode:${episode.id}');
+    expect(repository.loadedItem?.isLive, false);
     expect(repository.loadedItem?.title, episode.title);
     expect(repository.loadedItem?.album, station.name);
     expect(repository.loadedItem?.streamUrls, [episode.audioUrl]);
@@ -145,6 +187,7 @@ Episode _episode() {
 }
 
 class _FakeAudioPlaybackRepository implements AudioPlaybackRepository {
+  Completer<void>? delayedLoad;
   final _phases = StreamController<AudioPlaybackPhase>.broadcast();
 
   AudioPlaybackItem? loadedItem;
@@ -160,6 +203,7 @@ class _FakeAudioPlaybackRepository implements AudioPlaybackRepository {
   @override
   Future<void> load(AudioPlaybackItem item) async {
     loadedItem = item;
+    await delayedLoad?.future;
     if (shouldFailLoad) throw const FormatException('Invalid test stream');
   }
 

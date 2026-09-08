@@ -1030,4 +1030,57 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get profileUpdateFailed =>
       'تعذر حفظ الحساب. تحقق من الاتصال والصورة ثم حاول مجددًا.';
+
+  @override
+  String get followStation => 'متابعة المحطة';
+
+  @override
+  String get unfollowStation => 'تتم المتابعة · إلغاء المتابعة';
+
+  @override
+  String get followSaving => 'جارٍ الحفظ…';
+
+  @override
+  String get stationEpisodeAlerts => 'إشعارات الحلقات الجديدة';
+
+  @override
+  String get stationEpisodeAlertsDescription =>
+      'أخبرني عندما تنشر المحطة حلقة جديدة.';
+
+  @override
+  String get stationAlertsDenied =>
+      'الإشعارات غير مسموحة على هذا الجهاز. تظل متابعة المحطة فعالة.';
+
+  @override
+  String get signInToFollow => 'سجّل الدخول لمتابعة المحطات';
+
+  @override
+  String get verifyToFollow => 'وثّق بريدك لمتابعة المحطات';
+
+  @override
+  String get followSaved => 'تم حفظ تفضيل المحطة';
+
+  @override
+  String get followFailed => 'تعذّر الحفظ. حاول مرة أخرى.';
+
+  @override
+  String get followRetry => 'إعادة المحاولة';
+
+  @override
+  String get followOffline => 'نعرض المعلومات المحفوظة. اتصل لتحديثها.';
+
+  @override
+  String get myStations => 'محطاتي المتابَعة';
+
+  @override
+  String get myStationsEmpty => 'ستظهر هنا المحطات التي تتابعها.';
+
+  @override
+  String get followStationUnavailable => 'هذه المحطة غير متاحة حاليًا.';
+
+  @override
+  String get alertContentUnavailable => 'هذه الحلقة لم تعد متاحة.';
+
+  @override
+  String get shareFailed => 'تعذّر فتح المشاركة. حاول مرة أخرى.';
 }

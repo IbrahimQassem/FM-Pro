@@ -14,12 +14,18 @@ class NotificationsController extends StateNotifier<NotificationsState> {
   }
 
   final NotificationsRepository _repository;
+  int _generation = 0;
+  final Set<String> _openedEvents = {};
   late final StreamSubscription<AppNotification> _subscription;
 
+  Future<void> retry() => _initialize();
+
   Future<void> _initialize() async {
+    final generation = ++_generation;
+    state = state.copyWith(isLoading: true);
     try {
       final preference = await _repository.initialize();
-      if (mounted) {
+      if (mounted && generation == _generation) {
         state = state.copyWith(
           permission: preference.permission,
           isEnabled: preference.isEnabled,
@@ -28,17 +34,19 @@ class NotificationsController extends StateNotifier<NotificationsState> {
         );
       }
     } on Object {
-      if (mounted) {
+      if (mounted && generation == _generation) {
         state = state.copyWith(isLoading: false, hasFailure: true);
       }
     }
   }
 
   Future<void> setEnabled(bool enabled) async {
+    if (state.isLoading) return;
+    final generation = ++_generation;
     state = state.copyWith(isLoading: true, hasFailure: false);
     try {
       final preference = await _repository.setEnabled(enabled);
-      if (mounted) {
+      if (mounted && generation == _generation) {
         state = state.copyWith(
           permission: preference.permission,
           isEnabled: preference.isEnabled,
@@ -46,7 +54,7 @@ class NotificationsController extends StateNotifier<NotificationsState> {
         );
       }
     } on Object {
-      if (mounted) {
+      if (mounted && generation == _generation) {
         state = state.copyWith(isLoading: false, hasFailure: true);
       }
     }
@@ -54,6 +62,11 @@ class NotificationsController extends StateNotifier<NotificationsState> {
 
   void _onNotification(AppNotification message) {
     if (!mounted) return;
+    if (message.openRequested &&
+        message.target != null &&
+        !_openedEvents.add(message.id)) {
+      return;
+    }
     final messages = [
       message,
       ...state.messages.where((item) => item.id != message.id),

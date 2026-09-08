@@ -89,3 +89,14 @@ Splash/Firebase gate -> Home discovery -> Station details
 - لا overflow أو نص مقصوص في RTL و200% text scale.
 - كل فعل قابل للوصول بلوحة المفاتيح/قارئ الشاشة حيث تدعم المنصة.
 - widget tests تغطي السلوك لا مجرد وجود نص ثابت.
+
+
+## Station subscription development amendment — 2026-09-08
+
+[ADR 0003](../decisions/0003-station-subscriptions-and-alerts.md) owns the station
+follow flow, callable mutations, private device registrations, publication jobs,
+retention, consent and allowlisted episode notification navigation. This supersedes
+the earlier topic-only/no-payload-navigation boundary for version-1 episode alerts
+only. General announcements remain independent; arbitrary URLs remain rejected.
+Private device/job paths are denied by the default Rules, including admin clients.
+No production deployment or app release is included.

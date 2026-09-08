@@ -72,8 +72,11 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
     this._firestore,
     this._functions,
     this._googleSignIn,
-    this._facebookAuth,
-  );
+    this._facebookAuth, {
+    this.beforeSignOut,
+  });
+
+  final Future<void> Function()? beforeSignOut;
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
@@ -292,6 +295,7 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
 
   @override
   Future<void> signOut() async {
+    await beforeSignOut?.call();
     await _auth.signOut();
     await _signOutProviderSessions();
   }

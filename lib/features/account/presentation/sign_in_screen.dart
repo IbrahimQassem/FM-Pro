@@ -130,8 +130,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 child: Text(strings.forgotPassword),
               ),
               const SizedBox(height: 6),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text(strings.dontHaveAccount),
                   TextButton(
@@ -186,12 +187,16 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       child: Row(
         children: [
           const Expanded(child: Divider()),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(
-              strings.socialSignInDivider,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+          Flexible(
+            flex: 4,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                strings.socialSignInDivider,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
           ),

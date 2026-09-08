@@ -22,8 +22,9 @@ void main() {
         'startAt',
         'expiresAt'
       ]) {
-        if (data[key] is String)
+        if (data[key] is String) {
           data[key] = Timestamp.fromDate(DateTime.parse(data[key] as String));
+        }
       }
       return data;
     }

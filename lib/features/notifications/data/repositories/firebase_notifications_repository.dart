@@ -1,3 +1,5 @@
+import '../../../../core/config/firestore_paths.dart';
+import '../../domain/models/episode_alert_target.dart';
 import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -7,7 +9,15 @@ import '../../domain/models/app_notification.dart';
 import '../../domain/repositories/notifications_repository.dart';
 
 class FirebaseNotificationsRepository implements NotificationsRepository {
-  FirebaseNotificationsRepository(this._messaging);
+  FirebaseNotificationsRepository(this._messaging,
+      {Stream<RemoteMessage>? foregroundMessages,
+      Stream<RemoteMessage>? openedMessages})
+      : _foregroundMessages = foregroundMessages ?? FirebaseMessaging.onMessage,
+        _openedMessages =
+            openedMessages ?? FirebaseMessaging.onMessageOpenedApp;
+
+  final Stream<RemoteMessage> _foregroundMessages;
+  final Stream<RemoteMessage> _openedMessages;
 
   static const _preferenceKey = 'notifications.announcementsEnabled';
   static const _announcementsTopic = 'hudhud_fm_announcements';
@@ -17,29 +27,46 @@ class FirebaseNotificationsRepository implements NotificationsRepository {
       StreamController<AppNotification>.broadcast();
   final List<StreamSubscription<RemoteMessage>> _subscriptions = [];
   bool _didInitialize = false;
+  bool _disposed = false;
+  Future<NotificationPreference>? _initializing;
 
   @override
   Stream<AppNotification> get incomingNotifications => _controller.stream;
 
   @override
-  Future<NotificationPreference> initialize() async {
+  Future<NotificationPreference> initialize() {
+    return _initializing ??=
+        _initialize().whenComplete(() => _initializing = null);
+  }
+
+  Future<NotificationPreference> _initialize() async {
+    if (_disposed) throw StateError('Notifications disposed');
     if (!_didInitialize) {
-      _didInitialize = true;
       await _messaging.setForegroundNotificationPresentationOptions(
         alert: false,
         badge: false,
         sound: false,
       );
+      for (final subscription in _subscriptions) {
+        await subscription.cancel();
+      }
+      _subscriptions.clear();
+      if (_disposed) throw StateError('Notifications disposed');
       _subscriptions
-        ..add(FirebaseMessaging.onMessage.listen(_emit))
-        ..add(FirebaseMessaging.onMessageOpenedApp.listen(_emit));
+        ..add(_foregroundMessages.listen(_emit))
+        ..add(_openedMessages
+            .listen((message) => _emit(message, openRequested: true)));
       final initial = await _messaging.getInitialMessage();
-      if (initial != null) _emit(initial);
+      if (_disposed) throw StateError('Notifications disposed');
+      if (initial != null) _emit(initial, openRequested: true);
+      _didInitialize = true;
     }
 
     final preferences = await SharedPreferences.getInstance();
+    if (_disposed) throw StateError('Notifications disposed');
     final savedEnabled = preferences.getBool(_preferenceKey) ?? false;
     final settings = await _messaging.getNotificationSettings();
+    if (_disposed) throw StateError('Notifications disposed');
     final permission = _mapPermission(settings.authorizationStatus);
     final canReceive = permission == NotificationPermissionState.enabled;
     if (savedEnabled && canReceive) {
@@ -73,6 +100,7 @@ class FirebaseNotificationsRepository implements NotificationsRepository {
       provisional: false,
       sound: true,
     );
+    if (_disposed) throw StateError('Notifications disposed');
     final permission = _mapPermission(settings.authorizationStatus);
     if (permission != NotificationPermissionState.enabled) {
       await preferences.setBool(_preferenceKey, false);
@@ -84,7 +112,7 @@ class FirebaseNotificationsRepository implements NotificationsRepository {
     return NotificationPreference(isEnabled: true, permission: permission);
   }
 
-  void _emit(RemoteMessage message) {
+  void _emit(RemoteMessage message, {bool openRequested = false}) {
     if (_controller.isClosed) return;
     final notification = message.notification;
     final title =
@@ -92,9 +120,15 @@ class FirebaseNotificationsRepository implements NotificationsRepository {
     final body =
         (notification?.body ?? message.data['body'] ?? '').toString().trim();
     if (title.isEmpty && body.isEmpty) return;
+    final target = EpisodeAlertTarget.parse(message.data,
+        expectedRoot: FirestorePaths.root);
+    if (message.data['type'] == 'episode' && target == null) return;
     _controller.add(
       AppNotification(
-        id: message.messageId ??
+        target: target,
+        openRequested: openRequested,
+        id: target?.eventId ??
+            message.messageId ??
             '${message.sentTime?.millisecondsSinceEpoch ?? DateTime.now().millisecondsSinceEpoch}',
         title: title,
         body: body,
@@ -120,6 +154,7 @@ class FirebaseNotificationsRepository implements NotificationsRepository {
 
   @override
   Future<void> dispose() async {
+    _disposed = true;
     for (final subscription in _subscriptions) {
       await subscription.cancel();
     }

@@ -8,6 +8,43 @@ import 'package:hudhud_fm/features/account/domain/repositories/account_repositor
 import 'package:hudhud_fm/features/account/presentation/controllers/account_controller.dart';
 
 void main() {
+  test(
+      'cancelled provider and failed profile upload can retry without losing account',
+      () async {
+    final repository =
+        _FakeAccountRepository(actionFailure: AccountFailure.providerCancelled);
+    final controller = AccountController(repository);
+    addTearDown(controller.dispose);
+    addTearDown(repository.dispose);
+    repository.emit(_user);
+    await pumpEventQueue();
+    await controller.continueWithProvider(AccountSignInProvider.google);
+    expect(controller.state.failure, AccountFailure.providerCancelled);
+    expect(controller.state.isSubmitting, false);
+    expect(controller.state.user, _user);
+    repository.actionFailure = AccountFailure.network;
+    expect(await controller.updateProfile(displayName: 'Updated'), false);
+    expect(controller.state.user, _user);
+    repository.actionFailure = null;
+    expect(await controller.updateProfile(displayName: 'Updated'), true);
+    expect(controller.state.failure, isNull);
+    expect(repository.updatedDisplayName, 'Updated');
+  });
+  test('failed deletion retains the account and can be retried', () async {
+    final repository = _FakeAccountRepository(
+        actionFailure: AccountFailure.reauthenticationFailed);
+    final controller = AccountController(repository);
+    addTearDown(controller.dispose);
+    addTearDown(repository.dispose);
+    repository.emit(_user);
+    await pumpEventQueue();
+    expect(await controller.deleteAccount('incorrect'), false);
+    expect(controller.state.user, _user);
+    expect(controller.state.accountDeleted, false);
+    repository.actionFailure = null;
+    expect(await controller.deleteAccount('correct'), true);
+    expect(controller.state.accountDeleted, true);
+  });
   test('tracks auth changes and delegates register and logout', () async {
     final repository = _FakeAccountRepository();
     final controller = AccountController(repository);
@@ -102,7 +139,7 @@ const _unverifiedUser = AccountUser(
 class _FakeAccountRepository implements AccountRepository {
   _FakeAccountRepository({this.actionFailure});
 
-  final AccountFailure? actionFailure;
+  AccountFailure? actionFailure;
   final _controller = StreamController<AccountUser?>.broadcast();
   bool didRegister = false;
   bool didSignOut = false;

@@ -25,8 +25,11 @@ void main() {
       Canvas(recorder).drawColor(Colors.red, BlendMode.src);
       final picture = recorder.endRecording();
       final image = await picture.toImage(2, 2);
-      final bytes = (await image.toByteData(format: ui.ImageByteFormat.png))!.buffer.asUint8List();
-      image.dispose(); picture.dispose();
+      final bytes = (await image.toByteData(format: ui.ImageByteFormat.png))!
+          .buffer
+          .asUint8List();
+      image.dispose();
+      picture.dispose();
       return bytes;
     }))!;
     final picker = _FakeImagePicker(bytes);

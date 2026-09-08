@@ -340,5 +340,22 @@
   "chooseProfilePhoto": "Choose from gallery",
   "profileImagePickFailed": "Could not open this image. Check photo or camera access and try again.",
   "profileImageTooLarge": "Choose a smaller photo. Profile images must be under 1 MB.",
-  "profileUpdateFailed": "Could not save your profile. Check your connection and photo, then try again."
+  "profileUpdateFailed": "Could not save your profile. Check your connection and photo, then try again.",
+  "followStation": "Follow station",
+  "unfollowStation": "Following · Unfollow",
+  "followSaving": "Saving…",
+  "stationEpisodeAlerts": "New episode alerts",
+  "stationEpisodeAlertsDescription": "Notify me when this station publishes an episode.",
+  "stationAlertsDenied": "Notifications are not allowed on this device. You are still following the station.",
+  "signInToFollow": "Sign in to follow stations",
+  "verifyToFollow": "Verify your email to follow stations",
+  "followSaved": "Station preference saved",
+  "followFailed": "Could not save. Please try again.",
+  "followRetry": "Retry",
+  "followOffline": "Showing saved information. Connect to refresh.",
+  "myStations": "My Stations",
+  "myStationsEmpty": "Stations you follow will appear here.",
+  "followStationUnavailable": "This station is currently unavailable.",
+  "alertContentUnavailable": "This episode is no longer available.",
+  "shareFailed": "Could not open sharing. Please try again."
 }

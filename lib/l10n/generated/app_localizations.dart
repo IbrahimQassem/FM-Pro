@@ -1904,6 +1904,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not save your profile. Check your connection and photo, then try again.'**
   String get profileUpdateFailed;
+
+  /// No description provided for @followStation.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow station'**
+  String get followStation;
+
+  /// No description provided for @unfollowStation.
+  ///
+  /// In en, this message translates to:
+  /// **'Following · Unfollow'**
+  String get unfollowStation;
+
+  /// No description provided for @followSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get followSaving;
+
+  /// No description provided for @stationEpisodeAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'New episode alerts'**
+  String get stationEpisodeAlerts;
+
+  /// No description provided for @stationEpisodeAlertsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me when this station publishes an episode.'**
+  String get stationEpisodeAlertsDescription;
+
+  /// No description provided for @stationAlertsDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are not allowed on this device. You are still following the station.'**
+  String get stationAlertsDenied;
+
+  /// No description provided for @signInToFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to follow stations'**
+  String get signInToFollow;
+
+  /// No description provided for @verifyToFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your email to follow stations'**
+  String get verifyToFollow;
+
+  /// No description provided for @followSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Station preference saved'**
+  String get followSaved;
+
+  /// No description provided for @followFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Please try again.'**
+  String get followFailed;
+
+  /// No description provided for @followRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get followRetry;
+
+  /// No description provided for @followOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing saved information. Connect to refresh.'**
+  String get followOffline;
+
+  /// No description provided for @myStations.
+  ///
+  /// In en, this message translates to:
+  /// **'My Stations'**
+  String get myStations;
+
+  /// No description provided for @myStationsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Stations you follow will appear here.'**
+  String get myStationsEmpty;
+
+  /// No description provided for @followStationUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This station is currently unavailable.'**
+  String get followStationUnavailable;
+
+  /// No description provided for @alertContentUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This episode is no longer available.'**
+  String get alertContentUnavailable;
+
+  /// No description provided for @shareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open sharing. Please try again.'**
+  String get shareFailed;
 }
 
 class _AppLocalizationsDelegate

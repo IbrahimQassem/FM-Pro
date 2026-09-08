@@ -21,7 +21,6 @@ class FirebaseBannersRepository implements BannersRepository {
 
   Future<DataBatch<BannerItem>> _read(Source source) async {
     try {
-      final now = DateTime.now();
       final documents = await _dataSource.readBanners(source);
       final banners = <BannerItem>[];
       var rejectedRecords = 0;
@@ -32,7 +31,7 @@ class FirebaseBannersRepository implements BannersRepository {
             id: document.id,
             data: document.data(),
           );
-          if (banner.isVisibleAt(now)) banners.add(banner);
+          if (banner.isActive) banners.add(banner);
         } on SchemaDataException {
           rejectedRecords++;
           debugPrint('Rejected a banner document with an invalid schema.');

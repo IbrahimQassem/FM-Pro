@@ -12,6 +12,9 @@ import 'package:hudhud_fm/features/favorites/presentation/controllers/favorites_
 class FakeFavoritesRepository implements FavoritesRepository {
   final Set<String> currentFavorites = {};
   bool shouldFail = false;
+  final Map<String, Completer<void>> delayed = {};
+  int watchCalls = 0;
+  int writeCalls = 0;
   final StreamController<Set<String>> _controller =
       StreamController<Set<String>>.broadcast();
 
@@ -20,6 +23,7 @@ class FakeFavoritesRepository implements FavoritesRepository {
     required String uid,
     required FavoriteTargetType targetType,
   }) {
+    watchCalls++;
     return _controller.stream;
   }
 
@@ -36,6 +40,10 @@ class FakeFavoritesRepository implements FavoritesRepository {
     required FavoriteTargetType targetType,
     required String targetId,
   }) async {
+    writeCalls++;
+    if (delayed[targetId] case final pending?) {
+      await pending.future;
+    }
     if (shouldFail) {
       throw const FavoritesException(FavoritesFailure.network);
     }
@@ -49,6 +57,10 @@ class FakeFavoritesRepository implements FavoritesRepository {
     required FavoriteTargetType targetType,
     required String targetId,
   }) async {
+    writeCalls++;
+    if (delayed[targetId] case final pending?) {
+      await pending.future;
+    }
     if (shouldFail) {
       throw const FavoritesException(FavoritesFailure.network);
     }
@@ -120,6 +132,53 @@ void main() {
 
   tearDown(() {
     controller.dispose();
+  });
+
+  const userA = AccountUser(
+      uid: 'a', displayName: 'A', email: 'a@example.test', emailVerified: true);
+  const userB = AccountUser(
+      uid: 'b', displayName: 'B', email: 'b@example.test', emailVerified: true);
+  test('clears A immediately and ignores a failed A write after switching to B',
+      () async {
+    accountRepo.emitUser(userA);
+    await pumpEventQueue();
+    favoritesRepo.emit({'saved-a'});
+    await pumpEventQueue();
+    favoritesRepo.delayed['pending-a'] = Completer<void>();
+    final action = controller.toggleFavoriteStation('pending-a');
+    accountRepo.emitUser(userB);
+    await pumpEventQueue();
+    expect(controller.state.favoriteStationIds, isEmpty);
+    expect(controller.state.pendingStationIds, isEmpty);
+    favoritesRepo.emit({'saved-b'});
+    await pumpEventQueue();
+    favoritesRepo.delayed['pending-a']!.completeError(Exception('failure'));
+    expect(await action, FavoriteActionOutcome.ignored);
+    expect(controller.state.favoriteStationIds, {'saved-b'});
+  });
+  test('a failed target does not roll back another successful target',
+      () async {
+    accountRepo.emitUser(userA);
+    await pumpEventQueue();
+    favoritesRepo.delayed['a'] = Completer<void>();
+    final action = controller.toggleFavoriteStation('a');
+    expect(await controller.toggleFavoriteStation('a'),
+        FavoriteActionOutcome.ignored);
+    await controller.toggleFavoriteStation('b');
+    favoritesRepo.delayed['a']!.completeError(Exception('failure'));
+    await action;
+    expect(controller.state.favoriteStationIds, {'b'});
+    expect(favoritesRepo.writeCalls, 2);
+  });
+  test('verification change for the same UID starts a new eligible listener',
+      () async {
+    accountRepo.emitUser(
+        const AccountUser(uid: 'a', displayName: 'A', email: 'a@example.test'));
+    await pumpEventQueue();
+    expect(favoritesRepo.watchCalls, 0);
+    accountRepo.emitUser(userA);
+    await pumpEventQueue();
+    expect(favoritesRepo.watchCalls, 1);
   });
 
   test('requires sign in when guest tries to toggle favorite', () async {

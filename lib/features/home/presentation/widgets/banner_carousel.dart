@@ -95,7 +95,9 @@ class _BannerCarouselState extends State<BannerCarousel> {
             children: List.generate(widget.banners.length, (index) {
               final selected = index == _currentPage;
               return AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
+                duration: MediaQuery.disableAnimationsOf(context)
+                    ? Duration.zero
+                    : const Duration(milliseconds: 180),
                 width: selected ? 20 : 7,
                 height: 7,
                 margin: const EdgeInsets.symmetric(horizontal: 3),

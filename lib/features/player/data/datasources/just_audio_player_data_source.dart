@@ -32,7 +32,9 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
       (_) {},
       onError: (Object error, StackTrace stackTrace) {
         unawaited(CrashReporting.playbackEvent('failure'));
-        _phaseController.addError(error, stackTrace);
+        if (!_isReplacingSource && !_phaseController.isClosed) {
+          _phaseController.addError(error, stackTrace);
+        }
       },
     );
   }
@@ -42,7 +44,8 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
       StreamController<AudioPlaybackPhase>.broadcast();
   late final StreamSubscription<PlayerState> _playerStateSubscription;
   late final StreamSubscription<PlaybackEvent> _playbackErrorSubscription;
-  bool _isSessionConfigured = false;
+  Future<void>? _sessionConfiguration;
+  int _generation = 0;
   bool _isReplacingSource = false;
   AudioPlaybackPhase? _lastReportedPhase;
 
@@ -63,7 +66,9 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
 
   @override
   Future<void> load(AudioPlaybackItem item) async {
+    final generation = ++_generation;
     await _configureSession();
+    if (generation != _generation) return;
     _isReplacingSource = true;
     try {
       await _player.stop();
@@ -73,9 +78,10 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
         title: item.title,
         album: item.album.isEmpty ? null : item.album,
         artUri: _safeHttpsUri(item.artworkUrl),
-        isLive: true,
+        isLive: item.isLive,
       );
       for (final streamUrl in item.streamUrls) {
+        if (generation != _generation) return;
         try {
           await _player.setAudioSource(
             AudioSource.uri(Uri.parse(streamUrl), tag: mediaItem),
@@ -117,17 +123,28 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
   Future<void> pause() => _player.pause();
 
   @override
-  Future<void> stop() => _player.stop();
+  Future<void> stop() {
+    ++_generation;
+    return _player.stop();
+  }
 
   Future<void> _configureSession() async {
-    if (_isSessionConfigured) return;
-    final session = await AudioSession.instance;
-    await session.configure(const AudioSessionConfiguration.music());
-    _isSessionConfigured = true;
+    await (_sessionConfiguration ??= _configureSessionOnce());
+  }
+
+  Future<void> _configureSessionOnce() async {
+    try {
+      final session = await AudioSession.instance;
+      await session.configure(const AudioSessionConfiguration.music());
+    } on Object {
+      _sessionConfiguration = null;
+      rethrow;
+    }
   }
 
   @override
   Future<void> dispose() async {
+    ++_generation;
     await _playerStateSubscription.cancel();
     await _playbackErrorSubscription.cancel();
     await _phaseController.close();

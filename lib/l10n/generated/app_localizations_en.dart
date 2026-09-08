@@ -1045,4 +1045,58 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get profileUpdateFailed =>
       'Could not save your profile. Check your connection and photo, then try again.';
+
+  @override
+  String get followStation => 'Follow station';
+
+  @override
+  String get unfollowStation => 'Following · Unfollow';
+
+  @override
+  String get followSaving => 'Saving…';
+
+  @override
+  String get stationEpisodeAlerts => 'New episode alerts';
+
+  @override
+  String get stationEpisodeAlertsDescription =>
+      'Notify me when this station publishes an episode.';
+
+  @override
+  String get stationAlertsDenied =>
+      'Notifications are not allowed on this device. You are still following the station.';
+
+  @override
+  String get signInToFollow => 'Sign in to follow stations';
+
+  @override
+  String get verifyToFollow => 'Verify your email to follow stations';
+
+  @override
+  String get followSaved => 'Station preference saved';
+
+  @override
+  String get followFailed => 'Could not save. Please try again.';
+
+  @override
+  String get followRetry => 'Retry';
+
+  @override
+  String get followOffline => 'Showing saved information. Connect to refresh.';
+
+  @override
+  String get myStations => 'My Stations';
+
+  @override
+  String get myStationsEmpty => 'Stations you follow will appear here.';
+
+  @override
+  String get followStationUnavailable =>
+      'This station is currently unavailable.';
+
+  @override
+  String get alertContentUnavailable => 'This episode is no longer available.';
+
+  @override
+  String get shareFailed => 'Could not open sharing. Please try again.';
 }

@@ -14,6 +14,7 @@ enum FavoriteActionOutcome {
   requireSignIn,
   requireEmailVerification,
   failed,
+  ignored,
 }
 
 class FavoritesController extends StateNotifier<FavoritesState> {
@@ -32,10 +33,13 @@ class FavoritesController extends StateNotifier<FavoritesState> {
   StreamSubscription<AccountUser?>? _accountSubscription;
   StreamSubscription<Set<String>>? _favoritesSubscription;
   AccountUser? _currentUser;
+  int _generation = 0;
+  final Map<String, bool> _optimistic = {};
 
   void _init() {
     _accountSubscription = _accountRepository.watchAccount().listen((user) {
-      if (user?.uid != _currentUser?.uid) {
+      if (user?.uid != _currentUser?.uid ||
+          user?.emailVerified != _currentUser?.emailVerified) {
         _currentUser = user;
         _onUserChanged(user);
       } else {
@@ -45,10 +49,13 @@ class FavoritesController extends StateNotifier<FavoritesState> {
   }
 
   void _onUserChanged(AccountUser? user) {
+    final generation = ++_generation;
+    _optimistic.clear();
     _favoritesSubscription?.cancel();
     _favoritesSubscription = null;
+    state = const FavoritesState();
 
-    if (user == null || user.uid.isEmpty) {
+    if (user == null || user.uid.isEmpty || !user.emailVerified) {
       state = const FavoritesState();
       return;
     }
@@ -61,16 +68,16 @@ class FavoritesController extends StateNotifier<FavoritesState> {
     )
         .listen(
       (ids) {
-        if (mounted) {
+        if (mounted && generation == _generation) {
           state = state.copyWith(
-            favoriteStationIds: ids,
+            favoriteStationIds: _withPending(ids),
             isLoading: false,
             clearFailure: true,
           );
         }
       },
       onError: (error) {
-        if (mounted) {
+        if (mounted && generation == _generation) {
           final failure = error is FavoritesException
               ? error.failure
               : FavoritesFailure.unknown;
@@ -89,6 +96,8 @@ class FavoritesController extends StateNotifier<FavoritesState> {
       return FavoriteActionOutcome.requireEmailVerification;
     }
 
+    if (state.isPending(stationId)) return FavoriteActionOutcome.ignored;
+    final generation = _generation;
     final isCurrentlyFavorite = state.isFavorite(stationId);
     final previousFavorites = Set<String>.from(state.favoriteStationIds);
     final updatedFavorites = Set<String>.from(previousFavorites);
@@ -99,6 +108,7 @@ class FavoritesController extends StateNotifier<FavoritesState> {
       updatedFavorites.add(stationId);
     }
 
+    _optimistic[stationId] = !isCurrentlyFavorite;
     // Optimistic update
     state = state.copyWith(
       favoriteStationIds: updatedFavorites,
@@ -121,6 +131,10 @@ class FavoritesController extends StateNotifier<FavoritesState> {
         );
       }
 
+      if (!mounted || generation != _generation) {
+        return FavoriteActionOutcome.ignored;
+      }
+      _optimistic.remove(stationId);
       if (mounted) {
         final pending = Set<String>.from(state.pendingStationIds)
           ..remove(stationId);
@@ -131,19 +145,37 @@ class FavoritesController extends StateNotifier<FavoritesState> {
           : FavoriteActionOutcome.successAdded;
     } catch (e) {
       // Rollback on failure
+      if (!mounted || generation != _generation) {
+        return FavoriteActionOutcome.ignored;
+      }
+      _optimistic.remove(stationId);
       if (mounted) {
         final pending = Set<String>.from(state.pendingStationIds)
           ..remove(stationId);
         final failure =
             e is FavoritesException ? e.failure : FavoritesFailure.unknown;
         state = state.copyWith(
-          favoriteStationIds: previousFavorites,
+          favoriteStationIds: {...state.favoriteStationIds}
+            ..remove(stationId)
+            ..addAll(isCurrentlyFavorite ? {stationId} : <String>{}),
           pendingStationIds: pending,
           lastFailure: failure,
         );
       }
       return FavoriteActionOutcome.failed;
     }
+  }
+
+  Set<String> _withPending(Set<String> ids) {
+    final result = {...ids};
+    for (final entry in _optimistic.entries) {
+      if (entry.value) {
+        result.add(entry.key);
+      } else {
+        result.remove(entry.key);
+      }
+    }
+    return Set.unmodifiable(result);
   }
 
   @override
