@@ -10,7 +10,7 @@ Vite conventions and the public read-only station experience.
   dependencies. Keep public/admin hosting targets separate.
 - Use Node 22 meeting package.json's minimum. Run `npm run lint` and
   `VITE_FIRESTORE_ROOT=HudHudDev npm run build` for affected changes.
-  There is no current `npm test` script; use browser checks for relevant journeys.
+  Run `npm test` and `npm run typecheck`; also use browser checks for relevant journeys.
 - Production publishing follows the existing release authorization; never deploy
   merely to test a local change.
 

@@ -16,38 +16,9 @@ import {
   Volume2,
   X,
 } from 'lucide-react';
-import { collection, getDocs, type Firestore } from 'firebase/firestore';
-import { getPublicFirestore } from '@/lib/firebase-client';
-import { firestoreRoot } from '@/lib/firestore-environment';
-
-type StationStats = {
-  programsCount: number;
-  subscribersCount: number;
-  totalPlays: number;
-};
-
-export type Station = {
-  id: string;
-  name: string;
-  nameEn: string;
-  tagline: string;
-  description: string;
-  streamUrl: string;
-  backupStreamUrl: string;
-  logoUrl: string;
-  thumbnailUrl: string;
-  frequency: string;
-  countryCode: string;
-  countryNameAr: string;
-  cityCode: string;
-  cityNameAr: string;
-  priority: number;
-  isLive: boolean;
-  isActive: boolean;
-  isVerified: boolean;
-  isFeatured: boolean;
-  stats: StationStats;
-};
+import { loadPublicStations } from '@/lib/station-repository';
+import { RadioPlayer, isHttpUrl, type PlaybackState } from '@/lib/radio-player';
+import { recentStation, type Station } from '@/lib/stations';
 
 type LoadState = 'loading' | 'ready' | 'error';
 type ListeningEntry = { stationId: string; playedAt: string };
@@ -55,67 +26,8 @@ type ListeningEntry = { stationId: string; playedAt: string };
 const HISTORY_STORAGE_KEY = 'hudhud.listeningHistory';
 const LAST_STATION_STORAGE_KEY = 'hudhud.lastPlayedStationId';
 
-function textValue(value: unknown): string {
-  return typeof value === 'string' ? value.trim() : '';
-}
-
-function numberValue(value: unknown): number {
-  return typeof value === 'number' && Number.isFinite(value) ? value : 0;
-}
-
-function isHttpUrl(value: string): boolean {
-  try {
-    const url = new URL(value);
-    return url.protocol === 'http:' || url.protocol === 'https:';
-  } catch {
-    return false;
-  }
-}
-
 function initials(name: string): string {
   return Array.from(name.trim())[0]?.toLocaleUpperCase('ar') || 'ه';
-}
-
-function stationFromSnapshot(snapshot: {
-  id: string;
-  data: () => Record<string, unknown>;
-}): Station {
-  const data = snapshot.data();
-  const stats = typeof data.stats === 'object' && data.stats !== null
-    ? data.stats as Record<string, unknown>
-    : {};
-  return {
-    id: snapshot.id,
-    name: textValue(data.name),
-    nameEn: textValue(data.nameEn),
-    tagline: textValue(data.tagline),
-    description: textValue(data.description),
-    streamUrl: textValue(data.streamUrl),
-    backupStreamUrl: textValue(data.backupStreamUrl),
-    logoUrl: textValue(data.logoUrl),
-    thumbnailUrl: textValue(data.thumbnailUrl),
-    frequency: textValue(data.frequency),
-    countryCode: textValue(data.countryCode),
-    countryNameAr: textValue(data.countryNameAr),
-    cityCode: textValue(data.cityCode),
-    cityNameAr: textValue(data.cityNameAr),
-    priority: numberValue(data.priority),
-    isLive: data.isLive === true,
-    isActive: data.isActive === true,
-    isVerified: data.isVerified === true,
-    isFeatured: data.isFeatured === true,
-    stats: {
-      programsCount: numberValue(stats.programsCount),
-      subscribersCount: numberValue(stats.subscribersCount),
-      totalPlays: numberValue(stats.totalPlays),
-    },
-  };
-}
-
-function sortStations(a: Station, b: Station): number {
-  if (a.isFeatured !== b.isFeatured) return a.isFeatured ? -1 : 1;
-  if (a.priority !== b.priority) return b.priority - a.priority;
-  return a.name.localeCompare(b.name, 'ar', { sensitivity: 'base' });
 }
 
 function readListeningHistory(): ListeningEntry[] {
@@ -146,42 +58,48 @@ function rememberSuccessfulPlay(stationId: string): ListeningEntry[] {
   return next;
 }
 
-export function PublicHome() {
+export function PublicHome({ loadCatalog = loadPublicStations }: { loadCatalog?: () => Promise<Station[]> } = {}) {
   const [stations, setStations] = useState<Station[]>([]);
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [loadError, setLoadError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
   const [history, setHistory] = useState<ListeningEntry[]>(readListeningHistory);
-  const [currentStationId, setCurrentStationId] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playerError, setPlayerError] = useState('');
+  const [playback, setPlayback] = useState<PlaybackState>({ stationId: null, status: 'idle' });
+  const currentStationId = playback.stationId;
+  const isPlaying = playback.status === 'playing';
+  const playerError = playback.status === 'error' ? 'البث غير متاح حالياً. حاول مرة أخرى.' : '';
+  const player = useRef<RadioPlayer | null>(null);
+  const loadEpoch = useRef(0);
+  const menuButton = useRef<HTMLButtonElement | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const activeStationRef = useRef<Station | null>(null);
-  const currentUrlRef = useRef('');
-  const usedBackupRef = useRef(false);
+  useEffect(() => {
+    const controller = new RadioPlayer(() => new Audio(), setPlayback,
+      (id) => setHistory(rememberSuccessfulPlay(id)));
+    player.current = controller;
+    return () => { controller.dispose(); player.current = null; };
+  }, []);
 
   const loadStations = useCallback(async () => {
+    const epoch = ++loadEpoch.current;
     setLoadState('loading');
     setLoadError('');
     try {
-      const firestore: Firestore = await getPublicFirestore();
-      const snapshot = await getDocs(collection(firestore, `${firestoreRoot}/stations/stations`));
-      const activeStations = snapshot.docs
-        .map((document) => stationFromSnapshot(document))
-        .filter((station) => station.isActive)
-        .sort(sortStations);
+      const activeStations = await loadCatalog();
+      if (epoch !== loadEpoch.current) return;
+      setSelectedCity((city) => activeStations.some((station) => (station.cityCode || station.cityNameAr) === city) ? city : 'all');
       setStations(activeStations);
       setLoadState('ready');
     } catch {
+      if (epoch !== loadEpoch.current) return;
       setLoadState('error');
       setLoadError('تعذر تحميل المحطات الآن. تحقق من الاتصال وحاول مرة أخرى.');
     }
-  }, []);
+  }, [loadCatalog]);
 
   useEffect(() => {
     void loadStations();
+    return () => { loadEpoch.current++; };
   }, [loadStations]);
 
   const featuredStations = useMemo(
@@ -215,94 +133,22 @@ export function PublicHome() {
   }, [searchQuery, selectedCity, stations]);
   const liveCount = stations.filter((station) => station.isLive).length;
   const currentStation = stations.find((station) => station.id === currentStationId) || null;
-  const recommendation = useMemo(() => {
-    if (stations.length === 0) return null;
-    const counts = new Map<string, number>();
-    history.forEach((entry) => counts.set(entry.stationId, (counts.get(entry.stationId) || 0) + 1));
-    return [...stations].sort((a, b) => {
-      const countDifference = (counts.get(b.id) || 0) - (counts.get(a.id) || 0);
-      return countDifference || sortStations(a, b);
-    })[0] || null;
-  }, [history, stations]);
+  useEffect(() => {
+    if (loadState === 'ready' && currentStationId && !currentStation) player.current?.stop();
+  }, [loadState, currentStationId, currentStation]);
+  const recommendation = useMemo(() => recentStation(stations, history), [history, stations]);
 
-  function stopPlayback() {
-    audioRef.current?.pause();
-    if (audioRef.current) audioRef.current.removeAttribute('src');
-    activeStationRef.current = null;
-    currentUrlRef.current = '';
-    usedBackupRef.current = false;
-    setCurrentStationId(null);
-    setIsPlaying(false);
-    setPlayerError('');
-  }
-
-  function markPlaybackFailure() {
-    audioRef.current?.pause();
-    setIsPlaying(false);
-    setPlayerError('البث غير متاح حالياً');
-  }
-
-  function handleAudioError() {
-    const station = activeStationRef.current;
-    const backup = station?.backupStreamUrl && isHttpUrl(station.backupStreamUrl)
-      ? station.backupStreamUrl
-      : '';
-    if (station && backup && !usedBackupRef.current && currentUrlRef.current !== backup) {
-      usedBackupRef.current = true;
-      currentUrlRef.current = backup;
-      if (audioRef.current) {
-        audioRef.current.src = backup;
-        void audioRef.current.play().catch(markPlaybackFailure);
-      }
-      return;
-    }
-    markPlaybackFailure();
-  }
-
-  function handlePlaybackStarted() {
-    const station = activeStationRef.current;
-    if (!station) return;
-    setIsPlaying(true);
-    setPlayerError('');
-    setHistory(rememberSuccessfulPlay(station.id));
-  }
-
-  async function playStation(station: Station) {
-    if (currentStationId === station.id && isPlaying) {
-      audioRef.current?.pause();
-      return;
-    }
-    const primary = isHttpUrl(station.streamUrl) ? station.streamUrl : '';
-    const backup = isHttpUrl(station.backupStreamUrl) ? station.backupStreamUrl : '';
-    if (!primary && !backup) {
-      setCurrentStationId(station.id);
-      setPlayerError('البث غير متاح حالياً');
-      return;
-    }
-    const firstUrl = primary || backup;
-    activeStationRef.current = station;
-    currentUrlRef.current = firstUrl;
-    usedBackupRef.current = !primary;
-    setCurrentStationId(station.id);
-    setPlayerError('');
-    setIsPlaying(false);
-    if (!audioRef.current) return;
-    audioRef.current.src = firstUrl;
-    try {
-      await audioRef.current.play();
-    } catch {
-      handleAudioError();
-    }
-  }
+  function playStation(station: Station) { player.current?.select(station); }
+  function stopPlayback() { player.current?.stop(); }
 
   return (
-    <div className="public-site" dir="rtl">
+    <div className="public-site" dir="rtl" onKeyDown={(event) => { if (event.key === 'Escape' && mobileMenuOpen) { setMobileMenuOpen(false); menuButton.current?.focus(); } }}>
       <header className="site-header">
         <a className="brand" href="#top" aria-label="هدهد FM، الصفحة الرئيسية">
           <span className="brand-mark"><Radio size={23} strokeWidth={2.4} /></span>
           <span><strong>هدهد</strong><small>FM</small></span>
         </a>
-        <nav className={mobileMenuOpen ? 'site-nav is-open' : 'site-nav'} aria-label="التنقل الرئيسي">
+        <nav id="public-navigation" className={mobileMenuOpen ? 'site-nav is-open' : 'site-nav'} aria-label="التنقل الرئيسي">
           <a href="#featured" onClick={() => setMobileMenuOpen(false)}>المميز</a>
           <a href="#stations" onClick={() => setMobileMenuOpen(false)}>كل المحطات</a>
           <a href="#about" onClick={() => setMobileMenuOpen(false)}>عن هدهد</a>
@@ -312,7 +158,7 @@ export function PublicHome() {
             <Search size={18} />
             <span>ابحث عن محطة</span>
           </a>
-          <button className="menu-button" type="button" onClick={() => setMobileMenuOpen((open) => !open)} aria-label="فتح القائمة">
+          <button ref={menuButton} className="menu-button" type="button" onClick={() => setMobileMenuOpen((open) => !open)} aria-controls="public-navigation" aria-expanded={mobileMenuOpen} aria-label={mobileMenuOpen ? 'إغلاق القائمة' : 'فتح القائمة'}>
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
@@ -373,7 +219,7 @@ export function PublicHome() {
           <section className="recommendation-section" aria-labelledby="recommendation-title">
             <div className="recommendation-copy">
               <span className="recommendation-icon"><Sparkles size={21} /></span>
-              <div><span className="section-eyebrow">اقتراح ذكي، محلي بالكامل</span><h2 id="recommendation-title">محطة قد تناسب مزاجك اليوم</h2><p>{history.length > 0 ? 'اعتمدنا على محطات استمعت إليها سابقاً لنقترح لك بداية مناسبة.' : 'ابدأ بمحطة مميزة من الكتالوج، وسيتعلم الاقتراح من استماعك على جهازك.'}</p></div>
+              <div><span className="section-eyebrow">{history.length ? 'استمعت إليها مؤخراً' : 'من محطات هدهد'}</span><h2 id="recommendation-title">تابع الاستماع إلى محطاتك</h2><p>{history.length > 0 ? 'عُد إلى آخر محطة متاحة استمعت إليها على هذا الجهاز.' : 'ابدأ بمحطة من الكتالوج. يُحفظ آخر استماع على هذا الجهاز فقط.'}</p></div>
             </div>
             <button className="recommendation-station" type="button" onClick={() => void playStation(recommendation)}>
               <StationArtwork station={recommendation} size="small" />
@@ -388,8 +234,8 @@ export function PublicHome() {
           <div className="filters-bar">
             <label className="search-field"><Search size={19} /><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="ابحث عن محطة، مدينة، أو تردد..." aria-label="البحث في المحطات" />{searchQuery && <button type="button" onClick={() => setSearchQuery('')} aria-label="مسح البحث"><X size={16} /></button>}</label>
             <div className="city-filters" aria-label="تصفية حسب المدينة">
-              <button className={selectedCity === 'all' ? 'city-filter active' : 'city-filter'} type="button" onClick={() => setSelectedCity('all')}>كل المدن</button>
-              {cityOptions.map(([code, label]) => <button className={selectedCity === code ? 'city-filter active' : 'city-filter'} key={code} type="button" onClick={() => setSelectedCity(code)}>{label}</button>)}
+              <button className={selectedCity === 'all' ? 'city-filter active' : 'city-filter'} type="button" aria-pressed={selectedCity === 'all'} onClick={() => setSelectedCity('all')}>كل المدن</button>
+              {cityOptions.map(([code, label]) => <button className={selectedCity === code ? 'city-filter active' : 'city-filter'} key={code} type="button" aria-pressed={selectedCity === code} onClick={() => setSelectedCity(code)}>{label}</button>)}
             </div>
           </div>
           {loadState === 'loading' && <div className="station-grid"><StationSkeleton /><StationSkeleton /><StationSkeleton /><StationSkeleton /></div>}
@@ -406,12 +252,11 @@ export function PublicHome() {
         </section>
       </main>
 
-      <audio ref={audioRef} onPlaying={handlePlaybackStarted} onPause={() => setIsPlaying(false)} onEnded={() => setIsPlaying(false)} onError={handleAudioError} preload="none" />
       {currentStation && <div className={playerError ? 'player-dock has-error' : 'player-dock'} role="status">
         <StationArtwork station={currentStation} size="tiny" />
-        <div className="player-info"><strong>{currentStation.name || 'محطة إذاعية'}</strong><span>{playerError || (isPlaying ? 'يُبث الآن من هدهد' : 'جاهز للاستماع')}</span></div>
+        <div className="player-info"><strong>{currentStation.name || 'محطة إذاعية'}</strong><span>{playerError || (playback.status === 'connecting' ? 'جارٍ الاتصال بالبث…' : isPlaying ? 'يُبث الآن من هدهد' : 'البث متوقف مؤقتاً')}</span></div>
         {playerError && <span className="player-error"><CircleAlert size={15} /> {playerError}</span>}
-        <button className="player-toggle" type="button" onClick={() => void playStation(currentStation)} aria-label={isPlaying ? 'إيقاف البث' : 'تشغيل البث'}>{isPlaying ? <Pause size={18} /> : <Play size={18} fill="currentColor" />}</button>
+        <button className="player-toggle" type="button" disabled={playback.status === 'connecting'} onClick={() => void playStation(currentStation)} aria-label={isPlaying ? 'إيقاف البث' : 'تشغيل البث'}>{isPlaying ? <Pause size={18} /> : <Play size={18} fill="currentColor" />}</button>
         <button className="player-close" type="button" onClick={stopPlayback} aria-label="إغلاق المشغل"><X size={17} /></button>
       </div>}
     </div>
@@ -428,6 +273,7 @@ function SectionHeading({ eyebrow, title, description }: { eyebrow: string; titl
 
 function StationArtwork({ station, size = 'normal' }: { station: Station; size?: 'tiny' | 'small' | 'normal' }) {
   const [imageFailed, setImageFailed] = useState(false);
+  useEffect(() => setImageFailed(false), [station.logoUrl]);
   const validLogo = isHttpUrl(station.logoUrl);
   return <div className={`station-art ${size} palette-${station.id.charCodeAt(0) % 5}`}>
     {validLogo && !imageFailed ? <img src={station.logoUrl} alt={`شعار ${station.name || 'المحطة'}`} onLoad={() => setImageFailed(false)} onError={() => setImageFailed(true)} /> : <span aria-label={`حرف ${station.name || 'المحطة'}`}>{initials(station.name || 'هدهد')}</span>}
@@ -447,7 +293,7 @@ function EmptyState({ title, description, compact = false, actionLabel, onAction
 }
 
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return <div className="state-panel error-panel"><span className="state-icon error"><CircleAlert size={22} /></span><h3>حدث عذر في تحميل المحطات</h3><p>{message}</p><button className="retry-button" type="button" onClick={onRetry}><RefreshCw size={16} /> إعادة المحاولة</button></div>;
+  return <div className="state-panel error-panel"><span className="state-icon error"><CircleAlert size={22} /></span><h3>تعذر تحميل المحطات</h3><p>{message}</p><button className="retry-button" type="button" onClick={onRetry}><RefreshCw size={16} /> إعادة المحاولة</button></div>;
 }
 
 function FeaturedSkeleton() {

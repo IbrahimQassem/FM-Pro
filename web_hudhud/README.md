@@ -23,3 +23,16 @@ From the project root, build and deploy it with:
 VITE_FIRESTORE_ROOT=HudHudOfficial npm run --prefix web_hudhud build
 firebase deploy --only hosting:hudhud_public
 ```
+
+## Development checks
+
+Use Node 22.13+ within Node 22. Run `npm test`, `npm run lint`, and
+`npm run typecheck`. `npm run build` now includes the TypeScript gate; select
+`VITE_FIRESTORE_ROOT=HudHudDev` for a development verification build.
+
+`test/preview.html` is an explicit synthetic browser fixture served by Vite in
+development (not included in the production entry bundle). It injects catalog
+data only for UI checks; the real app never substitutes fixture stations.
+`?state=empty` and `?state=error` exercise alternate states without Firebase reads.
+
+The implementation roadmap is [the public-web development plan](../docs/roadmap/public-web-development-plan.md).

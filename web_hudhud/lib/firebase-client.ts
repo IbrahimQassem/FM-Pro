@@ -11,6 +11,9 @@ export function getPublicFirestore(): Promise<Firestore> {
       ? getApp()
       : initializeApp(__FIREBASE_CONFIG__);
     return getFirestore(app);
+  }).catch((error: unknown) => {
+    firestorePromise = null;
+    throw error;
   });
   return firestorePromise;
 }
