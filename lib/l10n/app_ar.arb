@@ -357,5 +357,15 @@
   "myStationsEmpty": "ستظهر هنا المحطات التي تتابعها.",
   "followStationUnavailable": "هذه المحطة غير متاحة حاليًا.",
   "alertContentUnavailable": "هذه الحلقة لم تعد متاحة.",
-  "shareFailed": "تعذّر فتح المشاركة. حاول مرة أخرى."
+  "shareFailed": "تعذّر فتح المشاركة. حاول مرة أخرى.",
+  "preferencesSectionTitle": "تفضيلات التطبيق",
+  "languageSettingTitle": "اللغة",
+  "languageArabic": "العربية",
+  "languageEnglish": "English (الإنجليزية)",
+  "themeSettingTitle": "المظهر",
+  "themeSettingLight": "فاتح",
+  "themeSettingDark": "داكن",
+  "themeSettingSystem": "تلقائي (حسب النظام)",
+  "chooseLanguage": "اختيار اللغة",
+  "chooseTheme": "اختيار المظهر"
 }

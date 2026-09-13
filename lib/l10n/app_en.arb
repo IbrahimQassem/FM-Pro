@@ -357,5 +357,15 @@
   "myStationsEmpty": "Stations you follow will appear here.",
   "followStationUnavailable": "This station is currently unavailable.",
   "alertContentUnavailable": "This episode is no longer available.",
-  "shareFailed": "Could not open sharing. Please try again."
+  "shareFailed": "Could not open sharing. Please try again.",
+  "preferencesSectionTitle": "App Preferences",
+  "languageSettingTitle": "Language",
+  "languageArabic": "العربية (Arabic)",
+  "languageEnglish": "English",
+  "themeSettingTitle": "Appearance",
+  "themeSettingLight": "Light",
+  "themeSettingDark": "Dark",
+  "themeSettingSystem": "System Default",
+  "chooseLanguage": "Select Language",
+  "chooseTheme": "Select Appearance"
 }

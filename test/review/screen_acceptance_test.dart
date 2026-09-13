@@ -155,4 +155,19 @@ void main() {
       }
     }
   }
+
+  for (final themeMode in [ThemeMode.light, ThemeMode.dark]) {
+    testWidgets('account screen acceptance in ${themeMode.name} mode',
+        (tester) async {
+      final harness = ReviewHarness();
+      await tester.pumpWidget(
+          harness.app(const AccountScreen(), themeMode: themeMode));
+      harness.accounts.emitUser(null);
+      await tester.pumpAndSettle();
+      expect(find.byType(AccountScreen), findsOneWidget);
+      expect(find.byKey(const Key("account-language-setting")), findsOneWidget);
+      expect(find.byKey(const Key("account-theme-setting")), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
 }

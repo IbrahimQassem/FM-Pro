@@ -56,6 +56,13 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
     episodePlayAccent: AppColors.episodePlayAccent,
   );
 
+  static const darkTheme = AppThemeExtension(
+    heroGradientStart: Color(0xFF6B1D37),
+    heroGradientEnd: Color(0xFF260A13),
+    statusOnline: Color(0xFF34D399),
+    episodePlayAccent: Color(0xFFF472B6),
+  );
+
   @override
   AppThemeExtension copyWith({
     Color? heroGradientStart,

@@ -17,6 +17,7 @@ import 'package:hudhud_fm/features/station_content/domain/models/station_program
 import 'package:hudhud_fm/features/station_content/domain/models/program_schedule.dart';
 import 'package:hudhud_fm/features/station_content/domain/models/station_content_batch.dart';
 import 'package:hudhud_fm/features/station_content/domain/repositories/station_content_repository.dart';
+import 'package:hudhud_fm/features/settings/domain/repositories/settings_repository.dart';
 import '../features/home/presentation/home_controller_test.dart'
     show Banners, Locations, User, Preferences;
 import '../features/favorites/presentation/favorites_controller_test.dart'
@@ -129,15 +130,48 @@ class ReviewHome extends HomeController {
   }
 }
 
+class FakeSettingsRepository implements SettingsRepository {
+  FakeSettingsRepository({
+    this.initialThemeMode = ThemeMode.light,
+    this.initialLocale = const Locale('ar'),
+  })  : _themeMode = initialThemeMode,
+        _locale = initialLocale;
+
+  final ThemeMode initialThemeMode;
+  final Locale initialLocale;
+  ThemeMode _themeMode;
+  Locale _locale;
+
+  @override
+  Future<ThemeMode> getThemeMode() async => _themeMode;
+
+  @override
+  Future<void> setThemeMode(ThemeMode mode) async {
+    _themeMode = mode;
+  }
+
+  @override
+  Future<Locale> getLocale() async => _locale;
+
+  @override
+  Future<void> setLocale(Locale locale) async {
+    _locale = locale;
+  }
+}
+
 class ReviewHarness {
   final accounts = FakeAccountRepository();
   final subscriptions = FakeSubscriptions();
   final stations = ReviewStations();
   final content = ReviewContent();
   final audio = ReviewAudio();
+  late final settings = FakeSettingsRepository();
   late final home =
       ReviewHome(stations, Banners(), Locations(), User(), Preferences());
-  Widget app(Widget child, {String language = 'ar', double scale = 1}) =>
+  Widget app(Widget child,
+          {String language = 'ar',
+          double scale = 1,
+          ThemeMode themeMode = ThemeMode.light}) =>
       ProviderScope(
           overrides: [
             accountRepositoryProvider.overrideWithValue(accounts),
@@ -148,10 +182,15 @@ class ReviewHarness {
             audioPlaybackRepositoryProvider.overrideWithValue(audio),
             favoritesRepositoryProvider
                 .overrideWithValue(FakeFavoritesRepository()),
-            homeControllerProvider.overrideWith((ref) => home)
+            homeControllerProvider.overrideWith((ref) => home),
+            settingsRepositoryProvider.overrideWithValue(FakeSettingsRepository(
+                initialLocale: Locale(language),
+                initialThemeMode: themeMode)),
           ],
           child: MaterialApp(
               theme: AppTheme.light(),
+              darkTheme: AppTheme.dark(),
+              themeMode: themeMode,
               locale: Locale(language),
               supportedLocales: AppLocalizations.supportedLocales,
               localizationsDelegates: AppLocalizations.localizationsDelegates,

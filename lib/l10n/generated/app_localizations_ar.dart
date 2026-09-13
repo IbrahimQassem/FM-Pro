@@ -1083,4 +1083,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get shareFailed => 'تعذّر فتح المشاركة. حاول مرة أخرى.';
+
+  @override
+  String get preferencesSectionTitle => 'تفضيلات التطبيق';
+
+  @override
+  String get languageSettingTitle => 'اللغة';
+
+  @override
+  String get languageArabic => 'العربية';
+
+  @override
+  String get languageEnglish => 'English (الإنجليزية)';
+
+  @override
+  String get themeSettingTitle => 'المظهر';
+
+  @override
+  String get themeSettingLight => 'فاتح';
+
+  @override
+  String get themeSettingDark => 'داكن';
+
+  @override
+  String get themeSettingSystem => 'تلقائي (حسب النظام)';
+
+  @override
+  String get chooseLanguage => 'اختيار اللغة';
+
+  @override
+  String get chooseTheme => 'اختيار المظهر';
 }

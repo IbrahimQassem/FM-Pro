@@ -2006,6 +2006,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open sharing. Please try again.'**
   String get shareFailed;
+
+  /// No description provided for @preferencesSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App Preferences'**
+  String get preferencesSectionTitle;
+
+  /// No description provided for @languageSettingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageSettingTitle;
+
+  /// No description provided for @languageArabic.
+  ///
+  /// In en, this message translates to:
+  /// **'العربية (Arabic)'**
+  String get languageArabic;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @themeSettingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get themeSettingTitle;
+
+  /// No description provided for @themeSettingLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeSettingLight;
+
+  /// No description provided for @themeSettingDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeSettingDark;
+
+  /// No description provided for @themeSettingSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System Default'**
+  String get themeSettingSystem;
+
+  /// No description provided for @chooseLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Language'**
+  String get chooseLanguage;
+
+  /// No description provided for @chooseTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Appearance'**
+  String get chooseTheme;
 }
 
 class _AppLocalizationsDelegate

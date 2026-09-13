@@ -1099,4 +1099,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareFailed => 'Could not open sharing. Please try again.';
+
+  @override
+  String get preferencesSectionTitle => 'App Preferences';
+
+  @override
+  String get languageSettingTitle => 'Language';
+
+  @override
+  String get languageArabic => 'العربية (Arabic)';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get themeSettingTitle => 'Appearance';
+
+  @override
+  String get themeSettingLight => 'Light';
+
+  @override
+  String get themeSettingDark => 'Dark';
+
+  @override
+  String get themeSettingSystem => 'System Default';
+
+  @override
+  String get chooseLanguage => 'Select Language';
+
+  @override
+  String get chooseTheme => 'Select Appearance';
 }
