@@ -142,6 +142,27 @@ tasks.configureEach {
     }
 }
 
+val copyReleaseBundleWithVersion = tasks.register("copyReleaseBundleWithVersion") {
+    group = "build"
+    description = "Copies the release AAB to a descriptive versioned name."
+    dependsOn("signReleaseBundle")
+    doLast {
+        val bundleDir = layout.buildDirectory.dir("outputs/bundle/release").get().asFile
+        val defaultAab = File(bundleDir, "app-release.aab")
+        if (defaultAab.exists()) {
+            val vName = android.defaultConfig.versionName ?: "unknown"
+            val vCode = android.defaultConfig.versionCode ?: 0
+            val destFile = File(bundleDir, "hudhud-fm-v${vName}-b${vCode}-release.aab")
+            defaultAab.copyTo(destFile, overwrite = true)
+            println("Versioned AAB generated: ${destFile.absolutePath}")
+        }
+    }
+}
+
+tasks.matching { it.name == "bundleRelease" }.configureEach {
+    finalizedBy(copyReleaseBundleWithVersion)
+}
+
 kotlin {
     compilerOptions {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
