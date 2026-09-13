@@ -80,6 +80,17 @@ void main() {
     expect((await source.watchAccount().first)!.photoUrl, isEmpty);
   });
 
+  test('verified startup repairs a missing canonical profile', () async {
+    firestore.profile = {};
+    firestore.profileExists = false;
+    final snapshot = await source.watchAccount().first;
+    expect(snapshot!.emailVerified, isTrue);
+    expect(functions.calls.single, [
+      'ensureAccountProfile',
+      {'root': FirestorePaths.root}
+    ]);
+  });
+
   test('verified sign-in surfaces canonical profile failure', () async {
     final failure =
         FirebaseFunctionsException(code: 'unavailable', message: 'test');
@@ -319,6 +330,7 @@ class _AdditionalInfo extends AdditionalUserInfo {
 
 class _Firestore implements FirebaseFirestore {
   Map<String, dynamic>? profile;
+  bool profileExists = true;
   final paths = <String>[];
   @override
   CollectionReference<Map<String, dynamic>> collection(String path) {
@@ -363,7 +375,7 @@ class _Document implements DocumentReference<Map<String, dynamic>> {
   @override
   Future<DocumentSnapshot<Map<String, dynamic>>> get(
           [GetOptions? options]) async =>
-      _Snapshot(owner.profile!);
+      _Snapshot(owner.profile!, owner.profileExists);
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -371,10 +383,11 @@ class _Document implements DocumentReference<Map<String, dynamic>> {
 // Test-only SDK double: exercise the data boundary without a Firebase service.
 // ignore: subtype_of_sealed_class
 class _Snapshot implements DocumentSnapshot<Map<String, dynamic>> {
-  _Snapshot(this.profile);
+  _Snapshot(this.profile, this._exists);
   final Map<String, dynamic> profile;
+  final bool _exists;
   @override
-  bool get exists => true;
+  bool get exists => _exists;
   @override
   Map<String, dynamic> data() => profile;
   @override

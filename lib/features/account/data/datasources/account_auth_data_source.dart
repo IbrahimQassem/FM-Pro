@@ -92,9 +92,16 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
       var displayName = _text(user.displayName);
       var photoUrl = ProfileAvatar.sanitize(user.photoURL);
       try {
-        final profile = await FirestorePaths.users(
+        var profile = await FirestorePaths.users(
           _firestore,
         ).doc(user.uid).get();
+        // A verified user can survive an app restart with an older or
+        // partially completed account flow. Repair the canonical profile
+        // before other verified-only writes (subscriptions, favorites, UGC).
+        if (user.emailVerified && !profile.exists) {
+          await _ensureAccountProfile();
+          profile = await FirestorePaths.users(_firestore).doc(user.uid).get();
+        }
         final profileName = _text(profile.data()?['displayName']);
         if (profileName.isNotEmpty) displayName = profileName;
         if (profile.exists) {
