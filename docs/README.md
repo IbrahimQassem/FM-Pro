@@ -43,9 +43,12 @@
 
 ## مراجع التخطيط
 
+- [قرار حسابات واكتشاف الموقع العام](decisions/0004-public-web-accounts-and-discovery.md):
+  التصفح العام، الحسابات الاختيارية، الروابط وتنبيهات المتصفح.
+
 - [خطة تطوير الموقع العام](roadmap/public-web-development-plan.md):
   موثوقية الاستماع، قابلية الاستخدام، الاكتشاف والتكامل الاختياري للحسابات.
-- [تسليم أول شريحة للموقع العام](roadmap/public-web-development-handoff.md):
+- [تسليم تطوير الموقع العام](roadmap/public-web-development-handoff.md):
   التغييرات والاختبارات والأدلة المحلية وما تبقى.
 
 - [قرار متابعة المحطات وإشعارات الحلقات](decisions/0003-station-subscriptions-and-alerts.md):

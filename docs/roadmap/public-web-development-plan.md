@@ -1,65 +1,50 @@
 # Public web development plan
 
-Date: 2026-09-12. Target: `web_hudhud`. No deployment or app release.
+Updated: 2026-09-13. Target: `web_hudhud`. Release and deployment excluded.
 
-## Goal and boundaries
+The request to complete the whole plan selects all three phases, including
+optional accounts and browser alerts. [ADR 0004](../decisions/0004-public-web-accounts-and-discovery.md)
+owns this extension of the public read-only experience. Guest browsing/listening
+remains read-only, with no sign-in gate or fabricated fallback content.
 
-Make discovery and listening reliable on mobile and desktop, then expand useful
-public content. Preserve React/TypeScript/Vite, Arabic RTL, the current identity,
-and the explicitly selected Firestore root. No admin credentials, privileged
-writes, fabricated station fallback, or new router/state library.
+## Implementation tracker
 
-The trailing “3” in the request is not yet clarified. Start the common Phase 1
-work now; Phase 3 remains conditional rather than silently enabling accounts.
+| Card | Phase | Delivered implementation | Evidence |
+| --- | --- | --- | --- |
+| WEB-01 | 1 | Isolated media attempts, one backup, resource cleanup, bounded connection timeout | Media race/fallback/timeout tests |
+| WEB-02 | 1 | Connecting/playing/paused/error states, explicit retry, successful-play history | Media tests and invalid-source browser flow |
+| WEB-03 | 1 | Catalog generation guards, malformed/removed filtering, retryable SDK initialization | Browser overlapping-request fixture and SDK regression test |
+| WEB-04 | 1 | RTL mobile controls, readable secondary text, focus/menu semantics, reduced motion | 360px/1280px screenshots, keyboard and DOM checks; broader device acceptance remains external |
+| WEB-05 | 1 | Honest recent-listening recommendation and recency ordering | Mapping/recency tests |
+| WEB-06 | 1 | Node tests, lint, TypeScript build gate, reproducible dependencies | Node 22 checks and explicit HudHudDev build |
+| WEB-07 | 2 | Station details, active programs, published episodes, timezone schedules, cache/server recovery, shared episode player | Content/schedule tests and synthetic browser details/unavailable-content checks |
+| WEB-08 | 2 | Bounded browser favorites, recent list, clear-history action, storage failure handling | Storage tests and browser favorite persistence/filter checks |
+| WEB-09 | 2 | Shareable station/content URLs, canonical/title/description/Open Graph metadata, existing policy and Android links | Route validation tests and browser navigation; social crawlers may retain static metadata |
+| WEB-10 | 2 | Measured local rendering sample and build sizes; deferred optional chunks | Build report and fixture timing. No production read-cost/latency claim or unmeasured index changes |
+| WEB-11 | 3 | Optional email/password Auth, server OTP/profile calls, name editing, password reset, recent-auth deletion | Existing Functions, verification/deletion emulator gates; synthetic account UI |
+| WEB-12 | 3 | Account-bound station follows, canonical legacy resolution, unavailable references, separate station alert opt-in | Resolution tests, browser follow/failure cases, subscription and rules emulator gates |
+| WEB-13 | 3 | Bundled browser worker, VAPID/capability gating, device registration/rotation/cleanup, foreground list, allowlisted notification navigation | Device lifecycle/route tests, bundled worker build, unavailable-push UI; real receipt remains external |
 
-## Phase 1 — Reliable listening and usable controls (active)
+**Development coverage: 13/13 cards implemented (100%).** This measures code
+coverage of the development roadmap, not full device/integration acceptance.
+All three phases have shipped to the local working tree. Nothing has been deployed.
 
-| Card | Implementation | Acceptance |
-| --- | --- | --- |
-| WEB-01 | Extract media lifecycle; isolate source attempts and release old audio | Switching A→B, stale rejection/events, stop/dispose, invalid URL and single backup fallback tests |
-| WEB-02 | Connecting/playing/paused/error states with retry; remember successful plays only | No autoplay; denied browser play can be retried; duplicate clicks/history suppressed |
-| WEB-03 | Guard catalog requests and retry failed Firebase initialization | Stale responses ignored; malformed unnamed records skipped; obsolete city filter reset |
-| WEB-04 | Mobile text, 44px controls, keyboard focus, menu/filter semantics, reduced motion | Narrow/desktop browser checks, keyboard navigation and screenshots; no horizontal overflow |
-| WEB-05 | Label local recency honestly; preserve existing local history format | Latest available history item chosen, featured/default fallback when history is empty |
-| WEB-06 | Add Node regression tests and TypeScript build gate | Tests, lint, typecheck, explicit HudHudDev build; record browser evidence separately |
+## Remaining acceptance evidence and configuration
 
-Do not change HTTP stream acceptance in this pass; document mixed-content/browser
-limitations. Do not claim successful real streaming from media fakes.
+- Real Firebase provider/authorized-domain and public VAPID configuration, plus
+  real foreground/background/cold-start browser receipt. Emulator/fake results do
+  not establish notification delivery. Use a disposable development account when
+  a separately authorized development environment is available.
+- Real radio sources, interruptions/autoplay policies, mobile Safari, native
+  browser 200% zoom and screen-reader review. Existing browser checks use Chrome
+  synthetic fixtures and DOM/AX evidence; they do not establish these device cases.
+- iOS store link requires the numeric ID from App Store Connect/AppConfig. No
+  placeholder link is invented; Android uses the existing package identity.
+- Real catalog latency/read volume and crawler previews require a configured site.
+  Metadata is updated client-side; crawlers that do not execute JavaScript see the
+  static landing metadata. Consider prerendering only with a measured need and a
+  separate content freshness design.
 
-## Phase 2 — Discovery and return visits (queued)
-
-- Add read-only station detail pages with canonical descriptions, programs,
-  published episodes and schedules. Use existing IDs and contracts; hidden or
-  removed content gets an unavailable state. Preserve one shared player.
-- Add browser-local favorites, recently played, and a clear-history action.
-  Store bounded IDs only; tolerate unavailable storage and missing stations.
-- Add stable shareable station URLs and page metadata. Confirm the actual public
-  hostname and store destinations from owning configuration before wiring links.
-- Measure catalog loading and device rendering before proposing paging/index
-  changes. A local timing sample is not a production latency/read-cost result.
-
-## Phase 3 — Account integration (conditional)
-
-If selected, first document the transition from read-only public web to optional
-Firebase Auth accounts. Reuse existing verified-account, profile, deletion and
-station-subscription callable contracts; guest discovery/listening remains free
-of sign-in gates. Follow and alerts remain separate actions, default alerts off.
-
-Browser push requires its own service-worker, permission, supported-browser and
-device-registration lifecycle design. Reuse server ownership/cleanup invariants;
-do not copy mobile setup or promise delivery without browser evidence. Verify
-both allowed roots and owner/guest/disabled-account cases in emulator tests.
-No account integration or push deployment is implied by completing Phase 1.
-
-## Completion and evidence
-
-Track completed, partial and pending cards in the implementation handoff. Count a
-card complete only with its listed evidence; keep browser/device limits explicit.
-No percentage for the entire three-phase roadmap is asserted before Phase 3 scope
-is settled. Phase 2/3 are future implementation work, not delivered features.
-
-## First implementation checkpoint
-
-The first Phase 1 slice is delivered. See the [handoff](public-web-development-handoff.md)
-for actual checks, partially verified requirements, and remaining work. Phase 2
-and Phase 3 are not marked implemented.
+See the [completion handoff](public-web-development-handoff.md) for exact scope,
+commands, limitations and files. These external items are not silently marked as
+verified, and release/deployment are not part of the completion percentage.

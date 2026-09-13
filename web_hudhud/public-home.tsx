@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
   ChevronLeft,
@@ -16,7 +16,13 @@ import {
   Volume2,
   X,
 } from 'lucide-react';
-import { loadPublicStations } from '@/lib/station-repository';
+import { readIds, toggleId, stationHref, validId, type Episode } from './lib/discovery';
+import { FeatureBoundary } from './feature-boundary';
+import type { AccountPort } from './account-panel';
+import type { loadStationContent } from './lib/content-repository';
+const StationDetail = lazy(() => import('./station-detail').then(module => ({ default: module.StationDetail })));
+const AccountPanel = lazy(() => import('./account-panel').then(module => ({ default: module.AccountPanel })));
+const loadPublicStations = () => import('./lib/station-repository').then(module => module.loadPublicStations());
 import { RadioPlayer, isHttpUrl, type PlaybackState } from '@/lib/radio-player';
 import { recentStation, type Station } from '@/lib/stations';
 
@@ -36,7 +42,7 @@ function readListeningHistory(): ListeningEntry[] {
     if (!Array.isArray(parsed)) return [];
     return parsed.filter((entry): entry is ListeningEntry => (
       typeof entry === 'object' && entry !== null &&
-      typeof (entry as ListeningEntry).stationId === 'string' &&
+      validId((entry as ListeningEntry).stationId) &&
       typeof (entry as ListeningEntry).playedAt === 'string'
     )).slice(0, 30);
   } catch {
@@ -44,10 +50,10 @@ function readListeningHistory(): ListeningEntry[] {
   }
 }
 
-function rememberSuccessfulPlay(stationId: string): ListeningEntry[] {
+function rememberSuccessfulPlay(stationId: string, previous: ListeningEntry[]): ListeningEntry[] {
   const next = [
     { stationId, playedAt: new Date().toISOString() },
-    ...readListeningHistory().filter((entry) => entry.stationId !== stationId),
+    ...previous.filter((entry) => entry.stationId !== stationId),
   ].slice(0, 30);
   try {
     localStorage.setItem(LAST_STATION_STORAGE_KEY, stationId);
@@ -58,7 +64,19 @@ function rememberSuccessfulPlay(stationId: string): ListeningEntry[] {
   return next;
 }
 
-export function PublicHome({ loadCatalog = loadPublicStations }: { loadCatalog?: () => Promise<Station[]> } = {}) {
+export function PublicHome({ loadCatalog = loadPublicStations, loadContent, createAccount }: { loadCatalog?: () => Promise<Station[]>; loadContent?: typeof loadStationContent; createAccount?: () => AccountPort } = {}) {
+  const [route, setRoute] = useState(() => location.search + location.hash);
+  const [accountOpened, setAccountOpened] = useState(() => location.hash === '#account');
+  const params = new URLSearchParams(route.split('#')[0]);
+  const detailId = params.get('station');
+  const [favorites, setFavorites] = useState(() => { try { return readIds(localStorage, 'hudhud.localFavorites'); } catch { return []; } });
+  const [library, setLibrary] = useState<'all' | 'favorites' | 'recent'>('all');
+  const [storageMessage, setStorageMessage] = useState('');
+  const [episodeMedia, setEpisodeMedia] = useState<Station | null>(null);
+  const episodeOwner = useRef<string | null>(null);
+  useEffect(() => { const update = () => { setRoute(location.search + location.hash); if (location.hash === '#account') setAccountOpened(true); }; window.addEventListener('popstate', update); window.addEventListener('hashchange', update); return () => { window.removeEventListener('popstate', update); window.removeEventListener('hashchange', update); }; }, []);
+  function toggleFavorite(id: string) { const next = toggleId(favorites, id); setFavorites(next); try { localStorage.setItem('hudhud.localFavorites', JSON.stringify(next)); } catch { setStorageMessage('تعذر الحفظ على هذا المتصفح؛ المفضلة متاحة لهذه الجلسة فقط.'); } }
+  function clearHistory() { setHistory([]); try { localStorage.removeItem(HISTORY_STORAGE_KEY); localStorage.removeItem(LAST_STATION_STORAGE_KEY); setStorageMessage('تم مسح سجل الاستماع من هذا المتصفح.'); } catch { setStorageMessage('تم مسح العرض؛ تعذر تعديل تخزين المتصفح.'); } }
   const [stations, setStations] = useState<Station[]>([]);
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [loadError, setLoadError] = useState('');
@@ -75,7 +93,7 @@ export function PublicHome({ loadCatalog = loadPublicStations }: { loadCatalog?:
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   useEffect(() => {
     const controller = new RadioPlayer(() => new Audio(), setPlayback,
-      (id) => setHistory(rememberSuccessfulPlay(id)));
+      (id) => setHistory(previous => rememberSuccessfulPlay(episodeOwner.current || id, previous)));
     player.current = controller;
     return () => { controller.dispose(); player.current = null; };
   }, []);
@@ -116,7 +134,9 @@ export function PublicHome({ loadCatalog = loadPublicStations }: { loadCatalog?:
   }, [stations]);
   const filteredStations = useMemo(() => {
     const query = searchQuery.trim().toLocaleLowerCase('ar');
-    return stations.filter((station) => {
+    const result = stations.filter((station) => {
+      if (library === 'favorites' && !favorites.includes(station.id)) return false;
+      if (library === 'recent' && !history.some(entry => entry.stationId === station.id)) return false;
       const matchesCity = selectedCity === 'all' || station.cityCode === selectedCity ||
         (!station.cityCode && station.cityNameAr === selectedCity);
       if (!matchesCity) return false;
@@ -130,19 +150,31 @@ export function PublicHome({ loadCatalog = loadPublicStations }: { loadCatalog?:
         station.description,
       ].some((value) => value.toLocaleLowerCase('ar').includes(query));
     });
-  }, [searchQuery, selectedCity, stations]);
+    return library === 'recent' ? result.sort((a,b) => history.findIndex(e => e.stationId === a.id) - history.findIndex(e => e.stationId === b.id)) : result;
+  }, [searchQuery, selectedCity, stations, library, favorites, history]);
   const liveCount = stations.filter((station) => station.isLive).length;
-  const currentStation = stations.find((station) => station.id === currentStationId) || null;
+  const currentStation = episodeMedia?.id === currentStationId ? episodeMedia : stations.find((station) => station.id === currentStationId) || null;
+  const detailStation = validId(detailId) ? stations.find(station => station.id === detailId) : null;
   useEffect(() => {
-    if (loadState === 'ready' && currentStationId && !currentStation) player.current?.stop();
-  }, [loadState, currentStationId, currentStation]);
+    document.title = detailStation ? `${detailStation.name} | هدهد FM` : 'هدهد FM — محطات اليمن';
+    const description = document.querySelector('meta[name=description]');
+    description?.setAttribute('content', detailStation?.description || detailStation?.tagline || 'اكتشف محطات اليمن واستمع إلى برامجك المفضلة مع هدهد FM.');
+    let canonical = document.querySelector<HTMLLinkElement>('link[rel=canonical]');
+    if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.append(canonical); }
+    for (const [property, content] of [['og:title', document.title], ['og:description', detailStation?.description || detailStation?.tagline || 'محطات اليمن على هدهد FM']]) { let tag = document.querySelector<HTMLMetaElement>(`meta[property="${property}"]`); if (!tag) { tag = document.createElement('meta'); tag.setAttribute('property', property); document.head.append(tag); } tag.content = content; }
+    canonical.href = new URL(detailStation ? stationHref(detailStation.id).split('#')[0] : '?', location.href).href;
+  }, [detailStation]);
+  useEffect(() => {
+    if (loadState === 'ready' && currentStationId && (!currentStation || (episodeOwner.current && !stations.some(s => s.id === episodeOwner.current)))) player.current?.stop();
+  }, [loadState, currentStationId, currentStation, stations]);
   const recommendation = useMemo(() => recentStation(stations, history), [history, stations]);
 
-  function playStation(station: Station) { player.current?.select(station); }
+  function playStation(station: Station) { episodeOwner.current = null; setEpisodeMedia(null); player.current?.select(station); }
+  function playEpisode(episode: Episode) { const station = stations.find(s => s.id === episode.stationId); if (!station) return; const media = { ...station, id: `episode:${episode.id}`, resume: true, name: `${episode.title} · ${station.name}`, streamUrl: episode.audioUrl, backupStreamUrl: '' }; episodeOwner.current = station.id; setEpisodeMedia(media); player.current?.select(media); }
   function stopPlayback() { player.current?.stop(); }
 
   return (
-    <div className="public-site" dir="rtl" onKeyDown={(event) => { if (event.key === 'Escape' && mobileMenuOpen) { setMobileMenuOpen(false); menuButton.current?.focus(); } }}>
+    <div className="public-site" dir="rtl" onClick={event => { const anchor = (event.target as Element).closest('a'); if (!anchor || event.defaultPrevented || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return; const href = new URL(anchor.href); if (href.origin === location.origin && href.pathname === location.pathname && anchor.getAttribute('href')?.startsWith('?')) { event.preventDefault(); window.history.pushState(null, '', href); setRoute(href.search + href.hash); requestAnimationFrame(() => document.getElementById(href.hash.slice(1) || 'top')?.scrollIntoView()); } }} onKeyDown={(event) => { if (event.key === 'Escape' && mobileMenuOpen) { setMobileMenuOpen(false); menuButton.current?.focus(); } }}>
       <header className="site-header">
         <a className="brand" href="#top" aria-label="هدهد FM، الصفحة الرئيسية">
           <span className="brand-mark"><Radio size={23} strokeWidth={2.4} /></span>
@@ -151,7 +183,7 @@ export function PublicHome({ loadCatalog = loadPublicStations }: { loadCatalog?:
         <nav id="public-navigation" className={mobileMenuOpen ? 'site-nav is-open' : 'site-nav'} aria-label="التنقل الرئيسي">
           <a href="#featured" onClick={() => setMobileMenuOpen(false)}>المميز</a>
           <a href="#stations" onClick={() => setMobileMenuOpen(false)}>كل المحطات</a>
-          <a href="#about" onClick={() => setMobileMenuOpen(false)}>عن هدهد</a>
+          <a href="#about" onClick={() => setMobileMenuOpen(false)}>عن هدهد</a><a href="#account" onClick={() => { setMobileMenuOpen(false); setAccountOpened(true); }}>حسابي ومحطاتي</a>
         </nav>
         <div className="header-actions">
           <a className="header-search" href="#stations" aria-label="ابحث عن محطة">
@@ -165,7 +197,9 @@ export function PublicHome({ loadCatalog = loadPublicStations }: { loadCatalog?:
       </header>
 
       <main id="top">
-        <section className="hero-section">
+        {detailId && loadState === 'ready' && (detailStation ? <FeatureBoundary><Suspense fallback={<p role="status">جارٍ تحميل تفاصيل المحطة…</p>}><StationDetail key={`${detailStation.id}:${params.get('program') || ''}:${params.get('episode') || ''}`} station={detailStation} onPlay={() => playStation(detailStation)} onEpisode={playEpisode} favorite={favorites.includes(detailStation.id)} onFavorite={() => toggleFavorite(detailStation.id)} loadContent={loadContent} /></Suspense></FeatureBoundary> : <section className="content-section" id="station-detail"><h1>المحطة غير متاحة</h1><a href="?">كل المحطات</a></section>)}
+
+        <section className="hero-section" hidden={!!detailId}>
           <div className="hero-copy">
             <div className="eyebrow"><span className="eyebrow-dot" /> صوت قريب منك</div>
             <h1>اكتشف صوت اليمن<br /><em>في مكان واحد.</em></h1>
@@ -231,6 +265,7 @@ export function PublicHome({ loadCatalog = loadPublicStations }: { loadCatalog?:
 
         <section className="content-section stations-section" id="stations">
           <div className="stations-heading"><SectionHeading eyebrow="الكتالوج الكامل" title="كل المحطات، أقرب إلى أذنك" description="ابحث باسم المحطة أو المدينة أو التردد، ثم اختر ما يناسب لحظتك." /><span className="count-badge">{loadState === 'ready' ? `${stations.length} محطة` : '...'}</span></div>
+          <div className="detail-actions" aria-label="مكتبتي"><button aria-pressed={library === 'all'} onClick={() => setLibrary('all')}>كل المحطات</button><button aria-pressed={library === 'favorites'} onClick={() => setLibrary('favorites')}>المفضلة على هذا المتصفح</button><button aria-pressed={library === 'recent'} onClick={() => setLibrary('recent')}>استمعت إليها مؤخراً</button><button onClick={clearHistory} disabled={!history.length}>مسح سجل الاستماع</button></div><p role="status">{storageMessage}</p>
           <div className="filters-bar">
             <label className="search-field"><Search size={19} /><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="ابحث عن محطة، مدينة، أو تردد..." aria-label="البحث في المحطات" />{searchQuery && <button type="button" onClick={() => setSearchQuery('')} aria-label="مسح البحث"><X size={16} /></button>}</label>
             <div className="city-filters" aria-label="تصفية حسب المدينة">
@@ -241,22 +276,23 @@ export function PublicHome({ loadCatalog = loadPublicStations }: { loadCatalog?:
           {loadState === 'loading' && <div className="station-grid"><StationSkeleton /><StationSkeleton /><StationSkeleton /><StationSkeleton /></div>}
           {loadState === 'error' && <ErrorState message={loadError} onRetry={() => void loadStations()} />}
           {loadState === 'ready' && stations.length === 0 && <EmptyState title="لا توجد محطات نشطة حالياً" description="لم يتم العثور على محطات مفعّلة في الكتالوج. حاول مرة أخرى لاحقاً." />}
-          {loadState === 'ready' && stations.length > 0 && filteredStations.length === 0 && <EmptyState title="لم نعثر على محطة بهذا البحث" description="جرّب اسماً آخر أو أزل فلتر المدينة للبحث في كل المحطات." actionLabel="إظهار كل المحطات" onAction={() => { setSearchQuery(''); setSelectedCity('all'); }} />}
-          {loadState === 'ready' && filteredStations.length > 0 && <div className="station-grid">{filteredStations.map((station) => <StationCard key={station.id} station={station} isPlaying={isPlaying && currentStationId === station.id} onPlay={() => void playStation(station)} />)}</div>}
+          {loadState === 'ready' && stations.length > 0 && filteredStations.length === 0 && <EmptyState title="لم نعثر على محطة بهذا البحث" description="جرّب اسماً آخر أو أزل فلتر المدينة للبحث في كل المحطات." actionLabel="إظهار كل المحطات" onAction={() => { setSearchQuery(''); setSelectedCity('all'); setLibrary('all'); }} />}
+          {loadState === 'ready' && filteredStations.length > 0 && <div className="station-grid">{filteredStations.map((station) => <StationCard key={station.id} favorite={favorites.includes(station.id)} onFavorite={() => toggleFavorite(station.id)} station={station} isPlaying={isPlaying && currentStationId === station.id} onPlay={() => void playStation(station)} />)}</div>}
         </section>
 
+        {accountOpened && <FeatureBoundary><Suspense fallback={<section className="content-section" id="account" role="status">جارٍ تحميل الحساب…</section>}><AccountPanel createRepository={createAccount} stations={stations} selectedStationId={detailStation?.id || null} /></Suspense></FeatureBoundary>}
         <section className="about-section" id="about">
           <div className="about-mark"><Radio size={28} /></div>
           <div><span className="section-eyebrow">هدهد FM</span><h2>صوت محلي، بتجربة أبسط.</h2><p>هدهد يجمع المحطات النشطة من الكتالوج الرسمي في مكان واحد. بيانات المحطات تُقرأ مباشرة من المصدر الرسمي للمنصة.</p></div>
           <a className="about-link" href="#top">العودة إلى الأعلى <ChevronLeft size={17} /></a>
         </section>
-      </main>
+      <footer className="content-section detail-actions"><a href="https://hudhud-fm-admin-sanadev.web.app/privacy">سياسة الخصوصية</a><a href="https://hudhud-fm-admin-sanadev.web.app/terms">الشروط</a><a href="https://hudhud-fm-admin-sanadev.web.app/account-deletion">معلومات حذف الحساب</a><a href="https://play.google.com/store/apps/details?id=com.sanaadev.hudhudfm">تطبيق Android</a></footer></main>
 
       {currentStation && <div className={playerError ? 'player-dock has-error' : 'player-dock'} role="status">
         <StationArtwork station={currentStation} size="tiny" />
         <div className="player-info"><strong>{currentStation.name || 'محطة إذاعية'}</strong><span>{playerError || (playback.status === 'connecting' ? 'جارٍ الاتصال بالبث…' : isPlaying ? 'يُبث الآن من هدهد' : 'البث متوقف مؤقتاً')}</span></div>
         {playerError && <span className="player-error"><CircleAlert size={15} /> {playerError}</span>}
-        <button className="player-toggle" type="button" disabled={playback.status === 'connecting'} onClick={() => void playStation(currentStation)} aria-label={isPlaying ? 'إيقاف البث' : 'تشغيل البث'}>{isPlaying ? <Pause size={18} /> : <Play size={18} fill="currentColor" />}</button>
+        <button className="player-toggle" type="button" disabled={playback.status === 'connecting'} onClick={() => player.current?.select(currentStation)} aria-label={isPlaying ? 'إيقاف البث' : 'تشغيل البث'}>{isPlaying ? <Pause size={18} /> : <Play size={18} fill="currentColor" />}</button>
         <button className="player-close" type="button" onClick={stopPlayback} aria-label="إغلاق المشغل"><X size={17} /></button>
       </div>}
     </div>
@@ -281,11 +317,11 @@ function StationArtwork({ station, size = 'normal' }: { station: Station; size?:
 }
 
 function FeaturedCard({ station, index, isPlaying, onPlay }: { station: Station; index: number; isPlaying: boolean; onPlay: () => void }) {
-  return <article className={`featured-card featured-${index}`}><div className="featured-top"><span className="featured-label"><Star size={13} fill="currentColor" /> مميز</span><span className="live-label">{station.isLive ? <><i /> مباشر</> : 'استماع'}</span></div><StationArtwork station={station} size="normal" /><div className="featured-details"><h3>{station.name || 'محطة إذاعية'}</h3><span>{station.cityNameAr || 'من محطات هدهد'}{station.frequency ? ` · ${station.frequency}` : ''}</span><p>{station.tagline || station.description || 'استمع إلى هذه المحطة من هدهد FM.'}</p></div><button className="card-play" type="button" onClick={onPlay} aria-label={`${isPlaying ? 'إيقاف' : 'تشغيل'} ${station.name || 'المحطة'}`}>{isPlaying ? <Pause size={17} /> : <Play size={17} fill="currentColor" />}</button></article>;
+  return <article className={`featured-card featured-${index}`}><div className="featured-top"><span className="featured-label"><Star size={13} fill="currentColor" /> مميز</span><span className="live-label">{station.isLive ? <><i /> مباشر</> : 'استماع'}</span></div><StationArtwork station={station} size="normal" /><div className="featured-details"><h3><a href={stationHref(station.id)}>{station.name || 'محطة إذاعية'}</a></h3><span>{station.cityNameAr || 'من محطات هدهد'}{station.frequency ? ` · ${station.frequency}` : ''}</span><p>{station.tagline || station.description || 'استمع إلى هذه المحطة من هدهد FM.'}</p></div><button className="card-play" type="button" onClick={onPlay} aria-label={`${isPlaying ? 'إيقاف' : 'تشغيل'} ${station.name || 'المحطة'}`}>{isPlaying ? <Pause size={17} /> : <Play size={17} fill="currentColor" />}</button></article>;
 }
 
-function StationCard({ station, isPlaying, onPlay }: { station: Station; isPlaying: boolean; onPlay: () => void }) {
-  return <article className="station-card"><div className="station-card-visual"><StationArtwork station={station} size="normal" /><span className={station.isLive ? 'card-status live' : 'card-status'}>{station.isLive && <i />}{station.isLive ? 'على الهواء' : 'متاح للاستماع'}</span><button className="card-play" type="button" onClick={onPlay} aria-label={`${isPlaying ? 'إيقاف' : 'تشغيل'} ${station.name || 'المحطة'}`}>{isPlaying ? <Pause size={17} /> : <Play size={17} fill="currentColor" />}</button></div><div className="station-card-content"><div><h3>{station.name || 'محطة إذاعية'}</h3>{station.nameEn && <span className="name-en">{station.nameEn}</span>}</div><span className="city-name"><MapPin size={14} /> {station.cityNameAr || 'غير محدد'}{station.frequency ? ` · ${station.frequency}` : ''}</span><p>{station.tagline || station.description || 'استمع إلى صوت هذه المحطة عبر هدهد FM.'}</p><div className="card-footer"><span>{station.isVerified ? 'موثقة من هدهد' : 'من كتالوج هدهد'}</span><ChevronLeft size={16} /></div></div></article>;
+function StationCard({ station, isPlaying, onPlay, favorite, onFavorite }: { station: Station; isPlaying: boolean; onPlay: () => void; favorite: boolean; onFavorite(): void }) {
+  return <article className="station-card"><div className="station-card-visual"><StationArtwork station={station} size="normal" /><span className={station.isLive ? 'card-status live' : 'card-status'}>{station.isLive && <i />}{station.isLive ? 'على الهواء' : 'متاح للاستماع'}</span><button className="card-play" type="button" onClick={onPlay} aria-label={`${isPlaying ? 'إيقاف' : 'تشغيل'} ${station.name || 'المحطة'}`}>{isPlaying ? <Pause size={17} /> : <Play size={17} fill="currentColor" />}</button></div><div className="station-card-content"><div><h3><a href={stationHref(station.id)}>{station.name || 'محطة إذاعية'}</a></h3>{station.nameEn && <span className="name-en">{station.nameEn}</span>}</div><span className="city-name"><MapPin size={14} /> {station.cityNameAr || 'غير محدد'}{station.frequency ? ` · ${station.frequency}` : ''}</span><p>{station.tagline || station.description || 'استمع إلى صوت هذه المحطة عبر هدهد FM.'}</p><div className="card-footer"><span>{station.isVerified ? 'موثقة من هدهد' : 'من كتالوج هدهد'}</span><button aria-pressed={favorite} onClick={onFavorite} aria-label={`${favorite ? 'إزالة من المفضلة' : 'أضف إلى المفضلة'} ${station.name}`}>{favorite ? '★' : '☆'}</button><a href={stationHref(station.id)}>التفاصيل</a></div></div></article>;
 }
 
 function EmptyState({ title, description, compact = false, actionLabel, onAction }: { title: string; description: string; compact?: boolean; actionLabel?: string; onAction?: () => void }) {

@@ -104,3 +104,34 @@ button:disabled { cursor: progress; opacity: .65; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 .city-filter, .retry-button, .text-button { min-width: 44px; min-height: 44px; }
+
+/* Discovery and optional account surfaces share the existing theme. */
+.detail-panel, .account-panel { scroll-margin-top: 90px; }
+.detail-panel h1 { font-size: clamp(1.6rem, 5vw, 2.6rem); line-height: 1.5; }
+.detail-panel p, .account-panel p { line-height: 1.9; overflow-wrap: anywhere; }
+.detail-actions, .follow-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-block: 16px; }
+.detail-actions button, .detail-panel button, .account-panel button { min-height: 44px; min-width: 44px; padding: 10px 16px; border: 1px solid #bfc8c6; border-radius: 12px; background: #fff; color: #173c36; cursor: pointer; font: inherit; }
+.detail-actions button[aria-pressed="true"], .account-panel button[aria-pressed="true"] { background: #173c36; color: #fff; }
+button:disabled { opacity: .6; cursor: default; }
+.program-panel { border: 1px solid #cbd5d1; padding: 20px; border-radius: 18px; margin-block: 20px; }
+.episode-row { display: flex; gap: 16px; justify-content: space-between; align-items: center; padding-block: 16px; border-top: 1px solid #d4ded9; }
+.episode-row > div { min-width: 0; }
+.selected-episode { border-inline-start: 4px solid #267763; padding-inline-start: 12px; }
+.account-panel { border-top: 1px solid #cbd5d1; }
+.account-panel form { max-width: 520px; margin-block: 20px; }
+.account-panel fieldset { display: grid; gap: 16px; border: 1px solid #cbd5d1; border-radius: 16px; padding: 20px; min-width: 0; }
+.account-panel label { display: grid; gap: 8px; }
+.account-panel input:not([type="checkbox"]), .account-panel select, .detail-panel select { width: 100%; min-height: 44px; font: inherit; font-size: 16px; padding: 10px; border: 1px solid #a8bab4; border-radius: 8px; background: #fff; color: #173c36; }
+.account-panel input[type="checkbox"] { width: 24px; height: 24px; }
+.account-panel select, .detail-panel select { max-width: 450px; }
+.card-footer button { background: transparent; border: 1px solid #a8bab4; border-radius: 10px; color: #23594b; min-width: 44px; min-height: 44px; font-size: 24px; }
+.station-card h3 a, .featured-card h3 a { color: inherit; }
+.detail-panel a, .account-panel a, footer a, .card-footer a { text-decoration: underline; min-height: 44px; display: inline-flex; align-items: center; }
+@media (max-width: 600px) { .episode-row { align-items: stretch; flex-direction: column; } .account-panel fieldset, .program-panel { padding: 14px; } .follow-row > a { flex-basis: 100%; } }
+
+[hidden] { display: none !important; }
+select:focus-visible { outline: 3px solid #b78127; outline-offset: 3px; }
+
+/* Darken secondary text on light cards without changing dark hero surfaces. */
+.station-card-content p, .city-name, .name-en, .section-heading p, .header-search { color: #52685f; }
+.content-section .section-eyebrow, .recommendation-copy .section-eyebrow, .card-footer { color: #82601c; }

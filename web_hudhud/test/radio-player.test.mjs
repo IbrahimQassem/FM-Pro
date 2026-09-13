@@ -76,3 +76,17 @@ test('backup-only station and buffering state remain observable',()=>{
  assert.equal(audio[0].src,'https://example.test/backup'); audio[0].emit('playing'); audio[0].emit('waiting');
  assert.equal(states.at(-1).status,'connecting'); player.stop();
 });
+test('episode pause/resume retains the same media source and remembers once',()=>{
+ const {player,audio,history,states}=setup(); const episode={...station('episode:e'),resume:true};
+ player.select(episode); audio[0].emit('playing'); player.select(episode);
+ assert.equal(states.at(-1).status,'paused'); assert.ok(audio[0].src);
+ player.select(episode); audio[0].emit('playing'); assert.equal(audio.length,1); assert.deepEqual(history,['episode:e']);
+ player.stop(); assert.equal(audio[0].src,''); player.dispose();
+});
+test('a connection timeout tries one backup then exposes a retryable error',async()=>{
+ const audio=[], states=[];
+ const player=new RadioPlayer(()=>{const a=new FakeAudio();audio.push(a);return a;},s=>states.push(s),()=>{},5);
+ player.select(station('s'));
+ await new Promise(resolve=>setTimeout(resolve,40));
+ assert.equal(audio.length,2); assert.equal(states.at(-1).status,'error'); player.dispose();
+});

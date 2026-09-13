@@ -47,6 +47,8 @@ export default defineConfig(({ command, mode }) => {
   return {
     envDir,
     plugins: [react()],
+    worker: { format: 'es' },
+    envPrefix: ['VITE_'],
     define: {
       __FIRESTORE_ROOT__: JSON.stringify(root),
       __FIREBASE_CONFIG__: JSON.stringify(firebaseConfig),

@@ -5,6 +5,7 @@ type StationStats = {
 };
 
 export type Station = {
+  resume?: boolean;
   id: string;
   name: string;
   nameEn: string;

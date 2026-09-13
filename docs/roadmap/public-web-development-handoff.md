@@ -1,70 +1,131 @@
-# Public web development — first implementation
+# Public web development completion handoff
 
-Date: 2026-09-12. [Roadmap](public-web-development-plan.md).
+Updated: 2026-09-13. [Roadmap](public-web-development-plan.md).
+[Account/discovery decision](../decisions/0004-public-web-accounts-and-discovery.md).
 
-## Delivered
+## Summary and completion rate
 
-- Extracted the media lifecycle into a testable controller with one active source.
-  Old events/rejections cannot change a replacement station. Invalid sources stop
-  previous audio; one backup attempt is allowed; stop/dispose releases resources.
-- Added connecting/playing/paused/error feedback and retry after browser play
-  denial. History is updated only after playback starts and once per source.
-- Extracted station mapping and Firestore reads; catalog requests reject stale
-  completions, reset unavailable city filters, and ignore unnamed records. Failed
-  Firebase initialization can be retried rather than caching a rejected promise.
-- Replaced frequency-based recommendation claims with honest local recency.
-- Improved mobile text, naturally sized featured cards, wrapping titles, player
-  clearance, 44px buttons, focus outlines, menu Escape/focus handling, pressed
-  filter semantics, and reduced-motion styles. Existing visual identity retained.
-- Added TypeScript as a build gate, a Node test script, a dependency lockfile,
-  and an explicit synthetic browser fixture excluded from the production bundle.
+All three development phases are implemented in the working tree: **13/13 cards,
+100% development coverage**. End-to-end device/integration acceptance is not 100%:
+real Firebase/provider/push configuration, real streams, Safari, native 200% zoom,
+screen-reader testing and the iOS store destination remain external evidence.
+No production data, real messages, deployment, signing or release was performed.
+
+## Delivered behavior
+
+- One player survives SPA station navigation and handles live/episode sources.
+  Old events/rejections are ignored, source attempts time out after 20 seconds,
+  and one distinct backup is tried. Episode pause/resume retains the same source;
+  only successful playback updates browser history.
+- Station links resolve active canonical catalog IDs; hidden/deleting/mismatched
+  programs and unpublished episodes are omitted. Details include descriptions,
+  program episodes and ISO-weekday schedules with explicit UTC offsets. Content
+  reads cache first, refreshes from server, and retains valid cache on server
+  failure. Unknown content gets unavailable/retry states without autoplay.
+- Favorites retain at most 100 station IDs; existing recent history remains
+  bounded at 30. Favorites tolerate corrupt/disabled storage; recently played
+  sorts by recency and can be cleared. Favorites and account follows are distinct.
+- Query URLs preserve one player and support Back/Forward. Title, description,
+  canonical and Open Graph text update from canonical station data. Sharing never
+  reveals audio URLs. Android/policy/deletion destinations reuse existing owners;
+  iOS is omitted until its real numeric ID exists.
+- Account UI loads when explicitly opened. Email/password registration uses the
+  existing server OTP workflow. Verified active profiles can edit their name and
+  follow stations. Reset and deletion call existing boundaries; deletion requires
+  explicit confirmation and recent password reauthentication. Existing social-only
+  accounts can use the app's provider reauthentication/deletion flow.
+- The account repository owns one generation-guarded subscription listener, resets
+  on Auth/verification changes, and cancels on disposal. All personal mutations
+  use existing callable contracts; no direct client writes or backend contract
+  changes were added. Canonical follow preferences override legacy duplicates.
+- New/refollowed stations start with alerts off. Browser permission and each
+  station's preference are separate controls. Missing browser support/VAPID leaves
+  following usable. The bundled worker allowlists version/root/content IDs before
+  opening a page, never plays automatically, and lets FCM display its notification
+  once. Foreground notifications are bounded to 20 in-memory entries.
+- Device registration reconciles on account entry/foreground; rotation unregisters
+  the previous transient token. Sign-out waits for cleanup; failure remains
+  recoverable. The app persists only an opt-in boolean, never a token or UID.
+  If restart/revoked permission prevents recovery of the transient token, SDK
+  deletion invalidates delivery and unreachable ownership records expire under
+  ADR 0003; account deletion still removes device records in both roots.
+- Optional feature failures have a local error boundary, preserving guest browsing
+  and playback. Secondary text on light cards was darkened; controls/focus, RTL,
+  wrapping, explicit loading/error states and reduced-motion styles are retained.
 
 ## Verification
 
-- Node 22.23.2 used from a temporary install; global Node unchanged.
-- 10 Node tests pass: playback races, invalid sources, fallback, stop/dispose,
-  duplicate attempts/events, browser denial, buffering, mapping, ordering, recency.
-- TypeScript and oxlint pass; development-target Vite build passes.
-- Build used `HudHudDev` with explicit synthetic Firebase configuration because
-  local Firebase environment values were absent. This validates compilation, not
-  live Firebase connectivity. No deployment or real data writes were performed.
-- Chrome synthetic browser checks: 360×800 and 1280×900, before/after screenshots
-  visually inspected in-session, long Arabic titles, menu open/Escape, search
-  no-results/reset, city filtering, invalid-stream error/close, error/retry and
-  empty catalog. Narrow page width stayed at 360px; all visible buttons measured
-  at least 44×44 after the final control-size correction.
-- Screenshots are in-session evidence; no exported screenshot archive is claimed.
-- Governance and Git whitespace checks pass. No Flutter/backend code changed.
+Node **22.23.2** from `/tmp/hudhud-public-node22`; global Node remains unchanged.
 
-## Progress and next work
+| Command / gate | Result |
+| --- | --- |
+| `npm test` in `web_hudhud` | 22 tests passed |
+| `npm run lint`, `npm run typecheck` in `web_hudhud` | Passed |
+| `VITE_FIRESTORE_ROOT=HudHudDev npm run build` with explicit synthetic Firebase configuration | Passed; no real Firebase connectivity claimed |
+| Functions `npm run lint`, `npm test` | Passed; 13 tests |
+| Root `npm run emulators:test` | Passed; 25 rules tests |
+| Root `npm run emulators:subscriptions` | Passed; 7 tests |
+| Root `npm run emulators:account-deletion` | Passed; 3 tests |
+| Root `npm run emulators:email-verification` | Passed; 10 tests |
+| `./tool/verify-governance.sh`, `git diff --check` | Passed |
 
-| Card | Status | Remaining evidence |
-| --- | --- | --- |
-| WEB-01 media isolation | Verified with fake media | Real browser streams and Safari interruptions |
-| WEB-02 playback feedback | Verified locally | Real autoplay-policy/device behavior |
-| WEB-03 catalog ordering/recovery | Implemented; partially verified | Delayed overlapping catalog and SDK initialization fault tests |
-| WEB-04 usability/accessibility | Verified for tested Chrome views | 200% zoom, screen readers, broader contrast and mobile Safari review |
-| WEB-05 honest recency | Verified in unit tests | Clear-history UI belongs to Phase 2 |
-| WEB-06 quality gates | Verified locally | Real Firebase integration configuration |
+The initial attempt used the absent temporary Node path and fell through to Node
+26: the test runner rejected its transform flag. Restored Node 22 and reran the
+checks successfully. Emulator ports initially failed under sandbox restrictions;
+reran the existing demo-only scripts with approved local-port access. A syntax
+error in the expanded synthetic fixture and a generic snapshot type error were
+fixed before final checks. No backend code was modified.
 
-Phase 1 development has started and its first slice is delivered. Phase 2
-(station pages, local favorites, sharing/metadata) is queued. Phase 3 accounts and
-browser push remain conditional while the request's trailing “3” is unconfirmed.
-No overall roadmap completion percentage is asserted from these local checks.
+### Browser evidence
 
-The build warns about the approximately 690kB minified JavaScript bundle
-(208kB gzip). Investigate lazy Firebase loading and measure actual loading before
-changing chunking; do not hide the warning. HTTP radio streams remain subject to
-HTTPS mixed-content restrictions. No claim of real streaming or push delivery.
+Chrome at 360×800 and 1280×900, with in-session screenshots and DOM/AX inspection:
+
+- Station details, programs/episodes, schedule day selection and missing episode
+  fallback; no autoplay. Shared player dock survives station-to-catalog navigation.
+- Favorites toggle and persist across reload, local favorite filter, menu Escape
+  recovery. New surfaces measured without horizontal overflow; visible production
+  buttons were at least 44×44 at the tested narrow width.
+- Delayed catalog response completed after the newer catalog; the three newer
+  stations remained visible. SDK failed-initialization retry has a separate test.
+- Synthetic verified, guest, unverified and disabled account states; follow defaults
+  off, failed write leaves no saved follow, deletion confirmation/cancel, sign-out
+  clears account display, unsupported push remains disabled. No real account
+  creation/deletion, email, permission prompt or notification was exercised.
+- Keyboard Tab moves from the account heading to the labeled verification field.
+  Native zoom shortcuts did not establish a changed zoom level through the tool;
+  200% native zoom remains unverified. AX labels are not a screen-reader test.
+
+Screenshots are in-session evidence, not an exported screenshot archive. The
+explicit `/test/preview.html` fixture is excluded from the production entry.
+
+## Performance and improvement areas
+
+The earlier single bundle was about 690kB minified (208kB gzip). Splitting optional
+account/details from initial UI produces a roughly 255kB main bundle and a roughly
+457kB shared Firebase chunk needed for catalog loading, plus a roughly 129kB account
+chunk, 6kB details chunk and 104kB service worker. This defers account/worker code;
+it is not a claim of a comparable reduction in total catalog bytes. The final
+build has no oversized-chunk warning. See the build output for exact sizes.
+
+A synthetic Vite development fixture first-frame sample was 398ms (427ms in a
+second view). This includes development/runtime/browser variability and is not a
+production catalog/network benchmark. No indexes, paging, persistent catalog cache
+or extra data subscriptions were introduced to optimize unmeasured read costs.
+
+Remaining improvements require external evidence/configuration rather than invented
+values: native/mobile browser playback and accessibility, configured push receipt,
+iOS store ID, production performance/read volume and crawler metadata evaluation.
+Live HTTP streams remain subject to HTTPS mixed-content restrictions.
 
 ## Files
 
-- `web_hudhud/public-home.tsx`, `styles.css`, `package.json`, `package-lock.json`.
-- `web_hudhud/lib/radio-player.ts`, `stations.ts`, `station-repository.ts`,
-  `firebase-client.ts`.
-- `web_hudhud/test/radio-player.test.mjs`, `stations.test.mjs`, `preview.html`,
-  `preview.tsx`.
-- Public README/AGENTS verification instructions, docs index, roadmap and handoff.
+- `web_hudhud/public-home.tsx`, `station-detail.tsx`, `account-panel.tsx`,
+  `feature-boundary.tsx`, `styles.css`, `notification-worker.ts`, `vite.config.ts`.
+- `web_hudhud/lib/{radio-player,stations,station-repository,firebase-client,
+  discovery,content-repository,account-repository,browser-alerts,device-registration}.ts`.
+- `web_hudhud/test/{preview.tsx,radio-player.test.mjs,discovery.test.mjs,
+  firebase-client.test.mjs,device-registration.test.mjs}`.
+- Public README/AGENTS, docs index, roadmap/handoff and ADR 0004.
 
-No new application dependency was added. Existing declared dependencies were
-installed and locked. Fixtures never replace failed real catalog reads.
+No new package dependency, direct personal write, Function/Rules contract change,
+privileged credential, release or deployment was added.

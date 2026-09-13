@@ -1,7 +1,9 @@
 # Public web instructions
 
 Read the root AGENTS.md and this directory's README. Preserve React/TypeScript/
-Vite conventions and the public read-only station experience.
+Vite conventions and the public read-only station experience. Optional account
+flows follow `docs/decisions/0004-public-web-accounts-and-discovery.md`; personal
+mutations use the existing verified-account callables, never direct writes.
 
 - Read active stations from the explicitly selected canonical Firestore root.
   Do not introduce fake station fallback, admin credentials or privileged writes.

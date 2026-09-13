@@ -101,3 +101,12 @@ the earlier topic-only/no-payload-navigation boundary for version-1 episode aler
 only. General announcements remain independent; arbitrary URLs remain rejected.
 Private device/job paths are denied by the default Rules, including admin clients.
 No production deployment or app release is included.
+
+
+## Public web amendment — 2026-09-13
+
+[ADR 0004](../decisions/0004-public-web-accounts-and-discovery.md) extends guest-only
+web browsing with optional email/password accounts and browser episode alerts.
+Guest content remains read-only; personal mutations reuse the existing callables.
+The web persists only local station IDs/history and a push opt-in boolean outside
+Firebase SDK-managed Auth/Messaging storage. No production publication is implied.
