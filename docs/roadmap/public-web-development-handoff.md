@@ -5,8 +5,10 @@ Updated: 2026-09-13. [Roadmap](public-web-development-plan.md).
 
 ## Summary and completion rate
 
-All three development phases are implemented in the working tree: **13/13 cards,
-100% development coverage**. End-to-end device/integration acceptance is not 100%:
+The original three-phase baseline (WEB-01–13) is implemented. Follow-up theme,
+Google sign-in and profile work (WEB-14–16) is also implemented locally. See the
+roadmap for proposed WEB-17–27; those cards have not been executed. End-to-end
+device/integration acceptance remains incomplete:
 real Firebase/provider/push configuration, real streams, Safari, native 200% zoom,
 screen-reader testing and the iOS store destination remain external evidence.
 No production data, real messages, deployment, signing or release was performed.
@@ -30,10 +32,11 @@ No production data, real messages, deployment, signing or release was performed.
   reveals audio URLs. Android/policy/deletion destinations reuse existing owners;
   iOS is omitted until its real numeric ID exists.
 - Account UI loads when explicitly opened. Email/password registration uses the
-  existing server OTP workflow. Verified active profiles can edit their name and
-  follow stations. Reset and deletion call existing boundaries; deletion requires
-  explicit confirmation and recent password reauthentication. Existing social-only
-  accounts can use the app's provider reauthentication/deletion flow.
+  existing server OTP workflow. Google popup sign-in preserves that verification
+  gate. Verified active profiles can edit their name/photo and follow stations.
+  Reset and deletion call existing boundaries; deletion requires explicit
+  confirmation and password or linked Google reauthentication. Other provider-only
+  accounts use the app's provider reauthentication/deletion flow.
 - The account repository owns one generation-guarded subscription listener, resets
   on Auth/verification changes, and cancels on disposal. All personal mutations
   use existing callable contracts; no direct client writes or backend contract
@@ -53,7 +56,7 @@ No production data, real messages, deployment, signing or release was performed.
   and playback. Secondary text on light cards was darkened; controls/focus, RTL,
   wrapping, explicit loading/error states and reduced-motion styles are retained.
 
-## Verification
+## Original baseline verification (historical)
 
 Node **22.23.2** from `/tmp/hudhud-public-node22`; global Node remains unchanged.
 
@@ -98,23 +101,51 @@ Chrome at 360×800 and 1280×900, with in-session screenshots and DOM/AX inspect
 Screenshots are in-session evidence, not an exported screenshot archive. The
 explicit `/test/preview.html` fixture is excluded from the production entry.
 
+## Theme and account follow-up evidence
+
+Recorded during the subsequent implementation sessions on 2026-09-13:
+
+- App burgundy/blush tokens and bundled brand/mascot assets applied to the public
+  site; assets were compared with the app sources. Existing RTL behavior retained.
+- Account hub separates guest login/registration and profile management. Native
+  profile dialog supports name edits, four app avatars and camera/file selection;
+  local JPEG preparation precedes the existing server-mediated save.
+- `npm test`: 34 web tests passed, including Google cancellation, verification
+  gates, late account results, profile validation and deletion ordering/failures.
+- Lint, TypeScript, explicit HudHudDev build, governance and diff checks passed.
+  `node --test functions/test/profile-images.test.js`: 2 existing image tests passed.
+  These do not mean the full emulator suite was rerun for the follow-up.
+- Chrome synthetic browser checks covered Google success/blocked feedback,
+  profile save/cancel/failed draft, valid JPEG preview, rejected image, avatar
+  rendering, native dialog focus/Escape and 390px/320px overflow checks.
+  Google-only deletion exposed reauthentication confirmation without a password.
+- The real local entry opened at the account hub. No real OAuth consent, server
+  photo round trip, device camera capture or real account deletion was completed.
+- No new runtime dependency, Firebase write contract, deployment or release.
+  Node VM modules are enabled only in the test runner for SDK-boundary stubs.
+
+This evidence is carried forward, not freshly rerun by the roadmap-only update.
+The next work and acceptance criteria live in the
+[updated roadmap](public-web-development-plan.md#recommended-next-iteration).
+
 ## Performance and improvement areas
 
-The earlier single bundle was about 690kB minified (208kB gzip). Splitting optional
+At the original baseline, the earlier single bundle was about 690kB minified (208kB gzip). Splitting optional
 account/details from initial UI produces a roughly 255kB main bundle and a roughly
 457kB shared Firebase chunk needed for catalog loading, plus a roughly 129kB account
 chunk, 6kB details chunk and 104kB service worker. This defers account/worker code;
 it is not a claim of a comparable reduction in total catalog bytes. The final
 build has no oversized-chunk warning. See the build output for exact sizes.
 
-A synthetic Vite development fixture first-frame sample was 398ms (427ms in a
+The original synthetic Vite development fixture first-frame sample was 398ms (427ms in a
 second view). This includes development/runtime/browser variability and is not a
 production catalog/network benchmark. No indexes, paging, persistent catalog cache
 or extra data subscriptions were introduced to optimize unmeasured read costs.
 
-Remaining improvements require external evidence/configuration rather than invented
-values: native/mobile browser playback and accessibility, configured push receipt,
-iOS store ID, production performance/read volume and crawler metadata evaluation.
+Remaining acceptance requires native/mobile browser playback and accessibility,
+configured push receipt, iOS store ID, performance/read volume and crawler metadata
+evidence. The roadmap now also proposes navigation/player improvements and later
+favorites, comments and installable-web work; none is marked delivered here.
 Live HTTP streams remain subject to HTTPS mixed-content restrictions.
 
 ## Files
@@ -127,5 +158,9 @@ Live HTTP streams remain subject to HTTPS mixed-content restrictions.
   firebase-client.test.mjs,device-registration.test.mjs}`.
 - Public README/AGENTS, docs index, roadmap/handoff and ADR 0004.
 
-No new package dependency, direct personal write, Function/Rules contract change,
+The account follow-up also includes `profile-avatar.tsx`, `profile-editor.tsx`,
+`lib/account-profile.ts`, `lib/profile-photo.ts`, account regression tests and
+the test-only flag in `package.json`.
+
+No new runtime package dependency, direct personal write, Function/Rules contract change,
 privileged credential, release or deployment was added.
