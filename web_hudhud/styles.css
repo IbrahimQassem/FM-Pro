@@ -196,3 +196,48 @@ input, select { accent-color: var(--primary); }
   .station-card-content { padding-top: 32px; }
   .hero-copy h1 { font-size: 30px; }
 }
+
+/* Account hub and profile editor follow the app's grouped account flow. */
+.account-heading { justify-content: space-between; flex-wrap: wrap; }
+.account-heading h2 { margin: 0; }
+.account-welcome, .account-profile-card { display: flex; align-items: center; gap: 24px; padding: 28px; border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--soft); }
+.account-welcome > img { object-fit: contain; flex-shrink: 0; }
+.account-welcome h3, .account-profile-card h3 { margin: 0; font-size: 22px; overflow-wrap: anywhere; }
+.account-profile-card > div { flex: 1; min-width: 0; }
+.account-profile-card p { margin-block: 8px; }
+.profile-avatar-large { display: block; width: 88px; height: 88px; flex-shrink: 0; object-fit: cover; border-radius: 50%; border: 1px solid var(--line); background: var(--primary-container); }
+.verification-badge, .provider-badges span { display: inline-flex; padding: 5px 12px; border: 1px solid var(--line); border-radius: var(--chip-radius); font-size: 13px; background: var(--white); }
+.verification-badge.verified { color: #146e45; }
+.provider-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.account-methods, .account-library { margin-block: 28px; }
+.account-auth { max-width: 560px; margin: 24px auto; }
+.account-auth form { max-width: none; }
+.account-panel .google-sign-in { display: inline-flex; align-items: center; justify-content: center; gap: 12px; background: #fff; color: #1f1f1f; border-color: #747775; border-radius: 24px; }
+.google-letter { font: 700 22px Arial, sans-serif; }
+.auth-divider { text-align: center; color: var(--muted); }
+.account-panel .account-primary, .profile-dialog .account-primary { background: var(--primary); color: var(--white); border-color: var(--primary); }
+.account-session-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; padding-block: 24px; border-top: 1px solid var(--line); margin-top: 32px; }
+.account-panel .account-delete { border-color: transparent; background: transparent; color: var(--muted); }
+.account-panel .checkbox-label { display: flex; align-items: flex-start; }
+.profile-dialog { width: min(560px, calc(100% - 24px)); max-height: calc(100dvh - 32px); padding: 24px; border: 1px solid var(--line); border-radius: 24px; color: var(--ink); background: var(--surface); overflow: auto; }
+.profile-dialog::backdrop { background: rgba(40,24,32,.55); }
+.profile-dialog h2 { margin-top: 0; text-align: center; font-size: 22px; }
+.profile-dialog > form { margin: 0; max-width: none; }
+.profile-dialog .profile-avatar-large { margin: 0 auto 20px; }
+.profile-dialog fieldset { padding: 0; border: 0; }
+.profile-dialog label { min-width: 0; }
+.profile-photo-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.profile-photo-options input[type="file"] { font-size: 12px; max-width: 100%; }
+.profile-hint { color: var(--muted); font-size: 13px; }
+.avatar-options { display: flex; gap: 12px; flex-wrap: wrap; }
+.account-panel .avatar-options button { padding: 4px; border-radius: 50%; border: 2px solid transparent; }
+.account-panel .avatar-options button[aria-pressed="true"] { background: var(--primary-container); border-color: var(--primary); }
+.avatar-options .account-avatar { display: block; width: 56px; height: 56px; }
+@media (max-width: 600px) {
+  .account-welcome, .account-profile-card { flex-direction: column; align-items: stretch; gap: 18px; padding: 20px; }
+  .account-welcome > img, .account-profile-card > img { align-self: center; }
+  .account-profile-card { text-align: center; }
+  .account-heading { align-items: stretch; }
+  .profile-photo-options { grid-template-columns: 1fr; }
+  .profile-dialog { padding: 18px; }
+}

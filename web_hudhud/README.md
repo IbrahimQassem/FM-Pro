@@ -79,3 +79,29 @@ icon for branding and the favicon, the onboarding mascot for the welcome section
 and the search/favorites/offline/default-avatar mascots in their matching states.
 Keep the web copies synchronized with the source files in `assets/images`;
 decorative images supplement readable text and stay outside player controls.
+
+## Google sign-in and account profiles
+
+Open **حسابي ومحطاتي** to use Google or the separate email login, registration and
+password-reset views. The listener card opens **إدارة بيانات الحساب**, with
+verification status, provider badges and a profile editor for names, four app
+mascots, or camera/file photos. Cancel discards the draft. Photos are processed
+in memory and uploaded only on Save through the existing profile callable.
+
+Firebase Auth must have Google enabled and the site's hostname authorized. Local
+`localhost`/`127.0.0.1` domains also need authorization for real OAuth testing.
+See [Firebase's Google sign-in setup](https://firebase.google.com/docs/auth/web/google-signin).
+This change does not modify provider/hosting configuration or publish the site.
+Browser session persistence and server email verification remain unchanged.
+
+Google-only deletion opens a Google reauthentication popup before cleaning up
+browser alerts and calling the existing deletion endpoint. Password accounts
+retain password reauthentication. Failure keeps the account available to retry.
+
+The local fixture adds `state=google`, `google-cancel`, `google-blocked`,
+`google-conflict`, `missing-email` and `profile-error` (append `#account`).
+`state=guest#account` simulates successful Google login and profile editing.
+These fixtures never sign in real users or upload to Firebase. The repository
+tests compile the real TypeScript against isolated SDK stubs using Node VM modules;
+`npm test` enables the required test-only Node flag. Real Google consent,
+camera capture on a device and server photo round trips remain live smoke checks.

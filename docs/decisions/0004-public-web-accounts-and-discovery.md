@@ -39,3 +39,26 @@ On restart with revoked permission or unavailable push configuration, an SDK tok
 may not be recoverable for the device callable. SDK token deletion then invalidates
 delivery; any unreachable private ownership record remains subject to ADR 0003's
 invalid-token removal/30-day expiry. Account deletion still cleans both roots.
+
+## Google sign-in and profile parity — 2026-09-13
+
+The public web also supports Google through Firebase Auth's popup flow, invoked
+only by an explicit click. Cancellation, blocked popups, provider configuration
+errors and account conflicts leave email sign-in available. No OAuth credentials
+are copied to application storage or sent to profile callables. Email verification
+continues to come only from Firebase Auth, including Google accounts.
+
+The account hub separates guest login/registration, listener profile management,
+and existing follows/alerts. The profile editor saves a name plus an optional
+portable mascot path or JPEG image through `updateAccountProfile`. It preserves
+the current avatar on a name-only change. Camera/gallery inputs are selected
+explicitly and processed in memory, capped at 4 MB/16 million pixels, resized
+to 512px and submitted within the existing 1 MB callable limit. Server validation,
+metadata removal, root-scoped storage and cleanup remain unchanged (ADR 0002).
+
+Password accounts reauthenticate with their password. Google-only accounts
+reauthenticate through Google before device cleanup and account deletion. Any
+reauthentication or cleanup failure prevents deletion; deletion failure prevents
+sign-out. Unsupported provider-only accounts use the existing app deletion flow.
+Provider badges describe linked methods without adding automatic linking or
+creating a parallel identity. Account changes clear profile drafts and listeners.

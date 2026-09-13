@@ -23,17 +23,26 @@ const loadContent = async (stationId: string) => {
 };
 const createAccount = (): AccountPort => {
  let changed: ((account: AccountView | null, follows: Follow[], error: boolean) => void) | null = null;
- let view: AccountView | null = mode === 'guest' ? null : { verified: mode !== 'unverified', active: mode !== 'disabled' && mode !== 'unverified', email: 'fixture@example.invalid', displayName: 'مستمع تجريبي' };
+ const baseView: AccountView = { id: 'fixture-listener', verified: true, active: true, profileStatus: 'ready', email: 'fixture@example.invalid', displayName: 'مستمع تجريبي', avatarUrl: 'assets/images/mascot/mascot_avatar_default.webp', providers: ['password'] };
+ let view: AccountView | null = ['guest', 'google-cancel', 'google-blocked', 'google-conflict'].includes(mode || '') ? null : { ...baseView, verified: mode !== 'unverified' && mode !== 'missing-email', active: !['disabled', 'unverified', 'missing-email'].includes(mode || ''), email: mode === 'missing-email' ? '' : baseView.email, providers: mode === 'google' ? ['google.com'] : ['password'] };
  let follows: Follow[] = [{stationId:'missing',isActive:true,notificationsEnabled:false}];
  const emit = () => changed?.(view, follows, false);
  return {
   async start(callback) { changed = callback; emit(); }, async call() { return {data:{}}; },
-  async login() { view={verified:true,active:true,email:'fixture@example.invalid',displayName:'مستمع تجريبي'}; emit(); },
-  async register() { view={verified:false,active:false,email:'fixture@example.invalid',displayName:'مستمع تجريبي'}; emit(); },
-  async resetPassword() {}, async verify() { if(view) view={...view,verified:true,active:true}; emit(); }, async refresh() { emit(); },
-  async updateName(displayName) { if(view) view={...view,displayName}; emit(); },
+  async login() { view={...baseView}; emit(); },
+  async loginWithGoogle() {
+    const failure = ({ 'google-cancel': 'auth/popup-closed-by-user', 'google-blocked': 'auth/popup-blocked', 'google-conflict': 'auth/account-exists-with-different-credential' } as Record<string, string>)[mode || ''];
+    if (failure) throw { code: failure };
+    view={...baseView,providers:['google.com']}; emit();
+  },
+  async register() { view={...baseView,verified:false,active:false}; emit(); },
+  async resetPassword() {}, async requestVerificationCode(email) { if(view && email) view={...view,email}; emit(); }, async verify() { if(view) view={...view,verified:true,active:true}; emit(); }, async refresh() { emit(); },
+  async updateAccountProfile(update) {
+    if(mode === 'profile-error') throw new Error('Synthetic profile failure');
+    if(view) view={...view,displayName:update.displayName,...(update.avatarUrl !== undefined ? {avatarUrl:update.avatarUrl} : {})}; emit();
+  },
   async follow(stationId,isActive,notificationsEnabled) { if(mode === 'write-error') throw new Error('Synthetic write failure'); follows=[...follows.filter(f=>f.stationId!==stationId),{stationId,isActive,notificationsEnabled}]; emit(); },
-  async logout() { view=null; follows=[]; emit(); }, async deleteAccount() { view=null; follows=[]; emit(); }, dispose() { changed=null; },
+  async logout() { view=null; follows=[]; emit(); }, async deleteAccount(_password,beforeDelete) { await beforeDelete(); view=null; follows=[]; emit(); }, dispose() { changed=null; },
  };
 };
 const start = performance.now();

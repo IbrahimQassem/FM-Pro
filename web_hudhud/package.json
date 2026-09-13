@@ -10,7 +10,7 @@
     "build": "npm run typecheck && vite build",
     "start": "vite preview",
     "lint": "oxlint",
-    "test": "node --experimental-transform-types --test test/*.test.mjs",
+    "test": "node --experimental-vm-modules --experimental-transform-types --test test/*.test.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
