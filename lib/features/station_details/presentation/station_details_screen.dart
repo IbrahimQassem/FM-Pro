@@ -348,7 +348,6 @@ class _StationHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final colors = Theme.of(context).colorScheme;
     final isLoading = playbackStatus == StationPlaybackStatus.loading;
     final isPlaying = playbackStatus == StationPlaybackStatus.playing;
     final hasFailed = playbackStatus == StationPlaybackStatus.failure;
