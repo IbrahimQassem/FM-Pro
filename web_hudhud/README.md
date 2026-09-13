@@ -67,3 +67,15 @@ The fixture also supports `state=guest`, `unverified`, `disabled`, `write-error`
 `content-error`, `offline`, and `race`. Account/content behavior is explicitly
 injected and entirely synthetic. The race fixture completes an older empty
 catalog after a newer populated catalog. It never replaces real production reads.
+
+## App theme and assets
+
+`styles.css` mirrors the brand colors in `lib/core/theme/app_colors.dart` and the
+card/input/chip radii in `lib/core/theme/app_theme.dart`. Keep these tokens aligned
+when the app brand changes. The existing Arabic font and RTL navigation remain.
+
+`public/assets/images` contains copies of the app assets. The site uses the app
+icon for branding and the favicon, the onboarding mascot for the welcome section,
+and the search/favorites/offline/default-avatar mascots in their matching states.
+Keep the web copies synchronized with the source files in `assets/images`;
+decorative images supplement readable text and stay outside player controls.

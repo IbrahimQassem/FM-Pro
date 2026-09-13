@@ -169,6 +169,8 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
   }, [loadState, currentStationId, currentStation, stations]);
   const recommendation = useMemo(() => recentStation(stations, history), [history, stations]);
 
+  const emptyLibrary = !searchQuery.trim() && selectedCity === 'all' ? library : 'all';
+
   function playStation(station: Station) { episodeOwner.current = null; setEpisodeMedia(null); player.current?.select(station); }
   function playEpisode(episode: Episode) { const station = stations.find(s => s.id === episode.stationId); if (!station) return; const media = { ...station, id: `episode:${episode.id}`, resume: true, name: `${episode.title} · ${station.name}`, streamUrl: episode.audioUrl, backupStreamUrl: '' }; episodeOwner.current = station.id; setEpisodeMedia(media); player.current?.select(media); }
   function stopPlayback() { player.current?.stop(); }
@@ -177,7 +179,7 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
     <div className="public-site" dir="rtl" onClick={event => { const anchor = (event.target as Element).closest('a'); if (!anchor || event.defaultPrevented || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return; const href = new URL(anchor.href); if (href.origin === location.origin && href.pathname === location.pathname && anchor.getAttribute('href')?.startsWith('?')) { event.preventDefault(); window.history.pushState(null, '', href); setRoute(href.search + href.hash); requestAnimationFrame(() => document.getElementById(href.hash.slice(1) || 'top')?.scrollIntoView()); } }} onKeyDown={(event) => { if (event.key === 'Escape' && mobileMenuOpen) { setMobileMenuOpen(false); menuButton.current?.focus(); } }}>
       <header className="site-header">
         <a className="brand" href="#top" aria-label="هدهد FM، الصفحة الرئيسية">
-          <span className="brand-mark"><Radio size={23} strokeWidth={2.4} /></span>
+          <span className="brand-mark"><img src="/assets/images/branding/app_icon_1024.png" alt="" width={48} height={48} /></span>
           <span><strong>هدهد</strong><small>FM</small></span>
         </a>
         <nav id="public-navigation" className={mobileMenuOpen ? 'site-nav is-open' : 'site-nav'} aria-label="التنقل الرئيسي">
@@ -211,18 +213,7 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
             <div className="hero-note"><span className="live-pulse" /> بث مباشر من محطات موثوقة</div>
           </div>
           <div className="hero-art" aria-hidden="true">
-            <div className="orb orb-one" />
-            <div className="orb orb-two" />
-            <div className="sound-wave wave-one" />
-            <div className="sound-wave wave-two" />
-            <div className="sound-wave wave-three" />
-            <div className="hero-radio-card">
-              <span className="mini-live"><i /> مباشر الآن</span>
-              <div className="hero-radio-icon"><Radio size={40} /></div>
-              <strong>صوتك يبدأ من هنا</strong>
-              <span>موسيقى، أخبار، وحكايات</span>
-              <div className="equalizer"><i /><i /><i /><i /><i /><i /><i /><i /><i /></div>
-            </div>
+            <img className="hero-mascot" src="/assets/images/mascot/mascot_onboarding.webp" alt="" width={1200} height={1258} fetchPriority="high" onError={event => { event.currentTarget.style.display = 'none'; }} />
             <div className="floating-chip chip-top"><MapPin size={14} /> من كل مدينة</div>
             <div className="floating-chip chip-bottom"><Volume2 size={14} /> استمع براحتك</div>
           </div>
@@ -276,13 +267,21 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
           {loadState === 'loading' && <div className="station-grid"><StationSkeleton /><StationSkeleton /><StationSkeleton /><StationSkeleton /></div>}
           {loadState === 'error' && <ErrorState message={loadError} onRetry={() => void loadStations()} />}
           {loadState === 'ready' && stations.length === 0 && <EmptyState title="لا توجد محطات نشطة حالياً" description="لم يتم العثور على محطات مفعّلة في الكتالوج. حاول مرة أخرى لاحقاً." />}
-          {loadState === 'ready' && stations.length > 0 && filteredStations.length === 0 && <EmptyState title="لم نعثر على محطة بهذا البحث" description="جرّب اسماً آخر أو أزل فلتر المدينة للبحث في كل المحطات." actionLabel="إظهار كل المحطات" onAction={() => { setSearchQuery(''); setSelectedCity('all'); setLibrary('all'); }} />}
+          {loadState === 'ready' && stations.length > 0 && filteredStations.length === 0 && (
+            <EmptyState
+              mascot={emptyLibrary === 'favorites' ? 'favorites' : emptyLibrary === 'recent' ? undefined : 'search'}
+              title={emptyLibrary === 'favorites' ? 'لم تضف محطات إلى المفضلة بعد' : emptyLibrary === 'recent' ? 'لم تستمع إلى أي محطة بعد' : 'لم نعثر على محطة بهذا البحث'}
+              description={emptyLibrary === 'favorites' ? 'اضغط على النجمة بجانب أي محطة لحفظها في المفضلة على هذا المتصفح.' : emptyLibrary === 'recent' ? 'ابدأ الاستماع إلى محطة لتظهر هنا على هذا المتصفح.' : 'جرّب اسماً آخر أو أزل فلتر المدينة للبحث في كل المحطات.'}
+              actionLabel="إظهار كل المحطات"
+              onAction={() => { setSearchQuery(''); setSelectedCity('all'); setLibrary('all'); }}
+            />
+          )}
           {loadState === 'ready' && filteredStations.length > 0 && <div className="station-grid">{filteredStations.map((station) => <StationCard key={station.id} favorite={favorites.includes(station.id)} onFavorite={() => toggleFavorite(station.id)} station={station} isPlaying={isPlaying && currentStationId === station.id} onPlay={() => void playStation(station)} />)}</div>}
         </section>
 
         {accountOpened && <FeatureBoundary><Suspense fallback={<section className="content-section" id="account" role="status">جارٍ تحميل الحساب…</section>}><AccountPanel createRepository={createAccount} stations={stations} selectedStationId={detailStation?.id || null} /></Suspense></FeatureBoundary>}
         <section className="about-section" id="about">
-          <div className="about-mark"><Radio size={28} /></div>
+          <div className="about-mark"><img src="/assets/images/branding/app_icon_1024.png" alt="" width={59} height={59} loading="lazy" /></div>
           <div><span className="section-eyebrow">هدهد FM</span><h2>صوت محلي، بتجربة أبسط.</h2><p>هدهد يجمع المحطات النشطة من الكتالوج الرسمي في مكان واحد. بيانات المحطات تُقرأ مباشرة من المصدر الرسمي للمنصة.</p></div>
           <a className="about-link" href="#top">العودة إلى الأعلى <ChevronLeft size={17} /></a>
         </section>
@@ -324,12 +323,12 @@ function StationCard({ station, isPlaying, onPlay, favorite, onFavorite }: { sta
   return <article className="station-card"><div className="station-card-visual"><StationArtwork station={station} size="normal" /><span className={station.isLive ? 'card-status live' : 'card-status'}>{station.isLive && <i />}{station.isLive ? 'على الهواء' : 'متاح للاستماع'}</span><button className="card-play" type="button" onClick={onPlay} aria-label={`${isPlaying ? 'إيقاف' : 'تشغيل'} ${station.name || 'المحطة'}`}>{isPlaying ? <Pause size={17} /> : <Play size={17} fill="currentColor" />}</button></div><div className="station-card-content"><div><h3><a href={stationHref(station.id)}>{station.name || 'محطة إذاعية'}</a></h3>{station.nameEn && <span className="name-en">{station.nameEn}</span>}</div><span className="city-name"><MapPin size={14} /> {station.cityNameAr || 'غير محدد'}{station.frequency ? ` · ${station.frequency}` : ''}</span><p>{station.tagline || station.description || 'استمع إلى صوت هذه المحطة عبر هدهد FM.'}</p><div className="card-footer"><span>{station.isVerified ? 'موثقة من هدهد' : 'من كتالوج هدهد'}</span><button aria-pressed={favorite} onClick={onFavorite} aria-label={`${favorite ? 'إزالة من المفضلة' : 'أضف إلى المفضلة'} ${station.name}`}>{favorite ? '★' : '☆'}</button><a href={stationHref(station.id)}>التفاصيل</a></div></div></article>;
 }
 
-function EmptyState({ title, description, compact = false, actionLabel, onAction }: { title: string; description: string; compact?: boolean; actionLabel?: string; onAction?: () => void }) {
-  return <div className={compact ? 'state-panel compact' : 'state-panel'}><span className="state-icon"><Radio size={22} /></span><h3>{title}</h3><p>{description}</p>{actionLabel && onAction && <button className="text-button" type="button" onClick={onAction}>{actionLabel} <ArrowLeft size={15} /></button>}</div>;
+function EmptyState({ title, description, compact = false, mascot, actionLabel, onAction }: { title: string; description: string; compact?: boolean; mascot?: 'search' | 'favorites'; actionLabel?: string; onAction?: () => void }) {
+  return <div className={compact ? 'state-panel compact' : 'state-panel'}>{mascot ? <img className="state-mascot" src={`/assets/images/mascot/mascot_empty_${mascot}.webp`} alt="" width={160} height={160} loading="lazy" onError={event => { event.currentTarget.style.display = 'none'; }} /> : <span className="state-icon"><Radio size={22} /></span>}<h3>{title}</h3><p>{description}</p>{actionLabel && onAction && <button className="text-button" type="button" onClick={onAction}>{actionLabel} <ArrowLeft size={15} /></button>}</div>;
 }
 
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return <div className="state-panel error-panel"><span className="state-icon error"><CircleAlert size={22} /></span><h3>تعذر تحميل المحطات</h3><p>{message}</p><button className="retry-button" type="button" onClick={onRetry}><RefreshCw size={16} /> إعادة المحاولة</button></div>;
+  return <div className="state-panel error-panel"><img className="state-mascot" src="/assets/images/mascot/mascot_offline.webp" alt="" width={160} height={160} loading="lazy" onError={event => { event.currentTarget.style.display = 'none'; }} /><h3>تعذر تحميل المحطات</h3><p>{message}</p><button className="retry-button" type="button" onClick={onRetry}><RefreshCw size={16} /> إعادة المحاولة</button></div>;
 }
 
 function FeaturedSkeleton() {
