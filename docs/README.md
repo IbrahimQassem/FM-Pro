@@ -14,6 +14,7 @@
 - [الحسابات والتعليقات والإشعارات](contracts/account-comments-notifications-contract.md)
 - [الجودة والإصدار](contracts/quality-release-contract.md)
 - [جاهزية الإطلاق والإنتاج](contracts/release-readiness-contract.md)
+- [آلية النشر للإنتاج](contracts/deployment-mechanism-contract.md)
 - [هوية الماركة وشخصية الماسكوت](contracts/mascot-brand-identity-contract.md)
 
 ## التشغيل
