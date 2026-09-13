@@ -56,7 +56,7 @@ git -C "$root_dir" check-ignore -q ios/Flutter/AuthProviders.xcconfig \
 ruby -r json -e '
   config = JSON.parse(File.read(ARGV.fetch(0)))
   clients = config.fetch("client", []).select do |client|
-    client.dig("client_info", "android_client_info", "package_name") == "com.sanaadev.hudhudfm"
+    client.dig("client_info", "android_client_info", "package_name") == "com.sana.dev.fm"
   end
   oauth = clients.flat_map { |client| client.fetch("oauth_client", []) }
   exit(clients.one? && oauth.any? { |client| client["client_type"] == 3 } ? 0 : 1)

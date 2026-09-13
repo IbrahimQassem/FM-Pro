@@ -285,7 +285,7 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
           <div><span className="section-eyebrow">هدهد FM</span><h2>صوت محلي، بتجربة أبسط.</h2><p>هدهد يجمع المحطات النشطة من الكتالوج الرسمي في مكان واحد. بيانات المحطات تُقرأ مباشرة من المصدر الرسمي للمنصة.</p></div>
           <a className="about-link" href="#top">العودة إلى الأعلى <ChevronLeft size={17} /></a>
         </section>
-      <footer className="content-section detail-actions"><a href="https://hudhud-fm-admin-sanadev.web.app/privacy">سياسة الخصوصية</a><a href="https://hudhud-fm-admin-sanadev.web.app/terms">الشروط</a><a href="https://hudhud-fm-admin-sanadev.web.app/account-deletion">معلومات حذف الحساب</a><a href="https://play.google.com/store/apps/details?id=com.sanaadev.hudhudfm">تطبيق Android</a></footer></main>
+      <footer className="content-section detail-actions"><a href="https://hudhud-fm-admin-sanadev.web.app/privacy">سياسة الخصوصية</a><a href="https://hudhud-fm-admin-sanadev.web.app/terms">الشروط</a><a href="https://hudhud-fm-admin-sanadev.web.app/account-deletion">معلومات حذف الحساب</a><a href="https://play.google.com/store/apps/details?id=com.sana.dev.fm">تطبيق Android</a></footer></main>
 
       {currentStation && <div className={playerError ? 'player-dock has-error' : 'player-dock'} role="status">
         <StationArtwork station={currentStation} size="tiny" />

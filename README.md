@@ -39,12 +39,12 @@ HudHudDev/episodes/episodes/{episodeId}/comments/{commentId}
 ```
 
 لا ينسخ هذا المستودع أي إعداد Firebase من `FM-Pro`. لربط Android، سجّل تطبيق
-Development بالحزمة `com.sanaadev.hudhudfm` ثم شغّل من جذر المشروع:
+Development بالحزمة `com.sana.dev.fm` ثم شغّل من جذر المشروع:
 
 ```bash
 flutterfire configure \
-  --platforms=android \
-  --android-package-name=com.sanaadev.hudhudfm
+  --project=sanadev-fm \
+  --android-package-name=com.sana.dev.fm
 ```
 
 ملفات Firebase المحلية مستبعدة من Git. فعّل Email/password في Firebase Auth،

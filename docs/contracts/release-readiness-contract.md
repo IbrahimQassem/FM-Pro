@@ -31,7 +31,7 @@
 ### 3. معرّف المتجر ومساعد الروابط (Store URL Resolution)
 - يُمنع تثبيت رابط تنزيل أو تقييم المتجر كرابط ثابت عام (`https://hudhudfm.com/download`).
 - يجب استخدام مساعد مخصص (`StoreUrlHelper`) يبني رابط التقييم والمتجر الرسمي بحسب منصة التشغيل الفعالة ومعرّف الحزمة:
-  - **Android:** `https://play.google.com/store/apps/details?id=${packageId}` (معرّف الحزمة: `com.sanaadev.hudhudfm`).
+  - **Android:** `https://play.google.com/store/apps/details?id=${packageId}` (معرّف الحزمة: `com.sana.dev.fm`).
   - **iOS:** رابط متجر App Store الرسمي المبني على Apple ID المعتمد بعد إعداد التطبيق في App Store Connect (معرّف الحزمة: `com.sana.dev.fm`).
 
 ### 4. الهوية البصرية والأصول الرسمية

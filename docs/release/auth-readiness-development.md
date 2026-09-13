@@ -22,7 +22,7 @@
 - المنشور حاليًا هو `deleteAccountData` فقط؛ Functions الخاصة بالرمز والملف
   والتنظيف المجدول غير منشورة.
 - Secret `EMAIL_VERIFICATION_CONFIG` غير موجود. Secret Manager API مفعّلة.
-- تطبيق Android الفعلي مسجل للحزمة `com.sanaadev.hudhudfm`، وتطبيق iOS مسجل
+- تطبيق Android الفعلي مسجل للحزمة `com.sana.dev.fm`، وتطبيق iOS مسجل
   للحزمة `com.sana.dev.fm`. توجد سجلات Firebase أخرى قديمة ولا تستخدمها البنية
   الحالية.
 - لا توجد هوية code signing صالحة مثبتة محليًا؛ بناء Simulator ينجح، لكن اختبار
