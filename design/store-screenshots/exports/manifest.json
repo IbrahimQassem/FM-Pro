@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-09-14T11:25:36.659Z",
+  "verifiedAt": "2026-09-14T22:20:18.864Z",
   "result": "PASS",
   "artworkCount": 12,
   "overviewCount": 2,
@@ -10,99 +10,99 @@
       "name": "apple-01-hero.png",
       "width": 1320,
       "height": 2868,
-      "bytes": 1151875,
-      "sha256": "d83f4c875546d33da89d2f94ebdcd0aea167a66bea286255aba4fd168b7bf6a6"
+      "bytes": 1554756,
+      "sha256": "eef2d9d01e61419ac2f723e76f2b22457e911a737bc05c36a4fe0745e105ccee"
     },
     {
       "name": "apple-02-main-feature.png",
       "width": 1320,
       "height": 2868,
-      "bytes": 1178865,
-      "sha256": "78a505ff2180123d6ceffa853c8fed65c364b50dacc7b0c65c392f73c358f3b5"
+      "bytes": 1567565,
+      "sha256": "0e864399acdb398969b32255c2853e4dcccc1f4a2cb5694b3e81806487da1424"
     },
     {
       "name": "apple-03-easy-experience.png",
       "width": 1320,
       "height": 2868,
-      "bytes": 1445819,
-      "sha256": "32e1bc0472ad7644c82f531a679ce58cdd67e1366231e35d52da29bfcc5998f4"
+      "bytes": 1889423,
+      "sha256": "857d5f42148c9c2e33aea69e33eaceaab3dfe56dbe9c48a44a2e2272025d584a"
     },
     {
       "name": "apple-04-second-feature.png",
       "width": 1320,
       "height": 2868,
-      "bytes": 1081651,
-      "sha256": "00172c67365f360beae1e9815301bf985f86019ee2d32aaaf185508f0a2cedde"
+      "bytes": 1460012,
+      "sha256": "3ac7a794ac8e651ad6edba03c514c15994a89346a963ff6b1c37a23834e6c3f6"
     },
     {
       "name": "apple-05-control-benefits.png",
       "width": 1320,
       "height": 2868,
-      "bytes": 1302524,
-      "sha256": "f6af3db43a76b329cf3cce1a2390d2c84a3da7ae1684c670b5869e46b789d86a"
+      "bytes": 1716775,
+      "sha256": "58686c8ba1e72e45c313c676bd7e47b739e59b70c0e932eb9d6df366f79e52a4"
     },
     {
       "name": "apple-06-final.png",
       "width": 1320,
       "height": 2868,
-      "bytes": 1188882,
-      "sha256": "8d52aceca8e283376cc90b7748bd861d61bd5baba6aecbf98c358d3c9471d3e3"
+      "bytes": 1559427,
+      "sha256": "7a7b3391b5c409bbd723371743f6d07daa982585f262867c9903fa4991e18a75"
     },
     {
       "name": "apple-overview.png",
       "width": 1800,
       "height": 708,
-      "bytes": 509742,
-      "sha256": "a0f4d6467969bd258b2921b268da19645423ecd8cf057b8c86a60c2b767c58e3"
+      "bytes": 539297,
+      "sha256": "dc38a3a60210bcd7614cc8740f64982ef67a8ae9b37fd54ebf2a8d68b1d4f211"
     },
     {
       "name": "google-01-hero.png",
       "width": 1080,
       "height": 1920,
-      "bytes": 926888,
-      "sha256": "d24d1d2911320820c06465230b8e238e40517fb908d5f09cad8a60600981c3a4"
+      "bytes": 1219467,
+      "sha256": "4ca195c13af3594d75aebfa3a688cda0a5409f30fb2b499b79f4433993a4f406"
     },
     {
       "name": "google-02-main-feature.png",
       "width": 1080,
       "height": 1920,
-      "bytes": 950651,
-      "sha256": "8ab738b5e5aa1b62d9015885b1e4c076a1ae8e8724ce2c6afd559b0d3b7bc86e"
+      "bytes": 1226512,
+      "sha256": "5901367bbe5d9c8d553d483e53efabac20e4dcbbced3b482b20c67ed0caff5da"
     },
     {
       "name": "google-03-easy-experience.png",
       "width": 1080,
       "height": 1920,
-      "bytes": 1077674,
-      "sha256": "575e252fa87441da2ac16f40019ba932e3d422c238d51d99bc609827ee32cc92"
+      "bytes": 1387142,
+      "sha256": "23ea922aceb60a11bc0a80c0b18a2111d4b4e70bc06b778d67467014796d94a7"
     },
     {
       "name": "google-04-second-feature.png",
       "width": 1080,
       "height": 1920,
-      "bytes": 908407,
-      "sha256": "d6250e81925b8355cbc7ceae4f1cf5427a5807a636d1b51a3fb5e69c4f1fd7f4"
+      "bytes": 1182292,
+      "sha256": "8ae021a1970a8ad7e1ffaafaa76e503e4db74544a7ad474b903935ecdcbdfe02"
     },
     {
       "name": "google-05-control-benefits.png",
       "width": 1080,
       "height": 1920,
-      "bytes": 996632,
-      "sha256": "7d3686f0ec76130b84f7f69bc32eaed5a951fd479cf2c8cd31339128b7079917"
+      "bytes": 1293274,
+      "sha256": "2e0a3e5a4949f04827122503ae17eeab9e517836d79d07b97103c62d440fa233"
     },
     {
       "name": "google-06-final.png",
       "width": 1080,
       "height": 1920,
-      "bytes": 975824,
-      "sha256": "23dac0adff25dc71e8e33b788017126ca5d576794e1b959b7f077f46f746f234"
+      "bytes": 1234339,
+      "sha256": "ef6368e38042aa5c60e49bde4d9bd6d7879d09e90787af447deb5a69f71fbb53"
     },
     {
       "name": "google-overview.png",
       "width": 1800,
       "height": 598,
-      "bytes": 388151,
-      "sha256": "9fb261fc3c9481fe71b6f9925e114f80e2ad90a9bb322c2f6a4deb42f7b188fb"
+      "bytes": 484304,
+      "sha256": "924625fc6c91ba466562e783b217f904a9be514ff60bc4498707cada33a2b7ed"
     }
   ]
 }

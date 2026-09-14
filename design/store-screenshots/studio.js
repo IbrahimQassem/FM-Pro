@@ -47,61 +47,129 @@ async function render(canvas, index, type, settings = config) {
   const base = ctx.createLinearGradient(0, 0, W, H);
   base.addColorStop(0, colorAlpha(colors.surface, .18)); base.addColorStop(1, colorAlpha(colors.surface, .9));
   ctx.fillStyle = base; ctx.fillRect(0, 0, W, H);
-  const glowX = [160, 880, 170, 870, 160, 840][index];
-  const glow = ctx.createRadialGradient(glowX, H * .62, 0, glowX, H * .62, 760);
-  glow.addColorStop(0, colorAlpha(colors.accent, .13)); glow.addColorStop(1, colorAlpha(colors.accent, 0));
+  const glowX = [240, 840, 260, 820, 240, 800][index];
+  const glow = ctx.createRadialGradient(glowX, H * .58, 50, glowX, H * .58, 850);
+  glow.addColorStop(0, colorAlpha(colors.accent, .22));
+  glow.addColorStop(0.5, colorAlpha(colors.surface, .4));
+  glow.addColorStop(1, 'transparent');
   ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
-  // A quiet orbit motif; it sits behind the screenshot and never covers UI.
-  ctx.strokeStyle = colorAlpha(colors.accent, .13); ctx.lineWidth = 1.2;
-  for (const radius of [360, 490, 620]) {
-    ctx.beginPath(); ctx.arc(glowX, H * .65, radius, 0, Math.PI * 2); ctx.stroke();
+
+  // Modern subtle geometric grid lines in background
+  ctx.strokeStyle = colorAlpha('#FFFFFF', .03);
+  ctx.lineWidth = 1;
+  for (let gy = 150; gy < H; gy += 160) {
+    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
   }
+
+  // Soft futuristic light beam
+  const beam = ctx.createLinearGradient(0, 0, W, H * 0.7);
+  beam.addColorStop(0, colorAlpha(colors.accent, 0.08));
+  beam.addColorStop(1, 'transparent');
+  ctx.fillStyle = beam; ctx.fillRect(0, 0, W, H);
+
   ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
-  const logoSize = 60;
+  const logoSize = 64;
   if (logo) {
-    ctx.save(); round(ctx, right - logoSize, 78, logoSize, logoSize, 17); ctx.clip();
-    // Contain logos: rectangular marks remain intact too.
+    ctx.save();
+    round(ctx, right - logoSize, 72, logoSize, logoSize, 18);
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)'; ctx.shadowBlur = 16; ctx.shadowOffsetY = 6;
+    ctx.fillStyle = colors.surface; ctx.fill();
+    ctx.clip();
     const scale = Math.min(logoSize / logo.width, logoSize / logo.height);
     ctx.drawImage(logo, right - logoSize + (logoSize - logo.width * scale) / 2,
-      78 + (logoSize - logo.height * scale) / 2, logo.width * scale, logo.height * scale); ctx.restore();
+      72 + (logoSize - logo.height * scale) / 2, logo.width * scale, logo.height * scale);
+    ctx.restore();
+    // Glass ring around logo
+    ctx.strokeStyle = colorAlpha('#FFFFFF', 0.2); ctx.lineWidth = 1.5;
+    round(ctx, right - logoSize, 72, logoSize, logoSize, 18); ctx.stroke();
   }
+
   ctx.fillStyle = colors.text; ctx.font = '600 36px Plex';
-  ctx.fillText(settings.appName, right - (logo ? 79 : 0), 119, 620);
-  ctx.textAlign = 'left'; ctx.direction = 'ltr'; ctx.fillStyle = colors.muted; ctx.font = '400 19px Plex';
-  ctx.fillText(`${String(index + 1).padStart(2, '0')} / 06`, M, 116);
-  ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.fillStyle = colors.accent; ctx.font = '400 26px Plex';
-  ctx.fillText(slide.label, right, 207, W - M * 2);
-  const title = fitText(ctx, slide.title, W - M * 2, 2, 94, 54, 600);
-  const lineHeight = title.size * 1.28;
+  ctx.fillText(settings.appName, right - (logo ? 84 : 0), 116, 600);
+
+  // Step indicator badge (top left)
+  ctx.textAlign = 'left'; ctx.direction = 'ltr';
+  const badgeText = `${String(index + 1).padStart(2, '0')} / 06`;
+  ctx.font = '600 18px Plex';
+  const badgeW = ctx.measureText(badgeText).width + 32;
+  round(ctx, M, 82, badgeW, 40, 20);
+  ctx.fillStyle = colorAlpha(colors.surface, 0.7); ctx.fill();
+  ctx.strokeStyle = colorAlpha(colors.accent, 0.3); ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = colors.accent;
+  ctx.fillText(badgeText, M + 16, 108);
+
+  // Label with glowing dot
+  ctx.direction = 'rtl'; ctx.textAlign = 'right';
+  ctx.font = '600 24px Plex';
+  ctx.fillStyle = colors.accent;
+  ctx.fillText(slide.label, right, 196, W - M * 2);
+
+  // Title
+  const title = fitText(ctx, slide.title, W - M * 2, 2, 88, 52, 600);
+  const lineHeight = title.size * 1.25;
   ctx.font = `600 ${title.size}px Plex`;
-  title.lines.forEach((line, i) => { ctx.fillStyle = i === title.lines.length - 1 ? colors.accent : colors.text; ctx.fillText(line, right, 319 + i * lineHeight); });
-  const subtitle = fitText(ctx, slide.subtitle, W - M * 2, 2, 31, 24, 400);
-  ctx.font = `400 ${subtitle.size}px Plex`; ctx.fillStyle = colors.muted;
-  subtitle.lines.forEach((line, i) => ctx.fillText(line, right, 505 + i * 45));
-  const top = 615, bottom = H - 108, maxW = W - M * 2, maxH = bottom - top;
+  title.lines.forEach((line, i) => {
+    ctx.fillStyle = i === title.lines.length - 1 ? colors.accent : colors.text;
+    ctx.fillText(line, right, 305 + i * lineHeight);
+  });
+
+  // Subtitle
+  const subtitle = fitText(ctx, slide.subtitle, W - M * 2, 2, 30, 22, 400);
+  ctx.font = `400 ${subtitle.size}px Plex`;
+  ctx.fillStyle = colors.muted;
+  subtitle.lines.forEach((line, i) => ctx.fillText(line, right, 475 + i * 44));
+
+  // Modern Framed Screen Presentation
+  const top = 580, bottom = H - 110, maxW = W - M * 2, maxH = bottom - top;
   const ratio = shot ? shot.width / shot.height : 430 / 932;
   let sw = Math.min(maxW, maxH * ratio), sh = sw / ratio;
   const x = (W - sw) / 2, y = top + (maxH - sh) / 2;
-  // White screen surface, no device silhouette, camera, bezel or perspective.
-  ctx.save(); ctx.shadowColor = '#00000055'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 22;
-  round(ctx, x, y, sw, sh, 34); ctx.fillStyle = '#FCF8F8'; ctx.fill(); ctx.restore();
-  ctx.save(); round(ctx, x, y, sw, sh, 34); ctx.clip();
-  if (shot) ctx.drawImage(shot, x, y, sw, sh);
-  else {
+
+  // Multi-layer high-end shadow
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+  ctx.shadowBlur = 60;
+  ctx.shadowOffsetY = 30;
+  round(ctx, x, y, sw, sh, 36);
+  ctx.fillStyle = '#0f172a';
+  ctx.fill();
+  ctx.restore();
+
+  // Outer bezel frame
+  ctx.save();
+  round(ctx, x, y, sw, sh, 36);
+  ctx.clip();
+  if (shot) {
+    ctx.drawImage(shot, x, y, sw, sh);
+  } else {
     ctx.fillStyle = colors.surface; ctx.fillRect(x, y, sw, sh);
-    ctx.strokeStyle = colorAlpha(colors.accent, .5); ctx.setLineDash([9, 12]);
-    round(ctx, x + 26, y + 26, sw - 52, sh - 52, 22); ctx.stroke(); ctx.setLineDash([]);
-    ctx.textAlign = 'center'; ctx.font = '600 34px Plex'; ctx.fillStyle = colors.text;
-    ctx.fillText('لقطة تطبيقك هنا', W / 2, y + sh / 2);
-    ctx.font = '400 22px Plex'; ctx.fillStyle = colors.muted; ctx.fillText('صورة كاملة · بدون قص', W / 2, y + sh / 2 + 50);
+    ctx.strokeStyle = colorAlpha(colors.accent, .5); ctx.setLineDash([8, 12]);
+    round(ctx, x + 24, y + 24, sw - 48, sh - 48, 24); ctx.stroke(); ctx.setLineDash([]);
+    ctx.textAlign = 'center'; ctx.font = '600 32px Plex'; ctx.fillStyle = colors.text;
+    ctx.fillText('لقطة شاشة التطبيق', W / 2, y + sh / 2);
+    ctx.font = '400 22px Plex'; ctx.fillStyle = colors.muted;
+    ctx.fillText('ارفع لقطة شاشة بدقة عالية', W / 2, y + sh / 2 + 46);
   }
   ctx.restore();
-  ctx.strokeStyle = '#FFFFFF38'; ctx.lineWidth = 1; round(ctx, x, y, sw, sh, 34); ctx.stroke();
-  // Series marker is inside the bottom safe area, separate from the UI.
+
+  // Glass highlight over the screenshot edge
+  ctx.strokeStyle = colorAlpha('#FFFFFF', 0.28);
+  ctx.lineWidth = 2;
+  round(ctx, x, y, sw, sh, 36);
+  ctx.stroke();
+
+  // Inner rim light
+  ctx.strokeStyle = colorAlpha(colors.accent, 0.25);
+  ctx.lineWidth = 1;
+  round(ctx, x + 1.5, y + 1.5, sw - 3, sh - 3, 35);
+  ctx.stroke();
+
+  // Modern Pill Indicators at bottom
   for (let i = 0; i < 6; i++) {
     const active = i === index;
-    ctx.fillStyle = colorAlpha(colors.accent, active ? 1 : .22);
-    round(ctx, W / 2 + 76 - i * 29, H - 58, active ? 22 : 8, 6, 3); ctx.fill();
+    ctx.fillStyle = colorAlpha(colors.accent, active ? 1 : .25);
+    round(ctx, W / 2 + 80 - i * 30, H - 54, active ? 26 : 8, 7, 4);
+    ctx.fill();
   }
   canvas.dataset.slide = slide.id; canvas.dataset.format = type;
   canvas.dataset.screenBounds = JSON.stringify({ x, y, width: sw, height: sh });
@@ -198,8 +266,8 @@ async function start() {
   $('app-name').oninput = () => { config.appName = $('app-name').value; refresh(); };
   for (const key of Object.keys(config.theme)) $(`color-${key}`).oninput = () => { config.theme[key] = $(`color-${key}`).value; refresh(); };
   for (const type of Object.keys(FORMATS)) $(type).onclick = () => { format = type; populate(); refresh(); };
-  $('navy').onclick = () => { config.theme = structuredClone(window.TEMPLATE_DEFAULTS.theme); populate(); refresh(); };
-  $('burgundy').onclick = () => { config.theme = { background:'#24121D', surface:'#56243E', accent:'#F0B1CF', text:'#FFFFFF', muted:'#DCC3D1' }; populate(); refresh(); };
+  $('navy').onclick = () => { config.theme = { background: '#081525', surface: '#12304A', accent: '#64DDF0', text: '#FFFFFF', muted: '#B4C8D7' }; populate(); refresh(); };
+  $('burgundy').onclick = () => { config.theme = structuredClone(window.TEMPLATE_DEFAULTS.theme); populate(); refresh(); };
   $('logo-file').onchange = async e => { try { config.logo = await readUpload(e.target.files[0]); refresh(); } catch (error) { status(error.message, true); } };
   $('screenshot-file').onchange = async e => { const index = selected; try { config.slides[index].screenshot = await readUpload(e.target.files[0]); refresh(); } catch (error) { status(error.message, true); } };
   $('clear-image').onclick = () => { config.slides[selected].screenshot = ''; $('screenshot-file').value = ''; refresh(); };

@@ -4,8 +4,8 @@ window.TEMPLATE_DEFAULTS = {
   appName: 'هدهد FM',
   logo: 'assets/app-icon.png',
   theme: {
-    background: '#081525', surface: '#12304A', accent: '#64DDF0',
-    text: '#FFFFFF', muted: '#B4C8D7'
+    background: '#1A060E', surface: '#4A1226', accent: '#F472B6',
+    text: '#FFFFFF', muted: '#FCE7F3'
   },
   slides: [
     { id: '01-hero', role: 'Hero Screenshot', label: 'اكتشف عالمك الصوتي', title: 'كل ما تحتاجه\nفي مكان واحد', subtitle: 'محطاتك وبرامجك المفضلة، أقرب إليك.', screenshot: 'assets/screenshots/home.png' },
