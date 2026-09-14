@@ -63,9 +63,12 @@ users.json
 firestore-debug.log
 ui-debug.log
 
+# Local agent configuration and disposable structural indexes
+/.agents/mcp_config.json
+/.atlas/
+
 # Release artifacts
 /release_artifacts/
 *.aab
-
 
 

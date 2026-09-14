@@ -82,6 +82,27 @@
   storage، rotation وrollback.
 - لا تنشر Firebase Rules أو تعدّل بيانات production ضمن build أو اختبار عادي.
 
+## Developer-tool source indexing amendment — 2026-09-15
+
+- Atlas Scout is an optional, local, read-only navigation service for trusted
+  Codex and Antigravity sessions. It may read repository source only to build
+  its disposable structural index; it is not an application dependency and it
+  has no Firebase, production, deployment or signing authority.
+- Antigravity uses the workspace-scoped `/.agents/mcp_config.json` entry. The
+  file is local machine configuration and remains excluded from Git; do not
+  replace it with credentials, remote URLs, or a path to a different checkout.
+- The generated `/.atlas/` SQLite index is disposable tooling state and is
+  excluded from Git. It is never a source of truth and must not be copied into
+  logs, analytics, crash reports, user-visible output, Firebase, or release
+  artifacts.
+- Atlas Scout results are navigation evidence only. Confirm literals with text
+  search and behavior with the applicable tests, analyzer, build, emulator or
+  device checks before treating a result as proof. An unavailable, partial or
+  stale index must not weaken the quality, security or release gates.
+- Do not index directories containing credentials, generated production data or
+  unrelated private repositories. If a source-handling or license concern is
+  discovered, stop using the index and remove the local `/.atlas/` directory.
+
 ## بوابة القبول
 
 - فحص التغيير لا يكشف config أو secret أو PII.
