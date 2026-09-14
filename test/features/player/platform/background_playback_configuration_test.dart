@@ -8,7 +8,7 @@ void main() {
       'android/app/src/main/AndroidManifest.xml',
     ).readAsStringSync();
     final activity = File(
-      'android/app/src/main/kotlin/com/sanaadev/hudhudfm/MainActivity.kt',
+      'android/app/src/main/kotlin/com/sana/dev/fm/MainActivity.kt',
     ).readAsStringSync();
 
     expect(manifest, contains('android.permission.INTERNET'));

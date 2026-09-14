@@ -19,7 +19,7 @@ Future<void> main() async {
   await initializeFirebase();
   final strings = AppLocalizationsAr();
   await JustAudioBackground.init(
-    androidNotificationChannelId: 'com.sanaadev.hudhudfm.audio.playback',
+    androidNotificationChannelId: 'com.sana.dev.fm.audio.playback',
     androidNotificationChannelName:
         strings.audioPlaybackNotificationChannelName,
     androidNotificationChannelDescription:

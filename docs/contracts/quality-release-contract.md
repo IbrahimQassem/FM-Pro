@@ -55,7 +55,7 @@ plugin، playback، Firebase bootstrap أو ملفات iOS. تغييرات UI ت
 
 - تطبيق بنود [عقد جاهزية الإطلاق والإنتاج](release-readiness-contract.md) بكافة معاييره الإلزامية.
 - استهداف جذر الإنتاج الحقيقي `HudHudOfficial`، والرفض القاطع لأي حزمة Release من جذر `HudHudDev`.
-- Firebase environment وpackage/bundle IDs محسومة لكل منصة (`com.sanaadev.hudhudfm` / `com.sana.dev.fm`).
+- Firebase environment وpackage/bundle IDs محسومة لكل منصة (`com.sana.dev.fm` / `com.sana.dev.fm`).
 - Android production signing لا يستخدم debug key، ويرتبط بـ `key.properties`.
 - privacy/store declarations تطابق Firebase وaudio/network الفعلي، والروابط مشتقة من إعدادات النطاق الأساسي.
 - رابطا `/community-guidelines` و`/account-deletion` وروابط `/privacy` و`/terms` منشورة وتعمل عبر لوحة الإشراف (`web_admin`).

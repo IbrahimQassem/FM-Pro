@@ -11,16 +11,20 @@ import "../l10n/generated/app_localizations.dart";
 import "firebase_bootstrap.dart";
 import "providers.dart";
 
-class HudHudApp extends StatelessWidget {
+class HudHudApp extends ConsumerWidget {
   const HudHudApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsControllerProvider);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       onGenerateTitle: (context) => AppLocalizations.of(context).appName,
       theme: AppTheme.light(),
-      locale: const Locale("ar"),
+      darkTheme: AppTheme.dark(),
+      themeMode: settings.themeMode,
+      locale: settings.locale,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
         AppLocalizations.delegate,

@@ -10,7 +10,7 @@
   - `ios/Runner/GoogleService-Info.plist`
   - `lib/firebase_options.dart`
 - لا تسجل API keys أو project IDs أو connection details أو signing material.
-- إعداد Android يخص `com.sanaadev.hudhudfm` وإعداد iOS يخص bundle المسجل له؛
+- إعداد Android يخص `com.sana.dev.fm` وإعداد iOS يخص bundle المسجل له؛
   لا يفترض أن ملف منصة صالح للأخرى.
 - لا تدخل بيئة production أو secrets إلى CI دون مخزن أسرار وصلاحية دنيا.
 

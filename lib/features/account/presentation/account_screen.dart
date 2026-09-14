@@ -36,6 +36,10 @@ class AccountScreen extends ConsumerWidget {
                 children: [
                   _buildUserCard(context, strings, state, theme),
                   const SizedBox(height: 20),
+                  _buildSectionHeader(theme, strings.preferencesSectionTitle),
+                  const SizedBox(height: 8),
+                  _buildPreferencesCard(context, strings, ref, theme),
+                  const SizedBox(height: 20),
                   _buildSectionHeader(theme, strings.appSectionTitle),
                   const SizedBox(height: 8),
                   _buildEngagementCard(context, strings),
@@ -319,6 +323,234 @@ class AccountScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPreferencesCard(
+    BuildContext context,
+    AppLocalizations strings,
+    WidgetRef ref,
+    ThemeData theme,
+  ) {
+    final settings = ref.watch(settingsControllerProvider);
+    final controller = ref.read(settingsControllerProvider.notifier);
+
+    final currentLanguageLabel = settings.locale.languageCode == 'en'
+        ? strings.languageEnglish
+        : strings.languageArabic;
+
+    final currentThemeLabel = switch (settings.themeMode) {
+      ThemeMode.light => strings.themeSettingLight,
+      ThemeMode.dark => strings.themeSettingDark,
+      ThemeMode.system => strings.themeSettingSystem,
+    };
+
+    final currentThemeIcon = switch (settings.themeMode) {
+      ThemeMode.light => Icons.light_mode_rounded,
+      ThemeMode.dark => Icons.dark_mode_rounded,
+      ThemeMode.system => Icons.brightness_auto_rounded,
+    };
+
+    return Card(
+      elevation: 0,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        children: [
+          ListTile(
+            key: const Key("account-language-setting"),
+            leading: const Icon(Icons.language_rounded),
+            title: Text(strings.languageSettingTitle),
+            subtitle: Text(currentLanguageLabel),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => _showLanguageSelectionSheet(
+              context,
+              strings,
+              settings.locale,
+              controller.setLocale,
+            ),
+          ),
+          const Divider(height: 1, indent: 56),
+          ListTile(
+            key: const Key("account-theme-setting"),
+            leading: Icon(currentThemeIcon),
+            title: Text(strings.themeSettingTitle),
+            subtitle: Text(currentThemeLabel),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => _showThemeSelectionSheet(
+              context,
+              strings,
+              settings.themeMode,
+              controller.setThemeMode,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLanguageSelectionSheet(
+    BuildContext context,
+    AppLocalizations strings,
+    Locale currentLocale,
+    ValueChanged<Locale> onSelect,
+  ) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        final theme = Theme.of(sheetContext);
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Text(
+                    strings.chooseLanguage,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ListTile(
+                  key: const Key("language-option-ar"),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  leading: const Text(
+                    "🇾🇪",
+                    style: TextStyle(fontSize: 22),
+                  ),
+                  title: Text(strings.languageArabic),
+                  trailing: currentLocale.languageCode == 'ar'
+                      ? Icon(Icons.check_circle_rounded,
+                          color: theme.colorScheme.primary)
+                      : null,
+                  selected: currentLocale.languageCode == 'ar',
+                  onTap: () {
+                    onSelect(const Locale('ar'));
+                    Navigator.of(sheetContext).pop();
+                  },
+                ),
+                ListTile(
+                  key: const Key("language-option-en"),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  leading: const Text(
+                    "🌐",
+                    style: TextStyle(fontSize: 22),
+                  ),
+                  title: Text(strings.languageEnglish),
+                  trailing: currentLocale.languageCode == 'en'
+                      ? Icon(Icons.check_circle_rounded,
+                          color: theme.colorScheme.primary)
+                      : null,
+                  selected: currentLocale.languageCode == 'en',
+                  onTap: () {
+                    onSelect(const Locale('en'));
+                    Navigator.of(sheetContext).pop();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showThemeSelectionSheet(
+    BuildContext context,
+    AppLocalizations strings,
+    ThemeMode currentMode,
+    ValueChanged<ThemeMode> onSelect,
+  ) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        final theme = Theme.of(sheetContext);
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Text(
+                    strings.chooseTheme,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ListTile(
+                  key: const Key("theme-option-system"),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  leading: const Icon(Icons.brightness_auto_rounded),
+                  title: Text(strings.themeSettingSystem),
+                  trailing: currentMode == ThemeMode.system
+                      ? Icon(Icons.check_circle_rounded,
+                          color: theme.colorScheme.primary)
+                      : null,
+                  selected: currentMode == ThemeMode.system,
+                  onTap: () {
+                    onSelect(ThemeMode.system);
+                    Navigator.of(sheetContext).pop();
+                  },
+                ),
+                ListTile(
+                  key: const Key("theme-option-light"),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  leading: const Icon(Icons.light_mode_rounded),
+                  title: Text(strings.themeSettingLight),
+                  trailing: currentMode == ThemeMode.light
+                      ? Icon(Icons.check_circle_rounded,
+                          color: theme.colorScheme.primary)
+                      : null,
+                  selected: currentMode == ThemeMode.light,
+                  onTap: () {
+                    onSelect(ThemeMode.light);
+                    Navigator.of(sheetContext).pop();
+                  },
+                ),
+                ListTile(
+                  key: const Key("theme-option-dark"),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  leading: const Icon(Icons.dark_mode_rounded),
+                  title: Text(strings.themeSettingDark),
+                  trailing: currentMode == ThemeMode.dark
+                      ? Icon(Icons.check_circle_rounded,
+                          color: theme.colorScheme.primary)
+                      : null,
+                  selected: currentMode == ThemeMode.dark,
+                  onTap: () {
+                    onSelect(ThemeMode.dark);
+                    Navigator.of(sheetContext).pop();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

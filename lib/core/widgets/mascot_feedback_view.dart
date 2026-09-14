@@ -80,7 +80,7 @@ class MascotFeedbackView extends StatelessWidget {
             if (subtitle != null && subtitle!.isNotEmpty) ...[
               const SizedBox(height: 8),
               ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 320),
+                constraints: const BoxConstraints(maxWidth: 360),
                 child: Text(
                   subtitle!,
                   textAlign: TextAlign.center,

@@ -13,6 +13,7 @@ import "package:hudhud_fm/features/account/presentation/register_screen.dart";
 import "package:hudhud_fm/features/account/presentation/sign_in_screen.dart";
 import "package:hudhud_fm/features/account/presentation/widgets/about_app_dialog.dart";
 import "package:hudhud_fm/features/onboarding/presentation/onboarding_screen.dart";
+import "package:hudhud_fm/features/settings/domain/repositories/settings_repository.dart";
 import "package:hudhud_fm/l10n/generated/app_localizations.dart";
 
 void main() {
@@ -70,6 +71,8 @@ void main() {
     await tester.pumpAndSettle();
 
     final rateTile = find.byKey(const Key("account-rate-app"));
+    await tester.ensureVisible(rateTile);
+    await tester.pumpAndSettle();
     expect(rateTile, findsOneWidget);
 
     await tester.tap(rateTile);
@@ -85,6 +88,8 @@ void main() {
 
     final aboutTile = find.byKey(const Key("account-about-app"));
     await tester.scrollUntilVisible(aboutTile, 250);
+    await tester.drag(find.byType(ListView), const Offset(0, -150));
+    await tester.pumpAndSettle();
     expect(aboutTile, findsOneWidget);
 
     await tester.tap(aboutTile);
@@ -105,9 +110,7 @@ void main() {
 
     final guidelinesTile = find.byKey(const Key("account-ugc-guidelines"));
     await tester.scrollUntilVisible(guidelinesTile, 250);
-    expect(guidelinesTile, findsOneWidget);
-
-    await tester.ensureVisible(guidelinesTile);
+    await tester.drag(find.byType(ListView), const Offset(0, -150));
     await tester.pumpAndSettle();
     expect(guidelinesTile.hitTestable(), findsOneWidget);
     await tester.tap(guidelinesTile);
@@ -123,6 +126,8 @@ void main() {
     await tester.pumpAndSettle();
 
     final appTourTile = find.byKey(const Key("account-app-tour"));
+    await tester.ensureVisible(appTourTile);
+    await tester.pumpAndSettle();
     expect(appTourTile, findsOneWidget);
 
     await tester.tap(appTourTile);
@@ -130,17 +135,78 @@ void main() {
 
     expect(find.byType(OnboardingScreen), findsOneWidget);
   });
+
+  testWidgets("shows App Preferences section and opens language selection sheet",
+      (tester) async {
+    final repository = _FakeAccountRepository(user: _user);
+    final settingsRepo = _FakeSettingsRepository();
+    await tester.pumpWidget(_TestApp(
+      repository: repository,
+      settingsRepository: settingsRepo,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.text("تفضيلات التطبيق"), findsOneWidget);
+    final languageTile = find.byKey(const Key("account-language-setting"));
+    expect(languageTile, findsOneWidget);
+
+    await tester.tap(languageTile);
+    await tester.pumpAndSettle();
+
+    expect(find.text("اختيار اللغة"), findsOneWidget);
+    final englishOption = find.byKey(const Key("language-option-en"));
+    expect(englishOption, findsOneWidget);
+
+    await tester.tap(englishOption);
+    await tester.pumpAndSettle();
+
+    expect(await settingsRepo.getLocale(), const Locale('en'));
+  });
+
+  testWidgets("shows App Preferences section and opens appearance selection sheet",
+      (tester) async {
+    final repository = _FakeAccountRepository(user: _user);
+    final settingsRepo = _FakeSettingsRepository();
+    await tester.pumpWidget(_TestApp(
+      repository: repository,
+      settingsRepository: settingsRepo,
+    ));
+    await tester.pumpAndSettle();
+
+    final themeTile = find.byKey(const Key("account-theme-setting"));
+    expect(themeTile, findsOneWidget);
+
+    await tester.tap(themeTile);
+    await tester.pumpAndSettle();
+
+    expect(find.text("اختيار المظهر"), findsOneWidget);
+    final darkOption = find.byKey(const Key("theme-option-dark"));
+    expect(darkOption, findsOneWidget);
+
+    await tester.tap(darkOption);
+    await tester.pumpAndSettle();
+
+    expect(await settingsRepo.getThemeMode(), ThemeMode.dark);
+  });
 }
 
 class _TestApp extends StatelessWidget {
-  const _TestApp({required this.repository});
+  const _TestApp({
+    required this.repository,
+    this.settingsRepository,
+  });
 
   final AccountRepository repository;
+  final SettingsRepository? settingsRepository;
 
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-      overrides: [accountRepositoryProvider.overrideWithValue(repository)],
+      overrides: [
+        accountRepositoryProvider.overrideWithValue(repository),
+        if (settingsRepository != null)
+          settingsRepositoryProvider.overrideWithValue(settingsRepository!),
+      ],
       child: const MaterialApp(
         locale: Locale("ar"),
         supportedLocales: AppLocalizations.supportedLocales,
@@ -153,6 +219,27 @@ class _TestApp extends StatelessWidget {
         home: AccountScreen(),
       ),
     );
+  }
+}
+
+class _FakeSettingsRepository implements SettingsRepository {
+  ThemeMode themeMode = ThemeMode.system;
+  Locale locale = const Locale('ar');
+
+  @override
+  Future<ThemeMode> getThemeMode() async => themeMode;
+
+  @override
+  Future<void> setThemeMode(ThemeMode mode) async {
+    themeMode = mode;
+  }
+
+  @override
+  Future<Locale> getLocale() async => locale;
+
+  @override
+  Future<void> setLocale(Locale newLocale) async {
+    locale = newLocale;
   }
 }
 

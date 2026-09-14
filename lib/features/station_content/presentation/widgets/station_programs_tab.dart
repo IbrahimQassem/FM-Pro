@@ -149,7 +149,7 @@ class _ProgramCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 4),
-              Icon(Icons.chevron_left_rounded, color: colors.onSurfaceVariant),
+              Icon(Icons.chevron_right_rounded, color: colors.onSurfaceVariant),
             ],
           ),
         ),

@@ -256,7 +256,7 @@ class StationDetailsView extends StatelessWidget {
             SliverAppBar(
               pinned: true,
               foregroundColor: Colors.white,
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: context.appTheme.heroGradientStart,
               title: Text(station.name),
               actions: [
                 if (onFavoriteToggle != null)
@@ -348,7 +348,6 @@ class _StationHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final colors = Theme.of(context).colorScheme;
     final isLoading = playbackStatus == StationPlaybackStatus.loading;
     final isPlaying = playbackStatus == StationPlaybackStatus.playing;
     final hasFailed = playbackStatus == StationPlaybackStatus.failure;
@@ -455,15 +454,15 @@ class _StationHero extends StatelessWidget {
                       style: FilledButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),
                         backgroundColor: Colors.white,
-                        foregroundColor: colors.primary,
+                        foregroundColor: AppColors.primary,
                       ),
                       onPressed: isLoading ? null : onPlayPressed,
                       icon: isLoading
-                          ? SizedBox.square(
+                          ? const SizedBox.square(
                               dimension: 19,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.5,
-                                color: colors.primary,
+                                color: AppColors.primary,
                               ),
                             )
                           : Icon(

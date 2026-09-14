@@ -12,7 +12,7 @@ Environment/account decisions: [ADR 0002](../decisions/0002-store-release-bounda
 | Flutter / Dart | Locally verified toolchain: Flutter 3.44.0 / Dart 3.12.0. |
 | Functions / JS verification | Node 22; temporary local verifier runtime is `/tmp/hudhud-release-node22/node_modules/node/bin/node`. This is tooling, not a repository dependency. |
 | Data roots | Official mobile release and admin use `HudHudOfficial`; Development uses `HudHudDev`; Firebase Auth remains shared. |
-| Android identity | `com.sanaadev.hudhudfm`; confirm existing Play listing, upload certificate and next unused versionCode. |
+| Android identity | `com.sana.dev.fm`; confirm existing Play listing, upload certificate and next unused versionCode. |
 | iOS identity | `com.sana.dev.fm`; numeric `IOS_APP_ID` and distribution provisioning remain required. |
 | Domain | Supply/approve `APP_DOMAIN` and verify all four public legal/deletion routes in a private browser. |
 | Signing | Android `key.properties` was absent during guard verification. Supply credentials outside Git; do not print them in evidence. |

@@ -1,3 +1,7 @@
+import '../features/settings/data/repositories/shared_preferences_settings_repository.dart';
+import '../features/settings/domain/models/app_settings.dart';
+import '../features/settings/domain/repositories/settings_repository.dart';
+import '../features/settings/presentation/controllers/settings_controller.dart';
 import '../features/home/data/repositories/home_preferences_repository.dart';
 import '../features/subscriptions/data/station_alert_device_data_source.dart';
 import '../features/subscriptions/data/station_subscriptions_data_source.dart';
@@ -238,3 +242,12 @@ final stationSubscriptionsControllerProvider = StateNotifierProvider<
     (ref) => StationSubscriptionsController(
         ref.watch(stationSubscriptionsRepositoryProvider),
         ref.watch(accountRepositoryProvider)));
+
+final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
+  return SharedPreferencesSettingsRepository();
+});
+
+final settingsControllerProvider =
+    StateNotifierProvider<SettingsController, AppSettings>((ref) {
+  return SettingsController(ref.watch(settingsRepositoryProvider));
+});

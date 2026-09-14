@@ -10,7 +10,7 @@ abstract final class AppConfig {
   );
 
   /// Official Android application package ID.
-  static const String androidPackageId = 'com.sanaadev.hudhudfm';
+  static const String androidPackageId = 'com.sana.dev.fm';
 
   /// Official iOS application bundle identifier.
   static const String iosBundleId = 'com.sana.dev.fm';

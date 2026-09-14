@@ -63,4 +63,9 @@ users.json
 firestore-debug.log
 ui-debug.log
 
+# Release artifacts
+/release_artifacts/
+*.aab
+
+
 
