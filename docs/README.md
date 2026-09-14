@@ -18,6 +18,9 @@
 
 ## التشغيل
 
+- [قالب لقطات App Store وGoogle Play](../design/store-screenshots/README.md):
+  ستة تصاميم عربية قابلة للتحرير، بمعاينة محلية وتصدير PNG بالمقاسين.
+
 - [إعداد Gemini CLI لكل المشروع](operations/gemini-workspace-setup.md): إعادة استخدام
   Skills والعقود المشتركة، مع إعدادات Gemini وMCP وHooks والإضافة المحلية.
 

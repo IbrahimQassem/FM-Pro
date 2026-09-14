@@ -1,0 +1,108 @@
+{
+  "verifiedAt": "2026-09-14T11:25:36.659Z",
+  "result": "PASS",
+  "artworkCount": 12,
+  "overviewCount": 2,
+  "encoding": "PNG / opaque RGB",
+  "sampleImages": "Local Flutter widget-review fixtures; replace with current high-resolution release captures before store submission.",
+  "files": [
+    {
+      "name": "apple-01-hero.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1151875,
+      "sha256": "d83f4c875546d33da89d2f94ebdcd0aea167a66bea286255aba4fd168b7bf6a6"
+    },
+    {
+      "name": "apple-02-main-feature.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1178865,
+      "sha256": "78a505ff2180123d6ceffa853c8fed65c364b50dacc7b0c65c392f73c358f3b5"
+    },
+    {
+      "name": "apple-03-easy-experience.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1445819,
+      "sha256": "32e1bc0472ad7644c82f531a679ce58cdd67e1366231e35d52da29bfcc5998f4"
+    },
+    {
+      "name": "apple-04-second-feature.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1081651,
+      "sha256": "00172c67365f360beae1e9815301bf985f86019ee2d32aaaf185508f0a2cedde"
+    },
+    {
+      "name": "apple-05-control-benefits.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1302524,
+      "sha256": "f6af3db43a76b329cf3cce1a2390d2c84a3da7ae1684c670b5869e46b789d86a"
+    },
+    {
+      "name": "apple-06-final.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1188882,
+      "sha256": "8d52aceca8e283376cc90b7748bd861d61bd5baba6aecbf98c358d3c9471d3e3"
+    },
+    {
+      "name": "apple-overview.png",
+      "width": 1800,
+      "height": 708,
+      "bytes": 509742,
+      "sha256": "a0f4d6467969bd258b2921b268da19645423ecd8cf057b8c86a60c2b767c58e3"
+    },
+    {
+      "name": "google-01-hero.png",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 926888,
+      "sha256": "d24d1d2911320820c06465230b8e238e40517fb908d5f09cad8a60600981c3a4"
+    },
+    {
+      "name": "google-02-main-feature.png",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 950651,
+      "sha256": "8ab738b5e5aa1b62d9015885b1e4c076a1ae8e8724ce2c6afd559b0d3b7bc86e"
+    },
+    {
+      "name": "google-03-easy-experience.png",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 1077674,
+      "sha256": "575e252fa87441da2ac16f40019ba932e3d422c238d51d99bc609827ee32cc92"
+    },
+    {
+      "name": "google-04-second-feature.png",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 908407,
+      "sha256": "d6250e81925b8355cbc7ceae4f1cf5427a5807a636d1b51a3fb5e69c4f1fd7f4"
+    },
+    {
+      "name": "google-05-control-benefits.png",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 996632,
+      "sha256": "7d3686f0ec76130b84f7f69bc32eaed5a951fd479cf2c8cd31339128b7079917"
+    },
+    {
+      "name": "google-06-final.png",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 975824,
+      "sha256": "23dac0adff25dc71e8e33b788017126ca5d576794e1b959b7f077f46f746f234"
+    },
+    {
+      "name": "google-overview.png",
+      "width": 1800,
+      "height": 598,
+      "bytes": 388151,
+      "sha256": "9fb261fc3c9481fe71b6f9925e114f80e2ad90a9bb322c2f6a4deb42f7b188fb"
+    }
+  ]
+}
