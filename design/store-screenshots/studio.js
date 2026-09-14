@@ -63,9 +63,29 @@ async function render(canvas, index, type, settings = config) {
 
   // Soft futuristic light beam
   const beam = ctx.createLinearGradient(0, 0, W, H * 0.7);
-  beam.addColorStop(0, colorAlpha(colors.accent, 0.08));
+  beam.addColorStop(0, colorAlpha(colors.accent, 0.1));
   beam.addColorStop(1, 'transparent');
   ctx.fillStyle = beam; ctx.fillRect(0, 0, W, H);
+
+  // Modern Audio Wave Visualizer Motif (Subtle curved radio frequencies behind phone)
+  ctx.save();
+  const waveCenterY = H * 0.72;
+  const waveHeights = [45, 95, 140, 75, 120, 160, 90, 130, 80, 110, 60, 140, 95, 150, 70, 100];
+  ctx.lineWidth = 2.5;
+  for (let b = 0; b < 2; b++) {
+    const waveAlpha = b === 0 ? 0.08 : 0.04;
+    ctx.strokeStyle = colorAlpha(colors.accent, waveAlpha);
+    ctx.beginPath();
+    for (let i = 0; i <= W; i += 40) {
+      const step = (i / 40) % waveHeights.length;
+      const h = waveHeights[step] * (b === 0 ? 1 : 1.35);
+      const yOffset = Math.sin((i + index * 120) * 0.012) * h;
+      if (i === 0) ctx.moveTo(i, waveCenterY + yOffset);
+      else ctx.lineTo(i, waveCenterY + yOffset);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
 
   ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
   const logoSize = 64;
@@ -119,60 +139,199 @@ async function render(canvas, index, type, settings = config) {
   ctx.fillStyle = colors.muted;
   subtitle.lines.forEach((line, i) => ctx.fillText(line, right, 475 + i * 44));
 
-  // Modern Framed Screen Presentation
-  const top = 580, bottom = H - 110, maxW = W - M * 2, maxH = bottom - top;
-  const ratio = shot ? shot.width / shot.height : 430 / 932;
-  let sw = Math.min(maxW, maxH * ratio), sh = sw / ratio;
-  const x = (W - sw) / 2, y = top + (maxH - sh) / 2;
+  // Real Device Mockup Presentation (Apple iPhone vs Android / Google Play)
+  const top = 560, bottom = H - 95, maxW = W - M * 2, maxH = bottom - top;
+  const ratio = shot ? shot.width / shot.height : (type === 'apple' ? 430 / 932 : 1080 / 2400);
 
-  // Multi-layer high-end shadow
+  // Bezel & Frame Dimensions
+  const bezel = type === 'apple' ? 14 : 12;
+  const frameCorner = type === 'apple' ? 52 : 46;
+  const screenCorner = type === 'apple' ? 42 : 38;
+
+  let dw = Math.min(maxW, (maxH - bezel * 2) * ratio + bezel * 2);
+  let dh = (dw - bezel * 2) / ratio + bezel * 2;
+  const dx = (W - dw) / 2, dy = top + (maxH - dh) / 2;
+  const sx = dx + bezel, sy = dy + bezel, sw = dw - bezel * 2, sh = dh - bezel * 2;
+
+  // 1. Deep Ambient Device Shadow (3D elevation)
   ctx.save();
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
-  ctx.shadowBlur = 60;
-  ctx.shadowOffsetY = 30;
-  round(ctx, x, y, sw, sh, 36);
-  ctx.fillStyle = '#0f172a';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
+  ctx.shadowBlur = 70;
+  ctx.shadowOffsetY = 35;
+  round(ctx, dx, dy, dw, dh, frameCorner);
+  ctx.fillStyle = '#08080a';
   ctx.fill();
   ctx.restore();
 
-  // Outer bezel frame
+  // 2. Premium Metallic / Titanium Outer Chassis
   ctx.save();
-  round(ctx, x, y, sw, sh, 36);
+  const chassisGrad = ctx.createLinearGradient(dx, dy, dx + dw, dy + dh);
+  if (type === 'apple') {
+    // Natural Titanium look with subtle rose-gold rim
+    chassisGrad.addColorStop(0, '#2e2c30');
+    chassisGrad.addColorStop(0.3, '#1c1b1e');
+    chassisGrad.addColorStop(0.7, '#2a262c');
+    chassisGrad.addColorStop(1, '#151417');
+  } else {
+    // Obsidian / Matte Dark Metal for Android
+    chassisGrad.addColorStop(0, '#222326');
+    chassisGrad.addColorStop(0.5, '#121316');
+    chassisGrad.addColorStop(1, '#1e1f24');
+  }
+  round(ctx, dx, dy, dw, dh, frameCorner);
+  ctx.fillStyle = chassisGrad;
+  ctx.fill();
+
+  // Metallic Chamfer Edge Highlight
+  ctx.strokeStyle = colorAlpha('#FFFFFF', 0.22);
+  ctx.lineWidth = 1.5;
+  round(ctx, dx + 0.75, dy + 0.75, dw - 1.5, dh - 1.5, frameCorner);
+  ctx.stroke();
+
+  // Subtle brand ambient glow reflected on frame edges
+  ctx.strokeStyle = colorAlpha(colors.accent, 0.2);
+  ctx.lineWidth = 1;
+  round(ctx, dx + 2, dy + 2, dw - 4, dh - 4, frameCorner - 2);
+  ctx.stroke();
+  ctx.restore();
+
+  // 3. Screen Glass & Display Content
+  ctx.save();
+  round(ctx, sx, sy, sw, sh, screenCorner);
   ctx.clip();
   if (shot) {
-    ctx.drawImage(shot, x, y, sw, sh);
+    ctx.drawImage(shot, sx, sy, sw, sh);
   } else {
-    ctx.fillStyle = colors.surface; ctx.fillRect(x, y, sw, sh);
+    ctx.fillStyle = colors.surface; ctx.fillRect(sx, sy, sw, sh);
     ctx.strokeStyle = colorAlpha(colors.accent, .5); ctx.setLineDash([8, 12]);
-    round(ctx, x + 24, y + 24, sw - 48, sh - 48, 24); ctx.stroke(); ctx.setLineDash([]);
+    round(ctx, sx + 24, sy + 24, sw - 48, sh - 48, 24); ctx.stroke(); ctx.setLineDash([]);
     ctx.textAlign = 'center'; ctx.font = '600 32px Plex'; ctx.fillStyle = colors.text;
-    ctx.fillText('لقطة شاشة التطبيق', W / 2, y + sh / 2);
+    ctx.fillText('لقطة شاشة التطبيق', W / 2, sy + sh / 2);
     ctx.font = '400 22px Plex'; ctx.fillStyle = colors.muted;
-    ctx.fillText('ارفع لقطة شاشة بدقة عالية', W / 2, y + sh / 2 + 46);
+    ctx.fillText('ارفع لقطة شاشة بدقة عالية', W / 2, sy + sh / 2 + 46);
+  }
+
+  // 4. Hardware Sensors (Dynamic Island for iPhone, Punch-hole for Android)
+  if (type === 'apple') {
+    // Real Apple Dynamic Island
+    const diW = 126, diH = 34;
+    const diX = W / 2 - diW / 2, diY = sy + 11;
+    ctx.save();
+    round(ctx, diX, diY, diW, diH, diH / 2);
+    ctx.fillStyle = '#000000';
+    ctx.fill();
+    // Lens reflection & sensor dots
+    ctx.beginPath();
+    ctx.arc(diX + diW - 20, diY + diH / 2, 5.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#0c121e';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(diX + diW - 20, diY + diH / 2, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#1e293b';
+    ctx.fill();
+    ctx.restore();
+
+    // Home Indicator Bar at bottom of screen
+    const barW = 138, barH = 5;
+    const barX = W / 2 - barW / 2, barY = sy + sh - 10;
+    round(ctx, barX, barY, barW, barH, 3);
+    ctx.fillStyle = colorAlpha('#FFFFFF', 0.55);
+    ctx.fill();
+  } else {
+    // Real Android Front Camera Punch-hole (Centered)
+    const camRadius = 8;
+    const camX = W / 2, camY = sy + 18;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(camX, camY, camRadius, 0, Math.PI * 2);
+    ctx.fillStyle = '#000000';
+    ctx.fill();
+    // Subtle lens glare
+    ctx.beginPath();
+    ctx.arc(camX, camY, camRadius - 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#0e1726';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(camX + 1.5, camY - 1.5, 1.5, 0, Math.PI * 2);
+    ctx.fillStyle = colorAlpha('#FFFFFF', 0.4);
+    ctx.fill();
+    ctx.restore();
+
+    // Android Navigation Gesture Bar at bottom
+    const barW = 96, barH = 4;
+    const barX = W / 2 - barW / 2, barY = sy + sh - 8;
+    round(ctx, barX, barY, barW, barH, 2);
+    ctx.fillStyle = colorAlpha('#FFFFFF', 0.4);
+    ctx.fill();
   }
   ctx.restore();
 
-  // Glass highlight over the screenshot edge
-  ctx.strokeStyle = colorAlpha('#FFFFFF', 0.28);
-  ctx.lineWidth = 2;
-  round(ctx, x, y, sw, sh, 36);
+  // Glass Surface Specular Rim
+  ctx.strokeStyle = colorAlpha('#FFFFFF', 0.18);
+  ctx.lineWidth = 1;
+  round(ctx, sx, sy, sw, sh, screenCorner);
   ctx.stroke();
 
-  // Inner rim light
-  ctx.strokeStyle = colorAlpha(colors.accent, 0.25);
-  ctx.lineWidth = 1;
-  round(ctx, x + 1.5, y + 1.5, sw - 3, sh - 3, 35);
-  ctx.stroke();
+  // 5. Floating Glass Feature Badges (Interactive Product Badges)
+  const floatingBadges = [
+    { text: 'بث مباشر 24/7', dot: '#EF4444', align: 'left', yFactor: 0.32 },
+    { text: 'أكثر من 30 إذاعة', dot: '#10B981', align: 'right', yFactor: 0.55 },
+    { text: 'تشغيل بالخلفية بدون تقطيع', dot: '#3B82F6', align: 'left', yFactor: 0.72 }
+  ];
+
+  ctx.save();
+  floatingBadges.forEach((b, bi) => {
+    // Show selective badges on certain slides for clean aesthetics
+    if ((index === 0 && bi === 0) || (index === 2 && bi === 2) || (index === 3 && bi === 1)) {
+      ctx.font = '600 20px Plex';
+      const textMetrics = ctx.measureText(b.text);
+      const pillW = textMetrics.width + 56;
+      const pillH = 46;
+      const pillX = b.align === 'left' ? dx - 24 : dx + dw - pillW + 24;
+      const pillY = dy + dh * b.yFactor;
+
+      // Glow shadow
+      ctx.save();
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+      ctx.shadowBlur = 24;
+      ctx.shadowOffsetY = 10;
+      round(ctx, pillX, pillY, pillW, pillH, 23);
+      ctx.fillStyle = colorAlpha('#1A060E', 0.88);
+      ctx.fill();
+      ctx.restore();
+
+      // Glass surface
+      round(ctx, pillX, pillY, pillW, pillH, 23);
+      ctx.fillStyle = colorAlpha('#2D0B18', 0.75);
+      ctx.fill();
+      ctx.strokeStyle = colorAlpha(colors.accent, 0.4);
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Glowing status indicator dot
+      ctx.beginPath();
+      ctx.arc(pillX + pillW - 20, pillY + pillH / 2, 5.5, 0, Math.PI * 2);
+      ctx.fillStyle = b.dot;
+      ctx.fill();
+
+      // Text
+      ctx.textAlign = 'right';
+      ctx.direction = 'rtl';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillText(b.text, pillX + pillW - 34, pillY + 30);
+    }
+  });
+  ctx.restore();
 
   // Modern Pill Indicators at bottom
   for (let i = 0; i < 6; i++) {
     const active = i === index;
     ctx.fillStyle = colorAlpha(colors.accent, active ? 1 : .25);
-    round(ctx, W / 2 + 80 - i * 30, H - 54, active ? 26 : 8, 7, 4);
+    round(ctx, W / 2 + 80 - i * 30, H - 46, active ? 26 : 8, 7, 4);
     ctx.fill();
   }
   canvas.dataset.slide = slide.id; canvas.dataset.format = type;
-  canvas.dataset.screenBounds = JSON.stringify({ x, y, width: sw, height: sh });
+  canvas.dataset.screenBounds = JSON.stringify({ x: sx, y: sy, width: sw, height: sh });
 }
 function populate() {
   $('app-name').value = config.appName;
