@@ -44,7 +44,9 @@ import {
   LogOut,
   Megaphone,
   MessageSquare,
+  Pause,
   Pencil,
+  Play,
   PlayCircle,
   Plus,
   Radio,
@@ -54,6 +56,7 @@ import {
   Trash2,
   Users,
   UserX,
+  X,
 } from 'lucide-react';
 import {
   type User,
@@ -1199,6 +1202,65 @@ function ResourceView({
     type: 'success' | 'error';
     message: string;
   } | null>(null);
+  const [playingStation, setPlayingStation] = useState<{
+    id: string;
+    name: string;
+    url: string;
+  } | null>(null);
+  const stationAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const audio = stationAudioRef.current;
+    return () => {
+      if (audio) {
+        audio.pause();
+        audio.removeAttribute('src');
+        audio.load();
+      }
+      setPlayingStation(null);
+    };
+  }, [definition.key]);
+
+  function togglePlayStation(record: AdminRecord) {
+    const rawUrl =
+      (typeof record.data.streamUrl === 'string' &&
+        record.data.streamUrl.trim()) ||
+      (typeof record.data.backupStreamUrl === 'string' &&
+        record.data.backupStreamUrl.trim()) ||
+      '';
+
+    if (!rawUrl || rawUrl === 'https://' || rawUrl === 'http://') {
+      setFeedback({
+        type: 'error',
+        message: `المحطة «${recordTitle(record, definition)}» لا تحتوي على رابط بث صالح.`,
+      });
+      return;
+    }
+
+    if (playingStation?.id === record.id) {
+      if (stationAudioRef.current) {
+        stationAudioRef.current.pause();
+        stationAudioRef.current.removeAttribute('src');
+        stationAudioRef.current.load();
+      }
+      setPlayingStation(null);
+    } else {
+      const name = recordTitle(record, definition);
+      setPlayingStation({ id: record.id, name, url: rawUrl });
+      setFeedback(null);
+      if (stationAudioRef.current) {
+        stationAudioRef.current.src = rawUrl;
+        stationAudioRef.current.play().catch(() => {
+          setFeedback({
+            type: 'error',
+            message:
+              'تعذر تشغيل البث في المتصفح. تأكد من أن رابط البث يعمل ويدعم HTTPS.',
+          });
+          setPlayingStation(null);
+        });
+      }
+    }
+  }
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     if (!term) return records;
@@ -1311,7 +1373,9 @@ function ResourceView({
                 >
                   {record.id}
                 </p>
-                {(definition.editable || definition.deletable) && (
+                {(definition.editable ||
+                  definition.key === 'stations' ||
+                  definition.deletable) && (
                   <div className="flex gap-2">
                     {definition.editable && (
                       <Button
@@ -1322,15 +1386,34 @@ function ResourceView({
                         <Pencil /> تعديل
                       </Button>
                     )}
-                    {definition.deletable && (
+                    {definition.key === 'stations' ? (
                       <Button
-                        variant="destructive"
-                        className="min-h-11"
-                        disabled={busyId === record.id}
-                        onClick={() => remove(record)}
+                        variant={
+                          playingStation?.id === record.id
+                            ? 'default'
+                            : 'outline'
+                        }
+                        className="min-h-11 flex-1"
+                        onClick={() => togglePlayStation(record)}
                       >
-                        <Trash2 /> حذف
+                        {playingStation?.id === record.id ? (
+                          <Pause />
+                        ) : (
+                          <Play />
+                        )}
+                        {playingStation?.id === record.id ? 'إيقاف' : 'تشغيل'}
                       </Button>
+                    ) : (
+                      definition.deletable && (
+                        <Button
+                          variant="destructive"
+                          className="min-h-11"
+                          disabled={busyId === record.id}
+                          onClick={() => remove(record)}
+                        >
+                          <Trash2 /> حذف
+                        </Button>
+                      )
                     )}
                   </div>
                 )}
@@ -1391,21 +1474,51 @@ function ResourceView({
                             variant="ghost"
                             size="icon"
                             aria-label="تعديل"
+                            title="تعديل"
                             onClick={() => setEditor(record)}
                           >
                             <Pencil />
                           </Button>
                         )}
-                        {definition.deletable && (
+                        {definition.key === 'stations' ? (
                           <Button
-                            variant="destructive"
+                            variant={
+                              playingStation?.id === record.id
+                                ? 'default'
+                                : 'ghost'
+                            }
                             size="icon"
-                            aria-label="حذف"
-                            disabled={busyId === record.id}
-                            onClick={() => remove(record)}
+                            aria-label={
+                              playingStation?.id === record.id
+                                ? 'إيقاف البث'
+                                : 'تشغيل البث'
+                            }
+                            title={
+                              playingStation?.id === record.id
+                                ? 'إيقاف البث'
+                                : 'تشغيل البث'
+                            }
+                            onClick={() => togglePlayStation(record)}
                           >
-                            <Trash2 />
+                            {playingStation?.id === record.id ? (
+                              <Pause />
+                            ) : (
+                              <Play />
+                            )}
                           </Button>
+                        ) : (
+                          definition.deletable && (
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              aria-label="حذف"
+                              title="حذف"
+                              disabled={busyId === record.id}
+                              onClick={() => remove(record)}
+                            >
+                              <Trash2 />
+                            </Button>
+                          )
                         )}
                       </div>
                     </TableCell>
@@ -1423,6 +1536,61 @@ function ResourceView({
           )}
         </CardContent>
       </Card>
+      {playingStation && (
+        <section
+          aria-label="مشغّل بث المحطة"
+          className="sticky bottom-4 z-40 flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-background/95 p-3 shadow-lg backdrop-blur-md"
+        >
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground animate-pulse">
+              <Radio className="size-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground">
+                جارٍ تشغيل البث المباشر
+              </p>
+              <p className="truncate text-sm font-semibold">
+                {playingStation.name}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+            <audio
+              ref={stationAudioRef}
+              src={playingStation.url}
+              controls
+              autoPlay
+              preload="none"
+              className="h-9 max-w-[220px] sm:max-w-xs"
+              aria-label={`بث محطة ${playingStation.name}`}
+              onError={() => {
+                setFeedback({
+                  type: 'error',
+                  message:
+                    'تعذر تشغيل البث في المتصفح. تحقق من صلاحية الرابط وسياسات HTTPS.',
+                });
+                setPlayingStation(null);
+              }}
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="إيقاف وإغلاق المشغل"
+              onClick={() => {
+                if (stationAudioRef.current) {
+                  stationAudioRef.current.pause();
+                  stationAudioRef.current.removeAttribute('src');
+                  stationAudioRef.current.load();
+                }
+                setPlayingStation(null);
+              }}
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
+        </section>
+      )}
       {editor !== null && (
         <ResourceEditor
           firestore={firestore}
@@ -1434,6 +1602,24 @@ function ResourceView({
             setFeedback({
               type: 'success',
               message: 'تم حفظ البيانات والتحقق من العلاقات.',
+            });
+          }}
+          onDeleted={() => {
+            if (
+              typeof editor !== 'string' &&
+              editor?.id === playingStation?.id
+            ) {
+              if (stationAudioRef.current) {
+                stationAudioRef.current.pause();
+                stationAudioRef.current.removeAttribute('src');
+                stationAudioRef.current.load();
+              }
+              setPlayingStation(null);
+            }
+            setEditor(null);
+            setFeedback({
+              type: 'success',
+              message: 'تم الحذف وتحديث العلاقات بنجاح.',
             });
           }}
         />
@@ -1448,12 +1634,14 @@ function ResourceEditor({
   record,
   onClose,
   onSaved,
+  onDeleted,
 }: {
   firestore: Firestore;
   definition: ResourceDefinition;
   record: AdminRecord | null;
   onClose: () => void;
   onSaved: () => void;
+  onDeleted?: () => void;
 }) {
   const [id] = useState(
     () =>
@@ -1476,6 +1664,7 @@ function ResourceEditor({
       kind={definition.key}
       label={definition.singular}
       initial={initial}
+      recordId={record?.id}
       isNew={!record}
       onClose={onClose}
       onSave={async (data) => {
@@ -1498,6 +1687,14 @@ function ResourceEditor({
         );
         onSaved();
       }}
+      onDelete={
+        record && (definition.key === 'stations' || definition.deletable)
+          ? async () => {
+              await deleteWithRelations(firestore, definition.key, record);
+              onDeleted?.();
+            }
+          : undefined
+      }
     />
   );
 }

@@ -13,7 +13,7 @@ import {
   type Firestore,
   type QueryDocumentSnapshot,
 } from 'firebase/firestore';
-import { Radio, Eye, Save, ChevronLeft } from 'lucide-react';
+import { Radio, Eye, Save, ChevronLeft, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AudioPreview } from './audio-preview';
 import { episodeBroadcastTime } from '@/lib/episode-time';
@@ -25,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { firestoreRoot } from '@/lib/firestore-root';
 import {
@@ -289,7 +290,9 @@ export function ContentEditor({
   label,
   initial,
   isNew,
+  recordId,
   onSave,
+  onDelete,
   onClose,
 }: {
   firestore: Firestore;
@@ -297,7 +300,9 @@ export function ContentEditor({
   label: string;
   initial: Record<string, unknown>;
   isNew: boolean;
+  recordId?: string;
   onSave: (data: Record<string, unknown>) => Promise<void>;
+  onDelete?: () => Promise<void>;
   onClose: () => void;
 }) {
   const [form, setForm] = useState(
@@ -309,6 +314,10 @@ export function ContentEditor({
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [tab, setTab] = useState<'edit' | 'preview'>('edit');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [confirmId, setConfirmId] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
   const summary = useRef<HTMLDivElement>(null);
   const update = (key: string, value: unknown) => {
     setDirty(true);
@@ -363,6 +372,28 @@ export function ContentEditor({
       );
     } finally {
       setSaving(false);
+    }
+  }
+  const canConfirmDelete = Boolean(
+    recordId && confirmId.trim() === recordId && !deleting,
+  );
+
+  async function handleDeleteConfirm() {
+    if (!canConfirmDelete || !onDelete) return;
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      await onDelete();
+      setDeleteDialogOpen(false);
+      onClose();
+    } catch (error) {
+      setDeleteError(
+        error instanceof Error
+          ? error.message
+          : 'تعذر الحذف. تحقق من الصلاحيات والعلاقات المرتبطة ثم أعد المحاولة.',
+      );
+    } finally {
+      setDeleting(false);
     }
   }
   const schedule = editableSchedule(form.schedule);
@@ -821,18 +852,64 @@ export function ContentEditor({
                     مدعومين بعد في التطبيق.
                   </p>
                 )}
+                {!isNew && onDelete && recordId && (
+                  <section
+                    className="space-y-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4"
+                    aria-label="منطقة الخطر"
+                  >
+                    <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                      <div>
+                        <p className="font-semibold text-destructive">
+                          منطقة الخطر: حذف {label}
+                        </p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          حذف المستند نهائيًا من قاعدة البيانات. سيتطلب كتابة
+                          معرّف {label} للتأكيد.
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={() => {
+                          setConfirmId('');
+                          setDeleteError('');
+                          setDeleteDialogOpen(true);
+                        }}
+                        disabled={saving || deleting}
+                      >
+                        <Trash2 /> حذف {label}…
+                      </Button>
+                    </div>
+                  </section>
+                )}
               </>
             )}
             <footer className="sticky bottom-0 flex justify-between gap-3 border-t bg-background py-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={close}
-                disabled={saving}
-              >
-                <ChevronLeft /> إلغاء
-              </Button>
-              <Button type="submit" disabled={saving}>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={close}
+                  disabled={saving || deleting}
+                >
+                  <ChevronLeft /> إلغاء
+                </Button>
+                {!isNew && onDelete && recordId && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => {
+                      setConfirmId('');
+                      setDeleteError('');
+                      setDeleteDialogOpen(true);
+                    }}
+                    disabled={saving || deleting}
+                  >
+                    <Trash2 /> حذف {label}
+                  </Button>
+                )}
+              </div>
+              <Button type="submit" disabled={saving || deleting}>
                 <Save />
                 {saving ? 'جارٍ الحفظ…' : 'حفظ التغييرات'}
               </Button>
@@ -840,6 +917,117 @@ export function ContentEditor({
           </fieldset>
         </form>
       </DialogContent>
+      {deleteDialogOpen && recordId && (
+        <Dialog
+          open={deleteDialogOpen}
+          onOpenChange={(open) => {
+            if (!deleting) {
+              setDeleteDialogOpen(open);
+              if (!open) {
+                setConfirmId('');
+                setDeleteError('');
+              }
+            }
+          }}
+        >
+          <DialogContent
+            className="z-[60] max-w-lg"
+            dir="rtl"
+            showCloseButton={!deleting}
+          >
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-destructive">
+                <AlertTriangle className="size-5" />
+                حذف {label} نهائيًا؟
+              </DialogTitle>
+              <DialogDescription>
+                هذا الإجراء نهائي ولا يمكن التراجع عنه. سيتم حذف مستند {label}{' '}
+                نهائيًا من قاعدة البيانات.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-2">
+              <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
+                <p className="font-semibold">تحذير:</p>
+                <p className="mt-1 text-xs leading-5">
+                  سيتم حذف مستند {label} بالكامل. لتأكيد الحذف النهائي، اكتب
+                  معرّف {label} أدناه:
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="delete-confirm-id-display"
+                  className="text-xs font-semibold text-muted-foreground"
+                >
+                  معرّف {label} المطلوب:
+                </label>
+                <div
+                  id="delete-confirm-id-display"
+                  dir="ltr"
+                  className="select-all rounded-lg border bg-muted/70 px-3 py-2 text-center font-mono text-xs font-bold text-foreground"
+                >
+                  {recordId}
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="delete-confirm-id-input"
+                  className="text-xs font-semibold text-muted-foreground"
+                >
+                  اكتب المعرّف هنا للتأكيد:
+                </label>
+                <input
+                  id="delete-confirm-id-input"
+                  type="text"
+                  dir="ltr"
+                  autoComplete="off"
+                  spellCheck="false"
+                  className={control}
+                  placeholder={recordId}
+                  value={confirmId}
+                  onChange={(e) => setConfirmId(e.target.value)}
+                  disabled={deleting}
+                />
+              </div>
+
+              {deleteError && (
+                <div
+                  role="alert"
+                  className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm font-medium text-destructive"
+                >
+                  {deleteError}
+                </div>
+              )}
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setDeleteDialogOpen(false);
+                  setConfirmId('');
+                  setDeleteError('');
+                }}
+                disabled={deleting}
+              >
+                إلغاء
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                disabled={!canConfirmDelete}
+                onClick={handleDeleteConfirm}
+              >
+                <Trash2 className="size-4" />
+                {deleting ? 'جارٍ الحذف…' : `تأكيد حذف ${label}`}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </Dialog>
   );
 }
