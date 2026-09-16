@@ -26,9 +26,14 @@ import {
   readReportType,
   resourceParentFilter,
   resourceStatusChoices,
+  matchRecordSearch,
+  sortRecords,
+  stationSortChoices,
+  genericSortChoices,
   type StatusChoice,
 } from '@/lib/resource-filters';
 import {
+  ArrowUpDown,
   BarChart3,
   Sun,
   Moon,
@@ -51,6 +56,7 @@ import {
   Plus,
   Radio,
   RefreshCw,
+  RotateCcw,
   Search,
   ShieldCheck,
   Trash2,
@@ -666,13 +672,7 @@ function ResourcePanel({
             firestore={firestore}
             kind={parentFilter.kind}
             selected={parent}
-            onSelect={(option) =>
-              changeParent(
-                parentFilter.kind === 'locations'
-                  ? String(option.data.cityCode)
-                  : option.id,
-              )
-            }
+            onSelect={(option) => changeParent(option.id)}
           />
           {parent && (
             <Button variant="outline" onClick={() => changeParent('')}>
@@ -733,9 +733,6 @@ function ResourcePage({
       ...(reportType ? [where('targetType', '==', reportType)] : []),
       ...(parent && parentFilter
         ? [where(parentFilter.field, '==', parent)]
-        : []),
-      ...(parent && resource === 'stations'
-        ? [where('countryCode', '==', 'YE')]
         : []),
       ...(cursor ? [startAfter(cursor)] : []),
       limit(50),
@@ -1261,15 +1258,66 @@ function ResourceView({
       }
     }
   }
-  const filtered = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return records;
-    return records.filter((record) =>
-      `${record.id} ${readString(record.data, definition.titleField)} ${readString(record.data, definition.relationField)} ${record.relationLabel ?? ''}`
-        .toLowerCase()
-        .includes(term),
+
+  const [cityFilter, setCityFilter] = useState('');
+  const [featureFilter, setFeatureFilter] = useState<
+    'all' | 'live' | 'featured' | 'verified'
+  >('all');
+  const [sortBy, setSortBy] = useState('newest');
+
+  const availableCities = useMemo(() => {
+    if (definition.key !== 'stations') return [];
+    const set = new Set<string>();
+    for (const r of records) {
+      const city =
+        typeof r.data.cityNameAr === 'string' && r.data.cityNameAr.trim()
+          ? r.data.cityNameAr.trim()
+          : typeof r.data.cityCode === 'string' && r.data.cityCode.trim()
+            ? r.data.cityCode.trim()
+            : '';
+      if (city) set.add(city);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'ar'));
+  }, [definition.key, records]);
+
+  const filteredAndSorted = useMemo(() => {
+    let list = records.filter((record) =>
+      matchRecordSearch(record, search, definition.key),
     );
-  }, [definition, records, search]);
+
+    if (definition.key === 'stations') {
+      if (cityFilter) {
+        list = list.filter(
+          (r) =>
+            r.data.cityNameAr === cityFilter ||
+            r.data.cityCode === cityFilter,
+        );
+      }
+      if (featureFilter === 'live') {
+        list = list.filter((r) => r.data.isLive === true);
+      } else if (featureFilter === 'featured') {
+        list = list.filter((r) => r.data.isFeatured === true);
+      } else if (featureFilter === 'verified') {
+        list = list.filter((r) => r.data.isVerified === true);
+      }
+    }
+
+    return sortRecords(list, sortBy, definition.key);
+  }, [records, search, definition.key, cityFilter, featureFilter, sortBy]);
+
+  const hasActiveFilters = Boolean(
+    search ||
+      cityFilter ||
+      featureFilter !== 'all' ||
+      sortBy !== 'newest',
+  );
+
+  const resetFilters = () => {
+    setSearch('');
+    setCityFilter('');
+    setFeatureFilter('all');
+    setSortBy('newest');
+  };
 
   async function remove(record: AdminRecord) {
     if (
@@ -1326,21 +1374,170 @@ function ResourceView({
         </Alert>
       )}
       <Card className="border-none shadow-[0_1px_2px_rgb(15_38_34/5%),0_10px_32px_rgb(15_38_34/5%)]">
-        <CardHeader className="border-b">
-          <div className="relative max-w-md">
-            <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              className="pr-9"
-              aria-label={`البحث في ${definition.label} بالصفحة الحالية`}
-              placeholder={`ابحث في هذه الصفحة…`}
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
+        <CardHeader className="space-y-3 border-b pb-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="pr-9 pl-9"
+                aria-label={`البحث في ${definition.label}`}
+                placeholder={
+                  definition.key === 'stations'
+                    ? 'ابحث بالاسم، التردد، المدينة، المعرّف…'
+                    : `ابحث في هذه الصفحة…`
+                }
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+              {search && (
+                <button
+                  type="button"
+                  aria-label="مسح البحث"
+                  onClick={() => setSearch('')}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="size-4" />
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {definition.key === 'stations' && availableCities.length > 0 && (
+                <select
+                  aria-label="تصفية حسب المدينة"
+                  className="min-h-10 rounded-xl border bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-ring"
+                  value={cityFilter}
+                  onChange={(e) => setCityFilter(e.target.value)}
+                >
+                  <option value="">كل المدن ({availableCities.length})</option>
+                  {availableCities.map((city) => (
+                    <option key={city} value={city}>
+                      {city}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              {definition.key === 'stations' && (
+                <select
+                  aria-label="نوع المحطة والمميزات"
+                  className="min-h-10 rounded-xl border bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-ring"
+                  value={featureFilter}
+                  onChange={(e) =>
+                    setFeatureFilter(
+                      e.target.value as 'all' | 'live' | 'featured' | 'verified',
+                    )
+                  }
+                >
+                  <option value="all">كل المميزات</option>
+                  <option value="live">بث مباشر فقط</option>
+                  <option value="featured">المحطات المميزة</option>
+                  <option value="verified">المحطات الموثقة</option>
+                </select>
+              )}
+
+              <div className="flex items-center gap-1.5">
+                <ArrowUpDown className="size-4 text-muted-foreground" />
+                <select
+                  aria-label="ترتيب السجلات"
+                  className="min-h-10 rounded-xl border bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-ring"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
+                  {definition.key === 'stations'
+                    ? stationSortChoices.map((choice) => (
+                        <option key={choice.value} value={choice.value}>
+                          {choice.label}
+                        </option>
+                      ))
+                    : genericSortChoices.map((choice) => (
+                        <option key={choice.value} value={choice.value}>
+                          {choice.label}
+                        </option>
+                      ))}
+                </select>
+              </div>
+
+              {hasActiveFilters && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetFilters}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <RotateCcw className="size-3.5 ms-1" />
+                  إعادة تعيين
+                </Button>
+              )}
+            </div>
           </div>
+
+          {definition.key === 'stations' && (
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs text-muted-foreground">
+              <div>
+                {hasActiveFilters ? (
+                  <span>
+                    تم العثور على{' '}
+                    <strong className="text-foreground">
+                      {filteredAndSorted.length}
+                    </strong>{' '}
+                    من أصل {records.length} محطة
+                  </span>
+                ) : (
+                  <span>إجمالي المحطات المعروضة: {records.length}</span>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFeatureFilter((f) => (f === 'live' ? 'all' : 'live'))
+                  }
+                  className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                    featureFilter === 'live'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted hover:bg-muted/80'
+                  }`}
+                >
+                  بث مباشر
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFeatureFilter((f) =>
+                      f === 'featured' ? 'all' : 'featured',
+                    )
+                  }
+                  className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                    featureFilter === 'featured'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted hover:bg-muted/80'
+                  }`}
+                >
+                  مميزة
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFeatureFilter((f) =>
+                      f === 'verified' ? 'all' : 'verified',
+                    )
+                  }
+                  className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                    featureFilter === 'verified'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted hover:bg-muted/80'
+                  }`}
+                >
+                  موثقة
+                </button>
+              </div>
+            </div>
+          )}
         </CardHeader>
         <CardContent className="px-0">
           <div className="divide-y md:hidden">
-            {filtered.map((record) => (
+            {filteredAndSorted.map((record) => (
               <article key={record.path} className="space-y-3 p-4">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="min-w-0 break-words font-semibold">
@@ -1434,7 +1631,7 @@ function ResourceView({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((record) => (
+                {filteredAndSorted.map((record) => (
                   <TableRow key={record.path}>
                     <TableCell className="max-w-[340px] truncate px-4 font-medium">
                       {recordTitle(record, definition)}
@@ -1527,10 +1724,10 @@ function ResourceView({
               </TableBody>
             </Table>
           </div>
-          {filtered.length === 0 && (
+          {filteredAndSorted.length === 0 && (
             <div className="grid min-h-56 place-items-center text-sm text-muted-foreground">
-              {search
-                ? 'لا توجد نتائج في هذه الصفحة. جرّب صفحة أخرى أو امسح البحث.'
+              {hasActiveFilters
+                ? 'لا توجد نتائج مطابقة للبحث أو التصفية الحالية. جرّب مسح البحث أو تغيير الفلتر.'
                 : 'لا توجد سجلات في هذه الصفحة.'}
             </div>
           )}
