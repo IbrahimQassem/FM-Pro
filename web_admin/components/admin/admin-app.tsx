@@ -59,6 +59,7 @@ import {
   RotateCcw,
   Search,
   ShieldCheck,
+  Sparkles,
   Trash2,
   Users,
   UserX,
@@ -613,73 +614,81 @@ function ResourcePanel({
     window.location.hash = resource + (params.size ? `?${params}` : '');
   };
   return (
-    <div className="space-y-5">
-      {choices.length > 0 && (
-        <label className="flex flex-wrap items-center gap-3 text-sm">
-          تصفية حسب الحالة
-          <select
-            className="min-h-12 rounded-xl border bg-card px-3"
-            aria-label="تصفية حسب الحالة"
-            value={status?.value ?? ''}
-            onChange={(event) => {
-              const params = new URLSearchParams(hash.split('?')[1] ?? '');
-              if (event.target.value) params.set('status', event.target.value);
-              else params.delete('status');
-              window.location.hash =
-                resource + (params.size ? `?${params}` : '');
-            }}
-          >
-            <option value="">كل الحالات</option>
-            {choices.map((choice) => (
-              <option key={choice.value} value={choice.value}>
-                {choice.label}
-              </option>
-            ))}
-          </select>
-          <span className="text-muted-foreground">
-            التصفية تشمل جميع سجلات البيئة قبل تقسيم الصفحات.
-          </span>
-        </label>
-      )}
+    <div className="space-y-6">
       {resource === 'reports' && (
-        <label className="flex flex-wrap items-center gap-3 text-sm">
-          نوع البلاغ
-          <select
-            aria-label="نوع البلاغ"
-            className="min-h-12 rounded-xl border bg-card px-3"
-            value={reportType}
-            onChange={(event) => {
-              const params = new URLSearchParams(hash.split('?')[1] ?? '');
-              if (event.target.value) params.set('type', event.target.value);
-              else params.delete('type');
-              window.location.hash =
-                resource + (params.size ? `?${params}` : '');
-            }}
-          >
-            <option value="">كل الأنواع</option>
-            <option value="comment">بلاغات التعليقات</option>
-            <option value="user">بلاغات المستخدمين</option>
-          </select>
-        </label>
+        <div className="flex flex-wrap items-center gap-4 rounded-2xl border bg-card p-4 text-sm shadow-xs">
+          {choices.length > 0 && (
+            <label className="flex items-center gap-2">
+              <span className="font-medium">الحالة:</span>
+              <select
+                className="h-10 rounded-xl border bg-background px-3"
+                aria-label="تصفية حسب الحالة"
+                value={status?.value ?? ''}
+                onChange={(event) => {
+                  const params = new URLSearchParams(hash.split('?')[1] ?? '');
+                  if (event.target.value)
+                    params.set('status', event.target.value);
+                  else params.delete('status');
+                  window.location.hash =
+                    resource + (params.size ? `?${params}` : '');
+                }}
+              >
+                <option value="">كل الحالات</option>
+                {choices.map((choice) => (
+                  <option key={choice.value} value={choice.value}>
+                    {choice.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <label className="flex items-center gap-2">
+            <span className="font-medium">نوع البلاغ:</span>
+            <select
+              aria-label="نوع البلاغ"
+              className="h-10 rounded-xl border bg-background px-3"
+              value={reportType}
+              onChange={(event) => {
+                const params = new URLSearchParams(hash.split('?')[1] ?? '');
+                if (event.target.value) params.set('type', event.target.value);
+                else params.delete('type');
+                window.location.hash =
+                  resource + (params.size ? `?${params}` : '');
+              }}
+            >
+              <option value="">كل الأنواع</option>
+              <option value="comment">بلاغات التعليقات</option>
+              <option value="user">بلاغات المستخدمين</option>
+            </select>
+          </label>
+        </div>
       )}
       {parentFilter && (
-        <fieldset className="space-y-3 rounded-xl border p-4">
-          <legend className="px-2 text-sm font-medium">
-            {parentFilter.label}
-          </legend>
+        <section aria-label={parentFilter.label} className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-sm font-medium text-muted-foreground">
+              {parentFilter.label}
+            </span>
+            {parent && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => changeParent('')}
+                className="h-8 text-xs text-muted-foreground hover:text-foreground"
+              >
+                إلغاء تصفية الارتباط
+              </Button>
+            )}
+          </div>
           <RelationPicker
             key={resource}
             firestore={firestore}
             kind={parentFilter.kind}
             selected={parent}
+            borderless
             onSelect={(option) => changeParent(option.id)}
           />
-          {parent && (
-            <Button variant="outline" onClick={() => changeParent('')}>
-              إلغاء تصفية الارتباط
-            </Button>
-          )}
-        </fieldset>
+        </section>
       )}
       <ResourcePage
         key={`${resource}:${status?.value ?? ''}:${parent}:${reportType}`}
@@ -687,6 +696,7 @@ function ResourcePanel({
         user={user}
         resource={resource}
         status={status}
+        choices={choices}
         parent={parent}
         reportType={reportType}
       />
@@ -698,6 +708,7 @@ function ResourcePage({
   user,
   resource,
   status,
+  choices,
   parent,
   reportType,
 }: {
@@ -705,6 +716,7 @@ function ResourcePage({
   user: User;
   resource: ResourceKey;
   status?: StatusChoice;
+  choices?: StatusChoice[];
   parent: string;
   reportType: ReturnType<typeof readReportType>;
 }) {
@@ -838,24 +850,26 @@ function ResourcePage({
   ]);
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-        <span className="text-muted-foreground">
-          {cached
-            ? 'نسخة مخزنة — قد لا تعكس أحدث البيانات'
-            : 'بيانات البيئة المحددة'}{' '}
-          · الصفحة {(cursors.length + 1).toLocaleString('ar-YE')}
-        </span>
-        <Button
-          variant="outline"
-          disabled={loading}
-          onClick={() => {
-            setLoading(true);
-            setReload((v) => v + 1);
-          }}
-        >
-          <RefreshCw /> تحديث
-        </Button>
-      </div>
+      {resource === 'reports' && (
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+          <span className="text-muted-foreground">
+            {cached
+              ? 'نسخة مخزنة — قد لا تعكس أحدث البيانات'
+              : 'بيانات البيئة المحددة'}{' '}
+            · الصفحة {(cursors.length + 1).toLocaleString('ar-YE')}
+          </span>
+          <Button
+            variant="outline"
+            disabled={loading}
+            onClick={() => {
+              setLoading(true);
+              setReload((v) => v + 1);
+            }}
+          >
+            <RefreshCw className={loading ? 'animate-spin' : ''} /> تحديث
+          </Button>
+        </div>
+      )}
       {loading ? (
         <output className="grid min-h-64 place-items-center rounded-2xl border bg-card text-muted-foreground">
           جارٍ تحميل المحتوى…
@@ -875,6 +889,24 @@ function ResourcePage({
           definition={resourceDefinitions[resource]}
           records={records}
           error={error}
+          onRefresh={() => {
+            setLoading(true);
+            setReload((v) => v + 1);
+          }}
+          loading={loading}
+          pageNumber={cursors.length + 1}
+          isCached={cached}
+          status={status}
+          statusChoices={choices}
+          onStatusChange={(val) => {
+            const params = new URLSearchParams(
+              window.location.hash.split('?')[1] ?? '',
+            );
+            if (val) params.set('status', val);
+            else params.delete('status');
+            window.location.hash =
+              resource + (params.size ? `?${params}` : '');
+          }}
         />
       )}
       <div className="flex items-center justify-between gap-3">
@@ -1174,11 +1206,25 @@ function ResourceView({
   definition,
   records,
   error,
+  onRefresh,
+  loading,
+  pageNumber,
+  isCached,
+  status,
+  statusChoices,
+  onStatusChange,
 }: {
   firestore: Firestore;
   definition: ResourceDefinition;
   records: AdminRecord[];
   error?: string;
+  onRefresh?: () => void;
+  loading?: boolean;
+  pageNumber?: number;
+  isCached?: boolean;
+  status?: StatusChoice;
+  statusChoices?: StatusChoice[];
+  onStatusChange?: (value: string) => void;
 }) {
   const hash = useAdminHash();
   const search = readResourceSearch(definition.key, hash);
@@ -1259,25 +1305,24 @@ function ResourceView({
     }
   }
 
-  const [cityFilter, setCityFilter] = useState('');
   const [featureFilter, setFeatureFilter] = useState<
     'all' | 'live' | 'featured' | 'verified'
   >('all');
   const [sortBy, setSortBy] = useState('newest');
 
-  const availableCities = useMemo(() => {
-    if (definition.key !== 'stations') return [];
-    const set = new Set<string>();
-    for (const r of records) {
-      const city =
-        typeof r.data.cityNameAr === 'string' && r.data.cityNameAr.trim()
-          ? r.data.cityNameAr.trim()
-          : typeof r.data.cityCode === 'string' && r.data.cityCode.trim()
-            ? r.data.cityCode.trim()
-            : '';
-      if (city) set.add(city);
+  const featureCounts = useMemo(() => {
+    if (definition.key !== 'stations') {
+      return { live: 0, featured: 0, verified: 0 };
     }
-    return Array.from(set).sort((a, b) => a.localeCompare(b, 'ar'));
+    let live = 0;
+    let featured = 0;
+    let verified = 0;
+    for (const r of records) {
+      if (r.data.isLive === true) live++;
+      if (r.data.isFeatured === true) featured++;
+      if (r.data.isVerified === true) verified++;
+    }
+    return { live, featured, verified };
   }, [definition.key, records]);
 
   const filteredAndSorted = useMemo(() => {
@@ -1286,13 +1331,6 @@ function ResourceView({
     );
 
     if (definition.key === 'stations') {
-      if (cityFilter) {
-        list = list.filter(
-          (r) =>
-            r.data.cityNameAr === cityFilter ||
-            r.data.cityCode === cityFilter,
-        );
-      }
       if (featureFilter === 'live') {
         list = list.filter((r) => r.data.isLive === true);
       } else if (featureFilter === 'featured') {
@@ -1303,18 +1341,16 @@ function ResourceView({
     }
 
     return sortRecords(list, sortBy, definition.key);
-  }, [records, search, definition.key, cityFilter, featureFilter, sortBy]);
+  }, [records, search, definition.key, featureFilter, sortBy]);
 
   const hasActiveFilters = Boolean(
     search ||
-      cityFilter ||
       featureFilter !== 'all' ||
       sortBy !== 'newest',
   );
 
   const resetFilters = () => {
     setSearch('');
-    setCityFilter('');
     setFeatureFilter('all');
     setSortBy('newest');
   };
@@ -1346,18 +1382,46 @@ function ResourceView({
 
   return (
     <div className="space-y-6">
-      <section className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+      <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h2 className="text-2xl font-bold">{definition.label}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {records.length} سجلًا في الصفحة الحالية
+          <div className="flex items-center gap-2">
+            <span className="flex size-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-xs font-medium text-muted-foreground">
+              {isCached ? 'نسخة مخزنة' : 'بيانات البيئة المحددة'} · الصفحة{' '}
+              {(pageNumber ?? 1).toLocaleString('ar-YE')}
+            </span>
+          </div>
+          <h2 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+            {definition.label}
+          </h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            {records.length}{' '}
+            {definition.key === 'stations' ? 'محطة' : definition.singular} في هذه
+            الصفحة
           </p>
         </div>
-        {definition.creatable && (
-          <Button onClick={() => setEditor('new')}>
-            <Plus /> إضافة {definition.singular}
-          </Button>
-        )}
+        <div className="flex items-center gap-2.5">
+          {onRefresh && (
+            <Button
+              variant="outline"
+              disabled={loading}
+              onClick={onRefresh}
+              className="min-h-11 shadow-xs"
+              aria-label="تحديث البيانات"
+            >
+              <RefreshCw className={loading ? 'animate-spin' : ''} />
+              تحديث
+            </Button>
+          )}
+          {definition.creatable && (
+            <Button
+              onClick={() => setEditor('new')}
+              className="min-h-11 font-medium shadow-xs"
+            >
+              <Plus /> إضافة {definition.singular}
+            </Button>
+          )}
+        </div>
       </section>
       {error && (
         <Alert variant="destructive">
@@ -1374,12 +1438,12 @@ function ResourceView({
         </Alert>
       )}
       <Card className="border-none shadow-[0_1px_2px_rgb(15_38_34/5%),0_10px_32px_rgb(15_38_34/5%)]">
-        <CardHeader className="space-y-3 border-b pb-4">
+        <CardHeader className="space-y-4 border-b p-4 sm:p-5">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               <Input
-                className="pr-9 pl-9"
+                className="pr-10 pl-9 h-11 rounded-xl border bg-background text-sm shadow-xs focus-visible:ring-2"
                 aria-label={`البحث في ${definition.label}`}
                 placeholder={
                   definition.key === 'stations'
@@ -1394,34 +1458,36 @@ function ResourceView({
                   type="button"
                   aria-label="مسح البحث"
                   onClick={() => setSearch('')}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                 >
                   <X className="size-4" />
                 </button>
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-              {definition.key === 'stations' && availableCities.length > 0 && (
-                <select
-                  aria-label="تصفية حسب المدينة"
-                  className="min-h-10 rounded-xl border bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-ring"
-                  value={cityFilter}
-                  onChange={(e) => setCityFilter(e.target.value)}
-                >
-                  <option value="">كل المدن ({availableCities.length})</option>
-                  {availableCities.map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                </select>
+            <div className="flex flex-wrap items-center gap-2.5">
+              {statusChoices && statusChoices.length > 0 && onStatusChange && (
+                <div className="flex items-center">
+                  <select
+                    aria-label="تصفية حسب الحالة"
+                    className="h-11 rounded-xl border bg-background px-3 text-sm shadow-xs transition-colors focus-visible:outline-2 focus-visible:outline-ring"
+                    value={status?.value ?? ''}
+                    onChange={(e) => onStatusChange(e.target.value)}
+                  >
+                    <option value="">كل الحالات</option>
+                    {statusChoices.map((choice) => (
+                      <option key={choice.value} value={choice.value}>
+                        {choice.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               )}
 
               {definition.key === 'stations' && (
                 <select
                   aria-label="نوع المحطة والمميزات"
-                  className="min-h-10 rounded-xl border bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-ring"
+                  className="h-11 rounded-xl border bg-background px-3 text-sm shadow-xs transition-colors focus-visible:outline-2 focus-visible:outline-ring"
                   value={featureFilter}
                   onChange={(e) =>
                     setFeatureFilter(
@@ -1436,11 +1502,11 @@ function ResourceView({
                 </select>
               )}
 
-              <div className="flex items-center gap-1.5">
-                <ArrowUpDown className="size-4 text-muted-foreground" />
+              <div className="flex items-center gap-1.5 rounded-xl border bg-background px-2.5 shadow-xs">
+                <ArrowUpDown className="size-4 text-muted-foreground shrink-0" />
                 <select
                   aria-label="ترتيب السجلات"
-                  className="min-h-10 rounded-xl border bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-ring"
+                  className="h-11 bg-transparent pr-1 pl-2 text-sm focus-visible:outline-none"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                 >
@@ -1463,7 +1529,7 @@ function ResourceView({
                   variant="ghost"
                   size="sm"
                   onClick={resetFilters}
-                  className="text-xs text-muted-foreground hover:text-foreground"
+                  className="h-11 text-xs text-muted-foreground hover:text-foreground"
                 >
                   <RotateCcw className="size-3.5 ms-1" />
                   إعادة تعيين
@@ -1473,33 +1539,38 @@ function ResourceView({
           </div>
 
           {definition.key === 'stations' && (
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs text-muted-foreground">
-              <div>
-                {hasActiveFilters ? (
-                  <span>
-                    تم العثور على{' '}
-                    <strong className="text-foreground">
-                      {filteredAndSorted.length}
-                    </strong>{' '}
-                    من أصل {records.length} محطة
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t text-xs text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <span>
+                  تم العثور على{' '}
+                  <strong className="font-semibold text-foreground">
+                    {filteredAndSorted.length}
+                  </strong>{' '}
+                  من أصل {records.length} محطة
+                </span>
+                {status && (
+                  <span className="rounded-md bg-primary/10 px-2 py-0.5 text-primary text-[11px] font-medium">
+                    {status.label}
                   </span>
-                ) : (
-                  <span>إجمالي المحطات المعروضة: {records.length}</span>
                 )}
               </div>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11px] text-muted-foreground ml-1">
+                  تصفية سريعة:
+                </span>
                 <button
                   type="button"
                   onClick={() =>
                     setFeatureFilter((f) => (f === 'live' ? 'all' : 'live'))
                   }
-                  className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
                     featureFilter === 'live'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted hover:bg-muted/80'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  بث مباشر
+                  <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  بث مباشر ({featureCounts.live})
                 </button>
                 <button
                   type="button"
@@ -1508,13 +1579,14 @@ function ResourceView({
                       f === 'featured' ? 'all' : 'featured',
                     )
                   }
-                  className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
                     featureFilter === 'featured'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted hover:bg-muted/80'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  مميزة
+                  <Sparkles className="size-3 text-amber-500" />
+                  مميزة ({featureCounts.featured})
                 </button>
                 <button
                   type="button"
@@ -1523,13 +1595,14 @@ function ResourceView({
                       f === 'verified' ? 'all' : 'verified',
                     )
                   }
-                  className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
                     featureFilter === 'verified'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted hover:bg-muted/80'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  موثقة
+                  <CheckCircle2 className="size-3 text-blue-500" />
+                  موثقة ({featureCounts.verified})
                 </button>
               </div>
             </div>
@@ -1537,120 +1610,44 @@ function ResourceView({
         </CardHeader>
         <CardContent className="px-0">
           <div className="divide-y md:hidden">
-            {filteredAndSorted.map((record) => (
-              <article key={record.path} className="space-y-3 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="min-w-0 break-words font-semibold">
-                    {recordTitle(record, definition)}
-                  </h3>
-                  {definition.key === 'banners' ? (
-                    <BannerStatusBadge data={record.data} />
-                  ) : (
-                    definition.statusField && (
-                      <Badge
-                        variant={
-                          recordIsActive(record, definition)
-                            ? 'default'
-                            : 'secondary'
-                        }
-                      >
-                        {recordStatus(record, definition)}
-                      </Badge>
-                    )
-                  )}
-                </div>
-                <p className="break-words text-sm text-muted-foreground">
-                  {record.relationLabel ||
-                    readString(record.data, definition.relationField) ||
-                    '—'}
-                </p>
-                <p
-                  dir="ltr"
-                  className="break-all text-right font-mono text-xs text-muted-foreground"
+            {filteredAndSorted.map((record) => {
+              const isPlaying = playingStation?.id === record.id;
+              const isStation = definition.key === 'stations';
+              const frequency = isStation && typeof record.data.frequency === 'string'
+                ? record.data.frequency.trim()
+                : '';
+              const cityName = isStation && typeof record.data.cityNameAr === 'string'
+                ? record.data.cityNameAr.trim()
+                : '';
+              return (
+                <article
+                  key={record.path}
+                  className={`space-y-3 p-4 transition-colors ${
+                    isPlaying ? 'bg-primary/5 dark:bg-primary/10 border-s-4 border-s-primary' : ''
+                  }`}
                 >
-                  {record.id}
-                </p>
-                {(definition.editable ||
-                  definition.key === 'stations' ||
-                  definition.deletable) && (
-                  <div className="flex gap-2">
-                    {definition.editable && (
-                      <Button
-                        variant="outline"
-                        className="min-h-11 flex-1"
-                        onClick={() => setEditor(record)}
-                      >
-                        <Pencil /> تعديل
-                      </Button>
-                    )}
-                    {definition.key === 'stations' ? (
-                      <Button
-                        variant={
-                          playingStation?.id === record.id
-                            ? 'default'
-                            : 'outline'
-                        }
-                        className="min-h-11 flex-1"
-                        onClick={() => togglePlayStation(record)}
-                      >
-                        {playingStation?.id === record.id ? (
-                          <Pause />
-                        ) : (
-                          <Play />
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="break-words font-semibold text-base">
+                          {recordTitle(record, definition)}
+                        </h3>
+                        {frequency && (
+                          <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-secondary font-semibold text-secondary-foreground">
+                            {frequency}
+                          </span>
                         )}
-                        {playingStation?.id === record.id ? 'إيقاف' : 'تشغيل'}
-                      </Button>
+                      </div>
+                      {typeof record.data.nameEn === 'string' && record.data.nameEn && (
+                        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                          {record.data.nameEn}
+                        </p>
+                      )}
+                    </div>
+                    {definition.key === 'banners' ? (
+                      <BannerStatusBadge data={record.data} />
                     ) : (
-                      definition.deletable && (
-                        <Button
-                          variant="destructive"
-                          className="min-h-11"
-                          disabled={busyId === record.id}
-                          onClick={() => remove(record)}
-                        >
-                          <Trash2 /> حذف
-                        </Button>
-                      )
-                    )}
-                  </div>
-                )}
-              </article>
-            ))}
-          </div>
-          <div className="hidden md:block">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="px-4 text-right">
-                    الاسم/المحتوى
-                  </TableHead>
-                  <TableHead className="text-right">معرّف السجل</TableHead>
-                  <TableHead className="text-right">الارتباط</TableHead>
-                  <TableHead className="text-right">الحالة</TableHead>
-                  <TableHead className="px-4 text-left">الإجراءات</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAndSorted.map((record) => (
-                  <TableRow key={record.path}>
-                    <TableCell className="max-w-[340px] truncate px-4 font-medium">
-                      {recordTitle(record, definition)}
-                    </TableCell>
-                    <TableCell
-                      dir="ltr"
-                      className="text-right text-xs text-muted-foreground"
-                    >
-                      {record.id}
-                    </TableCell>
-                    <TableCell>
-                      {record.relationLabel ||
-                        readString(record.data, definition.relationField) ||
-                        '—'}
-                    </TableCell>
-                    <TableCell>
-                      {definition.key === 'banners' ? (
-                        <BannerStatusBadge data={record.data} />
-                      ) : definition.statusField ? (
+                      definition.statusField && (
                         <Badge
                           variant={
                             recordIsActive(record, definition)
@@ -1660,67 +1657,288 @@ function ResourceView({
                         >
                           {recordStatus(record, definition)}
                         </Badge>
-                      ) : (
-                        '—'
+                      )
+                    )}
+                  </div>
+
+                  {isStation ? (
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      {cityName && (
+                        <span className="inline-flex items-center gap-1 font-medium text-foreground">
+                          <MapPin className="size-3 text-muted-foreground" />
+                          {cityName}
+                        </span>
                       )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-end gap-1">
-                        {definition.editable && (
+                      {record.data.isLive === true && (
+                        <Badge variant="outline" className="text-[11px] text-emerald-600 border-emerald-500/30 bg-emerald-500/10 gap-1 py-0">
+                          <span className="size-1 rounded-full bg-emerald-500 animate-pulse" />
+                          بث حي
+                        </Badge>
+                      )}
+                      {record.data.isFeatured === true && (
+                        <Badge variant="outline" className="text-[11px] text-amber-600 border-amber-500/30 bg-amber-500/10 gap-1 py-0">
+                          <Sparkles className="size-2.5" />
+                          مميزة
+                        </Badge>
+                      )}
+                      {record.data.isVerified === true && (
+                        <Badge variant="outline" className="text-[11px] text-blue-600 border-blue-500/30 bg-blue-500/10 gap-1 py-0">
+                          <CheckCircle2 className="size-2.5" />
+                          موثقة
+                        </Badge>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="break-words text-sm text-muted-foreground">
+                      {record.relationLabel ||
+                        readString(record.data, definition.relationField) ||
+                        '—'}
+                    </p>
+                  )}
+
+                  <p
+                    dir="ltr"
+                    className="break-all text-right font-mono text-xs text-muted-foreground"
+                  >
+                    {record.id}
+                  </p>
+
+                  {(definition.editable ||
+                    isStation ||
+                    definition.deletable) && (
+                    <div className="flex gap-2 pt-1">
+                      {definition.editable && (
+                        <Button
+                          variant="outline"
+                          className="min-h-11 flex-1 shadow-xs"
+                          onClick={() => setEditor(record)}
+                        >
+                          <Pencil className="size-4" /> تعديل
+                        </Button>
+                      )}
+                      {isStation ? (
+                        <Button
+                          variant={isPlaying ? 'default' : 'outline'}
+                          className={`min-h-11 flex-1 shadow-xs ${
+                            isPlaying ? 'bg-primary text-primary-foreground animate-pulse' : ''
+                          }`}
+                          onClick={() => togglePlayStation(record)}
+                        >
+                          {isPlaying ? (
+                            <Pause className="size-4" />
+                          ) : (
+                            <Play className="size-4" />
+                          )}
+                          {isPlaying ? 'إيقاف البث' : 'تشغيل البث'}
+                        </Button>
+                      ) : (
+                        definition.deletable && (
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label="تعديل"
-                            title="تعديل"
-                            onClick={() => setEditor(record)}
+                            variant="destructive"
+                            className="min-h-11"
+                            disabled={busyId === record.id}
+                            onClick={() => remove(record)}
                           >
-                            <Pencil />
+                            <Trash2 /> حذف
                           </Button>
-                        )}
-                        {definition.key === 'stations' ? (
-                          <Button
-                            variant={
-                              playingStation?.id === record.id
-                                ? 'default'
-                                : 'ghost'
-                            }
-                            size="icon"
-                            aria-label={
-                              playingStation?.id === record.id
-                                ? 'إيقاف البث'
-                                : 'تشغيل البث'
-                            }
-                            title={
-                              playingStation?.id === record.id
-                                ? 'إيقاف البث'
-                                : 'تشغيل البث'
-                            }
-                            onClick={() => togglePlayStation(record)}
-                          >
-                            {playingStation?.id === record.id ? (
-                              <Pause />
-                            ) : (
-                              <Play />
+                        )
+                      )}
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="px-4 text-right">
+                    {definition.key === 'stations' ? 'المحطة والتردد' : 'الاسم/المحتوى'}
+                  </TableHead>
+                  <TableHead className="text-right">معرّف السجل</TableHead>
+                  <TableHead className="text-right">
+                    {definition.key === 'stations' ? 'المدينة' : 'الارتباط'}
+                  </TableHead>
+                  <TableHead className="text-right">
+                    {definition.key === 'stations' ? 'الحالة والمميزات' : 'الحالة'}
+                  </TableHead>
+                  <TableHead className="px-4 text-left">الإجراءات</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAndSorted.map((record) => {
+                  const isPlaying = playingStation?.id === record.id;
+                  const isStation = definition.key === 'stations';
+                  const frequency = isStation && typeof record.data.frequency === 'string'
+                    ? record.data.frequency.trim()
+                    : '';
+                  const cityName = isStation && typeof record.data.cityNameAr === 'string'
+                    ? record.data.cityNameAr.trim()
+                    : '';
+
+                  return (
+                    <TableRow
+                      key={record.path}
+                      className={`transition-colors ${
+                        isPlaying
+                          ? 'bg-primary/5 dark:bg-primary/10 border-s-4 border-s-primary'
+                          : 'hover:bg-muted/40'
+                      }`}
+                    >
+                      <TableCell className="max-w-[340px] px-4">
+                        <div className="flex items-center gap-3">
+                          {isStation && (
+                            <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-xs">
+                              {frequency ? (
+                                <Radio className="size-4" />
+                              ) : (
+                                recordTitle(record, definition).slice(0, 1)
+                              )}
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-foreground truncate">
+                                {recordTitle(record, definition)}
+                              </span>
+                              {frequency && (
+                                <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-secondary text-secondary-foreground font-semibold inline-flex items-center gap-1">
+                                  {frequency}
+                                </span>
+                              )}
+                            </div>
+                            {isStation && typeof record.data.nameEn === 'string' && record.data.nameEn && (
+                              <p className="text-xs text-muted-foreground truncate">
+                                {record.data.nameEn}
+                              </p>
                             )}
-                          </Button>
-                        ) : (
-                          definition.deletable && (
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              aria-label="حذف"
-                              title="حذف"
-                              disabled={busyId === record.id}
-                              onClick={() => remove(record)}
-                            >
-                              <Trash2 />
-                            </Button>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell
+                        dir="ltr"
+                        className="text-right text-xs font-mono text-muted-foreground"
+                      >
+                        {record.id}
+                      </TableCell>
+                      <TableCell>
+                        {isStation ? (
+                          cityName ? (
+                            <span className="inline-flex items-center gap-1 text-xs font-medium text-foreground">
+                              <MapPin className="size-3.5 text-muted-foreground" />
+                              {cityName}
+                            </span>
+                          ) : (
+                            '—'
                           )
+                        ) : (
+                          record.relationLabel ||
+                          readString(record.data, definition.relationField) ||
+                          '—'
                         )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {definition.key === 'banners' ? (
+                            <BannerStatusBadge data={record.data} />
+                          ) : definition.statusField ? (
+                            <Badge
+                              variant={
+                                recordIsActive(record, definition)
+                                  ? 'default'
+                                  : 'secondary'
+                              }
+                            >
+                              {recordStatus(record, definition)}
+                            </Badge>
+                          ) : (
+                            '—'
+                          )}
+
+                          {isStation && record.data.isLive === true && (
+                            <Badge
+                              variant="outline"
+                              className="text-[11px] text-emerald-700 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10 gap-1"
+                            >
+                              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                              مباشر
+                            </Badge>
+                          )}
+                          {isStation && record.data.isFeatured === true && (
+                            <Badge
+                              variant="outline"
+                              className="text-[11px] text-amber-700 dark:text-amber-400 border-amber-500/30 bg-amber-500/10 gap-1"
+                            >
+                              <Sparkles className="size-3" />
+                              مميزة
+                            </Badge>
+                          )}
+                          {isStation && record.data.isVerified === true && (
+                            <Badge
+                              variant="outline"
+                              className="text-[11px] text-blue-700 dark:text-blue-400 border-blue-500/30 bg-blue-500/10 gap-1"
+                            >
+                              <CheckCircle2 className="size-3" />
+                              موثقة
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-end gap-1.5">
+                          {isStation ? (
+                            <Button
+                              variant={isPlaying ? 'default' : 'outline'}
+                              size="sm"
+                              aria-label={isPlaying ? 'إيقاف البث' : 'تشغيل البث'}
+                              title={isPlaying ? 'إيقاف البث' : 'تشغيل البث'}
+                              onClick={() => togglePlayStation(record)}
+                              className={`h-9 gap-1.5 px-3 shadow-xs ${
+                                isPlaying
+                                  ? 'bg-primary text-primary-foreground animate-pulse'
+                                  : 'hover:border-primary hover:text-primary'
+                              }`}
+                            >
+                              {isPlaying ? (
+                                <Pause className="size-3.5" />
+                              ) : (
+                                <Play className="size-3.5" />
+                              )}
+                              <span>{isPlaying ? 'إيقاف' : 'تشغيل'}</span>
+                            </Button>
+                          ) : (
+                            definition.deletable && (
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                aria-label="حذف"
+                                title="حذف"
+                                disabled={busyId === record.id}
+                                onClick={() => remove(record)}
+                              >
+                                <Trash2 />
+                              </Button>
+                            )
+                          )}
+                          {definition.editable && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label="تعديل"
+                              title="تعديل"
+                              onClick={() => setEditor(record)}
+                              className="h-9 w-9 rounded-xl hover:bg-muted"
+                            >
+                              <Pencil className="size-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
@@ -1734,59 +1952,75 @@ function ResourceView({
         </CardContent>
       </Card>
       {playingStation && (
-        <section
-          aria-label="مشغّل بث المحطة"
-          className="sticky bottom-4 z-40 flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-background/95 p-3 shadow-lg backdrop-blur-md"
+        <aside
+          aria-label="مشغل البث المباشر"
+          className="fixed bottom-4 start-4 end-4 z-40 mx-auto max-w-2xl rounded-2xl border border-primary/20 bg-background/95 p-3.5 shadow-2xl backdrop-blur-md transition-all duration-300 sm:bottom-6 sm:p-4"
         >
-          <div className="flex items-center gap-3 overflow-hidden">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground animate-pulse">
-              <Radio className="size-5" />
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="relative flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary shadow-xs">
+                <Radio className="size-5" />
+                <span className="absolute -top-1 -end-1 flex size-3">
+                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex size-3 rounded-full bg-emerald-500" />
+                </span>
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-semibold text-primary uppercase tracking-wider">
+                    بث مباشر يعمل الآن
+                  </span>
+                  <div className="flex items-end gap-0.5 h-3">
+                    <span className="w-0.5 bg-primary rounded-full animate-pulse h-3" />
+                    <span className="w-0.5 bg-primary rounded-full animate-pulse h-2" />
+                    <span className="w-0.5 bg-primary rounded-full animate-pulse h-3.5" />
+                    <span className="w-0.5 bg-primary rounded-full animate-pulse h-2" />
+                  </div>
+                </div>
+                <p className="truncate text-sm font-bold text-foreground">
+                  {playingStation.name}
+                </p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-xs text-muted-foreground">
-                جارٍ تشغيل البث المباشر
-              </p>
-              <p className="truncate text-sm font-semibold">
-                {playingStation.name}
-              </p>
+            <div className="flex items-center justify-between sm:justify-end gap-2">
+              {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+              <audio
+                ref={stationAudioRef}
+                src={playingStation.url}
+                controls
+                autoPlay
+                preload="none"
+                className="h-9 max-w-[210px] sm:max-w-[240px]"
+                aria-label={`بث محطة ${playingStation.name}`}
+                onError={() => {
+                  setFeedback({
+                    type: 'error',
+                    message:
+                      'تعذر تشغيل البث في المتصفح. تحقق من صلاحية الرابط وسياسات HTTPS.',
+                  });
+                  setPlayingStation(null);
+                }}
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-9 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors"
+                aria-label="إيقاف وإغلاق المشغل"
+                title="إغلاق المشغل"
+                onClick={() => {
+                  if (stationAudioRef.current) {
+                    stationAudioRef.current.pause();
+                    stationAudioRef.current.removeAttribute('src');
+                    stationAudioRef.current.load();
+                  }
+                  setPlayingStation(null);
+                }}
+              >
+                <X className="size-4" />
+              </Button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-            <audio
-              ref={stationAudioRef}
-              src={playingStation.url}
-              controls
-              autoPlay
-              preload="none"
-              className="h-9 max-w-[220px] sm:max-w-xs"
-              aria-label={`بث محطة ${playingStation.name}`}
-              onError={() => {
-                setFeedback({
-                  type: 'error',
-                  message:
-                    'تعذر تشغيل البث في المتصفح. تحقق من صلاحية الرابط وسياسات HTTPS.',
-                });
-                setPlayingStation(null);
-              }}
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="إيقاف وإغلاق المشغل"
-              onClick={() => {
-                if (stationAudioRef.current) {
-                  stationAudioRef.current.pause();
-                  stationAudioRef.current.removeAttribute('src');
-                  stationAudioRef.current.load();
-                }
-                setPlayingStation(null);
-              }}
-            >
-              <X className="size-4" />
-            </Button>
-          </div>
-        </section>
+        </aside>
       )}
       {editor !== null && (
         <ResourceEditor

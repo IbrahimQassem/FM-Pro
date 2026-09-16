@@ -129,6 +129,7 @@ function AgendaView({
         firestore={firestore}
         kind="stations"
         selected={station}
+        borderless
         onSelect={(option) => onFilters({ ...filters, station: option.id })}
       />
       <div className="flex flex-wrap items-center gap-3">

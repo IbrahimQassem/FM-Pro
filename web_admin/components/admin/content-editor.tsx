@@ -66,19 +66,20 @@ export function RelationPicker({
   selected,
   onSelect,
   error,
+  borderless,
 }: {
   firestore: Firestore;
   kind: 'stations' | 'programs' | 'locations';
   selected: string;
   onSelect: (value: Option) => void;
   error?: string;
+  borderless?: boolean;
 }) {
   const [options, setOptions] = useState<Option[]>([]);
   const [cursor, setCursor] = useState<QueryDocumentSnapshot>();
   const [more, setMore] = useState(true);
   const [busy, setBusy] = useState(true);
   const [message, setMessage] = useState('');
-  const [search, setSearch] = useState('');
   const [lookup, setLookup] = useState('');
   const [currentLabel, setCurrentLabel] = useState<{
     value: string;
@@ -201,15 +202,10 @@ export function RelationPicker({
         ? 'البرنامج'
         : 'المدينة المرجعية';
   return (
-    <fieldset className="space-y-3 rounded-2xl border p-4">
-      <legend className="px-2 font-semibold">{label}</legend>
-      <input
-        className={control}
-        aria-label={`تصفية خيارات ${label} المحمّلة`}
-        placeholder="ابحث في الخيارات المحمّلة"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+    <fieldset
+      className={`space-y-3 ${borderless ? 'border-none p-0' : 'rounded-2xl border p-4'}`}
+    >
+      {!borderless && <legend className="px-2 font-semibold">{label}</legend>}
       <select
         className={control}
         aria-label={label}
@@ -226,22 +222,14 @@ export function RelationPicker({
             الارتباط الحالي
           </option>
         )}
-        {options
-          .filter(
-            (o) =>
-              optionValue(o) === selected ||
-              `${o.id} ${fieldText(o.data.name ?? o.data.title ?? o.data.cityNameAr)}`
-                .toLowerCase()
-                .includes(search.toLowerCase()),
-          )
-          .map((o) => (
-            <option key={o.id} value={optionValue(o)}>
-              {fieldText(
-                o.data.name ?? o.data.title ?? o.data.cityNameAr ?? o.id,
-              )}
-              {o.data.isActive === false ? ' (غير نشط)' : ''}
-            </option>
-          ))}
+        {options.map((o) => (
+          <option key={o.id} value={optionValue(o)}>
+            {fieldText(
+              o.data.name ?? o.data.title ?? o.data.cityNameAr ?? o.id,
+            )}
+            {o.data.isActive === false ? ' (غير نشط)' : ''}
+          </option>
+        ))}
       </select>
       {more && (
         <Button
@@ -305,9 +293,16 @@ export function ContentEditor({
   onDelete?: () => Promise<void>;
   onClose: () => void;
 }) {
-  const [form, setForm] = useState(
-    () => editableValue(initial) as Record<string, unknown>,
-  );
+  const [form, setForm] = useState(() => {
+    const val = editableValue(initial) as Record<string, unknown>;
+    if (kind === 'stations') {
+      if (!val.cityCode) val.cityCode = 'sanaa';
+      if (!val.cityNameAr) val.cityNameAr = 'صنعاء';
+      if (!val.countryCode) val.countryCode = 'YE';
+      if (!val.countryNameAr) val.countryNameAr = 'اليمن';
+    }
+    return val;
+  });
   const [validationRequested, setValidationRequested] = useState(false);
   const errors = validationRequested ? validateContent(kind, form) : {};
   const [failure, setFailure] = useState('');
@@ -578,24 +573,6 @@ export function ContentEditor({
               </section>
             ) : (
               <>
-                {kind === 'stations' && (
-                  <RelationPicker
-                    firestore={firestore}
-                    kind="locations"
-                    selected={fieldText(form.cityCode || '')}
-                    error={errors.location}
-                    onSelect={(o) => {
-                      setDirty(true);
-                      setForm((f) => ({
-                        ...f,
-                        cityCode: o.data.cityCode,
-                        cityNameAr: o.data.cityNameAr,
-                        countryCode: o.data.countryCode,
-                        countryNameAr: o.data.countryNameAr,
-                      }));
-                    }}
-                  />
-                )}
                 {kind === 'programs' && (
                   <RelationPicker
                     firestore={firestore}
