@@ -33,6 +33,15 @@ void main() {
         throwsA(isA<SchemaDataException>()),
       );
     });
+
+    test('maps a terrestrial station without a stream URL', () {
+      final data = _validData()..['streamUrl'] = '';
+
+      final station = StationMapper.fromMap(id: 'terrestrial', data: data);
+      expect(station.streamUrl, '');
+      expect(station.isLive, false);
+      expect(station.frequency, '92.5 MHz');
+    });
   });
 }
 

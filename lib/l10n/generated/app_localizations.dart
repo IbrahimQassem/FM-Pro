@@ -1226,6 +1226,24 @@ abstract class AppLocalizations {
   /// **'Online radio'**
   String get onlineStation;
 
+  /// No description provided for @terrestrialBroadcast.
+  ///
+  /// In en, this message translates to:
+  /// **'Terrestrial FM'**
+  String get terrestrialBroadcast;
+
+  /// No description provided for @terrestrialOnlyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'This station broadcasts on terrestrial FM only and is not currently available for online streaming.'**
+  String get terrestrialOnlyNotice;
+
+  /// No description provided for @terrestrialFrequencyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'This station currently broadcasts on terrestrial frequency {frequency} only.'**
+  String terrestrialFrequencyNotice(String frequency);
+
   /// No description provided for @emailVerificationTitle.
   ///
   /// In en, this message translates to:

@@ -187,7 +187,16 @@
   "listenLive": "استمع للبث المباشر",
   "stationInformation": "معلومات وتفاصيل الإذاعة",
   "onlineStation": "إذاعة عبر الإنترنت",
-  "emailVerificationTitle": "تحقق من بريدك الإلكتروني",
+  "terrestrialBroadcast": "بث أرضي FM",
+  "terrestrialOnlyNotice": "هذه الإذاعة تبث عبر التردد الأرضي FM فقط ولا يتوفر لها بث رقمي حالياً.",
+  "terrestrialFrequencyNotice": "تبث هذه الإذاعة عبر التردد الأرضي {frequency} فقط حالياً.",
+  "@terrestrialFrequencyNotice": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
   "emailVerificationMessage": "أدخل الرمز المكوّن من ستة أرقام المرسل إلى بريدك. تنتهي صلاحية الرمز بعد 10 دقائق.",
   "emailVerificationMissingEmail": "لم يرسل مزود الدخول بريدًا إلكترونيًا. أدخل بريدًا يمكنك الوصول إليه قبل طلب الرمز.",
   "verificationCode": "رمز التحقق",

@@ -143,6 +143,37 @@ void main() {
     controller.dispose();
     await repository.dispose();
   });
+
+  test('does not attempt to load or play a terrestrial-only station', () async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = StationPlayerController(repository);
+    const terrestrialStation = Station(
+      id: 'aden-radio',
+      name: 'إذاعة عدن',
+      streamUrl: '',
+      frequency: '105.0 MHz',
+      countryCode: 'YE',
+      countryNameAr: 'اليمن',
+      cityCode: 'aden',
+      cityNameAr: 'عدن',
+      priority: 10,
+      isLive: false,
+      isActive: true,
+      isVerified: false,
+      isFeatured: false,
+      programsCount: 0,
+      subscribersCount: 0,
+      totalPlays: 0,
+    );
+
+    await controller.play(terrestrialStation);
+
+    expect(repository.loadedItem, isNull);
+    expect(repository.playCalls, 0);
+    expect(controller.state.station, isNull);
+    controller.dispose();
+    await repository.dispose();
+  });
 }
 
 Station _station() {

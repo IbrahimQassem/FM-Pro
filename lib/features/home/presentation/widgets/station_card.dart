@@ -107,8 +107,16 @@ class StationCard extends StatelessWidget {
                 width: double.infinity,
                 child: FilledButton.tonalIcon(
                   onPressed: onPlay,
-                  icon: const Icon(Icons.play_arrow_rounded),
-                  label: Text(strings.playNow),
+                  icon: Icon(
+                    station.streamUrl.isEmpty
+                        ? Icons.radio_rounded
+                        : Icons.play_arrow_rounded,
+                  ),
+                  label: Text(
+                    station.streamUrl.isEmpty
+                        ? strings.terrestrialBroadcast
+                        : strings.playNow,
+                  ),
                 ),
               ),
             ],
@@ -182,8 +190,14 @@ class StationCard extends StatelessWidget {
                 ),
               IconButton.filledTonal(
                 onPressed: onPlay,
-                tooltip: AppLocalizations.of(context).playStation(station.name),
-                icon: const Icon(Icons.play_arrow_rounded),
+                tooltip: station.streamUrl.isEmpty
+                    ? AppLocalizations.of(context).terrestrialBroadcast
+                    : AppLocalizations.of(context).playStation(station.name),
+                icon: Icon(
+                  station.streamUrl.isEmpty
+                      ? Icons.radio_rounded
+                      : Icons.play_arrow_rounded,
+                ),
               ),
             ],
           ),
@@ -252,6 +266,15 @@ class _StatusBadges extends StatelessWidget {
               Icons.podcasts_rounded,
               size: 20,
               color: Theme.of(context).colorScheme.error,
+            ),
+          )
+        else if (station.streamUrl.isEmpty)
+          Tooltip(
+            message: strings.terrestrialBroadcast,
+            child: Icon(
+              Icons.radio_rounded,
+              size: 20,
+              color: Theme.of(context).colorScheme.tertiary,
             ),
           ),
         if (station.isVerified)

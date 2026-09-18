@@ -21,10 +21,21 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
 
   final AudioPlaybackRepository _repository;
   int _generation = 0;
+  int _reconnectAttempts = 0;
+  static const int _maxReconnectAttempts = 3;
+  Timer? _reconnectTimer;
   Future<void> _loads = Future.value();
   late final StreamSubscription<AudioPlaybackPhase> _phaseSubscription;
 
   Future<void> play(Station station) async {
+    if (station.streamUrl.trim().isEmpty) {
+      debugPrint('Station ${station.name} has no digital stream (terrestrial only).');
+      return;
+    }
+
+    _reconnectTimer?.cancel();
+    _reconnectAttempts = 0;
+
     if (state.isSelected(station.id)) {
       if (state.status == StationPlaybackStatus.playing) {
         await pause();
@@ -101,6 +112,7 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
 
   Future<void> pause() async {
     if (state.station == null) return;
+    _reconnectTimer?.cancel();
     try {
       await _repository.pause();
     } on Object catch (error) {
@@ -145,6 +157,8 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
   }
 
   Future<void> stop() async {
+    _reconnectTimer?.cancel();
+    _reconnectAttempts = 0;
     final generation = ++_generation;
     try {
       await _repository.stop();
@@ -160,7 +174,20 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
   void _onPhaseChanged(AudioPlaybackPhase phase) {
     if (!mounted || state.station == null) return;
     if (phase == AudioPlaybackPhase.idle) {
+      _reconnectTimer?.cancel();
+      _reconnectAttempts = 0;
       state = const StationPlayerState();
+      return;
+    }
+    if (phase == AudioPlaybackPhase.playing) {
+      _reconnectTimer?.cancel();
+      _reconnectAttempts = 0;
+    } else if (phase == AudioPlaybackPhase.completed &&
+        state.episode == null &&
+        state.station != null &&
+        state.station!.streamUrl.isNotEmpty &&
+        _reconnectAttempts < _maxReconnectAttempts) {
+      _scheduleReconnect();
       return;
     }
     final status = switch (phase) {
@@ -175,7 +202,29 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
   }
 
   void _onPlaybackError(Object error, StackTrace stackTrace) {
+    if (state.station != null &&
+        state.episode == null &&
+        state.station!.streamUrl.isNotEmpty &&
+        _reconnectAttempts < _maxReconnectAttempts) {
+      _scheduleReconnect();
+      return;
+    }
     _setFailure(error);
+  }
+
+  void _scheduleReconnect() {
+    _reconnectAttempts++;
+    debugPrint(
+      'Live audio disconnected, scheduling auto-reconnect '
+      '(attempt $_reconnectAttempts of $_maxReconnectAttempts)...',
+    );
+    state = state.copyWith(status: StationPlaybackStatus.loading);
+    _reconnectTimer?.cancel();
+    _reconnectTimer = Timer(Duration(seconds: _reconnectAttempts), () {
+      if (mounted && state.station != null && state.episode == null) {
+        retry();
+      }
+    });
   }
 
   void _setFailure(Object error) {
@@ -196,6 +245,7 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
   @override
   void dispose() {
     ++_generation;
+    _reconnectTimer?.cancel();
     unawaited(_phaseSubscription.cancel());
     super.dispose();
   }

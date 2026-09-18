@@ -12,12 +12,14 @@ void main() {
     ).readAsStringSync();
 
     expect(manifest, contains('android.permission.INTERNET'));
+    expect(manifest, contains('android.permission.ACCESS_NETWORK_STATE'));
     expect(manifest, contains('android.permission.WAKE_LOCK'));
     expect(manifest, contains('android.permission.FOREGROUND_SERVICE'));
     expect(
       manifest,
       contains('android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK'),
     );
+    expect(manifest, contains('android:usesCleartextTraffic="true"'));
     expect(manifest, contains('com.ryanheise.audioservice.AudioService'));
     expect(
       manifest,

@@ -9,11 +9,10 @@ abstract final class StationMapper {
     if (id.trim().isEmpty) {
       throw const SchemaDataException('Station document ID is invalid.');
     }
-    final streamUrl = _requiredUrl(data, 'streamUrl');
+    final streamUrl = _optionalUrl(data, 'streamUrl');
     final stats = data['stats'];
-    if (stats is! Map<String, dynamic>) {
-      throw const SchemaDataException('Station stats are missing or invalid.');
-    }
+    final statsMap =
+        stats is Map<String, dynamic> ? stats : const <String, dynamic>{};
 
     return Station(
       id: id.trim(),
@@ -31,13 +30,13 @@ abstract final class StationMapper {
       cityCode: _requiredString(data, 'cityCode'),
       cityNameAr: _requiredString(data, 'cityNameAr'),
       priority: _requiredInt(data, 'priority'),
-      isLive: _requiredBool(data, 'isLive'),
+      isLive: _requiredBool(data, 'isLive') && streamUrl.isNotEmpty,
       isActive: _requiredBool(data, 'isActive'),
       isVerified: _requiredBool(data, 'isVerified'),
       isFeatured: _requiredBool(data, 'isFeatured'),
-      programsCount: _nonNegativeStat(stats, 'programsCount'),
-      subscribersCount: _nonNegativeStat(stats, 'subscribersCount'),
-      totalPlays: _nonNegativeStat(stats, 'totalPlays'),
+      programsCount: _nonNegativeStat(statsMap, 'programsCount'),
+      subscribersCount: _nonNegativeStat(statsMap, 'subscribersCount'),
+      totalPlays: _nonNegativeStat(statsMap, 'totalPlays'),
     );
   }
 
@@ -76,10 +75,14 @@ abstract final class StationMapper {
 
   static int _nonNegativeStat(Map<String, dynamic> stats, String key) {
     final value = stats[key];
-    if (value is! num || value < 0) {
-      throw SchemaDataException('Station stat is invalid: $key.');
+    if (value is num && value >= 0) {
+      return value.toInt();
     }
-    return value.toInt();
+    if (value is String) {
+      final parsed = int.tryParse(value);
+      if (parsed != null && parsed >= 0) return parsed;
+    }
+    return 0;
   }
 
   static String _requiredUrl(Map<String, dynamic> data, String key) {

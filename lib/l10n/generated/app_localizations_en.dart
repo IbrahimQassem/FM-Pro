@@ -665,6 +665,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onlineStation => 'Online radio';
 
   @override
+  String get terrestrialBroadcast => 'Terrestrial FM';
+
+  @override
+  String get terrestrialOnlyNotice =>
+      'This station broadcasts on terrestrial FM only and is not currently available for online streaming.';
+
+  @override
+  String terrestrialFrequencyNotice(String frequency) {
+    return 'This station currently broadcasts on terrestrial frequency $frequency only.';
+  }
+
+  @override
   String get emailVerificationTitle => 'Verify your email';
 
   @override

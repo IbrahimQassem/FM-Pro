@@ -656,7 +656,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onlineStation => 'إذاعة عبر الإنترنت';
 
   @override
-  String get emailVerificationTitle => 'تحقق من بريدك الإلكتروني';
+  String get terrestrialBroadcast => 'بث أرضي FM';
+
+  @override
+  String get terrestrialOnlyNotice =>
+      'هذه الإذاعة تبث عبر التردد الأرضي FM فقط ولا يتوفر لها بث رقمي حالياً.';
+
+  @override
+  String terrestrialFrequencyNotice(String frequency) {
+    return 'تبث هذه الإذاعة عبر التردد الأرضي $frequency فقط حالياً.';
+  }
+
+  @override
+  String get emailVerificationTitle => 'Verify your email';
 
   @override
   String get emailVerificationMessage =>

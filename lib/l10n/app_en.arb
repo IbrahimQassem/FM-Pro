@@ -187,6 +187,16 @@
   "listenLive": "Listen to the live stream",
   "stationInformation": "Station information and details",
   "onlineStation": "Online radio",
+  "terrestrialBroadcast": "Terrestrial FM",
+  "terrestrialOnlyNotice": "This station broadcasts on terrestrial FM only and is not currently available for online streaming.",
+  "terrestrialFrequencyNotice": "This station currently broadcasts on terrestrial frequency {frequency} only.",
+  "@terrestrialFrequencyNotice": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
   "emailVerificationTitle": "Verify your email",
   "emailVerificationMessage": "Enter the six-digit code sent to your email. The code expires after 10 minutes.",
   "emailVerificationMissingEmail": "This provider did not return an email. Enter an email you can access before requesting a code.",

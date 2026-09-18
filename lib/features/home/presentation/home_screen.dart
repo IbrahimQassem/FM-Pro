@@ -162,7 +162,26 @@ class HomeScreen extends ConsumerWidget {
       onNotificationsPressed: openNotifications,
       onSettingsPressed: openAccount,
       onStationPressed: openStation,
-      onStationPlayPressed: playerController.play,
+      onStationPlayPressed: (station) {
+        if (station.streamUrl.isEmpty) {
+          final messenger = ScaffoldMessenger.of(context);
+          final strings = AppLocalizations.of(context);
+          messenger
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                content: Text(
+                  station.frequency.isNotEmpty
+                      ? strings.terrestrialFrequencyNotice(station.frequency)
+                      : strings.terrestrialOnlyNotice,
+                ),
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          return;
+        }
+        playerController.play(station);
+      },
       playerBar: !playerState.hasSelection
           ? null
           : MiniPlayer(
