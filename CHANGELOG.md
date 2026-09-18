@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.1] - 2026-09-19
+
+### Added
+- **Confirm Password Verification**: Added confirm password field and real-time mismatch validation across all registration screens.
+- **Legacy User Migration**: Automated backfill and migration of legacy users into official production Firestore root.
+- **Admin User Management**: Added admin capabilities for setting user password, toggling account status, and assigning scoped station permissions.
+
+### Fixed
+- **Registration Flow Resiliency**: Decoupled account creation from transient OTP email delivery errors to eliminate account creation blocking.
+- **UI Symmetry**: Centered `_socialDivider` across all authentication and account screens.
+- **Profile Email Storage**: Ensured user email is persisted in Firestore document profiles on sign-up and authentication.
+
 ## [3.0.0] - 2026-09-18
 
 ### Added
