@@ -22,6 +22,8 @@
   "passwordValidation": "Password must contain at least 8 characters",
   "showPassword": "Show password",
   "hidePassword": "Hide password",
+  "confirmPassword": "Confirm password",
+  "passwordsDoNotMatch": "Passwords do not match",
   "signIn": "Sign in",
   "createAccount": "Create account",
   "signOut": "Sign out",

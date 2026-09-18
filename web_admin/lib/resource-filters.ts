@@ -127,6 +127,8 @@ export function matchRecordSearch(
     typeof record.data.nameEn === 'string' ? record.data.nameEn : '',
     typeof record.data.title === 'string' ? record.data.title : '',
     typeof record.data.titleEn === 'string' ? record.data.titleEn : '',
+    typeof record.data.displayName === 'string' ? record.data.displayName : '',
+    typeof record.data.email === 'string' ? record.data.email : '',
     typeof record.relationLabel === 'string' ? record.relationLabel : '',
   ];
 

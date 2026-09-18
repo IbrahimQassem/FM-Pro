@@ -11,7 +11,7 @@ import "package:hudhud_fm/features/account/presentation/auth_screen.dart";
 import "package:hudhud_fm/l10n/generated/app_localizations.dart";
 
 void main() {
-  testWidgets("guest can start Google or Facebook sign in from AuthScreen",
+  testWidgets("guest can start Google sign in from AuthScreen",
       (tester) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1;
@@ -26,12 +26,10 @@ void main() {
     await tester.pump();
     expect(repository.provider, AccountSignInProvider.google);
 
-    await tester.tap(find.byKey(const Key("account-facebook")));
-    await tester.pump();
-    expect(repository.provider, AccountSignInProvider.facebook);
+    expect(find.byKey(const Key("account-facebook")), findsNothing);
   });
 
-  testWidgets("iOS offers Apple sign in on AuthScreen", (tester) async {
+  testWidgets("Apple sign in is hidden on AuthScreen", (tester) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -44,11 +42,7 @@ void main() {
     await tester.pumpWidget(_TestApp(repository: repository));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key("account-apple")), findsOneWidget);
-    await tester.tap(find.byKey(const Key("account-apple")));
-    await tester.pump();
-
-    expect(repository.provider, AccountSignInProvider.apple);
+    expect(find.byKey(const Key("account-apple")), findsNothing);
     debugDefaultTargetPlatformOverride = null;
   });
 
@@ -63,10 +57,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key("account-name")), findsNothing);
+    expect(find.byKey(const Key("account-confirm-password")), findsNothing);
     await tester.tap(find.byKey(const Key("account-switch-mode")));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key("account-name")), findsOneWidget);
+    expect(find.byKey(const Key("account-confirm-password")), findsOneWidget);
   });
 
   testWidgets("can open UGC guidelines from AuthScreen", (tester) async {

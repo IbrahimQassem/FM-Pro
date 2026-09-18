@@ -185,18 +185,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 14),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Expanded(child: Divider()),
-          Flexible(
-            flex: 4,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Text(
-                strings.socialSignInDivider,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Text(
+              strings.socialSignInDivider,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -209,8 +208,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   List<Widget> _providerButtons(AppLocalizations strings, AccountState state) {
     final providers = <AccountSignInProvider>[
       AccountSignInProvider.google,
-      AccountSignInProvider.facebook,
-      if (_supportsAppleSignIn) AccountSignInProvider.apple,
     ];
     return providers
         .map(

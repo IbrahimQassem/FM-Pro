@@ -22,6 +22,8 @@
   "passwordValidation": "يجب ألا تقل كلمة المرور عن 8 أحرف",
   "showPassword": "إظهار كلمة المرور",
   "hidePassword": "إخفاء كلمة المرور",
+  "confirmPassword": "تأكيد كلمة المرور",
+  "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين",
   "signIn": "دخول",
   "createAccount": "إنشاء الحساب",
   "signOut": "تسجيل الخروج",

@@ -22,13 +22,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     _nameController.dispose();
     super.dispose();
   }
@@ -114,7 +117,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 key: const Key('account-password'),
                 controller: _passwordController,
                 obscureText: _obscurePassword,
-                textInputAction: TextInputAction.done,
+                textInputAction: state.mode == AccountMode.register
+                    ? TextInputAction.next
+                    : TextInputAction.done,
                 autofillHints: state.mode == AccountMode.signIn
                     ? const [AutofillHints.password]
                     : const [AutofillHints.newPassword],
@@ -139,6 +144,44 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     ? strings.passwordValidation
                     : null,
               ),
+              if (state.mode == AccountMode.register) ...[
+                const SizedBox(height: 14),
+                TextFormField(
+                  key: const Key('account-confirm-password'),
+                  controller: _confirmPasswordController,
+                  obscureText: _obscureConfirmPassword,
+                  textInputAction: TextInputAction.done,
+                  autofillHints: const [AutofillHints.newPassword],
+                  onFieldSubmitted: (_) => _submit(state),
+                  decoration: InputDecoration(
+                    labelText: strings.confirmPassword,
+                    prefixIcon: const Icon(Icons.lock_reset_rounded),
+                    suffixIcon: IconButton(
+                      onPressed: () => setState(
+                        () => _obscureConfirmPassword =
+                            !_obscureConfirmPassword,
+                      ),
+                      tooltip: _obscureConfirmPassword
+                          ? strings.showPassword
+                          : strings.hidePassword,
+                      icon: Icon(
+                        _obscureConfirmPassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
+                    ),
+                  ),
+                  validator: (value) {
+                    if ((value?.length ?? 0) < 8) {
+                      return strings.passwordValidation;
+                    }
+                    if (value != _passwordController.text) {
+                      return strings.passwordsDoNotMatch;
+                    }
+                    return null;
+                  },
+                ),
+              ],
               _feedback(strings, state),
               const SizedBox(height: 20),
               FilledButton(
@@ -216,12 +259,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 14),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Expanded(child: Divider()),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
               strings.socialSignInDivider,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -240,8 +286,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }) {
     final providers = <AccountSignInProvider>[
       AccountSignInProvider.google,
-      AccountSignInProvider.facebook,
-      if (_supportsAppleSignIn) AccountSignInProvider.apple,
     ];
     return providers
         .where((provider) => !linkedProviders.contains(provider))

@@ -14,8 +14,30 @@ service cloud.firestore {
       return root == 'HudHudDev' || root == 'HudHudOfficial';
     }
 
+    function isSuperAdmin() {
+      return isSignedIn() && (
+        request.auth.token.get('role', '') == 'super_admin' ||
+        (request.auth.token.get('admin', false) == true &&
+          request.auth.token.get('role', '') != 'station_admin' &&
+          request.auth.token.get('role', '') != 'moderator')
+      );
+    }
+
     function isAdmin() {
-      return isSignedIn() && request.auth.token.get('admin', false) == true;
+      return isSignedIn() && (
+        request.auth.token.get('admin', false) == true ||
+        request.auth.token.get('role', '') == 'super_admin' ||
+        request.auth.token.get('role', '') == 'station_admin'
+      );
+    }
+
+    function canManageStation(stationId) {
+      return isSuperAdmin() || (
+        isAdmin() && (
+          request.auth.token.get('allStations', false) == true ||
+          request.auth.token.get('assignedStations', []).hasAny([stationId, '*'])
+        )
+      );
     }
 
     // Unified single source of truth for verified accounts
@@ -217,27 +239,32 @@ service cloud.firestore {
 
     match /{root}/stations/stations/{stationId} {
       allow read: if isKnownRoot(root);
-      allow create, update, delete: if isKnownRoot(root) && isAdmin();
+      allow create, delete: if isKnownRoot(root) && isSuperAdmin();
+      allow update: if isKnownRoot(root) && canManageStation(stationId);
     }
 
     match /{root}/banners/banners/{bannerId} {
       allow read: if isKnownRoot(root);
-      allow create, update, delete: if isKnownRoot(root) && isAdmin();
+      allow create, update, delete: if isKnownRoot(root) && isSuperAdmin();
     }
 
     match /{root}/locations/locations/{locationId} {
       allow read: if isKnownRoot(root);
-      allow create, update, delete: if isKnownRoot(root) && isAdmin();
+      allow create, update, delete: if isKnownRoot(root) && isSuperAdmin();
     }
 
     match /{root}/programs/programs/{programId} {
       allow read: if isKnownRoot(root);
-      allow create, update, delete: if isKnownRoot(root) && isAdmin();
+      allow create: if isKnownRoot(root) && canManageStation(request.resource.data.stationId);
+      allow update: if isKnownRoot(root) && canManageStation(resource.data.stationId) && canManageStation(request.resource.data.stationId);
+      allow delete: if isKnownRoot(root) && (isSuperAdmin() || canManageStation(resource.data.stationId));
     }
 
     match /{root}/episodes/episodes/{episodeId} {
       allow read: if isKnownRoot(root);
-      allow create, update, delete: if isKnownRoot(root) && isAdmin();
+      allow create: if isKnownRoot(root) && canManageStation(request.resource.data.stationId);
+      allow update: if isKnownRoot(root) && canManageStation(resource.data.stationId) && canManageStation(request.resource.data.stationId);
+      allow delete: if isKnownRoot(root) && (isSuperAdmin() || canManageStation(resource.data.stationId));
 
       match /comments/{commentId} {
         allow read: if isKnownRoot(root) && (isAdmin() || resource.data.status == 'published');
@@ -249,7 +276,7 @@ service cloud.firestore {
     match /{root}/users/users/{uid} {
       allow get: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
       allow list: if isKnownRoot(root) && isAdmin();
-      allow create, update, delete: if isKnownRoot(root) && isAdmin();
+      allow create, update, delete: if isKnownRoot(root) && isSuperAdmin();
 
       match /agreements/{agreementId} {
         allow get: if isKnownRoot(root) && (isOwner(uid) || isAdmin());

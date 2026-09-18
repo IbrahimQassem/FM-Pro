@@ -2,6 +2,13 @@ import { getMessaging } from 'firebase-admin/messaging';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { verifiedUid, setSubscription, registerDevice, unregisterDevice, removeAccountDevices } from './lib/station-subscriptions.js';
 import { enqueueEpisodeAlert, collectEpisodeAlerts } from './lib/episode-alerts.js';
+import {
+  assertSuperAdminCaller,
+  setUserPassword,
+  toggleUserDisabled,
+  assignStationAccess,
+  migrateLegacyUsers,
+} from './lib/user-management.js';
 import { randomUUID } from 'node:crypto';
 import { initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
@@ -529,10 +536,19 @@ async function ensureListenerProfile(firestore, user, root) {
     const profile = await transaction.get(reference);
     const jobs = await Promise.all(roots.map((r) => transaction.get(firestore.doc(deletionJobPath(user.uid, r)))));
     if (jobs.some((job) => job.exists)) throw new HttpsError('failed-precondition', 'Account deletion is in progress.');
-    if (profile.exists) return;
     const email = normalizeEmail(user.email);
+    if (profile.exists) {
+      if (!profile.get('email') && email) {
+        transaction.update(reference, {
+          email,
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+      }
+      return;
+    }
     transaction.create(reference, {
       displayName: safeDisplayName(user.displayName, email),
+      email: email || '',
       username: '',
       avatarUrl: '',
       isActive: true,
@@ -723,3 +739,74 @@ export const registerStationAlertDevice = onCall({ timeoutSeconds: 30, maxInstan
 export const unregisterStationAlertDevice = onCall({ timeoutSeconds: 30, maxInstances: 20 }, async request => unregisterDevice({ firestore: getFirestore(), uid: requireAuthenticatedUid(request), data: request.data }));
 export const queuePublishedEpisodeAlert = onDocumentWritten({ document: '{root}/episodes/episodes/{episodeId}', retry: true }, async event => enqueueEpisodeAlert({ firestore: getFirestore(), root: event.params.root, episodeId: event.params.episodeId, before: event.data?.before.data(), after: event.data?.after.data() }));
 export const deliverEpisodeAlerts = onSchedule({ schedule: 'every 1 minutes', timeoutSeconds: 540, maxInstances: 1 }, async () => collectEpisodeAlerts({ firestore: getFirestore(), auth: getAuth(), send: message => getMessaging().sendEachForMulticast(message) }));
+
+export const adminSetUserPassword = onCall(
+  { timeoutSeconds: 30, maxInstances: 20 },
+  async (request) => {
+    assertSuperAdminCaller(request);
+    const root = requestRoot(request);
+    return setUserPassword({
+      auth: getAuth(),
+      firestore: getFirestore(),
+      targetUid: request.data?.targetUid,
+      newPassword: request.data?.newPassword,
+      root,
+    });
+  },
+);
+
+export const adminToggleUserDisabled = onCall(
+  { timeoutSeconds: 30, maxInstances: 20 },
+  async (request) => {
+    const callerUid = assertSuperAdminCaller(request);
+    const root = requestRoot(request);
+    return toggleUserDisabled({
+      auth: getAuth(),
+      firestore: getFirestore(),
+      callerUid,
+      targetUid: request.data?.targetUid,
+      disabled: request.data?.disabled,
+      reason: request.data?.reason,
+      root,
+    });
+  },
+);
+
+export const adminAssignStationAccess = onCall(
+  { timeoutSeconds: 30, maxInstances: 20 },
+  async (request) => {
+    const callerUid = assertSuperAdminCaller(request);
+    const root = requestRoot(request);
+    return assignStationAccess({
+      auth: getAuth(),
+      firestore: getFirestore(),
+      callerUid,
+      targetUid: request.data?.targetUid,
+      role: request.data?.role,
+      allStations: request.data?.allStations,
+      stationIds: request.data?.stationIds,
+      root,
+    });
+  },
+);
+
+export const adminMigrateLegacyUsers = onCall(
+  { timeoutSeconds: 300, maxInstances: 5 },
+  async (request) => {
+    const callerUid = assertSuperAdminCaller(request);
+    const sourcePath = request.data?.sourcePath || 'HudHudFmGooglePlay/Users/Users';
+    const targetRoot = request.data?.targetRoot || 'HudHudOfficial';
+    const overwrite = Boolean(request.data?.overwrite);
+    const force = Boolean(request.data?.force);
+
+    return migrateLegacyUsers({
+      firestore: getFirestore(),
+      callerUid,
+      sourcePath,
+      targetRoot,
+      overwrite,
+      force,
+    });
+  },
+);
+

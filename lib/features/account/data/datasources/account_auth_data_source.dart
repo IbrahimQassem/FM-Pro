@@ -187,7 +187,13 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
     if (user == null) throw const AccountDataException('user-unavailable');
     await user.updateDisplayName(displayName.trim());
     await user.reload();
-    await requestEmailVerificationCode();
+    try {
+      await requestEmailVerificationCode();
+    } on Object catch (error) {
+      debugPrint('Initial email verification code delivery failed: $error');
+      // Do not fail account registration if the initial code dispatch fails;
+      // the account is successfully created and the user can request resending the code.
+    }
   }
 
   @override

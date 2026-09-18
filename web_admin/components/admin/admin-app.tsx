@@ -3,6 +3,7 @@ import { ContentEditor, RelationPicker } from './content-editor';
 import { ScheduleAgenda } from './schedule-agenda';
 import { BannerStatusBadge } from './banner-status-badge';
 import { WorkspaceOverview, ScreenCoverage } from './workspace-overview';
+import { UserActionsModal } from './user-actions-modal';
 import {
   isContentKind,
   editableFingerprint,
@@ -1240,6 +1241,7 @@ function ResourceView({
     window.dispatchEvent(new HashChangeEvent('hashchange'));
   };
   const [editor, setEditor] = useState<AdminRecord | 'new' | null>(null);
+  const [actionUser, setActionUser] = useState<AdminRecord | null>(null);
   const [busyId, setBusyId] = useState('');
   const [feedback, setFeedback] = useState<{
     type: 'success' | 'error';
@@ -1638,6 +1640,11 @@ function ResourceView({
                           </span>
                         )}
                       </div>
+                      {definition.key === 'users' && typeof record.data.email === 'string' && record.data.email && (
+                        <p className="text-xs text-muted-foreground font-mono mt-0.5" dir="ltr">
+                          {record.data.email}
+                        </p>
+                      )}
                       {typeof record.data.nameEn === 'string' && record.data.nameEn && (
                         <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
                           {record.data.nameEn}
@@ -1705,8 +1712,18 @@ function ResourceView({
 
                   {(definition.editable ||
                     isStation ||
+                    definition.key === 'users' ||
                     definition.deletable) && (
-                    <div className="flex gap-2 pt-1">
+                    <div className="flex gap-2 pt-1 flex-wrap">
+                      {definition.key === 'users' && (
+                        <Button
+                          variant="outline"
+                          className="min-h-11 flex-1 shadow-xs border-primary/30 hover:bg-primary/5 text-primary"
+                          onClick={() => setActionUser(record)}
+                        >
+                          <ShieldCheck className="size-4" /> إدارة الحساب
+                        </Button>
+                      )}
                       {definition.editable && (
                         <Button
                           variant="outline"
@@ -1809,6 +1826,11 @@ function ResourceView({
                                 </span>
                               )}
                             </div>
+                            {definition.key === 'users' && typeof record.data.email === 'string' && record.data.email && (
+                              <p className="text-xs text-muted-foreground font-mono truncate" dir="ltr">
+                                {record.data.email}
+                              </p>
+                            )}
                             {isStation && typeof record.data.nameEn === 'string' && record.data.nameEn && (
                               <p className="text-xs text-muted-foreground truncate">
                                 {record.data.nameEn}
@@ -1921,6 +1943,18 @@ function ResourceView({
                                 <Trash2 />
                               </Button>
                             )
+                          )}
+                          {definition.key === 'users' && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label="إدارة المستخدم والصلاحيات"
+                              title="إدارة المستخدم والصلاحيات"
+                              onClick={() => setActionUser(record)}
+                              className="h-9 w-9 rounded-xl hover:bg-primary/10 text-primary"
+                            >
+                              <ShieldCheck className="size-4" />
+                            </Button>
                           )}
                           {definition.editable && (
                             <Button
@@ -2052,6 +2086,32 @@ function ResourceView({
               type: 'success',
               message: 'تم الحذف وتحديث العلاقات بنجاح.',
             });
+          }}
+        />
+      )}
+      {definition.key === 'users' && (
+        <UserActionsModal
+          user={
+            actionUser
+              ? {
+                  id: actionUser.id,
+                  data: actionUser.data as {
+                    displayName?: string;
+                    email?: string;
+                    role?: string;
+                    isActive?: boolean;
+                    disabledReason?: string;
+                    allStations?: boolean;
+                    assignedStationIds?: string[];
+                  },
+                }
+              : null
+          }
+          open={actionUser !== null}
+          onClose={() => setActionUser(null)}
+          onSuccess={() => {
+            setActionUser(null);
+            onRefresh?.();
           }}
         />
       )}

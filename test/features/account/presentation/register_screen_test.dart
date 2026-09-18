@@ -34,12 +34,49 @@ void main() {
       find.byKey(const Key("account-password")),
       "password123",
     );
+    await tester.enterText(
+      find.byKey(const Key("account-confirm-password")),
+      "password123",
+    );
     await tester.tap(find.byKey(const Key("account-submit")));
     await tester.pump();
 
     expect(repository.registeredName, "Ahmed Ali");
     expect(repository.registeredEmail, "ahmed@example.com");
     expect(repository.registeredPassword, "password123");
+  });
+
+  testWidgets("validates password confirmation match", (tester) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = _FakeAccountRepository();
+    await tester.pumpWidget(_TestApp(repository: repository));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key("account-name")),
+      "Ahmed Ali",
+    );
+    await tester.enterText(
+      find.byKey(const Key("account-email")),
+      "ahmed@example.com",
+    );
+    await tester.enterText(
+      find.byKey(const Key("account-password")),
+      "password123",
+    );
+    await tester.enterText(
+      find.byKey(const Key("account-confirm-password")),
+      "different123",
+    );
+    await tester.tap(find.byKey(const Key("account-submit")));
+    await tester.pumpAndSettle();
+
+    expect(repository.registeredPassword, isNull);
+    expect(find.text("كلمتا المرور غير متطابقتين"), findsOneWidget);
   });
 
   testWidgets("can navigate to SignInScreen via go-to-sign-in-button",
