@@ -143,3 +143,99 @@ void test('station sorting orders correctly by name, priority, plays, and city',
   assert.equal(sortedByPrograms[0].id, 'a');
 });
 
+void test('search matching works accurately across all other resources', () => {
+  // Programs
+  const program = {
+    id: 'p1',
+    data: {
+      title: 'صباح الخير يا يمن',
+      presenters: ['علي محمد', 'سارة أحمد'],
+      categories: ['ثقافي', 'حوار'],
+      description: 'برنامج حواري صباحي',
+      stationId: 'st_sanaa',
+    },
+  };
+  assert.equal(matchRecordSearch(program, 'سارة', 'programs'), true);
+  assert.equal(matchRecordSearch(program, 'حوار', 'programs'), true);
+  assert.equal(matchRecordSearch(program, 'مساء', 'programs'), false);
+
+  // Episodes
+  const episode = {
+    id: 'ep1',
+    data: {
+      title: 'الحلقة الأولى: التعليم الرقمي',
+      presenter: 'فؤاد الكبسي',
+      guest: 'د. يحيى الشامي',
+      description: 'مناقشة واقع التعليم الإلكتروني',
+    },
+  };
+  assert.equal(matchRecordSearch(episode, 'الشامي', 'episodes'), true);
+  assert.equal(matchRecordSearch(episode, 'الكبسي', 'episodes'), true);
+  assert.equal(matchRecordSearch(episode, 'رياضة', 'episodes'), false);
+
+  // Banners
+  const banner = {
+    id: 'b1',
+    data: {
+      title: 'تغطية عيد الاستقلال',
+      targetType: 'station',
+      targetId: 'st_aden',
+      targetUrl: 'https://example.com/live',
+    },
+  };
+  assert.equal(matchRecordSearch(banner, 'الاستقلال', 'banners'), true);
+  assert.equal(matchRecordSearch(banner, 'st_aden', 'banners'), true);
+
+  // Locations
+  const location = {
+    id: 'loc_ib',
+    data: {
+      cityNameAr: 'إب',
+      cityCode: 'ibb',
+      countryNameAr: 'اليمن',
+      countryCode: 'YE',
+    },
+  };
+  assert.equal(matchRecordSearch(location, 'اب', 'locations'), true);
+  assert.equal(matchRecordSearch(location, 'ibb', 'locations'), true);
+
+  // Comments
+  const comment = {
+    id: 'c1',
+    data: {
+      content: 'حلقة ممتازة جدا ومفيدة',
+      authorName: 'حميد القاسمي',
+      authorEmail: 'hameed@example.com',
+      episodeId: 'ep123',
+    },
+  };
+  assert.equal(matchRecordSearch(comment, 'ممتازة', 'comments'), true);
+  assert.equal(matchRecordSearch(comment, 'القاسمي', 'comments'), true);
+  assert.equal(matchRecordSearch(comment, 'hameed', 'comments'), true);
+
+  // Reports
+  const report = {
+    id: 'rep1',
+    data: {
+      reason: 'inappropriate',
+      details: 'ألفاظ مسيئة في التعليق',
+      reporterUid: 'user_456',
+    },
+  };
+  assert.equal(matchRecordSearch(report, 'مسيئة', 'reports'), true);
+  assert.equal(matchRecordSearch(report, 'user_456', 'reports'), true);
+
+  // Favorites & Subscriptions
+  const sub = {
+    id: 'sub1',
+    data: {
+      userId: 'usr_789',
+      targetId: 'st_taiz',
+      targetType: 'station',
+    },
+  };
+  assert.equal(matchRecordSearch(sub, 'usr_789', 'subscriptions'), true);
+  assert.equal(matchRecordSearch(sub, 'st_taiz', 'favorites'), true);
+});
+
+

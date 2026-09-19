@@ -3,7 +3,9 @@ import { ContentEditor, RelationPicker } from './content-editor';
 import { ScheduleAgenda } from './schedule-agenda';
 import { BannerStatusBadge } from './banner-status-badge';
 import { WorkspaceOverview, ScreenCoverage } from './workspace-overview';
-import { UserActionsModal } from './user-actions-modal';
+import { UserActionsModal, formatUserDate } from './user-actions-modal';
+import { StationLogo } from './station-logo';
+import { ResourceThumbnail } from './resource-thumbnail';
 import {
   isContentKind,
   editableFingerprint,
@@ -42,6 +44,7 @@ import {
   MapPin,
   PanelsTopLeft,
   CalendarDays,
+  Calendar,
   CheckCircle2,
   EyeOff,
   Heart,
@@ -63,6 +66,7 @@ import {
   Sparkles,
   Trash2,
   Users,
+  User as UserIcon,
   UserX,
   X,
 } from 'lucide-react';
@@ -120,7 +124,7 @@ import {
 import { getFirebaseServices } from '@/lib/firebase-client';
 
 type Section = 'overview' | 'coverage' | 'schedule' | ResourceKey;
-type AdminRecord = {
+export type AdminRecord = {
   id: string;
   path: string;
   data: Record<string, unknown>;
@@ -704,6 +708,35 @@ function ResourcePanel({
     </div>
   );
 }
+
+function resourceCountLabel(key: ResourceKey, count: number): string {
+  const formatted = count.toLocaleString('ar-YE');
+  switch (key) {
+    case 'stations':
+      return `${formatted} محطة`;
+    case 'programs':
+      return `${formatted} برنامج`;
+    case 'users':
+      return `${formatted} مستخدم`;
+    case 'locations':
+      return `${formatted} ${count === 1 ? 'مدينة' : count === 2 ? 'مدينتان' : count >= 3 && count <= 10 ? 'مدن' : 'مدينة'}`;
+    case 'episodes':
+      return `${formatted} حلقة`;
+    case 'banners':
+      return `${formatted} إعلان`;
+    case 'reports':
+      return `${formatted} بلاغ`;
+    case 'comments':
+      return `${formatted} تعليق`;
+    case 'favorites':
+      return `${formatted} عنصر بالمفضلة`;
+    case 'subscriptions':
+      return `${formatted} اشتراك`;
+    default:
+      return `${formatted} سجل`;
+  }
+}
+
 function ResourcePage({
   firestore,
   user,
@@ -738,6 +771,7 @@ function ResourcePage({
   useEffect(() => {
     let active = true;
     let contextVersion = 0;
+    const isReports = resource === 'reports';
     const cursor = cursors.at(-1);
     const parentFilter = resourceParentFilter(resource);
     const request = query(
@@ -747,8 +781,8 @@ function ResourcePage({
       ...(parent && parentFilter
         ? [where(parentFilter.field, '==', parent)]
         : []),
-      ...(cursor ? [startAfter(cursor)] : []),
-      limit(50),
+      ...(isReports && cursor ? [startAfter(cursor)] : []),
+      limit(isReports ? 50 : 2000),
     );
     const unsubscribe = onSnapshot(
       request,
@@ -771,7 +805,7 @@ function ResourcePage({
           setCommentContext('loading');
         }
         setLast(snapshot.docs.at(-1));
-        setMore(snapshot.size === 50);
+        setMore(isReports ? snapshot.size === 50 : false);
         setCached(snapshot.metadata.fromCache);
         setLoading(false);
         if (next.length > 0) {
@@ -886,6 +920,7 @@ function ResourcePage({
         />
       ) : (
         <ResourceView
+          key={resource}
           firestore={firestore}
           definition={resourceDefinitions[resource]}
           records={records}
@@ -895,7 +930,6 @@ function ResourcePage({
             setReload((v) => v + 1);
           }}
           loading={loading}
-          pageNumber={cursors.length + 1}
           isCached={cached}
           status={status}
           statusChoices={choices}
@@ -910,33 +944,35 @@ function ResourcePage({
           }}
         />
       )}
-      <div className="flex items-center justify-between gap-3">
-        <Button
-          variant="outline"
-          disabled={loading || !cursors.length}
-          onClick={() => {
-            setLoading(true);
-            setCursors((c) => c.slice(0, -1));
-          }}
-        >
-          الصفحة السابقة
-        </Button>
-        <span className="text-xs text-muted-foreground">
-          حتى ٥٠ سجلًا في الصفحة · البحث داخل الصفحة الحالية
-        </span>
-        <Button
-          variant="outline"
-          disabled={loading || !more || !last}
-          onClick={() => {
-            if (last) {
+      {resource === 'reports' && (
+        <div className="flex items-center justify-between gap-3">
+          <Button
+            variant="outline"
+            disabled={loading || !cursors.length}
+            onClick={() => {
               setLoading(true);
-              setCursors((c) => [...c, last]);
-            }
-          }}
-        >
-          الصفحة التالية
-        </Button>
-      </div>
+              setCursors((c) => c.slice(0, -1));
+            }}
+          >
+            الصفحة السابقة
+          </Button>
+          <span className="text-xs text-muted-foreground">
+            حتى ٥٠ بلاغاً في الصفحة · الصفحة {(cursors.length + 1).toLocaleString('ar-YE')}
+          </span>
+          <Button
+            variant="outline"
+            disabled={loading || !more || !last}
+            onClick={() => {
+              if (last) {
+                setLoading(true);
+                setCursors((c) => [...c, last]);
+              }
+            }}
+          >
+            الصفحة التالية
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
@@ -1041,10 +1077,17 @@ function ModerationQueue({
       <section className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <h2 className="text-2xl font-bold">طابور الإشراف</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {reports.filter((item) => item.data.status === 'open').length} بلاغًا
-            مفتوحًا في الصفحة الحالية · لا تظهر هوية المبلّغ في هذه الواجهة
-          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2.5">
+            <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1 text-xs font-bold text-primary border border-primary/20 shadow-2xs">
+              إجمالي البلاغات: {resourceCountLabel('reports', reports.length)}
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-xl bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive">
+              المفتوحة: {reports.filter((item) => item.data.status === 'open').length.toLocaleString('ar-YE')}
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-xl bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+              المعالجة: {reports.filter((item) => item.data.status !== 'open').length.toLocaleString('ar-YE')}
+            </span>
+          </div>
         </div>
       </section>
       {error && (
@@ -1209,7 +1252,6 @@ function ResourceView({
   error,
   onRefresh,
   loading,
-  pageNumber,
   isCached,
   status,
   statusChoices,
@@ -1221,7 +1263,6 @@ function ResourceView({
   error?: string;
   onRefresh?: () => void;
   loading?: boolean;
-  pageNumber?: number;
   isCached?: boolean;
   status?: StatusChoice;
   statusChoices?: StatusChoice[];
@@ -1251,6 +1292,8 @@ function ResourceView({
     id: string;
     name: string;
     url: string;
+    logoUrl?: unknown;
+    thumbnailUrl?: unknown;
   } | null>(null);
   const stationAudioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -1291,7 +1334,13 @@ function ResourceView({
       setPlayingStation(null);
     } else {
       const name = recordTitle(record, definition);
-      setPlayingStation({ id: record.id, name, url: rawUrl });
+      setPlayingStation({
+        id: record.id,
+        name,
+        url: rawUrl,
+        logoUrl: record.data.logoUrl,
+        thumbnailUrl: record.data.thumbnailUrl,
+      });
       setFeedback(null);
       if (stationAudioRef.current) {
         stationAudioRef.current.src = rawUrl;
@@ -1310,6 +1359,9 @@ function ResourceView({
   const [featureFilter, setFeatureFilter] = useState<
     'all' | 'live' | 'featured' | 'verified'
   >('all');
+  const [userRoleFilter, setUserRoleFilter] = useState<
+    'all' | 'admin' | 'editor' | 'listener'
+  >('all');
   const [sortBy, setSortBy] = useState('newest');
 
   const featureCounts = useMemo(() => {
@@ -1327,6 +1379,34 @@ function ResourceView({
     return { live, featured, verified };
   }, [definition.key, records]);
 
+  const userRoleCounts = useMemo(() => {
+    if (definition.key !== 'users') {
+      return { admin: 0, editor: 0, listener: 0 };
+    }
+    let admin = 0;
+    let editor = 0;
+    let listener = 0;
+    for (const r of records) {
+      const role = typeof r.data.role === 'string' ? r.data.role : 'listener';
+      if (role === 'admin') admin++;
+      else if (role === 'editor') editor++;
+      else listener++;
+    }
+    return { admin, editor, listener };
+  }, [definition.key, records]);
+
+  const filterKey = `${search}:${featureFilter}:${userRoleFilter}:${sortBy}:${status?.value ?? ''}`;
+  const [pageState, setPageState] = useState({ key: filterKey, page: 1 });
+  const currentPage = pageState.key === filterKey ? pageState.page : 1;
+  const setCurrentPage = (updater: number | ((p: number) => number)) => {
+    setPageState((prev) => {
+      const active = prev.key === filterKey ? prev.page : 1;
+      const next = typeof updater === 'function' ? updater(active) : updater;
+      return { key: filterKey, page: next };
+    });
+  };
+  const pageSize = 50;
+
   const filteredAndSorted = useMemo(() => {
     let list = records.filter((record) =>
       matchRecordSearch(record, search, definition.key),
@@ -1340,21 +1420,44 @@ function ResourceView({
       } else if (featureFilter === 'verified') {
         list = list.filter((r) => r.data.isVerified === true);
       }
+    } else if (definition.key === 'users') {
+      if (userRoleFilter === 'admin') {
+        list = list.filter((r) => r.data.role === 'admin');
+      } else if (userRoleFilter === 'editor') {
+        list = list.filter((r) => r.data.role === 'editor');
+      } else if (userRoleFilter === 'listener') {
+        list = list.filter(
+          (r) =>
+            !r.data.role ||
+            r.data.role === 'listener' ||
+            (r.data.role !== 'admin' && r.data.role !== 'editor'),
+        );
+      }
     }
 
     return sortRecords(list, sortBy, definition.key);
-  }, [records, search, definition.key, featureFilter, sortBy]);
+  }, [records, search, definition.key, featureFilter, userRoleFilter, sortBy]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredAndSorted.length / pageSize));
+  const paginatedRecords = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredAndSorted.slice(start, start + pageSize);
+  }, [filteredAndSorted, currentPage, pageSize]);
 
   const hasActiveFilters = Boolean(
     search ||
       featureFilter !== 'all' ||
-      sortBy !== 'newest',
+      userRoleFilter !== 'all' ||
+      sortBy !== 'newest' ||
+      Boolean(status),
   );
 
   const resetFilters = () => {
     setSearch('');
     setFeatureFilter('all');
+    setUserRoleFilter('all');
     setSortBy('newest');
+    if (onStatusChange) onStatusChange('');
   };
 
   async function remove(record: AdminRecord) {
@@ -1389,18 +1492,22 @@ function ResourceView({
           <div className="flex items-center gap-2">
             <span className="flex size-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-xs font-medium text-muted-foreground">
-              {isCached ? 'نسخة مخزنة' : 'بيانات البيئة المحددة'} · الصفحة{' '}
-              {(pageNumber ?? 1).toLocaleString('ar-YE')}
+              {isCached ? 'نسخة مخزنة' : 'بيانات البيئة المحددة'}
             </span>
           </div>
           <h2 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
             {definition.label}
           </h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {records.length}{' '}
-            {definition.key === 'stations' ? 'محطة' : definition.singular} في هذه
-            الصفحة
-          </p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
+            <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1 text-xs font-bold text-primary border border-primary/20 shadow-2xs">
+              إجمالي {definition.label}: {resourceCountLabel(definition.key, records.length)}
+            </span>
+            {hasActiveFilters && (
+              <span className="inline-flex items-center gap-1.5 rounded-xl bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
+                المعروض حسب التصفية: {resourceCountLabel(definition.key, filteredAndSorted.length)}
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2.5">
           {onRefresh && (
@@ -1449,8 +1556,14 @@ function ResourceView({
                 aria-label={`البحث في ${definition.label}`}
                 placeholder={
                   definition.key === 'stations'
-                    ? 'ابحث بالاسم، التردد، المدينة، المعرّف…'
-                    : `ابحث في هذه الصفحة…`
+                    ? 'ابحث في جميع المحطات (الاسم، التردد، المدينة، المعرّف)…'
+                    : definition.key === 'users'
+                      ? 'ابحث في جميع المستخدمين (الاسم، البريد، المعرّف)…'
+                      : definition.key === 'locations'
+                        ? 'ابحث في جميع المدن والمناطق…'
+                        : definition.key === 'programs'
+                          ? 'ابحث في جميع البرامج والمقدمين…'
+                          : `ابحث في جميع سجلات ${definition.label}…`
                 }
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
@@ -1504,6 +1617,24 @@ function ResourceView({
                 </select>
               )}
 
+              {definition.key === 'users' && (
+                <select
+                  aria-label="تصفية حسب الصلاحية"
+                  className="h-11 rounded-xl border bg-background px-3 text-sm shadow-xs transition-colors focus-visible:outline-2 focus-visible:outline-ring"
+                  value={userRoleFilter}
+                  onChange={(e) =>
+                    setUserRoleFilter(
+                      e.target.value as 'all' | 'admin' | 'editor' | 'listener',
+                    )
+                  }
+                >
+                  <option value="all">كل الصلاحيات ({records.length})</option>
+                  <option value="admin">مدير عام ({userRoleCounts.admin})</option>
+                  <option value="editor">محرر محطة ({userRoleCounts.editor})</option>
+                  <option value="listener">مستمع ({userRoleCounts.listener})</option>
+                </select>
+              )}
+
               <div className="flex items-center gap-1.5 rounded-xl border bg-background px-2.5 shadow-xs">
                 <ArrowUpDown className="size-4 text-muted-foreground shrink-0" />
                 <select
@@ -1540,22 +1671,33 @@ function ResourceView({
             </div>
           </div>
 
-          {definition.key === 'stations' && (
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t text-xs text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <span>
-                  تم العثور على{' '}
-                  <strong className="font-semibold text-foreground">
-                    {filteredAndSorted.length}
-                  </strong>{' '}
-                  من أصل {records.length} محطة
-                </span>
-                {status && (
-                  <span className="rounded-md bg-primary/10 px-2 py-0.5 text-primary text-[11px] font-medium">
-                    {status.label}
-                  </span>
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <span>
+                {hasActiveFilters ? (
+                  <>
+                    تم العثور على{' '}
+                    <strong className="font-semibold text-foreground">
+                      {filteredAndSorted.length.toLocaleString('ar-YE')}
+                    </strong>{' '}
+                    من أصل {resourceCountLabel(definition.key, records.length)}
+                  </>
+                ) : (
+                  <>
+                    إجمالي السجلات المسجلة:{' '}
+                    <strong className="font-semibold text-foreground">
+                      {resourceCountLabel(definition.key, records.length)}
+                    </strong>
+                  </>
                 )}
-              </div>
+              </span>
+              {status && (
+                <span className="rounded-md bg-primary/10 px-2 py-0.5 text-primary text-[11px] font-medium">
+                  {status.label}
+                </span>
+              )}
+            </div>
+            {definition.key === 'stations' && (
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="text-[11px] text-muted-foreground ml-1">
                   تصفية سريعة:
@@ -1607,14 +1749,79 @@ function ResourceView({
                   موثقة ({featureCounts.verified})
                 </button>
               </div>
-            </div>
-          )}
+            )}
+            {definition.key === 'users' && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11px] text-muted-foreground ml-1">
+                  تصفية سريعة:
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setUserRoleFilter('all')}
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
+                    userRoleFilter === 'all'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  الكل ({records.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setUserRoleFilter((r) => (r === 'admin' ? 'all' : 'admin'))
+                  }
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
+                    userRoleFilter === 'admin'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <ShieldCheck className="size-3 text-red-500" />
+                  مدير عام ({userRoleCounts.admin})
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setUserRoleFilter((r) => (r === 'editor' ? 'all' : 'editor'))
+                  }
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
+                    userRoleFilter === 'editor'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Radio className="size-3 text-amber-500" />
+                  محرر محطة ({userRoleCounts.editor})
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setUserRoleFilter((r) => (r === 'listener' ? 'all' : 'listener'))
+                  }
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
+                    userRoleFilter === 'listener'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <UserIcon className="size-3 text-muted-foreground" />
+                  مستمع ({userRoleCounts.listener})
+                </button>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="px-0">
           <div className="divide-y md:hidden">
-            {filteredAndSorted.map((record) => {
+            {paginatedRecords.map((record) => {
               const isPlaying = playingStation?.id === record.id;
               const isStation = definition.key === 'stations';
+              const isUser = definition.key === 'users';
+              const isUserActive = isUser ? record.data.isActive !== false : false;
+              const userRole = isUser
+                ? (typeof record.data.role === 'string' ? record.data.role : 'listener')
+                : '';
               const frequency = isStation && typeof record.data.frequency === 'string'
                 ? record.data.frequency.trim()
                 : '';
@@ -1629,30 +1836,59 @@ function ResourceView({
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="break-words font-semibold text-base">
-                          {recordTitle(record, definition)}
-                        </h3>
-                        {frequency && (
-                          <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-secondary font-semibold text-secondary-foreground">
-                            {frequency}
-                          </span>
+                    <div className="min-w-0 flex-1 flex items-start gap-3">
+                      <ResourceThumbnail
+                        resource={definition.key}
+                        record={record}
+                        title={recordTitle(record, definition)}
+                        className="size-11"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="break-words font-semibold text-base">
+                            {recordTitle(record, definition)}
+                          </h3>
+                          {isUser && typeof record.data.username === 'string' && record.data.username && (
+                            <span className="text-xs text-muted-foreground font-mono bg-muted/60 px-1.5 py-0.5 rounded border" dir="ltr">
+                              @{record.data.username}
+                            </span>
+                          )}
+                          {frequency && (
+                            <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-secondary font-semibold text-secondary-foreground">
+                              {frequency}
+                            </span>
+                          )}
+                        </div>
+                        {definition.key === 'users' && typeof record.data.email === 'string' && record.data.email && (
+                          <p className="text-xs text-muted-foreground font-mono mt-0.5" dir="ltr">
+                            {record.data.email}
+                          </p>
+                        )}
+                        {typeof record.data.nameEn === 'string' && record.data.nameEn && (
+                          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                            {record.data.nameEn}
+                          </p>
                         )}
                       </div>
-                      {definition.key === 'users' && typeof record.data.email === 'string' && record.data.email && (
-                        <p className="text-xs text-muted-foreground font-mono mt-0.5" dir="ltr">
-                          {record.data.email}
-                        </p>
-                      )}
-                      {typeof record.data.nameEn === 'string' && record.data.nameEn && (
-                        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
-                          {record.data.nameEn}
-                        </p>
-                      )}
                     </div>
                     {definition.key === 'banners' ? (
                       <BannerStatusBadge data={record.data} />
+                    ) : isUser ? (
+                      <Badge
+                        variant={isUserActive ? 'outline' : 'destructive'}
+                        className={
+                          isUserActive
+                            ? 'text-[11px] text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10 gap-1'
+                            : 'text-[11px] gap-1'
+                        }
+                      >
+                        <span
+                          className={`size-1.5 rounded-full ${
+                            isUserActive ? 'bg-emerald-500' : 'bg-destructive-foreground'
+                          }`}
+                        />
+                        {isUserActive ? 'حساب نشط' : 'حساب معطل'}
+                      </Badge>
                     ) : (
                       definition.statusField && (
                         <Badge
@@ -1695,6 +1931,36 @@ function ResourceView({
                         </Badge>
                       )}
                     </div>
+                  ) : isUser ? (
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground pt-0.5">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="size-3 text-muted-foreground/70 shrink-0" />
+                        <span>
+                          تاريخ التسجيل:{' '}
+                          <strong className={record.data.createdAt ? 'font-medium text-foreground' : 'font-normal italic text-muted-foreground/70'}>
+                            {formatUserDate(record.data.createdAt, 'غير متوفر')}
+                          </strong>
+                        </span>
+                      </div>
+                      <div>
+                        {userRole === 'admin' ? (
+                          <Badge variant="default" className="text-[11px] gap-1 py-0">
+                            <ShieldCheck className="size-2.5 text-red-400" />
+                            مدير عام
+                          </Badge>
+                        ) : userRole === 'editor' ? (
+                          <Badge variant="secondary" className="text-[11px] gap-1 py-0">
+                            <Radio className="size-2.5 text-amber-500" />
+                            محرر محطة
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-[11px] gap-1 py-0 text-muted-foreground">
+                            <UserIcon className="size-2.5 text-muted-foreground" />
+                            مستمع
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
                   ) : (
                     <p className="break-words text-sm text-muted-foreground">
                       {record.relationLabel ||
@@ -1703,12 +1969,14 @@ function ResourceView({
                     </p>
                   )}
 
-                  <p
-                    dir="ltr"
-                    className="break-all text-right font-mono text-xs text-muted-foreground"
-                  >
-                    {record.id}
-                  </p>
+                  {!isUser && (
+                    <p
+                      dir="ltr"
+                      className="break-all text-right font-mono text-xs text-muted-foreground"
+                    >
+                      {record.id}
+                    </p>
+                  )}
 
                   {(definition.editable ||
                     isStation ||
@@ -1772,22 +2040,37 @@ function ResourceView({
               <TableHeader>
                 <TableRow>
                   <TableHead className="px-4 text-right">
-                    {definition.key === 'stations' ? 'المحطة والتردد' : 'الاسم/المحتوى'}
+                    {definition.key === 'stations'
+                      ? 'المحطة والتردد'
+                      : definition.key === 'users'
+                        ? 'المستخدم'
+                        : 'الاسم/المحتوى'}
                   </TableHead>
-                  <TableHead className="text-right">معرّف السجل</TableHead>
                   <TableHead className="text-right">
-                    {definition.key === 'stations' ? 'المدينة' : 'الارتباط'}
+                    {definition.key === 'users' ? 'تاريخ التسجيل' : 'معرّف السجل'}
                   </TableHead>
                   <TableHead className="text-right">
-                    {definition.key === 'stations' ? 'الحالة والمميزات' : 'الحالة'}
+                    {definition.key === 'stations'
+                      ? 'المدينة'
+                      : definition.key === 'users'
+                        ? 'الصلاحية والنطاق'
+                        : 'الارتباط'}
+                  </TableHead>
+                  <TableHead className="text-right">
+                    {definition.key === 'stations'
+                      ? 'الحالة والمميزات'
+                      : definition.key === 'users'
+                        ? 'حالة الحساب'
+                        : 'الحالة'}
                   </TableHead>
                   <TableHead className="px-4 text-left">الإجراءات</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAndSorted.map((record) => {
+                {paginatedRecords.map((record) => {
                   const isPlaying = playingStation?.id === record.id;
                   const isStation = definition.key === 'stations';
+                  const isUser = definition.key === 'users';
                   const frequency = isStation && typeof record.data.frequency === 'string'
                     ? record.data.frequency.trim()
                     : '';
@@ -1806,27 +2089,29 @@ function ResourceView({
                     >
                       <TableCell className="max-w-[340px] px-4">
                         <div className="flex items-center gap-3">
-                          {isStation && (
-                            <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-xs">
-                              {frequency ? (
-                                <Radio className="size-4" />
-                              ) : (
-                                recordTitle(record, definition).slice(0, 1)
-                              )}
-                            </div>
-                          )}
+                          <ResourceThumbnail
+                            resource={definition.key}
+                            record={record}
+                            title={recordTitle(record, definition)}
+                            className="size-10"
+                          />
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <span className="font-semibold text-foreground truncate">
                                 {recordTitle(record, definition)}
                               </span>
+                              {isUser && typeof record.data.username === 'string' && record.data.username && (
+                                <span className="text-[11px] text-muted-foreground font-mono bg-muted/60 px-1.5 py-0.5 rounded border" dir="ltr">
+                                  @{record.data.username}
+                                </span>
+                              )}
                               {frequency && (
                                 <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-secondary text-secondary-foreground font-semibold inline-flex items-center gap-1">
                                   {frequency}
                                 </span>
                               )}
                             </div>
-                            {definition.key === 'users' && typeof record.data.email === 'string' && record.data.email && (
+                            {isUser && typeof record.data.email === 'string' && record.data.email && (
                               <p className="text-xs text-muted-foreground font-mono truncate" dir="ltr">
                                 {record.data.email}
                               </p>
@@ -1840,10 +2125,29 @@ function ResourceView({
                         </div>
                       </TableCell>
                       <TableCell
-                        dir="ltr"
-                        className="text-right text-xs font-mono text-muted-foreground"
+                        dir={isUser ? 'rtl' : 'ltr'}
+                        className={
+                          isUser
+                            ? 'text-right text-xs text-muted-foreground'
+                            : 'text-right text-xs font-mono text-muted-foreground'
+                        }
                       >
-                        {record.id}
+                        {isUser ? (
+                          <div className="inline-flex items-center gap-1.5">
+                            <Calendar className="size-3.5 text-muted-foreground/70 shrink-0" />
+                            <span
+                              className={
+                                !record.data.createdAt
+                                  ? 'text-muted-foreground/60 italic'
+                                  : 'font-medium text-foreground/90'
+                              }
+                            >
+                              {formatUserDate(record.data.createdAt, 'غير متوفر')}
+                            </span>
+                          </div>
+                        ) : (
+                          record.id
+                        )}
                       </TableCell>
                       <TableCell>
                         {isStation ? (
@@ -1855,6 +2159,45 @@ function ResourceView({
                           ) : (
                             '—'
                           )
+                        ) : isUser ? (
+                          (() => {
+                            const role = typeof record.data.role === 'string' ? record.data.role : 'listener';
+                            const allStations = record.data.allStations === true;
+                            const assignedStations = Array.isArray(record.data.assignedStationIds)
+                              ? record.data.assignedStationIds
+                              : [];
+                            if (role === 'admin') {
+                              return (
+                                <Badge variant="default" className="text-xs gap-1">
+                                  <ShieldCheck className="size-3 text-red-400" />
+                                  مدير عام
+                                </Badge>
+                              );
+                            }
+                            if (role === 'editor') {
+                              return (
+                                <div className="flex flex-col gap-0.5">
+                                  <Badge variant="secondary" className="text-xs gap-1 w-fit">
+                                    <Radio className="size-3 text-amber-500" />
+                                    محرر محطة
+                                  </Badge>
+                                  <span className="text-[11px] text-muted-foreground">
+                                    {allStations
+                                      ? 'جميع المحطات'
+                                      : assignedStations.length > 0
+                                        ? `${assignedStations.length} محطات`
+                                        : 'بدون محطات مخصصة'}
+                                  </span>
+                                </div>
+                              );
+                            }
+                            return (
+                              <Badge variant="outline" className="text-xs gap-1 text-muted-foreground">
+                                <UserIcon className="size-3 text-muted-foreground" />
+                                مستمع
+                              </Badge>
+                            );
+                          })()
                         ) : (
                           record.relationLabel ||
                           readString(record.data, definition.relationField) ||
@@ -1865,6 +2208,27 @@ function ResourceView({
                         <div className="flex flex-wrap items-center gap-1.5">
                           {definition.key === 'banners' ? (
                             <BannerStatusBadge data={record.data} />
+                          ) : isUser ? (
+                            (() => {
+                              const isUserActive = record.data.isActive !== false;
+                              return (
+                                <Badge
+                                  variant={isUserActive ? 'outline' : 'destructive'}
+                                  className={
+                                    isUserActive
+                                      ? 'text-xs text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10 gap-1'
+                                      : 'text-xs gap-1'
+                                  }
+                                >
+                                  <span
+                                    className={`size-1.5 rounded-full ${
+                                      isUserActive ? 'bg-emerald-500' : 'bg-destructive-foreground'
+                                    }`}
+                                  />
+                                  {isUserActive ? 'حساب نشط' : 'حساب معطل'}
+                                </Badge>
+                              );
+                            })()
                           ) : definition.statusField ? (
                             <Badge
                               variant={
@@ -1980,7 +2344,32 @@ function ResourceView({
             <div className="grid min-h-56 place-items-center text-sm text-muted-foreground">
               {hasActiveFilters
                 ? 'لا توجد نتائج مطابقة للبحث أو التصفية الحالية. جرّب مسح البحث أو تغيير الفلتر.'
-                : 'لا توجد سجلات في هذه الصفحة.'}
+                : 'لا توجد سجلات مسجلة في هذا القسم حتى الآن.'}
+            </div>
+          )}
+          {totalPages > 1 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3 bg-muted/20">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className="h-9 text-xs font-medium"
+              >
+                الصفحة السابقة
+              </Button>
+              <span className="text-xs text-muted-foreground font-medium">
+                الصفحة {currentPage.toLocaleString('ar-YE')} من {totalPages.toLocaleString('ar-YE')} · عرض {((currentPage - 1) * pageSize + 1).toLocaleString('ar-YE')} إلى {Math.min(currentPage * pageSize, filteredAndSorted.length).toLocaleString('ar-YE')} من أصل {resourceCountLabel(definition.key, filteredAndSorted.length)}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                className="h-9 text-xs font-medium"
+              >
+                الصفحة التالية
+              </Button>
             </div>
           )}
         </CardContent>
@@ -1992,8 +2381,14 @@ function ResourceView({
         >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="relative flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary shadow-xs">
-                <Radio className="size-5" />
+              <div className="relative shrink-0">
+                <StationLogo
+                  name={playingStation.name}
+                  logoUrl={playingStation.logoUrl}
+                  thumbnailUrl={playingStation.thumbnailUrl}
+                  className="size-11"
+                  iconClassName="size-5"
+                />
                 <span className="absolute -top-1 -end-1 flex size-3">
                   <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex size-3 rounded-full bg-emerald-500" />
@@ -2095,15 +2490,7 @@ function ResourceView({
             actionUser
               ? {
                   id: actionUser.id,
-                  data: actionUser.data as {
-                    displayName?: string;
-                    email?: string;
-                    role?: string;
-                    isActive?: boolean;
-                    disabledReason?: string;
-                    allStations?: boolean;
-                    assignedStationIds?: string[];
-                  },
+                  data: actionUser.data as Record<string, unknown>,
                 }
               : null
           }
@@ -2368,6 +2755,13 @@ function recordStatus(record: AdminRecord, definition: ResourceDefinition) {
   return status === true ? 'نشط' : 'غير نشط';
 }
 function recordTitle(record: AdminRecord, definition: ResourceDefinition) {
+  if (definition.key === 'users') {
+    const name =
+      readString(record.data, 'displayName') ||
+      readString(record.data, 'username') ||
+      readString(record.data, 'email');
+    return name || 'مستخدم بدون اسم';
+  }
   return readString(record.data, definition.titleField) || record.id;
 }
 function readString(data: Record<string, unknown>, field?: string) {

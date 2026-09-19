@@ -118,12 +118,28 @@ function AgendaView({
   ).length;
   return (
     <div className="space-y-6">
-      <header>
-        <h2 className="text-xl font-bold">جدول برامج المحطة</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          الأيام والأوقات حسب فرق التوقيت المحدد لكل برنامج. التداخل تنبيه تحريري
-          ولا يمنع الحفظ.
-        </p>
+      <header className="space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-bold">جدول برامج المحطة</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              الأيام والأوقات حسب فرق التوقيت المحدد لكل برنامج. التداخل تنبيه تحريري
+              ولا يمنع الحفظ.
+            </p>
+          </div>
+          {Boolean(station) && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1 text-xs font-bold text-primary border border-primary/20 shadow-2xs">
+                إجمالي البرامج في الجدول: {scheduled.length.toLocaleString('ar-YE')} برنامج
+              </span>
+              {invalid > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-xl bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive">
+                  جداول تحتاج مراجعة: {invalid.toLocaleString('ar-YE')}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
       </header>
       <RelationPicker
         firestore={firestore}

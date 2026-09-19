@@ -10,6 +10,8 @@ import {
   Radio,
   Mic2,
   PlayCircle,
+  Users,
+  MapPin,
   Flag,
   ArrowUpLeft,
   RefreshCw,
@@ -36,6 +38,18 @@ const metrics = [
     label: 'الحلقات',
     hint: 'التسجيلات وحالة النشر',
     icon: PlayCircle,
+  },
+  {
+    key: 'users',
+    label: 'المستخدمون',
+    hint: 'إدارة الحسابات والصلاحيات',
+    icon: Users,
+  },
+  {
+    key: 'locations',
+    label: 'المدن والمحافظات',
+    hint: 'التغطية الجغرافية وتوزيع المحطات',
+    icon: MapPin,
   },
   {
     key: 'reports',
@@ -122,7 +136,7 @@ export function WorkspaceOverview({
           <RefreshCw /> تحديث
         </Button>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {metrics.map(({ key, label, hint, icon: Icon }) => (
           <button
             key={key}

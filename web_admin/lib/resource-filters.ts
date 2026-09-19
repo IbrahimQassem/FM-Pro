@@ -142,6 +142,63 @@ export function matchRecordSearch(
         ? record.data.description
         : '',
     );
+  } else if (resource === 'locations') {
+    fields.push(
+      typeof record.data.cityNameAr === 'string' ? record.data.cityNameAr : '',
+      typeof record.data.cityCode === 'string' ? record.data.cityCode : '',
+      typeof record.data.countryNameAr === 'string' ? record.data.countryNameAr : '',
+      typeof record.data.countryCode === 'string' ? record.data.countryCode : '',
+    );
+  } else if (resource === 'users') {
+    fields.push(
+      typeof record.data.username === 'string' ? record.data.username : '',
+      typeof record.data.role === 'string' ? record.data.role : '',
+      typeof record.data.phoneNumber === 'string' ? record.data.phoneNumber : '',
+    );
+  } else if (resource === 'programs') {
+    fields.push(
+      Array.isArray(record.data.presenters) ? record.data.presenters.join(' ') : '',
+      Array.isArray(record.data.categories) ? record.data.categories.join(' ') : '',
+      typeof record.data.description === 'string' ? record.data.description : '',
+      typeof record.data.stationId === 'string' ? record.data.stationId : '',
+    );
+  } else if (resource === 'episodes') {
+    fields.push(
+      typeof record.data.description === 'string' ? record.data.description : '',
+      typeof record.data.presenter === 'string' ? record.data.presenter : '',
+      typeof record.data.guest === 'string' ? record.data.guest : '',
+      typeof record.data.programId === 'string' ? record.data.programId : '',
+      typeof record.data.stationId === 'string' ? record.data.stationId : '',
+    );
+  } else if (resource === 'banners') {
+    fields.push(
+      typeof record.data.targetType === 'string' ? record.data.targetType : '',
+      typeof record.data.targetId === 'string' ? record.data.targetId : '',
+      typeof record.data.targetUrl === 'string' ? record.data.targetUrl : '',
+    );
+  } else if (resource === 'comments') {
+    fields.push(
+      typeof record.data.content === 'string' ? record.data.content : '',
+      typeof record.data.authorName === 'string' ? record.data.authorName : '',
+      typeof record.data.authorEmail === 'string' ? record.data.authorEmail : '',
+      typeof record.data.authorUid === 'string' ? record.data.authorUid : '',
+      typeof record.data.episodeId === 'string' ? record.data.episodeId : '',
+    );
+  } else if (resource === 'reports') {
+    fields.push(
+      typeof record.data.reason === 'string' ? record.data.reason : '',
+      typeof record.data.details === 'string' ? record.data.details : '',
+      typeof record.data.targetType === 'string' ? record.data.targetType : '',
+      typeof record.data.commentId === 'string' ? record.data.commentId : '',
+      typeof record.data.episodeId === 'string' ? record.data.episodeId : '',
+      typeof record.data.reporterUid === 'string' ? record.data.reporterUid : '',
+    );
+  } else if (resource === 'favorites' || resource === 'subscriptions') {
+    fields.push(
+      typeof record.data.userId === 'string' ? record.data.userId : '',
+      typeof record.data.targetId === 'string' ? record.data.targetId : '',
+      typeof record.data.targetType === 'string' ? record.data.targetType : '',
+    );
   }
 
   const normalizedCombined = normalizeSearchText(fields.join(' '));
