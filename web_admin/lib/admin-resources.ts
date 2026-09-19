@@ -1,4 +1,4 @@
-import { firestoreRoot as root } from './firestore-root';
+import { firestoreRoot as root } from './firestore-root.ts';
 
 export type ResourceKey =
   | 'locations'
@@ -7,6 +7,7 @@ export type ResourceKey =
   | 'episodes'
   | 'banners'
   | 'users'
+  | 'notifications'
   | 'comments'
   | 'reports'
   | 'favorites'
@@ -169,6 +170,18 @@ export const resourceDefinitions: Record<ResourceKey, ResourceDefinition> = {
     editable: false,
     creatable: false,
     deletable: false,
+  },
+  notifications: {
+    key: 'notifications',
+    label: 'الإشعارات والتنبيهات',
+    singular: 'إشعار',
+    path: `${root}/notifications/notifications`,
+    titleField: 'title',
+    relationField: 'targetType',
+    statusField: 'status',
+    editable: false,
+    creatable: false,
+    deletable: true,
   },
   comments: {
     key: 'comments',

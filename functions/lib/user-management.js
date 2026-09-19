@@ -310,3 +310,114 @@ export async function migrateLegacyUsers({
     message: `Migration completed: ${migratedCount} migrated, ${skippedCount} skipped out of ${snapshot.size} records.`,
   };
 }
+
+export async function broadcastNotification({
+  messaging,
+  firestore,
+  callerUid,
+  callerEmail,
+  root,
+  data,
+}) {
+  const title = typeof data?.title === 'string' ? data.title.trim() : '';
+  const body = typeof data?.body === 'string' ? data.body.trim() : '';
+  const imageUrl =
+    typeof data?.imageUrl === 'string' && data.imageUrl.trim().startsWith('https://')
+      ? data.imageUrl.trim()
+      : null;
+  const rawTargetType = typeof data?.targetType === 'string' ? data.targetType.trim() : 'general';
+  if (!['general', 'station', 'episode', 'url'].includes(rawTargetType)) {
+    throw new HttpsError('invalid-argument', 'نوع الهدف غير صالح.');
+  }
+  const targetType = rawTargetType;
+  const targetId = typeof data?.targetId === 'string' ? data.targetId.trim() : '';
+  const targetLabel =
+    typeof data?.targetLabel === 'string' ? data.targetLabel.trim() : '';
+
+  if (!title) {
+    throw new HttpsError('invalid-argument', 'عنوان الإشعار مطلوب.');
+  }
+  if (title.length > 100) {
+    throw new HttpsError('invalid-argument', 'يجب ألا يتجاوز عنوان الإشعار 100 حرف.');
+  }
+  if (!body) {
+    throw new HttpsError('invalid-argument', 'نص الإشعار مطلوب.');
+  }
+  if (body.length > 250) {
+    throw new HttpsError('invalid-argument', 'يجب ألا يتجاوز نص الإشعار 250 حرفاً.');
+  }
+
+  const notificationId = `notif_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+  const topic = 'hudhud_fm_announcements';
+
+  const fcmPayload = {
+    topic,
+    notification: {
+      title,
+      body,
+      ...(imageUrl ? { imageUrl } : {}),
+    },
+    data: {
+      version: '1',
+      type: targetType,
+      root: root || 'HudHudOfficial',
+      targetId,
+      stationId: targetType === 'station' ? targetId : '',
+      episodeId: targetType === 'episode' ? targetId : '',
+      url: targetType === 'url' ? targetId : '',
+      notificationId,
+    },
+    android: {
+      priority: 'high',
+      notification: {
+        channelId: 'announcements',
+        sound: 'default',
+        tag: `announcement_${Date.now()}`,
+        ...(imageUrl ? { imageUrl } : {}),
+      },
+    },
+    apns: {
+      payload: {
+        aps: {
+          sound: 'default',
+          badge: 1,
+          ...(imageUrl ? { 'mutable-content': 1 } : {}),
+        },
+      },
+      ...(imageUrl ? { fcmOptions: { imageUrl } } : {}),
+    },
+  };
+
+  const messageId = await messaging.send(fcmPayload);
+
+  const firestoreRecord = {
+    id: notificationId,
+    title,
+    body,
+    targetType,
+    targetId,
+    targetLabel,
+    topic,
+    sentAt: FieldValue.serverTimestamp(),
+    sentBy: callerEmail || callerUid,
+    status: 'sent',
+    messageId,
+  };
+  if (imageUrl) {
+    firestoreRecord.imageUrl = imageUrl;
+  }
+
+  const recordRef = firestore.doc(
+    `${root}/notifications/notifications/${notificationId}`,
+  );
+  await recordRef.set(firestoreRecord);
+
+  return {
+    success: true,
+    notificationId,
+    messageId,
+    title,
+    body,
+    topic,
+  };
+}

@@ -36,3 +36,40 @@ export function formatUserDate(value: unknown, fallback = ''): string {
   }
   return fallback;
 }
+
+export function formatNotificationDateTime(value: unknown, fallback = ''): string {
+  if (!value) return fallback;
+  try {
+    let d: Date | null = null;
+    if (
+      typeof value === 'object' &&
+      value !== null &&
+      'toDate' in value &&
+      typeof (value as { toDate: () => Date }).toDate === 'function'
+    ) {
+      d = (value as { toDate: () => Date }).toDate();
+    } else if (
+      typeof value === 'object' &&
+      value !== null &&
+      'seconds' in value &&
+      typeof (value as { seconds: number }).seconds === 'number'
+    ) {
+      d = new Date((value as { seconds: number }).seconds * 1000);
+    } else if (typeof value === 'string' || typeof value === 'number') {
+      d = new Date(value);
+    }
+    if (d && !Number.isNaN(d.getTime())) {
+      return d.toLocaleString('ar-YE', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }
+  } catch {
+    // fallback on error
+  }
+  return fallback;
+}
+

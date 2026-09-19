@@ -248,6 +248,11 @@ service cloud.firestore {
       allow create, update, delete: if isKnownRoot(root) && isSuperAdmin();
     }
 
+    match /{root}/notifications/notifications/{notificationId} {
+      allow read: if isKnownRoot(root);
+      allow create, update, delete: if isKnownRoot(root) && isSuperAdmin();
+    }
+
     match /{root}/locations/locations/{locationId} {
       allow read: if isKnownRoot(root);
       allow create, update, delete: if isKnownRoot(root) && isSuperAdmin();

@@ -1,7 +1,8 @@
-import { belongsToRoot, type FirestoreRoot } from './firestore-environment';
+import { belongsToRoot, type FirestoreRoot } from './firestore-environment.ts';
 
 declare const __FIRESTORE_ROOT__: FirestoreRoot;
-export const firestoreRoot = __FIRESTORE_ROOT__;
+export const firestoreRoot: FirestoreRoot =
+  typeof __FIRESTORE_ROOT__ !== 'undefined' ? __FIRESTORE_ROOT__ : 'HudHudDev';
 
 export function assertSelectedRoot(path: string): void {
   if (!belongsToRoot(path, firestoreRoot)) {

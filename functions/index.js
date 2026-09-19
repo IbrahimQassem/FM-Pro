@@ -8,6 +8,7 @@ import {
   toggleUserDisabled,
   assignStationAccess,
   migrateLegacyUsers,
+  broadcastNotification,
 } from './lib/user-management.js';
 import { randomUUID } from 'node:crypto';
 import { initializeApp } from 'firebase-admin/app';
@@ -806,6 +807,22 @@ export const adminMigrateLegacyUsers = onCall(
       targetRoot,
       overwrite,
       force,
+    });
+  },
+);
+
+export const adminBroadcastNotification = onCall(
+  { timeoutSeconds: 30, maxInstances: 20 },
+  async (request) => {
+    const callerUid = assertSuperAdminCaller(request);
+    const root = requestRoot(request);
+    return broadcastNotification({
+      messaging: getMessaging(),
+      firestore: getFirestore(),
+      callerUid,
+      callerEmail: request.auth?.token?.email || '',
+      root,
+      data: request.data,
     });
   },
 );

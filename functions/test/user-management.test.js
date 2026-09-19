@@ -6,6 +6,7 @@ import {
   toggleUserDisabled,
   assignStationAccess,
   migrateLegacyUsers,
+  broadcastNotification,
 } from '../lib/user-management.js';
 
 test('assertSuperAdminCaller validates auth and role claims', () => {
@@ -327,3 +328,99 @@ test('migrateLegacyUsers migrates legacy documents to canonical schema and enfor
   assert.equal(secondRun.alreadyExecuted, true);
   assert.match(secondRun.message, /already been executed/);
 });
+
+test('broadcastNotification sends FCM message to topic and stores record in firestore', async () => {
+  let sentPayload = null;
+  const mockMessaging = {
+    send: async (payload) => {
+      sentPayload = payload;
+      return 'projects/sanadev-fm/messages/msg-12345';
+    },
+  };
+
+  const store = new Map();
+  const mockFirestore = {
+    doc: (path) => ({
+      path,
+      set: async (data) => {
+        store.set(path, data);
+      },
+    }),
+  };
+
+  const result = await broadcastNotification({
+    messaging: mockMessaging,
+    firestore: mockFirestore,
+    callerUid: 'superAdmin1',
+    callerEmail: 'admin@hudhud.fm',
+    root: 'HudHudOfficial',
+    data: {
+      title: 'بث مباشر خاص',
+      body: 'استمع الآن إلى التغطية الإخبارية المباشرة',
+      targetType: 'station',
+      targetId: 'station-sanaa',
+      targetLabel: 'إذاعة صنعاء',
+    },
+  });
+
+  assert.equal(result.success, true);
+  assert.equal(result.messageId, 'projects/sanadev-fm/messages/msg-12345');
+  assert.equal(result.topic, 'hudhud_fm_announcements');
+
+  // Verify FCM payload structure
+  assert.equal(sentPayload.topic, 'hudhud_fm_announcements');
+  assert.equal(sentPayload.notification.title, 'بث مباشر خاص');
+  assert.equal(sentPayload.notification.body, 'استمع الآن إلى التغطية الإخبارية المباشرة');
+  assert.equal(sentPayload.data.type, 'station');
+  assert.equal(sentPayload.data.targetId, 'station-sanaa');
+  assert.equal(sentPayload.data.stationId, 'station-sanaa');
+  assert.equal(sentPayload.data.root, 'HudHudOfficial');
+
+  // Verify Firestore document
+  const savedDoc = store.get(`HudHudOfficial/notifications/notifications/${result.notificationId}`);
+  assert.ok(savedDoc);
+  assert.equal(savedDoc.title, 'بث مباشر خاص');
+  assert.equal(savedDoc.body, 'استمع الآن إلى التغطية الإخبارية المباشرة');
+  assert.equal(savedDoc.targetType, 'station');
+  assert.equal(savedDoc.targetId, 'station-sanaa');
+  assert.equal(savedDoc.targetLabel, 'إذاعة صنعاء');
+  assert.equal(savedDoc.sentBy, 'admin@hudhud.fm');
+  assert.equal(savedDoc.status, 'sent');
+  assert.equal(savedDoc.messageId, 'projects/sanadev-fm/messages/msg-12345');
+
+  // Validation errors
+  await assert.rejects(
+    broadcastNotification({
+      messaging: mockMessaging,
+      firestore: mockFirestore,
+      callerUid: 'superAdmin1',
+      root: 'HudHudOfficial',
+      data: { title: '', body: 'محتوى الإشعار' },
+    }),
+    /عنوان الإشعار مطلوب/,
+  );
+
+  await assert.rejects(
+    broadcastNotification({
+      messaging: mockMessaging,
+      firestore: mockFirestore,
+      callerUid: 'superAdmin1',
+      root: 'HudHudOfficial',
+      data: { title: 'عنوان', body: 'a'.repeat(251) },
+    }),
+    /يجب ألا يتجاوز نص الإشعار/,
+  );
+
+  await assert.rejects(
+    broadcastNotification({
+      messaging: mockMessaging,
+      firestore: mockFirestore,
+      callerUid: 'superAdmin1',
+      root: 'HudHudOfficial',
+      data: { title: 'عنوان', body: 'محتوى', targetType: 'invalid_type' },
+    }),
+    /نوع الهدف غير صالح/,
+  );
+});
+
+

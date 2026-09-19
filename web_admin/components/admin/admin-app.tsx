@@ -4,6 +4,7 @@ import { ScheduleAgenda } from './schedule-agenda';
 import { BannerStatusBadge } from './banner-status-badge';
 import { WorkspaceOverview, ScreenCoverage } from './workspace-overview';
 import { UserActionsModal, formatUserDate } from './user-actions-modal';
+import { NotificationsManager } from './notifications-manager';
 import { StationLogo } from './station-logo';
 import { ResourceThumbnail } from './resource-thumbnail';
 import {
@@ -38,6 +39,7 @@ import {
 import {
   ArrowUpDown,
   BarChart3,
+  Bell,
   Sun,
   Moon,
   Monitor,
@@ -142,6 +144,7 @@ const navigation: Array<{
   { section: 'schedule', label: 'الجدول الأسبوعي', icon: CalendarDays },
   { section: 'episodes', label: 'الحلقات', icon: PlayCircle },
   { section: 'banners', label: 'الإعلانات', icon: Megaphone },
+  { section: 'notifications', label: 'الإشعارات والتنبيهات', icon: Bell },
   { section: 'locations', label: 'المدن والمناطق', icon: MapPin },
   { section: 'coverage', label: 'تجربة التطبيق', icon: PanelsTopLeft },
   { section: 'users', label: 'المستخدمون', icon: Users },
@@ -582,6 +585,8 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
               />
             ) : section === 'coverage' ? (
               <ScreenCoverage onNavigate={navigate} />
+            ) : section === 'notifications' ? (
+              <NotificationsManager firestore={firestore} user={user} />
             ) : (
               <ResourcePanel
                 key={section}
@@ -1360,7 +1365,7 @@ function ResourceView({
     'all' | 'live' | 'featured' | 'verified'
   >('all');
   const [userRoleFilter, setUserRoleFilter] = useState<
-    'all' | 'admin' | 'editor' | 'listener'
+    'all' | 'super_admin' | 'station_admin' | 'moderator' | 'listener'
   >('all');
   const [sortBy, setSortBy] = useState('newest');
 
@@ -1381,19 +1386,22 @@ function ResourceView({
 
   const userRoleCounts = useMemo(() => {
     if (definition.key !== 'users') {
-      return { admin: 0, editor: 0, listener: 0 };
+      return { super_admin: 0, station_admin: 0, moderator: 0, listener: 0 };
     }
-    let admin = 0;
-    let editor = 0;
+    let super_admin = 0;
+    let station_admin = 0;
+    let moderator = 0;
     let listener = 0;
     for (const r of records) {
       const role = typeof r.data.role === 'string' ? r.data.role : 'listener';
-      if (role === 'admin') admin++;
-      else if (role === 'editor') editor++;
+      if (role === 'super_admin') super_admin++;
+      else if (role === 'station_admin') station_admin++;
+      else if (role === 'moderator') moderator++;
       else listener++;
     }
-    return { admin, editor, listener };
+    return { super_admin, station_admin, moderator, listener };
   }, [definition.key, records]);
+
 
   const filterKey = `${search}:${featureFilter}:${userRoleFilter}:${sortBy}:${status?.value ?? ''}`;
   const [pageState, setPageState] = useState({ key: filterKey, page: 1 });
@@ -1421,16 +1429,18 @@ function ResourceView({
         list = list.filter((r) => r.data.isVerified === true);
       }
     } else if (definition.key === 'users') {
-      if (userRoleFilter === 'admin') {
-        list = list.filter((r) => r.data.role === 'admin');
-      } else if (userRoleFilter === 'editor') {
-        list = list.filter((r) => r.data.role === 'editor');
+      if (userRoleFilter === 'super_admin') {
+        list = list.filter((r) => r.data.role === 'super_admin');
+      } else if (userRoleFilter === 'station_admin') {
+        list = list.filter((r) => r.data.role === 'station_admin');
+      } else if (userRoleFilter === 'moderator') {
+        list = list.filter((r) => r.data.role === 'moderator');
       } else if (userRoleFilter === 'listener') {
         list = list.filter(
           (r) =>
             !r.data.role ||
             r.data.role === 'listener' ||
-            (r.data.role !== 'admin' && r.data.role !== 'editor'),
+            (r.data.role !== 'super_admin' && r.data.role !== 'station_admin' && r.data.role !== 'moderator'),
         );
       }
     }
@@ -1624,13 +1634,14 @@ function ResourceView({
                   value={userRoleFilter}
                   onChange={(e) =>
                     setUserRoleFilter(
-                      e.target.value as 'all' | 'admin' | 'editor' | 'listener',
+                      e.target.value as 'all' | 'super_admin' | 'station_admin' | 'moderator' | 'listener',
                     )
                   }
                 >
                   <option value="all">كل الصلاحيات ({records.length})</option>
-                  <option value="admin">مدير عام ({userRoleCounts.admin})</option>
-                  <option value="editor">محرر محطة ({userRoleCounts.editor})</option>
+                  <option value="super_admin">مدير عام ({userRoleCounts.super_admin})</option>
+                  <option value="station_admin">مدير محطة ({userRoleCounts.station_admin})</option>
+                  <option value="moderator">مشرف ({userRoleCounts.moderator})</option>
                   <option value="listener">مستمع ({userRoleCounts.listener})</option>
                 </select>
               )}
@@ -1769,30 +1780,44 @@ function ResourceView({
                 <button
                   type="button"
                   onClick={() =>
-                    setUserRoleFilter((r) => (r === 'admin' ? 'all' : 'admin'))
+                    setUserRoleFilter((r) => (r === 'super_admin' ? 'all' : 'super_admin'))
                   }
                   className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
-                    userRoleFilter === 'admin'
+                    userRoleFilter === 'super_admin'
                       ? 'bg-primary text-primary-foreground shadow-xs'
                       : 'bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   <ShieldCheck className="size-3 text-red-500" />
-                  مدير عام ({userRoleCounts.admin})
+                  مدير عام ({userRoleCounts.super_admin})
                 </button>
                 <button
                   type="button"
                   onClick={() =>
-                    setUserRoleFilter((r) => (r === 'editor' ? 'all' : 'editor'))
+                    setUserRoleFilter((r) => (r === 'station_admin' ? 'all' : 'station_admin'))
                   }
                   className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
-                    userRoleFilter === 'editor'
+                    userRoleFilter === 'station_admin'
                       ? 'bg-primary text-primary-foreground shadow-xs'
                       : 'bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   <Radio className="size-3 text-amber-500" />
-                  محرر محطة ({userRoleCounts.editor})
+                  مدير محطة ({userRoleCounts.station_admin})
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setUserRoleFilter((r) => (r === 'moderator' ? 'all' : 'moderator'))
+                  }
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
+                    userRoleFilter === 'moderator'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <ShieldCheck className="size-3 text-blue-500" />
+                  مشرف ({userRoleCounts.moderator})
                 </button>
                 <button
                   type="button"
@@ -1943,15 +1968,20 @@ function ResourceView({
                         </span>
                       </div>
                       <div>
-                        {userRole === 'admin' ? (
+                        {userRole === 'super_admin' ? (
                           <Badge variant="default" className="text-[11px] gap-1 py-0">
                             <ShieldCheck className="size-2.5 text-red-400" />
                             مدير عام
                           </Badge>
-                        ) : userRole === 'editor' ? (
+                        ) : userRole === 'station_admin' ? (
                           <Badge variant="secondary" className="text-[11px] gap-1 py-0">
                             <Radio className="size-2.5 text-amber-500" />
-                            محرر محطة
+                            مدير محطة
+                          </Badge>
+                        ) : userRole === 'moderator' ? (
+                          <Badge variant="secondary" className="text-[11px] gap-1 py-0">
+                            <ShieldCheck className="size-2.5 text-blue-500" />
+                            مشرف
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="text-[11px] gap-1 py-0 text-muted-foreground">
@@ -2166,7 +2196,7 @@ function ResourceView({
                             const assignedStations = Array.isArray(record.data.assignedStationIds)
                               ? record.data.assignedStationIds
                               : [];
-                            if (role === 'admin') {
+                            if (role === 'super_admin') {
                               return (
                                 <Badge variant="default" className="text-xs gap-1">
                                   <ShieldCheck className="size-3 text-red-400" />
@@ -2174,12 +2204,12 @@ function ResourceView({
                                 </Badge>
                               );
                             }
-                            if (role === 'editor') {
+                            if (role === 'station_admin') {
                               return (
                                 <div className="flex flex-col gap-0.5">
                                   <Badge variant="secondary" className="text-xs gap-1 w-fit">
                                     <Radio className="size-3 text-amber-500" />
-                                    محرر محطة
+                                    مدير محطة
                                   </Badge>
                                   <span className="text-[11px] text-muted-foreground">
                                     {allStations
@@ -2191,12 +2221,21 @@ function ResourceView({
                                 </div>
                               );
                             }
+                            if (role === 'moderator') {
+                              return (
+                                <Badge variant="secondary" className="text-xs gap-1">
+                                  <ShieldCheck className="size-3 text-blue-500" />
+                                  مشرف
+                                </Badge>
+                              );
+                            }
                             return (
                               <Badge variant="outline" className="text-xs gap-1 text-muted-foreground">
                                 <UserIcon className="size-3 text-muted-foreground" />
                                 مستمع
                               </Badge>
                             );
+
                           })()
                         ) : (
                           record.relationLabel ||
