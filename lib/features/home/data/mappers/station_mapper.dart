@@ -85,14 +85,6 @@ abstract final class StationMapper {
     return 0;
   }
 
-  static String _requiredUrl(Map<String, dynamic> data, String key) {
-    final value = _requiredString(data, key);
-    if (!_isNetworkUrl(value)) {
-      throw SchemaDataException('Required station URL is invalid: $key.');
-    }
-    return value;
-  }
-
   static String _optionalUrl(Map<String, dynamic> data, String key) {
     final value = _optionalString(data, key);
     if (value.isNotEmpty && !_isNetworkUrl(value)) {

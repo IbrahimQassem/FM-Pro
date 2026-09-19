@@ -1,4 +1,3 @@
-import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
@@ -277,10 +276,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   static bool _validEmail(String? value) {
     final email = value?.trim() ?? '';
     return email.contains('@') && email.contains('.');
-  }
-
-  static bool get _supportsAppleSignIn {
-    return !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
   }
 
   static IconData _providerIcon(AccountSignInProvider provider) {

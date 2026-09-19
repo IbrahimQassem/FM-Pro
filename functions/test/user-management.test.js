@@ -423,4 +423,61 @@ test('broadcastNotification sends FCM message to topic and stores record in fire
   );
 });
 
+test('broadcastNotification resolves episode metadata and formats imageUrl correctly', async () => {
+  let sentPayload = null;
+  const mockMessaging = {
+    send: async (payload) => {
+      sentPayload = payload;
+      return 'projects/sanadev-fm/messages/msg-ep-99';
+    },
+  };
+
+  const store = new Map();
+  store.set('HudHudOfficial/episodes/episodes/ep123', {
+    stationId: 'station-aden',
+    programId: 'prog-morning',
+    title: 'حلقة الصباح',
+  });
+
+  const mockFirestore = {
+    doc: (path) => ({
+      path,
+      get: async () => ({
+        exists: store.has(path),
+        data: () => store.get(path),
+      }),
+      set: async (data) => {
+        store.set(path, data);
+      },
+    }),
+  };
+
+  const result = await broadcastNotification({
+    messaging: mockMessaging,
+    firestore: mockFirestore,
+    callerUid: 'superAdmin1',
+    callerEmail: 'admin@hudhud.fm',
+    root: 'HudHudOfficial',
+    data: {
+      title: 'حلقة جديدة متاحة الآن',
+      body: 'استمع إلى حلقة الصباح عبر أثير إذاعة عدن',
+      targetType: 'episode',
+      targetId: 'ep123',
+      targetLabel: 'حلقة الصباح',
+      imageUrl: 'https://example.com/banner.jpg',
+    },
+  });
+
+  assert.equal(result.success, true);
+  assert.equal(sentPayload.notification.imageUrl, 'https://example.com/banner.jpg');
+  assert.equal(sentPayload.android.notification.imageUrl, 'https://example.com/banner.jpg');
+  assert.equal(sentPayload.apns.fcmOptions.imageUrl, 'https://example.com/banner.jpg');
+  assert.equal(sentPayload.apns.payload.aps['mutable-content'], 1);
+  assert.equal(sentPayload.data.type, 'episode');
+  assert.equal(sentPayload.data.stationId, 'station-aden');
+  assert.equal(sentPayload.data.programId, 'prog-morning');
+  assert.equal(sentPayload.data.episodeId, 'ep123');
+  assert.equal(sentPayload.data.eventId, 'HudHudOfficial:ep123');
+});
+
 

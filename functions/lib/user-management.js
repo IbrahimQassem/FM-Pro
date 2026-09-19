@@ -350,6 +350,25 @@ export async function broadcastNotification({
   const notificationId = `notif_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
   const topic = 'hudhud_fm_announcements';
 
+  let episodeData = null;
+  if (targetType === 'episode' && targetId) {
+    try {
+      const epRef = firestore.doc(`${root}/episodes/episodes/${targetId}`);
+      if (typeof epRef?.get === 'function') {
+        const epDoc = await epRef.get();
+        if (epDoc?.exists && typeof epDoc.data === 'function') {
+          episodeData = epDoc.data();
+        }
+      }
+    } catch (_) {
+      // Fall back safely to announcement payload
+    }
+  }
+
+  const isEpisodeAlert =
+    targetType === 'episode' &&
+    Boolean(episodeData?.stationId && episodeData?.programId);
+
   const fcmPayload = {
     topic,
     notification: {
@@ -359,11 +378,23 @@ export async function broadcastNotification({
     },
     data: {
       version: '1',
-      type: targetType,
+      type: isEpisodeAlert
+        ? 'episode'
+        : targetType === 'episode'
+          ? 'announcement'
+          : targetType,
       root: root || 'HudHudOfficial',
       targetId,
-      stationId: targetType === 'station' ? targetId : '',
+      stationId: isEpisodeAlert
+        ? String(episodeData.stationId)
+        : targetType === 'station'
+          ? targetId
+          : '',
+      programId: isEpisodeAlert ? String(episodeData.programId) : '',
       episodeId: targetType === 'episode' ? targetId : '',
+      eventId: isEpisodeAlert
+        ? `${root || 'HudHudOfficial'}:${targetId}`
+        : '',
       url: targetType === 'url' ? targetId : '',
       notificationId,
     },

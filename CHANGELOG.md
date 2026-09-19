@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.2] - 2026-09-20
+
+### Added
+- **Notifications Manager Suite**: Real-time notification broadcast console in Web Admin with live mobile preview (lock screen and heads-up banner mockups), confirmation dialog, and full broadcast history.
+- **Rich Media Push Notifications**: Full image URL (`imageUrl`) support across composer, mobile previews, confirmation modal, history records, and FCM multi-platform payload (`android.notification.imageUrl`, `apns.fcmOptions.imageUrl`, `mutable-content: 1`).
+- **Interactive Episode Deep Linking**: Server-side episode metadata resolution in Cloud Functions so push notifications for episodes can deep-link directly to the episode player in-app.
+- **Terrestrial-Only Radio Stations**: Visual UI indicators and auto-reconnect fallback handling for broadcast-only FM stations without online streams.
+
+### Fixed
+- **Audio Service Notification Stability**: Fixed `IllegalArgumentException` in `AudioService.updateNotification` on Android 12+ (Oppo, Huawei, Samsung) by introducing monochrome vector play icon `ic_notification.xml` and configuring `androidNotificationIcon: 'drawable/ic_notification'`.
+- **Admin Role & Scope System**: Complete alignment with system RBAC (`super_admin`, `station_admin`, `moderator`, `listener`) across table views, quick-filter chips, and role dropdowns with assigned station scope counts.
+- **Analyzer & Build Cleanliness**: Eliminated all unused declarations and unnecessary imports across mobile and web packages; verified 0 errors across `flutter analyze`, `oxlint`, and `node --check`.
+
 ## [3.0.1] - 2026-09-19
 
 ### Added
