@@ -25,6 +25,7 @@ Future<void> main() async {
     androidNotificationChannelDescription:
         strings.audioPlaybackNotificationChannelDescription,
     androidNotificationOngoing: true,
+    androidNotificationIcon: 'drawable/ic_notification',
   );
   runApp(const ProviderScope(child: HudHudApp()));
 }
