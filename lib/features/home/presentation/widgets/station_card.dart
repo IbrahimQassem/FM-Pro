@@ -49,7 +49,12 @@ class StationCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: _StationLogo(station: station, size: 78)),
+                  Expanded(
+                    child: Align(
+                      alignment: AlignmentDirectional.topStart,
+                      child: _StationLogo(station: station, size: 78),
+                    ),
+                  ),
                   const SizedBox(width: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -228,18 +233,16 @@ class _StationLogo extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
         ),
         child: station.logoUrl.isEmpty
-            ? Icon(
-                Icons.radio_rounded,
-                size: 36,
-                color: colors.onPrimaryContainer,
+            ? Image.asset(
+                'assets/images/branding/station_placeholder.webp',
+                fit: BoxFit.cover,
               )
             : CachedNetworkImage(
                 imageUrl: station.logoUrl,
                 fit: BoxFit.cover,
-                errorWidget: (context, url, error) => Icon(
-                  Icons.radio_rounded,
-                  size: 36,
-                  color: colors.onPrimaryContainer,
+                errorWidget: (context, url, error) => Image.asset(
+                  'assets/images/branding/station_placeholder.webp',
+                  fit: BoxFit.cover,
                 ),
               ),
       ),

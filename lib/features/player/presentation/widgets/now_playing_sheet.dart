@@ -46,7 +46,7 @@ class _NowPlayingSheetState extends ConsumerState<NowPlayingSheet>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (TickerMode.valuesOf(context).enabled) {
+    if (TickerMode.of(context)) {
       if (!_pulseController.isAnimating) {
         _pulseController.repeat(reverse: true);
       }
@@ -311,24 +311,16 @@ class _NowPlayingSheetState extends ConsumerState<NowPlayingSheet>
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(24),
                                   child: state.artworkUrl.isEmpty
-                                      ? Container(
-                                          color: colors.primaryContainer,
-                                          child: Icon(
-                                            Icons.radio_rounded,
-                                            size: 64,
-                                            color: colors.onPrimaryContainer,
-                                          ),
+                                      ? Image.asset(
+                                          'assets/images/branding/station_placeholder.webp',
+                                          fit: BoxFit.cover,
                                         )
                                       : CachedNetworkImage(
                                           imageUrl: state.artworkUrl,
                                           fit: BoxFit.cover,
-                                          errorWidget: (c, u, e) => Container(
-                                            color: colors.primaryContainer,
-                                            child: Icon(
-                                              Icons.radio_rounded,
-                                              size: 64,
-                                              color: colors.onPrimaryContainer,
-                                            ),
+                                          errorWidget: (c, u, e) => Image.asset(
+                                            'assets/images/branding/station_placeholder.webp',
+                                            fit: BoxFit.cover,
                                           ),
                                         ),
                                 ),
