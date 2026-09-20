@@ -1,4 +1,7 @@
 {
+  "emailVerificationTitle": "تأكيد بريدك الإلكتروني",
+  "advertisementOpenLink": "زيارة المعلن — يفتح رابطًا خارجيًا",
+  "advertisementLinkFailed": "تعذّر فتح رابط المعلن",
   "appName": "هدهد إف إم",
   "splashTagline": "إذاعاتك في مكان واحد",
   "guestGreeting": "مرحبًا، مستمع",

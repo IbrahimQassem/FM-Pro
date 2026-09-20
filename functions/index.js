@@ -45,6 +45,9 @@ import {
 
 initializeApp();
 
+// Advertising is independent of account and playback operations.
+export { advertisingAdmin, serveAds, recordAdEvent, cleanupAdDeliveries } from './lib/advertising-handlers.js';
+
 const emailVerificationConfig = defineJsonSecret('EMAIL_VERIFICATION_CONFIG');
 const roots = ['HudHudDev', 'HudHudOfficial'];
 function requestRoot(request) {

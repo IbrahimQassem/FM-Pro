@@ -130,6 +130,10 @@ must follow the same protocol or run without concurrent location editing.
 
 ## Banner schema
 
+Managed direct partnerships use the separate private collections and callable v1
+defined in [advertising-contract.md](advertising-contract.md). They do not add
+commercial agreement data or measurements to the legacy public banner documents.
+
 ```text
 title, imageUrl, targetType, targetId, targetUrl,
 priority, isActive, startAt?, expiresAt?

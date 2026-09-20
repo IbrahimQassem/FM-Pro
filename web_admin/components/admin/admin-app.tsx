@@ -1,6 +1,7 @@
 import { firestoreRoot, assertSelectedRoot } from '@/lib/firestore-root';
 import { ContentEditor, RelationPicker } from './content-editor';
 import { ScheduleAgenda } from './schedule-agenda';
+import { AdvertisingWorkspace } from './advertising-workspace';
 import { BannerStatusBadge } from './banner-status-badge';
 import { WorkspaceOverview, ScreenCoverage } from './workspace-overview';
 import { UserActionsModal, formatUserDate } from './user-actions-modal';
@@ -125,7 +126,7 @@ import {
 } from '@/lib/admin-resources';
 import { getFirebaseServices } from '@/lib/firebase-client';
 
-type Section = 'overview' | 'coverage' | 'schedule' | ResourceKey;
+type Section = 'overview' | 'coverage' | 'schedule' | 'advertising' | ResourceKey;
 export type AdminRecord = {
   id: string;
   path: string;
@@ -145,6 +146,7 @@ const navigation: Array<{
   { section: 'episodes', label: 'الحلقات', icon: PlayCircle },
   { section: 'banners', label: 'الإعلانات', icon: Megaphone },
   { section: 'notifications', label: 'الإشعارات والتنبيهات', icon: Bell },
+  { section: 'advertising', label: 'الشراكات والحملات', icon: Megaphone },
   { section: 'locations', label: 'المدن والمناطق', icon: MapPin },
   { section: 'coverage', label: 'تجربة التطبيق', icon: PanelsTopLeft },
   { section: 'users', label: 'المستخدمون', icon: Users },
@@ -587,6 +589,8 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
               <ScreenCoverage onNavigate={navigate} />
             ) : section === 'notifications' ? (
               <NotificationsManager firestore={firestore} user={user} />
+            ) : section === 'advertising' ? (
+              <AdvertisingWorkspace />
             ) : (
               <ResourcePanel
                 key={section}

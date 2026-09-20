@@ -9,6 +9,12 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get advertisementOpenLink => 'Visit sponsor — opens an external link';
+
+  @override
+  String get advertisementLinkFailed => 'Unable to open the sponsor link';
+
+  @override
   String get appName => 'HudHud FM';
 
   @override

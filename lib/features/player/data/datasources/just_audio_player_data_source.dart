@@ -18,6 +18,9 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
               handleAudioSessionActivation: true,
             ) {
     _playerStateSubscription = _player.playerStateStream.listen((state) {
+      // Errors carry idle/paused transitions too. Retain the source for retry;
+      // errorStream is authoritative for this event, not an apparent stop.
+      if (_player.playbackEvent.errorCode != null) return;
       if (_isReplacingSource && state.processingState == ProcessingState.idle) {
         return;
       }
@@ -28,12 +31,11 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
       }
       _phaseController.add(phase);
     });
-    _playbackErrorSubscription = _player.playbackEventStream.listen(
-      (_) {},
-      onError: (Object error, StackTrace stackTrace) {
+    _playbackErrorSubscription = _player.errorStream.listen(
+      (error) {
         unawaited(CrashReporting.playbackEvent('failure'));
         if (!_isReplacingSource && !_phaseController.isClosed) {
-          _phaseController.addError(error, stackTrace);
+          _phaseController.addError(error, StackTrace.current);
         }
       },
     );
@@ -43,7 +45,7 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
   final StreamController<AudioPlaybackPhase> _phaseController =
       StreamController<AudioPlaybackPhase>.broadcast();
   late final StreamSubscription<PlayerState> _playerStateSubscription;
-  late final StreamSubscription<PlaybackEvent> _playbackErrorSubscription;
+  late final StreamSubscription<PlayerException> _playbackErrorSubscription;
   Future<void>? _sessionConfiguration;
   int _generation = 0;
   bool _isReplacingSource = false;
@@ -104,10 +106,11 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
   }
 
   Future<void> _playAndReportErrors() async {
+    final generation = _generation;
     try {
       await _player.play();
     } on Object catch (error, stackTrace) {
-      if (!_phaseController.isClosed) {
+      if (generation == _generation && !_phaseController.isClosed) {
         _phaseController.addError(error, stackTrace);
       }
     }

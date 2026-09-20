@@ -23,6 +23,7 @@ class HomeView extends StatefulWidget {
     this.onFavoritesFilterToggled,
     this.onFavoriteToggle,
     this.playerBar,
+    this.sponsoredPlacement,
     this.pendingFavoriteIds = const {},
     this.onResume,
     super.key,
@@ -40,6 +41,7 @@ class HomeView extends StatefulWidget {
   final ValueChanged<bool>? onFavoritesFilterToggled;
   final ValueChanged<Station>? onFavoriteToggle;
   final Widget? playerBar;
+  final Widget? sponsoredPlacement;
   final Set<String> pendingFavoriteIds;
   final VoidCallback? onResume;
 
@@ -126,6 +128,8 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                     ),
                   ),
                 ),
+              if (widget.sponsoredPlacement != null)
+                SliverToBoxAdapter(child: widget.sponsoredPlacement),
               if (widget.state.banners.isNotEmpty)
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),

@@ -1,5 +1,11 @@
 # Security and privacy contract
 
+Direct campaigns follow [the advertising contract](advertising-contract.md):
+private super-admin-only commercial records, public allowlisted creative delivery,
+short-lived deduplicated receipts and aggregate reports without account/device
+identifiers. This is the explicit guest-callable exception to read-only browsing;
+it grants no direct Firestore writes or access to commercial terms.
+
 الحالة: ملزم  
 المالك: Firebase data and security role
 

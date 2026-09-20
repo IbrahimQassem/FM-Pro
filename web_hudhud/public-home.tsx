@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import { readIds, toggleId, stationHref, validId, type Episode } from './lib/discovery';
+import { SponsoredPlacement } from './sponsored-placement';
 import { FeatureBoundary } from './feature-boundary';
 import type { AccountPort } from './account-panel';
 import type { loadStationContent } from './lib/content-repository';
@@ -254,6 +255,7 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
           </section>
         )}
 
+        {!detailId && <SponsoredPlacement />}
         <section className="content-section stations-section" id="stations">
           <div className="stations-heading"><SectionHeading eyebrow="الكتالوج الكامل" title="كل المحطات، أقرب إلى أذنك" description="ابحث باسم المحطة أو المدينة أو التردد، ثم اختر ما يناسب لحظتك." /><span className="count-badge">{loadState === 'ready' ? `${stations.length} محطة` : '...'}</span></div>
           <div className="detail-actions" aria-label="مكتبتي"><button aria-pressed={library === 'all'} onClick={() => setLibrary('all')}>كل المحطات</button><button aria-pressed={library === 'favorites'} onClick={() => setLibrary('favorites')}>المفضلة على هذا المتصفح</button><button aria-pressed={library === 'recent'} onClick={() => setLibrary('recent')}>استمعت إليها مؤخراً</button><button onClick={clearHistory} disabled={!history.length}>مسح سجل الاستماع</button></div><p role="status">{storageMessage}</p>

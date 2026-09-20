@@ -10,6 +10,7 @@
 - [الأمان والخصوصية](contracts/security-privacy-contract.md)
 - [المنتج وUX وإمكانية الوصول](contracts/product-ux-contract.md)
 - [التشغيل الصوتي](contracts/playback-contract.md)
+- [الحملات والشراكات الإعلانية](contracts/advertising-contract.md)
 - [البرامج والحلقات والجدول](contracts/station-content-contract.md)
 - [الحسابات والتعليقات والإشعارات](contracts/account-comments-notifications-contract.md)
 - [الجودة والإصدار](contracts/quality-release-contract.md)
@@ -46,6 +47,9 @@
 - `.agents/roles/`: مسؤوليات التسليم وحدود كل دور.
 
 ## مراجع التخطيط
+
+- [تحليل الراديو وقرار منظومة الحملات — 2026-09-20](decisions/0005-radio-reliability-and-direct-advertising.md):
+  الأدلة، حدود التشخيص، العقود والمراحل التجارية والتقنية.
 
 - [قرار حسابات واكتشاف الموقع العام](decisions/0004-public-web-accounts-and-discovery.md):
   التصفح العام، الحسابات الاختيارية، الروابط وتنبيهات المتصفح.

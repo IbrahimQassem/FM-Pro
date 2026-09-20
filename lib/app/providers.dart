@@ -1,3 +1,5 @@
+import '../features/advertising/data/firebase_advertising_repository.dart';
+import '../features/advertising/domain/sponsored_ad.dart';
 import '../features/settings/data/repositories/shared_preferences_settings_repository.dart';
 import '../features/settings/domain/models/app_settings.dart';
 import '../features/settings/domain/repositories/settings_repository.dart';
@@ -18,6 +20,8 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -62,6 +66,10 @@ import '../features/station_content/data/repositories/firebase_station_content_r
 import '../features/station_content/domain/repositories/station_content_repository.dart';
 import '../features/station_content/presentation/controllers/station_content_controller.dart';
 import '../features/station_content/presentation/controllers/station_content_state.dart';
+
+final advertisingRepositoryProvider = Provider<AdvertisingRepository>((ref) {
+  return FirebaseAdvertisingRepository(FirebaseFunctions.instance);
+});
 
 final homeDataSourceProvider = Provider<HomeFirestoreDataSource>((ref) {
   return HomeFirestoreDataSource(
@@ -195,6 +203,13 @@ final stationPlayerControllerProvider =
     StateNotifierProvider<StationPlayerController, StationPlayerState>((ref) {
   return StationPlayerController(
     ref.watch(audioPlaybackRepositoryProvider),
+    // Android 12+ disallows arbitrary foreground-service promotion from a timer
+    // in the background. Existing audio and OS media-button actions retain the
+    // shared native handler; app-initiated starts wait for a foreground action.
+    canStartPlayback: () =>
+        kIsWeb ||
+        defaultTargetPlatform != TargetPlatform.android ||
+        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed,
   );
 });
 

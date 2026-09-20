@@ -1,4 +1,5 @@
 import '../../notifications/presentation/episode_alert_navigation.dart';
+import '../../advertising/presentation/sponsored_placement.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -146,6 +147,7 @@ class HomeScreen extends ConsumerWidget {
     }
 
     return HomeView(
+      sponsoredPlacement: const SponsoredPlacement(),
       state:
           state.copyWith(favoriteStationIds: favoritesState.favoriteStationIds),
       pendingFavoriteIds: favoritesState.pendingStationIds,

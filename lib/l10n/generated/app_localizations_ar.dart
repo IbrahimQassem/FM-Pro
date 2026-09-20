@@ -9,6 +9,12 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
+  String get advertisementOpenLink => 'زيارة المعلن — يفتح رابطًا خارجيًا';
+
+  @override
+  String get advertisementLinkFailed => 'تعذّر فتح رابط المعلن';
+
+  @override
   String get appName => 'هدهد إف إم';
 
   @override
@@ -700,7 +706,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get streamQualityHq => 'بث رقمي عالي الجودة';
 
   @override
-  String get emailVerificationTitle => 'Verify your email';
+  String get emailVerificationTitle => 'تأكيد بريدك الإلكتروني';
 
   @override
   String get emailVerificationMessage =>

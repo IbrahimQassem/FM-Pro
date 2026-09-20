@@ -1,4 +1,6 @@
 {
+  "advertisementOpenLink": "Visit sponsor — opens an external link",
+  "advertisementLinkFailed": "Unable to open the sponsor link",
   "appName": "HudHud FM",
   "splashTagline": "Your stations, in one place",
   "guestGreeting": "Welcome, listener",

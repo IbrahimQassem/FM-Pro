@@ -241,3 +241,14 @@ input, select { accent-color: var(--primary); }
   .profile-photo-options { grid-template-columns: 1fr; }
   .profile-dialog { padding: 18px; }
 }
+/* Paid placements remain outside listening controls and never interrupt audio. */
+.sponsored-placement { max-width: 1120px; margin: 24px auto; border: 1px solid #8b264833; border-radius: 20px; overflow: hidden; background: var(--surface, #fff8fa); color: #331925; }
+.sponsored-placement > a, .sponsored-placement { text-decoration: none; }
+.sponsored-placement > a { display: block; color: inherit; }
+.sponsored-placement img { width: 100%; max-height: 220px; object-fit: cover; display: block; }
+.sponsored-placement div { padding: 20px; }
+.sponsored-placement h2 { font-size: 1.35rem; margin: 8px 0; }
+.sponsored-placement p { margin: 8px 0; }
+.sponsor-label { font-size: .8rem; font-weight: 700; }
+.sponsored-placement a:focus-visible { outline: 3px solid #8b2648; outline-offset: -4px; }
+@media (max-width: 1160px) { .sponsored-placement { margin-inline: 20px; } }

@@ -10,6 +10,85 @@ import 'package:hudhud_fm/features/player/presentation/controllers/station_playe
 import 'package:hudhud_fm/features/station_content/domain/models/episode.dart';
 
 void main() {
+  testWidgets(
+      'a reconnect timer cannot start Android playback after backgrounding',
+      (tester) async {
+    var foreground = true;
+    final repository = _FakeAudioPlaybackRepository();
+    final controller =
+        StationPlayerController(repository, canStartPlayback: () => foreground);
+    await controller.play(_station());
+    repository.failPlayback();
+    await tester.pump();
+    foreground = false;
+    await tester.pump(const Duration(seconds: 2));
+    expect(repository.playCalls, 1);
+    expect(controller.state.status, StationPlaybackStatus.failure);
+    foreground = true;
+    await controller.retry();
+    expect(repository.playCalls, 2);
+    controller.dispose();
+    await repository.dispose();
+  });
+  test(
+      'backgrounding during a slow load retains the source for retry without starting a service',
+      () async {
+    var foreground = true;
+    final repository = _FakeAudioPlaybackRepository()
+      ..delayedLoad = Completer<void>();
+    final controller =
+        StationPlayerController(repository, canStartPlayback: () => foreground);
+    final loading = controller.play(_station());
+    await pumpEventQueue();
+    foreground = false;
+    repository.delayedLoad!.complete();
+    await loading;
+    expect(repository.playCalls, 0);
+    expect(controller.state.station?.id, _station().id);
+    expect(controller.state.status, StationPlaybackStatus.failure);
+    controller.dispose();
+    await repository.dispose();
+  });
+  testWidgets(
+      'live reconnect stops after three attempts instead of resetting its budget',
+      (tester) async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = StationPlayerController(repository);
+    await controller.play(_station());
+    for (var attempt = 1; attempt <= 3; attempt++) {
+      repository.emit(AudioPlaybackPhase.playing);
+      await tester.pump();
+      repository.failPlayback();
+      await tester.pump();
+      await tester.pump(Duration(seconds: attempt));
+      await tester.pump();
+      expect(repository.playCalls, attempt + 1);
+    }
+    repository.emit(AudioPlaybackPhase.playing);
+    await tester.pump();
+    repository.failPlayback();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 10));
+    expect(repository.playCalls, 4);
+    expect(controller.state.status, StationPlaybackStatus.failure);
+    controller.dispose();
+    await repository.dispose();
+  });
+  testWidgets(
+      'manual pause cancels reconnect and preserves a usable paused state',
+      (tester) async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = StationPlayerController(repository);
+    await controller.play(_station());
+    repository.failPlayback();
+    await tester.pump();
+    await controller.pause();
+    await tester.pump(const Duration(seconds: 5));
+    expect(repository.playCalls, 1);
+    expect(controller.state.status, StationPlaybackStatus.paused);
+    controller.dispose();
+    await repository.dispose();
+  });
   test('a newer episode selection supersedes a slow station load', () async {
     final repository = _FakeAudioPlaybackRepository()
       ..delayedLoad = Completer<void>();
@@ -193,7 +272,8 @@ void main() {
     await repository.dispose();
   });
 
-  test('playNextStation and playPreviousStation cycle through stations', () async {
+  test('playNextStation and playPreviousStation cycle through stations',
+      () async {
     final repository = _FakeAudioPlaybackRepository();
     final controller = StationPlayerController(repository);
     final station1 = _station();
@@ -283,6 +363,8 @@ class _FakeAudioPlaybackRepository implements AudioPlaybackRepository {
   Stream<AudioPlaybackPhase> get phaseChanges => _phases.stream;
 
   void emit(AudioPlaybackPhase phase) => _phases.add(phase);
+  void failPlayback() =>
+      _phases.addError(StateError('Synthetic disconnect'), StackTrace.current);
 
   @override
   Future<void> load(AudioPlaybackItem item) async {

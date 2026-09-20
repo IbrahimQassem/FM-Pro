@@ -98,6 +98,18 @@ abstract class AppLocalizations {
     Locale('en')
   ];
 
+  /// No description provided for @advertisementOpenLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit sponsor — opens an external link'**
+  String get advertisementOpenLink;
+
+  /// No description provided for @advertisementLinkFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to open the sponsor link'**
+  String get advertisementLinkFailed;
+
   /// No description provided for @appName.
   ///
   /// In en, this message translates to:

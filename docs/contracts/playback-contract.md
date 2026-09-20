@@ -65,6 +65,29 @@ Widget أو Navigator أو Riverpod. يوجد controller مشترك واحد ل�
 
 ## التحقق
 
+### Reliability amendment — 2026-09-20
+
+The just_audio 0.10 errorStream is authoritative for PlayerException values.
+An error-bearing native idle/paused event must not erase the selected source as
+if it were a user stop. Explicit notification drawable `ic_notification` comes
+from upstream cdcf089 and is retained through Android resource shrinking.
+
+Live reconnection uses at most three consecutive retries with 1/2/3-second delays.
+Automatic retries preserve their budget and the sleep timer; only an explicit
+new play/retry or 30 seconds of stable playing resets the budget. Duplicate
+errors do not create parallel retry timers. Pause/stop/dispose cancel retries;
+pause invalidates a pending load so it cannot start afterward. Episode errors
+remain explicit failures. Device foreground-service restrictions still require
+the real-device acceptance matrix; automated controller tests are not that proof.
+
+On Android, app-initiated play/resume after an asynchronous load and retry timers
+check foreground lifecycle before starting playback. If the app backgrounded,
+retain the selection and expose failure/manual retry on return rather than
+attempting an ineligible foreground-service start. Already-playing background
+audio is not stopped. Native OS notification/headset actions remain owned by the
+existing media handler and their platform exemptions; no battery exemption or
+indefinitely paused foreground service is introduced.
+
 - unit tests: metadata وprimary/backup، toggle، retry، stop/remote stop، phase mapping والأخطاء.
 - widget tests: أزرار Home/Details وmini-player وحالات loading/failure.
 - يدوي عند تغيير engine: stream فعلي، انقطاع شبكة، pause/resume، تبديل محطة،
