@@ -10,6 +10,7 @@ import '../../favorites/presentation/controllers/favorites_controller.dart';
 import '../../account/presentation/account_screen.dart';
 import '../../notifications/presentation/notifications_screen.dart';
 import '../../player/presentation/widgets/mini_player.dart';
+import '../../player/presentation/widgets/now_playing_sheet.dart';
 import '../../station_details/presentation/station_details_screen.dart';
 import '../domain/models/station.dart';
 import 'widgets/home_view.dart';
@@ -186,7 +187,7 @@ class HomeScreen extends ConsumerWidget {
           ? null
           : MiniPlayer(
               state: playerState,
-              onOpen: () => openStation(playerState.station!),
+              onOpen: () => NowPlayingSheet.show(context),
               onToggle: playerController.toggleCurrent,
               onStop: playerController.stop,
             ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../l10n/generated/app_localizations.dart';
 import '../controllers/station_player_state.dart';
+import 'now_playing_sheet.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({
@@ -27,16 +28,31 @@ class MiniPlayer extends StatelessWidget {
     final isPlaying = state.status == StationPlaybackStatus.playing;
     final hasFailed = state.status == StationPlaybackStatus.failure;
 
+    void handleOpen() {
+      if (onOpen != null) {
+        onOpen!();
+      } else {
+        NowPlayingSheet.show(context);
+      }
+    }
+
     return SafeArea(
       top: false,
       minimum: const EdgeInsets.fromLTRB(8, 0, 8, 6),
-      child: Card(
-        elevation: 6,
-        color: colors.surface,
-        child: InkWell(
-          onTap: onOpen,
-          borderRadius: BorderRadius.circular(22),
-          child: Padding(
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onVerticalDragEnd: (details) {
+          if ((details.primaryVelocity ?? 0) < -120) {
+            handleOpen();
+          }
+        },
+        child: Card(
+          elevation: 6,
+          color: colors.surface,
+          child: InkWell(
+            onTap: handleOpen,
+            borderRadius: BorderRadius.circular(22),
+            child: Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 8, 10),
             child: Row(
               children: [
@@ -108,7 +124,8 @@ class MiniPlayer extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }
 

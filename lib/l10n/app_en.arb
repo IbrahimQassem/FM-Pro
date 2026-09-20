@@ -199,6 +199,21 @@
       }
     }
   },
+  "sleepTimer": "Sleep timer",
+  "sleepTimerOff": "Turn off timer",
+  "sleepTimerMinutes": "{minutes} min",
+  "@sleepTimerMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "liveBroadcast": "Live broadcast",
+  "viewStationDetails": "Station details & schedule",
+  "nextStation": "Next station",
+  "previousStation": "Previous station",
+  "streamQualityHq": "HQ Digital Stream",
   "emailVerificationTitle": "Verify your email",
   "emailVerificationMessage": "Enter the six-digit code sent to your email. The code expires after 10 minutes.",
   "emailVerificationMissingEmail": "This provider did not return an email. Enter an email you can access before requesting a code.",

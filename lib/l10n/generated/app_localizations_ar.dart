@@ -674,6 +674,32 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get sleepTimer => 'مؤقت النوم';
+
+  @override
+  String get sleepTimerOff => 'إيقاف المؤقت';
+
+  @override
+  String sleepTimerMinutes(int minutes) {
+    return '$minutes دقيقة';
+  }
+
+  @override
+  String get liveBroadcast => 'بث مباشر';
+
+  @override
+  String get viewStationDetails => 'تفاصيل وجدول المحطة';
+
+  @override
+  String get nextStation => 'المحطة التالية';
+
+  @override
+  String get previousStation => 'المحطة السابقة';
+
+  @override
+  String get streamQualityHq => 'بث رقمي عالي الجودة';
+
+  @override
   String get emailVerificationTitle => 'Verify your email';
 
   @override

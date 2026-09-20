@@ -24,6 +24,7 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
   int _reconnectAttempts = 0;
   static const int _maxReconnectAttempts = 3;
   Timer? _reconnectTimer;
+  Timer? _sleepTimer;
   Future<void> _loads = Future.value();
   late final StreamSubscription<AudioPlaybackPhase> _phaseSubscription;
 
@@ -157,6 +158,8 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
   }
 
   Future<void> stop() async {
+    _sleepTimer?.cancel();
+    _sleepTimer = null;
     _reconnectTimer?.cancel();
     _reconnectAttempts = 0;
     final generation = ++_generation;
@@ -169,6 +172,59 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
         state = const StationPlayerState();
       }
     }
+  }
+
+  void setSleepTimer(Duration? duration) {
+    _sleepTimer?.cancel();
+    _sleepTimer = null;
+    if (duration == null || duration <= Duration.zero) {
+      state = state.copyWith(clearSleepTimer: true);
+      return;
+    }
+    final end = DateTime.now().add(duration);
+    state = state.copyWith(sleepTimerEnd: end);
+    _sleepTimer = Timer(duration, () {
+      if (mounted) {
+        unawaited(stop());
+      }
+    });
+  }
+
+  void cancelSleepTimer() {
+    _sleepTimer?.cancel();
+    _sleepTimer = null;
+    state = state.copyWith(clearSleepTimer: true);
+  }
+
+  void playNextStation(List<Station> stations) {
+    if (stations.isEmpty || state.station == null) return;
+    final validStations =
+        stations.where((s) => s.streamUrl.trim().isNotEmpty).toList();
+    if (validStations.isEmpty) return;
+    final currentIndex =
+        validStations.indexWhere((s) => s.id == state.station!.id);
+    if (currentIndex == -1) {
+      unawaited(play(validStations.first));
+      return;
+    }
+    final nextIndex = (currentIndex + 1) % validStations.length;
+    unawaited(play(validStations[nextIndex]));
+  }
+
+  void playPreviousStation(List<Station> stations) {
+    if (stations.isEmpty || state.station == null) return;
+    final validStations =
+        stations.where((s) => s.streamUrl.trim().isNotEmpty).toList();
+    if (validStations.isEmpty) return;
+    final currentIndex =
+        validStations.indexWhere((s) => s.id == state.station!.id);
+    if (currentIndex == -1) {
+      unawaited(play(validStations.last));
+      return;
+    }
+    final prevIndex =
+        (currentIndex - 1 + validStations.length) % validStations.length;
+    unawaited(play(validStations[prevIndex]));
   }
 
   void _onPhaseChanged(AudioPlaybackPhase phase) {
@@ -244,6 +300,8 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
 
   @override
   void dispose() {
+    _sleepTimer?.cancel();
+    _sleepTimer = null;
     ++_generation;
     _reconnectTimer?.cancel();
     unawaited(_phaseSubscription.cancel());

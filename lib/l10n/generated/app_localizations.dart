@@ -1256,6 +1256,54 @@ abstract class AppLocalizations {
   /// **'This station currently broadcasts on terrestrial frequency {frequency} only.'**
   String terrestrialFrequencyNotice(String frequency);
 
+  /// No description provided for @sleepTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep timer'**
+  String get sleepTimer;
+
+  /// No description provided for @sleepTimerOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off timer'**
+  String get sleepTimerOff;
+
+  /// No description provided for @sleepTimerMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String sleepTimerMinutes(int minutes);
+
+  /// No description provided for @liveBroadcast.
+  ///
+  /// In en, this message translates to:
+  /// **'Live broadcast'**
+  String get liveBroadcast;
+
+  /// No description provided for @viewStationDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Station details & schedule'**
+  String get viewStationDetails;
+
+  /// No description provided for @nextStation.
+  ///
+  /// In en, this message translates to:
+  /// **'Next station'**
+  String get nextStation;
+
+  /// No description provided for @previousStation.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous station'**
+  String get previousStation;
+
+  /// No description provided for @streamQualityHq.
+  ///
+  /// In en, this message translates to:
+  /// **'HQ Digital Stream'**
+  String get streamQualityHq;
+
   /// No description provided for @emailVerificationTitle.
   ///
   /// In en, this message translates to:

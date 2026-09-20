@@ -683,6 +683,32 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get sleepTimer => 'Sleep timer';
+
+  @override
+  String get sleepTimerOff => 'Turn off timer';
+
+  @override
+  String sleepTimerMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get liveBroadcast => 'Live broadcast';
+
+  @override
+  String get viewStationDetails => 'Station details & schedule';
+
+  @override
+  String get nextStation => 'Next station';
+
+  @override
+  String get previousStation => 'Previous station';
+
+  @override
+  String get streamQualityHq => 'HQ Digital Stream';
+
+  @override
   String get emailVerificationTitle => 'Verify your email';
 
   @override

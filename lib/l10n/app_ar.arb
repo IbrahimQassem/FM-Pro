@@ -199,6 +199,21 @@
       }
     }
   },
+  "sleepTimer": "مؤقت النوم",
+  "sleepTimerOff": "إيقاف المؤقت",
+  "sleepTimerMinutes": "{minutes} دقيقة",
+  "@sleepTimerMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "liveBroadcast": "بث مباشر",
+  "viewStationDetails": "تفاصيل وجدول المحطة",
+  "nextStation": "المحطة التالية",
+  "previousStation": "المحطة السابقة",
+  "streamQualityHq": "بث رقمي عالي الجودة",
   "emailVerificationMessage": "أدخل الرمز المكوّن من ستة أرقام المرسل إلى بريدك. تنتهي صلاحية الرمز بعد 10 دقائق.",
   "emailVerificationMissingEmail": "لم يرسل مزود الدخول بريدًا إلكترونيًا. أدخل بريدًا يمكنك الوصول إليه قبل طلب الرمز.",
   "verificationCode": "رمز التحقق",

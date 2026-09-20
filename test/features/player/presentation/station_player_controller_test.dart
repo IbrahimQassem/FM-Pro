@@ -174,6 +174,59 @@ void main() {
     controller.dispose();
     await repository.dispose();
   });
+
+  test('sets and cancels sleep timer', () async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = StationPlayerController(repository);
+    final station = _station();
+    await controller.play(station);
+
+    controller.setSleepTimer(const Duration(minutes: 30));
+    expect(controller.state.hasSleepTimer, isTrue);
+    expect(controller.state.remainingSleepTime, isNotNull);
+
+    controller.cancelSleepTimer();
+    expect(controller.state.hasSleepTimer, isFalse);
+    expect(controller.state.remainingSleepTime, isNull);
+
+    controller.dispose();
+    await repository.dispose();
+  });
+
+  test('playNextStation and playPreviousStation cycle through stations', () async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = StationPlayerController(repository);
+    final station1 = _station();
+    const station2 = Station(
+      id: 'taiz-radio',
+      name: 'إذاعة تعز',
+      streamUrl: 'https://radio.example.com/taiz',
+      countryCode: 'YE',
+      countryNameAr: 'اليمن',
+      cityCode: 'taiz',
+      cityNameAr: 'تعز',
+      priority: 9,
+      isLive: true,
+      isActive: true,
+      isVerified: true,
+      isFeatured: false,
+      programsCount: 2,
+      subscribersCount: 80,
+      totalPlays: 200,
+    );
+
+    await controller.play(station1);
+    expect(controller.state.station?.id, station1.id);
+
+    controller.playNextStation([station1, station2]);
+    expect(controller.state.station?.id, station2.id);
+
+    controller.playPreviousStation([station1, station2]);
+    expect(controller.state.station?.id, station1.id);
+
+    controller.dispose();
+    await repository.dispose();
+  });
 }
 
 Station _station() {
