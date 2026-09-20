@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +16,53 @@ class BannerCarousel extends StatefulWidget {
 }
 
 class _BannerCarouselState extends State<BannerCarousel> {
+  late final PageController _pageController;
+  Timer? _autoSlideTimer;
   int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    _startAutoSlide();
+  }
+
+  void _startAutoSlide() {
+    _autoSlideTimer?.cancel();
+    if (widget.banners.length <= 1) return;
+    _autoSlideTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (!mounted || !_pageController.hasClients) return;
+      final nextPage = (_currentPage + 1) % widget.banners.length;
+      _pageController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOutCubic,
+      );
+    });
+  }
+
+  void _stopAutoSlide() {
+    _autoSlideTimer?.cancel();
+    _autoSlideTimer = null;
+  }
+
+  @override
+  void didUpdateWidget(BannerCarousel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.banners.length != oldWidget.banners.length) {
+      if (_currentPage >= widget.banners.length) {
+        _currentPage = 0;
+      }
+      _startAutoSlide();
+    }
+  }
+
+  @override
+  void dispose() {
+    _stopAutoSlide();
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +72,21 @@ class _BannerCarouselState extends State<BannerCarousel> {
       children: [
         SizedBox(
           height: 164,
-          child: PageView.builder(
-            itemCount: widget.banners.length,
-            onPageChanged: (value) => setState(() => _currentPage = value),
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification is ScrollStartNotification) {
+                if (notification.dragDetails != null) {
+                  _stopAutoSlide();
+                }
+              } else if (notification is ScrollEndNotification) {
+                _startAutoSlide();
+              }
+              return false;
+            },
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: widget.banners.length,
+              onPageChanged: (value) => setState(() => _currentPage = value),
             itemBuilder: (context, index) {
               final banner = widget.banners[index];
               return Padding(
@@ -86,6 +146,7 @@ class _BannerCarouselState extends State<BannerCarousel> {
                 ),
               );
             },
+            ),
           ),
         ),
         if (widget.banners.length > 1) ...[

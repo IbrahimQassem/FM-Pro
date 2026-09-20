@@ -278,10 +278,7 @@ class _NowPlayingSheetState extends ConsumerState<NowPlayingSheet>
                   Expanded(
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
+                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
                       child: Column(
                         children: [
                           // Apple Music Spring Scaled Artwork
@@ -328,17 +325,21 @@ class _NowPlayingSheetState extends ConsumerState<NowPlayingSheet>
                             ),
                           ),
 
+                          const SizedBox(height: 28),
+
                           // Station Info & Favorite Toggle
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
+                              const SizedBox(width: 48),
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
                                       state.title,
+                                      textAlign: TextAlign.center,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: Theme.of(context)
@@ -348,13 +349,14 @@ class _NowPlayingSheetState extends ConsumerState<NowPlayingSheet>
                                             fontWeight: FontWeight.w800,
                                           ),
                                     ),
-                                    const SizedBox(height: 4),
+                                    const SizedBox(height: 6),
                                     Text(
                                       state.episode != null
                                           ? station.name
                                           : (station.cityNameAr.isNotEmpty
                                               ? '${station.cityNameAr} • ${strings.streamQualityHq}'
                                               : strings.streamQualityHq),
+                                      textAlign: TextAlign.center,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: Theme.of(context)
@@ -394,11 +396,13 @@ class _NowPlayingSheetState extends ConsumerState<NowPlayingSheet>
                             ],
                           ),
 
+                          const SizedBox(height: 20),
+
                           // Live Broadcast Indicator & Stream Details
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 16,
+                              horizontal: 16,
+                              vertical: 14,
                             ),
                             decoration: BoxDecoration(
                               color: isPlaying
@@ -500,6 +504,8 @@ class _NowPlayingSheetState extends ConsumerState<NowPlayingSheet>
                             ),
                           ),
 
+                          const SizedBox(height: 28),
+
                           // Primary Controls (Previous, Play/Pause Hero, Next)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -571,6 +577,8 @@ class _NowPlayingSheetState extends ConsumerState<NowPlayingSheet>
                               ),
                             ],
                           ),
+
+                          const SizedBox(height: 24),
 
                           // Bottom Utility Actions (Sleep Timer, Station Details, Stop)
                           Row(
