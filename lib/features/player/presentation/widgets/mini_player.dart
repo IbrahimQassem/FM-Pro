@@ -136,22 +136,29 @@ class _MiniArtwork extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return Container(
       width: 48,
       height: 48,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: colors.primaryContainer,
         borderRadius: BorderRadius.circular(12),
       ),
       child: url.isEmpty
-          ? Icon(Icons.radio_rounded, color: colors.onPrimaryContainer)
+          ? Image.asset(
+              'assets/images/branding/station_placeholder.webp',
+              fit: BoxFit.cover,
+            )
           : CachedNetworkImage(
               imageUrl: url,
               fit: BoxFit.cover,
-              errorWidget: (context, url, error) =>
-                  Icon(Icons.radio_rounded, color: colors.onPrimaryContainer),
+              placeholder: (context, url) => Image.asset(
+                'assets/images/branding/station_placeholder.webp',
+                fit: BoxFit.cover,
+              ),
+              errorWidget: (context, url, error) => Image.asset(
+                'assets/images/branding/station_placeholder.webp',
+                fit: BoxFit.cover,
+              ),
             ),
     );
   }

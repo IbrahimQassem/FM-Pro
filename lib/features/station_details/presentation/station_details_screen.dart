@@ -649,31 +649,43 @@ class _StationArtwork extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl =
-        station.logoUrl.isNotEmpty ? station.logoUrl : station.thumbnailUrl;
+    final imageUrl = station.logoUrl;
     return Semantics(
       image: true,
       label: AppLocalizations.of(context).stationLogo(station.name),
       child: Container(
         width: 88,
         height: 88,
-        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.16),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.25),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        child: imageUrl.isEmpty
-            ? const Icon(Icons.radio_rounded, size: 46, color: Colors.white)
-            : CachedNetworkImage(
-                imageUrl: imageUrl,
-                fit: BoxFit.cover,
-                errorWidget: (context, url, error) => const Icon(
-                  Icons.radio_rounded,
-                  size: 46,
-                  color: Colors.white,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: imageUrl.isEmpty
+              ? Image.asset(
+                  'assets/images/branding/station_placeholder.webp',
+                  fit: BoxFit.cover,
+                )
+              : CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Image.asset(
+                    'assets/images/branding/station_placeholder.webp',
+                    fit: BoxFit.cover,
+                  ),
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/images/branding/station_placeholder.webp',
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
+        ),
       ),
     );
   }

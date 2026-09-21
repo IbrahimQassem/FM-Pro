@@ -240,6 +240,10 @@ class _StationLogo extends StatelessWidget {
             : CachedNetworkImage(
                 imageUrl: station.logoUrl,
                 fit: BoxFit.cover,
+                placeholder: (context, url) => Image.asset(
+                  'assets/images/branding/station_placeholder.webp',
+                  fit: BoxFit.cover,
+                ),
                 errorWidget: (context, url, error) => Image.asset(
                   'assets/images/branding/station_placeholder.webp',
                   fit: BoxFit.cover,
