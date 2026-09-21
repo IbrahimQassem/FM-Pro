@@ -41,5 +41,22 @@ void main() {
 
     expect(mainSource, contains('await JustAudioBackground.init('));
     expect(mainSource, contains('androidNotificationOngoing: true'));
+    expect(
+      mainSource,
+      contains("androidNotificationIcon: 'drawable/ic_notification'"),
+    );
+  });
+
+  test('Android retains monochrome notification icon for AudioService', () {
+    final iconFile =
+        File('android/app/src/main/res/drawable/ic_notification.xml');
+    expect(iconFile.existsSync(), isTrue);
+    final iconXml = iconFile.readAsStringSync();
+    expect(iconXml, contains('<vector'));
+
+    final keepFile = File('android/app/src/main/res/raw/keep.xml');
+    expect(keepFile.existsSync(), isTrue);
+    final keepXml = keepFile.readAsStringSync();
+    expect(keepXml, contains('@drawable/ic_notification'));
   });
 }

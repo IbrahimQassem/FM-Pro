@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.3] - 2026-09-21
+
+### Added
+- **Luxury App Branding & Icon Suite**: Pixel-perfect high-resolution circular luxury emblem (`app_logo_circle.png`) and seamless square emblem (`app_logo_square.png`, `app_icon_1024.png`).
+- **Seamless Adaptive Android Icons**: Native Android adaptive icons (`ic_launcher_foreground.png`, `ic_launcher_monochrome.png`) with color-matched background (`#14090B`) in `colors.xml`, eliminating all white letterboxing.
+- **Warm-Amber Mascot Placeholder**: Created and integrated official luxury radio mascot placeholder (`station_placeholder.webp`) across all station and player widgets.
+
+### Changed
+- **Artwork & Placeholder Consistency**: Replaced legacy `Icons.radio_rounded` and removed harsh white border artifacts in `StationDetailsScreen`, `StationCard`, and `_MiniArtwork` in `MiniPlayer`.
+- **Artwork Model Alignment**: Unified artwork resolution in `StationDetailsScreen` with `StationPlayerController` and `StationCard` to strictly prefer verified station logos before graceful fallback.
+
+### Improved
+- **Now Playing Sheet UX**: Centered station titles and enhanced vertical rhythm, spacing, and gesture feedback.
+- **Home View Carousel**: Added smooth auto-sliding banner carousel transitions with safe timer lifecycle handling.
+- **Full Test Suite Validation**: All 231 tests passing across widget, unit, and screen acceptance suites.
+
+---
+
+## [3.0.2] - 2026-09-20
+
+### Added
+- **Web Admin Notifications Manager**: Broadcasting console with iPhone preview, action destination pickers, and FCM image support.
+- **Rich Media Push Notifications**: Full HTTPS image banner support in FCM alerts (`android.notification.imageUrl`, `apns.fcmOptions.imageUrl`).
+- **Episode Deep Linking**: Automated server-side metadata resolution for direct player navigation on push notification tap.
+
+### Fixed
+- **Audio Notification Stability**: Monochrome vector drawable `ic_notification.xml` to eliminate `IllegalArgumentException` on Android 12+.
+- **Terrestrial FM Fallback**: Dedicated badge indicators and reconnection handling for broadcast-only stations.
+
+---
+
 ## [3.0.0] - 2026-09-18
 
 ### Added
