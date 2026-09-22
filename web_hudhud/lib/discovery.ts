@@ -38,7 +38,7 @@ export function programFromSnapshot(doc: Snapshot, stationId: string): Program |
 export function episodeFromSnapshot(doc: Snapshot, stationId: string, programs: Program[]): Episode | null {
   const d = doc.data();
   if (!validId(doc.id) || d.stationId !== stationId || d.isPublished !== true || d.adminDeletionToken || !text(d.title) || !programs.some(p => p.id === d.programId)) return null;
-  try { if (new URL(text(d.audioUrl)).protocol !== 'https:') return null; } catch { return null; }
+  try { const p = new URL(text(d.audioUrl)).protocol; if (p !== 'https:' && p !== 'http:') return null; } catch { return null; }
   const timestamp = d.broadcastAt as { toMillis?: () => number } | undefined;
   const date = typeof timestamp?.toMillis === 'function' ? timestamp.toMillis() : NaN;
   if (!Number.isFinite(date) || !integer(d.utcOffsetMinutes, -720, 840)) return null;

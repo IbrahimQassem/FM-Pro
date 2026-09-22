@@ -567,7 +567,7 @@ export function ContentEditor({
                   </p>
                 )}
                 {(kind === 'stations' || kind === 'episodes') &&
-                  isNetworkUrl(audioUrl, kind === 'stations') && (
+                  isNetworkUrl(audioUrl, true) && (
                     <AudioPreview key={audioUrl} url={audioUrl} />
                   )}
               </section>

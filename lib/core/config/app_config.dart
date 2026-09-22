@@ -12,6 +12,13 @@ abstract final class AppConfig {
   /// Official Android application package ID.
   static const String androidPackageId = 'com.sana.dev.fm';
 
+  /// Google Web Client ID for exchanging OAuth ID tokens with Firebase Auth.
+  static const String googleWebClientId = String.fromEnvironment(
+    'GOOGLE_WEB_CLIENT_ID',
+    defaultValue:
+        '641426561966-3kt8te3o7oq3liaq66cnvld726dtform.apps.googleusercontent.com',
+  );
+
   /// Official iOS application bundle identifier.
   static const String iosBundleId = 'com.sana.dev.fm';
 

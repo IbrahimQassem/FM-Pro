@@ -156,13 +156,16 @@ export function validateContent(
       errors[field.key] = 'أدخل قائمة نصوص صالحة.';
     if (field.type === 'number' && !Number.isInteger(value))
       errors[field.key] = 'أدخل عددًا صحيحًا.';
+    const isMediaUrl =
+      kind === 'stations' ||
+      (kind === 'episodes' && field.key === 'audioUrl');
     if (
       field.type === 'url' &&
       value &&
-      !isNetworkUrl(value, kind === 'stations')
+      !isNetworkUrl(value, isMediaUrl)
     )
       errors[field.key] =
-        kind === 'stations'
+        isMediaUrl
           ? 'أدخل رابط HTTP أو HTTPS صالحًا.'
           : 'أدخل رابط HTTPS صالحًا.';
     if (

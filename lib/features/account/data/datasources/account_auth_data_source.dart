@@ -8,9 +8,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../../../../core/config/app_config.dart';
 import '../../../../core/config/firestore_paths.dart';
 import '../../../../core/config/profile_avatar.dart';
 import '../../domain/models/account_sign_in_provider.dart';
+import 'dart:developer' as developer;
 
 class AccountAuthSnapshot {
   const AccountAuthSnapshot({
@@ -340,7 +342,9 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
 
   Future<AuthCredential> _googleCredential() async {
     try {
-      _googleInitialization ??= _googleSignIn.initialize();
+      _googleInitialization ??= _googleSignIn.initialize(
+        serverClientId: AppConfig.googleWebClientId,
+      );
       await _googleInitialization;
       if (!_googleSignIn.supportsAuthenticate()) {
         throw const AccountDataException('provider-not-configured');
@@ -351,7 +355,13 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
         throw const AccountDataException('provider-credential-missing');
       }
       return GoogleAuthProvider.credential(idToken: idToken);
-    } on GoogleSignInException catch (error) {
+    } on GoogleSignInException catch (error, stackTrace) {
+      developer.log(
+        'Google sign in failed: ${error.code} - ${error.description}',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'AccountAuthDataSource',
+      );
       if (error.code == GoogleSignInExceptionCode.canceled ||
           error.code == GoogleSignInExceptionCode.interrupted) {
         throw const AccountDataException('provider-cancelled');
@@ -359,7 +369,13 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
       throw const AccountDataException('provider-failed');
     } on AccountDataException {
       rethrow;
-    } on Object {
+    } on Object catch (error, stackTrace) {
+      developer.log(
+        'Unexpected Google sign in error: $error',
+        error: error,
+        stackTrace: stackTrace,
+        name: 'AccountAuthDataSource',
+      );
       throw const AccountDataException('provider-failed');
     }
   }
@@ -395,7 +411,9 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
 
   Future<void> _signOutProviderSessions() async {
     try {
-      _googleInitialization ??= _googleSignIn.initialize();
+      _googleInitialization ??= _googleSignIn.initialize(
+        serverClientId: AppConfig.googleWebClientId,
+      );
       await _googleInitialization;
       await _googleSignIn.signOut();
     } on Object {

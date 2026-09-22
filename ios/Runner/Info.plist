@@ -22,6 +22,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>$(HUDHUD_GOOGLE_REVERSED_CLIENT_ID)</string>
+				<string>com.googleusercontent.apps.641426561966-qq7kd06pid3f70ef4h3atvoemers1kej</string>
 				<string>fb$(HUDHUD_FACEBOOK_APP_ID)</string>
 			</array>
 		</dict>
@@ -101,5 +102,12 @@
 	<string>يحتاج هدهد FM إلى إذن الكاميرا لالتقاط صورة للملف الشخصي.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>يحتاج هدهد FM إلى إذن الوصول إلى معرض الصور لاختيار صورة للملف الشخصي.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSAllowsArbitraryLoadsForMedia</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

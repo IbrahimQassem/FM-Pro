@@ -138,3 +138,23 @@ void test('save fingerprints ignore map order but preserve meaningful content ch
     ),
   );
 });
+
+void test('episode audioUrl permits HTTP while coverUrl rejects it', () => {
+  const episode = {
+    title: 'حلقة',
+    stationId: 'st-1',
+    programId: 'pr-1',
+    audioUrl: 'http://example.com/audio.mp3',
+    coverUrl: 'https://example.com/cover.jpg',
+    durationSeconds: 120,
+    broadcastAt: '2026-09-08T10:00:00Z',
+    utcOffsetMinutes: 180,
+    isPublished: true,
+    isFeatured: false,
+    priority: 0,
+  };
+  assert.deepEqual(validateContent('episodes', episode), {});
+
+  const invalidCover = { ...episode, coverUrl: 'http://example.com/cover.jpg' };
+  assert.ok(validateContent('episodes', invalidCover).coverUrl);
+});

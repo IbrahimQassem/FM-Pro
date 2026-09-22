@@ -23,7 +23,9 @@ test('content hides removed/mismatched data and rejects invalid schedules/audio/
  for (const patch of [{isActive:false},{stationId:'other'},{adminDeletionToken:'pending'},{schedule:{...schedule,endMinute:180}},{schedule:{...schedule,weekdays:[0]}}]) assert.equal(programFromSnapshot(doc('p',{...program,...patch}),'s'),null);
  const episode={stationId:'s',programId:'p',title:'Episode',isPublished:true,audioUrl:'https://example.test/audio',broadcastAt:{toMillis:()=>123},utcOffsetMinutes:180};
  assert.ok(episodeFromSnapshot(doc('e',episode),'s',[p]));
- for(const patch of [{isPublished:false},{programId:'missing'},{audioUrl:'http://example.test/a'},{broadcastAt:'yesterday'},{utcOffsetMinutes:1000}]) assert.equal(episodeFromSnapshot(doc('e',{...episode,...patch}),'s',[p]),null);
+ const httpEpisode = episodeFromSnapshot(doc('e',{...episode,audioUrl:'http://example.test/a'}),'s',[p]);
+ assert.equal(httpEpisode?.audioUrl, 'http://example.test/a');
+ for(const patch of [{isPublished:false},{programId:'missing'},{audioUrl:'ftp://example.test/a'},{broadcastAt:'yesterday'},{utcOffsetMinutes:1000}]) assert.equal(episodeFromSnapshot(doc('e',{...episode,...patch}),'s',[p]),null);
 });
 test('schedule uses explicit offset across midnight and exact interval boundaries',()=>{
  assert.equal(scheduleStatus(schedule,Date.parse('2026-09-12T23:59:00Z')),'next');

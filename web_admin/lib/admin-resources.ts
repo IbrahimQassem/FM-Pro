@@ -65,7 +65,7 @@ export const resourceDefinitions: Record<ResourceKey, ResourceDefinition> = {
       nameEn: '',
       tagline: '',
       description: '',
-      streamUrl: 'https://',
+      streamUrl: '',
       frequency: '',
       countryCode: 'YE',
       countryNameAr: 'اليمن',

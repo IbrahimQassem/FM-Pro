@@ -493,13 +493,48 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
               </button>
             ))}
           </nav>
-          <div className="mt-auto pt-8">
-            <div className="rounded-2xl border bg-card p-4">
-              <ShieldCheck className="mb-3 size-5 text-primary" />
-              <p className="text-sm font-semibold">إدارة مسؤولة، محتوى موثوق</p>
-              <p className="mt-2 text-xs leading-6 text-muted-foreground">
-                قرارات واضحة تحافظ على المحتوى والمجتمع.
-              </p>
+          <div className="mt-auto space-y-3 pt-6">
+            <div className="rounded-2xl border bg-card p-3.5 shadow-sm">
+              <div className="flex items-center gap-3">
+                <span className="grid size-10 place-items-center rounded-xl bg-primary/15 font-bold text-primary">
+                  {user.email ? (
+                    user.email.charAt(0).toUpperCase()
+                  ) : (
+                    <UserIcon className="size-5" />
+                  )}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p
+                    className="truncate text-xs font-semibold text-foreground"
+                    title={user.email || user.uid}
+                  >
+                    {user.email || 'حساب المدير'}
+                  </p>
+                  <p
+                    className="mt-0.5 truncate text-[11px] text-muted-foreground"
+                    title={user.uid}
+                  >
+                    UID: {user.uid.slice(0, 10)}...
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 flex items-center justify-between border-t pt-2.5 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1 font-medium text-primary">
+                  <ShieldCheck className="size-3.5" /> مدير النظام
+                </span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const { auth } = await getFirebaseServices();
+                    await signOut(auth);
+                  }}
+                  className="inline-flex items-center gap-1 text-xs text-destructive hover:underline"
+                  title="تسجيل الخروج"
+                >
+                  <LogOut className="size-3" />
+                  خروج
+                </button>
+              </div>
             </div>
           </div>
         </aside>
@@ -511,7 +546,21 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
               </p>
               <h1 className="mt-2 text-xl font-bold">{current.label}</h1>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <div
+                className="flex items-center gap-2 rounded-xl border bg-card px-3 py-1.5 text-xs shadow-xs"
+                title={`مسجل بحساب: ${user.email || user.uid}`}
+              >
+                <span className="grid size-6 place-items-center rounded-full bg-primary/10 text-primary">
+                  <UserIcon className="size-3.5" />
+                </span>
+                <span className="max-w-[180px] truncate font-medium text-foreground sm:max-w-[240px]">
+                  {user.email || user.displayName || user.uid}
+                </span>
+                <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
+                  مدير النظام
+                </Badge>
+              </div>
               <Badge
                 variant="outline"
                 className={

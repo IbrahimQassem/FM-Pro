@@ -25,59 +25,95 @@ class UserHeader extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final displayName = user.isGuest ? strings.guestGreeting : user.displayName;
 
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+
     return Row(
       children: [
-        Semantics(
-          image: true,
-          label: strings.profileImage,
-          child: MascotAvatar(
-            radius: 28,
-            imageUrl: user.avatarUrl,
-          ),
-        ),
-        const SizedBox(width: 12),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                displayName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 3),
-              Row(
-                mainAxisSize: MainAxisSize.min,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: onSettingsPressed,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+              child: Row(
                 children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: isOffline
-                          ? colors.error
-                          : context.appTheme.statusOnline,
-                      shape: BoxShape.circle,
+                  Semantics(
+                    button: true,
+                    label: user.isGuest ? strings.signIn : strings.account,
+                    child: MascotAvatar(
+                      radius: 26,
+                      imageUrl: user.avatarUrl,
                     ),
                   ),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(
-                      isOffline ? strings.offlineStatus : strings.onlineStatus,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: colors.onSurfaceVariant,
-                          ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          displayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                        const SizedBox(height: 3),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: isOffline
+                                    ? colors.error
+                                    : context.appTheme.statusOnline,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                isOffline
+                                    ? strings.offlineStatus
+                                    : strings.onlineStatus,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: colors.onSurfaceVariant,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
+        if (user.isGuest && textScale <= 1.2) ...[
+          FilledButton.tonalIcon(
+            onPressed: onSettingsPressed,
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+              visualDensity: VisualDensity.compact,
+            ),
+            icon: const Icon(Icons.login_rounded, size: 16),
+            label: Text(
+              strings.signIn,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(width: 2),
+        ],
         IconButton(
           onPressed: onNotificationsPressed,
           tooltip: strings.notifications,
@@ -88,8 +124,10 @@ class UserHeader extends StatelessWidget {
         ),
         IconButton(
           onPressed: onSettingsPressed,
-          tooltip: strings.settings,
-          icon: const Icon(Icons.tune_rounded),
+          tooltip: user.isGuest ? strings.signIn : strings.account,
+          icon: Icon(
+            user.isGuest ? Icons.login_rounded : Icons.person_outline_rounded,
+          ),
         ),
       ],
     );
