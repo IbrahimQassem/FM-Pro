@@ -963,7 +963,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String shareAppMessage(String url) {
-    return 'استمع لأجمل الإذاعات والبرامج اليمنية عبر تطبيق هدهد FM 📻🇾🇪\nحمل التطبيق الآن: $url';
+    return 'صديقكم هدهد FM يحييكم! 🕊️📻✨\nاستمع لأجمل الإذاعات والبرامج والبودكاست اليمني بجودة عالية أينما كنت 🇾🇪🎶\n\nحمّل تطبيق هدهد FM واستمتع بالبث المباشر الآن:\n$url';
   }
 
   @override

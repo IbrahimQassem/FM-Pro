@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hudhud_fm/core/services/share_service.dart';
@@ -79,7 +80,90 @@ void main() {
       expect(plugin.calls[2].subject, episode.title);
       expect(plugin.calls[2].text, contains('Distinct Program'));
     });
+
+    testWidgets('$language shares app with mascot image attachment',
+        (tester) async {
+      late BuildContext shareContext;
+      await tester.pumpWidget(MaterialApp(
+        locale: Locale(language),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(builder: (context) {
+          shareContext = context;
+          return const Scaffold(body: Text('Share test'));
+        }),
+      ));
+      final plugin = _SharePlugin();
+      final mascotFile = XFile(
+        '/tmp/hudhud_fm_mascot.webp',
+        mimeType: 'image/webp',
+        name: 'hudhud_fm_mascot.webp',
+      );
+      final service = ShareService(
+        sharePlugin: plugin,
+        mascotImageLoader: () async => mascotFile,
+      );
+      await service.shareApp(shareContext);
+
+      expect(plugin.calls, hasLength(1));
+      final call = plugin.calls.first;
+      expect(call.files, isNotNull);
+      expect(call.files!.single.name, 'hudhud_fm_mascot.webp');
+      expect(call.text, contains(StoreUrlHelper.getStoreUrl()));
+      if (language == 'ar') {
+        expect(call.text, contains('صديقكم هدهد FM يحييكم!'));
+      } else {
+        expect(call.text, contains('Your friendly companion Hudhud FM'));
+      }
+    });
+
+    testWidgets('$language falls back to text-only if file share fails',
+        (tester) async {
+      late BuildContext shareContext;
+      await tester.pumpWidget(MaterialApp(
+        locale: Locale(language),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(builder: (context) {
+          shareContext = context;
+          return const Scaffold(body: Text('Share test'));
+        }),
+      ));
+      final plugin = _FailingFileSharePlugin();
+      final mascotFile = XFile(
+        '/tmp/hudhud_fm_mascot.webp',
+        mimeType: 'image/webp',
+        name: 'hudhud_fm_mascot.webp',
+      );
+      final service = ShareService(
+        sharePlugin: plugin,
+        mascotImageLoader: () async => mascotFile,
+      );
+      await service.shareApp(shareContext);
+
+      expect(plugin.calls, hasLength(2));
+      // First attempt had file and threw
+      expect(plugin.calls[0].files, isNotNull);
+      // Fallback attempt had text only
+      expect(plugin.calls[1].files, isNull);
+      expect(plugin.calls[1].text, contains(StoreUrlHelper.getStoreUrl()));
+    });
   }
+}
+
+class _FailingFileSharePlugin implements SharePlus {
+  final calls = <ShareParams>[];
+  @override
+  Future<ShareResult> share(ShareParams params) async {
+    calls.add(params);
+    if (params.files != null && params.files!.isNotEmpty) {
+      throw UnsupportedError('File sharing unsupported');
+    }
+    return const ShareResult('test', ShareResultStatus.success);
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class _SharePlugin implements SharePlus {
