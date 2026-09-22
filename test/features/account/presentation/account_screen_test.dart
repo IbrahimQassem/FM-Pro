@@ -3,6 +3,8 @@ import "package:flutter/material.dart";
 import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:hudhud_fm/core/config/app_config.dart";
+import "package:hudhud_fm/features/account/presentation/widgets/contact_us_dialog.dart";
 import "package:hudhud_fm/app/providers.dart";
 import "package:hudhud_fm/features/account/domain/models/account_sign_in_provider.dart";
 import "package:hudhud_fm/features/account/domain/models/account_user.dart";
@@ -99,8 +101,26 @@ void main() {
     expect(
         find.descendant(
             of: find.byType(AboutAppDialog),
-            matching: find.textContaining("1.0.0 (1)")),
+            matching: find.textContaining("${AppConfig.currentVersionName} (${AppConfig.currentVersionCode})")),
         findsOneWidget);
+  });
+
+  testWidgets("can open Contact Us dialog from Settings Hub", (tester) async {
+    final repository = _FakeAccountRepository(user: _user);
+    await tester.pumpWidget(_TestApp(repository: repository));
+    await tester.pumpAndSettle();
+
+    final contactTile = find.byKey(const Key("account-contact-us"));
+    await tester.scrollUntilVisible(contactTile, 250);
+    await tester.drag(find.byType(ListView), const Offset(0, -150));
+    await tester.pumpAndSettle();
+    expect(contactTile, findsOneWidget);
+
+    await tester.tap(contactTile);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ContactUsDialog), findsOneWidget);
+    expect(find.byKey(const Key("contact-whatsapp")), findsOneWidget);
   });
 
   testWidgets("can open UGC guidelines from Settings Hub", (tester) async {

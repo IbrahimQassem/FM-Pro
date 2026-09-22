@@ -37,6 +37,26 @@ abstract final class AppConfig {
     }
   }
 
+  /// Current build identity.
+  static const String currentVersionName = '3.0.3';
+  static const int currentVersionCode = 33;
+
+  /// Official contact channels and web presence.
+  static const String contactPhone = '+967 775617017';
+  static const String contactWhatsappNumber = '967775617017';
+  static const String contactEmail = 'hudhudfm.ye@gmail.com';
+  static const String contactFacebookUrl = 'https://www.facebook.com/HudhudFm';
+  static const String contactTwitterUrl = 'https://x.com/HudhudFm';
+  static const String contactInstagramUrl = 'https://instagram.com/hudhudfm';
+  static String get websiteUrl => domain;
+
+  /// Store endpoints for application updates.
+  static String get playStoreMarketUrl => 'market://details?id=$androidPackageId';
+  static String get playStoreWebUrl =>
+      'https://play.google.com/store/apps/details?id=$androidPackageId';
+  static String get appStoreUrl =>
+      'https://apps.apple.com/app/id$iosAppId';
+
   /// Legal and UGC policy endpoints derived dynamically from [domain].
   static String get privacyPolicyUrl => '$domain/privacy';
   static String get termsOfServiceUrl => '$domain/terms';

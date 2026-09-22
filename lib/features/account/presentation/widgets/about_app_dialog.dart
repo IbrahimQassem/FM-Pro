@@ -3,6 +3,7 @@ import "package:url_launcher/url_launcher.dart";
 
 import "../../../../core/config/app_config.dart";
 import "../../../../l10n/generated/app_localizations.dart";
+import "contact_us_dialog.dart";
 
 class AboutAppDialog extends StatelessWidget {
   const AboutAppDialog({super.key});
@@ -44,7 +45,7 @@ class AboutAppDialog extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              "${strings.appVersionLabel} 1.0.0 (1)",
+              "${strings.appVersionLabel} ${AppConfig.currentVersionName} (${AppConfig.currentVersionCode})",
               style: theme.textTheme.labelMedium?.copyWith(
                 color: theme.colorScheme.onPrimaryContainer,
                 fontWeight: FontWeight.w700,
@@ -108,8 +109,17 @@ class AboutAppDialog extends StatelessWidget {
           ],
         ),
       ),
-      actionsAlignment: MainAxisAlignment.center,
+      actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [
+        TextButton.icon(
+          key: const Key("about-contact-us-button"),
+          onPressed: () {
+            Navigator.of(context).pop();
+            ContactUsDialog.show(context);
+          },
+          icon: const Icon(Icons.support_agent_rounded, size: 18),
+          label: Text(strings.contactUsTitle),
+        ),
         FilledButton.tonal(
           key: const Key("close-about-dialog"),
           onPressed: () => Navigator.of(context).pop(),

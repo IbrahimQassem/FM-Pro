@@ -1,5 +1,8 @@
 import '../features/advertising/data/firebase_advertising_repository.dart';
 import '../features/advertising/domain/sponsored_ad.dart';
+import '../features/app_update/data/app_update_repository.dart';
+import '../features/app_update/presentation/controllers/app_update_controller.dart';
+import '../features/app_update/presentation/controllers/app_update_state.dart';
 import '../features/settings/data/repositories/shared_preferences_settings_repository.dart';
 import '../features/settings/domain/models/app_settings.dart';
 import '../features/settings/domain/repositories/settings_repository.dart';
@@ -266,3 +269,15 @@ final settingsControllerProvider =
     StateNotifierProvider<SettingsController, AppSettings>((ref) {
   return SettingsController(ref.watch(settingsRepositoryProvider));
 });
+
+final appUpdateRepositoryProvider = Provider<AppUpdateRepository>((ref) {
+  return FirebaseAppUpdateRepository(firestore: FirebaseFirestore.instance);
+});
+
+final appUpdateControllerProvider =
+    StateNotifierProvider<AppUpdateController, AppUpdateState>((ref) {
+  return AppUpdateController(
+    repository: ref.watch(appUpdateRepositoryProvider),
+  );
+});
+

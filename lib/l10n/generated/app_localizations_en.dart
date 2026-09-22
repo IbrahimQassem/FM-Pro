@@ -1179,4 +1179,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chooseTheme => 'Select Appearance';
+
+  @override
+  String get contactUsTitle => 'Contact Us';
+
+  @override
+  String get contactUsSubtitle =>
+      'Get in touch with support and our social channels';
+
+  @override
+  String get contactUsVia => 'Contact us via';
+
+  @override
+  String get appSlogan =>
+      'The ideal destination for fans of radio and audio programs in Yemen';
+
+  @override
+  String get contactChannelWhatsapp => 'WhatsApp';
+
+  @override
+  String get contactChannelMobile => 'Call Us';
+
+  @override
+  String get contactChannelEmail => 'Email';
+
+  @override
+  String get contactChannelFacebook => 'Facebook';
+
+  @override
+  String get contactChannelTwitter => 'X (Twitter)';
+
+  @override
+  String get contactChannelInstagram => 'Instagram';
+
+  @override
+  String get contactChannelWebsite => 'HudHud Web';
+
+  @override
+  String get launchError => 'Could not open link. Please try again.';
+
+  @override
+  String get forceUpdateTitle => 'Update Required';
+
+  @override
+  String get forceUpdateMessage =>
+      'Please update the app to the latest version to continue using all features and improvements.';
+
+  @override
+  String get optionalUpdateTitle => 'Update Available';
+
+  @override
+  String get optionalUpdateMessage =>
+      'A new version of HudHud FM is available. Update now to enjoy the latest features and performance improvements.';
+
+  @override
+  String get updateNow => 'Update Now';
+
+  @override
+  String get updateLater => 'Later';
 }

@@ -92,6 +92,10 @@ android {
     }
 }
 
+dependencies {
+    implementation("androidx.activity:activity-ktx:1.9.3")
+}
+
 val releaseDartDefines = providers.gradleProperty("dart-defines").orElse("")
 val validateProductionEnvironment = tasks.register("validateProductionEnvironment") {
     group = "verification"

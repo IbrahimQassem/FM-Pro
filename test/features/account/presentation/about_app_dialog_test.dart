@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:hudhud_fm/core/config/app_config.dart";
 import "package:hudhud_fm/features/account/presentation/widgets/about_app_dialog.dart";
 import "package:hudhud_fm/l10n/generated/app_localizations.dart";
 
@@ -34,7 +35,12 @@ void main() {
 
     expect(find.byType(AboutAppDialog), findsOneWidget);
     expect(find.text("عن هدهد FM"), findsOneWidget);
-    expect(find.textContaining("1.0.0 (1)"), findsOneWidget);
+    expect(
+      find.textContaining(
+        "${AppConfig.currentVersionName} (${AppConfig.currentVersionCode})",
+      ),
+      findsOneWidget,
+    );
     expect(
         find.textContaining("هدهد FM هو دليلك الأول للاستماع"), findsOneWidget);
 

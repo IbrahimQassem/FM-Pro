@@ -2156,6 +2156,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select Appearance'**
   String get chooseTheme;
+
+  /// No description provided for @contactUsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Us'**
+  String get contactUsTitle;
+
+  /// No description provided for @contactUsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get in touch with support and our social channels'**
+  String get contactUsSubtitle;
+
+  /// No description provided for @contactUsVia.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact us via'**
+  String get contactUsVia;
+
+  /// No description provided for @appSlogan.
+  ///
+  /// In en, this message translates to:
+  /// **'The ideal destination for fans of radio and audio programs in Yemen'**
+  String get appSlogan;
+
+  /// No description provided for @contactChannelWhatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get contactChannelWhatsapp;
+
+  /// No description provided for @contactChannelMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Call Us'**
+  String get contactChannelMobile;
+
+  /// No description provided for @contactChannelEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get contactChannelEmail;
+
+  /// No description provided for @contactChannelFacebook.
+  ///
+  /// In en, this message translates to:
+  /// **'Facebook'**
+  String get contactChannelFacebook;
+
+  /// No description provided for @contactChannelTwitter.
+  ///
+  /// In en, this message translates to:
+  /// **'X (Twitter)'**
+  String get contactChannelTwitter;
+
+  /// No description provided for @contactChannelInstagram.
+  ///
+  /// In en, this message translates to:
+  /// **'Instagram'**
+  String get contactChannelInstagram;
+
+  /// No description provided for @contactChannelWebsite.
+  ///
+  /// In en, this message translates to:
+  /// **'HudHud Web'**
+  String get contactChannelWebsite;
+
+  /// No description provided for @launchError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open link. Please try again.'**
+  String get launchError;
+
+  /// No description provided for @forceUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Required'**
+  String get forceUpdateTitle;
+
+  /// No description provided for @forceUpdateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please update the app to the latest version to continue using all features and improvements.'**
+  String get forceUpdateMessage;
+
+  /// No description provided for @optionalUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Available'**
+  String get optionalUpdateTitle;
+
+  /// No description provided for @optionalUpdateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version of HudHud FM is available. Update now to enjoy the latest features and performance improvements.'**
+  String get optionalUpdateMessage;
+
+  /// No description provided for @updateNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Now'**
+  String get updateNow;
+
+  /// No description provided for @updateLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get updateLater;
 }
 
 class _AppLocalizationsDelegate

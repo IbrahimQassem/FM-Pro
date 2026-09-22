@@ -8,11 +8,13 @@ import "../../../core/widgets/mascot_avatar.dart";
 import "../../../l10n/generated/app_localizations.dart";
 import "../../comments/presentation/widgets/ugc_guidelines_dialog.dart";
 import "../../onboarding/presentation/onboarding_screen.dart";
+import "../../../core/config/app_config.dart";
 import "manage_account_screen.dart";
 import "register_screen.dart";
 import "sign_in_screen.dart";
 import "widgets/about_app_dialog.dart";
 import "widgets/app_rating_dialog.dart";
+import "widgets/contact_us_dialog.dart";
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -50,7 +52,7 @@ class AccountScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
                   Center(
                     child: Text(
-                      "${strings.aboutAppTitle} • 1.0.0 (1)",
+                      "${strings.aboutAppTitle} • ${AppConfig.currentVersionName} (${AppConfig.currentVersionCode})",
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.outline,
                       ),
@@ -299,6 +301,15 @@ class AccountScreen extends ConsumerWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
+          ListTile(
+            key: const Key("account-contact-us"),
+            leading: const Icon(Icons.support_agent_rounded),
+            title: Text(strings.contactUsTitle),
+            subtitle: Text(strings.contactUsSubtitle),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => ContactUsDialog.show(context),
+          ),
+          const Divider(height: 1, indent: 56),
           ListTile(
             key: const Key("account-about-app"),
             leading: const Icon(Icons.info_outline_rounded),

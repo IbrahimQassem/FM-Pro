@@ -237,6 +237,11 @@ service cloud.firestore {
       allow get, create, update: if isKnownRoot(root) && isAdmin();
     }
 
+    match /{root}/system/config/{configId} {
+      allow read: if isKnownRoot(root);
+      allow write: if isKnownRoot(root) && isSuperAdmin();
+    }
+
     match /{root}/stations/stations/{stationId} {
       allow read: if isKnownRoot(root);
       allow create, delete: if isKnownRoot(root) && isSuperAdmin();

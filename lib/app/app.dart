@@ -3,6 +3,7 @@ import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../core/theme/app_theme.dart";
+import "../features/app_update/presentation/force_update_screen.dart";
 import "../features/home/presentation/home_screen.dart";
 import "../features/onboarding/presentation/onboarding_screen.dart";
 import "../features/splash/presentation/firebase_setup_screen.dart";
@@ -44,6 +45,7 @@ class _StartupGate extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bootstrap = ref.watch(firebaseBootstrapProvider);
     final onboardingState = ref.watch(onboardingControllerProvider);
+    final updateState = ref.watch(appUpdateControllerProvider);
 
     return bootstrap.when(
       loading: SplashScreen.new,
@@ -55,6 +57,9 @@ class _StartupGate extends ConsumerWidget {
           return FirebaseSetupScreen(
             onRetry: () => ref.invalidate(firebaseBootstrapProvider),
           );
+        }
+        if (updateState.isForceUpdate) {
+          return ForceUpdateScreen(updateInfo: updateState.updateInfo);
         }
         if (onboardingState.isLoading) {
           return const SplashScreen();

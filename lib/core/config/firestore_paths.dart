@@ -105,4 +105,13 @@ abstract final class FirestorePaths {
     String episodeId,
   ) =>
       episodes(firestore).doc(episodeId).collection('comments');
+
+  static DocumentReference<Map<String, dynamic>> appVersionConfig(
+    FirebaseFirestore firestore,
+  ) =>
+      firestore
+          .collection(root)
+          .doc('system')
+          .collection('config')
+          .doc('app_version');
 }

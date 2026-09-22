@@ -1163,4 +1163,61 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get chooseTheme => 'اختيار المظهر';
+
+  @override
+  String get contactUsTitle => 'تواصل معنا';
+
+  @override
+  String get contactUsSubtitle => 'تواصل مع فريق الدعم وقنواتنا الرسمية';
+
+  @override
+  String get contactUsVia => 'تواصل معنا عبر';
+
+  @override
+  String get appSlogan =>
+      'الوجهةَ الأمثلَ لعشاقِ الراديوِ والبرامجِ الصوتيةِ في اليمنِ';
+
+  @override
+  String get contactChannelWhatsapp => 'واتساب';
+
+  @override
+  String get contactChannelMobile => 'اتصل بنا';
+
+  @override
+  String get contactChannelEmail => 'البريد الإلكتروني';
+
+  @override
+  String get contactChannelFacebook => 'فيسبوك';
+
+  @override
+  String get contactChannelTwitter => 'منصة إكس (تويتر)';
+
+  @override
+  String get contactChannelInstagram => 'إنستغرام';
+
+  @override
+  String get contactChannelWebsite => 'موقع هدهد الإلكتروني';
+
+  @override
+  String get launchError => 'تعذّر فتح الرابط. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get forceUpdateTitle => 'تحديث مطلوب';
+
+  @override
+  String get forceUpdateMessage =>
+      'يرجى تحديث التطبيق إلى أحدث إصدار لمتابعة الاستخدام والاستمتاع بجميع الميزات والتحسينات الجديدة.';
+
+  @override
+  String get optionalUpdateTitle => 'تحديث جديد متاح';
+
+  @override
+  String get optionalUpdateMessage =>
+      'يتوفر إصدار جديد من تطبيق هدهد إف إم. حدّث الآن للاستمتاع بأحدث الميزات وتحسينات الأداء.';
+
+  @override
+  String get updateNow => 'تحديث الآن';
+
+  @override
+  String get updateLater => 'لاحقاً';
 }

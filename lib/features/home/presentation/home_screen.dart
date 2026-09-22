@@ -1,5 +1,7 @@
 import '../../notifications/presentation/episode_alert_navigation.dart';
 import '../../advertising/presentation/sponsored_placement.dart';
+import '../../app_update/presentation/controllers/app_update_state.dart';
+import '../../app_update/presentation/optional_update_dialog.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -42,6 +44,27 @@ class HomeScreen extends ConsumerWidget {
         unawaited(controller.refreshUser());
       }
     });
+
+    ref.listen<AppUpdateState>(
+      appUpdateControllerProvider,
+      (previous, next) {
+        if (next.shouldPromptOptional &&
+            next.updateInfo != null &&
+            previous?.shouldPromptOptional != true) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              OptionalUpdateDialog.show(
+                context: context,
+                updateInfo: next.updateInfo!,
+                onDismiss: () => ref
+                    .read(appUpdateControllerProvider.notifier)
+                    .dismissOptionalUpdate(),
+              );
+            }
+          });
+        }
+      },
+    );
 
     ref.listen(notificationsControllerProvider, (previous, next) {
       final latest = next.latest;
