@@ -45,8 +45,8 @@ abstract final class AppConfig {
   }
 
   /// Current build identity.
-  static const String currentVersionName = '3.0.3';
-  static const int currentVersionCode = 33;
+  static const String currentVersionName = '3.0.4';
+  static const int currentVersionCode = 34;
 
   /// Official contact channels and web presence.
   static const String contactPhone = '+967 775617017';

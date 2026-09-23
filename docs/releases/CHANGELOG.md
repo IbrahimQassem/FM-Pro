@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.4] - 2026-09-23
+
+### Added
+- **In-App Update System**: Dynamic version checking with Firestore app update document (`app_update/config`), blocking screen for required updates (`isForceUpdate`), and non-intrusive dialog with 48h cooldown for optional updates (`isOptionalUpdate`).
+- **Official Contact Us Hub**: Accessible dialog in Settings with 1-tap links for direct WhatsApp messaging, phone calls, email, Facebook, Twitter/X, and Instagram.
+- **Universal HTTP Stream & Audio Support**: Permitted HTTP Shoutcast and Icecast radio streams and episode recordings across iOS App Transport Security (`NSAllowsArbitraryLoadsForMedia`), Android manifest network schemes, Web Admin validators, and Web Player discovery.
+- **Rich Social Sharing**: Enhanced app sharing with localized Arabic message templates, store/web links, and automatic Hoopoe mascot image attachment.
+- **Interactive Home User Navigation**: Interactive mascot avatar and user greeting in Home view header, along with a prominent 1-tap "دخول ➔" button for guests navigating straight to sign-in.
+- **Google Sign-In Infrastructure**: Configured iOS OAuth reversed client ID schemes and added `serverClientId` for Credential Manager token exchange on Android.
+- **Web Admin User Visibility**: Displays active logged-in user name, email address, role badge, and fast sign-out action in the dashboard header and sidebar.
+
+### Changed
+- **Android 15 Edge-to-Edge Migration**: Modernized native window insets handling using `WindowCompat.setDecorFitsSystemWindows(window, false)` and `androidx.core:core-ktx:1.15.0`, replacing deprecated status and navigation bar color APIs.
+- **Legal & Compliance Pages**: Modernized standalone Arabic web pages for Account Deletion (`/account-deletion.html`), Privacy Policy (`/privacy.html`), and Terms of Service (`/terms.html`).
+
+### Fixed
+- **Status Bar Icon Inversion**: Fixed dark icon visibility on dark status bar backgrounds in older Android OS versions.
+- **Audio Notification Intent Queries**: Declared explicit HTTP intents in Android Manifest to ensure uninterrupted audio streaming.
+
+---
+
 ## [3.0.3] - 2026-09-21
 
 ### Added
