@@ -496,9 +496,15 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
           <div className="mt-auto space-y-3 pt-6">
             <div className="rounded-2xl border bg-card p-3.5 shadow-sm">
               <div className="flex items-center gap-3">
-                <span className="grid size-10 place-items-center rounded-xl bg-primary/15 font-bold text-primary">
-                  {user.email ? (
-                    user.email.charAt(0).toUpperCase()
+                <span className="grid size-10 place-items-center overflow-hidden rounded-xl bg-primary/15 font-bold text-primary">
+                  {user.photoURL ? (
+                    <img
+                      src={user.photoURL}
+                      alt={user.displayName || user.email || 'حساب المدير'}
+                      className="size-10 object-cover"
+                    />
+                  ) : (user.displayName || user.email) ? (
+                    (user.displayName || user.email)!.charAt(0).toUpperCase()
                   ) : (
                     <UserIcon className="size-5" />
                   )}
@@ -506,15 +512,15 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
                 <div className="min-w-0 flex-1">
                   <p
                     className="truncate text-xs font-semibold text-foreground"
-                    title={user.email || user.uid}
+                    title={user.displayName || user.email?.split('@')[0] || 'حساب المدير'}
                   >
-                    {user.email || 'حساب المدير'}
+                    {user.displayName || user.email?.split('@')[0] || 'حساب المدير'}
                   </p>
                   <p
                     className="mt-0.5 truncate text-[11px] text-muted-foreground"
-                    title={user.uid}
+                    title={user.email || user.uid}
                   >
-                    UID: {user.uid.slice(0, 10)}...
+                    {user.email || user.uid}
                   </p>
                 </div>
               </div>
@@ -555,7 +561,7 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
                   <UserIcon className="size-3.5" />
                 </span>
                 <span className="max-w-[180px] truncate font-medium text-foreground sm:max-w-[240px]">
-                  {user.email || user.displayName || user.uid}
+                  {user.displayName || user.email || user.uid}
                 </span>
                 <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
                   مدير النظام
