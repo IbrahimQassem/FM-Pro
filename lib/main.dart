@@ -24,6 +24,7 @@ Future<void> main() async {
     requireIosStoreId:
         kReleaseMode && !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS,
   );
+  await AppConfig.initializeVersion();
   await initializeFirebase();
   final strings = AppLocalizationsAr();
   await JustAudioBackground.init(

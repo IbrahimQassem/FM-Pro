@@ -1,3 +1,7 @@
+import 'package:flutter/foundation.dart';
+
+import '../services/app_version_service.dart';
+
 /// Central application configuration for HudHud FM.
 ///
 /// Contains domain resolution, legal policy endpoints, and platform bundle identifiers.
@@ -44,9 +48,45 @@ abstract final class AppConfig {
     }
   }
 
-  /// Current build identity.
-  static const String currentVersionName = '3.0.4';
-  static const int currentVersionCode = 34;
+  /// Current build identity. Dynamically populated from native platform info or
+  /// build-time environment defines (--dart-define=APP_VERSION_NAME=... / APP_VERSION_CODE=...).
+  static String _currentVersionName =
+      const String.fromEnvironment('APP_VERSION_NAME');
+  static int _currentVersionCode =
+      const int.fromEnvironment('APP_VERSION_CODE', defaultValue: 0);
+
+  /// User-facing version string (e.g. "3.0.4"). Never hardcoded.
+  static String get currentVersionName =>
+      _currentVersionName.isNotEmpty ? _currentVersionName : '1.0.0';
+
+  /// Numeric build code (e.g. 34). Never hardcoded.
+  static int get currentVersionCode =>
+      _currentVersionCode > 0 ? _currentVersionCode : 1;
+
+  /// Initializes build version dynamically from the platform.
+  static Future<void> initializeVersion([AppVersionData? overrideData]) async {
+    if (overrideData != null) {
+      _currentVersionName = overrideData.versionName;
+      _currentVersionCode = overrideData.versionCode;
+      return;
+    }
+    final data = await AppVersionService.getAppVersion();
+    if (data.versionName.isNotEmpty) {
+      _currentVersionName = data.versionName;
+    }
+    if (data.versionCode > 0) {
+      _currentVersionCode = data.versionCode;
+    }
+  }
+
+  @visibleForTesting
+  static void setVersionForTesting({
+    required String versionName,
+    required int versionCode,
+  }) {
+    _currentVersionName = versionName;
+    _currentVersionCode = versionCode;
+  }
 
   /// Official contact channels and web presence.
   static const String contactPhone = '+967 775617017';

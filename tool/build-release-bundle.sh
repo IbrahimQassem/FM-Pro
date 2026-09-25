@@ -22,7 +22,11 @@ echo "Version Name: $VERSION_NAME"
 echo "Version Code: $VERSION_CODE"
 echo "=================================================="
 
-flutter build appbundle --release --dart-define=FIRESTORE_ROOT=HudHudOfficial "$@"
+flutter build appbundle --release \
+  --dart-define=FIRESTORE_ROOT=HudHudOfficial \
+  --dart-define=APP_VERSION_NAME="$VERSION_NAME" \
+  --dart-define=APP_VERSION_CODE="$VERSION_CODE" \
+  "$@"
 
 SOURCE_AAB="build/app/outputs/bundle/release/app-release.aab"
 
