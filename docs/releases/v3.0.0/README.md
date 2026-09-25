@@ -126,6 +126,25 @@ docs/releases/v3.0.0/
 
 ---
 
+## 6. روابط الوصول والمنصات الرسمية (Access Links & Social Channels)
+
+### 📲 التطبيق وموقع الويب (App & Web Player)
+* **Google Play Store**: [تحميل التطبيق عبر المتجر (com.sana.dev.fm)](https://play.google.com/store/apps/details?id=com.sana.dev.fm)
+* **مشغل الويب المباشر**: [https://hudhud.fm](https://hudhud.fm) — استمع فوراً من أي متصفح بدون تحميل
+* **حزمة الحملة الاجتماعية التفاعلية**: [social-kit.html](social-kit.html)
+
+### 🌐 قنوات التواصل والمجتمع الرسمي (Official Social Media)
+| المنصة | المعرف الرسمي | المحتوى والهدف | رابط القناة |
+| :--- | :--- | :--- | :--- |
+| **𝕏 (Twitter)** | `@HudHudFM` | أخبار البث المباشر والترددات السريعة | [x.com/HudHudFM](https://x.com/HudHudFM) |
+| **Instagram** | `@hudhud_fm` | الكواليس، تصاميم شخصية الهدهد، والمقاطع | [instagram.com/hudhud_fm](https://instagram.com/hudhud_fm) |
+| **Telegram** | `@hudhud_fm` | تنبيهات الحلقات الجديدة ومواعيد البرامج | [t.me/hudhud_fm](https://t.me/hudhud_fm) |
+| **Facebook** | `/HudHudFM` | مجتمع المستمعين والنقاشات التفاعلية | [facebook.com/HudHudFM](https://facebook.com/HudHudFM) |
+| **YouTube** | `@HudHudFM` | تسجيلات البرامج والحوارات المصورة | [youtube.com/@HudHudFM](https://youtube.com/@HudHudFM) |
+| **WhatsApp Community** | مجتمع مستمعي هدهد | التواصل المباشر مع أسرة المستمعين | [انضمام إلى المجتمع](https://chat.whatsapp.com/HudHudFM) |
+
+---
+
 <div align="center">
   <sub>صُمم وطُوّر بواسطة فريق التصميم والمنتج — هدهد إف إم © 2026</sub>
 </div>
