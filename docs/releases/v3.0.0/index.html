@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HudHud FM v3.0.0 — Major Production Release | هدهد إف إم</title>
+  <meta name="description" content="الإصدار الرئيسي الأول لتطبيق هدهد إف إم 3.0.0: البث الإذاعي المباشر، أرشيف البرامج، ومجتمع المستمعين الموحد.">
+  
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Brand Color Tokens (Permanent Brand Contract) */
+      --hudhud-primary: #8E3E63;
+      --hudhud-hero-start: #8B2648;
+      --hudhud-hero-end: #451222;
+      --hudhud-gold: #D4AF37;
+      --hudhud-gold-light: #F3E5AB;
+      --hudhud-status-online: #1A8F5A;
+      --hudhud-live-red: #E53935;
+      --hudhud-episode-accent: #C2185B;
+
+      /* Dark Studio Glass (Default Theme) */
+      --bg-base: #140F12;
+      --bg-surface: #1E171C;
+      --bg-surface-elevated: #281D25;
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --border-glass-focus: rgba(212, 175, 55, 0.4);
+      --text-primary: #FCF8F8;
+      --text-secondary: #BFAEB3;
+      --text-tertiary: #87777D;
+      --glass-card: rgba(30, 23, 28, 0.72);
+      --glass-card-hover: rgba(40, 29, 37, 0.85);
+      --shadow-ambient: 0 20px 48px rgba(0, 0, 0, 0.55);
+      --shadow-glow: 0 0 32px rgba(139, 38, 72, 0.28);
+      --radius-card: 22px;
+      --radius-button: 16px;
+      --radius-pill: 9999px;
+      --font-ar: 'Cairo', system-ui, -apple-system, sans-serif;
+      --font-en: 'Outfit', system-ui, -apple-system, sans-serif;
+    }
+
+    [data-theme="light"] {
+      --bg-base: #FCF8F8;
+      --bg-surface: #FFFFFF;
+      --bg-surface-elevated: #F7EEF1;
+      --border-glass: rgba(142, 62, 99, 0.12);
+      --border-glass-focus: rgba(142, 62, 99, 0.35);
+      --text-primary: #3B0021;
+      --text-secondary: #634351;
+      --text-tertiary: #917581;
+      --glass-card: rgba(255, 255, 255, 0.85);
+      --glass-card-hover: rgba(255, 255, 255, 0.96);
+      --shadow-ambient: 0 16px 36px rgba(142, 62, 99, 0.08);
+      --shadow-glow: 0 0 24px rgba(142, 62, 99, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s ease;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-ar);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body[dir="ltr"] {
+      font-family: var(--font-en);
+    }
+
+    /* Ambient Background Gradients */
+    .ambient-glow {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(140px);
+      opacity: 0.18;
+    }
+    .glow-1 { top: -100px; right: -100px; background: var(--hudhud-hero-start); }
+    .glow-2 { top: 40%; left: -150px; background: var(--hudhud-primary); }
+    .glow-3 { bottom: 10%; right: 10%; background: var(--hudhud-gold); opacity: 0.09; }
+
+    /* Top Sticky Navigation */
+    header.site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: var(--glass-card);
+      border-bottom: 1px solid var(--border-glass);
+    }
+
+    .nav-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-logo-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 4px 12px rgba(139, 38, 72, 0.35);
+    }
+
+    .brand-titles {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-weight: 800;
+      font-size: 1.15rem;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-tagline {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .version-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.65rem;
+      background: rgba(142, 62, 99, 0.22);
+      border: 1px solid rgba(142, 62, 99, 0.4);
+      color: var(--hudhud-gold);
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .version-badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--hudhud-status-online);
+      box-shadow: 0 0 8px var(--hudhud-status-online);
+    }
+
+    nav.nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      list-style: none;
+    }
+
+    nav.nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.4rem 0.6rem;
+      border-radius: 8px;
+    }
+
+    nav.nav-links a:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .control-btn {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+      padding: 0.45rem 0.85rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .control-btn:hover {
+      border-color: var(--hudhud-gold);
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+    }
+
+    .cta-primary {
+      background: linear-gradient(135deg, var(--hudhud-hero-start), var(--hudhud-hero-end));
+      color: #FFFFFF !important;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 0.55rem 1.15rem;
+      border-radius: var(--radius-button);
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 16px rgba(139, 38, 72, 0.45);
+    }
+
+    .cta-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(139, 38, 72, 0.65);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Section Spacing */
+    section {
+      padding: 4.5rem 0;
+    }
+
+    /* Hero Section */
+    .hero-section {
+      padding: 3.5rem 0 5rem 0;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      align-items: center;
+      gap: 3.5rem;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1.4rem;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      align-self: flex-start;
+      padding: 0.35rem 0.9rem;
+      background: rgba(142, 62, 99, 0.16);
+      border: 1px solid rgba(142, 62, 99, 0.32);
+      border-radius: var(--radius-pill);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--hudhud-gold);
+    }
+
+    .hero-title {
+      font-size: 2.85rem;
+      font-weight: 900;
+      line-height: 1.22;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #FFFFFF 30%, var(--hudhud-gold-light) 90%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    [data-theme="light"] .hero-title {
+      background: linear-gradient(135deg, #3B0021 30%, #8B2648 90%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      font-weight: 500;
+    }
+
+    .hero-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding-top: 0.5rem;
+    }
+
+    .hero-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.85rem;
+      color: var(--text-tertiary);
+      font-weight: 600;
+    }
+
+    .hero-meta-item svg {
+      width: 16px;
+      height: 16px;
+      color: var(--hudhud-gold);
+    }
+
+    .hero-cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.8rem;
+    }
+
+    .btn-secondary {
+      background: var(--glass-card);
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+      padding: 0.65rem 1.35rem;
+      border-radius: var(--radius-button);
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--hudhud-gold);
+      background: var(--bg-surface-elevated);
+      transform: translateY(-1px);
+    }
+
+    /* Hero Smartphone Preview */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+
+    .phone-mockup-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 340px;
+    }
+
+    .phone-chassis {
+      background: #0D090B;
+      border: 4px solid #2D232A;
+      border-radius: 46px;
+      padding: 12px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(139, 38, 72, 0.35);
+      position: relative;
+    }
+
+    .phone-screen {
+      background: linear-gradient(180deg, #181116 0%, #120C10 100%);
+      border-radius: 36px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 1rem 1rem 1.2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .phone-notch {
+      width: 90px;
+      height: 22px;
+      background: #000000;
+      border-radius: 14px;
+      margin: 0 auto;
+    }
+
+    .app-screen-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.2rem;
+    }
+
+    .header-station-info {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .header-station-info img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+
+    .header-station-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .header-station-freq {
+      font-size: 0.7rem;
+      color: var(--hudhud-gold);
+    }
+
+    /* Live Player Card in Phone */
+    .now-playing-card {
+      background: linear-gradient(135deg, rgba(139, 38, 72, 0.45), rgba(69, 18, 34, 0.25));
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: var(--radius-card);
+      padding: 1.15rem;
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .live-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .badge-live-pulse {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.6rem;
+      background: rgba(26, 143, 90, 0.22);
+      border: 1px solid var(--hudhud-status-online);
+      color: #34D399;
+      font-size: 0.72rem;
+      font-weight: 800;
+      border-radius: var(--radius-pill);
+    }
+
+    .badge-live-pulse .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--hudhud-status-online);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      50% { transform: scale(1.4); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.8; }
+    }
+
+    .bitrate-pill {
+      font-size: 0.68rem;
+      color: var(--text-tertiary);
+      font-weight: 600;
+    }
+
+    .player-artwork-box {
+      width: 100%;
+      height: 120px;
+      border-radius: 16px;
+      background: #241A21;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .player-artwork-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.85;
+    }
+
+    .waveform-visualizer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      height: 28px;
+      width: 100%;
+    }
+
+    .wave-bar {
+      width: 3px;
+      background: var(--hudhud-gold);
+      border-radius: 2px;
+      animation: soundwave 1.2s ease-in-out infinite alternate;
+    }
+
+    .wave-bar:nth-child(2) { animation-delay: 0.2s; height: 18px; }
+    .wave-bar:nth-child(3) { animation-delay: 0.4s; height: 26px; }
+    .wave-bar:nth-child(4) { animation-delay: 0.1s; height: 14px; }
+    .wave-bar:nth-child(5) { animation-delay: 0.3s; height: 22px; }
+    .wave-bar:nth-child(6) { animation-delay: 0.5s; height: 16px; }
+    .wave-bar:nth-child(7) { animation-delay: 0.25s; height: 24px; }
+
+    @keyframes soundwave {
+      0% { height: 6px; }
+      100% { height: 26px; }
+    }
+
+    .player-controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding-top: 0.3rem;
+    }
+
+    .play-btn-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--hudhud-hero-start), var(--hudhud-hero-end));
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      box-shadow: 0 4px 14px rgba(139, 38, 72, 0.6);
+    }
+
+    .chips-row {
+      display: flex;
+      gap: 0.4rem;
+      overflow-x: auto;
+      padding-bottom: 0.2rem;
+    }
+
+    .chip-item {
+      padding: 0.3rem 0.65rem;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-pill);
+      font-size: 0.72rem;
+      font-weight: 700;
+      white-space: nowrap;
+      color: var(--text-secondary);
+    }
+
+    .chip-item.active {
+      background: rgba(142, 62, 99, 0.3);
+      border-color: var(--hudhud-gold);
+      color: var(--hudhud-gold);
+    }
+
+    /* Floating Feature Badge on Mockup */
+    .floating-badge {
+      position: absolute;
+      bottom: -15px;
+      right: -20px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--hudhud-gold);
+      padding: 0.6rem 0.95rem;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    /* Section Headings */
+    .section-header {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 3.5rem auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .section-eyebrow {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--hudhud-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .section-title {
+      font-size: 2.25rem;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* 4 Impact Pillars Grid */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .pillar-card {
+      background: var(--glass-card);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-card);
+      padding: 1.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pillar-card:hover {
+      border-color: var(--border-glass-focus);
+      background: var(--glass-card-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-ambient);
+    }
+
+    .pillar-icon-box {
+      width: 50px;
+      height: 50px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(142, 62, 99, 0.28), rgba(69, 18, 34, 0.15));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--hudhud-gold);
+    }
+
+    .pillar-icon-box svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    .pillar-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .pillar-body {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    .pillar-tag {
+      margin-top: auto;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--hudhud-gold);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* Media Assets Showcase */
+    .media-showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.75rem;
+    }
+
+    .poster-card {
+      background: var(--glass-card);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .poster-card:hover {
+      border-color: var(--hudhud-gold);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .poster-image-box {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: #181116;
+      overflow: hidden;
+    }
+
+    .poster-image-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .poster-card:hover .poster-image-box img {
+      transform: scale(1.03);
+    }
+
+    .poster-badge-overlay {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(20, 15, 18, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(8px);
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--hudhud-gold);
+    }
+
+    .poster-info-box {
+      padding: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      flex-grow: 1;
+    }
+
+    .poster-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .poster-concept {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .poster-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: auto;
+      padding-top: 0.8rem;
+    }
+
+    .poster-btn {
+      flex: 1;
+      text-align: center;
+      padding: 0.45rem 0.6rem;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border-radius: 10px;
+    }
+
+    .poster-btn:hover {
+      border-color: var(--hudhud-gold);
+      color: var(--hudhud-gold);
+    }
+
+    /* Changelog Section */
+    .changelog-wrapper {
+      background: var(--glass-card);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-card);
+      padding: 2.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .changelog-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.25rem;
+      font-weight: 800;
+      border-bottom: 1px solid var(--border-glass);
+      padding-bottom: 0.5rem;
+    }
+
+    .pill-status {
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.2rem 0.65rem;
+      border-radius: var(--radius-pill);
+    }
+    .pill-status.new { background: rgba(26, 143, 90, 0.2); color: #34D399; border: 1px solid #1A8F5A; }
+    .pill-status.improved { background: rgba(212, 175, 55, 0.2); color: var(--hudhud-gold); border: 1px solid var(--hudhud-gold); }
+    .pill-status.fixed { background: rgba(142, 62, 99, 0.2); color: #FFB3D1; border: 1px solid #8E3E63; }
+    .pill-status.breaking { background: rgba(229, 57, 53, 0.2); color: #FF8A80; border: 1px solid #E53935; }
+
+    .items-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .items-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .items-list li::before {
+      content: "•";
+      color: var(--hudhud-gold);
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .items-list strong {
+      color: var(--text-primary);
+    }
+
+    /* Breaking Changes Alert Box */
+    .breaking-box {
+      background: linear-gradient(135deg, rgba(229, 57, 53, 0.12), rgba(69, 18, 34, 0.2));
+      border: 1px solid rgba(229, 57, 53, 0.35);
+      border-radius: 18px;
+      padding: 1.5rem;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .breaking-icon {
+      color: var(--hudhud-live-red);
+      flex-shrink: 0;
+    }
+
+    .breaking-content h4 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #FF8A80;
+      margin-bottom: 0.35rem;
+    }
+
+    .breaking-content p {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Documentation Grid */
+    .docs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .doc-card {
+      background: var(--glass-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 18px;
+      padding: 1.35rem;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .doc-card:hover {
+      border-color: var(--hudhud-gold);
+      background: var(--bg-surface-elevated);
+      transform: translateY(-2px);
+    }
+
+    .doc-card-info h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .doc-card-info p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .doc-arrow {
+      color: var(--hudhud-gold);
+      font-weight: 800;
+      font-size: 1.2rem;
+    }
+
+    /* Footer */
+    footer.site-footer {
+      border-top: 1px solid var(--border-glass);
+      background: var(--glass-card);
+      padding: 3rem 0 2rem 0;
+      margin-top: 5rem;
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      text-align: center;
+    }
+
+    .footer-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+    }
+
+    .footer-text {
+      max-width: 600px;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .footer-copy {
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .hero-content {
+        align-items: center;
+      }
+      .hero-meta-row {
+        justify-content: center;
+      }
+      .hero-cta-group {
+        justify-content: center;
+      }
+      .media-showcase-grid {
+        grid-template-columns: 1fr;
+      }
+      nav.nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Backlight -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <!-- Sticky Top Header -->
+  <header class="site-header">
+    <div class="nav-inner">
+      <a href="#hero" class="brand-lockup">
+        <img src="media/app_logo_circle.png" alt="HudHud FM Logo" class="brand-logo-img">
+        <div class="brand-titles">
+          <span class="brand-name">هدهد إف إم</span>
+          <span class="brand-tagline">HudHud FM v3.0.0</span>
+        </div>
+      </a>
+      
+      <span class="version-badge">إصدار الإنتاج الرسمي Build 30</span>
+
+      <nav class="nav-links">
+        <a href="#highlights">أبرز المزايا</a>
+        <a href="#media-kit">حزمة الوسائط</a>
+        <a href="#changelog">سجل التغييرات</a>
+        <a href="#docs">المستندات والعقود</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button id="themeToggle" class="control-btn" title="تبديل المظهر">
+          <span id="themeIcon">🌓</span>
+          <span id="themeLabel">المظهر</span>
+        </button>
+        <button id="langToggle" class="control-btn" title="Switch Language">
+          🌐 English
+        </button>
+        <a href="#docs" class="cta-primary">
+          <span>عقد الإصدار</span>
+          <span>←</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section id="hero" class="hero-section">
+      <div class="container">
+        <div class="hero-grid">
+          
+          <!-- Hero Copy -->
+          <div class="hero-content">
+            <div class="hero-pill">
+              <span>📻</span>
+              <span>Major Production Release • التدشين الرسمي الأكبر</span>
+            </div>
+            
+            <h1 class="hero-title">
+              منصة الأثير اليمني الموحد في إصدارها الكامل
+            </h1>
+            
+            <p class="hero-desc">
+              نرحب بكم في الإصدار الرسمي <strong>v3.0.0</strong> من تطبيق <strong>هدهد إف إم</strong>. تجربة صوتية رقمية متكاملة تجمع كافة الإذاعات والمحطات اليمنية في مكان واحد، ببث مباشر عالي الاستقرار، وتصفح البرامج والحلقات المسجلة عند الطلب، مع مجتمع مستمعين راقٍ ومحمي.
+            </p>
+
+            <div class="hero-meta-row">
+              <div class="hero-meta-item">
+                <svg fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
+                <span>Google Play (com.sana.dev.fm)</span>
+              </div>
+              <div class="hero-meta-item">
+                <svg fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
+                <span>231 اختبار معتمد بنجاح (PASS)</span>
+              </div>
+              <div class="hero-meta-item">
+                <svg fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
+                <span>Flutter 3.44 / Riverpod</span>
+              </div>
+            </div>
+
+            <div class="hero-cta-group">
+              <a href="#highlights" class="cta-primary">
+                <span>استكشف مزايا الإصدار</span>
+                <span>↓</span>
+              </a>
+              <a href="#media-kit" class="btn-secondary">
+                <span>عرض حزمة الملصقات والوسائط</span>
+              </a>
+              <a href="release-contract.md" class="btn-secondary">
+                <span>ملف Release Contract</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Hero Visual: Interactive Smartphone Frame -->
+          <div class="hero-visual">
+            <div class="phone-mockup-wrapper">
+              <div class="phone-chassis">
+                <div class="phone-screen">
+                  <div class="phone-notch"></div>
+                  
+                  <div class="app-screen-header">
+                    <div class="header-station-info">
+                      <img src="media/app_logo_circle.png" alt="HudHud Logo">
+                      <div>
+                        <div class="header-station-name">إذاعة صنعاء البرنامج العام</div>
+                        <div class="header-station-freq">91.5 MHz • Sana'a</div>
+                      </div>
+                    </div>
+                    <span style="font-size: 0.75rem; color: var(--text-tertiary);">FM Pro</span>
+                  </div>
+
+                  <!-- Active Now Playing Card -->
+                  <div class="now-playing-card">
+                    <div class="live-status-row">
+                      <span class="badge-live-pulse">
+                        <span class="dot"></span>
+                        مباشر
+                      </span>
+                      <span class="bitrate-pill">128 kbps • AAC Live</span>
+                    </div>
+
+                    <div class="player-artwork-box">
+                      <img src="media/mascot_onboarding.webp" alt="Mascot On Air">
+                    </div>
+
+                    <div class="waveform-visualizer">
+                      <span class="wave-bar"></span>
+                      <span class="wave-bar"></span>
+                      <span class="wave-bar"></span>
+                      <span class="wave-bar"></span>
+                      <span class="wave-bar"></span>
+                      <span class="wave-bar"></span>
+                      <span class="wave-bar"></span>
+                    </div>
+
+                    <div class="player-controls-row">
+                      <span style="color: var(--text-tertiary); font-size: 0.9rem;">⏮</span>
+                      <div class="play-btn-circle">
+                        <span>⏸</span>
+                      </div>
+                      <span style="color: var(--text-tertiary); font-size: 0.9rem;">⏭</span>
+                    </div>
+                  </div>
+
+                  <!-- City Filters Row -->
+                  <div class="chips-row">
+                    <span class="chip-item active">الكل (All)</span>
+                    <span class="chip-item">صنعاء</span>
+                    <span class="chip-item">عدن</span>
+                    <span class="chip-item">حضرموت</span>
+                    <span class="chip-item">تعز</span>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Floating Accent Badge -->
+              <div class="floating-badge">
+                <span>✨</span>
+                <span>صوت فوري.. نقاء بلا حدود</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 Impact Pillars -->
+    <section id="highlights">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Production Capabilities</span>
+          <h2 class="section-title">أربعة أركان صنعت الإصدار الأقوى</h2>
+          <p class="section-desc">
+            جرى تصميم وهندسة الإصدار 3.0.0 ليقدم أعلى معايير الاستقرار الإذاعي وتجربة المستخدم الحديثة.
+          </p>
+        </div>
+
+        <div class="pillars-grid">
+          
+          <div class="pillar-card">
+            <div class="pillar-icon-box">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"></path></svg>
+            </div>
+            <h3 class="pillar-title">محرك البث الإذاعي الحي</h3>
+            <p class="pillar-body">
+              مشغل صوتي متطور مبني على <code>just_audio</code> و <code>just_audio_background</code> مع معالجة ذكية للتبديل السريع بين مصادر البث واحتواء الانقطاعات واستمرار التشغيل في الخلفية وقفل الشاشة.
+            </p>
+            <span class="pillar-tag">FEAT-LIVE-PLAY ➔</span>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon-box">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+            </div>
+            <h3 class="pillar-title">أرشيف البرامج والحلقات</h3>
+            <p class="pillar-body">
+              دليل شامل للبرامج الحوارية والثقافية والبرامج المسجلة، وجداول أوقات البث، وسير المذيعين مع إمكانية الاستماع للحلقات السابقة والتحكم بسرعة الصوت.
+            </p>
+            <span class="pillar-tag">FEAT-PROGRAMS ➔</span>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon-box">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+            </div>
+            <h3 class="pillar-title">حماية المجتمع والرقابة</h3>
+            <p class="pillar-body">
+              بوابة مشاركة آمنة تتضمن الموافقة الصريحة على شروط الاستخدام، والإبلاغ الفوري عن التعليقات والمستخدمين، وإمكانية الحظر الشخصي مع التراجع الفوري، لحماية بيئة الحوار.
+            </p>
+            <span class="pillar-tag">FEAT-SAFETY & UGC ➔</span>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon-box">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            </div>
+            <h3 class="pillar-title">مركز الحساب وتخصيص الهدهد</h3>
+            <p class="pillar-body">
+              تسجيل دخول سلس عبر Google و Facebook و Apple أو عبر رمز التحقق البريدي OTP خلال 10 دقائق، مع تخصيص الصورة الرمزية من باقة شخصيات الهدهد الرسمية.
+            </p>
+            <span class="pillar-tag">FEAT-ACCOUNT ➔</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Visual Media Kit Section -->
+    <section id="media-kit">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Creative & Promotional Assets</span>
+          <h2 class="section-title">حزمة الملصقات الترويجية المعتمدة</h2>
+          <p class="section-desc">
+            أصول وسائط ثلاثية الأبعاد بدقة احترافية فائقة صممت خصيصاً لحملة إطلاق الإصدار عبر الشبكات الاجتماعية والمتاجر.
+          </p>
+        </div>
+
+        <div class="media-showcase-grid">
+          
+          <!-- Poster 01 -->
+          <div class="poster-card">
+            <div class="poster-image-box">
+              <img src="media/poster_01_live_radio.jpg" alt="Poster 01 Live Radio">
+              <span class="poster-badge-overlay">Poster 01 • Master</span>
+            </div>
+            <div class="poster-info-box">
+              <h3 class="poster-title">البث الإذاعي الحي واستوديو الهدهد</h3>
+              <p class="poster-concept">
+                «استمع. اكتشف. شارك.» — استوديو بث تفاعلي ثلاثي الأبعاد يعكس شخصية الهدهد كمضيف إذاعي دافئ مع واجهة تشغيل المحطات الحية.
+              </p>
+              <div class="poster-actions">
+                <a href="media/poster_01_live_radio.png" target="_blank" class="poster-btn">Master PNG (1.6MB)</a>
+                <a href="media/poster_01_live_radio_square.jpg" target="_blank" class="poster-btn">مربع 1:1</a>
+                <a href="POSTERS/POSTER_01_LIVE_RADIO.md" class="poster-btn">المواصفة</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Poster 02 -->
+          <div class="poster-card">
+            <div class="poster-image-box">
+              <img src="media/poster_02_audio_speed.jpg" alt="Poster 02 Audio Speed">
+              <span class="poster-badge-overlay">Poster 02 • Resonance</span>
+            </div>
+            <div class="poster-info-box">
+              <h3 class="poster-title">صوت فوري.. نقاء بلا حدود</h3>
+              <p class="poster-concept">
+                «Zero Lag. Pure Audio.» — تجسيد حركي لأمواج الصوت الرقمية فائقة السرعة وانعدام التقطيع أثناء الاستماع في الخلفية.
+              </p>
+              <div class="poster-actions">
+                <a href="media/poster_02_audio_speed.png" target="_blank" class="poster-btn">Master PNG (1.5MB)</a>
+                <a href="media/poster_02_audio_speed_square.jpg" target="_blank" class="poster-btn">مربع 1:1</a>
+                <a href="POSTERS/POSTER_02_AUDIO_SPEED.md" class="poster-btn">المواصفة</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Poster 03 -->
+          <div class="poster-card">
+            <div class="poster-image-box">
+              <img src="media/poster_03_yemen_radio.jpg" alt="Poster 03 Yemen Radio">
+              <span class="poster-badge-overlay">Poster 03 • Cartography</span>
+            </div>
+            <div class="poster-info-box">
+              <h3 class="poster-title">خريطة استكشاف إذاعات اليمن</h3>
+              <p class="poster-concept">
+                «إذاعات اليمن كلها.. في مكان واحد» — خريطة طوبوغرافية مجسمة ومضيئة تشع بأبراج البث في صنعاء وعدن وحضرموت وتعز.
+              </p>
+              <div class="poster-actions">
+                <a href="media/poster_03_yemen_radio.png" target="_blank" class="poster-btn">Master PNG (1.6MB)</a>
+                <a href="media/poster_03_yemen_radio_square.jpg" target="_blank" class="poster-btn">مربع 1:1</a>
+                <a href="POSTERS/POSTER_03_YEMEN_RADIO.md" class="poster-btn">المواصفة</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Changelog & Technical Specifications -->
+    <section id="changelog">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Release Notes & Technical Scope</span>
+          <h2 class="section-title">سجل التغييرات الكامل للإصدار 3.0.0</h2>
+          <p class="section-desc">
+            التفاصيل الهندسية والوظيفية التي تم اعتمادها واجتيازها بنجاح في النسخة الإنتاجية.
+          </p>
+        </div>
+
+        <div class="changelog-wrapper">
+          
+          <!-- Breaking Changes Box -->
+          <div class="breaking-box">
+            <div class="breaking-icon">
+              <svg width="28" height="28" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+            </div>
+            <div class="breaking-content">
+              <h4>تغييرات جذرية معتمدة (Breaking Changes)</h4>
+              <p>
+                <strong>معرف التطبيق في المتجر:</strong> تم توحيد معرف الحزمة الرسمي إلى <code>com.sana.dev.fm</code> لمتجر Google Play.<br>
+                <strong>جذر بيانات الإنتاج:</strong> حصر كافة عمليات القراءة والكتابة على بيئة الإنتاج الصارمة <code>FIRESTORE_ROOT=HudHudOfficial</code>.<br>
+                <strong>إحالة الأنظمة السابقة:</strong> الاستغناء الكامل والنهائي عن طبقات التوافق القديمة لتطبيق FM-Pro لصالح معمارية Flutter و Riverpod الحديثة.
+              </p>
+            </div>
+          </div>
+
+          <!-- New Features -->
+          <div class="changelog-group">
+            <div class="group-header">
+              <span class="pill-status new">مزايا جديدة</span>
+              <span>المزايا والوظائف المضافة حديثاً (Added)</span>
+            </div>
+            <ul class="items-list">
+              <li><strong>محرك البث الإذاعي المباشر:</strong> دعم تشغيل القنوات الإذاعية عبر الإنترنت مع التبديل الآلي لقنوات البث الاحتياطية وإشعارات التحكم أثناء قفل الشاشة.</li>
+              <li><strong>دليل برامج المحطات والحلقات:</strong> استعراض أرشيف الحلقات لكل إذاعة والتحكم في سرعة الاستماع (1.0x, 1.5x, 2.0x).</li>
+              <li><strong>نقاشات وتعليقات الحلقات:</strong> نظام تفاعلي للمستمعين لمناقشة الحلقات مع معايير تدقيق دقيقة (1-1000 حرف).</li>
+              <li><strong>بوابة الأمان وحماية المستمعين:</strong> إلزام المستخدمين ببنود المشاركة، وإتاحة الإبلاغ عن المحتوى المسيء وحظر أصحابه بلمسة واحدة مع خيار التراجع.</li>
+              <li><strong>متابعة المحطات والتنبيهات:</strong> اشتراك المستمعين في المحطات المفضلة واستلام إشعارات فورية عند نشر حلقات جديدة.</li>
+              <li><strong>مركز الحساب والمصادقة:</strong> دعم الدخول عبر Google و Apple و Facebook والبريد الإلكتروني برمز تحقق 6 أرقام.</li>
+              <li><strong>تفضيلات المظهر واللغة:</strong> دعم كامل للمظهرين الفاتح والداكن ومظهر النظام مع إمكانية التبديل بين اللغتين العربية والإنجليزية.</li>
+              <li><strong>البحث المتعدد وفلاتر المدن:</strong> فلترة المحطات بنقرة واحدة حسب المدينة وتطبيع الهمزات والتشكيل في البحث العربي.</li>
+            </ul>
+          </div>
+
+          <!-- Improvements -->
+          <div class="changelog-group">
+            <div class="group-header">
+              <span class="pill-status improved">تحسينات</span>
+              <span>التحسينات المعمارية وتجربة الاستخدام (Improved)</span>
+            </div>
+            <ul class="items-list">
+              <li><strong>تصميم عصري وانحناء 22px:</strong> اعتماد لغة Glassmorphism الداكنة وبطاقات دائرية الحواف تعكس هوية الراديو الاحترافية.</li>
+              <li><strong>دعم كامل لتكبير الخطوط:</strong> صمود الواجهات حتى 200% بدون أي تجاوز للنصوص أو تشوه بصري (Accessibility PASS).</li>
+              <li><strong>دعم اتجاه الكتابة RTL:</strong> محاذاة بصرية وصوتية كاملة لكافة الشاشات والقوائم باللغة العربية.</li>
+              <li><strong>حجم أصول مخفض (1.13 MB):</strong> تحويل كافة رسومات الهدهد إلى نسق WebP المعتمد لحفظ مساحة حزمة التطبيق.</li>
+            </ul>
+          </div>
+
+          <!-- Fixed -->
+          <div class="changelog-group">
+            <div class="group-header">
+              <span class="pill-status fixed">إصلاحات</span>
+              <span>المعالجات البرمجية والاستقرار (Fixed)</span>
+            </div>
+            <ul class="items-list">
+              <li><strong>اتجاه أيقونة التصفح:</strong> تصحيح اتجاه أسهم التنقل في قوائم البرامج لدعم القراءة من اليمين لليسار.</li>
+              <li><strong>مزامنة بيانات الملف الشخصي:</strong> تصحيح استعادة الاسم والصورة للمستخدمين الجدد عبر الشبكات الاجتماعية.</li>
+              <li><strong>سباق استبدال مصادر الصوت:</strong> منع تعارض حالات المشغل عند التبديل السريع جداً بين المحطات المتتالية.</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Documentation & Contract Links -->
+    <section id="docs">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Governance & Documentation</span>
+          <h2 class="section-title">المستندات والعقود الرسمية للإصدار</h2>
+          <p class="section-desc">
+            روابط مباشرة لكافة عقود الإطلاق وحزم النصوص المعتمدة في المستودع.
+          </p>
+        </div>
+
+        <div class="docs-grid">
+          <a href="release-contract.md" class="doc-card">
+            <div class="doc-card-info">
+              <h4>عقد الإصدار (Release Contract)</h4>
+              <p>الميثاق الكامل للمزايا، القيود، ومحددات الإنتاج</p>
+            </div>
+            <span class="doc-arrow">←</span>
+          </a>
+
+          <a href="release-validation.md" class="doc-card">
+            <div class="doc-card-info">
+              <h4>تقرير التحقق (Release Validation)</h4>
+              <p>سجل الفحص والاعتماد ونتائج الاختبارات</p>
+            </div>
+            <span class="doc-arrow">←</span>
+          </a>
+
+          <a href="media/README.md" class="doc-card">
+            <div class="doc-card-info">
+              <h4>دليل الوسائط (Media Kit Guide)</h4>
+              <p>فهرس دقة الملصقات، نسب العرض، وقنوات التوزيع</p>
+            </div>
+            <span class="doc-arrow">←</span>
+          </a>
+
+          <a href="STORE/GOOGLE_PLAY_AR.md" class="doc-card">
+            <div class="doc-card-info">
+              <h4>نصوص المتجر (Store Listing Copy)</h4>
+              <p>الوصف المعتمد لمتجر Google Play و App Store</p>
+            </div>
+            <span class="doc-arrow">←</span>
+          </a>
+
+          <a href="SOCIAL/POST_CAMPAIGN.md" class="doc-card">
+            <div class="doc-card-info">
+              <h4>خطة الحملة الاجتماعية (Social Campaign)</h4>
+              <p>جدول المنشورات الترويجية والرسائل الإعلانية</p>
+            </div>
+            <span class="doc-arrow">←</span>
+          </a>
+
+          <a href="FCM/STANDARD.md" class="doc-card">
+            <div class="doc-card-info">
+              <h4>قوالب الإشعارات (FCM Push Alerts)</h4>
+              <p>صيغ التنبيهات الموجهة للمستمعين والمشتركين</p>
+            </div>
+            <span class="doc-arrow">←</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <img src="media/app_logo_circle.png" alt="HudHud FM" class="footer-logo">
+      <p class="footer-text">
+        <strong>هدهد إف إم (HudHud FM)</strong> — منصة الأثير الرقمي الموحد لإذاعات اليمن. صُمم بعناية وشغف لخدمة المستمعين في الداخل والمهجر بصوت يمني أصيل وتقنيات بث متطورة.
+      </p>
+      <p class="footer-copy">
+        HudHud FM Team • Release Authority © 2026. All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Interactive Language & Theme Logic -->
+  <script>
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const langToggle = document.getElementById('langToggle');
+    
+    // Theme Switcher
+    let isDark = true;
+    themeToggle.addEventListener('click', () => {
+      isDark = !isDark;
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        themeIcon.textContent = '🌓';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeIcon.textContent = '☀️';
+      }
+    });
+
+    // Language Switcher (AR / EN)
+    let isArabic = true;
+    langToggle.addEventListener('click', () => {
+      isArabic = !isArabic;
+      if (isArabic) {
+        document.documentElement.setAttribute('lang', 'ar');
+        document.documentElement.setAttribute('dir', 'rtl');
+        langToggle.textContent = '🌐 English';
+      } else {
+        document.documentElement.setAttribute('lang', 'en');
+        document.documentElement.setAttribute('dir', 'ltr');
+        langToggle.textContent = '🌐 العربية';
+      }
+    });
+  </script>
+</body>
+</html>
