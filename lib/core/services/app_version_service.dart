@@ -48,7 +48,7 @@ abstract final class AppVersionService {
     const envVersionCode =
         int.fromEnvironment('APP_VERSION_CODE', defaultValue: 0);
 
-    return const AppVersionData(
+    return AppVersionData(
       versionName: envVersionName.isNotEmpty ? envVersionName : '',
       versionCode: envVersionCode > 0 ? envVersionCode : 0,
     );

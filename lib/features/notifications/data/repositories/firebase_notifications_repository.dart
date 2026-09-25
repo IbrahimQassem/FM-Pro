@@ -64,16 +64,37 @@ class FirebaseNotificationsRepository implements NotificationsRepository {
 
     final preferences = await SharedPreferences.getInstance();
     if (_disposed) throw StateError('Notifications disposed');
-    final savedEnabled = preferences.getBool(_preferenceKey) ?? false;
-    final settings = await _messaging.getNotificationSettings();
+    final hasSavedPreference = preferences.containsKey(_preferenceKey);
+    final savedEnabled = preferences.getBool(_preferenceKey) ?? true;
+    var settings = await _messaging.getNotificationSettings();
     if (_disposed) throw StateError('Notifications disposed');
+
+    if (!hasSavedPreference &&
+        settings.authorizationStatus == AuthorizationStatus.notDetermined) {
+      settings = await _messaging.requestPermission(
+        alert: true,
+        announcement: false,
+        badge: true,
+        carPlay: false,
+        criticalAlert: false,
+        provisional: false,
+        sound: true,
+      );
+      if (_disposed) throw StateError('Notifications disposed');
+    }
+
     final permission = _mapPermission(settings.authorizationStatus);
     final canReceive = permission == NotificationPermissionState.enabled;
-    if (savedEnabled && canReceive) {
+    final isEnabled = savedEnabled && canReceive;
+
+    if (isEnabled) {
       await _messaging.subscribeToTopic(_announcementsTopic);
+      if (!hasSavedPreference) {
+        await preferences.setBool(_preferenceKey, true);
+      }
     }
     return NotificationPreference(
-      isEnabled: savedEnabled && canReceive,
+      isEnabled: isEnabled,
       permission: permission,
     );
   }

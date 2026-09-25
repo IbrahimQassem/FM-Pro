@@ -1,8 +1,9 @@
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/mascot_avatar.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/mascot_avatar.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../account/presentation/sign_in_screen.dart';
 import '../../domain/models/app_user.dart';
 
 class UserHeader extends StatelessWidget {
@@ -11,6 +12,7 @@ class UserHeader extends StatelessWidget {
     required this.isOffline,
     required this.onNotificationsPressed,
     required this.onSettingsPressed,
+    this.onSignInPressed,
     super.key,
   });
 
@@ -18,6 +20,7 @@ class UserHeader extends StatelessWidget {
   final bool isOffline;
   final VoidCallback onNotificationsPressed;
   final VoidCallback onSettingsPressed;
+  final VoidCallback? onSignInPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +104,14 @@ class UserHeader extends StatelessWidget {
         ),
         if (user.isGuest && textScale <= 1.2) ...[
           FilledButton.tonalIcon(
-            onPressed: onSettingsPressed,
+            onPressed: onSignInPressed ??
+                () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const SignInScreen(),
+                    ),
+                  );
+                },
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
               visualDensity: VisualDensity.compact,
@@ -124,10 +134,8 @@ class UserHeader extends StatelessWidget {
         ),
         IconButton(
           onPressed: onSettingsPressed,
-          tooltip: user.isGuest ? strings.signIn : strings.account,
-          icon: Icon(
-            user.isGuest ? Icons.login_rounded : Icons.person_outline_rounded,
-          ),
+          tooltip: strings.settingsTitle,
+          icon: const Icon(Icons.settings_outlined),
         ),
       ],
     );

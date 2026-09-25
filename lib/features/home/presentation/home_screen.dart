@@ -11,6 +11,7 @@ import '../../../app/providers.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../favorites/presentation/controllers/favorites_controller.dart';
 import '../../account/presentation/account_screen.dart';
+import '../../account/presentation/sign_in_screen.dart';
 import '../../notifications/presentation/notifications_screen.dart';
 import '../../player/presentation/widgets/mini_player.dart';
 import '../../player/presentation/widgets/now_playing_sheet.dart';
@@ -103,6 +104,13 @@ class HomeScreen extends ConsumerWidget {
       await controller.refreshUser();
     }
 
+    Future<void> openSignIn() async {
+      await Navigator.of(
+        context,
+      ).push(MaterialPageRoute<void>(builder: (_) => const SignInScreen()));
+      await controller.refreshUser();
+    }
+
     void openNotifications() {
       Navigator.of(context).push(
         MaterialPageRoute<void>(builder: (_) => const NotificationsScreen()),
@@ -187,6 +195,7 @@ class HomeScreen extends ConsumerWidget {
       onViewModeChanged: controller.setViewMode,
       onNotificationsPressed: openNotifications,
       onSettingsPressed: openAccount,
+      onSignInPressed: openSignIn,
       onStationPressed: openStation,
       onStationPlayPressed: (station) {
         if (station.streamUrl.isEmpty) {

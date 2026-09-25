@@ -18,6 +18,7 @@ class HomeView extends StatefulWidget {
     required this.onViewModeChanged,
     required this.onNotificationsPressed,
     required this.onSettingsPressed,
+    this.onSignInPressed,
     required this.onStationPressed,
     required this.onStationPlayPressed,
     this.onFavoritesFilterToggled,
@@ -36,6 +37,7 @@ class HomeView extends StatefulWidget {
   final ValueChanged<StationViewMode> onViewModeChanged;
   final VoidCallback onNotificationsPressed;
   final VoidCallback onSettingsPressed;
+  final VoidCallback? onSignInPressed;
   final ValueChanged<Station> onStationPressed;
   final ValueChanged<Station> onStationPlayPressed;
   final ValueChanged<bool>? onFavoritesFilterToggled;
@@ -109,6 +111,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                     isOffline: widget.state.isOffline,
                     onNotificationsPressed: widget.onNotificationsPressed,
                     onSettingsPressed: widget.onSettingsPressed,
+                    onSignInPressed: widget.onSignInPressed,
                   ),
                 ),
               ),
