@@ -37,6 +37,8 @@
 | **01. Human Connection & Hoopoe**<br>![Social 01](media/social_01_human_connection.jpg) | **«صوتك .. أينما كنت»**<br>دفء إنساني يمني يجمع المستمع مع تطبيق هدهد إف إم ونافذة القمريات التراثية بصحبة الهدهد الودود. | • [High-Res JPG (674 KB)](media/social_01_human_connection.jpg)<br>• [نصوص وتغريدات جاهزة](social-kit.html) |
 | **02. Live Radio Studio & ON-AIR**<br>![Social 02](media/social_02_live_studio.jpg) | **«على الهواء الآن — بث نقي وفوري»**<br>استوديو بث رقمي احترافي مع إضاءة ON-AIR وشاشة هاتف ثلاثية الأبعاد تعرض واجهة المحطة. | • [High-Res JPG (805 KB)](media/social_02_live_studio.jpg)<br>• [نصوص وتغريدات جاهزة](social-kit.html) |
 | **03. Community & Podcast Archive**<br>![Social 03](media/social_03_community_archive.jpg) | **«مجتمع يجمعنا .. وبرامج تثرينا»**<br>مساحة ثقافية معاصرة تجمع المستمعين في حوار تفاعلي حول حلقات البرامج مع تسريع الصوت 1.5x. | • [High-Res JPG (720 KB)](media/social_03_community_archive.jpg)<br>• [نصوص وتغريدات جاهزة](social-kit.html) |
+| **04. Web App Browser Listening**<br>![Social 04](media/social_04_web_browser.jpg) | **«استمع مباشرة من متصفحك .. بدون تحميل»**<br>ترويج تجربة الويب المباشرة عبر اللابتوب والحواسيب، مع الهدهد يشير لرابط `hudhud.fm`. | • [High-Res JPG (651 KB)](media/social_04_web_browser.jpg)<br>• [نصوص وتغريدات جاهزة](social-kit.html) |
+| **05. Multi-Screen Web Ecosystem**<br>![Social 05](media/social_05_web_multiscreen.jpg) | **«الأثير اليمني على جميع شاشاتك»**<br>استعراض متجاوب لمشغل الويب على الشاشات الكبيرة والمكتبية مع واجهة Dark Studio Glass. | • [High-Res JPG (654 KB)](media/social_05_web_multiscreen.jpg)<br>• [نصوص وتغريدات جاهزة](social-kit.html) |
 
 ### 🎨 الملصقات الترويجية المعتمدة (Posters)
 
