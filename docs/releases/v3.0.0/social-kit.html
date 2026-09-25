@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HudHud FM v3.0.0 — Social Media & Creative Campaign Suite | هدهد إف إم</title>
+  <meta name="description" content="الحزمة الإبداعية الرسمية لإطلاق هدهد إف إم 3.0: ثلاث لوحات بصرية احترافية تجمع الهوية اليمنية والإنسان وشخصية الهدهد.">
+  
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Brand Contract Tokens */
+      --hudhud-primary: #8E3E63;
+      --hudhud-hero-start: #8B2648;
+      --hudhud-hero-end: #451222;
+      --hudhud-gold: #D4AF37;
+      --hudhud-gold-light: #F3E5AB;
+      --hudhud-status-online: #1A8F5A;
+      --hudhud-live-red: #E53935;
+      --hudhud-episode-accent: #C2185B;
+
+      /* Dark Studio Glass (Default) */
+      --bg-base: #140F12;
+      --bg-surface: #1E171C;
+      --bg-surface-elevated: #281D25;
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --border-glass-focus: rgba(212, 175, 55, 0.4);
+      --text-primary: #FCF8F8;
+      --text-secondary: #BFAEB3;
+      --text-tertiary: #87777D;
+      --glass-card: rgba(30, 23, 28, 0.75);
+      --glass-card-hover: rgba(40, 29, 37, 0.88);
+      --shadow-ambient: 0 20px 48px rgba(0, 0, 0, 0.55);
+      --shadow-glow: 0 0 32px rgba(139, 38, 72, 0.28);
+      --radius-card: 22px;
+      --radius-button: 16px;
+      --radius-pill: 9999px;
+      --font-ar: 'Cairo', system-ui, -apple-system, sans-serif;
+      --font-en: 'Outfit', system-ui, -apple-system, sans-serif;
+    }
+
+    [data-theme="light"] {
+      --bg-base: #FCF8F8;
+      --bg-surface: #FFFFFF;
+      --bg-surface-elevated: #F7EEF1;
+      --border-glass: rgba(142, 62, 99, 0.12);
+      --border-glass-focus: rgba(142, 62, 99, 0.35);
+      --text-primary: #3B0021;
+      --text-secondary: #634351;
+      --text-tertiary: #917581;
+      --glass-card: rgba(255, 255, 255, 0.88);
+      --glass-card-hover: rgba(255, 255, 255, 0.96);
+      --shadow-ambient: 0 16px 36px rgba(142, 62, 99, 0.08);
+      --shadow-glow: 0 0 24px rgba(142, 62, 99, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s ease;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-ar);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body[dir="ltr"] {
+      font-family: var(--font-en);
+    }
+
+    /* Ambient Background Glow */
+    .ambient-glow {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(140px);
+      opacity: 0.18;
+    }
+    .glow-1 { top: -100px; right: -100px; background: var(--hudhud-hero-start); }
+    .glow-2 { top: 40%; left: -150px; background: var(--hudhud-primary); }
+    .glow-3 { bottom: 10%; right: 10%; background: var(--hudhud-gold); opacity: 0.09; }
+
+    /* Header */
+    header.site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: var(--glass-card);
+      border-bottom: 1px solid var(--border-glass);
+    }
+
+    .nav-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-logo-img {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 4px 12px rgba(139, 38, 72, 0.35);
+    }
+
+    .brand-titles {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-weight: 800;
+      font-size: 1.15rem;
+      line-height: 1.2;
+    }
+
+    .brand-tagline {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .badge-campaign {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.65rem;
+      background: rgba(212, 175, 55, 0.15);
+      border: 1px solid var(--hudhud-gold);
+      color: var(--hudhud-gold);
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .control-btn {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+      padding: 0.45rem 0.85rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+    }
+
+    .control-btn:hover {
+      border-color: var(--hudhud-gold);
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+    }
+
+    .cta-back {
+      background: linear-gradient(135deg, var(--hudhud-hero-start), var(--hudhud-hero-end));
+      color: #FFFFFF !important;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 0.45rem 0.95rem;
+      border-radius: var(--radius-button);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* Hero */
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .suite-hero {
+      text-align: center;
+      padding: 3.5rem 0 2rem 0;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .suite-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.9rem;
+      background: rgba(142, 62, 99, 0.16);
+      border: 1px solid rgba(142, 62, 99, 0.32);
+      border-radius: var(--radius-pill);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--hudhud-gold);
+      margin-bottom: 1.25rem;
+    }
+
+    .suite-title {
+      font-size: 2.75rem;
+      font-weight: 900;
+      line-height: 1.25;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #FFFFFF 30%, var(--hudhud-gold-light) 90%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    [data-theme="light"] .suite-title {
+      background: linear-gradient(135deg, #3B0021 30%, #8B2648 90%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .suite-desc {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+    }
+
+    /* Tabs Switcher */
+    .tabs-bar {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin: 2.5rem 0 3rem 0;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      color: var(--text-secondary);
+      padding: 0.75rem 1.4rem;
+      border-radius: var(--radius-button);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--hudhud-hero-start), var(--hudhud-hero-end));
+      color: #FFFFFF;
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 18px rgba(139, 38, 72, 0.45);
+    }
+
+    .tab-btn:hover:not(.active) {
+      border-color: var(--hudhud-gold);
+      color: var(--text-primary);
+    }
+
+    /* Main Showcase Grid */
+    .post-panel {
+      display: none;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .post-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .post-showcase-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .post-showcase-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Visual Frame */
+    .visual-frame-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-card);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-ambient);
+      position: relative;
+    }
+
+    .visual-image {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      border-radius: 16px;
+      object-fit: cover;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+      display: block;
+    }
+
+    .visual-actions-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--border-glass);
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .aspect-tag {
+      font-size: 0.8rem;
+      color: var(--hudhud-gold);
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .download-btn {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .download-btn:hover {
+      border-color: var(--hudhud-gold);
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--hudhud-gold);
+    }
+
+    /* Content & Copy Section */
+    .post-copy-card {
+      background: var(--glass-card);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-card);
+      padding: 2rem;
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow-ambient);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .post-header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--hudhud-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .post-main-title {
+      font-size: 1.85rem;
+      font-weight: 900;
+      line-height: 1.3;
+    }
+
+    .post-narrative {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      border-left: 3px solid var(--hudhud-hero-start);
+      padding-left: 1rem;
+    }
+
+    [dir="rtl"] .post-narrative {
+      border-left: none;
+      border-right: 3px solid var(--hudhud-hero-start);
+      padding-left: 0;
+      padding-right: 1rem;
+    }
+
+    /* Captions Box */
+    .caption-box {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 1.25rem;
+      position: relative;
+    }
+
+    .caption-box-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .platform-label {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .copy-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--hudhud-gold);
+      color: var(--hudhud-gold);
+    }
+
+    .caption-text {
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      white-space: pre-line;
+      line-height: 1.7;
+      font-family: inherit;
+    }
+
+    .hashtags-row {
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      color: var(--hudhud-gold);
+      font-weight: 600;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    /* Specifications Card */
+    .specs-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .spec-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      padding: 0.85rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .spec-label {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      font-weight: 600;
+    }
+
+    .spec-val {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-top: 0.2rem;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--hudhud-hero-start);
+      color: #FFFFFF;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius-pill);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      font-size: 0.9rem;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Footer */
+    footer.site-footer {
+      border-top: 1px solid var(--border-glass);
+      background: var(--glass-card);
+      padding: 3rem 0;
+      margin-top: 6rem;
+      text-align: center;
+    }
+
+    .footer-text {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-copy {
+      color: var(--text-tertiary);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Ambience -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="nav-inner">
+      <a href="index.html" class="brand-lockup">
+        <img src="media/app_logo_circle.png" alt="HudHud Logo" class="brand-logo-img">
+        <div class="brand-titles">
+          <span class="brand-name">هدهد إف إم | HudHud FM</span>
+          <span class="brand-tagline">حزمة الوسائط والتسويق الرقمي للإصدار 3.0</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <span class="badge-campaign">3 Pro Visuals</span>
+        <button id="themeToggle" class="control-btn" aria-label="Toggle Theme">🌓 المظهر</button>
+        <button id="langToggle" class="control-btn" aria-label="Toggle Language">🌐 EN / عربي</button>
+        <a href="index.html" class="cta-back">← استعراض الإصدار</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Suite Hero -->
+    <div class="suite-hero">
+      <span class="suite-pill">✨ الحملة الترويجية الرسمية — الإصدار الرئيسي v3.0.0</span>
+      <h1 class="suite-title">ثلاث إطلالات احترافية تجسد هوية هدهد والأثير اليمني</h1>
+      <p class="suite-desc">
+        تم تصميم هذه اللوحات البصرية لتربط بين التراث اليمني العريق، روح الإنسان المستمع، وشخصية الهدهد الإذاعية الدافئة بأرقى تقنيات التصميم ثلاثي الأبعاد وإضاءة الاستوديو الملكية.
+      </p>
+    </div>
+
+    <!-- Switcher Tabs -->
+    <div class="tabs-bar">
+      <button class="tab-btn active" onclick="switchTab(0)">
+        <span>👤 01. الإنسان وصوت الوطن</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab(1)">
+        <span>🎙️ 02. استوديو الأثير المباشر</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab(2)">
+        <span>🤝 03. مجتمع المستمعين والأرشيف</span>
+      </button>
+    </div>
+
+    <!-- POST 01: Human Connection -->
+    <div class="post-panel active" id="panel-0">
+      <div class="post-showcase-grid">
+        <div class="visual-frame-container">
+          <img src="media/social_01_human_connection.jpg" alt="Human Connection & HudHud Mascot" class="visual-image">
+          <div class="visual-actions-bar">
+            <span class="aspect-tag">📐 1:1 Square (Instagram / X / LinkedIn Feed)</span>
+            <a href="media/social_01_human_connection.jpg" download="hudhud_v3_social_human_connection.jpg" class="download-btn">
+              ⬇️ تحميل الصورة عالية الدقة
+            </a>
+          </div>
+          <div class="specs-strip">
+            <div class="spec-item">
+              <div class="spec-label">الرسالة الجوهرية</div>
+              <div class="spec-val">صوتك .. أينما كنت</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">البعد الفني</div>
+              <div class="spec-val">قمرية صنعانية ودفء إنساني</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">ألوان الهوية</div>
+              <div class="spec-val">عنابي ملكي وذهبي</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="post-copy-card">
+          <span class="post-header-badge">Creative Concept 01 — The Human Voice</span>
+          <h2 class="post-main-title">«صوتك .. أينما كنت» — هدهد إف إم يرافق يومك</h2>
+          <p class="post-narrative">
+            تجسيد صادق للحنين والانتماء: شاب يمني يستمتع بنقاء البث الإذاعي الحي عبر تطبيق هدهد إف إم، في لحظة سكون أمام نافذة القمريات التراثية، بصحبة شخصية الهدهد الودودة التي ترمز إلى الأنيس الإذاعي الذكي.
+          </p>
+
+          <div class="caption-box">
+            <div class="caption-box-header">
+              <span class="platform-label">📱 نص النشر المقترح (Social Media Caption):</span>
+              <button class="copy-btn" onclick="copyCaption('caption-text-1')">📋 نسخ النص</button>
+            </div>
+            <div class="caption-text" id="caption-text-1">مهما ابتعدت المسافات، صوت اليمن وناسك دائماً بقربك! 🇾🇪✨
+
+يسعدنا أن نعلن عن إطلاق الإصدار الجديد كلياً من تطبيق **هدهد إف إم (v3.0)** — بوابتك الرقمية الموحدة لجميع الإذاعات اليمنية.
+
+🎧 استمع للبث المباشر بدون تقطيع
+📻 مكتبة برامج متكاملة وحلقات عند الطلب
+💬 شارك آراءك مع مجتمع المستمعين
+🌙 تجربة استماع هادئة ومظهر داكن فائق الأناقة
+
+حمّل التحديث الآن وعيش تجربة الأثير كما لم تعشها من قبل! 📲</div>
+            <div class="hashtags-row">
+              <span>#هدهد_إف_إم</span>
+              <span>#إذاعات_اليمن</span>
+              <span>#صوتك_أينما_كنت</span>
+              <span>#HudHudFM</span>
+              <span>#YemenRadio</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POST 02: Live Studio & Technology -->
+    <div class="post-panel" id="panel-1">
+      <div class="post-showcase-grid">
+        <div class="visual-frame-container">
+          <img src="media/social_02_live_studio.jpg" alt="HudHud Live Studio & ON AIR" class="visual-image">
+          <div class="visual-actions-bar">
+            <span class="aspect-tag">📐 1:1 Square (Instagram / X / LinkedIn Feed)</span>
+            <a href="media/social_02_live_studio.jpg" download="hudhud_v3_social_live_studio.jpg" class="download-btn">
+              ⬇️ تحميل الصورة عالية الدقة
+            </a>
+          </div>
+          <div class="specs-strip">
+            <div class="spec-item">
+              <div class="spec-label">الرسالة الجوهرية</div>
+              <div class="spec-val">إذاعات اليمن كلها .. في مكان واحد</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">البعد الفني</div>
+              <div class="spec-val">استوديو صوتي واجهة ON-AIR</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">الميزة المحورية</div>
+              <div class="spec-val">محرك بث صوتي فائق السرعة</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="post-copy-card">
+          <span class="post-header-badge">Creative Concept 02 — High-Tech Studio</span>
+          <h2 class="post-main-title">«على الهواء الآن» — الأثير اليمني بتقنيات المستقبل</h2>
+          <p class="post-narrative">
+            استوديو إذاعي احترافي يتألق بإضاءة النيون العنابية وشعار ON-AIR، حيث يتولى الهدهد هندسة الصوت والتقديم، مع واجهة هاتف زجاجية طافية تبرز أمواج الصوت الحية وسلاسة الانتقال بين المحطات.
+          </p>
+
+          <div class="caption-box">
+            <div class="caption-box-header">
+              <span class="platform-label">📱 نص النشر المقترح (Social Media Caption):</span>
+              <button class="copy-btn" onclick="copyCaption('caption-text-2')">📋 نسخ النص</button>
+            </div>
+            <div class="caption-text" id="caption-text-2">نحن على الهواء الآن! 🎙️🔴
+
+نعلن بفخر عن انطلاق **HudHud FM 3.0** بمحرك بث إذاعي متطور ومستقر 100%:
+
+⚡ سرعة تشغيل فورية للمحطات الإذاعية
+🔔 تحكم كامل من شاشة القفل وإشعارات النظام
+📶 ثبات في البث حتى مع سرعات الإنترنت المتواضعة
+🎚️ واجهة Dark Studio Glass مصممة خصيصاً لراحة عينك
+
+كل موجات اليمن بين يديك.. بلمسة واحدة. جرب الإصدار 3.0 الآن! 📻⚡</div>
+            <div class="hashtags-row">
+              <span>#بث_مباشر</span>
+              <span>#هدهد_3</span>
+              <span>#راديو_اليمن</span>
+              <span>#صوت_الأثير</span>
+              <span>#HudHudApp</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POST 03: Community & Podcast Archive -->
+    <div class="post-panel" id="panel-2">
+      <div class="post-showcase-grid">
+        <div class="visual-frame-container">
+          <img src="media/social_03_community_archive.jpg" alt="Listeners Community and Podcast Archive" class="visual-image">
+          <div class="visual-actions-bar">
+            <span class="aspect-tag">📐 1:1 Square (Instagram / X / LinkedIn Feed)</span>
+            <a href="media/social_03_community_archive.jpg" download="hudhud_v3_social_community_archive.jpg" class="download-btn">
+              ⬇️ تحميل الصورة عالية الدقة
+            </a>
+          </div>
+          <div class="specs-strip">
+            <div class="spec-item">
+              <div class="spec-label">الرسالة الجوهرية</div>
+              <div class="spec-val">مجتمع يجمعنا .. وبرامج تثرينا</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">البعد الفني</div>
+              <div class="spec-val">حوار ثقافي وتفاعل المستمعين</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">الميزة المحورية</div>
+              <div class="spec-val">تسريع الصوت 1.5x ومجتمع الحلقات</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="post-copy-card">
+          <span class="post-header-badge">Creative Concept 03 — Listening Community</span>
+          <h2 class="post-main-title">«أكثر من مجرد راديو» — مساحة للنقاش والأرشيف</h2>
+          <p class="post-narrative">
+            لقاء شبابي دافئ في مساحة ثقافية معاصرة يتشاركون فيه الاستماع لحلقات البودكاست والبرامج التراثية، مع استعراض ضوابط النقاش الحضاري، بطاقات الحلقات عند الطلب، وميزة تسريع الصوت (1.5x).
+          </p>
+
+          <div class="caption-box">
+            <div class="caption-box-header">
+              <span class="platform-label">📱 نص النشر المقترح (Social Media Caption):</span>
+              <button class="copy-btn" onclick="copyCaption('caption-text-3')">📋 نسخ النص</button>
+            </div>
+            <div class="caption-text" id="caption-text-3">الراديو صار يجمعنا ويتكلم بلغتنا! 💬✨
+
+مع إصدار **هدهد إف إم 3.0**، تجربة الاستماع لم تعد اتجاهاً واحداً:
+
+📚 أرشيف ضخم لبرامجك المفضلة وحلقاتك الفائتة
+⏩ تحكم مرن في سرعة الاستماع (1.0x / 1.5x / 2.0x)
+💬 مجتمع تفاعلي محترم لتبادل الآراء والتعليقات
+🛡️ بيئة آمنة ومراقبة بمعايير حماية مجتمعية صارمة
+
+شارك برأيك، وثق حضورك، واستمتع بأقوى المحتويات الإذاعية اليمنية! 🎙️❤️</div>
+            <div class="hashtags-row">
+              <span>#بودكاست_يمني</span>
+              <span>#مجتمع_المستمعين</span>
+              <span>#برامج_الراديو</span>
+              <span>#هدهد_إف_إم</span>
+              <span>#اليمن</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="toast">
+    <span>✅</span>
+    <span id="toastMsg">تم نسخ النص الترويجي إلى الحافظة بنجاح!</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <p class="footer-text">منصة هدهد إف إم (HudHud FM) — الإصدار الثالث v3.0.0 (Build 30)</p>
+      <p class="footer-copy">جميع الحقوق محفوظة © 2026. تم تطوير الحزمة وفق العقد اللوني والمعماري المعتمد.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Tab Switching
+    function switchTab(index) {
+      const tabs = document.querySelectorAll('.tab-btn');
+      const panels = document.querySelectorAll('.post-panel');
+      tabs.forEach((tab, i) => tab.classList.toggle('active', i === index));
+      panels.forEach((panel, i) => panel.classList.toggle('active', i === index));
+    }
+
+    // Copy Caption
+    function copyCaption(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('تم نسخ النص الترويجي بنجاح إلى الحافظة!');
+      }).catch(err => {
+        console.error('Failed to copy', err);
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    // Theme Toggle
+    const themeBtn = document.getElementById('themeToggle');
+    themeBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const target = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', target);
+      localStorage.setItem('hudhud-theme', target);
+    });
+
+    // Language / Direction Toggle
+    const langBtn = document.getElementById('langToggle');
+    langBtn.addEventListener('click', () => {
+      const currentDir = document.documentElement.getAttribute('dir') || 'rtl';
+      const targetDir = currentDir === 'rtl' ? 'ltr' : 'rtl';
+      const targetLang = targetDir === 'rtl' ? 'ar' : 'en';
+      document.documentElement.setAttribute('dir', targetDir);
+      document.documentElement.setAttribute('lang', targetLang);
+      localStorage.setItem('hudhud-dir', targetDir);
+    });
+
+    // Restore user preferences
+    const savedTheme = localStorage.getItem('hudhud-theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+    const savedDir = localStorage.getItem('hudhud-dir');
+    if (savedDir) {
+      document.documentElement.setAttribute('dir', savedDir);
+      document.documentElement.setAttribute('lang', savedDir === 'rtl' ? 'ar' : 'en');
+    }
+  </script>
+</body>
+</html>

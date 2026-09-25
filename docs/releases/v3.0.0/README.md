@@ -12,7 +12,7 @@
 [![Tests](https://img.shields.io/badge/tests-231%20PASSED-success.svg)](release-validation.md)
 [![Target](https://img.shields.io/badge/Google%20Play-com.sana.dev.fm-D4AF37.svg)](STORE/GOOGLE_PLAY_AR.md)
 
-[🌐 **عرض صفحة الإصدار التفاعلية (Interactive Experience)**](index.html) • [📄 **عقد الإصدار (Release Contract)**](release-contract.md) • [🎨 **حزمة الوسائط (Media Kit)**](media/README.md)
+[🌐 **عرض صفحة الإصدار التفاعلية (Interactive Experience)**](index.html) • [📱 **حزمة التواصل الاجتماعي (Social Media Suite)**](social-kit.html) • [📄 **عقد الإصدار (Release Contract)**](release-contract.md) • [🎨 **حزمة الوسائط (Media Kit)**](media/README.md)
 
 </div>
 
@@ -26,9 +26,19 @@
 
 ---
 
-## 2. حزمة الملصقات الترويجية المعتمدة (Visual Media Kit)
+## 2. حزمة الوسائط والحملة الرقمية (Social Media & Visual Kit)
 
 تم تصميم وإنتاج حزمة وسائط ثلاثية الأبعاد متكاملة تراعي الهوية اللونية الملكية العنابية (`#8E3E63` / `#8B2648`) وتبرز المحاور الجوهرية للإصدار:
+
+### 📱 حملة التواصل الاجتماعي التفاعلية ([استعراض الحزمة التفاعلية](social-kit.html))
+
+| اللوحة البصرية (1:1) | المفهوم الفني والرسالة | الأصول وروابط التحميل |
+| :--- | :--- | :--- |
+| **01. Human Connection & Hoopoe**<br>![Social 01](media/social_01_human_connection.jpg) | **«صوتك .. أينما كنت»**<br>دفء إنساني يمني يجمع المستمع مع تطبيق هدهد إف إم ونافذة القمريات التراثية بصحبة الهدهد الودود. | • [High-Res JPG (674 KB)](media/social_01_human_connection.jpg)<br>• [نصوص وتغريدات جاهزة](social-kit.html) |
+| **02. Live Radio Studio & ON-AIR**<br>![Social 02](media/social_02_live_studio.jpg) | **«على الهواء الآن — بث نقي وفوري»**<br>استوديو بث رقمي احترافي مع إضاءة ON-AIR وشاشة هاتف ثلاثية الأبعاد تعرض واجهة المحطة. | • [High-Res JPG (805 KB)](media/social_02_live_studio.jpg)<br>• [نصوص وتغريدات جاهزة](social-kit.html) |
+| **03. Community & Podcast Archive**<br>![Social 03](media/social_03_community_archive.jpg) | **«مجتمع يجمعنا .. وبرامج تثرينا»**<br>مساحة ثقافية معاصرة تجمع المستمعين في حوار تفاعلي حول حلقات البرامج مع تسريع الصوت 1.5x. | • [High-Res JPG (720 KB)](media/social_03_community_archive.jpg)<br>• [نصوص وتغريدات جاهزة](social-kit.html) |
+
+### 🎨 الملصقات الترويجية المعتمدة (Posters)
 
 | الملصق الترويجي | المفهوم الفني والرسالة | الأصول والروابط |
 | :--- | :--- | :--- |
