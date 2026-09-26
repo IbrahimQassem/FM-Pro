@@ -26,21 +26,21 @@
 ## 2. Media Asset Details & Feature Mapping
 
 ### Poster 01 — Live Radio & Acoustic Studio (`FEAT-LIVE-PLAY`)
-* **Creative Concept**: 3D Dark Glassmorphism Studio with Hoopoe Radio Host
-* **Arabic Slogan**: «استمع. اكتشف. شارك.» (Listen. Discover. Share.)
-* **Key Visuals**: Official Hoopoe bird mascot wearing studio headphones at a dark frosted glass broadcast console with vintage condenser microphone, glowing "ON AIR" sign, and floating smartphone displaying live frequency streaming and waveform.
+* **Creative Concept**: 3D Dark Studio Glassmorphism with Live Broadcaster & Hoodie Mascot
+* **Arabic Slogan**: «استمع. اكتشف. شارك | هدهد إف إم 3.0» (Listen. Discover. Share.)
+* **Key Visuals**: Handsome Yemeni radio host and the official HudHud Hoopoe mascot (in dark red hoodie with ancient Musnad script and gold headphones) at a mixing console with vintage mic, glowing "ON AIR" sign, floating mobile app live player with golden waveforms, and official 3D embossed logo.
 * **Specification Document**: [`../POSTERS/POSTER_01_LIVE_RADIO.md`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/POSTERS/POSTER_01_LIVE_RADIO.md)
 
 ### Poster 02 — Fast Listening & Dynamic Soundwaves (`FEAT-LIVE-PLAY`)
-* **Creative Concept**: High-Velocity Acoustic Resonance & Instant Streaming
-* **Arabic Slogan**: «صوت فوري.. نقاء بلا حدود» (Instant Sound.. Boundless Clarity)
-* **Key Visuals**: Hoopoe mascot soaking in high-fidelity audio with wireless studio headphones, alongside floating smartphone erupting 3D illuminated multi-chromatic soundwave ribbons in burgundy, magenta, and emerald resonance.
+* **Creative Concept**: Acoustic Bliss, Zero-Latency Streaming & Flying Mascot Orbit
+* **Arabic Slogan**: «صوت فوري.. نقاء بلا حدود | هدهد إف إم 3.0» (Instant Sound.. Boundless Clarity)
+* **Key Visuals**: Relaxed Yemeni listener in studio lounge chair with eyes closed enjoying high-fidelity sound, floating phone audio spectrum visualizer, swirling luminescent golden/magenta acoustic ribbon, flying HudHud mascot in branded hoodie, and embossed 3D logo.
 * **Specification Document**: [`../POSTERS/POSTER_02_AUDIO_SPEED.md`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/POSTERS/POSTER_02_AUDIO_SPEED.md)
 
-### Poster 03 — Yemen Radio Discovery (`FEAT-SEARCH` & `FEAT-PROGRAMS`)
-* **Creative Concept**: Cartographic Cultural Unity & Geographic Radio Discovery
-* **Arabic Slogan**: «إذاعات اليمن كلها.. في متناول يدك» (All Yemeni Radio.. At Your Fingertips)
-* **Key Visuals**: Stylized 3D glowing topographic relief map of Yemen with warm golden broadcast beacons in Sana'a, Aden, Hadramout, Taiz, accompanied by friendly Hoopoe mascot and floating phone with city discovery chips and station cards.
+### Poster 03 — Yemen Radio Discovery & Cartography (`FEAT-SEARCH` & `FEAT-PROGRAMS`)
+* **Creative Concept**: National Cartographic Discovery & Topographic Radio Relief Map
+* **Arabic Slogan**: «إذاعات اليمن كلها .. في مكان واحد | هدهد إف إم 3.0» (All Yemeni Radios .. In One Place)
+* **Key Visuals**: Young Yemeni couple in modern traditional attire admiring an illuminated 3D topographic relief map of Yemen with broadcast beacons (Sana'a, Aden, Hadramout, Taiz), accompanied by the HudHud guide mascot gesturing toward a floating phone with city discovery chips and station cards.
 * **Specification Document**: [`../POSTERS/POSTER_03_YEMEN_RADIO.md`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/POSTERS/POSTER_03_YEMEN_RADIO.md)
 
 ---

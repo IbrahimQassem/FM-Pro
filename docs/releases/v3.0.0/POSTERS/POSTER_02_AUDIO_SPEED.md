@@ -1,59 +1,55 @@
 # Poster Concept 02 — Fast Listening & Dynamic Soundwaves
 
-* **Concept**: High-Velocity Acoustic Resonance & Instant Streaming
-* **Core Communication**: Speed, zero-buffering immediacy, and crystal-clear audio fidelity
-* **Primary Visual Focus**: Dynamic illuminated audio ribbons swirling seamlessly around a flagship smartphone into the Hoopoe's headphones
+* **Concept**: Acoustic Bliss, Zero-Latency Streaming & Human Immersion
+* **Core Slogan**: «صوت فوري.. نقاء بلا حدود | هدهد إف إم 3.0» (Instant Sound.. Boundless Clarity)
+* **Primary Visual Focus**: Yemeni Music & Radio Listener relaxing in studio bliss, surrounded by kinetic soundwaves and flying HudHud Mascot
 
 ---
 
 ## 1. Visual Composition & Narrative
 
-A cinematic, motion-inspired composition communicating instantaneous digital sound. A slender, ultra-modern smartphone stands at an assertive dynamic angle. From the smartphone's screen, an energetic, multi-layered ribbon of luminous audio waveforms erupts forward, arcing gracefully in three dimensions. The waveform shifts through gradients of deep maroon (`#8B2648`), vivid magenta (`#C2185B`), and resonant frequency green (`#1A8F5A`).
+A dynamic, immersive 3D composition celebrating acoustic clarity, zero-buffering playback, and human musical joy. A young Yemeni listener reclines comfortably in a deep plum-wine velvet studio armchair, eyes gently closed with a peaceful smile, wearing sleek studio headphones with golden acoustic insets.
 
-The HudHud mascot is captured in an elegant action pose — leaning dynamically into the audio curve, touching one side of his wireless headphones with a satisfied smile, closed eyes soaking in the pure audio clarity. Particles of acoustic energy disperse subtly in the air, conveying motion and instantaneous response without needing wordy explanations.
+Resting tilted in the foreground is a flagship smartphone projecting an illuminated 3D audio spectrum equalizer with multicolored frequency bars. From the smartphone screen erupts an energetic, luminescent acoustic ribbon that swirls gracefully upward in luminous golden and magenta tones (`#D4AF37` / `#C2185B`).
+
+Hovering joyfully within the swirling soundwave orbit is the official 3D HudHud Hoopoe mascot, arms outstretched in welcoming triumph, wearing his signature branded burgundy hoodie with golden Musnad embroidery and matching studio headphones.
+
+The scene is anchored at top right by the official embossed 3D HudHud logo, and at the bottom by a refined dark glass bar with the Arabic slogan:
+**«صوت فوري.. نقاء بلا حدود | هدهد إف إم 3.0»**
 
 ---
 
-## 2. Production Image Generation Brief
+## 2. Production Specification & Asset Manifest
 
 ```yaml
-visual_prompt:
-  concept: "Kinetic Audio Waveform and Zero-Latency Mobile Radio Streaming"
-  subject: "Dynamic visualization of high-speed digital audio streaming connecting a modern smartphone to the listener mascot"
+visual_specification:
+  concept: "Zero-Latency Acoustic Bliss with Human Listener & Kinetic Soundwave Orbit"
+  human_subject: >
+    Young Yemeni male listener leaning back in a modern deep plum (#451222) studio lounge chair,
+    wearing casual burgundy button-down over white tee, wearing gold-trimmed over-ear headphones,
+    smiling serenely with eyes closed, fully absorbed in high-fidelity audio.
   mascot: >
-    Official HudHud Hoopoe mascot with detailed feather textures, natural crest plumage,
-    wearing sleek aerodynamic studio headphones. Expression of pure musical enjoyment and
-    acoustic clarity, interacting physically with the flowing energy of the sound wave.
-    [USE_ACTUAL_ASSET: assets/images/mascot/mascot_onboarding.webp for post-production compositing]
+    Official HudHud Hoopoe mascot hovering dynamically in the center with wings and arms spread wide,
+    wearing the signature dark red hoodie with Musnad chest glyphs and gold headphones,
+    expressing pure acoustic excitement.
+  kinetic_effects: >
+    Swirling 3D fiber-optic soundwave ribbon arcing from the smartphone screen upward around the mascot,
+    with floating golden frequency particles and light dust.
+  ui_element: >
+    Floating smartphone displaying HudHud FM's live audio spectrum equalizer,
+    progress timeline, and playback controls on a dark glassmorphism interface.
   environment: >
-    Deep cinematic acoustic space with atmospheric dark violet-burgundy mist.
-    Minimalist reflective dark ground surface with subtle ripples resembling sound reverberation.
-  composition: >
-    Diagonal dynamic flow from bottom-left to top-right. Modern bezel-less smartphone in the
-    lower-left third, spiraling audio light trails whipping around it and leading the viewer's
-    gaze toward the mascot in the upper-right third.
-  camera: "50mm high-speed cinema lens, subtle motion blur on peripheral particles, sharp focal point on device and mascot"
-  lighting: >
-    Self-illuminating neon audio waveform providing the primary dramatic light source.
-    Soft ambient fill light in burgundy (#8E3E63) and deep obsidian (#140F12).
-  materials: >
-    Luminescent fiber-optic soundwave ribbons, polished dark titanium phone chassis,
-    glossy OLED screen glass, matte acoustic polymer headphones.
-  colors: >
-    Hero Gradient Maroon (#8B2648), Episode Magenta Accent (#C2185B), Emerald Resonance (#34D399 / #1A8F5A),
-    Deep Wine Background (#451222 to #161215).
-  typography: >
-    Minimalist, impactful Arabic headline:
-    «صوت فوري.. نقاء بلا حدود» (Instant Sound.. Boundless Clarity)
-    Subtle English subtitle: "Zero Lag. Pure Audio."
-  logo: >
-    [USE_ACTUAL_ASSET: assets/images/branding/logo.png]
-    Positioned discreetly at top header with crisp white/translucent lockup.
-  app_ui: >
-    High-fidelity mobile screen render displaying HudHud FM mini-player in playing state,
-    smooth audio spectrum visualizer, and station name.
-  aspect_ratio: "4:5 (feed poster) and 9:16 (mobile story format)"
-  negative_constraints: >
-    No jagged broken lines, no low-resolution digital noise, no cluttered background elements,
-    no distorted phone proportions, no exaggerated cartoon deformations.
+    Moody dark acoustic studio with deep plum-wine (#451222) ambient illumination,
+    sound-diffusing geometric wall baffles, and soft volumetric rim highlights.
+  branding: >
+    Top-right: Official embossed 3D HudHud logo with Musnad script and hoopoe feathers.
+    Bottom banner: «صوت فوري.. نقاء بلا حدود | هدهد إف إم 3.0».
+  dimensions:
+    master_png: "896 × 1200 px (3:4 Aspect Ratio)"
+    optimized_jpg: "896 × 1200 px (3:4 Aspect Ratio)"
+    square_crop: "896 × 896 px (1:1 Aspect Ratio)"
+  canonical_files:
+    - "hudhud_fm/docs/releases/v3.0.0/media/poster_02_audio_speed.png"
+    - "hudhud_fm/docs/releases/v3.0.0/media/poster_02_audio_speed.jpg"
+    - "hudhud_fm/docs/releases/v3.0.0/media/poster_02_audio_speed_square.jpg"
 ```

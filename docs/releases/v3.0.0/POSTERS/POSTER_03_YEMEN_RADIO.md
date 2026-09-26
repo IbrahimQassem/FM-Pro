@@ -1,60 +1,54 @@
-# Poster Concept 03 — Yemen Radio Discovery
+# Poster Concept 03 — Yemen Radio Discovery & Cartography
 
-* **Concept**: Cartographic Cultural Unity & Geographic Radio Discovery
-* **Core Communication**: «اكتشف إذاعات اليمن في مكان واحد» (Discover Yemeni Radio in One Place)
-* **Primary Visual Focus**: Stylized illuminated 3D map of Yemen with radiating broadcast stations, guided by the HudHud mascot
+* **Concept**: Cartographic Cultural Unity & National Radio Discovery
+* **Core Slogan**: «إذاعات اليمن كلها .. في مكان واحد | هدهد إف إم 3.0» (All Yemeni Radios .. In One Place)
+* **Primary Visual Focus**: Young Yemeni Listeners exploring an illuminated 3D relief map of Yemen alongside the HudHud Guide Mascot
 
 ---
 
 ## 1. Visual Composition & Narrative
 
-A culturally rich, expansive 3D visual featuring a stylized, topographic relief map of Yemen glowing gently on a dark acoustic pedestal. Major cultural and metropolitan broadcast hubs (Sana'a, Aden, Mukalla / Hadramout, Taiz, Seiyun, Hodeidah, Marib) are highlighted as warm golden and ruby illuminated broadcast towers, emitting delicate concentric radio waves across governorates.
+A culturally majestic, gallery-lit 3D visual celebrating the rich radio heritage across all Yemeni governorates. In a sleek dark museum/studio gallery, a young Yemeni man in a modern tailored suit and traditional thobe stands alongside a graceful young Yemeni woman wearing an elegant dusty plum abaya, both admiring an illuminated glass architectural plinth.
 
-In the foreground, the official HudHud Hoopoe mascot stands like an expert explorer/guide, pointing with enthusiasm toward a modern floating smartphone. The phone screen displays the HudHud FM **Home Discovery Grid**, highlighting city filter chips (`صنعاء`, `عدن`, `حضرموت`, `تعز`) and verified station badges where verified in the project database.
+On the plinth rests a glowing 3D topographic relief map of Yemen with warm amber and ruby radio beacons radiating concentric signal waves from Sana'a, Aden, Hadramout, and Taiz.
 
-The visual communicates completeness, national reach, and seamless connectivity, bridging geography through radio airwaves.
+Perched next to the map, the official HudHud Hoopoe mascot—wearing his iconic burgundy hoodie with ancient golden Musnad script and studio headphones—gestures enthusiastically toward a floating golden smartphone. The phone screen showcases HudHud FM's **City Discovery UI** featuring governorate filter chips (`صنعاء`, `عدن`, `حضرموت`, `تعز`) and verified radio station cards.
+
+Anchoring the upper left is the official embossed 3D HudHud logo, balanced by the refined header «Yemen Radio — Discovery & Cartography», with the base completed by a dark glass banner reading:
+**«إذاعات اليمن كلها .. في مكان واحد | هدهد إف إم 3.0»**
 
 ---
 
-## 2. Production Image Generation Brief
+## 2. Production Specification & Asset Manifest
 
 ```yaml
-visual_prompt:
-  concept: "3D Cartographic Radio Station Discovery Across Yemen"
-  subject: "Stylized topographic map of Yemen with illuminated radio broadcast towers connecting to the HudHud FM application"
+visual_specification:
+  concept: "National Geographic Radio Discovery with Yemeni Listeners & 3D Topographic Relief Map"
+  human_subjects: >
+    Young Yemeni couple in refined contemporary attire: man in dark tailored blazer over cream thobe,
+    woman in graceful dusty rose/plum abaya with hijab, looking on with pride and admiration.
   mascot: >
-    Official HudHud Hoopoe mascot with authentic crest plumage, smiling warmly, holding a vintage
-    stylized frequency tuning dial or pointing toward the phone display with friendly hospitality.
-    [USE_ACTUAL_ASSET: assets/images/mascot/mascot_onboarding.webp for post-production compositing]
+    Official HudHud Hoopoe mascot standing proudly beside the map, wearing the signature dark plum hoodie
+    with Musnad symbols and studio headphones, pointing toward the floating app discovery screen.
+  cartographic_element: >
+    Illuminated 3D topographic relief map of Yemen on an architectural frosted-glass plinth.
+    Glowing broadcast beacons emitting concentric signal waves over Sana'a, Aden, Hadramout, and Taiz.
+  ui_element: >
+    Floating smartphone with warm gold chassis displaying the HudHud FM Discovery interface:
+    city filter chips (صنعاء، عدن، حضرموت، تعز) and verified radio station cards with logos.
   environment: >
-    Dark architectural exhibition space with warm mahogany and midnight-wine undertones (#140F12).
-    A floating, frosted glass architectural pedestal supporting a glowing relief map of the Yemeni archipelago and mainland.
-  composition: >
-    Wide perspective hero composition. Stylized 3D Yemen map sweeping across the mid-ground,
-    Hoopoe mascot standing on the right foreground with inviting posture, floating smartphone
-    angled on the left foreground displaying city discovery filters and station cards.
-  camera: "35mm architectural lens, broad depth of field keeping both map and smartphone legible"
-  lighting: >
-    Intricate pin-spot lighting highlighting city broadcast nodes (warm amber and ruby pulses).
-    Soft diffuse rim lighting defining the coastline and mountainous Yemeni topography.
-  materials: >
-    Frosted glass map surface with etched bronze topography lines, brushed gold broadcast beacons,
-    premium OLED glass display on smartphone, tactile feather details on mascot.
-  colors: >
-    Burgundy Base (#8E3E63), Warm Yemeni Gold (#D4AF37), Crimson Maroon (#8B2648),
-    Porcelain Cream (#FCF8F8), Obsidian Shadow (#161215).
-  typography: >
-    Prominent Arabic headline in stately Naskh/Kufic:
-    «إذاعات اليمن كلها.. في متناول يدك» (All Yemeni Radio.. At Your Fingertips)
-    Official brand tagline below: «إذاعاتك في مكان واحد» (Your Radios in One Place).
-  logo: >
-    [USE_ACTUAL_ASSET: assets/images/branding/logo.png]
-    Anchoring the top center with clean, balanced spacing.
-  app_ui: >
-    Accurate render of HudHud FM Home Screen showing city filter chips (صنعاء، عدن، المكلا، تعز)
-    and radio station cards. Verified checkmarks rendered only on verified stations (e.g. Adania FM, Seiyun Radio).
-  aspect_ratio: "4:5 (feed poster) or 16:9 (display banner)"
-  negative_constraints: >
-    No inaccurate political borders, no cartoonish distortions of geographical landmass,
-    no fictitious unverifiable station logos, no low-contrast illegible text, no clutter.
+    Sophisticated dark gallery exhibition space with deep wine-plum (#451222) walls,
+    framed acoustic art, and subtle downlighting.
+  branding: >
+    Top-left: Official 3D embossed HudHud logo with ancient Musnad glyphs and crown hoopoe feathers.
+    Header: "Yemen Radio Discovery & Cartography" in warm gold lettering.
+    Bottom banner: «إذاعات اليمن كلها .. في مكان واحد | هدهد إف إم 3.0».
+  dimensions:
+    master_png: "896 × 1200 px (3:4 Aspect Ratio)"
+    optimized_jpg: "896 × 1200 px (3:4 Aspect Ratio)"
+    square_crop: "896 × 896 px (1:1 Aspect Ratio)"
+  canonical_files:
+    - "hudhud_fm/docs/releases/v3.0.0/media/poster_03_yemen_radio.png"
+    - "hudhud_fm/docs/releases/v3.0.0/media/poster_03_yemen_radio.jpg"
+    - "hudhud_fm/docs/releases/v3.0.0/media/poster_03_yemen_radio_square.jpg"
 ```

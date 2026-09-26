@@ -754,6 +754,177 @@
       color: var(--hudhud-gold);
     }
 
+    /* Redesigned Launch Posters Section */
+    .posters-suite-section {
+      margin-top: 5rem;
+      padding-top: 3.5rem;
+      border-top: 1px solid var(--border-glass);
+    }
+
+    .posters-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 2.5rem;
+    }
+
+    @media (max-width: 1040px) {
+      .posters-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .posters-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .poster-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      border-radius: 22px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .poster-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--hudhud-gold);
+      box-shadow: 0 18px 40px rgba(139, 38, 72, 0.28);
+    }
+
+    .poster-image-wrap {
+      position: relative;
+      background: #0D0A0C;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+    }
+
+    .poster-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.45s ease;
+    }
+
+    .poster-card:hover .poster-image-wrap img {
+      transform: scale(1.035);
+    }
+
+    .poster-ratio-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(20, 15, 18, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: var(--hudhud-gold);
+      font-size: 0.74rem;
+      font-weight: 800;
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.02em;
+    }
+
+    [dir="ltr"] .poster-ratio-badge {
+      right: auto;
+      left: 1rem;
+    }
+
+    .poster-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      justify-content: space-between;
+      gap: 1.25rem;
+    }
+
+    .poster-info h3 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-bottom: 0.35rem;
+      color: var(--text-primary);
+    }
+
+    .poster-slogan {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--hudhud-gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .poster-desc {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .poster-pills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 0.75rem;
+    }
+
+    .poster-pill {
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 0.22rem 0.65rem;
+      border-radius: 6px;
+      background: rgba(142, 62, 99, 0.16);
+      border: 1px solid rgba(142, 62, 99, 0.32);
+      color: var(--text-primary);
+    }
+
+    .poster-download-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.55rem;
+      margin-top: 0.5rem;
+    }
+
+    .poster-dl-btn {
+      padding: 0.6rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 9px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      border: 1px solid var(--border-glass);
+      background: var(--bg-surface-elevated);
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+    }
+
+    .poster-dl-btn:hover {
+      border-color: var(--hudhud-gold);
+      color: var(--hudhud-gold);
+      transform: translateY(-1px);
+    }
+
+    .poster-dl-btn.master {
+      background: linear-gradient(135deg, rgba(142, 62, 99, 0.4), rgba(139, 38, 72, 0.3));
+      border-color: rgba(212, 175, 55, 0.45);
+      color: var(--hudhud-gold);
+      grid-column: span 2;
+    }
+
+    .poster-dl-btn.master:hover {
+      background: linear-gradient(135deg, var(--hudhud-hero-start), var(--hudhud-hero-end));
+      color: #FFFFFF;
+      border-color: var(--hudhud-gold);
+      box-shadow: 0 4px 15px rgba(139, 38, 72, 0.5);
+    }
+
     /* Toast Notification */
     .toast {
       position: fixed;
@@ -1191,6 +1362,142 @@ https://play.google.com/store/apps/details?id=com.sana.dev.fm
       </div>
     </div>
 
+    <!-- REDESIGNED LAUNCH POSTERS SECTION -->
+    <section class="posters-suite-section" id="posters-suite">
+      <div class="section-headline">
+        <span class="section-badge">Visual Identity & Launch Campaign</span>
+        <h2 class="section-title">ملصقات الإطلاق الرسمية المعاد تصميمها (الإصدار 3.0)</h2>
+        <p class="section-desc">
+          تصاميم سينمائية ثلاثية الأبعاد بلمسة إنسانية دافئة، تجسد هوية التطبيق، شخصية الهدهد بالهودي والمسند، الشعار المجسم، وواجهة المشغل الزجاجية الحديثة.
+        </p>
+      </div>
+
+      <div class="posters-grid">
+        <!-- Poster 01 -->
+        <div class="poster-card">
+          <div class="poster-image-wrap">
+            <img src="media/poster_01_live_radio.jpg" alt="Poster 01 - Live Radio & Acoustic Studio" loading="lazy">
+            <span class="poster-ratio-badge">📐 3:4 Master & 1:1 Square</span>
+          </div>
+          <div class="poster-body">
+            <div class="poster-info">
+              <h3>الملصق 01: استوديو البث الحي والمذيع</h3>
+              <div class="poster-slogan">«استمع. اكتشف. شارك | هدهد إف إم 3.0»</div>
+              <p class="poster-desc">
+                مذيع إذاعي يمني بابتسامة دافئة يدير لوحة الصوت بجوار شخصية الهدهد المرتدية الهودي العنابي المطرز بخط المسند وسماعات الرأس، مع هاتف طافٍ يعرض مشغل البث الحي وعبارة ON AIR المضيئة.
+              </p>
+              <div class="poster-pills-row">
+                <span class="poster-pill">👤 مذيع يمني</span>
+                <span class="poster-pill">🐦 تميمة الهدهد الرسمية</span>
+                <span class="poster-pill">📻 مشغل 95.0 FM</span>
+                <span class="poster-pill">✨ شعار 3D بارز</span>
+              </div>
+            </div>
+            <div class="poster-download-grid">
+              <a href="media/poster_01_live_radio.png" target="_blank" download="hudhud_poster_01_master.png" class="poster-dl-btn master">
+                <span>⬇️</span>
+                <span>Master PNG بدقة فائقة (1.6MB)</span>
+              </a>
+              <a href="media/poster_01_live_radio.jpg" target="_blank" download="hudhud_poster_01_optimized.jpg" class="poster-dl-btn">
+                <span>🖼️</span>
+                <span>Optimized JPG</span>
+              </a>
+              <a href="media/poster_01_live_radio_square.jpg" target="_blank" download="hudhud_poster_01_square.jpg" class="poster-dl-btn">
+                <span>⏹️</span>
+                <span>مربع 1:1 إنستغرام</span>
+              </a>
+              <a href="POSTERS/POSTER_01_LIVE_RADIO.md" target="_blank" class="poster-dl-btn" style="grid-column: span 2;">
+                <span>📄</span>
+                <span>المواصفة الفنية التفصيلية (Markdown)</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Poster 02 -->
+        <div class="poster-card">
+          <div class="poster-image-wrap">
+            <img src="media/poster_02_audio_speed.jpg" alt="Poster 02 - Audio Speed & Acoustic Bliss" loading="lazy">
+            <span class="poster-ratio-badge">📐 3:4 Master & 1:1 Square</span>
+          </div>
+          <div class="poster-body">
+            <div class="poster-info">
+              <h3>الملصق 02: سرعة الصوت والنقاء الاستثنائي</h3>
+              <div class="poster-slogan">«صوت فوري.. نقاء بلا حدود | هدهد إف إم 3.0»</div>
+              <p class="poster-desc">
+                مستمع يمني مسترخٍ على مقعد الاستوديو يستمتع بنقاء البث دون تقطيع بسماعات ذهبية، بينما تنطلق شرائط الصوت الضوئية المحيطة بالهدهد المحلق بفرح بحلته العنابية وشعار هدهد البارز.
+              </p>
+              <div class="poster-pills-row">
+                <span class="poster-pill">🎧 استماع هادئ</span>
+                <span class="poster-pill">⚡ بث فوري بلا تقطيع</span>
+                <span class="poster-pill">🌌 أطياف صوتية 3D</span>
+                <span class="poster-pill">🕊️ هدهد محلق</span>
+              </div>
+            </div>
+            <div class="poster-download-grid">
+              <a href="media/poster_02_audio_speed.png" target="_blank" download="hudhud_poster_02_master.png" class="poster-dl-btn master">
+                <span>⬇️</span>
+                <span>Master PNG بدقة فائقة (1.6MB)</span>
+              </a>
+              <a href="media/poster_02_audio_speed.jpg" target="_blank" download="hudhud_poster_02_optimized.jpg" class="poster-dl-btn">
+                <span>🖼️</span>
+                <span>Optimized JPG</span>
+              </a>
+              <a href="media/poster_02_audio_speed_square.jpg" target="_blank" download="hudhud_poster_02_square.jpg" class="poster-dl-btn">
+                <span>⏹️</span>
+                <span>مربع 1:1 إنستغرام</span>
+              </a>
+              <a href="POSTERS/POSTER_02_AUDIO_SPEED.md" target="_blank" class="poster-dl-btn" style="grid-column: span 2;">
+                <span>📄</span>
+                <span>المواصفة الفنية التفصيلية (Markdown)</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Poster 03 -->
+        <div class="poster-card">
+          <div class="poster-image-wrap">
+            <img src="media/poster_03_yemen_radio.jpg" alt="Poster 03 - Yemen Radio Discovery & Cartography" loading="lazy">
+            <span class="poster-ratio-badge">📐 3:4 Master & 1:1 Square</span>
+          </div>
+          <div class="poster-body">
+            <div class="poster-info">
+              <h3>الملصق 03: خريطة إذاعات اليمن واستكشاف المدن</h3>
+              <div class="poster-slogan">«إذاعات اليمن كلها .. في مكان واحد | هدهد إف إم 3.0»</div>
+              <p class="poster-desc">
+                شاب وشابة يمنيان بزي معاصر يتأملان خريطة طوبوغرافية مجسمة ومضيئة لليمن بأبراج بث تشع فوق صنعاء وعدن وحضرموت وتعز، رفقة الهدهد المرشد يشير إلى واجهة استكشاف المحطات والمدن.
+              </p>
+              <div class="poster-pills-row">
+                <span class="poster-pill">👥 حضور إنساني</span>
+                <span class="poster-pill">🗺️ خريطة تضاريس مجسمة</span>
+                <span class="poster-pill">📍 فلاتر المدن والمحافظات</span>
+                <span class="poster-pill">🏛️ أثير الوطن الموحد</span>
+              </div>
+            </div>
+            <div class="poster-download-grid">
+              <a href="media/poster_03_yemen_radio.png" target="_blank" download="hudhud_poster_03_master.png" class="poster-dl-btn master">
+                <span>⬇️</span>
+                <span>Master PNG بدقة فائقة (1.5MB)</span>
+              </a>
+              <a href="media/poster_03_yemen_radio.jpg" target="_blank" download="hudhud_poster_03_optimized.jpg" class="poster-dl-btn">
+                <span>🖼️</span>
+                <span>Optimized JPG</span>
+              </a>
+              <a href="media/poster_03_yemen_radio_square.jpg" target="_blank" download="hudhud_poster_03_square.jpg" class="poster-dl-btn">
+                <span>⏹️</span>
+                <span>مربع 1:1 إنستغرام</span>
+              </a>
+              <a href="POSTERS/POSTER_03_YEMEN_RADIO.md" target="_blank" class="poster-dl-btn" style="grid-column: span 2;">
+                <span>📄</span>
+                <span>المواصفة الفنية التفصيلية (Markdown)</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- GLOBAL CALL TO ACTION (CTA) HUB -->
     <section class="cta-hub-section">
       <h2 class="cta-hub-title">حمّل التطبيق أو استمع فوراً عبر الويب</h2>
@@ -1269,12 +1576,12 @@ https://play.google.com/store/apps/details?id=com.sana.dev.fm
         </a>
 
         <!-- Instagram -->
-        <a href="https://instagram.com/hudhud_fm" target="_blank" rel="noopener" class="social-channel-item">
+        <a href="https://www.instagram.com/hudhudfm" target="_blank" rel="noopener" class="social-channel-item">
           <div class="channel-meta">
             <div class="channel-icon-box">📸</div>
             <div class="channel-info">
               <h4>إنستغرام (Instagram)</h4>
-              <span>@hudhud_fm • الكواليس والشخصيات</span>
+              <span>@hudhudfm • الكواليس والشخصيات</span>
             </div>
           </div>
           <span class="follow-pill">متابعة ↗</span>

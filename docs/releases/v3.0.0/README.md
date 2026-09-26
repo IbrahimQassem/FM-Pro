@@ -44,9 +44,9 @@
 
 | الملصق الترويجي | المفهوم الفني والرسالة | الأصول والروابط |
 | :--- | :--- | :--- |
-| **Poster 01: Live Radio & Acoustic Studio**<br>![Poster 01](media/poster_01_live_radio_square.jpg) | **«استمع. اكتشف. شارك.»**<br>استوديو بث حي متطور يجسد شخصية الهدهد كمضيف إذاعي دافئ بجانب واجهة تشغيل المحطات المباشرة. | • [Master PNG (1.6 MB)](media/poster_01_live_radio.png)<br>• [Optimized JPG](media/poster_01_live_radio.jpg)<br>• [مربع 1:1](media/poster_01_live_radio_square.jpg)<br>• [المواصفة الفنية](POSTERS/POSTER_01_LIVE_RADIO.md) |
-| **Poster 02: Dynamic Soundwaves & Speed**<br>![Poster 02](media/poster_02_audio_speed_square.jpg) | **«صوت فوري.. نقاء بلا حدود»**<br>تجسيد حركي لأمواج الصوت الرقمية فائقة السرعة والاستماع المستمر في الخلفية دون تقطيع. | • [Master PNG (1.5 MB)](media/poster_02_audio_speed.png)<br>• [Optimized JPG](media/poster_02_audio_speed.jpg)<br>• [مربع 1:1](media/poster_02_audio_speed_square.jpg)<br>• [المواصفة الفنية](POSTERS/POSTER_02_AUDIO_SPEED.md) |
-| **Poster 03: Yemen Radio Cartography**<br>![Poster 03](media/poster_03_yemen_radio_square.jpg) | **«إذاعات اليمن كلها.. في مكان واحد»**<br>خريطة طوبوغرافية فنية ومضيئة لليمن تبرز مدن البث الرئيسية (صنعاء، عدن، حضرموت، تعز). | • [Master PNG (1.6 MB)](media/poster_03_yemen_radio.png)<br>• [Optimized JPG](media/poster_03_yemen_radio.jpg)<br>• [مربع 1:1](media/poster_03_yemen_radio_square.jpg)<br>• [المواصفة الفنية](POSTERS/POSTER_03_YEMEN_RADIO.md) |
+| **Poster 01: Live Radio & Presenter Studio**<br>![Poster 01](media/poster_01_live_radio_square.jpg) | **«استمع. اكتشف. شارك»**<br>مذيع إذاعي يمني بابتسامة دافئة يدير لوحة الصوت رفقة الهدهد بالهودي العنابي المطرز بالمسند، مع هاتف طافٍ بمشغل البث الحي وعبارة ON AIR. | • [Master PNG (1.6 MB)](media/poster_01_live_radio.png)<br>• [Optimized JPG](media/poster_01_live_radio.jpg)<br>• [مربع 1:1](media/poster_01_live_radio_square.jpg)<br>• [المواصفة الفنية](POSTERS/POSTER_01_LIVE_RADIO.md) |
+| **Poster 02: Dynamic Soundwaves & Speed**<br>![Poster 02](media/poster_02_audio_speed_square.jpg) | **«صوت فوري.. نقاء بلا حدود»**<br>مستمع يمني مسترخٍ بنقاء الصوت الفوري دون تقطيع، مع أطياف صوتية ضوئية تحيط بالهدهد المحلق وشعار هدهد البارز. | • [Master PNG (1.6 MB)](media/poster_02_audio_speed.png)<br>• [Optimized JPG](media/poster_02_audio_speed.jpg)<br>• [مربع 1:1](media/poster_02_audio_speed_square.jpg)<br>• [المواصفة الفنية](POSTERS/POSTER_02_AUDIO_SPEED.md) |
+| **Poster 03: Yemen Radio Cartography**<br>![Poster 03](media/poster_03_yemen_radio_square.jpg) | **«إذاعات اليمن كلها .. في مكان واحد»**<br>شابان يمنيان يتأملان خريطة تضاريس مجسمة ومضيئة لليمن تشع بأبراج البث، رفقة الهدهد المرشد وواجهة استكشاف المدن. | • [Master PNG (1.5 MB)](media/poster_03_yemen_radio.png)<br>• [Optimized JPG](media/poster_03_yemen_radio.jpg)<br>• [مربع 1:1](media/poster_03_yemen_radio_square.jpg)<br>• [المواصفة الفنية](POSTERS/POSTER_03_YEMEN_RADIO.md) |
 
 ---
 
@@ -137,7 +137,7 @@ docs/releases/v3.0.0/
 | المنصة | المعرف الرسمي | المحتوى والهدف | رابط القناة |
 | :--- | :--- | :--- | :--- |
 | **𝕏 (Twitter)** | `@HudHudFM` | أخبار البث المباشر والترددات السريعة | [x.com/HudHudFM](https://x.com/HudHudFM) |
-| **Instagram** | `@hudhud_fm` | الكواليس، تصاميم شخصية الهدهد، والمقاطع | [instagram.com/hudhud_fm](https://instagram.com/hudhud_fm) |
+| **Instagram** | `@hudhudfm` | الكواليس، تصاميم شخصية الهدهد، والمقاطع | [instagram.com/hudhudfm](https://www.instagram.com/hudhudfm) |
 | **Telegram** | `@hudhud_fm` | تنبيهات الحلقات الجديدة ومواعيد البرامج | [t.me/hudhud_fm](https://t.me/hudhud_fm) |
 | **Facebook** | `/HudHudFM` | مجتمع المستمعين والنقاشات التفاعلية | [facebook.com/HudHudFM](https://facebook.com/HudHudFM) |
 | **YouTube** | `@HudHudFM` | تسجيلات البرامج والحوارات المصورة | [youtube.com/@HudHudFM](https://youtube.com/@HudHudFM) |

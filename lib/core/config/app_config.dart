@@ -94,7 +94,7 @@ abstract final class AppConfig {
   static const String contactEmail = 'hudhudfm.ye@gmail.com';
   static const String contactFacebookUrl = 'https://www.facebook.com/HudhudFm';
   static const String contactTwitterUrl = 'https://x.com/HudhudFm';
-  static const String contactInstagramUrl = 'https://instagram.com/hudhudfm';
+  static const String contactInstagramUrl = 'https://www.instagram.com/hudhudfm';
   static String get websiteUrl => domain;
 
   /// Store endpoints for application updates.
