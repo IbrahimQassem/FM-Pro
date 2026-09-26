@@ -57,8 +57,8 @@
 
 ### Banner 02 — Multi-Device Ecosystem & National Discovery (16:9 & Feature Graphic)
 * **Creative Concept**: Panoramic Cultural Cartography & Responsive Web/Mobile Experience
-* **Arabic Slogan**: «أثير اليمن على كل شاشاتك — التطبيق ومشغل الويب | hudhud.fm»
-* **Key Visuals**: Young Yemeni listeners exploring an illuminated 3D topographic relief map of Yemen with broadcast towers, modern laptop displaying the `hudhud.fm` web player, floating smartphone with mobile app, official hoodie mascot holding a golden mic, embossed 3D logo, and multi-platform CTAs.
+* **Arabic Slogan**: «أثير اليمن على كل شاشاتك — التطبيق ومشغل الويب | hudhudfm.com»
+* **Key Visuals**: Young Yemeni listeners exploring an illuminated 3D topographic relief map of Yemen with broadcast towers, modern laptop displaying the `hudhudfm.com` web player, floating smartphone with mobile app, official hoodie mascot holding a golden mic, embossed 3D logo, and multi-platform CTAs.
 * **Files**: [`banner_02_ecosystem.png`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/banner_02_ecosystem.png), [`banner_02_ecosystem.jpg`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/banner_02_ecosystem.jpg), [`banner_02_feature_graphic_1024x500.jpg`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/banner_02_feature_graphic_1024x500.jpg)
 
 ---

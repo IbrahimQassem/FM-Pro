@@ -110,9 +110,9 @@ void main() {
       expect(call.files!.single.name, 'hudhud_fm_mascot.webp');
       expect(call.text, contains(StoreUrlHelper.getStoreUrl()));
       if (language == 'ar') {
-        expect(call.text, contains('صديقكم هدهد FM يحييكم!'));
+        expect(call.text, contains('صوت اليمن يجمعنا أينما كنا!'));
       } else {
-        expect(call.text, contains('Your friendly companion Hudhud FM'));
+        expect(call.text, contains('The voice of Yemen brings us together'));
       }
     });
 

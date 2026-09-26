@@ -2,7 +2,7 @@
 # ميثاق الوصف الرسمي للتطبيق والمتاجر الرقمية
 
 * **Release Version**: v3.0.0+30
-* **Target Channels**: Google Play Store, Apple App Store, Web Platform (`hudhud.fm`), Social Media & Press
+* **Target Channels**: Google Play Store, Apple App Store, Web Platform (`hudhudfm.com`), Social Media & Press
 * **Status**: Official Approved Brand Copy (النصوص والوصف المعتمد رسمياً)
 
 ---
@@ -60,7 +60,7 @@
 
 ## 4. Full Store Description — Arabic (الوصف الكامل بالعربية)
 
-> مخصص لمتجر Google Play، وصفحة تفاصيل Apple App Store، والصفحة التعريفية لمنصة الويب `hudhud.fm`.
+> مخصص لمتجر Google Play، وصفحة تفاصيل Apple App Store، والصفحة التعريفية لمنصة الويب `hudhudfm.com`.
 
 ```text
 📻 هدهد إف إم (HudHud FM) — إذاعات اليمن كلها .. في مكان واحد 🇾🇪✨
@@ -76,7 +76,7 @@
 • 🎙️ مكتبة برامج وبودكاست متجددة: استمع إلى الحلقات المسجلة والبرامج الإذاعية عند الطلب في أي وقت تشاء.
 • 🤝 مجتمع المستمعين الآمن: شارك آراءك وانطباعاتك وتفاعل مع المستمعين في بيئة نقاش راقية ومحمية.
 • 🌙 مظهر Dark Studio Glass: تصميم بصري فاخر ومريح للعين يدعم الوضعين الداكن والفاتح، مع إمكانية تخصيص صورتك الرمزية من باقة شخصيات الهدهد الرسمية.
-• 🌐 مشغل الويب السحابي: استمع فوراً من متصفحك على أي حاسوب مكتبي أو لابتوب عبر (hudhud.fm) دون الحاجة لتثبيت أي ملفات.
+• 🌐 مشغل الويب السحابي: استمع فوراً من متصفحك على أي حاسوب مكتبي أو لابتوب عبر (hudhudfm.com) دون الحاجة لتثبيت أي ملفات.
 
 صوت اليمن وناسك دائماً معك .. حمّل هدهد إف إم الآن وانضم إلى آلاف المستمعين!
 ```
@@ -99,7 +99,7 @@ Whether you're tuning in for breaking national news, rich cultural discussions, 
 • 🎙️ On-Demand Program Archive: Catch up on past episodes, cultural broadcasts, and recorded radio series whenever it fits your schedule.
 • 🤝 Civil & Safe Community: Join thoughtful conversations, share your perspectives, and engage with fellow listeners in a moderated environment.
 • 🌙 Dark Studio Glass Interface: Beautiful, battery-friendly dark aesthetic alongside crisp light mode, plus custom Hoopoe mascot avatar personalization.
-• 🌐 Cloud Web Player: Tune in instantly from any laptop or desktop browser at (hudhud.fm) with zero installation required.
+• 🌐 Cloud Web Player: Tune in instantly from any laptop or desktop browser at (hudhudfm.com) with zero installation required.
 
 The voice of Yemen, always by your side. Download HudHud FM today and join thousands of listeners worldwide!
 ```
@@ -108,7 +108,7 @@ The voice of Yemen, always by your side. Download HudHud FM today and join thous
 
 ## 6. Official Links & Canonical Contact Points
 
-* **Official Website & Web Player**: `https://hudhud.fm`
+* **Official Website & Web Player**: `https://hudhudfm.com`
 * **Google Play Store**: `https://play.google.com/store/apps/details?id=com.sana.dev.fm`
 * **Official Social Media**:
   * 𝕏 (Twitter): `https://x.com/HudHudFM` (`@HudHudFM`)
@@ -118,3 +118,66 @@ The voice of Yemen, always by your side. Download HudHud FM today and join thous
   * YouTube: `https://youtube.com/@HudHudFM` (`@HudHudFM`)
   * WhatsApp Community: `https://chat.whatsapp.com/HudHudFM`
 * **Official Support Email**: `hudhudfm.ye@gmail.com`
+
+---
+
+## 7. Official "Share App" Messages & Templates (نماذج واقتراحات رسائل مشاركة التطبيق)
+
+> نصوص مخصصة لزر «مشاركة التطبيق» (Share App) داخل الإعدادات ومشاركات المستخدمين عبر واتساب، تليجرام، ومنصات التواصل، مع الحفاظ على الرابط الديناميكي `{url}` وتكامل السلوقن الرسمي.
+
+### الخيار 1: النص الافتراضي المعتمد رسمياً للتطبيق (Default In-App Share Message) ⭐
+* **Arabic (المعتمد داخل التطبيق)**:
+  ```text
+  صوت اليمن يجمعنا أينما كنا! 🕊️🇾🇪
+
+  مع **هدهد FM**، استمع إلى الإذاعات اليمنية والبودكاست في مكان واحد، عبر بث مباشر سريع ونقي، أينما كنت.
+
+  🎧 جرّب التطبيق واستمع لصوت اليمن:
+  {url}
+  ```
+* **English**:
+  ```text
+  The voice of Yemen brings us together wherever we are! 🕊️🇾🇪
+
+  With **HudHud FM**, listen to Yemeni radio stations and podcasts in one place, with fast and crystal-clear live streaming, wherever you are.
+
+  🎧 Try the app and tune in to the voice of Yemen:
+  {url}
+  ```
+
+### الخيار 2: الطابع العملي والتقني (مباشر وسلس — الأنسب للباحثين عن السرعة وبدون تقطيع)
+* **Arabic**:
+  ```text
+  إذا كنت تبحث عن إذاعات اليمن بجودة عالية وبدون تقطيع.. جرّب هدهد FM 📻⚡
+  كل المحطات الإذاعية، البرامج الحية، والأرشيف الصوتي في تطبيق واحد خفيف وسهل.
+
+  حمّل التطبيق واستمع فوراً:
+  {url}
+  ```
+* **English**:
+  ```text
+  Looking for Yemeni radio with zero buffering and crisp sound? Try HudHud FM 📻⚡
+  All local stations, live broadcasts, and audio archives in one lightweight, seamless app.
+
+  Download and listen right away:
+  {url}
+  ```
+
+### الخيار 3: الطابع العصري والسريع (بصوت الهدهد والأفعال التفاعلية — الأنسب لواتساب والسوشيال ميديا)
+* **Arabic**:
+  ```text
+  هدهد FM يهديك أثير اليمن كله! 🕊️📻✨
+  استمع، اكتشف، وشارك أجمل المحطات الإذاعية والبودكاست اليمني بنقرة واحدة.
+
+  انضم إلينا واستمع الآن:
+  {url}
+  ```
+* **English**:
+  ```text
+  HudHud FM brings you all of Yemen on the airwaves! 🕊️📻✨
+  Listen, discover, and share your favorite Yemeni radio stations and podcasts with a single tap.
+
+  Join in and tune in now:
+  {url}
+  ```
+

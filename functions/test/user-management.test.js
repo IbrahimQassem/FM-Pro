@@ -352,7 +352,7 @@ test('broadcastNotification sends FCM message to topic and stores record in fire
     messaging: mockMessaging,
     firestore: mockFirestore,
     callerUid: 'superAdmin1',
-    callerEmail: 'admin@hudhud.fm',
+    callerEmail: 'admin@hudhudfm.com',
     root: 'HudHudOfficial',
     data: {
       title: 'بث مباشر خاص',
@@ -384,7 +384,7 @@ test('broadcastNotification sends FCM message to topic and stores record in fire
   assert.equal(savedDoc.targetType, 'station');
   assert.equal(savedDoc.targetId, 'station-sanaa');
   assert.equal(savedDoc.targetLabel, 'إذاعة صنعاء');
-  assert.equal(savedDoc.sentBy, 'admin@hudhud.fm');
+  assert.equal(savedDoc.sentBy, 'admin@hudhudfm.com');
   assert.equal(savedDoc.status, 'sent');
   assert.equal(savedDoc.messageId, 'projects/sanadev-fm/messages/msg-12345');
 
@@ -456,7 +456,7 @@ test('broadcastNotification resolves episode metadata and formats imageUrl corre
     messaging: mockMessaging,
     firestore: mockFirestore,
     callerUid: 'superAdmin1',
-    callerEmail: 'admin@hudhud.fm',
+    callerEmail: 'admin@hudhudfm.com',
     root: 'HudHudOfficial',
     data: {
       title: 'حلقة جديدة متاحة الآن',

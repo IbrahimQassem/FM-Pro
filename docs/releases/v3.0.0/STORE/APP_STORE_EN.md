@@ -45,7 +45,7 @@ Whether you're tuning in for breaking national news, rich cultural discussions, 
 • 🎙️ On-Demand Program Archive: Catch up on past episodes, cultural broadcasts, and recorded radio series whenever it fits your schedule.
 • 🤝 Civil & Safe Community: Join thoughtful conversations, share your perspectives, and engage with fellow listeners in a moderated environment.
 • 🌙 Dark Studio Glass Interface: Beautiful, battery-friendly dark aesthetic alongside crisp light mode, plus custom Hoopoe mascot avatar personalization.
-• 🌐 Cloud Web Player: Tune in instantly from any laptop or desktop browser at (hudhud.fm) with zero installation required.
+• 🌐 Cloud Web Player: Tune in instantly from any laptop or desktop browser at (hudhudfm.com) with zero installation required.
 
 The voice of Yemen, always by your side. Download HudHud FM today and join thousands of listeners worldwide!
 ```
@@ -61,5 +61,5 @@ HudHud FM 3.0.0 — Your premier gateway to Yemeni radio & audio:
 • On-demand library of recorded programs, cultural shows, and podcast episodes.
 • Civil, moderated community discussion channels for each episode.
 • Modern Dark Studio Glass interface and custom Hoopoe mascot avatars.
-• Public web player launched at (hudhud.fm) for desktop listening.
+• Public web player launched at (hudhudfm.com) for desktop listening.
 ```
