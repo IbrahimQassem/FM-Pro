@@ -925,6 +925,55 @@
       box-shadow: 0 4px 15px rgba(139, 38, 72, 0.5);
     }
 
+    /* Landscape Banners Section */
+    .banners-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      margin-top: 2.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .banners-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .banner-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      border-radius: 22px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .banner-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--hudhud-gold);
+      box-shadow: 0 16px 36px rgba(139, 38, 72, 0.25);
+    }
+
+    .banner-image-wrap {
+      position: relative;
+      background: #0D0A0C;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+    }
+
+    .banner-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.45s ease;
+    }
+
+    .banner-card:hover .banner-image-wrap img {
+      transform: scale(1.03);
+    }
+
     /* Toast Notification */
     .toast {
       position: fixed;
@@ -1491,6 +1540,93 @@ https://play.google.com/store/apps/details?id=com.sana.dev.fm
               <a href="POSTERS/POSTER_03_YEMEN_RADIO.md" target="_blank" class="poster-dl-btn" style="grid-column: span 2;">
                 <span>📄</span>
                 <span>المواصفة الفنية التفصيلية (Markdown)</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LANDSCAPE PROMOTIONAL BANNERS SECTION -->
+    <section class="posters-suite-section" id="banners-suite" style="margin-top: 4rem;">
+      <div class="section-headline">
+        <span class="section-badge">Wide Promotional & Store Banners (16:9 & 1024×500)</span>
+        <h2 class="section-title">البانرات الترويجية العريضة وغرافيك متجر Google Play</h2>
+        <p class="section-desc">
+          بانرات سينمائية بانورامية مصممة لواجهات الويب، ترويسات المنصات الرسمية، وغرافيك المتاجر الرقمية بالأبعاد القياسية المعتمدة.
+        </p>
+      </div>
+
+      <div class="banners-grid">
+        <!-- Banner 01 -->
+        <div class="banner-card">
+          <div class="banner-image-wrap">
+            <img src="media/banner_01_live_studio.jpg" alt="Banner 01 - Live Studio Hero" loading="lazy">
+            <span class="poster-ratio-badge">📐 16:9 Landscape & 1024×500</span>
+          </div>
+          <div class="poster-body">
+            <div class="poster-info">
+              <h3>البانر 01: أثير الاستوديو والمذيع الحي</h3>
+              <div class="poster-slogan">«إذاعات اليمن كلها .. في مكان واحد | هدهد إف إم 3.0»</div>
+              <p class="poster-desc">
+                بانر سينمائي بانورامي يجمع المذيع اليمني في استوديو البث، وهاتف المشغل الذكي الطافي، وتميمة الهدهد بالهودي والمسند تلوح بترحيب، مع أزرار التحميل المباشرة.
+              </p>
+              <div class="poster-pills-row">
+                <span class="poster-pill">🎙️ استوديو بانورامي</span>
+                <span class="poster-pill">🕊️ الهدهد بالهودي</span>
+                <span class="poster-pill">📱 مشغل 16:9</span>
+                <span class="poster-pill">🛒 Google Play & App Store</span>
+              </div>
+            </div>
+            <div class="poster-download-grid">
+              <a href="media/banner_01_live_studio.png" target="_blank" download="hudhud_banner_01_master.png" class="poster-dl-btn master">
+                <span>⬇️</span>
+                <span>Master PNG بدقة كاملة 16:9 (1.6MB)</span>
+              </a>
+              <a href="media/banner_01_live_studio.jpg" target="_blank" download="hudhud_banner_01_optimized.jpg" class="poster-dl-btn">
+                <span>🖼️</span>
+                <span>Optimized JPG</span>
+              </a>
+              <a href="media/banner_01_feature_graphic_1024x500.jpg" target="_blank" download="hudhud_feature_graphic_01_1024x500.jpg" class="poster-dl-btn">
+                <span>🏪</span>
+                <span>Feature Graphic (1024×500)</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Banner 02 -->
+        <div class="banner-card">
+          <div class="banner-image-wrap">
+            <img src="media/banner_02_ecosystem.jpg" alt="Banner 02 - Ecosystem & Discovery" loading="lazy">
+            <span class="poster-ratio-badge">📐 16:9 Landscape & 1024×500</span>
+          </div>
+          <div class="poster-body">
+            <div class="poster-info">
+              <h3>البانر 02: منظومة الأجهزة واستكشاف تضاريس الوطن</h3>
+              <div class="poster-slogan">«أثير اليمن على كل شاشاتك — التطبيق ومشغل الويب | hudhud.fm»</div>
+              <p class="poster-desc">
+                استعراض واسع لشابين يمنيين يتأملان خريطة اليمن المجسمة، مع مشغل الويب الحديث على الحاسوب المحمول وتطبيق الهاتف الذكي، والهدهد بالمايك الذهبي.
+              </p>
+              <div class="poster-pills-row">
+                <span class="poster-pill">🗺️ خريطة تضاريس ثلاثية الأبعاد</span>
+                <span class="poster-pill">💻 مشغل الويب hudhud.fm</span>
+                <span class="poster-pill">👥 حضور إنساني</span>
+                <span class="poster-pill">✨ شعار 3D بارز</span>
+              </div>
+            </div>
+            <div class="poster-download-grid">
+              <a href="media/banner_02_ecosystem.png" target="_blank" download="hudhud_banner_02_master.png" class="poster-dl-btn master">
+                <span>⬇️</span>
+                <span>Master PNG بدقة كاملة 16:9 (1.5MB)</span>
+              </a>
+              <a href="media/banner_02_ecosystem.jpg" target="_blank" download="hudhud_banner_02_optimized.jpg" class="poster-dl-btn">
+                <span>🖼️</span>
+                <span>Optimized JPG</span>
+              </a>
+              <a href="media/banner_02_feature_graphic_1024x500.jpg" target="_blank" download="hudhud_feature_graphic_02_1024x500.jpg" class="poster-dl-btn">
+                <span>🏪</span>
+                <span>Feature Graphic (1024×500)</span>
               </a>
             </div>
           </div>

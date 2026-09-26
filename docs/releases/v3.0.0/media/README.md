@@ -20,6 +20,12 @@
 | **Poster 03 — Yemen Radio (Master)** | [`poster_03_yemen_radio.png`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/poster_03_yemen_radio.png) | PNG | 896 × 1200 px | 3:4 | Geographic discovery, cultural unity campaign across Yemeni governorates |
 | **Poster 03 — Yemen Radio (Optimized)** | [`poster_03_yemen_radio.jpg`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/poster_03_yemen_radio.jpg) | JPEG | 896 × 1200 px | 3:4 | Diaspora outreach, travel/diaspora community bulletin |
 | **Poster 03 — Yemen Radio (Square)** | [`poster_03_yemen_radio_square.jpg`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/poster_03_yemen_radio_square.jpg) | JPEG | 896 × 896 px | 1:1 (Square) | Grid carousel card, cultural engagement channels |
+| **Banner 01 — Live Studio Hero (Master)** | [`banner_01_live_studio.png`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/banner_01_live_studio.png) | PNG | 1920 × 1080 px | 16:9 Landscape | Web hero banner, YouTube header, landscape digital billboards |
+| **Banner 01 — Live Studio Hero (Optimized)** | [`banner_01_live_studio.jpg`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/banner_01_live_studio.jpg) | JPEG | 1920 × 1080 px | 16:9 Landscape | High-performance website hero banner, social landscape cards |
+| **Banner 01 — Google Play Feature Graphic** | [`banner_01_feature_graphic_1024x500.jpg`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/banner_01_feature_graphic_1024x500.jpg) | JPEG | 1024 × 500 px | Store Banner | Google Play Console Feature Graphic & Store Listing banner |
+| **Banner 02 — Ecosystem & Discovery (Master)** | [`banner_02_ecosystem.png`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/banner_02_ecosystem.png) | PNG | 1920 × 1080 px | 16:9 Landscape | Multi-device web promo banner, desktop press kit header |
+| **Banner 02 — Ecosystem & Discovery (Optimized)** | [`banner_02_ecosystem.jpg`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/banner_02_ecosystem.jpg) | JPEG | 1920 × 1080 px | 16:9 Landscape | Fast web hero display, marketing newsletters |
+| **Banner 02 — Google Play Feature Graphic** | [`banner_02_feature_graphic_1024x500.jpg`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/banner_02_feature_graphic_1024x500.jpg) | JPEG | 1024 × 500 px | Store Banner | Secondary store listing banner & in-app carousel highlight |
 
 ---
 
@@ -42,6 +48,18 @@
 * **Arabic Slogan**: «إذاعات اليمن كلها .. في مكان واحد | هدهد إف إم 3.0» (All Yemeni Radios .. In One Place)
 * **Key Visuals**: Young Yemeni couple in modern traditional attire admiring an illuminated 3D topographic relief map of Yemen with broadcast beacons (Sana'a, Aden, Hadramout, Taiz), accompanied by the HudHud guide mascot gesturing toward a floating phone with city discovery chips and station cards.
 * **Specification Document**: [`../POSTERS/POSTER_03_YEMEN_RADIO.md`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/POSTERS/POSTER_03_YEMEN_RADIO.md)
+
+### Banner 01 — Live Studio Hero & Broadcaster (16:9 & Feature Graphic)
+* **Creative Concept**: Panoramic 3D Broadcast Studio with Live Host, Official Hoodie Mascot & App Player
+* **Arabic Slogan**: «إذاعات اليمن كلها .. في مكان واحد | هدهد إف إم 3.0»
+* **Key Visuals**: Handsome Yemeni radio broadcaster at an illuminated mixing console, floating phone live player with golden soundwaves, official 3D HudHud mascot in hoodie gesturing warmly, neon "ON AIR" sign, embossed 3D logo, and official store badges.
+* **Files**: [`banner_01_live_studio.png`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/banner_01_live_studio.png), [`banner_01_live_studio.jpg`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/banner_01_live_studio.jpg), [`banner_01_feature_graphic_1024x500.jpg`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/banner_01_feature_graphic_1024x500.jpg)
+
+### Banner 02 — Multi-Device Ecosystem & National Discovery (16:9 & Feature Graphic)
+* **Creative Concept**: Panoramic Cultural Cartography & Responsive Web/Mobile Experience
+* **Arabic Slogan**: «أثير اليمن على كل شاشاتك — التطبيق ومشغل الويب | hudhud.fm»
+* **Key Visuals**: Young Yemeni listeners exploring an illuminated 3D topographic relief map of Yemen with broadcast towers, modern laptop displaying the `hudhud.fm` web player, floating smartphone with mobile app, official hoodie mascot holding a golden mic, embossed 3D logo, and multi-platform CTAs.
+* **Files**: [`banner_02_ecosystem.png`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/banner_02_ecosystem.png), [`banner_02_ecosystem.jpg`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/banner_02_ecosystem.jpg), [`banner_02_feature_graphic_1024x500.jpg`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/releases/v3.0.0/media/banner_02_feature_graphic_1024x500.jpg)
 
 ---
 

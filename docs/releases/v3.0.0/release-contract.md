@@ -110,10 +110,20 @@ fcm_notifications:
   feature: "FCM/FEATURE.md"
   short: "FCM/SHORT.md"
 
+brand_identity:
+  official_slogan_ar: "إذاعات اليمن كلها .. في مكان واحد"
+  official_slogan_en: "All of Yemen's Radios .. In One Place"
+  in_app_tagline_ar: "إذاعاتك في مكان واحد"
+  in_app_tagline_en: "Your stations, in one place"
+  secondary_action_verbs: "استمع. اكتشف. شارك. (Listen. Discover. Share.)"
+  descriptions_contract: "../../brand/app-descriptions.md"
+
 visual_assets:
   poster_01: "POSTERS/POSTER_01_LIVE_RADIO.md"
   poster_02: "POSTERS/POSTER_02_AUDIO_SPEED.md"
   poster_03: "POSTERS/POSTER_03_YEMEN_RADIO.md"
+  banners: "media/README.md"
+  social_kit: "social-kit.html"
 
 operational_changes:
   - "Admin Web Dashboard refactored with enhanced resource filtering and moderation queue."

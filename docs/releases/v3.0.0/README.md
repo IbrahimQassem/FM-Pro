@@ -48,6 +48,13 @@
 | **Poster 02: Dynamic Soundwaves & Speed**<br>![Poster 02](media/poster_02_audio_speed_square.jpg) | **«صوت فوري.. نقاء بلا حدود»**<br>مستمع يمني مسترخٍ بنقاء الصوت الفوري دون تقطيع، مع أطياف صوتية ضوئية تحيط بالهدهد المحلق وشعار هدهد البارز. | • [Master PNG (1.6 MB)](media/poster_02_audio_speed.png)<br>• [Optimized JPG](media/poster_02_audio_speed.jpg)<br>• [مربع 1:1](media/poster_02_audio_speed_square.jpg)<br>• [المواصفة الفنية](POSTERS/POSTER_02_AUDIO_SPEED.md) |
 | **Poster 03: Yemen Radio Cartography**<br>![Poster 03](media/poster_03_yemen_radio_square.jpg) | **«إذاعات اليمن كلها .. في مكان واحد»**<br>شابان يمنيان يتأملان خريطة تضاريس مجسمة ومضيئة لليمن تشع بأبراج البث، رفقة الهدهد المرشد وواجهة استكشاف المدن. | • [Master PNG (1.5 MB)](media/poster_03_yemen_radio.png)<br>• [Optimized JPG](media/poster_03_yemen_radio.jpg)<br>• [مربع 1:1](media/poster_03_yemen_radio_square.jpg)<br>• [المواصفة الفنية](POSTERS/POSTER_03_YEMEN_RADIO.md) |
 
+### 🖼️ البانرات الترويجية العريضة وغرافيك المتاجر (Landscape Banners & Feature Graphics)
+
+| البانر الترويجي | الرسالة والمفهوم | الأبعاد والروابط |
+| :--- | :--- | :--- |
+| **Banner 01: Live Studio Hero**<br>![Banner 01](media/banner_01_feature_graphic_1024x500.jpg) | **«إذاعات اليمن كلها .. في مكان واحد»**<br>بانر عريض سينمائي للاستوديو والبث الحي مع المذيع وتميمة الهدهد والمشغل الذكي. | • [Master PNG (1.6 MB)](media/banner_01_live_studio.png)<br>• [Optimized JPG (16:9)](media/banner_01_live_studio.jpg)<br>• [Google Play Feature Graphic (1024×500)](media/banner_01_feature_graphic_1024x500.jpg) |
+| **Banner 02: Multi-Device Ecosystem**<br>![Banner 02](media/banner_02_feature_graphic_1024x500.jpg) | **«أثير اليمن على كل شاشاتك — التطبيق ومشغل الويب»**<br>بانر عريض لاستكشاف خريطة اليمن المجسمة ومنظومة الأجهزة المتعددة عبر الويب والتطبيق. | • [Master PNG (1.5 MB)](media/banner_02_ecosystem.png)<br>• [Optimized JPG (16:9)](media/banner_02_ecosystem.jpg)<br>• [Google Play Feature Graphic (1024×500)](media/banner_02_feature_graphic_1024x500.jpg) |
+
 ---
 
 ## 3. أبرز الركائز الوظيفية (Core Feature Highlights)

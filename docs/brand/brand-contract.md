@@ -136,5 +136,12 @@ For live broadcasting and premium campaigns:
 * **Social Media & Marketing**:
   - Every asset must carry the official HudHud FM logo mark in the primary focal hierarchy.
   - Visual posts must pair realistic modern smartphone mockups showcasing actual in-app screens with thematic 3D storytelling.
-  - The permanent brand slogan for live radio campaigns is:
-    **«استمع. اكتشف. شارك.» (Listen. Discover. Share.)**
+  - **Official Unified Brand Slogan (السلوقن الرسمي الموحد والدائم للعلامة)**:
+    **«إذاعات اليمن كلها .. في مكان واحد»**
+    *(English: "All of Yemen's Radios .. In One Place")*
+    - **In-App Concise Variant (الصيغة المقتضبة لشاشات البداية والواجهات الذكية)**:
+      **«إذاعاتك في مكان واحد»** *(English: "Your stations, in one place")*
+  - **Secondary Action Verbs & Campaign Tagline (الأفعال التفاعلية الثانوية وحملات البث)**:
+    **«استمع. اكتشف. شارك.»** *(English: "Listen. Discover. Share.")*
+  - **Authoritative Descriptions Contract**:
+    All short, SEO, and full store descriptions are formally locked in [`app-descriptions.md`](file:///Users/iq/AndroidStudioProjects/accelerate/hudhud_fm/docs/brand/app-descriptions.md).
