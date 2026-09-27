@@ -40,6 +40,23 @@ Tool availability does not expand the user's task or grant deployment authority.
 قبل أي تغيير اقرأ هذا الملف و`docs/README.md`، ثم اقرأ عقد الدور والعقود المرتبطة
 بالمهمة فقط. افحص الكود والاختبارات الفعلية قبل قبول أي افتراض توثيقي.
 
+## AI working context — Codex and Gemini
+
+- For substantial work, keep a short task brief: user outcome, acceptance evidence,
+  affected components and unresolved assumptions. Carry user corrections forward.
+- Retrieve context progressively: file names and symbols first, then the relevant
+  implementation, callers and tests. Narrow truncated searches instead of dumping
+  entire directories. Reuse unchanged evidence already read during the task.
+- Before introducing a helper or dependency, check the existing implementation and
+  installed capabilities. Load only skills needed for the current phase.
+- Before a long-task handoff, update its existing roadmap/handoff document with the
+  baseline, changed files, verified results, remaining work and next action. On
+  resume, check Git state and source freshness before trusting that note.
+- A repeated, verified mistake can justify a small update to the owning skill or
+  contract. Keep observations distinct from rules; do not store raw transcripts.
+- Use [AI workflow and evaluation](docs/operations/ai-performance.md) when tuning
+  agent behavior. Measure task acceptance and rework before claiming improvement.
+
 ## Change rules
 
 1. نفّذ شريحة صغيرة قابلة للتحليل والاختبار والبناء؛ لا تنشئ إعادة كتابة موازية.

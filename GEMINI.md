@@ -5,10 +5,13 @@ The project settings load `AGENTS.md` and `GEMINI.md`. Root and applicable neste
 Read `docs/README.md` and only the contracts relevant to the requested change.
 
 Gemini setup and activation: `docs/operations/gemini-workspace-setup.md`.
-Reuse the three repository skills in `.agents/skills/`. The local
+Reuse the focused repository skills in `.agents/skills/`. The local
 `hudhud-workspace` extension exposes the shared workspace-check skill.
 Codex-specific slash commands and plugin instructions do not apply to Gemini;
 use the Gemini setup guide for discovery and verification commands.
+
+The shared AI workflow in `AGENTS.md` applies here too. For context management,
+handoffs and quality evaluation, see `docs/operations/ai-performance.md`.
 
 Start Gemini from `hudhud_fm`. Preserve the existing task authorization, unrelated
 changes, and component boundaries. Available tools do not authorize deployment,

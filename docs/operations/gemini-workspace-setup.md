@@ -2,12 +2,15 @@
 
 Added 2026-09-07 alongside Codex. Installed CLI inspected: Gemini 0.46.0.
 
+Both clients follow the shared [AI workflow and evaluation](ai-performance.md)
+through root `AGENTS.md`. Model settings and client-specific hooks stay separate.
+
 ## Shared sources and Gemini adapters
 
 | Capability | Configuration | Scope |
 | --- | --- | --- |
 | Instructions | `.gemini/settings.json` loads `AGENTS.md` and `GEMINI.md` | Root and applicable component instructions; no duplicate architecture contracts |
-| Skills | Existing `.agents/skills/hudhud-flutter`, `hudhud-web`, `hudhud-firebase` | Shared repository skills, discovered by both clients |
+| Skills | Existing `.agents/skills/hudhud-flutter`, `hudhud-web`, `hudhud-firebase`, `hudhud-ecc-review` | Shared repository skills, discovered by both clients |
 | Extension | `plugins/hudhud-workspace/gemini-extension.json` | Shares the existing `skills/hudhud-workspace-check/SKILL.md` with the Codex plugin |
 | MCP | `hudhud-dart` and `hudhud-openai-docs` in `.gemini/settings.json` | Dart SDK stdio and official documentation Streamable HTTP |
 | Hooks | `.gemini/hooks/workspace.py` | Adapts SessionStart and AfterAgent to existing advisory checks |
@@ -33,7 +36,7 @@ In the interactive session:
 
 - `/memory show`: verify shared root instructions loaded. Follow the applicable
   nested `AGENTS.md` when entering a component.
-- `/skills list`: confirm the three repository skills and the extension skill.
+- `/skills list`: confirm the focused repository skills and the extension skill.
 - `/mcp`: inspect connection status for `hudhud-dart` and `hudhud-openai-docs`.
 - `/hooks panel`: inspect hook status; respect native trust/activation prompts.
 

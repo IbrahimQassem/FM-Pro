@@ -6,13 +6,16 @@ Gemini CLI shares the skills and contracts through the
 [Gemini workspace setup](gemini-workspace-setup.md). Its configuration and hook
 adapter are separate; the Codex configuration below remains unchanged.
 
+Both clients follow the shared [AI workflow and evaluation](ai-performance.md).
+Its context, handoff and learning guidance is routed through root `AGENTS.md`.
+
 ## What is configured
 
 | Layer | Files / capability | Activation |
 | --- | --- | --- |
 | Shared rules | Root `AGENTS.md`, existing `docs/contracts/` and `.agents/roles/` | Repository instructions; contracts remain authoritative |
 | Component rules | `web_admin/AGENTS.md`, `web_hudhud/AGENTS.md`, `functions/AGENTS.md`, `firebase_tests/AGENTS.md`, `tool/firebase_seed/AGENTS.md` | Apply when working in each component |
-| Skills | `.agents/skills/hudhud-flutter`, `hudhud-web`, `hudhud-firebase` | Repository skill discovery in a new session |
+| Skills | `.agents/skills/hudhud-flutter`, `hudhud-web`, `hudhud-firebase`, `hudhud-ecc-review` | Repository skill discovery in a new session |
 | Plugin | `plugins/hudhud-workspace` | Installed from the local `hudhud-local` marketplace; exposes `hudhud-workspace-check` |
 | MCP | `.codex/config.toml` | Official OpenAI docs and installed Dart/Flutter SDK server; project trust required |
 | Command rules | `.codex/rules/workspace.rules` | Narrow Git inspection permissions; no mutation/deploy allowlist |
@@ -30,6 +33,8 @@ Use the focused repository skills automatically for matching work, or invoke:
 - `$hudhud-flutter`: Flutter changes and verification.
 - `$hudhud-web`: admin/public web changes and UI verification.
 - `$hudhud-firebase`: Functions, Rules, auth, UGC, data and seed workflows.
+- `$hudhud-ecc-review`: scoped roadmap/flow acceptance review; see the
+  [selective ECC pilot](ecc-pilot.md) for provenance, results and limitations.
 - `hudhud-workspace-check` from the HudHud Workspace plugin: cross-component impact
   and verification. The plugin checks repository markers before applying HudHud guidance.
 
