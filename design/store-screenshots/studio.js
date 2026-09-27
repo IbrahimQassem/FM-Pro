@@ -1,8 +1,32 @@
 'use strict';
 const $ = id => document.getElementById(id);
+const SLIDE_NAMES = { ar: ['اكتشف هدهد', 'البرامج', 'البث المباشر', 'محطاتك', 'حسابك', 'ابدأ الاستماع'], en: ['Discover', 'Programs', 'Live radio', 'Your stations', 'Your account', 'Tune in'] };
+const NAVY_THEME = { background: '#081525', surface: '#12304A', accent: '#64DDF0', text: '#FFFFFF', muted: '#B4C8D7' };
+const DEVICES = {
+  apple: { name: 'iPhone 17 Pro', src: 'assets/devices/iphone-17-pro.png', width: 389, height: 800, screen: [16, 14, 357, 772, 52] },
+  google: { name: 'Galaxy S26 Ultra', src: 'assets/devices/galaxy-s26-ultra.png', width: 385, height: 800, screen: [11, 11, 361, 778, 25] }
+};
 const FORMATS = { apple: [1320, 2868], google: [1080, 1920] };
 let config = structuredClone(window.TEMPLATE_DEFAULTS);
-let selected = 0, format = 'apple', revision = 0, exporting = false;
+let selected = 0, format = 'apple', language = 'ar', appearance = 'dark', revision = 0, exporting = false;
+const t = (key, locale = language) => window.STUDIO_STRINGS[locale][key];
+const content = () => config.locales[language];
+const currentSlide = () => content().slides[selected];
+const currentTheme = () => config.themes[appearance];
+// Preserve the original filenames for the default Arabic/dark series.
+const exportName = (type, locale, mode, id) => `${type}${locale === 'ar' && mode === 'dark' ? '' : `-${locale}-${mode}`}-${id}.png`;
+function localize() {
+  document.documentElement.lang = language;
+  document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.dataset.appearance = appearance;
+  $('brand-name').textContent = language === 'ar' ? 'هدهد' : 'HudHud';
+  document.title = `${language === 'ar' ? 'هدهد' : 'HudHud'} — ${t('studio')}`;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+  $('export-all').disabled = exporting;
+  if (exporting) $('export-all').textContent = t('exporting');
+}
+
 const imageCache = new Map();
 const status = (message, error = false) => { $('status').textContent = message; $('status').dataset.error = String(error); };
 
@@ -10,7 +34,7 @@ function loadImage(src) {
   if (!src) return Promise.resolve(null);
   if (!imageCache.has(src)) imageCache.set(src, new Promise((resolve, reject) => {
     const img = new Image(); img.onload = () => resolve(img);
-    img.onerror = () => { imageCache.delete(src); reject(new Error('تعذّر تحميل إحدى الصور. أعد اختيارها.')); };
+    img.onerror = () => { imageCache.delete(src); reject(new Error(t('imageError'))); };
     img.src = src;
   }));
   return imageCache.get(src);
@@ -33,342 +57,147 @@ function fitText(ctx, text, width, maxLines, start, min, weight) {
     const lines = text.split('\n').flatMap(line => words(ctx, line, width));
     if (lines.length <= maxLines && lines.every(line => ctx.measureText(line).width <= width)) return { size, lines };
   }
-  throw new Error('العنوان أو الوصف طويل لهذه المساحة. اختصر النص للحفاظ على وضوح التصميم.');
+  throw new Error(t('longText'));
 }
-async function render(canvas, index, type, settings = config) {
-  const slide = settings.slides[index], colors = settings.theme;
-  const [logo, shot] = await Promise.all([loadImage(settings.logo), loadImage(slide.screenshot)]);
+async function render(canvas, index, type, settings = config, locale = language, mode = appearance) {
+  const copy = settings.locales[locale], slide = copy.slides[index], colors = settings.themes[mode];
+  const rtl = locale === 'ar';
+  const isWelcome = index === 0 || index === 5;
+  const device = DEVICES[type];
+  const [logo, shot, mascot, frame] = await Promise.all([
+    loadImage(settings.logo), loadImage(slide.screenshots[type][mode]),
+    isWelcome ? loadImage('assets/mascot-onboarding.webp') : null, loadImage(device.src)
+  ]);
   const [width, height] = FORMATS[type];
   canvas.width = width; canvas.height = height;
   const ctx = canvas.getContext('2d', { alpha: false });
   ctx.scale(width / 1080, width / 1080);
   const W = 1080, H = height * 1080 / width, M = 88, right = W - M;
+  const textEdge = rtl ? right : M, logoX = rtl ? right - 66 : M;
   ctx.fillStyle = colors.background; ctx.fillRect(0, 0, W, H);
-  const base = ctx.createLinearGradient(0, 0, W, H);
-  base.addColorStop(0, colorAlpha(colors.surface, .18)); base.addColorStop(1, colorAlpha(colors.surface, .9));
-  ctx.fillStyle = base; ctx.fillRect(0, 0, W, H);
-  const glowX = [240, 840, 260, 820, 240, 800][index];
-  const glow = ctx.createRadialGradient(glowX, H * .58, 50, glowX, H * .58, 850);
-  glow.addColorStop(0, colorAlpha(colors.accent, .22));
-  glow.addColorStop(0.5, colorAlpha(colors.surface, .4));
-  glow.addColorStop(1, 'transparent');
-  ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+  const gradient = ctx.createLinearGradient(W, 0, 0, H);
+  gradient.addColorStop(0, colorAlpha(colors.surface, .95));
+  gradient.addColorStop(1, colorAlpha(colors.surface, .08));
+  ctx.fillStyle = gradient; ctx.fillRect(0, 0, W, H);
 
-  // Modern subtle geometric grid lines in background
-  ctx.strokeStyle = colorAlpha('#FFFFFF', .03);
-  ctx.lineWidth = 1;
-  for (let gy = 150; gy < H; gy += 160) {
-    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
-  }
-
-  // Soft futuristic light beam
-  const beam = ctx.createLinearGradient(0, 0, W, H * 0.7);
-  beam.addColorStop(0, colorAlpha(colors.accent, 0.1));
-  beam.addColorStop(1, 'transparent');
-  ctx.fillStyle = beam; ctx.fillRect(0, 0, W, H);
-
-  // Modern Audio Wave Visualizer Motif (Subtle curved radio frequencies behind phone)
-  ctx.save();
-  const waveCenterY = H * 0.72;
-  const waveHeights = [45, 95, 140, 75, 120, 160, 90, 130, 80, 110, 60, 140, 95, 150, 70, 100];
-  ctx.lineWidth = 2.5;
-  for (let b = 0; b < 2; b++) {
-    const waveAlpha = b === 0 ? 0.08 : 0.04;
-    ctx.strokeStyle = colorAlpha(colors.accent, waveAlpha);
-    ctx.beginPath();
-    for (let i = 0; i <= W; i += 40) {
-      const step = (i / 40) % waveHeights.length;
-      const h = waveHeights[step] * (b === 0 ? 1 : 1.35);
-      const yOffset = Math.sin((i + index * 120) * 0.012) * h;
-      if (i === 0) ctx.moveTo(i, waveCenterY + yOffset);
-      else ctx.lineTo(i, waveCenterY + yOffset);
-    }
-    ctx.stroke();
-  }
-  ctx.restore();
-
-  ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
-  const logoSize = 64;
+  ctx.direction = rtl ? 'rtl' : 'ltr'; ctx.textAlign = rtl ? 'right' : 'left'; ctx.textBaseline = 'alphabetic';
   if (logo) {
-    ctx.save();
-    round(ctx, right - logoSize, 72, logoSize, logoSize, 18);
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)'; ctx.shadowBlur = 16; ctx.shadowOffsetY = 6;
-    ctx.fillStyle = colors.surface; ctx.fill();
-    ctx.clip();
-    const scale = Math.min(logoSize / logo.width, logoSize / logo.height);
-    ctx.drawImage(logo, right - logoSize + (logoSize - logo.width * scale) / 2,
-      72 + (logoSize - logo.height * scale) / 2, logo.width * scale, logo.height * scale);
+    ctx.save(); round(ctx, logoX, 72, 66, 66, 16); ctx.clip();
+    const scale = Math.min(66 / logo.width, 66 / logo.height);
+    ctx.drawImage(logo, logoX + (66 - logo.width * scale) / 2,
+      72 + (66 - logo.height * scale) / 2, logo.width * scale, logo.height * scale);
     ctx.restore();
-    // Glass ring around logo
-    ctx.strokeStyle = colorAlpha('#FFFFFF', 0.2); ctx.lineWidth = 1.5;
-    round(ctx, right - logoSize, 72, logoSize, logoSize, 18); ctx.stroke();
   }
+  ctx.font = '600 32px Plex'; ctx.fillStyle = colors.text;
+  ctx.fillText(copy.appName, textEdge + (logo ? (rtl ? -84 : 84) : 0), 114, 650);
+  ctx.textAlign = rtl ? 'left' : 'right'; ctx.direction = 'ltr';
+  ctx.font = '400 20px Plex'; ctx.fillStyle = colors.muted;
+  ctx.fillText(`${String(index + 1).padStart(2, '0')} / 06`, rtl ? M : right, 114);
+  ctx.fillStyle = colorAlpha(colors.accent, .25); ctx.fillRect(M, 168, W - M * 2, 1);
 
-  ctx.fillStyle = colors.text; ctx.font = '600 36px Plex';
-  ctx.fillText(settings.appName, right - (logo ? 84 : 0), 116, 600);
-
-  // Step indicator badge (top left)
-  ctx.textAlign = 'left'; ctx.direction = 'ltr';
-  const badgeText = `${String(index + 1).padStart(2, '0')} / 06`;
-  ctx.font = '600 18px Plex';
-  const badgeW = ctx.measureText(badgeText).width + 32;
-  round(ctx, M, 82, badgeW, 40, 20);
-  ctx.fillStyle = colorAlpha(colors.surface, 0.7); ctx.fill();
-  ctx.strokeStyle = colorAlpha(colors.accent, 0.3); ctx.lineWidth = 1; ctx.stroke();
-  ctx.fillStyle = colors.accent;
-  ctx.fillText(badgeText, M + 16, 108);
-
-  // Label with glowing dot
-  ctx.direction = 'rtl'; ctx.textAlign = 'right';
-  ctx.font = '600 24px Plex';
-  ctx.fillStyle = colors.accent;
-  ctx.fillText(slide.label, right, 196, W - M * 2);
-
-  // Title
-  const title = fitText(ctx, slide.title, W - M * 2, 2, 88, 52, 600);
-  const lineHeight = title.size * 1.25;
+  ctx.direction = rtl ? 'rtl' : 'ltr'; ctx.textAlign = rtl ? 'right' : 'left';
+  ctx.fillStyle = colors.accent; ctx.font = '600 26px Plex';
+  ctx.fillText(slide.label, textEdge, 235, W - M * 2);
+  const title = fitText(ctx, slide.title, isWelcome ? 630 : W - M * 2, 2, 88, 52, 600);
   ctx.font = `600 ${title.size}px Plex`;
   title.lines.forEach((line, i) => {
-    ctx.fillStyle = i === title.lines.length - 1 ? colors.accent : colors.text;
-    ctx.fillText(line, right, 305 + i * lineHeight);
+    ctx.fillStyle = i === 1 ? colors.accent : colors.text;
+    ctx.fillText(line, textEdge, 345 + i * title.size * 1.3);
   });
-
-  // Subtitle
   const subtitle = fitText(ctx, slide.subtitle, W - M * 2, 2, 30, 22, 400);
-  ctx.font = `400 ${subtitle.size}px Plex`;
-  ctx.fillStyle = colors.muted;
-  subtitle.lines.forEach((line, i) => ctx.fillText(line, right, 475 + i * 44));
+  ctx.font = `400 ${subtitle.size}px Plex`; ctx.fillStyle = colors.muted;
+  subtitle.lines.forEach((line, i) => ctx.fillText(line, textEdge, (isWelcome ? 595 : 505) + i * 44));
 
-  // Real Device Mockup Presentation (Apple iPhone vs Android / Google Play)
-  const top = 560, bottom = H - 95, maxW = W - M * 2, maxH = bottom - top;
-  const ratio = shot ? shot.width / shot.height : (type === 'apple' ? 430 / 932 : 1080 / 2400);
-
-  // Bezel & Frame Dimensions
-  const bezel = type === 'apple' ? 14 : 12;
-  const frameCorner = type === 'apple' ? 52 : 46;
-  const screenCorner = type === 'apple' ? 42 : 38;
-
-  let dw = Math.min(maxW, (maxH - bezel * 2) * ratio + bezel * 2);
-  let dh = (dw - bezel * 2) / ratio + bezel * 2;
-  const dx = (W - dw) / 2, dy = top + (maxH - dh) / 2;
-  const sx = dx + bezel, sy = dy + bezel, sw = dw - bezel * 2, sh = dh - bezel * 2;
-
-  // 1. Deep Ambient Device Shadow (3D elevation)
+  // Measured transparent device artwork; contain the real capture without distortion.
+  const top = isWelcome ? 720 : 625, bottom = H - 130;
+  const dw = Math.min(750, (bottom - top) * device.width / device.height);
+  const dh = dw * device.height / device.width;
+  const dx = (W - dw) / 2, dy = top + (bottom - top - dh) / 2;
+  const scale = dw / device.width;
+  const [ox, oy, ow, oh, radius] = device.screen;
+  const sx = dx + ox * scale, sy = dy + oy * scale, sw = ow * scale, sh = oh * scale;
   ctx.save();
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
-  ctx.shadowBlur = 70;
-  ctx.shadowOffsetY = 35;
-  round(ctx, dx, dy, dw, dh, frameCorner);
-  ctx.fillStyle = '#08080a';
-  ctx.fill();
+  ctx.shadowColor = '#16091166'; ctx.shadowBlur = 36; ctx.shadowOffsetY = 18;
+  round(ctx, sx, sy, sw, sh, radius * scale); ctx.fillStyle = mode === 'dark' ? '#140F12' : '#FCF8F8'; ctx.fill();
   ctx.restore();
-
-  // 2. Premium Metallic / Titanium Outer Chassis
-  ctx.save();
-  const chassisGrad = ctx.createLinearGradient(dx, dy, dx + dw, dy + dh);
-  if (type === 'apple') {
-    // Natural Titanium look with subtle rose-gold rim
-    chassisGrad.addColorStop(0, '#2e2c30');
-    chassisGrad.addColorStop(0.3, '#1c1b1e');
-    chassisGrad.addColorStop(0.7, '#2a262c');
-    chassisGrad.addColorStop(1, '#151417');
-  } else {
-    // Obsidian / Matte Dark Metal for Android
-    chassisGrad.addColorStop(0, '#222326');
-    chassisGrad.addColorStop(0.5, '#121316');
-    chassisGrad.addColorStop(1, '#1e1f24');
-  }
-  round(ctx, dx, dy, dw, dh, frameCorner);
-  ctx.fillStyle = chassisGrad;
-  ctx.fill();
-
-  // Metallic Chamfer Edge Highlight
-  ctx.strokeStyle = colorAlpha('#FFFFFF', 0.22);
-  ctx.lineWidth = 1.5;
-  round(ctx, dx + 0.75, dy + 0.75, dw - 1.5, dh - 1.5, frameCorner);
-  ctx.stroke();
-
-  // Subtle brand ambient glow reflected on frame edges
-  ctx.strokeStyle = colorAlpha(colors.accent, 0.2);
-  ctx.lineWidth = 1;
-  round(ctx, dx + 2, dy + 2, dw - 4, dh - 4, frameCorner - 2);
-  ctx.stroke();
-  ctx.restore();
-
-  // 3. Screen Glass & Display Content
-  ctx.save();
-  round(ctx, sx, sy, sw, sh, screenCorner);
-  ctx.clip();
+  ctx.save(); round(ctx, sx, sy, sw, sh, radius * scale); ctx.clip();
   if (shot) {
-    ctx.drawImage(shot, sx, sy, sw, sh);
+    const fit = Math.min(sw / shot.width, sh / shot.height);
+    ctx.drawImage(shot, sx + (sw - shot.width * fit) / 2, sy + (sh - shot.height * fit) / 2, shot.width * fit, shot.height * fit);
   } else {
     ctx.fillStyle = colors.surface; ctx.fillRect(sx, sy, sw, sh);
-    ctx.strokeStyle = colorAlpha(colors.accent, .5); ctx.setLineDash([8, 12]);
-    round(ctx, sx + 24, sy + 24, sw - 48, sh - 48, 24); ctx.stroke(); ctx.setLineDash([]);
-    ctx.textAlign = 'center'; ctx.font = '600 32px Plex'; ctx.fillStyle = colors.text;
-    ctx.fillText('لقطة شاشة التطبيق', W / 2, sy + sh / 2);
-    ctx.font = '400 22px Plex'; ctx.fillStyle = colors.muted;
-    ctx.fillText('ارفع لقطة شاشة بدقة عالية', W / 2, sy + sh / 2 + 46);
-  }
-
-  // 4. Hardware Sensors (Dynamic Island for iPhone, Punch-hole for Android)
-  if (type === 'apple') {
-    // Real Apple Dynamic Island
-    const diW = 126, diH = 34;
-    const diX = W / 2 - diW / 2, diY = sy + 11;
-    ctx.save();
-    round(ctx, diX, diY, diW, diH, diH / 2);
-    ctx.fillStyle = '#000000';
-    ctx.fill();
-    // Lens reflection & sensor dots
-    ctx.beginPath();
-    ctx.arc(diX + diW - 20, diY + diH / 2, 5.5, 0, Math.PI * 2);
-    ctx.fillStyle = '#0c121e';
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(diX + diW - 20, diY + diH / 2, 2.5, 0, Math.PI * 2);
-    ctx.fillStyle = '#1e293b';
-    ctx.fill();
-    ctx.restore();
-
-    // Home Indicator Bar at bottom of screen
-    const barW = 138, barH = 5;
-    const barX = W / 2 - barW / 2, barY = sy + sh - 10;
-    round(ctx, barX, barY, barW, barH, 3);
-    ctx.fillStyle = colorAlpha('#FFFFFF', 0.55);
-    ctx.fill();
-  } else {
-    // Real Android Front Camera Punch-hole (Centered)
-    const camRadius = 8;
-    const camX = W / 2, camY = sy + 18;
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(camX, camY, camRadius, 0, Math.PI * 2);
-    ctx.fillStyle = '#000000';
-    ctx.fill();
-    // Subtle lens glare
-    ctx.beginPath();
-    ctx.arc(camX, camY, camRadius - 3.5, 0, Math.PI * 2);
-    ctx.fillStyle = '#0e1726';
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(camX + 1.5, camY - 1.5, 1.5, 0, Math.PI * 2);
-    ctx.fillStyle = colorAlpha('#FFFFFF', 0.4);
-    ctx.fill();
-    ctx.restore();
-
-    // Android Navigation Gesture Bar at bottom
-    const barW = 96, barH = 4;
-    const barX = W / 2 - barW / 2, barY = sy + sh - 8;
-    round(ctx, barX, barY, barW, barH, 2);
-    ctx.fillStyle = colorAlpha('#FFFFFF', 0.4);
-    ctx.fill();
+    ctx.textAlign = 'center'; ctx.font = '600 28px Plex'; ctx.fillStyle = colors.text;
+    ctx.fillText(t('emptyImage', locale), sx + sw / 2, sy + sh / 2, sw - 40);
+    ctx.font = '400 20px Plex'; ctx.fillStyle = colors.muted;
+    ctx.fillText(t('addImage', locale), sx + sw / 2, sy + sh / 2 + 44, sw - 40);
   }
   ctx.restore();
+  ctx.drawImage(frame, dx, dy, dw, dh);
 
-  // Glass Surface Specular Rim
-  ctx.strokeStyle = colorAlpha('#FFFFFF', 0.18);
-  ctx.lineWidth = 1;
-  round(ctx, sx, sy, sw, sh, screenCorner);
-  ctx.stroke();
-
-  // 5. Floating Glass Feature Badges (Interactive Product Badges)
-  const floatingBadges = [
-    { text: 'بث مباشر 24/7', dot: '#EF4444', align: 'left', yFactor: 0.32 },
-    { text: 'أكثر من 30 إذاعة', dot: '#10B981', align: 'right', yFactor: 0.55 },
-    { text: 'تشغيل بالخلفية بدون تقطيع', dot: '#3B82F6', align: 'left', yFactor: 0.72 }
-  ];
-
-  ctx.save();
-  floatingBadges.forEach((b, bi) => {
-    // Show selective badges on certain slides for clean aesthetics
-    if ((index === 0 && bi === 0) || (index === 2 && bi === 2) || (index === 3 && bi === 1)) {
-      ctx.font = '600 20px Plex';
-      const textMetrics = ctx.measureText(b.text);
-      const pillW = textMetrics.width + 56;
-      const pillH = 46;
-      const pillX = b.align === 'left' ? dx - 24 : dx + dw - pillW + 24;
-      const pillY = dy + dh * b.yFactor;
-
-      // Glow shadow
-      ctx.save();
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
-      ctx.shadowBlur = 24;
-      ctx.shadowOffsetY = 10;
-      round(ctx, pillX, pillY, pillW, pillH, 23);
-      ctx.fillStyle = colorAlpha('#1A060E', 0.88);
-      ctx.fill();
-      ctx.restore();
-
-      // Glass surface
-      round(ctx, pillX, pillY, pillW, pillH, 23);
-      ctx.fillStyle = colorAlpha('#2D0B18', 0.75);
-      ctx.fill();
-      ctx.strokeStyle = colorAlpha(colors.accent, 0.4);
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-
-      // Glowing status indicator dot
-      ctx.beginPath();
-      ctx.arc(pillX + pillW - 20, pillY + pillH / 2, 5.5, 0, Math.PI * 2);
-      ctx.fillStyle = b.dot;
-      ctx.fill();
-
-      // Text
-      ctx.textAlign = 'right';
-      ctx.direction = 'rtl';
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillText(b.text, pillX + pillW - 34, pillY + 30);
-    }
-  });
-  ctx.restore();
-
-  // Modern Pill Indicators at bottom
-  for (let i = 0; i < 6; i++) {
-    const active = i === index;
-    ctx.fillStyle = colorAlpha(colors.accent, active ? 1 : .25);
-    round(ctx, W / 2 + 80 - i * 30, H - 46, active ? 26 : 8, 7, 4);
-    ctx.fill();
+  // The approved welcome mascot sits beside the heading, clear of app content.
+  if (mascot) {
+    const mw = 320;
+    const mh = mw * mascot.height / mascot.width;
+    const my = 228;
+    ctx.drawImage(mascot, rtl ? 30 : W - mw - 30, my, mw, mh);
   }
+  ctx.fillStyle = colorAlpha(colors.accent, .25); ctx.fillRect(M, H - 80, W - M * 2, 1);
+  ctx.direction = rtl ? 'rtl' : 'ltr'; ctx.textAlign = rtl ? 'right' : 'left'; ctx.font = '400 22px Plex';
+  ctx.fillStyle = colors.muted; ctx.fillText(t('footer', locale), textEdge, H - 38);
+  ctx.textAlign = rtl ? 'left' : 'right'; ctx.direction = 'ltr'; ctx.font = '600 18px Plex';
+  ctx.fillStyle = colors.accent; ctx.fillText('HUDHUD FM', rtl ? M : right, H - 38);
   canvas.dataset.slide = slide.id; canvas.dataset.format = type;
   canvas.dataset.screenBounds = JSON.stringify({ x: sx, y: sy, width: sw, height: sh });
 }
 function populate() {
-  $('app-name').value = config.appName;
-  for (const key of Object.keys(config.theme)) $(`color-${key}`).value = config.theme[key];
-  for (const key of ['label', 'title', 'subtitle']) $(key).value = config.slides[selected][key];
-  $('editing-label').textContent = `تحرير اللقطة ${String(selected + 1).padStart(2, '0')}`;
-  $('role').textContent = `${String(selected + 1).padStart(2, '0')} / ${config.slides[selected].role.toUpperCase()}`;
+  localize();
+  $('app-name').value = content().appName;
+  for (const key of Object.keys(currentTheme())) $(`color-${key}`).value = currentTheme()[key];
+  for (const key of ['label', 'title', 'subtitle']) $(key).value = currentSlide()[key];
+  $('editing-label').textContent = `${t('editing')} ${String(selected + 1).padStart(2, '0')}`;
+  $('role').textContent = `${String(selected + 1).padStart(2, '0')} / 06`;
+  $('slide-name').textContent = currentSlide().label;
+  for (const [id, theme] of [['burgundy', window.TEMPLATE_DEFAULTS.themes[appearance]], ['navy', NAVY_THEME]]) {
+    $(id).setAttribute('aria-pressed', String(Object.keys(theme).every(key => currentTheme()[key].toLowerCase() === theme[key].toLowerCase())));
+  }
   for (const type of Object.keys(FORMATS)) $(type).setAttribute('aria-pressed', String(type === format));
+  for (const locale of ['ar', 'en']) $(locale).setAttribute('aria-pressed', String(locale === language));
+  for (const mode of ['dark', 'light']) $(mode).setAttribute('aria-pressed', String(mode === appearance));
+  $('device-name').textContent = DEVICES[format].name;
   $('dimensions').textContent = FORMATS[format].join(' × ') + ' px';
 }
 async function refresh() {
   const current = ++revision, snapshot = structuredClone(config);
+  const locale = language, mode = appearance, type = format, slideIndex = selected;
   try {
-    const large = document.createElement('canvas'); await render(large, selected, format, snapshot);
+    const large = document.createElement('canvas'); await render(large, slideIndex, type, snapshot, locale, mode);
     if (current !== revision) return;
     const preview = $('preview'); preview.width = large.width; preview.height = large.height;
     preview.getContext('2d').drawImage(large, 0, 0);
     preview.dataset.screenBounds = large.dataset.screenBounds;
-    preview.setAttribute('aria-label', `اللقطة ${selected + 1}: ${snapshot.slides[selected].title.replaceAll('\n', ' ')} — ${FORMATS[format].join(' × ')}`);
+    preview.setAttribute('aria-label', `${t('shot', locale)} ${slideIndex + 1}: ${snapshot.locales[locale].slides[slideIndex].title.replaceAll('\n', ' ')} — ${FORMATS[type].join(' × ')}`);
     const thumbs = [];
+    const focusedSlide = document.activeElement.closest?.('.thumb')?.dataset.index;
     for (let i = 0; i < 6; i++) {
-      const source = document.createElement('canvas'); await render(source, i, format, snapshot);
-      const button = document.createElement('button'); button.className = 'thumb'; button.setAttribute('aria-label', `اللقطة ${i + 1}`); button.setAttribute('aria-pressed', String(i === selected));
-      const thumb = document.createElement('canvas'); thumb.width = 220; thumb.height = Math.round(220 * source.height / source.width);
+      const source = document.createElement('canvas'); await render(source, i, type, snapshot, locale, mode);
+      const button = document.createElement('button'); button.className = 'thumb'; button.dataset.index = String(i);
+      button.setAttribute('aria-label', `${t('shot', locale)} ${i + 1}: ${SLIDE_NAMES[locale][i]}`);
+      button.setAttribute('aria-pressed', String(i === slideIndex));
+      const thumb = document.createElement('canvas'); thumb.width = 160; thumb.height = Math.round(160 * source.height / source.width);
       thumb.getContext('2d').drawImage(source, 0, 0, thumb.width, thumb.height);
-      const label = document.createElement('span'); label.textContent = String(i + 1).padStart(2, '0');
+      const label = document.createElement('span'); label.textContent = SLIDE_NAMES[locale][i];
+      const number = document.createElement('b'); number.textContent = String(i + 1).padStart(2, '0'); label.prepend(number);
+      thumb.setAttribute('aria-hidden', 'true');
       button.append(thumb, label); button.onclick = () => { selected = i; populate(); refresh(); };
       thumbs.push(button);
     }
     if (current !== revision) return;
     $('thumbnails').replaceChildren(...thumbs);
-    const warnings = [];
-    for (const slide of snapshot.slides) if (slide.screenshot) {
-      const img = await loadImage(slide.screenshot); if (img.width < 800) warnings.push(slide.id);
-    }
-    status(warnings.length ? 'المعاينة جاهزة. الصور التجريبية منخفضة الدقة؛ استبدلها بلقطات أصلية عالية الدقة قبل النشر.' : 'المعاينة جاهزة. يُصدّر كل مقاس بدقته الأصلية.');
-  } catch (error) { status(error.message, true); }
+    if (focusedSlide !== undefined && document.activeElement === document.body) thumbs[Number(focusedSlide)]?.focus({ preventScroll: true });
+    const shot = await loadImage(snapshot.locales[locale].slides[slideIndex].screenshots[type][mode]);
+    if (current !== revision || exporting) return;
+    status(t(shot && shot.width < 800 ? 'lowResolution' : 'ready', locale));
+  } catch (error) { if (current === revision && !exporting) status(error.message, true); }
 }
 function download(blob, filename) {
   const link = document.createElement('a'), url = URL.createObjectURL(blob);
@@ -379,61 +208,99 @@ async function saveCanvas(canvas, filename) {
   const blob = await asBlob(canvas);
   if (location.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(location.hostname)) {
     const response = await fetch('/export/' + filename, { method: 'POST', headers: { 'Content-Type': 'image/png' }, body: blob });
-    if (!response.ok) throw new Error('تعذّر حفظ التصدير. شغّل server.mjs محليًا.');
+    if (!response.ok) throw new Error(t('saveError'));
   } else download(blob, filename);
 }
 async function exportAll() {
-  if (exporting) return; exporting = true; $('export-all').disabled = true;
+  if (exporting) return;
+  exporting = true; $('export-all').disabled = true; $('export-all').textContent = t('exporting');
   const snapshot = structuredClone(config);
   try {
-    for (const type of Object.keys(FORMATS)) {
+    for (const locale of ['ar', 'en']) for (const mode of ['dark', 'light']) for (const type of Object.keys(FORMATS)) {
       const [w, h] = FORMATS[type];
       const sheet = document.createElement('canvas'); sheet.width = 1800; sheet.height = Math.round(280 * h / w) + 100;
-      const ctx = sheet.getContext('2d', { alpha: false }); ctx.fillStyle = snapshot.theme.background; ctx.fillRect(0, 0, sheet.width, sheet.height);
+      const ctx = sheet.getContext('2d', { alpha: false }); ctx.fillStyle = snapshot.themes[mode].background; ctx.fillRect(0, 0, sheet.width, sheet.height);
       for (let i = 0; i < 6; i++) {
-        status(`جارٍ تصدير ${type === 'apple' ? 'Apple' : 'Google'} — ${i + 1} / 6`);
-        const canvas = document.createElement('canvas'); await render(canvas, i, type, snapshot);
-        await saveCanvas(canvas, `${type}-${snapshot.slides[i].id}.png`);
-        ctx.drawImage(canvas, 10 + (5 - i) * 300, 20, 280, 280 * h / w);
-        ctx.font = '600 18px Plex'; ctx.textAlign = 'center'; ctx.fillStyle = snapshot.theme.muted;
-        ctx.fillText(String(i + 1).padStart(2, '0'), 150 + (5 - i) * 300, sheet.height - 22);
+        status(`${t('exporting')} ${type} / ${locale} / ${mode} · ${i + 1} / 6`);
+        const canvas = document.createElement('canvas'); await render(canvas, i, type, snapshot, locale, mode);
+        await saveCanvas(canvas, exportName(type, locale, mode, snapshot.locales[locale].slides[i].id));
+        ctx.drawImage(canvas, 10 + (locale === 'ar' ? 5 - i : i) * 300, 20, 280, 280 * h / w);
+        ctx.font = '600 18px Plex'; ctx.textAlign = 'center'; ctx.fillStyle = snapshot.themes[mode].muted;
+        ctx.fillText(String(i + 1).padStart(2, '0'), 150 + (locale === 'ar' ? 5 - i : i) * 300, sheet.height - 22);
       }
-      await saveCanvas(sheet, `${type}-overview.png`);
+      await saveCanvas(sheet, exportName(type, locale, mode, 'overview'));
     }
-    status(location.protocol === 'http:' ? 'تم التصدير بنجاح: 12 صورة بالمقاسين + لوحتا عرض، داخل مجلد exports.' : 'تم تجهيز 12 صورة ولوحتي عرض للتنزيل. قد يطلب المتصفح السماح بتنزيل ملفات متعددة.');
+    status(t('exportSuccess'));
   } catch (error) { status(error.message, true); }
-  finally { exporting = false; $('export-all').disabled = false; }
+  finally {
+    exporting = false;
+    $('export-all').innerHTML = '<span data-i18n="exportAll"></span><small data-i18n="imageCount"></small>';
+    localize();
+  }
 }
 function validateConfig(value) {
-  if (value?.version !== 1 || typeof value.appName !== 'string' || !value.appName.trim() || value.appName.length > 28 || !Array.isArray(value.slides) || value.slides.length !== 6) throw new Error('ملف إعدادات غير صالح.');
+  const fail = () => { throw new Error(t('configError')); };
   const safeAsset = src => typeof src === 'string' && (src === '' || /^assets\/[a-zA-Z0-9_./-]+$/.test(src) && !src.includes('..') || /^data:image\/(png|jpeg|webp);base64,[a-zA-Z0-9+/=]+$/.test(src));
-  if (!safeAsset(value.logo)) throw new Error('الشعار غير صالح.');
-  for (const key of Object.keys(window.TEMPLATE_DEFAULTS.theme)) if (!/^#[0-9a-f]{6}$/i.test(value.theme?.[key])) throw new Error('الألوان يجب أن تكون بصيغة HEX.');
-  value.slides.forEach((s, i) => {
-    if (s.id !== window.TEMPLATE_DEFAULTS.slides[i].id || !safeAsset(s.screenshot)) throw new Error('صورة أو رقم لقطة غير صالح.');
-    for (const key of ['title', 'subtitle', 'label', 'role']) if (typeof s[key] !== 'string' || s[key].length > 120) throw new Error('نص غير صالح.');
-  }); return value;
+  // Existing single-language projects remain importable without losing their copy.
+  if (value?.version === 1) {
+    if (!Array.isArray(value.slides) || value.slides.length !== 6) fail();
+    const migrated = structuredClone(window.TEMPLATE_DEFAULTS);
+    migrated.logo = value.logo; migrated.themes.dark = value.theme;
+    migrated.locales.ar.appName = value.appName;
+    value.slides.forEach((slide, i) => {
+      const target = migrated.locales.ar.slides[i];
+      if (slide.id !== target.id) fail();
+      for (const key of ['label', 'title', 'subtitle', 'role']) target[key] = slide[key];
+      // Legacy screenshots are Arabic/light; preserve them in the matching slots.
+      for (const type of Object.keys(FORMATS)) target.screenshots[type].light = slide.screenshot;
+    });
+    value = migrated;
+  }
+  if (value?.version !== 2 || !safeAsset(value.logo)) fail();
+  for (const mode of ['dark', 'light']) for (const key of Object.keys(window.TEMPLATE_DEFAULTS.themes[mode])) {
+    if (!/^#[0-9a-f]{6}$/i.test(value.themes?.[mode]?.[key])) fail();
+  }
+  for (const locale of ['ar', 'en']) {
+    const copy = value.locales?.[locale];
+    if (!copy || typeof copy.appName !== 'string' || !copy.appName.trim() || copy.appName.length > 28 || !Array.isArray(copy.slides) || copy.slides.length !== 6) fail();
+    copy.slides.forEach((slide, i) => {
+      if (slide.id !== window.TEMPLATE_DEFAULTS.locales[locale].slides[i].id) fail();
+      for (const [key, limit] of [['label', 40], ['title', 80], ['subtitle', 120], ['role', 120]]) if (typeof slide[key] !== 'string' || slide[key].length > limit) fail();
+      for (const type of Object.keys(FORMATS)) for (const mode of ['light', 'dark']) if (!safeAsset(slide.screenshots?.[type]?.[mode])) fail();
+    });
+  }
+  return value;
 }
 async function readUpload(file) {
-  if (!file || !['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 20 * 1024 * 1024) throw new Error('اختر صورة PNG أو JPEG أو WebP أقل من 20 MB.');
+  if (!file || !['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 20 * 1024 * 1024) throw new Error(t('uploadError'));
   const src = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); });
   await loadImage(src); return src;
 }
 async function start() {
   await Promise.all([document.fonts.load('400 32px Plex'), document.fonts.load('600 94px Plex')]);
-  for (const key of ['label', 'title', 'subtitle']) $(key).oninput = () => { config.slides[selected][key] = $(key).value; refresh(); };
-  $('app-name').oninput = () => { config.appName = $('app-name').value; refresh(); };
-  for (const key of Object.keys(config.theme)) $(`color-${key}`).oninput = () => { config.theme[key] = $(`color-${key}`).value; refresh(); };
+  for (const key of ['label', 'title', 'subtitle']) $(key).oninput = () => { currentSlide()[key] = $(key).value; $('slide-name').textContent = currentSlide().label; refresh(); };
+  $('app-name').oninput = () => { content().appName = $('app-name').value; refresh(); };
+  for (const key of Object.keys(currentTheme())) $(`color-${key}`).oninput = () => { currentTheme()[key] = $(`color-${key}`).value; populate(); refresh(); };
   for (const type of Object.keys(FORMATS)) $(type).onclick = () => { format = type; populate(); refresh(); };
-  $('navy').onclick = () => { config.theme = { background: '#081525', surface: '#12304A', accent: '#64DDF0', text: '#FFFFFF', muted: '#B4C8D7' }; populate(); refresh(); };
-  $('burgundy').onclick = () => { config.theme = structuredClone(window.TEMPLATE_DEFAULTS.theme); populate(); refresh(); };
-  $('logo-file').onchange = async e => { try { config.logo = await readUpload(e.target.files[0]); refresh(); } catch (error) { status(error.message, true); } };
-  $('screenshot-file').onchange = async e => { const index = selected; try { config.slides[index].screenshot = await readUpload(e.target.files[0]); refresh(); } catch (error) { status(error.message, true); } };
-  $('clear-image').onclick = () => { config.slides[selected].screenshot = ''; $('screenshot-file').value = ''; refresh(); };
+  for (const locale of ['ar', 'en']) $(locale).onclick = () => { language = locale; populate(); refresh(); };
+  for (const mode of ['dark', 'light']) $(mode).onclick = () => { appearance = mode; populate(); refresh(); };
+  $('navy').onclick = () => { config.themes[appearance] = structuredClone(NAVY_THEME); populate(); refresh(); };
+  $('burgundy').onclick = () => { config.themes[appearance] = structuredClone(window.TEMPLATE_DEFAULTS.themes[appearance]); populate(); refresh(); };
+  $('logo-file').onchange = async e => { if (!e.target.files[0]) return; try { config.logo = await readUpload(e.target.files[0]); refresh(); } catch (error) { status(error.message, true); } };
+  $('screenshot-file').onchange = async e => {
+    if (!e.target.files[0]) return;
+    const slide = currentSlide(), type = format, mode = appearance;
+    try { slide.screenshots[type][mode] = await readUpload(e.target.files[0]); refresh(); } catch (error) { status(error.message, true); }
+  };
+  $('clear-image').onclick = () => { currentSlide().screenshots[format][appearance] = ''; $('screenshot-file').value = ''; refresh(); };
   $('save-project').onclick = () => download(new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' }), 'hudhud-screenshot-settings.json');
-  $('import-project').onchange = async e => { try { config = validateConfig(JSON.parse(await e.target.files[0].text())); populate(); refresh(); } catch (error) { status(error.message || 'تعذّر فتح الإعدادات.', true); } };
+  $('import-button').onclick = () => $('import-project').click();
+  $('import-project').onchange = async e => { if (!e.target.files[0]) return; try { config = validateConfig(JSON.parse(await e.target.files[0].text())); populate(); refresh(); } catch (error) { status(error.message || t('configError'), true); } };
   $('export-all').onclick = exportAll;
-  $('export-one').onclick = async () => { try { const canvas = document.createElement('canvas'); await render(canvas, selected, format); download(await asBlob(canvas), `${format}-${config.slides[selected].id}.png`); status('تم تجهيز الصورة للتنزيل.'); } catch (error) { status(error.message, true); } };
+  $('export-one').onclick = async () => {
+    const snapshot = structuredClone(config), index = selected, type = format, locale = language, mode = appearance;
+    try { const canvas = document.createElement('canvas'); await render(canvas, index, type, snapshot, locale, mode); download(await asBlob(canvas), exportName(type, locale, mode, snapshot.locales[locale].slides[index].id)); status(t('downloadReady')); } catch (error) { status(error.message, true); }
+  };
   populate(); await refresh();
 }
 start().catch(error => status(error.message, true));

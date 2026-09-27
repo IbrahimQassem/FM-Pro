@@ -8,8 +8,10 @@ const root = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.SCREENSHOT_STUDIO_PORT || 4186);
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('Invalid port');
 const names = ['01-hero', '02-main-feature', '03-easy-experience', '04-second-feature', '05-control-benefits', '06-final', 'overview'];
-const allowed = new Set(['apple', 'google'].flatMap(type => names.map(name => `${type}-${name}.png`)));
-const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.ttf': 'font/ttf', '.json': 'application/json', '.md': 'text/plain; charset=utf-8', '.txt': 'text/plain; charset=utf-8' };
+const allowed = new Set(['apple', 'google'].flatMap(type =>
+  ['ar', 'en'].flatMap(locale => ['dark', 'light'].flatMap(mode =>
+    names.map(name => `${type}${locale === 'ar' && mode === 'dark' ? '' : `-${locale}-${mode}`}-${name}.png`)))));
+const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.webp': 'image/webp', '.ttf': 'font/ttf', '.json': 'application/json', '.md': 'text/plain; charset=utf-8', '.txt': 'text/plain; charset=utf-8' };
 await mkdir(path.join(root, 'exports'), { recursive: true });
 createServer(async (req, res) => {
   try {

@@ -1,108 +1,572 @@
 {
-  "verifiedAt": "2026-09-14T22:26:15.273Z",
+  "verifiedAt": "2026-09-27T18:35:18.997Z",
   "result": "PASS",
-  "artworkCount": 12,
-  "overviewCount": 2,
+  "artworkCount": 48,
+  "overviewCount": 8,
   "encoding": "PNG / opaque RGB",
-  "sampleImages": "Local Flutter widget-review fixtures; replace with current high-resolution release captures before store submission.",
+  "variants": "Arabic + English × dark + light × Apple App Store + Google Play",
+  "sampleImages": "Real Flutter UI with development fixtures, rendered at 3× for each locale/theme/platform. Replace fixture content with release captures before store submission.",
+  "deviceFrames": "iPhone 17 Pro + Galaxy S26 Ultra; licensed standard-resolution Mobile FIRST assets (800px high), scaled in artwork.",
   "files": [
     {
       "name": "apple-01-hero.png",
+      "locale": "ar",
+      "appearance": "dark",
+      "platform": "apple",
       "width": 1320,
       "height": 2868,
-      "bytes": 1554756,
-      "sha256": "eef2d9d01e61419ac2f723e76f2b22457e911a737bc05c36a4fe0745e105ccee"
+      "bytes": 1688304,
+      "sha256": "199941003d3f95a4c8438af9f00c83a41082905e8c1683f29871e84f579eb64f"
     },
     {
       "name": "apple-02-main-feature.png",
+      "locale": "ar",
+      "appearance": "dark",
+      "platform": "apple",
       "width": 1320,
       "height": 2868,
-      "bytes": 1567565,
-      "sha256": "0e864399acdb398969b32255c2853e4dcccc1f4a2cb5694b3e81806487da1424"
+      "bytes": 1447834,
+      "sha256": "4237f72714459b9cac9ccae8acb30112f668a76e8997bad5f9b659834414ffe4"
     },
     {
       "name": "apple-03-easy-experience.png",
+      "locale": "ar",
+      "appearance": "dark",
+      "platform": "apple",
       "width": 1320,
       "height": 2868,
-      "bytes": 1889423,
-      "sha256": "857d5f42148c9c2e33aea69e33eaceaab3dfe56dbe9c48a44a2e2272025d584a"
+      "bytes": 1916858,
+      "sha256": "1c3c2ac440cff96ef6eba40539f0ac5d598d4cb24026090258e736aa9e6c7de5"
     },
     {
       "name": "apple-04-second-feature.png",
+      "locale": "ar",
+      "appearance": "dark",
+      "platform": "apple",
       "width": 1320,
       "height": 2868,
-      "bytes": 1460012,
-      "sha256": "3ac7a794ac8e651ad6edba03c514c15994a89346a963ff6b1c37a23834e6c3f6"
+      "bytes": 1359362,
+      "sha256": "f16421ae9cfebf26380a0902948eba6fe0dccb6635d8c77ea7b5cc2e1593f518"
     },
     {
       "name": "apple-05-control-benefits.png",
+      "locale": "ar",
+      "appearance": "dark",
+      "platform": "apple",
       "width": 1320,
       "height": 2868,
-      "bytes": 1716775,
-      "sha256": "58686c8ba1e72e45c313c676bd7e47b739e59b70c0e932eb9d6df366f79e52a4"
+      "bytes": 1512334,
+      "sha256": "f24cc40e2aa15d60e7b75a35727f324dfb40c0d6ab297a33844743ae35534e38"
     },
     {
       "name": "apple-06-final.png",
+      "locale": "ar",
+      "appearance": "dark",
+      "platform": "apple",
       "width": 1320,
       "height": 2868,
-      "bytes": 1559427,
-      "sha256": "7a7b3391b5c409bbd723371743f6d07daa982585f262867c9903fa4991e18a75"
+      "bytes": 1686063,
+      "sha256": "b6a7cbb17ec18c4527e2ea58421489bcc4d0f29f51fc6155e7e377ba1f8374d5"
     },
     {
       "name": "apple-overview.png",
+      "locale": "ar",
+      "appearance": "dark",
+      "platform": "apple",
       "width": 1800,
       "height": 708,
-      "bytes": 539297,
-      "sha256": "dc38a3a60210bcd7614cc8740f64982ef67a8ae9b37fd54ebf2a8d68b1d4f211"
+      "bytes": 523259,
+      "sha256": "a6324b108aefcc97654f50223a2662d683f0540e086e5f16df39549a9fda5054"
     },
     {
       "name": "google-01-hero.png",
+      "locale": "ar",
+      "appearance": "dark",
+      "platform": "google",
       "width": 1080,
       "height": 1920,
-      "bytes": 1219467,
-      "sha256": "4ca195c13af3594d75aebfa3a688cda0a5409f30fb2b499b79f4433993a4f406"
+      "bytes": 1156137,
+      "sha256": "199ad19bf50afab4d3341caafae3d170d8703bca502f2029d8f0a338bef3f5e3"
     },
     {
       "name": "google-02-main-feature.png",
+      "locale": "ar",
+      "appearance": "dark",
+      "platform": "google",
       "width": 1080,
       "height": 1920,
-      "bytes": 1226512,
-      "sha256": "5901367bbe5d9c8d553d483e53efabac20e4dcbbced3b482b20c67ed0caff5da"
+      "bytes": 995835,
+      "sha256": "cbd04732f4740d694dc1a517d93586ccc760ec62ec42dc4295fbde5d036acabe"
     },
     {
       "name": "google-03-easy-experience.png",
+      "locale": "ar",
+      "appearance": "dark",
+      "platform": "google",
       "width": 1080,
       "height": 1920,
-      "bytes": 1387142,
-      "sha256": "23ea922aceb60a11bc0a80c0b18a2111d4b4e70bc06b778d67467014796d94a7"
+      "bytes": 1123840,
+      "sha256": "7704a919857e6d7383c8507db29d09348ddc38f69be05e25f441a3f97b5fe4ef"
     },
     {
       "name": "google-04-second-feature.png",
+      "locale": "ar",
+      "appearance": "dark",
+      "platform": "google",
       "width": 1080,
       "height": 1920,
-      "bytes": 1182292,
-      "sha256": "8ae021a1970a8ad7e1ffaafaa76e503e4db74544a7ad474b903935ecdcbdfe02"
+      "bytes": 942905,
+      "sha256": "3ee43f3815e0bad6b0dda0dcdb7e6ab0606341a307df6a141c96aa2f0e6260c0"
     },
     {
       "name": "google-05-control-benefits.png",
+      "locale": "ar",
+      "appearance": "dark",
+      "platform": "google",
       "width": 1080,
       "height": 1920,
-      "bytes": 1293274,
-      "sha256": "2e0a3e5a4949f04827122503ae17eeab9e517836d79d07b97103c62d440fa233"
+      "bytes": 1031485,
+      "sha256": "787bbe3251f2397811f8963333fa2bc00bb2b1819b73dc82472a9a73c2fca811"
     },
     {
       "name": "google-06-final.png",
+      "locale": "ar",
+      "appearance": "dark",
+      "platform": "google",
       "width": 1080,
       "height": 1920,
-      "bytes": 1234339,
-      "sha256": "ef6368e38042aa5c60e49bde4d9bd6d7879d09e90787af447deb5a69f71fbb53"
+      "bytes": 1154855,
+      "sha256": "67893b289419a8a377f781a596a8670cae2470e594a480d6f67fb0d9b0f8fd0a"
     },
     {
       "name": "google-overview.png",
+      "locale": "ar",
+      "appearance": "dark",
+      "platform": "google",
       "width": 1800,
       "height": 598,
-      "bytes": 484304,
-      "sha256": "924625fc6c91ba466562e783b217f904a9be514ff60bc4498707cada33a2b7ed"
+      "bytes": 346642,
+      "sha256": "dbbadce20ee5e51079808cfc156a350665a8adb51b82a9af98f181d76964307a"
+    },
+    {
+      "name": "apple-ar-light-01-hero.png",
+      "locale": "ar",
+      "appearance": "light",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1394006,
+      "sha256": "38864c8080d8f8f477e2e510e76742d26b913f849b9576244940fdf7a359b2da"
+    },
+    {
+      "name": "apple-ar-light-02-main-feature.png",
+      "locale": "ar",
+      "appearance": "light",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1157966,
+      "sha256": "1f6aa7388d5e7ef7380c16bb43f828b9ae7fe153f184e9f00088514d184318d3"
+    },
+    {
+      "name": "apple-ar-light-03-easy-experience.png",
+      "locale": "ar",
+      "appearance": "light",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1620632,
+      "sha256": "3f93326f8d408b34e8e1ae377c502d30f6bdbbcee42ca0ff7da1f9bbaf9c8929"
+    },
+    {
+      "name": "apple-ar-light-04-second-feature.png",
+      "locale": "ar",
+      "appearance": "light",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1068969,
+      "sha256": "3a78608e4626eeefbdb41ea6d26f3431cb3aeed9daa37b4c42197b63df6114d4"
+    },
+    {
+      "name": "apple-ar-light-05-control-benefits.png",
+      "locale": "ar",
+      "appearance": "light",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1218746,
+      "sha256": "6a23dc6218bfaaea2b9e4679c0f4418088a1ba374dde40c93416baa553acb3f4"
+    },
+    {
+      "name": "apple-ar-light-06-final.png",
+      "locale": "ar",
+      "appearance": "light",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1391495,
+      "sha256": "fcf908b33dd7e77410f5d351fdbf8a3c2c49a9979bd23778ddddf56357d6d64e"
+    },
+    {
+      "name": "apple-ar-light-overview.png",
+      "locale": "ar",
+      "appearance": "light",
+      "platform": "apple",
+      "width": 1800,
+      "height": 708,
+      "bytes": 477748,
+      "sha256": "6a15cd01cf38126de9c4bc0d4deadac5ba0577a5eceebd84e86b8b362e58f7d2"
+    },
+    {
+      "name": "google-ar-light-01-hero.png",
+      "locale": "ar",
+      "appearance": "light",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 940118,
+      "sha256": "01bb1579daa46058f70f1f8cb8cfaf2dcd636c504bb1598e08450fc7f136811d"
+    },
+    {
+      "name": "google-ar-light-02-main-feature.png",
+      "locale": "ar",
+      "appearance": "light",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 783896,
+      "sha256": "6feaaae8dff52e7571b1b39534367dde37c749659c0ada943dc733bf4c9c37e6"
+    },
+    {
+      "name": "google-ar-light-03-easy-experience.png",
+      "locale": "ar",
+      "appearance": "light",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 910730,
+      "sha256": "6816bb0ceadd8e9adf9b13ba547664b9d1646f3702461746eba506efb4516c28"
+    },
+    {
+      "name": "google-ar-light-04-second-feature.png",
+      "locale": "ar",
+      "appearance": "light",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 730643,
+      "sha256": "3160e8e52a54dfdfa89e0a8d4431a2f52733d5b1917d7e06353ce48b82e8e751"
+    },
+    {
+      "name": "google-ar-light-05-control-benefits.png",
+      "locale": "ar",
+      "appearance": "light",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 818242,
+      "sha256": "4311cd31a9ca34c73e8f181565c6efb1d5deeccd939e35a28077f62135228bde"
+    },
+    {
+      "name": "google-ar-light-06-final.png",
+      "locale": "ar",
+      "appearance": "light",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 938134,
+      "sha256": "b846daba376eac3431e9f481cf5a5144ad85d27e7629d2d36943e4282fe34df5"
+    },
+    {
+      "name": "google-ar-light-overview.png",
+      "locale": "ar",
+      "appearance": "light",
+      "platform": "google",
+      "width": 1800,
+      "height": 598,
+      "bytes": 299484,
+      "sha256": "1f3d730ae35b6ba530e4c8158b4e472bda2a2fd5b9d7e153d39957429c34f4af"
+    },
+    {
+      "name": "apple-en-dark-01-hero.png",
+      "locale": "en",
+      "appearance": "dark",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1701336,
+      "sha256": "2778bd4f9aa87ea9a6fa1cca39de241a054cd59a2f61b4b9798c7e40775a4eeb"
+    },
+    {
+      "name": "apple-en-dark-02-main-feature.png",
+      "locale": "en",
+      "appearance": "dark",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1465564,
+      "sha256": "03b15223e398848ef52b23e3966652e49eea6eb77fc50da3d9b411213ab55191"
+    },
+    {
+      "name": "apple-en-dark-03-easy-experience.png",
+      "locale": "en",
+      "appearance": "dark",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1973182,
+      "sha256": "1632a8b963210b3850a672a4f4d45cbe9c38cc88c44929cf47b8824711154996"
+    },
+    {
+      "name": "apple-en-dark-04-second-feature.png",
+      "locale": "en",
+      "appearance": "dark",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1376565,
+      "sha256": "4f878c466b35f345cf6e4148dc27c31f34d6aad02f6c3ca12c707f3c63c29b84"
+    },
+    {
+      "name": "apple-en-dark-05-control-benefits.png",
+      "locale": "en",
+      "appearance": "dark",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1523600,
+      "sha256": "95a819583d6d1e9071870fae2f8883e5c680698b61ece66cb9e61ce53d275273"
+    },
+    {
+      "name": "apple-en-dark-06-final.png",
+      "locale": "en",
+      "appearance": "dark",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1700718,
+      "sha256": "a5d0bca38eec7e58461b87133d82767a50f880c4781e9993bbcc603c9f65fe6e"
+    },
+    {
+      "name": "apple-en-dark-overview.png",
+      "locale": "en",
+      "appearance": "dark",
+      "platform": "apple",
+      "width": 1800,
+      "height": 708,
+      "bytes": 536196,
+      "sha256": "81f88da23ebf7a82b97b3386f2da9bcc03dfe2dfc86488a6162612bdaeadd50f"
+    },
+    {
+      "name": "google-en-dark-01-hero.png",
+      "locale": "en",
+      "appearance": "dark",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 1163775,
+      "sha256": "cd77672c2830663d95968de277e71c6bab8843b5139649dee41efc800adc4635"
+    },
+    {
+      "name": "google-en-dark-02-main-feature.png",
+      "locale": "en",
+      "appearance": "dark",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 1006909,
+      "sha256": "54e2b9a1b7f52097680155fdc53cd2fb1840d77f96520d663a2903ac0f23a2bd"
+    },
+    {
+      "name": "google-en-dark-03-easy-experience.png",
+      "locale": "en",
+      "appearance": "dark",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 1153231,
+      "sha256": "112756dadf5ac8cd06818997e7fb0d2a6d52f7321867f06bf6451e4a0c8b56bf"
+    },
+    {
+      "name": "google-en-dark-04-second-feature.png",
+      "locale": "en",
+      "appearance": "dark",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 956285,
+      "sha256": "cf0b244c5d2bc8998c7be2aaebe0cf0ed3801d7c43c56be9d1c25ef92b772ff8"
+    },
+    {
+      "name": "google-en-dark-05-control-benefits.png",
+      "locale": "en",
+      "appearance": "dark",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 1045006,
+      "sha256": "f7b36ed1494fc5e69a29874d5973af84d994167646de04302a7e1ea6db34cef8"
+    },
+    {
+      "name": "google-en-dark-06-final.png",
+      "locale": "en",
+      "appearance": "dark",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 1162288,
+      "sha256": "33cf874eb3ffd5258f58be3a5bb6e3eeb107492a72af2a3f40edf29937253c6a"
+    },
+    {
+      "name": "google-en-dark-overview.png",
+      "locale": "en",
+      "appearance": "dark",
+      "platform": "google",
+      "width": 1800,
+      "height": 598,
+      "bytes": 361195,
+      "sha256": "4e699a75de7301a4c7f3415ba936d5a8405383b52c7ad1a1dd2fa8fd17497e22"
+    },
+    {
+      "name": "apple-en-light-01-hero.png",
+      "locale": "en",
+      "appearance": "light",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1408950,
+      "sha256": "350a753dea977eaadd82eb055310fd7e1d4b98bb082386d172df549e8681e3ff"
+    },
+    {
+      "name": "apple-en-light-02-main-feature.png",
+      "locale": "en",
+      "appearance": "light",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1177374,
+      "sha256": "769fdcd82649c31156d9ac68a5c25f651ff2996c9fee2b7dcac3cecabd132104"
+    },
+    {
+      "name": "apple-en-light-03-easy-experience.png",
+      "locale": "en",
+      "appearance": "light",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1678404,
+      "sha256": "4f9509b336e7110cfb010fa4916fb4691ed7e16d7661a93527df885e3ddb0419"
+    },
+    {
+      "name": "apple-en-light-04-second-feature.png",
+      "locale": "en",
+      "appearance": "light",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1089154,
+      "sha256": "3eb20d7c8c82c2195dff2381f069904a6e56fbd01fc40124637c54261e70e8a9"
+    },
+    {
+      "name": "apple-en-light-05-control-benefits.png",
+      "locale": "en",
+      "appearance": "light",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1233533,
+      "sha256": "b77c09c9eb510a78eee92b8720e4c1dce07d33daf11a8f8b37f3f1017692686a"
+    },
+    {
+      "name": "apple-en-light-06-final.png",
+      "locale": "en",
+      "appearance": "light",
+      "platform": "apple",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 1408628,
+      "sha256": "f45175503193ef521c3d80873faf8f0222f239b377f96842d4b4fd14630c7948"
+    },
+    {
+      "name": "apple-en-light-overview.png",
+      "locale": "en",
+      "appearance": "light",
+      "platform": "apple",
+      "width": 1800,
+      "height": 708,
+      "bytes": 492297,
+      "sha256": "60048ef88f79d26d7f68cac369d773f7e74dc39947cc4082d3c19c958217a5c0"
+    },
+    {
+      "name": "google-en-light-01-hero.png",
+      "locale": "en",
+      "appearance": "light",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 950165,
+      "sha256": "9eec82adc1a3d0fd194364134c7b268c6cfe9bb2edd3ec3c39da8d1ba151dc68"
+    },
+    {
+      "name": "google-en-light-02-main-feature.png",
+      "locale": "en",
+      "appearance": "light",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 797238,
+      "sha256": "0c68b82d5dcb5c24ee51419d0ea30b8a136e7b985879fd5ffa7135d756dc8844"
+    },
+    {
+      "name": "google-en-light-03-easy-experience.png",
+      "locale": "en",
+      "appearance": "light",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 942470,
+      "sha256": "f61d2b8a39478a5e5aa9045c5909c44726ad859acc43dc043a635497d695cd82"
+    },
+    {
+      "name": "google-en-light-04-second-feature.png",
+      "locale": "en",
+      "appearance": "light",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 747093,
+      "sha256": "cc995ecd786a62ac7551022bc7c1a3dfd5040aab4c8672e9e3495c80284d611d"
+    },
+    {
+      "name": "google-en-light-05-control-benefits.png",
+      "locale": "en",
+      "appearance": "light",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 833175,
+      "sha256": "084fcf661ee72561daa5c63d0a24170222350b3a609e6bc379ca6353bcda3284"
+    },
+    {
+      "name": "google-en-light-06-final.png",
+      "locale": "en",
+      "appearance": "light",
+      "platform": "google",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 948975,
+      "sha256": "11319b8c3463410851f421612a15092d537bd7e365a2c1d119042b7d3f2e2a3f"
+    },
+    {
+      "name": "google-en-light-overview.png",
+      "locale": "en",
+      "appearance": "light",
+      "platform": "google",
+      "width": 1800,
+      "height": 598,
+      "bytes": 314746,
+      "sha256": "f9721fa25dd870baeaaf83d3489a2c9b2683317a6d094e91e9d4d1dd02521597"
     }
   ]
 }

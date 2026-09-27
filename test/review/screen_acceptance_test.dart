@@ -34,17 +34,38 @@ void main() {
             (tester) async {
           tester.view.physicalSize =
               scale == 2 ? const Size(360, 800) : const Size(430, 932);
+          if (Platform.environment['HUDHUD_REVIEW_PLATFORM'] != null &&
+              scale == 1) {
+            tester.view.physicalSize =
+                Platform.environment['HUDHUD_REVIEW_PLATFORM'] == 'ios'
+                    ? const Size(402, 873)
+                    : const Size(412, 891);
+            tester.view.padding = const FakeViewPadding(top: 60, bottom: 28);
+            addTearDown(tester.view.resetPadding);
+          }
           tester.view.devicePixelRatio = 1;
           addTearDown(tester.view.resetPhysicalSize);
           addTearDown(tester.view.resetDevicePixelRatio);
+          final reviewTheme = Platform.environment['HUDHUD_REVIEW_THEME'];
+          final themeMode =
+              reviewTheme == 'dark' ? ThemeMode.dark : ThemeMode.light;
+          final captureRatio = double.tryParse(
+                  Platform.environment['HUDHUD_REVIEW_PIXEL_RATIO'] ?? '') ??
+              1;
           final fontPath = Platform.environment['HUDHUD_REVIEW_FONT'];
           if (fontPath != null) {
             await tester.runAsync(() async {
-              await (FontLoader('Roboto')
-                    ..addFont(File(fontPath)
-                        .readAsBytes()
-                        .then(ByteData.sublistView)))
-                  .load();
+              for (final family in [
+                'Roboto',
+                'CupertinoSystemText',
+                'CupertinoSystemDisplay'
+              ]) {
+                await (FontLoader(family)
+                      ..addFont(File(fontPath)
+                          .readAsBytes()
+                          .then(ByteData.sublistView)))
+                    .load();
+              }
               await (FontLoader('MaterialIcons')
                     ..addFont(
                         rootBundle.load('fonts/MaterialIcons-Regular.otf')))
@@ -91,6 +112,7 @@ void main() {
           await tester.pumpWidget(harness.app(
               RepaintBoundary(key: boundary, child: child),
               language: language,
+              themeMode: themeMode,
               scale: scale));
           harness.accounts.emitUser(null);
           await tester.pump();
@@ -112,12 +134,26 @@ void main() {
           while ((error = tester.takeException()) != null) {
             errors.add(error!);
           }
+          if (fontPath != null) {
+            await tester.runAsync(() async {
+              for (final asset in [
+                'assets/images/mascot/mascot_avatar_default.webp',
+                'assets/images/mascot/mascot_onboarding.webp',
+                'assets/images/branding/mascot_radio_placeholder.webp',
+                'assets/images/branding/station_placeholder.webp',
+              ]) {
+                await precacheImage(
+                    AssetImage(asset), boundary.currentContext!);
+              }
+            });
+            await tester.pumpAndSettle();
+          }
           final stage = Platform.environment['HUDHUD_REVIEW_STAGE'] ?? 'after';
           if (fontPath != null) {
             await tester.runAsync(() async {
               final image = await (boundary.currentContext!.findRenderObject()
                       as RenderRepaintBoundary)
-                  .toImage();
+                  .toImage(pixelRatio: captureRatio);
               final bytes =
                   await image.toByteData(format: ui.ImageByteFormat.png);
               final dir = Directory('build/review/continuation/$stage')
@@ -151,7 +187,12 @@ void main() {
           }
           await tester.pumpWidget(const SizedBox());
           await harness.subscriptions.dispose();
-        });
+        },
+            variant: TargetPlatformVariant({
+              Platform.environment['HUDHUD_REVIEW_PLATFORM'] == 'ios'
+                  ? TargetPlatform.iOS
+                  : TargetPlatform.android
+            }));
       }
     }
   }
@@ -160,8 +201,8 @@ void main() {
     testWidgets('account screen acceptance in ${themeMode.name} mode',
         (tester) async {
       final harness = ReviewHarness();
-      await tester.pumpWidget(
-          harness.app(const AccountScreen(), themeMode: themeMode));
+      await tester
+          .pumpWidget(harness.app(const AccountScreen(), themeMode: themeMode));
       harness.accounts.emitUser(null);
       await tester.pumpAndSettle();
       expect(find.byType(AccountScreen), findsOneWidget);
