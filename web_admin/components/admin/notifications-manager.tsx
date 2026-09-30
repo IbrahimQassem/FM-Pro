@@ -125,9 +125,11 @@ const TEMPLATES = [
 export function NotificationsManager({
   firestore,
   user: _user,
+  isSuperAdmin = true,
 }: {
   firestore: Firestore;
   user: User;
+  isSuperAdmin?: boolean;
 }) {
   // Form fields
   const [title, setTitle] = useState('');
@@ -402,16 +404,26 @@ export function NotificationsManager({
             </div>
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                إرسال الإشعارات والتنبيهات العامة
+                {isSuperAdmin
+                  ? 'إرسال الإشعارات والتنبيهات العامة'
+                  : 'سجل الإشعارات والتنبيهات العامة'}
               </h1>
               <p className="text-sm text-muted-foreground mt-0.5">
-                بث إشعارات فورية (Push Notifications) عبر Firebase Cloud Messaging لجميع مستخدمي هدهد FM
+                {isSuperAdmin
+                  ? 'بث إشعارات فورية (Push Notifications) عبر Firebase Cloud Messaging لجميع مستخدمي هدهد FM'
+                  : 'عرض ومتابعة الرسائل والإشعارات التي تم إرسالها سابقاً لجميع مستخدمي هدهد FM'}
               </p>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
+          {!isSuperAdmin && (
+            <Badge variant="secondary" className="px-3 py-1 text-xs gap-1.5 font-medium">
+              <Lock className="size-3.5" />
+              <span>عرض الرسائل السابقة فقط</span>
+            </Badge>
+          )}
           <Badge variant="outline" className="px-3 py-1 font-mono text-xs gap-1.5 border-primary/20 bg-primary/5 text-primary">
             <Wifi className="size-3.5" />
             <span>Topic: hudhud_fm_announcements</span>
@@ -450,8 +462,10 @@ export function NotificationsManager({
         </Alert>
       )}
 
-      {/* Main Grid: Composer & Mobile Simulator */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      {/* Main Grid: Composer & Mobile Simulator (Super Admin Only) */}
+      {isSuperAdmin && (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Composer Form (7 cols on lg) */}
         <div className="lg:col-span-7 space-y-6">
           <Card className="border-border/60 shadow-xs">
@@ -1046,6 +1060,8 @@ export function NotificationsManager({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+        </>
+      )}
 
       {/* Broadcast History Table */}
       <Card className="border-border/60 shadow-xs">
@@ -1057,7 +1073,9 @@ export function NotificationsManager({
                 <span>سجل الإشعارات المرسلة سابقاً ({history.length})</span>
               </CardTitle>
               <CardDescription>
-                تاريخ الإشعارات التي تم إرسالها عبر لوحة التحكم مع إمكانية إعادة استخدامها أو حذفها
+                {isSuperAdmin
+                  ? 'تاريخ الإشعارات التي تم إرسالها عبر لوحة التحكم مع إمكانية إعادة استخدامها أو حذفها'
+                  : 'سجل الرسائل والإشعارات التي تم بثها لجميع مستخدمي التطبيق'}
               </CardDescription>
             </div>
 
@@ -1085,7 +1103,11 @@ export function NotificationsManager({
               <Bell className="size-10 mx-auto text-muted-foreground/40" />
               <div className="text-sm font-medium">لا توجد إشعارات مسجلة</div>
               <div className="text-xs">
-                {historySearch ? 'لا توجد نتائج مطابقة لبحثك' : 'ابدأ بإنشاء إشعارك الأول أعلاه وسيتم حفظه في هذا السجل'}
+                {historySearch
+                  ? 'لا توجد نتائج مطابقة لبحثك'
+                  : isSuperAdmin
+                    ? 'ابدأ بإنشاء إشعارك الأول أعلاه وسيتم حفظه في هذا السجل'
+                    : 'لا توجد رسائل إشعار سابقة مسجلة'}
               </div>
             </div>
           ) : (
@@ -1097,7 +1119,7 @@ export function NotificationsManager({
                   <TableHead className="min-w-[300px]">نص الإشعار</TableHead>
                   <TableHead className="w-[140px]">الوجهة</TableHead>
                   <TableHead className="w-[160px]">المرسل</TableHead>
-                  <TableHead className="w-[130px] text-start">إجراءات</TableHead>
+                  {isSuperAdmin && <TableHead className="w-[130px] text-start">إجراءات</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -1138,33 +1160,35 @@ export function NotificationsManager({
                     <TableCell className="text-xs text-muted-foreground font-mono truncate max-w-[160px]">
                       {notif.sentBy || 'الأدمن'}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          title="استخدام كقالب"
-                          onClick={() => handleReuseNotification(notif)}
-                          className="size-8 text-muted-foreground hover:text-foreground"
-                        >
-                          <Copy className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          title="حذف من السجل"
-                          disabled={deletingId === notif.id}
-                          onClick={() => handleDeleteHistory(notif.id)}
-                          className="size-8 text-muted-foreground hover:text-destructive"
-                        >
-                          {deletingId === notif.id ? (
-                            <Loader2 className="size-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="size-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </TableCell>
+                    {isSuperAdmin && (
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            title="استخدام كقالب"
+                            onClick={() => handleReuseNotification(notif)}
+                            className="size-8 text-muted-foreground hover:text-foreground"
+                          >
+                            <Copy className="size-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            title="حذف من السجل"
+                            disabled={deletingId === notif.id}
+                            onClick={() => handleDeleteHistory(notif.id)}
+                            className="size-8 text-muted-foreground hover:text-destructive"
+                          >
+                            {deletingId === notif.id ? (
+                              <Loader2 className="size-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="size-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

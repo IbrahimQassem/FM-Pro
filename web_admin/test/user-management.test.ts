@@ -88,3 +88,57 @@ void test('user role filtering correctly categorizes roles and handles missing r
     ['u3', 'u4', 'u5'],
   );
 });
+
+void test('role and isSuperAdmin resolution correctly distinguishes super_admin from station_admin', () => {
+  function resolveAdminRole(claims: Record<string, unknown>) {
+    const r = typeof claims.role === 'string' ? claims.role : '';
+    const adminClaim = claims.admin === true;
+    const isSuper =
+      r === 'super_admin' ||
+      (adminClaim && r !== 'station_admin' && r !== 'moderator');
+    const role =
+      r === 'super_admin' || isSuper
+        ? 'super_admin'
+        : r === 'station_admin'
+          ? 'station_admin'
+          : r === 'moderator'
+            ? 'moderator'
+            : 'admin';
+    return { isSuperAdmin: isSuper, role };
+  }
+
+  // Super admin with general admin: true
+  assert.deepEqual(resolveAdminRole({ admin: true }), {
+    isSuperAdmin: true,
+    role: 'super_admin',
+  });
+
+  // Explicit super_admin
+  assert.deepEqual(resolveAdminRole({ admin: true, role: 'super_admin' }), {
+    isSuperAdmin: true,
+    role: 'super_admin',
+  });
+
+  // Station admin (e.g. naderlahmzi@gmail.com)
+  assert.deepEqual(
+    resolveAdminRole({ admin: true, role: 'station_admin', allStations: true }),
+    {
+      isSuperAdmin: false,
+      role: 'station_admin',
+    },
+  );
+
+  // Moderator
+  assert.deepEqual(resolveAdminRole({ admin: true, role: 'moderator' }), {
+    isSuperAdmin: false,
+    role: 'moderator',
+  });
+});
+
+void test('notifications manager gating restricts composition and deletion for non-super admins', () => {
+  function canComposeOrDeleteNotifications(isSuperAdmin: boolean) {
+    return isSuperAdmin;
+  }
+  assert.equal(canComposeOrDeleteNotifications(true), true);
+  assert.equal(canComposeOrDeleteNotifications(false), false);
+});

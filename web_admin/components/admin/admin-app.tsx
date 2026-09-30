@@ -6,6 +6,7 @@ import { BannerStatusBadge } from './banner-status-badge';
 import { WorkspaceOverview, ScreenCoverage } from './workspace-overview';
 import { UserActionsModal, formatUserDate } from './user-actions-modal';
 import { NotificationsManager } from './notifications-manager';
+import { UsersAggregateView } from './users-aggregate-view';
 import { StationLogo } from './station-logo';
 import { ResourceThumbnail } from './resource-thumbnail';
 import {
@@ -404,6 +405,31 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
       : 'overview';
   };
   const [section, setSection] = useState<Section>(readSection);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [role, setRole] = useState<'super_admin' | 'station_admin' | 'moderator' | 'admin'>('admin');
+
+  useEffect(() => {
+    let active = true;
+    getIdTokenResult(user)
+      .then((token) => {
+        if (!active) return;
+        const r = typeof token.claims.role === 'string' ? token.claims.role : '';
+        const adminClaim = token.claims.admin === true;
+        const isSuper =
+          r === 'super_admin' ||
+          (adminClaim && r !== 'station_admin' && r !== 'moderator');
+        setIsSuperAdmin(isSuper);
+        if (r === 'super_admin' || isSuper) setRole('super_admin');
+        else if (r === 'station_admin') setRole('station_admin');
+        else if (r === 'moderator') setRole('moderator');
+        else setRole('admin');
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [user]);
+
   const acceptedHash = useRef(window.location.hash);
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>(() => {
     try {
@@ -526,7 +552,14 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
               </div>
               <div className="mt-3 flex items-center justify-between border-t pt-2.5 text-xs text-muted-foreground">
                 <span className="inline-flex items-center gap-1 font-medium text-primary">
-                  <ShieldCheck className="size-3.5" /> مدير النظام
+                  <ShieldCheck className="size-3.5" />
+                  {isSuperAdmin
+                    ? 'مدير عام النظام'
+                    : role === 'station_admin'
+                      ? 'مدير محطة'
+                      : role === 'moderator'
+                        ? 'مشرف محتوى'
+                        : 'مدير نظام'}
                 </span>
                 <button
                   type="button"
@@ -564,7 +597,13 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
                   {user.displayName || user.email || user.uid}
                 </span>
                 <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
-                  مدير النظام
+                  {isSuperAdmin
+                    ? 'مدير عام'
+                    : role === 'station_admin'
+                      ? 'مدير محطة'
+                      : role === 'moderator'
+                        ? 'مشرف'
+                        : 'مدير'}
                 </Badge>
               </div>
               <Badge
@@ -643,15 +682,22 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
             ) : section === 'coverage' ? (
               <ScreenCoverage onNavigate={navigate} />
             ) : section === 'notifications' ? (
-              <NotificationsManager firestore={firestore} user={user} />
+              <NotificationsManager
+                firestore={firestore}
+                user={user}
+                isSuperAdmin={isSuperAdmin}
+              />
             ) : section === 'advertising' ? (
               <AdvertisingWorkspace />
+            ) : section === 'users' && !isSuperAdmin ? (
+              <UsersAggregateView firestore={firestore} />
             ) : (
               <ResourcePanel
                 key={section}
                 firestore={firestore}
                 user={user}
                 resource={section}
+                isSuperAdmin={isSuperAdmin}
               />
             )}
           </div>
@@ -665,10 +711,12 @@ function ResourcePanel({
   firestore,
   user,
   resource,
+  isSuperAdmin = true,
 }: {
   firestore: Firestore;
   user: User;
   resource: ResourceKey;
+  isSuperAdmin?: boolean;
 }) {
   const hash = useAdminHash();
   const status = readResourceStatus(resource, hash);
@@ -768,6 +816,7 @@ function ResourcePanel({
         choices={choices}
         parent={parent}
         reportType={reportType}
+        isSuperAdmin={isSuperAdmin}
       />
     </div>
   );
@@ -809,6 +858,7 @@ function ResourcePage({
   choices,
   parent,
   reportType,
+  isSuperAdmin = true,
 }: {
   firestore: Firestore;
   user: User;
@@ -817,6 +867,7 @@ function ResourcePage({
   choices?: StatusChoice[];
   parent: string;
   reportType: ReturnType<typeof readReportType>;
+  isSuperAdmin?: boolean;
 }) {
   const statusField = status?.field;
   const statusMatch = status?.match;
@@ -1006,6 +1057,7 @@ function ResourcePage({
             window.location.hash =
               resource + (params.size ? `?${params}` : '');
           }}
+          isSuperAdmin={isSuperAdmin}
         />
       )}
       {resource === 'reports' && (
@@ -1320,6 +1372,7 @@ function ResourceView({
   status,
   statusChoices,
   onStatusChange,
+  isSuperAdmin = true,
 }: {
   firestore: Firestore;
   definition: ResourceDefinition;
@@ -1331,6 +1384,7 @@ function ResourceView({
   status?: StatusChoice;
   statusChoices?: StatusChoice[];
   onStatusChange?: (value: string) => void;
+  isSuperAdmin?: boolean;
 }) {
   const hash = useAdminHash();
   const search = readResourceSearch(definition.key, hash);
@@ -1591,7 +1645,7 @@ function ResourceView({
               تحديث
             </Button>
           )}
-          {definition.creatable && (
+          {definition.creatable && (definition.key !== 'stations' || isSuperAdmin) && (
             <Button
               onClick={() => setEditor('new')}
               className="min-h-11 font-medium shadow-xs"
