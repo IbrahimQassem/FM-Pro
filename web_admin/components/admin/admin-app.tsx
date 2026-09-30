@@ -54,6 +54,7 @@ import {
   Heart,
   Flag,
   LayoutDashboard,
+  Lock,
   LogOut,
   Megaphone,
   MessageSquare,
@@ -688,7 +689,7 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
                 isSuperAdmin={isSuperAdmin}
               />
             ) : section === 'advertising' ? (
-              <AdvertisingWorkspace />
+              <AdvertisingWorkspace isSuperAdmin={isSuperAdmin} />
             ) : section === 'users' && !isSuperAdmin ? (
               <UsersAggregateView firestore={firestore} />
             ) : (
@@ -1608,6 +1609,19 @@ function ResourceView({
     }
   }
 
+  const canCreate =
+    definition.creatable &&
+    (isSuperAdmin ||
+      (definition.key !== 'stations' && definition.key !== 'banners'));
+
+  const canEdit =
+    definition.editable && (isSuperAdmin || definition.key !== 'banners');
+
+  const canDelete =
+    definition.deletable &&
+    (isSuperAdmin ||
+      (definition.key !== 'stations' && definition.key !== 'banners'));
+
   return (
     <div className="space-y-6">
       <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
@@ -1630,6 +1644,12 @@ function ResourceView({
                 المعروض حسب التصفية: {resourceCountLabel(definition.key, filteredAndSorted.length)}
               </span>
             )}
+            {!isSuperAdmin && definition.key === 'banners' && (
+              <span className="inline-flex items-center gap-1.5 rounded-xl bg-muted px-2.5 py-1 text-xs font-medium text-foreground border">
+                <Lock className="size-3 text-muted-foreground" />
+                عرض الإعلانات فقط (الإضافة والتعديل لمدير عام النظام)
+              </span>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2.5">
@@ -1645,7 +1665,7 @@ function ResourceView({
               تحديث
             </Button>
           )}
-          {definition.creatable && (definition.key !== 'stations' || isSuperAdmin) && (
+          {canCreate && (
             <Button
               onClick={() => setEditor('new')}
               className="min-h-11 font-medium shadow-xs"
@@ -2121,10 +2141,10 @@ function ResourceView({
                     </p>
                   )}
 
-                  {(definition.editable ||
+                  {(canEdit ||
+                    canDelete ||
                     isStation ||
-                    definition.key === 'users' ||
-                    definition.deletable) && (
+                    definition.key === 'users') && (
                     <div className="flex gap-2 pt-1 flex-wrap">
                       {definition.key === 'users' && (
                         <Button
@@ -2135,7 +2155,7 @@ function ResourceView({
                           <ShieldCheck className="size-4" /> إدارة الحساب
                         </Button>
                       )}
-                      {definition.editable && (
+                      {canEdit && (
                         <Button
                           variant="outline"
                           className="min-h-11 flex-1 shadow-xs"
@@ -2160,7 +2180,7 @@ function ResourceView({
                           {isPlaying ? 'إيقاف البث' : 'تشغيل البث'}
                         </Button>
                       ) : (
-                        definition.deletable && (
+                        canDelete && (
                           <Button
                             variant="destructive"
                             className="min-h-11"
@@ -2447,7 +2467,7 @@ function ResourceView({
                               <span>{isPlaying ? 'إيقاف' : 'تشغيل'}</span>
                             </Button>
                           ) : (
-                            definition.deletable && (
+                            canDelete && (
                               <Button
                                 variant="destructive"
                                 size="icon"
@@ -2472,7 +2492,7 @@ function ResourceView({
                               <ShieldCheck className="size-4" />
                             </Button>
                           )}
-                          {definition.editable && (
+                          {canEdit && (
                             <Button
                               variant="ghost"
                               size="icon"

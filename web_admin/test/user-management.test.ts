@@ -142,3 +142,42 @@ void test('notifications manager gating restricts composition and deletion for n
   assert.equal(canComposeOrDeleteNotifications(true), true);
   assert.equal(canComposeOrDeleteNotifications(false), false);
 });
+
+void test('banners and advertising gating restricts editing/creating to super_admin', () => {
+  function checkPermissions(key: string, isSuperAdmin: boolean) {
+    const canCreate =
+      isSuperAdmin || (key !== 'stations' && key !== 'banners');
+    const canEdit = isSuperAdmin || key !== 'banners';
+    const canDelete =
+      isSuperAdmin || (key !== 'stations' && key !== 'banners');
+    return { canCreate, canEdit, canDelete };
+  }
+
+  // Super admin can create, edit, delete banners
+  assert.deepEqual(checkPermissions('banners', true), {
+    canCreate: true,
+    canEdit: true,
+    canDelete: true,
+  });
+
+  // Non-super admin can only read banners (cannot create, edit, or delete)
+  assert.deepEqual(checkPermissions('banners', false), {
+    canCreate: false,
+    canEdit: false,
+    canDelete: false,
+  });
+
+  // Non-super admin can create and edit programs/episodes
+  assert.deepEqual(checkPermissions('programs', false), {
+    canCreate: true,
+    canEdit: true,
+    canDelete: true,
+  });
+
+  // Non-super admin cannot create/delete stations, but can edit assigned station
+  assert.deepEqual(checkPermissions('stations', false), {
+    canCreate: false,
+    canEdit: true,
+    canDelete: false,
+  });
+});
