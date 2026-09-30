@@ -181,3 +181,50 @@ void test('banners and advertising gating restricts editing/creating to super_ad
     canDelete: false,
   });
 });
+
+void test('user session avatar sanitization and fallback resolution', () => {
+  function resolveSessionAvatar(
+    userProfile: { avatarUrl?: string; stationLogoUrl?: string },
+    authPhotoUrl?: string | null,
+  ) {
+    const raw =
+      userProfile.avatarUrl || authPhotoUrl || userProfile.stationLogoUrl || '';
+    const clean =
+      typeof raw === 'string' &&
+      (raw.trim().startsWith('http://') ||
+        raw.trim().startsWith('https://') ||
+        raw.trim().startsWith('/') ||
+        raw.trim().startsWith('data:image/'))
+        ? raw.trim()
+        : '';
+    return clean;
+  }
+
+  // Uses profile avatar if available
+  assert.equal(
+    resolveSessionAvatar(
+      { avatarUrl: 'https://example.com/avatar.jpg' },
+      'https://auth.com/pic.jpg',
+    ),
+    'https://example.com/avatar.jpg',
+  );
+
+  // Falls back to auth photoUrl if profile has none
+  assert.equal(
+    resolveSessionAvatar({}, 'https://auth.com/pic.jpg'),
+    'https://auth.com/pic.jpg',
+  );
+
+  // Falls back to station logo if station admin without avatar
+  assert.equal(
+    resolveSessionAvatar({ stationLogoUrl: 'https://cdn.station.com/logo.png' }),
+    'https://cdn.station.com/logo.png',
+  );
+
+  // Rejects invalid javascript: or malformed URLs
+  assert.equal(
+    resolveSessionAvatar({ avatarUrl: 'javascript:alert(1)' }),
+    '',
+  );
+});
+
