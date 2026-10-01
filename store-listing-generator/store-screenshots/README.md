@@ -11,7 +11,7 @@
 ## المعاينة
 
 ```sh
-cd design/store-screenshots
+cd store-listing-generator/store-screenshots
 node server.mjs
 ```
 
@@ -74,7 +74,7 @@ node server.mjs
 من جذر `hudhud_fm`، لكل زوج `ios|android` و`light|dark`:
 
 ```sh
-HUDHUD_REVIEW_FONT=design/store-screenshots/assets/fonts/IBMPlexSansArabic-Regular.ttf \
+HUDHUD_REVIEW_FONT=store-listing-generator/store-screenshots/assets/fonts/IBMPlexSansArabic-Regular.ttf \
 HUDHUD_REVIEW_STAGE=store-ios-light HUDHUD_REVIEW_THEME=light \
 HUDHUD_REVIEW_PLATFORM=ios HUDHUD_REVIEW_PIXEL_RATIO=3 \
 flutter test test/review/screen_acceptance_test.dart --plain-name '1.0x screen acceptance'

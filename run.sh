@@ -62,8 +62,10 @@ case "$TARGET" in
 
   iphone|device)
     MODE="${2:-release}"
+    MODE="${MODE#\[}"
+    MODE="${MODE%\]}"
     echo "📱 Running HudHud FM on physical iPhone (mode: $MODE)..."
-    DEVICE_ID=$(flutter devices 2>/dev/null | grep -iE "iPhone" | grep -vi "simulator" | head -n 1 | sed -E 's/.*• ([0-9A-Fa-f-]+) •.*/\1/')
+    DEVICE_ID=$(flutter devices 2>/dev/null | grep -E "• [0-9A-Fa-f-]+ •" | grep -vi "simulator" | head -n 1 | sed -E 's/.*• ([0-9A-Fa-f-]+) •.*/\1/')
     if [ -z "$DEVICE_ID" ]; then
       DEVICE_ID="00008110-001C55AC1106801E"
     fi

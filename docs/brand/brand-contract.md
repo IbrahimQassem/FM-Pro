@@ -26,9 +26,9 @@ All production and promotional collateral must exclusively utilize the official 
 | :--- | :--- | :--- | :--- |
 | **Official Full Logo** | `assets/images/branding/logo.png` | 2400×2400 (PNG RGBA) | Primary brand header, splash screens, launch posters, promotional banners. |
 | **Official App Icon Master** | `assets/images/branding/app_icon_1024.png` | 1024×1024 (PNG RGBA) | App stores, launcher configuration, lockup badges, favicon masters. |
-| **Play Store Icon** | `design/store-listing/app-icon-512x512.png` | 512×512 (PNG RGBA) | Google Play Store listing asset. |
-| **Store Feature Graphic (AR)** | `design/store-listing/feature-graphic-1024x500.png` | 1024×500 (PNG) | Google Play Arabic store header showcase. |
-| **Store Feature Graphic (EN)** | `design/store-listing/feature-graphic-en-1024x500.png` | 1024×500 (PNG) | Google Play English store header showcase. |
+| **Play Store Icon** | `store-listing-generator/store-listing/app-icon-512x512.png` | 512×512 (PNG RGBA) | Google Play Store listing asset. |
+| **Store Feature Graphic (AR)** | `store-listing-generator/store-listing/feature-graphic-1024x500.png` | 1024×500 (PNG) | Google Play Arabic store header showcase. |
+| **Store Feature Graphic (EN)** | `store-listing-generator/store-listing/feature-graphic-en-1024x500.png` | 1024×500 (PNG) | Google Play English store header showcase. |
 | **Mascot: Default Avatar** | `assets/images/mascot/mascot_avatar_default.webp` | WebP RGBA | Default listener avatar in account screens. |
 | **Mascot: Onboarding / Host** | `assets/images/mascot/mascot_onboarding.webp` | WebP RGBA | Welcome tour, host greetings, live broadcast key visual. |
 | **Mascot: Empty Favorites** | `assets/images/mascot/mascot_empty_favorites.webp` | WebP RGBA | Empty state for starred stations/episodes. |

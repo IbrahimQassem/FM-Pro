@@ -26,7 +26,7 @@
 - [تجربة ECC المحدودة](operations/ecc-pilot.md): مهارة مراجعة محلية، مصدر مثبت،
   وإعادة إنتاج خلل PL-03 على المحاكي دون تغيير سلوك التطبيق.
 
-- [قالب لقطات App Store وGoogle Play](../design/store-screenshots/README.md):
+- [قالب لقطات App Store وGoogle Play](../store-listing-generator/store-screenshots/README.md):
   ستة تصاميم عربية/إنجليزية بالمظهرين وعلى منصتي Apple/Android، بمعاينة محلية
   وتصدير 48 لقطة و8 لوحات عرض.
 

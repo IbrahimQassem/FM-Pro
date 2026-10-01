@@ -71,4 +71,5 @@ ui-debug.log
 /release_artifacts/
 *.aab
 
-
+# Screenshot studio generated outputs
+/store-listing-generator/store-screenshots/exports/
