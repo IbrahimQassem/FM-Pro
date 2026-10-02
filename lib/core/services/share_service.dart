@@ -119,7 +119,10 @@ class ShareService {
 
   Future<void> shareApp(BuildContext context) async {
     final strings = AppLocalizations.of(context);
-    final text = strings.shareAppMessage(_resolveStoreUrl());
+    final text = strings.shareAppMessage(
+      _resolveStoreUrl(),
+      AppConfig.webPlayerUrl,
+    );
     final box = context.findRenderObject() as RenderBox?;
     final origin =
         box != null ? box.localToGlobal(Offset.zero) & box.size : null;

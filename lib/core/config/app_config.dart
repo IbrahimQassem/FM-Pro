@@ -97,6 +97,12 @@ abstract final class AppConfig {
   static const String contactInstagramUrl = 'https://www.instagram.com/hudhudfm';
   static String get websiteUrl => domain;
 
+  /// Official public web player for streaming on browsers.
+  static const String webPlayerUrl = String.fromEnvironment(
+    'WEB_PLAYER_URL',
+    defaultValue: 'https://hudhudfm.com',
+  );
+
   /// Store endpoints for application updates.
   static String get playStoreMarketUrl => 'market://details?id=$androidPackageId';
   static String get playStoreWebUrl =>

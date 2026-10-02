@@ -962,8 +962,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get shareAppSubtitle => 'شارك تطبيق هدهد FM مع أصدقائك ومحبي الإذاعة';
 
   @override
-  String shareAppMessage(String url) {
-    return 'صوت اليمن يجمعنا أينما كنا! 🕊️🇾🇪\n\nمع **هدهد FM**، استمع إلى الإذاعات اليمنية والبودكاست في مكان واحد، عبر بث مباشر سريع ونقي، أينما كنت.\n\n🎧 جرّب التطبيق واستمع لصوت اليمن:\n$url';
+  String shareAppMessage(String storeUrl, String webUrl) {
+    return 'صوت اليمن يجمعنا أينما كنا! 🕊️🇾🇪\n\nمع **هدهد FM**، استمع إلى كافة الإذاعات اليمنية والبودكاست في مكان واحد، عبر بث مباشر سريع ونقي.\n\n📱 حمّل التطبيق للموبايل:\n$storeUrl\n\n🌐 أو استمع مباشرة عبر موقعنا:\n$webUrl';
   }
 
   @override

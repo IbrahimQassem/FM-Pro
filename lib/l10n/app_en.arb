@@ -320,12 +320,15 @@
   "shareAppSubtitle": "Share Hudhud FM with your friends and radio lovers",
   "@shareAppMessage": {
     "placeholders": {
-      "url": {
+      "storeUrl": {
+        "type": "String"
+      },
+      "webUrl": {
         "type": "String"
       }
     }
   },
-  "shareAppMessage": "The voice of Yemen brings us together wherever we are! 🕊️🇾🇪\n\nWith **HudHud FM**, listen to Yemeni radio stations and podcasts in one place, with fast and crystal-clear live streaming, wherever you are.\n\n🎧 Try the app and tune in to the voice of Yemen:\n{url}",
+  "shareAppMessage": "The voice of Yemen brings us together wherever we are! 🕊️🇾🇪\n\nWith **HudHud FM**, listen to Yemeni radio stations and podcasts in one place with fast, crystal-clear live streaming.\n\n📱 Download the mobile app:\n{storeUrl}\n\n🌐 Or listen live on the web:\n{webUrl}",
   "rateAppTitle": "Rate App",
   "rateAppSubtitle": "Your feedback helps us continue improving Hudhud FM",
   "rateAppDialogTitle": "How is your experience with Hudhud FM?",
