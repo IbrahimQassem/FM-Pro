@@ -76,7 +76,9 @@ case "$TARGET" in
         --dart-define=IOS_APP_ID="${IOS_APP_ID:-1234567890}" \
         "${@:3}"
     else
-      flutter run -d "$DEVICE_ID" "${@:3}"
+      flutter run -d "$DEVICE_ID" \
+        --dart-define=FIRESTORE_ROOT=HudHudOfficial \
+        "${@:3}"
     fi
     ;;
 
