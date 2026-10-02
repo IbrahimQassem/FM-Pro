@@ -18,7 +18,7 @@ export function AdvertisingOverviewView() {
               الشراكات والحملات الإعلانية
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              إدارة العقود التجارية والرعايات الرسمية لمحتوى هدهد FM
+              إدارة العقود التجارية والرعايات الرسمية لمحتوى هدهد إف إم
             </p>
           </div>
         </div>

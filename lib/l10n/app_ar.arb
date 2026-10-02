@@ -264,7 +264,7 @@
   "favoriteActionFailed": "تعذر تحديث المفضلة. حاول مرة أخرى.",
   "ugcGuidelinesMenu": "إرشادات المجتمع وأمان المحتوى",
   "ugcGuidelinesSubtitle": "معايير النشر والسلوك المقبول في التعليقات",
-  "onboardingTitle1": "مرحبًا بك في هدهد FM",
+  "onboardingTitle1": "مرحبًا بك في هدهد إف إم",
   "onboardingSubtitle1": "دليلك وصوتك الأول لإذاعات ومحطات اليمن بجودة صوتية فائقة ونقاء تام أينما كنت.",
   "onboardingTitle2": "محطاتك المفضلة في متناول يدك",
   "onboardingSubtitle2": "احفظ إذاعاتك المفضلة بنقرة واحدة لتصل إليها فورًا في أي وقت وبكل سهولة.",
@@ -274,10 +274,10 @@
   "skip": "تخطي",
   "next": "التالي",
   "appTour": "جولة في التطبيق",
-  "appTourSubtitle": "استعرض مميزات ومزايا تطبيق هدهد FM",
+  "appTourSubtitle": "استعرض مميزات ومزايا تطبيق هدهد إف إم",
   "shareStation": "مشاركة المحطة",
   "shareEpisode": "مشاركة الحلقة",
-  "shareStationMessage": "استمع الآن إلى إذاعة {stationName} عبر تطبيق هدهد FM 📻🇾🇪\n{url}",
+  "shareStationMessage": "استمع الآن إلى إذاعة {stationName} عبر تطبيق هدهد إف إم 📻🇾🇪\n{url}",
   "@shareStationMessage": {
     "placeholders": {
       "stationName": {
@@ -288,7 +288,7 @@
       }
     }
   },
-  "shareEpisodeMessage": "استمع لحلقة \"{episodeTitle}\" من برنامج {programTitle} - {stationName} عبر تطبيق هدهد FM 🎙️\n{url}",
+  "shareEpisodeMessage": "استمع لحلقة \"{episodeTitle}\" من برنامج {programTitle} - {stationName} عبر تطبيق هدهد إف إم 🎙️\n{url}",
   "@shareEpisodeMessage": {
     "placeholders": {
       "episodeTitle": {
@@ -311,13 +311,13 @@
   "accountSectionTitle": "حساب المستمع",
   "appSectionTitle": "التفاعل والمجتمع",
   "legalSectionTitle": "عن التطبيق والمعلومات",
-  "guestAccountTitle": "مرحباً بك في هدهد FM",
+  "guestAccountTitle": "مرحباً بك في هدهد إف إم",
   "guestAccountSubtitle": "سجّل دخولك لمزامنة محطاتك المفضلة والمشاركة في المجتمع الإذاعي.",
   "signInOrRegister": "تسجيل الدخول / حساب جديد",
   "verifiedAccountBadge": "حساب موثق",
   "manageAccount": "إدارة بيانات الحساب",
   "shareAppTitle": "دعوة صديق ومشاركة التطبيق",
-  "shareAppSubtitle": "شارك تطبيق هدهد FM مع أصدقائك ومحبي الإذاعة",
+  "shareAppSubtitle": "شارك تطبيق هدهد إف إم مع أصدقائك ومحبي الإذاعة",
   "@shareAppMessage": {
     "placeholders": {
       "storeUrl": {
@@ -328,10 +328,10 @@
       }
     }
   },
-  "shareAppMessage": "📻 هدهد FM — إذاعات اليمن كلها .. في مكان واحد 🇾🇪✨\n\nاستمع إلى البث المباشر لكافة الإذاعات اليمنية والبودكاست بنقاء صوت فائق وبدون تقطيع أينما كنت.\n\n📱 حمّل التطبيق للموبايل:\n{storeUrl}\n\n🌐 أو استمع مباشرة عبر موقعنا:\n{webUrl}",
+  "shareAppMessage": "📻 هدهد إف إم — إذاعات اليمن كلها .. في مكان واحد 🇾🇪✨\n\nاستمع إلى البث المباشر لكافة الإذاعات اليمنية والبودكاست بنقاء صوت فائق وبدون تقطيع أينما كنت.\n\n📱 حمّل التطبيق للموبايل:\n{storeUrl}\n\n🌐 أو استمع مباشرة عبر موقعنا:\n{webUrl}",
   "rateAppTitle": "تقييم التطبيق",
-  "rateAppSubtitle": "رأيك يهمنا لمواصلة تحسين هدهد FM",
-  "rateAppDialogTitle": "ما رأيك في هدهد FM؟",
+  "rateAppSubtitle": "رأيك يهمنا لمواصلة تحسين هدهد إف إم",
+  "rateAppDialogTitle": "ما رأيك في هدهد إف إم؟",
   "rateAppDialogPrompt": "اختر عدد النجوم لتقييم تجربتك الاستماعية",
   "rateAppSubmit": "إرسال التقييم",
   "rateAppThankYou": "شكراً لدعمك وتقييمك الرائع!",
@@ -339,11 +339,11 @@
   "rateAppSendFeedback": "إرسال التعليق",
   "rateAppFeedbackHint": "شاركنا رأيك أو اقتراحك لتحسين التطبيق...",
   "rateAppAddComment": "أضف تعليقاً أو ملاحظة",
-  "aboutAppTitle": "عن هدهد FM",
+  "aboutAppTitle": "عن هدهد إف إم",
   "aboutAppSubtitle": "قصة الهوية، الإصدار، والمعلومات القانونية",
   "appVersionLabel": "الإصدار",
-  "aboutAppDescription": "هدهد FM هو دليلك الأول للاستماع إلى كافة الإذاعات اليمنية الرسمية والأهلية ببث رقمي عالي النقاء، مع متابعة البرامج والحلقات والتفاعل المجتمعي الراقي.",
-  "allRightsReserved": "جميع الحقوق محفوظة © {year} هدهد FM",
+  "aboutAppDescription": "هدهد إف إم هو دليلك الأول للاستماع إلى كافة الإذاعات اليمنية الرسمية والأهلية ببث رقمي عالي النقاء، مع متابعة البرامج والحلقات والتفاعل المجتمعي الراقي.",
+  "allRightsReserved": "جميع الحقوق محفوظة © {year} هدهد إف إم",
   "@allRightsReserved": {
     "description": "حقوق الملكية مع سنة النشر",
     "placeholders": {

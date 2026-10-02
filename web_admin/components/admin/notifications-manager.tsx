@@ -99,7 +99,7 @@ const TEMPLATES = [
   {
     name: 'بث مباشر الآن 🎙️',
     title: 'بث مباشر الآن 🎙️',
-    body: 'استمع الآن إلى التغطية الإذاعية الحية والمباشرة عبر هدهد FM',
+    body: 'استمع الآن إلى التغطية الإذاعية الحية والمباشرة عبر هدهد إف إم',
     targetType: 'station' as const,
   },
   {
@@ -110,7 +110,7 @@ const TEMPLATES = [
   },
   {
     name: 'تحديث التطبيق 🚀',
-    title: 'تحديث جديد لتطبيق هدهد FM 🚀',
+    title: 'تحديث جديد لتطبيق هدهد إف إم 🚀',
     body: 'قم بتحديث التطبيق الآن للاستمتاع بأحدث الميزات وتحسينات الأداء واستقرار البث.',
     targetType: 'general' as const,
   },
@@ -391,7 +391,7 @@ export function NotificationsManager({
 
   const displayTitle = title.trim() || 'عنوان الإشعار يظهر هنا';
   const displayBody =
-    body.trim() || 'هذا نص تجريبي لمعاينة شكل الإشعار عند وصوله إلى هواتف المستمعين عبر هدهد FM.';
+    body.trim() || 'هذا نص تجريبي لمعاينة شكل الإشعار عند وصوله إلى هواتف المستمعين عبر هدهد إف إم.';
 
   return (
     <div className="space-y-8 animate-in fade-in-50 duration-300" dir="rtl">
@@ -410,8 +410,8 @@ export function NotificationsManager({
               </h1>
               <p className="text-sm text-muted-foreground mt-0.5">
                 {isSuperAdmin
-                  ? 'بث إشعارات فورية (Push Notifications) عبر Firebase Cloud Messaging لجميع مستخدمي هدهد FM'
-                  : 'عرض ومتابعة الرسائل والإشعارات التي تم إرسالها سابقاً لجميع مستخدمي هدهد FM'}
+                  ? 'بث إشعارات فورية (Push Notifications) عبر Firebase Cloud Messaging لجميع مستخدمي هدهد إف إم'
+                  : 'عرض ومتابعة الرسائل والإشعارات التي تم إرسالها سابقاً لجميع مستخدمي هدهد إف إم'}
               </p>
             </div>
           </div>
@@ -878,7 +878,7 @@ export function NotificationsManager({
                         <div className="flex size-5 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-[9px] shadow-xs">
                           FM
                         </div>
-                        <span>هدهد FM</span>
+                        <span>هدهد إف إم</span>
                       </div>
                       <span className="text-[10px] text-white/60">الآن</span>
                     </div>
@@ -935,7 +935,7 @@ export function NotificationsManager({
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between text-[10px] text-neutral-400 mb-0.5">
-                          <span className="font-semibold text-neutral-200">هدهد FM</span>
+                          <span className="font-semibold text-neutral-200">هدهد إف إم</span>
                           <span>الآن</span>
                         </div>
                         <div className="font-semibold text-xs text-white leading-tight line-clamp-1">
@@ -964,7 +964,7 @@ export function NotificationsManager({
                   {/* App background simulation */}
                   <div className="flex-1 flex flex-col items-center justify-center text-center p-4 opacity-40">
                     <Radio className="size-12 text-primary mb-2" />
-                    <div className="text-xs font-medium text-neutral-400">واجهة هدهد FM</div>
+                    <div className="text-xs font-medium text-neutral-400">واجهة هدهد إف إم</div>
                     <div className="text-[10px] text-neutral-500 mt-1">البث المباشر يعمل بالخلفية</div>
                   </div>
                 </div>

@@ -16,12 +16,12 @@ if (!root) {
 
 const pathname = window.location.pathname;
 const publicTitles: Record<string, string> = {
-  '/account-deletion': 'حذف الحساب | هدهد FM',
-  '/community-guidelines': 'إرشادات المجتمع | هدهد FM',
-  '/privacy': 'سياسة الخصوصية | هدهد FM',
-  '/terms': 'شروط الخدمة | هدهد FM',
+  '/account-deletion': 'حذف الحساب | هدهد إف إم',
+  '/community-guidelines': 'إرشادات المجتمع | هدهد إف إم',
+  '/privacy': 'سياسة الخصوصية | هدهد إف إم',
+  '/terms': 'شروط الخدمة | هدهد إف إم',
 };
-document.title = publicTitles[pathname] ?? 'إدارة هدهد FM';
+document.title = publicTitles[pathname] ?? 'إدارة هدهد إف إم';
 
 const page =
   pathname === '/account-deletion' ? (

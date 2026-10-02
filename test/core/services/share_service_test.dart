@@ -113,7 +113,7 @@ void main() {
       expect(call.text, contains(StoreUrlHelper.getStoreUrl()));
       expect(call.text, contains(AppConfig.webPlayerUrl));
       if (language == 'ar') {
-        expect(call.text, contains('هدهد FM'));
+        expect(call.text, contains('هدهد إف إم'));
         expect(call.text, contains('إذاعات اليمن كلها .. في مكان واحد'));
       } else {
         expect(call.text, contains('HudHud FM'));

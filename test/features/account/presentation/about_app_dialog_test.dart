@@ -34,7 +34,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AboutAppDialog), findsOneWidget);
-    expect(find.text("عن هدهد FM"), findsOneWidget);
+    expect(find.text("عن هدهد إف إم"), findsOneWidget);
     expect(
       find.textContaining(
         "${AppConfig.currentVersionName} (${AppConfig.currentVersionCode})",
@@ -42,7 +42,7 @@ void main() {
       findsOneWidget,
     );
     expect(
-        find.textContaining("هدهد FM هو دليلك الأول للاستماع"), findsOneWidget);
+        find.textContaining("هدهد إف إم هو دليلك الأول للاستماع"), findsOneWidget);
 
     // Close dialog
     await tester.tap(find.byKey(const Key("close-about-dialog")));

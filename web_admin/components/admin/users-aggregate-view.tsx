@@ -46,7 +46,7 @@ export function UsersAggregateView({ firestore }: { firestore: Firestore }) {
               إجمالي المستخدمين
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              إحصائية عدد الحسابات المسجلة في تطبيق هدهد FM
+              إحصائية عدد الحسابات المسجلة في تطبيق هدهد إف إم
             </p>
           </div>
         </div>

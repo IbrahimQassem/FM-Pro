@@ -20,7 +20,7 @@ window.TEMPLATE_DEFAULTS = {
   },
   "locales": {
     "ar": {
-      "appName": "هدهد FM",
+      "appName": "هدهد إف إم",
       "slides": [
         {
           "id": "01-hero",

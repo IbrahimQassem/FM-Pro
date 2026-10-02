@@ -299,7 +299,7 @@ function SignInScreen({
               <Radio />
             </div>
             <div>
-              <p className="text-xl font-bold">هدهد FM</p>
+              <p className="text-xl font-bold">هدهد إف إم</p>
               <p className="text-xs text-white/65">مركز إدارة المحتوى</p>
             </div>
           </div>
@@ -318,7 +318,7 @@ function SignInScreen({
         <section className="p-7 md:p-10">
           <div className="mb-8 md:hidden">
             <Radio className="text-primary" />
-            <p className="mt-3 text-xl font-bold">إدارة هدهد FM</p>
+            <p className="mt-3 text-xl font-bold">إدارة هدهد إف إم</p>
           </div>
           <Badge variant="outline" className="mb-4">
             دخول إداري فقط
@@ -597,7 +597,7 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
             <div className="relative grid size-12 place-items-center overflow-hidden rounded-2xl bg-primary/10 border border-primary/20 shrink-0">
               <img
                 src="/assets/images/branding/app_logo_circle.png"
-                alt="شعار هدهد FM"
+                alt="شعار هدهد إف إم"
                 className="size-full object-cover"
                 onError={(e) => {
                   (e.currentTarget as HTMLElement).style.display = 'none';
@@ -609,7 +609,7 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
               </span>
             </div>
             <div>
-              <p className="text-xl font-bold">هدهد FM</p>
+              <p className="text-xl font-bold">هدهد إف إم</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 مساحة إدارة المحتوى
               </p>

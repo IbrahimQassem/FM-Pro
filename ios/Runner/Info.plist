@@ -99,9 +99,9 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>يحتاج هدهد FM إلى إذن الكاميرا لالتقاط صورة للملف الشخصي.</string>
+	<string>يحتاج هدهد إف إم إلى إذن الكاميرا لالتقاط صورة للملف الشخصي.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>يحتاج هدهد FM إلى إذن الوصول إلى معرض الصور لاختيار صورة للملف الشخصي.</string>
+	<string>يحتاج هدهد إف إم إلى إذن الوصول إلى معرض الصور لاختيار صورة للملف الشخصي.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

@@ -868,7 +868,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'معايير النشر والسلوك المقبول في التعليقات';
 
   @override
-  String get onboardingTitle1 => 'مرحبًا بك في هدهد FM';
+  String get onboardingTitle1 => 'مرحبًا بك في هدهد إف إم';
 
   @override
   String get onboardingSubtitle1 =>
@@ -901,7 +901,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get appTour => 'جولة في التطبيق';
 
   @override
-  String get appTourSubtitle => 'استعرض مميزات ومزايا تطبيق هدهد FM';
+  String get appTourSubtitle => 'استعرض مميزات ومزايا تطبيق هدهد إف إم';
 
   @override
   String get shareStation => 'مشاركة المحطة';
@@ -911,13 +911,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String shareStationMessage(String stationName, String url) {
-    return 'استمع الآن إلى إذاعة $stationName عبر تطبيق هدهد FM 📻🇾🇪\n$url';
+    return 'استمع الآن إلى إذاعة $stationName عبر تطبيق هدهد إف إم 📻🇾🇪\n$url';
   }
 
   @override
   String shareEpisodeMessage(String episodeTitle, String programTitle,
       String stationName, String url) {
-    return 'استمع لحلقة \"$episodeTitle\" من برنامج $programTitle - $stationName عبر تطبيق هدهد FM 🎙️\n$url';
+    return 'استمع لحلقة \"$episodeTitle\" من برنامج $programTitle - $stationName عبر تطبيق هدهد إف إم 🎙️\n$url';
   }
 
   @override
@@ -940,7 +940,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get legalSectionTitle => 'عن التطبيق والمعلومات';
 
   @override
-  String get guestAccountTitle => 'مرحباً بك في هدهد FM';
+  String get guestAccountTitle => 'مرحباً بك في هدهد إف إم';
 
   @override
   String get guestAccountSubtitle =>
@@ -959,21 +959,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get shareAppTitle => 'دعوة صديق ومشاركة التطبيق';
 
   @override
-  String get shareAppSubtitle => 'شارك تطبيق هدهد FM مع أصدقائك ومحبي الإذاعة';
+  String get shareAppSubtitle => 'شارك تطبيق هدهد إف إم مع أصدقائك ومحبي الإذاعة';
 
   @override
   String shareAppMessage(String storeUrl, String webUrl) {
-    return '📻 هدهد FM — إذاعات اليمن كلها .. في مكان واحد 🇾🇪✨\n\nاستمع إلى البث المباشر لكافة الإذاعات اليمنية والبودكاست بنقاء صوت فائق وبدون تقطيع أينما كنت.\n\n📱 حمّل التطبيق للموبايل:\n$storeUrl\n\n🌐 أو استمع مباشرة عبر موقعنا:\n$webUrl';
+    return '📻 هدهد إف إم — إذاعات اليمن كلها .. في مكان واحد 🇾🇪✨\n\nاستمع إلى البث المباشر لكافة الإذاعات اليمنية والبودكاست بنقاء صوت فائق وبدون تقطيع أينما كنت.\n\n📱 حمّل التطبيق للموبايل:\n$storeUrl\n\n🌐 أو استمع مباشرة عبر موقعنا:\n$webUrl';
   }
 
   @override
   String get rateAppTitle => 'تقييم التطبيق';
 
   @override
-  String get rateAppSubtitle => 'رأيك يهمنا لمواصلة تحسين هدهد FM';
+  String get rateAppSubtitle => 'رأيك يهمنا لمواصلة تحسين هدهد إف إم';
 
   @override
-  String get rateAppDialogTitle => 'ما رأيك في هدهد FM؟';
+  String get rateAppDialogTitle => 'ما رأيك في هدهد إف إم؟';
 
   @override
   String get rateAppDialogPrompt => 'اختر عدد النجوم لتقييم تجربتك الاستماعية';
@@ -997,7 +997,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get rateAppAddComment => 'أضف تعليقاً أو ملاحظة';
 
   @override
-  String get aboutAppTitle => 'عن هدهد FM';
+  String get aboutAppTitle => 'عن هدهد إف إم';
 
   @override
   String get aboutAppSubtitle => 'قصة الهوية، الإصدار، والمعلومات القانونية';
@@ -1007,11 +1007,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aboutAppDescription =>
-      'هدهد FM هو دليلك الأول للاستماع إلى كافة الإذاعات اليمنية الرسمية والأهلية ببث رقمي عالي النقاء، مع متابعة البرامج والحلقات والتفاعل المجتمعي الراقي.';
+      'هدهد إف إم هو دليلك الأول للاستماع إلى كافة الإذاعات اليمنية الرسمية والأهلية ببث رقمي عالي النقاء، مع متابعة البرامج والحلقات والتفاعل المجتمعي الراقي.';
 
   @override
   String allRightsReserved(String year) {
-    return 'جميع الحقوق محفوظة © $year هدهد FM';
+    return 'جميع الحقوق محفوظة © $year هدهد إف إم';
   }
 
   @override
