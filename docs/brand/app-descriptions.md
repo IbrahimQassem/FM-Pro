@@ -128,21 +128,27 @@ The voice of Yemen, always by your side. Download HudHud FM today and join thous
 ### الخيار 1: النص الافتراضي المعتمد رسمياً للتطبيق (Default In-App Share Message) ⭐
 * **Arabic (المعتمد داخل التطبيق)**:
   ```text
-  صوت اليمن يجمعنا أينما كنا! 🕊️🇾🇪
+  📻 هدهد FM — إذاعات اليمن كلها .. في مكان واحد 🇾🇪✨
 
-  مع **هدهد FM**، استمع إلى الإذاعات اليمنية والبودكاست في مكان واحد، عبر بث مباشر سريع ونقي، أينما كنت.
+  استمع إلى البث المباشر لكافة الإذاعات اليمنية والبودكاست بنقاء صوت فائق وبدون تقطيع أينما كنت.
 
-  🎧 جرّب التطبيق واستمع لصوت اليمن:
-  {url}
+  📱 حمّل التطبيق للموبايل:
+  {storeUrl}
+
+  🌐 أو استمع مباشرة عبر موقعنا:
+  {webUrl}
   ```
 * **English**:
   ```text
-  The voice of Yemen brings us together wherever we are! 🕊️🇾🇪
+  📻 HudHud FM — All of Yemen's Radios .. In One Place 🇾🇪✨
 
-  With **HudHud FM**, listen to Yemeni radio stations and podcasts in one place, with fast and crystal-clear live streaming, wherever you are.
+  Stream all Yemeni radio stations and podcasts in one place with crystal-clear audio wherever you are.
 
-  🎧 Try the app and tune in to the voice of Yemen:
-  {url}
+  📱 Download the mobile app:
+  {storeUrl}
+
+  🌐 Or listen live on the web:
+  {webUrl}
   ```
 
 ### الخيار 2: الطابع العملي والتقني (مباشر وسلس — الأنسب للباحثين عن السرعة وبدون تقطيع)

@@ -974,7 +974,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String shareAppMessage(String storeUrl, String webUrl) {
-    return 'The voice of Yemen brings us together wherever we are! 🕊️🇾🇪\n\nWith **HudHud FM**, listen to Yemeni radio stations and podcasts in one place with fast, crystal-clear live streaming.\n\n📱 Download the mobile app:\n$storeUrl\n\n🌐 Or listen live on the web:\n$webUrl';
+    return '📻 HudHud FM — All of Yemen\'s Radios .. In One Place 🇾🇪✨\n\nStream all Yemeni radio stations and podcasts in one place with crystal-clear audio wherever you are.\n\n📱 Download the mobile app:\n$storeUrl\n\n🌐 Or listen live on the web:\n$webUrl';
   }
 
   @override

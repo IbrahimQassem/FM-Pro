@@ -963,7 +963,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String shareAppMessage(String storeUrl, String webUrl) {
-    return 'صوت اليمن يجمعنا أينما كنا! 🕊️🇾🇪\n\nمع **هدهد FM**، استمع إلى كافة الإذاعات اليمنية والبودكاست في مكان واحد، عبر بث مباشر سريع ونقي.\n\n📱 حمّل التطبيق للموبايل:\n$storeUrl\n\n🌐 أو استمع مباشرة عبر موقعنا:\n$webUrl';
+    return '📻 هدهد FM — إذاعات اليمن كلها .. في مكان واحد 🇾🇪✨\n\nاستمع إلى البث المباشر لكافة الإذاعات اليمنية والبودكاست بنقاء صوت فائق وبدون تقطيع أينما كنت.\n\n📱 حمّل التطبيق للموبايل:\n$storeUrl\n\n🌐 أو استمع مباشرة عبر موقعنا:\n$webUrl';
   }
 
   @override
