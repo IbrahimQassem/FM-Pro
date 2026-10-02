@@ -27,12 +27,12 @@ android {
         }
     }
 
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.sana.dev.fm"
         minSdk 21
-        targetSdk 34
+        targetSdk 36
         versionCode 27
         versionName "2.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
