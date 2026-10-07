@@ -2,7 +2,7 @@
 
 * **Status**: Verified Source of Truth (سجل جرد الأصول المعتمدة)
 * **Last Verified**: 2026-09-18
-* **Scope**: Repository asset auditing across `assets/images/` and `design/`
+* **Scope**: Repository asset auditing across `assets/images/` and `store-listing-generator/`
 
 ---
 
@@ -35,13 +35,13 @@ All assets listed below have been verified directly in the active repository. No
 
 ---
 
-### C. Promotional & Store Listing Assets (`hudhud_fm/design/store-listing/`)
+### C. Promotional & Store Listing Assets (`hudhud_fm/store-listing-generator/store-listing/`)
 
 | File Name | Relative Path | Format | Dimensions | Purpose / Store Placement |
 | :--- | :--- | :--- | :--- | :--- |
-| `app-icon-512x512.png` | `design/store-listing/app-icon-512x512.png` | PNG | 512×512 px | Google Play Store icon. |
-| `feature-graphic-1024x500.png` | `design/store-listing/feature-graphic-1024x500.png` | PNG | 1024×500 px | Arabic Google Play Store Feature Graphic header. |
-| `feature-graphic-en-1024x500.png` | `design/store-listing/feature-graphic-en-1024x500.png` | PNG | 1024×500 px | English Google Play Store Feature Graphic header. |
+| `app-icon-512x512.png` | `store-listing-generator/store-listing/app-icon-512x512.png` | PNG | 512×512 px | Google Play Store icon. |
+| `feature-graphic-1024x500.png` | `store-listing-generator/store-listing/feature-graphic-1024x500.png` | PNG | 1024×500 px | Arabic Google Play Store Feature Graphic header. |
+| `feature-graphic-en-1024x500.png` | `store-listing-generator/store-listing/feature-graphic-en-1024x500.png` | PNG | 1024×500 px | English Google Play Store Feature Graphic header. |
 
 ---
 

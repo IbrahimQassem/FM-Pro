@@ -4,6 +4,7 @@ import { getFirebaseServices } from '@/lib/firebase-client';
 import { firestoreRoot } from '@/lib/firestore-root';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { AdvertisingOverviewView } from './advertising-overview-view';
 
 type Advertiser = {
   id: string;
@@ -66,7 +67,20 @@ async function call<T>(data: Record<string, unknown>): Promise<T> {
   ).data;
 }
 
-export function AdvertisingWorkspace({ request = call }: { request?: typeof call }) {
+export function AdvertisingWorkspace({
+  request = call,
+  isSuperAdmin = true,
+}: {
+  request?: typeof call;
+  isSuperAdmin?: boolean;
+}) {
+  if (!isSuperAdmin) {
+    return <AdvertisingOverviewView />;
+  }
+  return <AdvertisingManager request={request} />;
+}
+
+function AdvertisingManager({ request = call }: { request?: typeof call }) {
   const [advertisers, setAdvertisers] = useState<Advertiser[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [next, setNext] = useState<{

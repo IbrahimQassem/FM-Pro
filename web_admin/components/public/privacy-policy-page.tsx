@@ -6,10 +6,10 @@ export function PrivacyPolicyPage() {
     <main dir="rtl" className="min-h-screen bg-muted/40 px-4 py-10 sm:px-8">
       <article className="mx-auto max-w-3xl space-y-6">
         <header>
-          <p className="text-sm font-semibold text-primary">هدهد FM</p>
+          <p className="text-sm font-semibold text-primary">هدهد إف إم</p>
           <h1 className="mt-2 text-3xl font-bold">سياسة الخصوصية (Privacy Policy)</h1>
           <p className="mt-3 text-muted-foreground">
-            آخر تحديث: 2026-09-07 · نلتزم في هدهد FM بحماية خصوصيتك وبياناتك الشخصية وفق أعلى المعايير.
+            آخر تحديث: 2026-09-07 · نلتزم في هدهد إف إم بحماية خصوصيتك وبياناتك الشخصية وفق أعلى المعايير.
           </p>
         </header>
 
@@ -22,7 +22,7 @@ export function PrivacyPolicyPage() {
           <CardContent className="space-y-3 leading-7 text-sm sm:text-base">
             <p>
               توضح سياسة الخصوصية هذه كيفية جمع واستخدام وحماية المعلومات عند استخدام تطبيق
-              <strong> هدهد FM </strong> وخدماتنا الرقمية المرتبطة به.
+              <strong> هدهد إف إم </strong> وخدماتنا الرقمية المرتبطة به.
             </p>
             <p>
               باستخدامك للتطبيق، فإنك توافق على جمع واستخدام المعلومات وفقاً لهذه السياسة.

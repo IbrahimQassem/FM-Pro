@@ -1,4 +1,4 @@
-# مراجعة منصة هدهد FM وخططها — 2026-09-27
+# مراجعة منصة هدهد إف إم وخططها — 2026-09-27
 
 الحالة: مراجعة مصدر واختبارات محلية؛ ليست شهادة جاهزية إنتاجية.
 
@@ -109,7 +109,7 @@
 | [Stream Health](../operations/stream-health-ping-architecture.md) | مواصفة، لا خدمة فحص دورية متكاملة في المصدر | `verify_urls.mjs` يفحص HEAD وHTTPS للـseed فقط؛ PL-08 |
 | [مقترح broadcaster](../operations/admin-fcm-broadcaster-proposal.md) | إنشاء/معاينة/إرسال مباشر وسجل موجودة | test audience، scheduling، تقسيم لغوي، throttle وidempotency ليست مكتملة؛ PL-04 |
 | [حل Deep Links](../operations/fcm-deep-linking-resolution.md) | تصميم مستقبلي v3.1، لا تنفيذ موحد | اقتراح autoplay يتعارض مع ADR 0003؛ القرار المعتمد في الخطة: لا autoplay؛ PL-05 |
-| [هوية العلامة](../brand/brand-contract.md) و[استوديو المتاجر](../../design/store-screenshots/README.md) | الماسكوت/الهوية وأصول الاستوديو موجودة؛ 48 لقطة و8 لوحات اجتازت الفحص الآن | لقطات fixtures داخل إطارات أجهزة لا تثبت تجربة جهاز فعلي أو قبول متجر؛ PL-09/07 |
+| [هوية العلامة](../brand/brand-contract.md) و[استوديو المتاجر](../../store-listing-generator/store-screenshots/README.md) | الماسكوت/الهوية وأصول الاستوديو موجودة؛ 48 لقطة و8 لوحات اجتازت الفحص الآن | لقطات fixtures داخل إطارات أجهزة لا تثبت تجربة جهاز فعلي أو قبول متجر؛ PL-09/07 |
 
 ## 3. خريطة المنصة والتدفقات
 
@@ -243,7 +243,7 @@ P0: يعالج قبل الاعتماد على المسار الحساس أو ت�
 | `web_hudhud`: `npm test` + `npm run lint` + `npm run typecheck` | PASS، 36 اختبارًا |
 | الجذر: `npm run emulators:test` | PASS، 25 اختبار Rules على demo بعد السماح بمنافذ localhost |
 | `tool/firebase_seed`: `npm test` | PASS، 7 اختبارات عقد؛ لم يُشغّل seed أو فحص URLs خارجية |
-| `design/store-screenshots`: `node --test studio.test.mjs` | PASS، 5 اختبارات |
+| `store-listing-generator/store-screenshots`: `node --test studio.test.mjs` | PASS، 5 اختبارات |
 | الاستوديو: `node verify-exports.mjs` | PASS، 48 PNG + 8 لوحات، الأبعاد/العتامة/الاختلاف والبصمات |
 | Emulator المتخصصة: admin/OTP/delete/profile/subscriptions/ads | لم تُعَد الآن؛ نتائج handoffs السابقة تاريخية |
 | debug/release AAB/IPA/web builds، OAuth، push فعلي، قارئات شاشة، أجهزة | لم تُشغّل الآن؛ مراجعة وتخطيط لا تغيير runtime |

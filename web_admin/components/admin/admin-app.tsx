@@ -6,7 +6,9 @@ import { BannerStatusBadge } from './banner-status-badge';
 import { WorkspaceOverview, ScreenCoverage } from './workspace-overview';
 import { UserActionsModal, formatUserDate } from './user-actions-modal';
 import { NotificationsManager } from './notifications-manager';
+import { UsersAggregateView } from './users-aggregate-view';
 import { StationLogo } from './station-logo';
+import { UserSessionAvatar } from './user-session-avatar';
 import { ResourceThumbnail } from './resource-thumbnail';
 import {
   isContentKind,
@@ -53,6 +55,7 @@ import {
   Heart,
   Flag,
   LayoutDashboard,
+  Lock,
   LogOut,
   Megaphone,
   MessageSquare,
@@ -83,6 +86,7 @@ import {
 } from 'firebase/auth';
 import {
   Timestamp,
+  getDoc,
   getDocFromServer,
   getDocsFromServer,
   runTransaction,
@@ -295,7 +299,7 @@ function SignInScreen({
               <Radio />
             </div>
             <div>
-              <p className="text-xl font-bold">هدهد FM</p>
+              <p className="text-xl font-bold">هدهد إف إم</p>
               <p className="text-xs text-white/65">مركز إدارة المحتوى</p>
             </div>
           </div>
@@ -314,7 +318,7 @@ function SignInScreen({
         <section className="p-7 md:p-10">
           <div className="mb-8 md:hidden">
             <Radio className="text-primary" />
-            <p className="mt-3 text-xl font-bold">إدارة هدهد FM</p>
+            <p className="mt-3 text-xl font-bold">إدارة هدهد إف إم</p>
           </div>
           <Badge variant="outline" className="mb-4">
             دخول إداري فقط
@@ -404,6 +408,119 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
       : 'overview';
   };
   const [section, setSection] = useState<Section>(readSection);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [role, setRole] = useState<'super_admin' | 'station_admin' | 'moderator' | 'admin'>('admin');
+  const [userProfile, setUserProfile] = useState<{
+    displayName?: string;
+    avatarUrl?: string;
+    stationName?: string;
+    stationLogoUrl?: string;
+  }>({});
+
+  useEffect(() => {
+    let active = true;
+    getIdTokenResult(user)
+      .then(async (token) => {
+        if (!active) return;
+        const r = typeof token.claims.role === 'string' ? token.claims.role : '';
+        const adminClaim = token.claims.admin === true;
+        const isSuper =
+          r === 'super_admin' ||
+          (adminClaim && r !== 'station_admin' && r !== 'moderator');
+        setIsSuperAdmin(isSuper);
+        if (r === 'super_admin' || isSuper) setRole('super_admin');
+        else if (r === 'station_admin') setRole('station_admin');
+        else if (r === 'moderator') setRole('moderator');
+        else setRole('admin');
+
+        // Fetch user profile document from Firestore to resolve avatar and details
+        try {
+          const userDocRef = doc(firestore, `${firestoreRoot}/users/users/${user.uid}`);
+          const userSnap = await getDoc(userDocRef);
+          if (!active) return;
+
+          let avatarUrl = '';
+          let displayName = '';
+          let stationId = '';
+          let stationName = '';
+          let stationLogoUrl = '';
+
+          if (userSnap.exists()) {
+            const data = userSnap.data();
+            avatarUrl =
+              (typeof data.avatarUrl === 'string' && data.avatarUrl.trim()) ||
+              (typeof data.photoUrl === 'string' && data.photoUrl.trim()) ||
+              (typeof data.photoURL === 'string' && data.photoURL.trim()) ||
+              (typeof data.image === 'string' && data.image.trim()) ||
+              '';
+            displayName =
+              (typeof data.displayName === 'string' && data.displayName.trim()) ||
+              (typeof data.name === 'string' && data.name.trim()) ||
+              '';
+
+            if (
+              Array.isArray(data.assignedStationIds) &&
+              data.assignedStationIds.length > 0 &&
+              data.assignedStationIds[0] !== '*'
+            ) {
+              stationId = data.assignedStationIds[0];
+            } else if (typeof data.stationId === 'string' && data.stationId.trim()) {
+              stationId = data.stationId.trim();
+            }
+          }
+
+          if (
+            !stationId &&
+            Array.isArray(token.claims.assignedStations) &&
+            token.claims.assignedStations.length > 0 &&
+            token.claims.assignedStations[0] !== '*'
+          ) {
+            stationId = token.claims.assignedStations[0];
+          } else if (!stationId && typeof token.claims.stationId === 'string' && token.claims.stationId.trim()) {
+            stationId = token.claims.stationId.trim();
+          }
+
+          if (stationId) {
+            try {
+              const stationSnap = await getDoc(
+                doc(firestore, `${firestoreRoot}/stations/stations/${stationId}`),
+              );
+              if (active && stationSnap.exists()) {
+                const sData = stationSnap.data();
+                stationName = typeof sData.name === 'string' ? sData.name : '';
+                stationLogoUrl =
+                  (typeof sData.logoUrl === 'string' && sData.logoUrl.trim()) ||
+                  (typeof sData.thumbnailUrl === 'string' && sData.thumbnailUrl.trim()) ||
+                  '';
+              }
+            } catch {
+              // Station logo fetch is non-critical fallback
+            }
+          }
+
+          if (active) {
+            setUserProfile({
+              avatarUrl: avatarUrl || user.photoURL || stationLogoUrl || '',
+              displayName: displayName || user.displayName || '',
+              stationName,
+              stationLogoUrl,
+            });
+          }
+        } catch {
+          if (active) {
+            setUserProfile({
+              avatarUrl: user.photoURL || '',
+              displayName: user.displayName || '',
+            });
+          }
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [user, firestore]);
+
   const acceptedHash = useRef(window.location.hash);
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>(() => {
     try {
@@ -455,6 +572,13 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
     window.location.assign(`#${key}`);
   };
   const current = navigation.find((n) => n.section === section)!;
+  const effectiveName =
+    userProfile.displayName ||
+    user.displayName ||
+    user.email?.split('@')[0] ||
+    'حساب المدير';
+  const effectiveAvatar =
+    userProfile.avatarUrl || user.photoURL || userProfile.stationLogoUrl || '';
   return (
     <main className="min-h-screen bg-background text-foreground" dir="rtl">
       <a
@@ -470,11 +594,22 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
       <div className="mx-auto grid min-h-screen max-w-[1800px] lg:grid-cols-[248px_1fr]">
         <aside className="hidden border-e bg-sidebar px-4 py-7 lg:flex lg:flex-col">
           <div className="mb-9 flex items-center gap-3 px-3">
-            <span className="grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground">
-              <Radio />
-            </span>
+            <div className="relative grid size-12 place-items-center overflow-hidden rounded-2xl bg-primary/10 border border-primary/20 shrink-0">
+              <img
+                src="/assets/images/branding/app_logo_circle.png"
+                alt="شعار هدهد إف إم"
+                className="size-full object-cover"
+                onError={(e) => {
+                  (e.currentTarget as HTMLElement).style.display = 'none';
+                  (e.currentTarget.nextElementSibling as HTMLElement)?.classList.remove('hidden');
+                }}
+              />
+              <span className="hidden text-primary">
+                <Radio className="size-6" />
+              </span>
+            </div>
             <div>
-              <p className="text-xl font-bold">هدهد FM</p>
+              <p className="text-xl font-bold">هدهد إف إم</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 مساحة إدارة المحتوى
               </p>
@@ -496,25 +631,18 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
           <div className="mt-auto space-y-3 pt-6">
             <div className="rounded-2xl border bg-card p-3.5 shadow-sm">
               <div className="flex items-center gap-3">
-                <span className="grid size-10 place-items-center overflow-hidden rounded-xl bg-primary/15 font-bold text-primary">
-                  {user.photoURL ? (
-                    <img
-                      src={user.photoURL}
-                      alt={user.displayName || user.email || 'حساب المدير'}
-                      className="size-10 object-cover"
-                    />
-                  ) : (user.displayName || user.email) ? (
-                    (user.displayName || user.email)!.charAt(0).toUpperCase()
-                  ) : (
-                    <UserIcon className="size-5" />
-                  )}
-                </span>
+                <UserSessionAvatar
+                  src={effectiveAvatar}
+                  name={effectiveName}
+                  className="size-10 rounded-xl"
+                  iconSize="size-5"
+                />
                 <div className="min-w-0 flex-1">
                   <p
                     className="truncate text-xs font-semibold text-foreground"
-                    title={user.displayName || user.email?.split('@')[0] || 'حساب المدير'}
+                    title={effectiveName}
                   >
-                    {user.displayName || user.email?.split('@')[0] || 'حساب المدير'}
+                    {effectiveName}
                   </p>
                   <p
                     className="mt-0.5 truncate text-[11px] text-muted-foreground"
@@ -522,11 +650,26 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
                   >
                     {user.email || user.uid}
                   </p>
+                  {userProfile.stationName && (
+                    <p
+                      className="mt-0.5 truncate text-[10px] font-medium text-primary/80"
+                      title={userProfile.stationName}
+                    >
+                      {userProfile.stationName}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="mt-3 flex items-center justify-between border-t pt-2.5 text-xs text-muted-foreground">
                 <span className="inline-flex items-center gap-1 font-medium text-primary">
-                  <ShieldCheck className="size-3.5" /> مدير النظام
+                  <ShieldCheck className="size-3.5" />
+                  {isSuperAdmin
+                    ? 'مدير عام النظام'
+                    : role === 'station_admin'
+                      ? 'مدير محطة'
+                      : role === 'moderator'
+                        ? 'مشرف محتوى'
+                        : 'مدير نظام'}
                 </span>
                 <button
                   type="button"
@@ -557,14 +700,23 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
                 className="flex items-center gap-2 rounded-xl border bg-card px-3 py-1.5 text-xs shadow-xs"
                 title={`مسجل بحساب: ${user.email || user.uid}`}
               >
-                <span className="grid size-6 place-items-center rounded-full bg-primary/10 text-primary">
-                  <UserIcon className="size-3.5" />
-                </span>
+                <UserSessionAvatar
+                  src={effectiveAvatar}
+                  name={effectiveName}
+                  className="size-6 rounded-full"
+                  iconSize="size-3.5"
+                />
                 <span className="max-w-[180px] truncate font-medium text-foreground sm:max-w-[240px]">
-                  {user.displayName || user.email || user.uid}
+                  {effectiveName}
                 </span>
                 <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
-                  مدير النظام
+                  {isSuperAdmin
+                    ? 'مدير عام'
+                    : role === 'station_admin'
+                      ? 'مدير محطة'
+                      : role === 'moderator'
+                        ? 'مشرف'
+                        : 'مدير'}
                 </Badge>
               </div>
               <Badge
@@ -643,15 +795,22 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
             ) : section === 'coverage' ? (
               <ScreenCoverage onNavigate={navigate} />
             ) : section === 'notifications' ? (
-              <NotificationsManager firestore={firestore} user={user} />
+              <NotificationsManager
+                firestore={firestore}
+                user={user}
+                isSuperAdmin={isSuperAdmin}
+              />
             ) : section === 'advertising' ? (
-              <AdvertisingWorkspace />
+              <AdvertisingWorkspace isSuperAdmin={isSuperAdmin} />
+            ) : section === 'users' && !isSuperAdmin ? (
+              <UsersAggregateView firestore={firestore} />
             ) : (
               <ResourcePanel
                 key={section}
                 firestore={firestore}
                 user={user}
                 resource={section}
+                isSuperAdmin={isSuperAdmin}
               />
             )}
           </div>
@@ -665,10 +824,12 @@ function ResourcePanel({
   firestore,
   user,
   resource,
+  isSuperAdmin = true,
 }: {
   firestore: Firestore;
   user: User;
   resource: ResourceKey;
+  isSuperAdmin?: boolean;
 }) {
   const hash = useAdminHash();
   const status = readResourceStatus(resource, hash);
@@ -768,6 +929,7 @@ function ResourcePanel({
         choices={choices}
         parent={parent}
         reportType={reportType}
+        isSuperAdmin={isSuperAdmin}
       />
     </div>
   );
@@ -809,6 +971,7 @@ function ResourcePage({
   choices,
   parent,
   reportType,
+  isSuperAdmin = true,
 }: {
   firestore: Firestore;
   user: User;
@@ -817,6 +980,7 @@ function ResourcePage({
   choices?: StatusChoice[];
   parent: string;
   reportType: ReturnType<typeof readReportType>;
+  isSuperAdmin?: boolean;
 }) {
   const statusField = status?.field;
   const statusMatch = status?.match;
@@ -1006,6 +1170,7 @@ function ResourcePage({
             window.location.hash =
               resource + (params.size ? `?${params}` : '');
           }}
+          isSuperAdmin={isSuperAdmin}
         />
       )}
       {resource === 'reports' && (
@@ -1320,6 +1485,7 @@ function ResourceView({
   status,
   statusChoices,
   onStatusChange,
+  isSuperAdmin = true,
 }: {
   firestore: Firestore;
   definition: ResourceDefinition;
@@ -1331,6 +1497,7 @@ function ResourceView({
   status?: StatusChoice;
   statusChoices?: StatusChoice[];
   onStatusChange?: (value: string) => void;
+  isSuperAdmin?: boolean;
 }) {
   const hash = useAdminHash();
   const search = readResourceSearch(definition.key, hash);
@@ -1554,6 +1721,19 @@ function ResourceView({
     }
   }
 
+  const canCreate =
+    definition.creatable &&
+    (isSuperAdmin ||
+      (definition.key !== 'stations' && definition.key !== 'banners'));
+
+  const canEdit =
+    definition.editable && (isSuperAdmin || definition.key !== 'banners');
+
+  const canDelete =
+    definition.deletable &&
+    (isSuperAdmin ||
+      (definition.key !== 'stations' && definition.key !== 'banners'));
+
   return (
     <div className="space-y-6">
       <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
@@ -1576,6 +1756,12 @@ function ResourceView({
                 المعروض حسب التصفية: {resourceCountLabel(definition.key, filteredAndSorted.length)}
               </span>
             )}
+            {!isSuperAdmin && definition.key === 'banners' && (
+              <span className="inline-flex items-center gap-1.5 rounded-xl bg-muted px-2.5 py-1 text-xs font-medium text-foreground border">
+                <Lock className="size-3 text-muted-foreground" />
+                عرض الإعلانات فقط (الإضافة والتعديل لمدير عام النظام)
+              </span>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2.5">
@@ -1591,7 +1777,7 @@ function ResourceView({
               تحديث
             </Button>
           )}
-          {definition.creatable && (
+          {canCreate && (
             <Button
               onClick={() => setEditor('new')}
               className="min-h-11 font-medium shadow-xs"
@@ -2067,10 +2253,10 @@ function ResourceView({
                     </p>
                   )}
 
-                  {(definition.editable ||
+                  {(canEdit ||
+                    canDelete ||
                     isStation ||
-                    definition.key === 'users' ||
-                    definition.deletable) && (
+                    definition.key === 'users') && (
                     <div className="flex gap-2 pt-1 flex-wrap">
                       {definition.key === 'users' && (
                         <Button
@@ -2081,7 +2267,7 @@ function ResourceView({
                           <ShieldCheck className="size-4" /> إدارة الحساب
                         </Button>
                       )}
-                      {definition.editable && (
+                      {canEdit && (
                         <Button
                           variant="outline"
                           className="min-h-11 flex-1 shadow-xs"
@@ -2106,7 +2292,7 @@ function ResourceView({
                           {isPlaying ? 'إيقاف البث' : 'تشغيل البث'}
                         </Button>
                       ) : (
-                        definition.deletable && (
+                        canDelete && (
                           <Button
                             variant="destructive"
                             className="min-h-11"
@@ -2393,7 +2579,7 @@ function ResourceView({
                               <span>{isPlaying ? 'إيقاف' : 'تشغيل'}</span>
                             </Button>
                           ) : (
-                            definition.deletable && (
+                            canDelete && (
                               <Button
                                 variant="destructive"
                                 size="icon"
@@ -2418,7 +2604,7 @@ function ResourceView({
                               <ShieldCheck className="size-4" />
                             </Button>
                           )}
-                          {definition.editable && (
+                          {canEdit && (
                             <Button
                               variant="ghost"
                               size="icon"

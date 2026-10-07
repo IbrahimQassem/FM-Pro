@@ -47,7 +47,7 @@ void test('resourceDefinitions registers notifications resource correctly', () =
 void test('notification payload structures and validation bounds', () => {
   const samplePayload = {
     title: 'بث مباشر الآن 🎙️',
-    body: 'استمع إلى البث المباشر لأحدث الأخبار والبرامج الإذاعية عبر تطبيق هدهد FM.',
+    body: 'استمع إلى البث المباشر لأحدث الأخبار والبرامج الإذاعية عبر تطبيق هدهد إف إم.',
     targetType: 'station',
     targetId: 'station_sanaa',
     targetLabel: 'إذاعة صنعاء',

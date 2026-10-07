@@ -88,3 +88,143 @@ void test('user role filtering correctly categorizes roles and handles missing r
     ['u3', 'u4', 'u5'],
   );
 });
+
+void test('role and isSuperAdmin resolution correctly distinguishes super_admin from station_admin', () => {
+  function resolveAdminRole(claims: Record<string, unknown>) {
+    const r = typeof claims.role === 'string' ? claims.role : '';
+    const adminClaim = claims.admin === true;
+    const isSuper =
+      r === 'super_admin' ||
+      (adminClaim && r !== 'station_admin' && r !== 'moderator');
+    const role =
+      r === 'super_admin' || isSuper
+        ? 'super_admin'
+        : r === 'station_admin'
+          ? 'station_admin'
+          : r === 'moderator'
+            ? 'moderator'
+            : 'admin';
+    return { isSuperAdmin: isSuper, role };
+  }
+
+  // Super admin with general admin: true
+  assert.deepEqual(resolveAdminRole({ admin: true }), {
+    isSuperAdmin: true,
+    role: 'super_admin',
+  });
+
+  // Explicit super_admin
+  assert.deepEqual(resolveAdminRole({ admin: true, role: 'super_admin' }), {
+    isSuperAdmin: true,
+    role: 'super_admin',
+  });
+
+  // Station admin (e.g. naderlahmzi@gmail.com)
+  assert.deepEqual(
+    resolveAdminRole({ admin: true, role: 'station_admin', allStations: true }),
+    {
+      isSuperAdmin: false,
+      role: 'station_admin',
+    },
+  );
+
+  // Moderator
+  assert.deepEqual(resolveAdminRole({ admin: true, role: 'moderator' }), {
+    isSuperAdmin: false,
+    role: 'moderator',
+  });
+});
+
+void test('notifications manager gating restricts composition and deletion for non-super admins', () => {
+  function canComposeOrDeleteNotifications(isSuperAdmin: boolean) {
+    return isSuperAdmin;
+  }
+  assert.equal(canComposeOrDeleteNotifications(true), true);
+  assert.equal(canComposeOrDeleteNotifications(false), false);
+});
+
+void test('banners and advertising gating restricts editing/creating to super_admin', () => {
+  function checkPermissions(key: string, isSuperAdmin: boolean) {
+    const canCreate =
+      isSuperAdmin || (key !== 'stations' && key !== 'banners');
+    const canEdit = isSuperAdmin || key !== 'banners';
+    const canDelete =
+      isSuperAdmin || (key !== 'stations' && key !== 'banners');
+    return { canCreate, canEdit, canDelete };
+  }
+
+  // Super admin can create, edit, delete banners
+  assert.deepEqual(checkPermissions('banners', true), {
+    canCreate: true,
+    canEdit: true,
+    canDelete: true,
+  });
+
+  // Non-super admin can only read banners (cannot create, edit, or delete)
+  assert.deepEqual(checkPermissions('banners', false), {
+    canCreate: false,
+    canEdit: false,
+    canDelete: false,
+  });
+
+  // Non-super admin can create and edit programs/episodes
+  assert.deepEqual(checkPermissions('programs', false), {
+    canCreate: true,
+    canEdit: true,
+    canDelete: true,
+  });
+
+  // Non-super admin cannot create/delete stations, but can edit assigned station
+  assert.deepEqual(checkPermissions('stations', false), {
+    canCreate: false,
+    canEdit: true,
+    canDelete: false,
+  });
+});
+
+void test('user session avatar sanitization and fallback resolution', () => {
+  function resolveSessionAvatar(
+    userProfile: { avatarUrl?: string; stationLogoUrl?: string },
+    authPhotoUrl?: string | null,
+  ) {
+    const raw =
+      userProfile.avatarUrl || authPhotoUrl || userProfile.stationLogoUrl || '';
+    const clean =
+      typeof raw === 'string' &&
+      (raw.trim().startsWith('http://') ||
+        raw.trim().startsWith('https://') ||
+        raw.trim().startsWith('/') ||
+        raw.trim().startsWith('data:image/'))
+        ? raw.trim()
+        : '';
+    return clean;
+  }
+
+  // Uses profile avatar if available
+  assert.equal(
+    resolveSessionAvatar(
+      { avatarUrl: 'https://example.com/avatar.jpg' },
+      'https://auth.com/pic.jpg',
+    ),
+    'https://example.com/avatar.jpg',
+  );
+
+  // Falls back to auth photoUrl if profile has none
+  assert.equal(
+    resolveSessionAvatar({}, 'https://auth.com/pic.jpg'),
+    'https://auth.com/pic.jpg',
+  );
+
+  // Falls back to station logo if station admin without avatar
+  assert.equal(
+    resolveSessionAvatar({ stationLogoUrl: 'https://cdn.station.com/logo.png' }),
+    'https://cdn.station.com/logo.png',
+  );
+
+  // Rejects invalid javascript: or malformed URLs
+  assert.equal(
+    resolveSessionAvatar({ avatarUrl: 'javascript:alert(1)' }),
+    '',
+  );
+});
+

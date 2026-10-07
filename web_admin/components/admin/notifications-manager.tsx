@@ -99,7 +99,7 @@ const TEMPLATES = [
   {
     name: 'بث مباشر الآن 🎙️',
     title: 'بث مباشر الآن 🎙️',
-    body: 'استمع الآن إلى التغطية الإذاعية الحية والمباشرة عبر هدهد FM',
+    body: 'استمع الآن إلى التغطية الإذاعية الحية والمباشرة عبر هدهد إف إم',
     targetType: 'station' as const,
   },
   {
@@ -110,7 +110,7 @@ const TEMPLATES = [
   },
   {
     name: 'تحديث التطبيق 🚀',
-    title: 'تحديث جديد لتطبيق هدهد FM 🚀',
+    title: 'تحديث جديد لتطبيق هدهد إف إم 🚀',
     body: 'قم بتحديث التطبيق الآن للاستمتاع بأحدث الميزات وتحسينات الأداء واستقرار البث.',
     targetType: 'general' as const,
   },
@@ -125,9 +125,11 @@ const TEMPLATES = [
 export function NotificationsManager({
   firestore,
   user: _user,
+  isSuperAdmin = true,
 }: {
   firestore: Firestore;
   user: User;
+  isSuperAdmin?: boolean;
 }) {
   // Form fields
   const [title, setTitle] = useState('');
@@ -389,7 +391,7 @@ export function NotificationsManager({
 
   const displayTitle = title.trim() || 'عنوان الإشعار يظهر هنا';
   const displayBody =
-    body.trim() || 'هذا نص تجريبي لمعاينة شكل الإشعار عند وصوله إلى هواتف المستمعين عبر هدهد FM.';
+    body.trim() || 'هذا نص تجريبي لمعاينة شكل الإشعار عند وصوله إلى هواتف المستمعين عبر هدهد إف إم.';
 
   return (
     <div className="space-y-8 animate-in fade-in-50 duration-300" dir="rtl">
@@ -402,16 +404,26 @@ export function NotificationsManager({
             </div>
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                إرسال الإشعارات والتنبيهات العامة
+                {isSuperAdmin
+                  ? 'إرسال الإشعارات والتنبيهات العامة'
+                  : 'سجل الإشعارات والتنبيهات العامة'}
               </h1>
               <p className="text-sm text-muted-foreground mt-0.5">
-                بث إشعارات فورية (Push Notifications) عبر Firebase Cloud Messaging لجميع مستخدمي هدهد FM
+                {isSuperAdmin
+                  ? 'بث إشعارات فورية (Push Notifications) عبر Firebase Cloud Messaging لجميع مستخدمي هدهد إف إم'
+                  : 'عرض ومتابعة الرسائل والإشعارات التي تم إرسالها سابقاً لجميع مستخدمي هدهد إف إم'}
               </p>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
+          {!isSuperAdmin && (
+            <Badge variant="secondary" className="px-3 py-1 text-xs gap-1.5 font-medium">
+              <Lock className="size-3.5" />
+              <span>عرض الرسائل السابقة فقط</span>
+            </Badge>
+          )}
           <Badge variant="outline" className="px-3 py-1 font-mono text-xs gap-1.5 border-primary/20 bg-primary/5 text-primary">
             <Wifi className="size-3.5" />
             <span>Topic: hudhud_fm_announcements</span>
@@ -450,8 +462,10 @@ export function NotificationsManager({
         </Alert>
       )}
 
-      {/* Main Grid: Composer & Mobile Simulator */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      {/* Main Grid: Composer & Mobile Simulator (Super Admin Only) */}
+      {isSuperAdmin && (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Composer Form (7 cols on lg) */}
         <div className="lg:col-span-7 space-y-6">
           <Card className="border-border/60 shadow-xs">
@@ -864,7 +878,7 @@ export function NotificationsManager({
                         <div className="flex size-5 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-[9px] shadow-xs">
                           FM
                         </div>
-                        <span>هدهد FM</span>
+                        <span>هدهد إف إم</span>
                       </div>
                       <span className="text-[10px] text-white/60">الآن</span>
                     </div>
@@ -921,7 +935,7 @@ export function NotificationsManager({
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between text-[10px] text-neutral-400 mb-0.5">
-                          <span className="font-semibold text-neutral-200">هدهد FM</span>
+                          <span className="font-semibold text-neutral-200">هدهد إف إم</span>
                           <span>الآن</span>
                         </div>
                         <div className="font-semibold text-xs text-white leading-tight line-clamp-1">
@@ -950,7 +964,7 @@ export function NotificationsManager({
                   {/* App background simulation */}
                   <div className="flex-1 flex flex-col items-center justify-center text-center p-4 opacity-40">
                     <Radio className="size-12 text-primary mb-2" />
-                    <div className="text-xs font-medium text-neutral-400">واجهة هدهد FM</div>
+                    <div className="text-xs font-medium text-neutral-400">واجهة هدهد إف إم</div>
                     <div className="text-[10px] text-neutral-500 mt-1">البث المباشر يعمل بالخلفية</div>
                   </div>
                 </div>
@@ -1046,6 +1060,8 @@ export function NotificationsManager({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+        </>
+      )}
 
       {/* Broadcast History Table */}
       <Card className="border-border/60 shadow-xs">
@@ -1057,7 +1073,9 @@ export function NotificationsManager({
                 <span>سجل الإشعارات المرسلة سابقاً ({history.length})</span>
               </CardTitle>
               <CardDescription>
-                تاريخ الإشعارات التي تم إرسالها عبر لوحة التحكم مع إمكانية إعادة استخدامها أو حذفها
+                {isSuperAdmin
+                  ? 'تاريخ الإشعارات التي تم إرسالها عبر لوحة التحكم مع إمكانية إعادة استخدامها أو حذفها'
+                  : 'سجل الرسائل والإشعارات التي تم بثها لجميع مستخدمي التطبيق'}
               </CardDescription>
             </div>
 
@@ -1085,7 +1103,11 @@ export function NotificationsManager({
               <Bell className="size-10 mx-auto text-muted-foreground/40" />
               <div className="text-sm font-medium">لا توجد إشعارات مسجلة</div>
               <div className="text-xs">
-                {historySearch ? 'لا توجد نتائج مطابقة لبحثك' : 'ابدأ بإنشاء إشعارك الأول أعلاه وسيتم حفظه في هذا السجل'}
+                {historySearch
+                  ? 'لا توجد نتائج مطابقة لبحثك'
+                  : isSuperAdmin
+                    ? 'ابدأ بإنشاء إشعارك الأول أعلاه وسيتم حفظه في هذا السجل'
+                    : 'لا توجد رسائل إشعار سابقة مسجلة'}
               </div>
             </div>
           ) : (
@@ -1097,7 +1119,7 @@ export function NotificationsManager({
                   <TableHead className="min-w-[300px]">نص الإشعار</TableHead>
                   <TableHead className="w-[140px]">الوجهة</TableHead>
                   <TableHead className="w-[160px]">المرسل</TableHead>
-                  <TableHead className="w-[130px] text-start">إجراءات</TableHead>
+                  {isSuperAdmin && <TableHead className="w-[130px] text-start">إجراءات</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -1138,33 +1160,35 @@ export function NotificationsManager({
                     <TableCell className="text-xs text-muted-foreground font-mono truncate max-w-[160px]">
                       {notif.sentBy || 'الأدمن'}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          title="استخدام كقالب"
-                          onClick={() => handleReuseNotification(notif)}
-                          className="size-8 text-muted-foreground hover:text-foreground"
-                        >
-                          <Copy className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          title="حذف من السجل"
-                          disabled={deletingId === notif.id}
-                          onClick={() => handleDeleteHistory(notif.id)}
-                          className="size-8 text-muted-foreground hover:text-destructive"
-                        >
-                          {deletingId === notif.id ? (
-                            <Loader2 className="size-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="size-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </TableCell>
+                    {isSuperAdmin && (
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            title="استخدام كقالب"
+                            onClick={() => handleReuseNotification(notif)}
+                            className="size-8 text-muted-foreground hover:text-foreground"
+                          >
+                            <Copy className="size-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            title="حذف من السجل"
+                            disabled={deletingId === notif.id}
+                            onClick={() => handleDeleteHistory(notif.id)}
+                            className="size-8 text-muted-foreground hover:text-destructive"
+                          >
+                            {deletingId === notif.id ? (
+                              <Loader2 className="size-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="size-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

@@ -37,7 +37,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AppRatingDialog), findsOneWidget);
-    expect(find.text("ما رأيك في هدهد FM؟"), findsOneWidget);
+    expect(find.text("ما رأيك في هدهد إف إم؟"), findsOneWidget);
 
     // Verify all 5 stars are rendered in a single Row
     for (var i = 1; i <= 5; i++) {

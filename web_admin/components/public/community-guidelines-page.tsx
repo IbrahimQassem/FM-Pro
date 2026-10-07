@@ -8,7 +8,7 @@ export function CommunityGuidelinesPage() {
     <main dir="rtl" className="min-h-screen bg-muted/40 px-4 py-10 sm:px-8">
       <article className="mx-auto max-w-3xl space-y-6">
         <header>
-          <p className="text-sm font-semibold text-primary">هدهد FM</p>
+          <p className="text-sm font-semibold text-primary">هدهد إف إم</p>
           <h1 className="mt-2 text-3xl font-bold">شروط المشاركة والتعليقات</h1>
           <p className="mt-3 text-muted-foreground">
             الإصدار 2026-09-01 · تنطبق هذه الشروط على كل تعليق ينشره المستخدم
@@ -69,7 +69,7 @@ export function CommunityGuidelinesPage() {
               يُعطّل الحساب.
             </p>
             <p>
-              لا يضمن استخدام هدهد FM بقاء أي تعليق منشور إذا خالف هذه الشروط.
+              لا يضمن استخدام هدهد إف إم بقاء أي تعليق منشور إذا خالف هذه الشروط.
               يمكن حذف الحساب وبياناته من داخل التطبيق أو من{' '}
               <button
                 type="button"

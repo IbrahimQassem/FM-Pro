@@ -6,6 +6,15 @@
     <meta name="theme-color" content="#8e3e63" />
     <!--public-head-->
     <link rel="icon" type="image/png" href="/assets/images/branding/app_icon_1024.png" />
+    <script>
+      (function () {
+        var h = window.location.hostname;
+        if (h === 'sanadev-fm.web.app' || h === 'sanadev-fm.firebaseapp.com') {
+          var target = 'https://www.hudhudfm.com' + window.location.pathname + window.location.search + window.location.hash;
+          window.location.replace(target);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

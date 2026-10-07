@@ -75,3 +75,5 @@ ui-debug.log
 
 # Rebuilt together with the public web assets.
 /functions/public-web/
+# Screenshot studio generated outputs
+/store-listing-generator/store-screenshots/exports/

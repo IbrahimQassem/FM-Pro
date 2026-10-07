@@ -260,7 +260,11 @@ service cloud.firestore {
 
     match /{root}/locations/locations/{locationId} {
       allow read: if isKnownRoot(root);
-      allow create, update, delete: if isKnownRoot(root) && isSuperAdmin();
+      allow create, delete: if isKnownRoot(root) && isSuperAdmin();
+      allow update: if isKnownRoot(root) && (
+        isSuperAdmin() ||
+        (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['adminRelationRevision']))
+      );
     }
 
     match /{root}/programs/programs/{programId} {

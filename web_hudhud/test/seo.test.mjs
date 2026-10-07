@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { runInNewContext } from 'node:vm';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { pageModel, publicCities, stationCanonical, cityCanonical, metadataHtml } from '../lib/seo.ts';
@@ -115,4 +116,20 @@ test('location failure preserves stations but never publishes an incomplete city
   assert.equal((await publicResponse('/', template, async () => partial, false)).status, 200);
   assert.equal((await publicResponse('/?station=test+%26+station', template, async () => partial, false)).status, 200);
   for (const path of ['/?city=aden', '/sitemap.xml']) assert.equal((await publicResponse(path, template, async () => partial, false)).status, 503);
+});
+
+test('integration preserves official naming, one canonical and Firebase-host redirect routes', async () => {
+  const source = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const page = renderPage(source, url('/'), catalog, 'ready', false);
+  assert.match(page.html, /<title>هدهد إف إم — إذاعات اليمن كلها \.\. في مكان واحد<\/title>/);
+  assert.equal((page.html.match(/rel="canonical"/g) || []).length, 1);
+  assert.match(page.html, /property="og:site_name" content="هدهد إف إم"/);
+  assert.equal(pageModel(url('/'), catalog).schema.name, 'هدهد إف إم — إذاعات اليمن كلها .. في مكان واحد');
+  assert.ok(!page.html.includes('هدهد FM'));
+  const script = source.match(/<script>([\s\S]*?)<\/script>/)[1];
+  for (const hostname of ['sanadev-fm.web.app', 'sanadev-fm.firebaseapp.com', 'www.hudhudfm.com', '127.0.0.1']) {
+    let destination;
+    runInNewContext(script, { window: { location: { hostname, pathname: '/', search: '?station=sanaa-radio', hash: '#station-detail', replace(value) { destination = value; } } } });
+    assert.equal(destination, hostname.startsWith('sanadev-fm.') ? 'https://www.hudhudfm.com/?station=sanaa-radio#station-detail' : undefined);
+  }
 });

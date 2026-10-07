@@ -6,10 +6,10 @@ export function TermsOfServicePage() {
     <main dir="rtl" className="min-h-screen bg-muted/40 px-4 py-10 sm:px-8">
       <article className="mx-auto max-w-3xl space-y-6">
         <header>
-          <p className="text-sm font-semibold text-primary">هدهد FM</p>
+          <p className="text-sm font-semibold text-primary">هدهد إف إم</p>
           <h1 className="mt-2 text-3xl font-bold">شروط الخدمة (Terms of Service)</h1>
           <p className="mt-3 text-muted-foreground">
-            آخر تحديث: 2026-09-01 · تحكم هذه الشروط استخدامك لتطبيق وخدمات هدهد FM.
+            آخر تحديث: 2026-09-01 · تحكم هذه الشروط استخدامك لتطبيق وخدمات هدهد إف إم.
           </p>
         </header>
 
@@ -21,7 +21,7 @@ export function TermsOfServicePage() {
           </CardHeader>
           <CardContent className="space-y-3 leading-7 text-sm sm:text-base">
             <p>
-              تحميلك لتطبيق <strong>هدهد FM</strong> أو استخدامك لأي من خدماته يعني موافقتك الكاملة وغير المشروطة
+              تحميلك لتطبيق <strong>هدهد إف إم</strong> أو استخدامك لأي من خدماته يعني موافقتك الكاملة وغير المشروطة
               على الالتزام بهذه الشروط وبسياسة الخصوصية المعتمدة.
             </p>
           </CardContent>
@@ -35,7 +35,7 @@ export function TermsOfServicePage() {
           </CardHeader>
           <CardContent className="space-y-3 leading-7 text-sm sm:text-base">
             <p>
-              يوفر تطبيق هدهد FM دليلاً ومنصة للاستماع المباشر لمحطات الراديو والبرامج الإذاعية.
+              يوفر تطبيق هدهد إف إم دليلاً ومنصة للاستماع المباشر لمحطات الراديو والبرامج الإذاعية.
               جميع حقوق البث والعلامات التجارية للإذاعات ملك لأصحابها ومرخصيها الرسميين.
             </p>
             <p>

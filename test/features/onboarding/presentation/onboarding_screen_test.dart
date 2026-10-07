@@ -53,7 +53,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text("مرحبًا بك في هدهد FM"), findsOneWidget);
+    expect(find.text("مرحبًا بك في هدهد إف إم"), findsOneWidget);
     expect(find.byKey(const Key("onboarding-skip")), findsOneWidget);
     expect(find.byKey(const Key("onboarding-next")), findsOneWidget);
 

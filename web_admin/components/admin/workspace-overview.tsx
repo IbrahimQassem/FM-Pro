@@ -102,7 +102,7 @@ export function WorkspaceOverview({
   return (
     <div className="space-y-8">
       <section className="admin-hero relative overflow-hidden rounded-3xl p-6 text-white md:p-9">
-        <span className="text-sm text-white/80">هدهد FM · مساحة العمل</span>
+        <span className="text-sm text-white/80">هدهد إف إم · مساحة العمل</span>
         <h2 className="mt-3 max-w-xl text-3xl font-bold leading-relaxed">
           كل صوت يستحق أن يصل.
         </h2>

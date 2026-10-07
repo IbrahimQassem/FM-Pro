@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hudhud_fm/core/config/app_config.dart';
 import 'package:hudhud_fm/core/services/share_service.dart';
 import 'package:hudhud_fm/core/utils/store_url_helper.dart';
 import 'package:hudhud_fm/features/home/domain/models/station.dart';
@@ -64,6 +65,7 @@ void main() {
       await service.shareEpisode(shareContext, episode, station,
           programTitle: 'Distinct Program');
       expect(plugin.calls, hasLength(3));
+      expect(plugin.calls[0].text, contains(AppConfig.webPlayerUrl));
       for (final params in plugin.calls) {
         expect(params.text, contains(StoreUrlHelper.getStoreUrl()));
         expect(params.text, isNot(contains(station.streamUrl)));
@@ -109,10 +111,13 @@ void main() {
       expect(call.files, isNotNull);
       expect(call.files!.single.name, 'hudhud_fm_mascot.webp');
       expect(call.text, contains(StoreUrlHelper.getStoreUrl()));
+      expect(call.text, contains(AppConfig.webPlayerUrl));
       if (language == 'ar') {
-        expect(call.text, contains('صوت اليمن يجمعنا أينما كنا!'));
+        expect(call.text, contains('هدهد إف إم'));
+        expect(call.text, contains('إذاعات اليمن كلها .. في مكان واحد'));
       } else {
-        expect(call.text, contains('The voice of Yemen brings us together'));
+        expect(call.text, contains('HudHud FM'));
+        expect(call.text, contains("All of Yemen's Radios .. In One Place"));
       }
     });
 
@@ -146,6 +151,7 @@ void main() {
       // Fallback attempt had text only
       expect(plugin.calls[1].files, isNull);
       expect(plugin.calls[1].text, contains(StoreUrlHelper.getStoreUrl()));
+      expect(plugin.calls[1].text, contains(AppConfig.webPlayerUrl));
     });
   }
 }

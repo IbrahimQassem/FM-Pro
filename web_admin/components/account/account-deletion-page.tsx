@@ -166,7 +166,7 @@ export function AccountDeletionPage() {
           <CardHeader className="items-center text-center">
             <CheckCircle2 className="size-12 text-emerald-600" />
             <CardTitle>
-              <h1>تم حذف حساب هدهد FM</h1>
+              <h1>تم حذف حساب هدهد إف إم</h1>
             </CardTitle>
             <CardDescription>
               حُذف الحساب وبياناته المرتبطة ولا يلزم اتخاذ خطوة أخرى.
@@ -187,7 +187,7 @@ export function AccountDeletionPage() {
             <Trash2 className="size-6" />
           </div>
           <CardTitle>
-            <h1>حذف حساب هدهد FM وبياناته</h1>
+            <h1>حذف حساب هدهد إف إم وبياناته</h1>
           </CardTitle>
           <CardDescription>
             صفحة عامة لطلب حذف الحساب إذا لم يعد التطبيق مثبتًا على جهازك.

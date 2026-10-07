@@ -642,3 +642,32 @@ test("location identity catalog is private to admins in known roots", async () =
   }
   await assertFails(setDoc(doc(userDb("admin", { admin: true }), "Unknown/locations"), { adminIdentityRevision: 1 }));
 });
+
+test("station admin can update adminRelationRevision on location but cannot edit other fields", async () => {
+  for (const root of ["HudHudDev", "HudHudOfficial"]) {
+    const locPath = `${root}/locations/locations/loc-1`;
+    await seed(locPath, {
+      countryCode: "YE",
+      countryNameAr: "اليمن",
+      cityCode: "sanaa",
+      cityNameAr: "صنعاء",
+      adminRelationRevision: 1,
+    });
+    const stationAdmin = userDb("station-admin-user", {
+      admin: true,
+      role: "station_admin",
+      allStations: true,
+    });
+    // Allowed to touch revision
+    await assertSucceeds(
+      updateDoc(doc(stationAdmin, locPath), { adminRelationRevision: increment(1) }),
+    );
+    // Denied from editing other location fields
+    await assertFails(
+      updateDoc(doc(stationAdmin, locPath), { cityNameAr: "مدينة أخرى" }),
+    );
+    // Denied from deleting location
+    await assertFails(deleteDoc(doc(stationAdmin, locPath)));
+  }
+});
+

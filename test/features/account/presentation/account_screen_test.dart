@@ -25,7 +25,7 @@ void main() {
     await tester.pumpWidget(_TestApp(repository: repository));
     await tester.pumpAndSettle();
 
-    expect(find.text("مرحباً بك في هدهد FM"), findsOneWidget);
+    expect(find.text("مرحباً بك في هدهد إف إم"), findsOneWidget);
     final openSignInButton = find.byKey(const Key("open-sign-in-button"));
     expect(openSignInButton, findsOneWidget);
 
@@ -80,7 +80,7 @@ void main() {
     await tester.tap(rateTile);
     await tester.pumpAndSettle();
 
-    expect(find.text("ما رأيك في هدهد FM؟"), findsOneWidget);
+    expect(find.text("ما رأيك في هدهد إف إم؟"), findsOneWidget);
   });
 
   testWidgets("can open about app dialog from Settings Hub", (tester) async {

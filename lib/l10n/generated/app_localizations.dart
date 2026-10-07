@@ -1776,8 +1776,8 @@ abstract class AppLocalizations {
   /// No description provided for @shareAppMessage.
   ///
   /// In en, this message translates to:
-  /// **'Your friendly companion Hudhud FM says hello! 🕊️📻✨\nTune in to the best Yemeni radio stations, programs, and podcasts wherever you are 🇾🇪🎶\n\nDownload Hudhud FM and start listening now:\n{url}'**
-  String shareAppMessage(String url);
+  /// **'📻 HudHud FM — All of Yemen\'s Radios .. In One Place 🇾🇪✨\n\nStream all Yemeni radio stations and podcasts in one place with crystal-clear audio wherever you are.\n\n📱 Download the mobile app:\n{storeUrl}\n\n🌐 Or listen live on the web:\n{webUrl}'**
+  String shareAppMessage(String storeUrl, String webUrl);
 
   /// No description provided for @rateAppTitle.
   ///
