@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { User as UserIcon } from 'lucide-react';
 
 export function UserSessionAvatar({
@@ -12,7 +12,7 @@ export function UserSessionAvatar({
   className?: string;
   iconSize?: string;
 }) {
-  const [error, setError] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const cleanSrc =
     typeof src === 'string' &&
     (src.trim().startsWith('http://') ||
@@ -22,20 +22,17 @@ export function UserSessionAvatar({
       ? src.trim()
       : '';
   const initial = name.trim() ? name.trim().charAt(0).toUpperCase() : '';
-
-  useEffect(() => {
-    setError(false);
-  }, [src]);
+  const hasError = cleanSrc !== '' && failedSrc === cleanSrc;
 
   return (
     <span
       className={`grid place-items-center overflow-hidden bg-primary/15 font-bold text-primary shrink-0 select-none ${className}`}
     >
-      {cleanSrc && !error ? (
+      {cleanSrc && !hasError ? (
         <img
           src={cleanSrc}
           alt={name}
-          onError={() => setError(true)}
+          onError={() => setFailedSrc(cleanSrc)}
           className="size-full object-cover"
           loading="lazy"
         />

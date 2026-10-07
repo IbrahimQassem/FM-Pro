@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { collection, getCountFromServer, type Firestore } from 'firebase/firestore';
 import { firestoreRoot } from '@/lib/firestore-root';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Users, ShieldCheck, RefreshCw, CheckCircle2, Radio, Lock } from 'lucide-react';
+import { Users, ShieldCheck, RefreshCw, CheckCircle2, Lock } from 'lucide-react';
 
 export function UsersAggregateView({ firestore }: { firestore: Firestore }) {
   const [totalCount, setTotalCount] = useState<number | null>(null);
@@ -12,7 +12,7 @@ export function UsersAggregateView({ firestore }: { firestore: Firestore }) {
   const [error, setError] = useState<string | null>(null);
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
 
-  const fetchTotalUsers = async () => {
+  const fetchTotalUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -27,10 +27,28 @@ export function UsersAggregateView({ firestore }: { firestore: Firestore }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [firestore]);
 
   useEffect(() => {
-    fetchTotalUsers();
+    let cancelled = false;
+    void getCountFromServer(collection(firestore, `${firestoreRoot}/users/users`))
+      .then((snap) => {
+        if (!cancelled) {
+          setTotalCount(snap.data().count);
+          setLastChecked(new Date());
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          console.error('Failed to get total users count:', err);
+          setError('تعذر تحميل إجمالي المستخدمين من الخادم. يرجى التحقق من الاتصال بالشبكة والمحاولة مجدداً.');
+          setLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [firestore]);
 
   return (
