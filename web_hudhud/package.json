@@ -7,8 +7,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run typecheck && vite build",
-    "start": "vite preview",
+    "build": "npm run typecheck && vite build && vite build --ssr server/entry.ts && node scripts/package-server.mjs",
+    "start": "node scripts/preview-server.mjs",
     "lint": "oxlint",
     "test": "node --experimental-vm-modules --experimental-transform-types --test test/*.test.mjs",
     "typecheck": "tsc --noEmit"

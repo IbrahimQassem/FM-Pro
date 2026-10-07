@@ -27,6 +27,10 @@ const loadPublicStations = () => import('./lib/station-repository').then(module 
 import { RadioPlayer, isHttpUrl, type PlaybackState } from '@/lib/radio-player';
 import { recentStation, type Station } from '@/lib/stations';
 
+import { cityHref, pageModel, updateMetadata, type Catalog, type City } from './lib/seo';
+import { firestoreRoot } from './lib/firestore-environment';
+const loadCities = (stations: Station[]) => import('./lib/city-repository').then(module => module.loadPublicCities(stations));
+
 type LoadState = 'loading' | 'ready' | 'error';
 type ListeningEntry = { stationId: string; playedAt: string };
 
@@ -65,7 +69,7 @@ function rememberSuccessfulPlay(stationId: string, previous: ListeningEntry[]): 
   return next;
 }
 
-export function PublicHome({ loadCatalog = loadPublicStations, loadContent, createAccount }: { loadCatalog?: () => Promise<Station[]>; loadContent?: typeof loadStationContent; createAccount?: () => AccountPort } = {}) {
+export function PublicHome({ loadCatalog = loadPublicStations, loadContent, createAccount, initialCatalog, loadCityCatalog = loadCities, publicPath = location.pathname }: { publicPath?: string; loadCityCatalog?: typeof loadCities; initialCatalog?: Catalog & { status: number }; loadCatalog?: () => Promise<Station[]>; loadContent?: typeof loadStationContent; createAccount?: () => AccountPort } = {}) {
   const [route, setRoute] = useState(() => location.search + location.hash);
   const [accountOpened, setAccountOpened] = useState(() => location.hash === '#account');
   const params = new URLSearchParams(route.split('#')[0]);
@@ -78,11 +82,14 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
   useEffect(() => { const update = () => { setRoute(location.search + location.hash); if (location.hash === '#account') setAccountOpened(true); }; window.addEventListener('popstate', update); window.addEventListener('hashchange', update); return () => { window.removeEventListener('popstate', update); window.removeEventListener('hashchange', update); }; }, []);
   function toggleFavorite(id: string) { const next = toggleId(favorites, id); setFavorites(next); try { localStorage.setItem('hudhud.localFavorites', JSON.stringify(next)); } catch { setStorageMessage('تعذر الحفظ على هذا المتصفح؛ المفضلة متاحة لهذه الجلسة فقط.'); } }
   function clearHistory() { setHistory([]); try { localStorage.removeItem(HISTORY_STORAGE_KEY); localStorage.removeItem(LAST_STATION_STORAGE_KEY); setStorageMessage('تم مسح سجل الاستماع من هذا المتصفح.'); } catch { setStorageMessage('تم مسح العرض؛ تعذر تعديل تخزين المتصفح.'); } }
-  const [stations, setStations] = useState<Station[]>([]);
-  const [loadState, setLoadState] = useState<LoadState>('loading');
+  const [stations, setStations] = useState<Station[]>(initialCatalog?.stations || []);
+  const [loadState, setLoadState] = useState<LoadState>(initialCatalog?.status === 200 ? 'ready' : initialCatalog?.status === 503 ? 'error' : 'loading');
   const [loadError, setLoadError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCity, setSelectedCity] = useState('all');
+  const selectedCity = params.get('city') || 'all';
+  const [cities, setCities] = useState<City[]>(initialCatalog?.cities || []);
+  const [cityError, setCityError] = useState(initialCatalog?.citiesUnavailable || false);
+  function setSelectedCity(code: string) { const href = code === 'all' ? '?#stations' : cityHref(code); window.history.pushState(null, '', href); setRoute(location.search + location.hash); }
   const [history, setHistory] = useState<ListeningEntry[]>(readListeningHistory);
   const [playback, setPlayback] = useState<PlaybackState>({ stationId: null, status: 'idle' });
   const currentStationId = playback.stationId;
@@ -101,12 +108,12 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
 
   const loadStations = useCallback(async () => {
     const epoch = ++loadEpoch.current;
-    setLoadState('loading');
+    setLoadState(previous => previous === 'ready' ? previous : 'loading');
     setLoadError('');
     try {
       const activeStations = await loadCatalog();
       if (epoch !== loadEpoch.current) return;
-      setSelectedCity((city) => activeStations.some((station) => (station.cityCode || station.cityNameAr) === city) ? city : 'all');
+      try { const nextCities = await loadCityCatalog(activeStations); if (epoch !== loadEpoch.current) return; setCities(nextCities); setCityError(false); } catch { if (epoch !== loadEpoch.current) return; setCities([]); setCityError(true); }
       setStations(activeStations);
       setLoadState('ready');
     } catch {
@@ -114,7 +121,7 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
       setLoadState('error');
       setLoadError('تعذر تحميل المحطات الآن. تحقق من الاتصال وحاول مرة أخرى.');
     }
-  }, [loadCatalog]);
+  }, [loadCatalog, loadCityCatalog]);
 
   useEffect(() => {
     void loadStations();
@@ -125,21 +132,13 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
     () => stations.filter((station) => station.isFeatured),
     [stations],
   );
-  const cityOptions = useMemo(() => {
-    const cities = new Map<string, string>();
-    stations.forEach((station) => {
-      const key = station.cityCode || station.cityNameAr;
-      if (key && station.cityNameAr) cities.set(key, station.cityNameAr);
-    });
-    return [...cities.entries()].sort((a, b) => a[1].localeCompare(b[1], 'ar'));
-  }, [stations]);
+  const cityOptions = cities.map(city => [city.code, city.name]);
   const filteredStations = useMemo(() => {
     const query = searchQuery.trim().toLocaleLowerCase('ar');
     const result = stations.filter((station) => {
       if (library === 'favorites' && !favorites.includes(station.id)) return false;
       if (library === 'recent' && !history.some(entry => entry.stationId === station.id)) return false;
-      const matchesCity = selectedCity === 'all' || station.cityCode === selectedCity ||
-        (!station.cityCode && station.cityNameAr === selectedCity);
+      const matchesCity = selectedCity === 'all' || (station.countryCode === 'YE' && station.cityCode === selectedCity);
       if (!matchesCity) return false;
       if (!query) return true;
       return [
@@ -156,15 +155,15 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
   const liveCount = stations.filter((station) => station.isLive).length;
   const currentStation = episodeMedia?.id === currentStationId ? episodeMedia : stations.find((station) => station.id === currentStationId) || null;
   const detailStation = validId(detailId) ? stations.find(station => station.id === detailId) : null;
+  const pageUrl = new URL(location.href);
+  pageUrl.pathname = publicPath;
+  const seoPage = pageModel(pageUrl, { stations, cities }, cityError && params.has('city') ? 'error' : loadState);
   useEffect(() => {
-    document.title = detailStation ? `${detailStation.name} | هدهد FM` : 'هدهد FM — محطات اليمن';
-    const description = document.querySelector('meta[name=description]');
-    description?.setAttribute('content', detailStation?.description || detailStation?.tagline || 'اكتشف محطات اليمن واستمع إلى برامجك المفضلة مع هدهد FM.');
-    let canonical = document.querySelector<HTMLLinkElement>('link[rel=canonical]');
-    if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.append(canonical); }
-    for (const [property, content] of [['og:title', document.title], ['og:description', detailStation?.description || detailStation?.tagline || 'محطات اليمن على هدهد FM']]) { let tag = document.querySelector<HTMLMetaElement>(`meta[property="${property}"]`); if (!tag) { tag = document.createElement('meta'); tag.setAttribute('property', property); document.head.append(tag); } tag.content = content; }
-    canonical.href = new URL(detailStation ? stationHref(detailStation.id).split('#')[0] : '?', location.href).href;
-  }, [detailStation]);
+    // Keep server route metadata while refreshing instead of briefly canonicalizing home.
+    if (loadState === 'loading') return;
+    const currentUrl = new URL(location.href); currentUrl.pathname = publicPath;
+    updateMetadata(pageModel(currentUrl, { stations, cities }, cityError && new URLSearchParams(location.search).has('city') ? 'error' : loadState), firestoreRoot !== 'HudHudOfficial');
+  }, [stations, cities, cityError, loadState, route, publicPath]);
   useEffect(() => {
     if (loadState === 'ready' && currentStationId && (!currentStation || (episodeOwner.current && !stations.some(s => s.id === episodeOwner.current)))) player.current?.stop();
   }, [loadState, currentStationId, currentStation, stations]);
@@ -176,10 +175,12 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
   function playEpisode(episode: Episode) { const station = stations.find(s => s.id === episode.stationId); if (!station) return; const media = { ...station, id: `episode:${episode.id}`, resume: true, name: `${episode.title} · ${station.name}`, streamUrl: episode.audioUrl, backupStreamUrl: '' }; episodeOwner.current = station.id; setEpisodeMedia(media); player.current?.select(media); }
   function stopPlayback() { player.current?.stop(); }
 
+  if (publicPath !== '/') return <main className="content-section" dir="rtl"><h1>الصفحة غير متاحة</h1><a href="/">كل المحطات</a></main>;
+
   return (
     <div className="public-site" dir="rtl" onClick={event => { const anchor = (event.target as Element).closest('a'); if (!anchor || event.defaultPrevented || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return; const href = new URL(anchor.href); if (href.origin === location.origin && href.pathname === location.pathname && anchor.getAttribute('href')?.startsWith('?')) { event.preventDefault(); window.history.pushState(null, '', href); setRoute(href.search + href.hash); requestAnimationFrame(() => document.getElementById(href.hash.slice(1) || 'top')?.scrollIntoView()); } }} onKeyDown={(event) => { if (event.key === 'Escape' && mobileMenuOpen) { setMobileMenuOpen(false); menuButton.current?.focus(); } }}>
       <header className="site-header">
-        <a className="brand" href="#top" aria-label="هدهد FM، الصفحة الرئيسية">
+        <a className="brand" href="?#top" aria-label="هدهد FM، الصفحة الرئيسية">
           <span className="brand-mark"><img src="/assets/images/branding/app_icon_1024.png" alt="" width={48} height={48} /></span>
           <span><strong>هدهد</strong><small>FM</small></span>
         </a>
@@ -200,9 +201,11 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
       </header>
 
       <main id="top">
+        {seoPage.status !== 200 && !detailId && <section className="content-section"><h1>{seoPage.title}</h1><p>{seoPage.description}</p><a href="?">كل المحطات</a></section>}
+        {seoPage.city && <section className="content-section"><h1>{seoPage.title}</h1><p>{seoPage.description}</p></section>}
         {detailId && loadState === 'ready' && (detailStation ? <FeatureBoundary><Suspense fallback={<p role="status">جارٍ تحميل تفاصيل المحطة…</p>}><StationDetail key={`${detailStation.id}:${params.get('program') || ''}:${params.get('episode') || ''}`} station={detailStation} onPlay={() => playStation(detailStation)} onEpisode={playEpisode} favorite={favorites.includes(detailStation.id)} onFavorite={() => toggleFavorite(detailStation.id)} loadContent={loadContent} /></Suspense></FeatureBoundary> : <section className="content-section" id="station-detail"><h1>المحطة غير متاحة</h1><a href="?">كل المحطات</a></section>)}
 
-        <section className="hero-section" hidden={!!detailId}>
+        <section className="hero-section" hidden={!!detailId || params.has('city') || seoPage.status !== 200}>
           <div className="hero-copy">
             <div className="eyebrow"><span className="eyebrow-dot" /> صوت قريب منك</div>
             <h1>اكتشف صوت اليمن<br /><em>في مكان واحد.</em></h1>
@@ -262,8 +265,8 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
           <div className="filters-bar">
             <label className="search-field"><Search size={19} /><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="ابحث عن محطة، مدينة، أو تردد..." aria-label="البحث في المحطات" />{searchQuery && <button type="button" onClick={() => setSearchQuery('')} aria-label="مسح البحث"><X size={16} /></button>}</label>
             <div className="city-filters" aria-label="تصفية حسب المدينة">
-              <button className={selectedCity === 'all' ? 'city-filter active' : 'city-filter'} type="button" aria-pressed={selectedCity === 'all'} onClick={() => setSelectedCity('all')}>كل المدن</button>
-              {cityOptions.map(([code, label]) => <button className={selectedCity === code ? 'city-filter active' : 'city-filter'} key={code} type="button" aria-pressed={selectedCity === code} onClick={() => setSelectedCity(code)}>{label}</button>)}
+              <a className={selectedCity === 'all' ? 'city-filter active' : 'city-filter'} href="?#stations" aria-current={selectedCity === 'all' ? 'page' : undefined}>كل المدن</a>
+              {cityOptions.map(([code, label]) => <a className={selectedCity === code ? 'city-filter active' : 'city-filter'} key={code} href={cityHref(code)} aria-current={selectedCity === code ? 'page' : undefined}>{label}</a>)}
             </div>
           </div>
           {loadState === 'loading' && <div className="station-grid"><StationSkeleton /><StationSkeleton /><StationSkeleton /><StationSkeleton /></div>}

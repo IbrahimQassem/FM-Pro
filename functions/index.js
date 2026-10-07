@@ -23,7 +23,8 @@ import {
 import { logger } from 'firebase-functions';
 import { defineJsonSecret } from 'firebase-functions/params';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
-import { HttpsError, onCall } from 'firebase-functions/v2/https';
+import { servePublicWeb } from './lib/public-web.js';
+import { HttpsError, onCall, onRequest } from 'firebase-functions/v2/https';
 
 import {
   hasRecentAuthentication,
@@ -830,3 +831,6 @@ export const adminBroadcastNotification = onCall(
   },
 );
 
+
+// Anonymous, rule-enforced public catalog rendering; no account data access.
+export const hudhudPublic = onRequest({ region: 'us-central1', timeoutSeconds: 30, memory: '256MiB', maxInstances: 10 }, servePublicWeb);

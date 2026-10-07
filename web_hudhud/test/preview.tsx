@@ -13,10 +13,11 @@ const loadCatalog = async () => {
   if (mode === 'empty') return [];
   return ['صنعاء', 'عدن', 'تعز'].map((city, index) => stationFromSnapshot({
     id: `review-${index}`, data: () => ({ name: `إذاعة ${city} — صوت المجتمع والثقافة`, cityNameAr: city,
-      cityCode: `city-${index}`, isActive: true, isFeatured: index === 0, isLive: true,
+      cityCode: `city-${index}`, countryCode: 'YE', isActive: true, isFeatured: index === 0, isLive: true,
       description: 'بيانات تجريبية لفحص الواجهة فقط.', streamUrl: '', backupStreamUrl: '', }),
   }));
 };
+const loadCityCatalog = async () => ['صنعاء', 'عدن', 'تعز'].map((name, i) => ({ code: `city-${i}`, name }));
 const loadContent = async (stationId: string) => {
  if (mode === 'content-error') throw new Error('Synthetic content failure');
  return { offline: mode === 'offline', programs: [{ id: 'p', stationId, title: 'حكايات المجتمع', description: 'برنامج تجريبي عن الثقافة والمجتمع.', priority: 1, schedule: { weekdays: [1,3,7], startMinute: 600, endMinute: 660, utcOffsetMinutes: 180 } }], episodes: [{ id: 'e', stationId, programId: 'p', title: 'الحلقة التجريبية الأولى', description: 'وصف تجريبي للحلقة.', audioUrl: 'https://example.invalid/fixture-audio', broadcastAt: Date.UTC(2026,8,13), utcOffsetMinutes: 180 }] };
@@ -51,9 +52,16 @@ const oldCatalog = () => new Promise<Awaited<ReturnType<typeof loadCatalog>>>(re
 function Preview() {
  const [newer, setNewer] = useState(false);
  const [elapsed, setElapsed] = useState(0);
+ const [metadata, setMetadata] = useState('');
+ useEffect(() => {
+   const update = () => setMetadata([document.title, document.querySelector('link[rel=canonical]')?.getAttribute('href'), document.querySelector('meta[name=robots]')?.getAttribute('content')].join(' | '));
+   const observer = new MutationObserver(update); observer.observe(document.head, { childList: true, subtree: true, attributes: true }); update();
+   return () => observer.disconnect();
+ }, []);
  useEffect(() => { const frame = requestAnimationFrame(() => setElapsed(performance.now() - start)); return () => cancelAnimationFrame(frame); }, []);
  return <><aside dir="rtl">واجهة اختبار محلية — لا اتصال بالحسابات أو البيانات الحقيقية. زمن أول إطار محلي: {elapsed.toFixed(1)} ms</aside>
+ <div><button onClick={() => window.history.back()}>رجوع للاختبار</button><button onClick={() => window.history.forward()}>تقدم للاختبار</button><output aria-label="بيانات البحث للاختبار">{metadata}</output></div>
  {mode === 'race' && <div><button onClick={() => setNewer(true)}>تحميل كتالوج أحدث</button><button onClick={() => pending.splice(0).forEach(resolve => resolve([]))}>إكمال الطلب القديم</button></div>}
- <PublicHome loadCatalog={mode === 'race' && !newer ? oldCatalog : loadCatalog} loadContent={loadContent} createAccount={createAccount} /></>;
+ <PublicHome publicPath="/" loadCityCatalog={loadCityCatalog} loadCatalog={mode === 'race' && !newer ? oldCatalog : loadCatalog} loadContent={loadContent} createAccount={createAccount} /></>;
 }
 createRoot(document.getElementById('root')!).render(<Preview />);

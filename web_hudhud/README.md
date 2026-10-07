@@ -18,11 +18,12 @@ must select `HudHudDev` or `HudHudOfficial` explicitly. The app reads
 falls back to static station data.
 
 Firebase Hosting target `hudhud_public` is linked to the `sanadev-fm` site.
-From the project root, build and deploy it with:
+For an independently authorized release, the public renderer and Hosting assets
+must be published together (see Public search rendering below). From the project
+root, build with:
 
 ```bash
 VITE_FIRESTORE_ROOT=HudHudOfficial npm run --prefix web_hudhud build
-firebase deploy --only hosting:hudhud_public
 ```
 
 ## Development checks
@@ -105,3 +106,69 @@ These fixtures never sign in real users or upload to Firebase. The repository
 tests compile the real TypeScript against isolated SDK stubs using Node VM modules;
 `npm test` enables the required test-only Node flag. Real Google consent,
 camera capture on a device and server photo round trips remain live smoke checks.
+
+## Public search rendering
+
+The public site uses a small request-time renderer alongside the existing React
+app, bundled by Vite into `functions/public-web/`. `npm run build` produces both
+that bundle/template and the matching `dist/` assets. The HTML template is moved
+out of `dist/`: a static index there would take precedence over Hosting rewrites.
+`npm start` previews the packaged renderer and assets on `127.0.0.1:4175`.
+`npm run dev` also renders public documents; `/test/` remains explicitly synthetic.
+
+The `hudhudPublic` HTTP function handles home, existing `?station=ID` URLs,
+reference-backed `?city=CODE` pages, `/robots.txt`, `/sitemap.xml` and unknown
+paths. It uses anonymous Firestore REST reads subject to Rules, with pagination
+(up to 20 pages of 300 documents per collection) and an eight-second request
+deadline. Exceeding either limit returns 503 rather than a partial sitemap. It never uses Admin credentials or reads
+accounts. Only mapped active stations without deletion markers and active Yemen
+locations with matching stations are used. The browser keeps its existing shared
+player and account flows; city links now also preserve a reloadable URL.
+
+There is no saved catalog snapshot or cache: every document/sitemap request reads
+the selected root afresh and returns `Cache-Control: no-store`. Removal or
+unpublication disappears on the next successful request; unknown/removed
+stations, cities and paths return 404/noindex. Station source failure returns 503/noindex
+with Retry-After, without serving a last-known catalog. Location failure keeps
+home/station browsing available without city links; city documents and the sitemap
+return 503 until locations recover. This favors removal
+correctness over cache cost; monitor read volume, latency and function capacity
+before considering a bounded cache with tested invalidation. Client refresh
+failure is visible; no fake catalog replaces the source.
+
+All canonical, social and sitemap URLs use `https://www.hudhudfm.com`. Existing
+station/program/episode links keep working locally. Program/episode selections
+are noindex and canonicalize to their station; distinct episode pages are deferred
+until there is a separately reviewed content/rendering contract. Account views
+remain optional client UI and are never rendered into public HTML. Public
+structured data contains only visible station facts or the visible catalog list.
+Development-root HTML sends noindex headers/tags and omits the sitemap declaration.
+
+Googlebot and OAI-SearchBot access is explicit. GPTBot and Google-Extended policy
+is unchanged (no new training-specific directives); search access is independent
+of training choices. There is no llms.txt or promise of indexing/ranking. References:
+[Google AI features](https://developers.google.com/search/docs/appearance/ai-features),
+[Google AI optimization guide](https://developers.google.com/search/docs/fundamentals/ai-optimization-guide),
+[OpenAI crawlers](https://developers.openai.com/api/docs/bots),
+[Firestore REST authorization](https://firebase.google.com/docs/firestore/use-rest-api).
+
+### Future publication checks (not performed by local verification)
+
+The previous Hosting-only static deployment is insufficient. After separate
+release authorization, rebuild with `VITE_FIRESTORE_ROOT=HudHudOfficial`; publish
+the `hudhudPublic` function and `hudhud_public` Hosting resources together. The
+Hosting rewrite uses `pinTag` so the renderer revision and assets roll back
+together; see [Firebase function rewrites](https://firebase.google.com/docs/hosting/functions).
+The public predeploy guard rejects a development build or static index that would
+bypass rendering. The deployed function also refuses a development-root bundle.
+Do not deploy other functions with an unverified public renderer artifact.
+
+Confirm Functions billing/IAM/invoker access, public Rules and REST availability,
+initial HTML, content types, real 404/503 status, and matching assets through
+Hosting before release. Keep the existing bare-domain to www redirect; separately
+verify HTTP and Firebase-domain redirects preserve paths/query parameters and any
+CDN/WAF permits Google's and OpenAI's published search crawlers. No DNS/domain
+change or Search Console submission is part of this implementation. After release,
+validate structured data, inspect representative URLs in Search Console, submit
+the sitemap if authorized and monitor indexing/removals. Local tests do not prove
+production infrastructure behavior or search inclusion.

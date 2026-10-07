@@ -72,3 +72,6 @@ ui-debug.log
 *.aab
 
 
+
+# Rebuilt together with the public web assets.
+/functions/public-web/

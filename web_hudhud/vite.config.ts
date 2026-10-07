@@ -1,3 +1,6 @@
+import { readFile } from 'node:fs/promises';
+import { catalogReader } from './server/catalog.ts';
+import { publicResponse } from './server/render.ts';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -21,7 +24,7 @@ const firebaseKeys = {
   appId: 'FIREBASE_APP_ID',
 } as const;
 
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ command, mode, isSsrBuild }) => {
   // The public site shares the existing web_admin environment file locally.
   // Values are still injected at build time and only the normal Firebase Web
   // configuration reaches the browser; no admin credentials are read.
@@ -46,7 +49,27 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     envDir,
-    plugins: [react()],
+    plugins: [react(), {
+      name: 'public-initial-html',
+      configureServer(server) {
+        const readCatalog = catalogReader(firebaseConfig.projectId, root);
+        server.middlewares.use(async (request, response, next) => {
+          const pathname = new URL(request.url || '/', 'http://localhost').pathname;
+          if (pathname.startsWith('/test/') || pathname.startsWith('/@') || pathname.startsWith('/node_modules/') || pathname.startsWith('/assets/') || /\.(tsx?|css|js|map)$/.test(pathname)) return next();
+          try {
+            const template = await server.transformIndexHtml(request.url || '/', await readFile(new URL('./index.html', import.meta.url), 'utf8'));
+            const result = await publicResponse(request.url || '/', template, readCatalog, root !== 'HudHudOfficial');
+            response.writeHead(result.status, result.headers); response.end(result.body);
+          } catch { response.statusCode = 503; response.end('Public catalog unavailable'); }
+        });
+      },
+    }],
+    build: isSsrBuild ? {
+      outDir: '../functions/public-web',
+      copyPublicDir: false,
+      emptyOutDir: true,
+      rollupOptions: { output: { entryFileNames: 'renderer.mjs' } },
+    } : undefined,
     worker: { format: 'es' },
     envPrefix: ['VITE_'],
     define: {

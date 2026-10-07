@@ -82,8 +82,22 @@
       "rewrites": [
         {
           "source": "**",
-          "destination": "/index.html"
+          "function": {
+            "functionId": "hudhudPublic",
+            "region": "us-central1",
+            "pinTag": true
+          }
         }
+      ],
+      "redirects": [
+        {
+          "source": "/index.html",
+          "destination": "/",
+          "type": 301
+        }
+      ],
+      "predeploy": [
+        "node web_hudhud/scripts/verify-release.mjs"
       ]
     }
   ],
