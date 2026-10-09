@@ -110,7 +110,8 @@ abstract final class AppTheme {
         color: const Color(0xFF1E171C),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(22),
-          side: BorderSide(color: colors.outlineVariant.withValues(alpha: 0.35)),
+          side:
+              BorderSide(color: colors.outlineVariant.withValues(alpha: 0.35)),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(

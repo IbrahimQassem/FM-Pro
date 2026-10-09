@@ -417,5 +417,12 @@
   "optionalUpdateTitle": "Update Available",
   "optionalUpdateMessage": "A new version of HudHud FM is available. Update now to enjoy the latest features and performance improvements.",
   "updateNow": "Update Now",
-  "updateLater": "Later"
+  "updateLater": "Later",
+  "stationSocialLinks": "Links & Social Media",
+  "stationWebsite": "Website",
+  "stationFacebook": "Facebook",
+  "stationInstagram": "Instagram",
+  "stationYoutube": "YouTube",
+  "stationTwitter": "X (Twitter)",
+  "stationWhatsapp": "WhatsApp"
 }

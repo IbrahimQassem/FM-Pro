@@ -92,10 +92,17 @@ stats.programsCount, stats.subscribersCount, stats.totalPlays
 
 ```text
 nameEn, tagline, description, backupStreamUrl,
-logoUrl, thumbnailUrl, frequency
+logoUrl, thumbnailUrl, frequency,
+websiteUrl, facebookUrl, instagramUrl, youtubeUrl, twitterUrl, whatsapp,
+owner, address, contactPerson, contactPhone, contactEmail,
+streamType, audioCodec, bitrateKbps, sampleRateHz,
+transmitterPower, transmitterLocation, coverageArea, rds
 ```
 
 - `streamUrl` و`backupStreamUrl` يقبلان HTTP أو HTTPS لأن بعض محطات البث legacy.
+- روابط المواقع وشبكات التواصل `websiteUrl` و`facebookUrl` و`instagramUrl` و`youtubeUrl` و`twitterUrl` و`whatsapp` معلومات عامة أساسية للمستمعين تظهر في التطبيق.
+- حقول المراجع والإدارة `owner` و`address` و`contactPerson` و`contactPhone` و`contactEmail` بيانات مرجعية داخلية مخصصة لإدارة المحطة ولوحة الإدارة `web_admin` وتصدير إكسل لـ Super User فقط، ويتجاهلها تطبيق Flutter.
+- حقول المواصفات الفنية للبث والشبكة وأجهزة الإرسال `streamType` و`audioCodec` و`bitrateKbps` و`sampleRateHz` و`transmitterPower` و`transmitterLocation` و`coverageArea` و`rds` بيانات فنية تشغيلية لإدارة المحطات ولوحة الإدارة `web_admin` وتصدير إكسل لـ Super User فقط، ويتجاهلها تطبيق Flutter.
 - image URLs تقبل network URLs المصرح بها في mapper الحالي؛ لا تُعرض قيمة فاسدة.
 - counters أعداد غير سالبة، والـflags الإلزامية لا تملك defaults مخفية.
 - تعرض المحطات النشطة فقط، وترتب featured ثم priority ثم الاسم.

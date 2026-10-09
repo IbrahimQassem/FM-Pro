@@ -2264,6 +2264,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Later'**
   String get updateLater;
+
+  /// No description provided for @stationSocialLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Links & Social Media'**
+  String get stationSocialLinks;
+
+  /// No description provided for @stationWebsite.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get stationWebsite;
+
+  /// No description provided for @stationFacebook.
+  ///
+  /// In en, this message translates to:
+  /// **'Facebook'**
+  String get stationFacebook;
+
+  /// No description provided for @stationInstagram.
+  ///
+  /// In en, this message translates to:
+  /// **'Instagram'**
+  String get stationInstagram;
+
+  /// No description provided for @stationYoutube.
+  ///
+  /// In en, this message translates to:
+  /// **'YouTube'**
+  String get stationYoutube;
+
+  /// No description provided for @stationTwitter.
+  ///
+  /// In en, this message translates to:
+  /// **'X (Twitter)'**
+  String get stationTwitter;
+
+  /// No description provided for @stationWhatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get stationWhatsapp;
 }
 
 class _AppLocalizationsDelegate

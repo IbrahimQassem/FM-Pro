@@ -74,8 +74,7 @@ class AppUpdateController extends StateNotifier<AppUpdateState> {
   Future<bool> _evaluateOptionalPromptCooldown(int latestVersion) async {
     try {
       final prefs = await _prefs;
-      final lastDismissedVersion =
-          prefs.getInt(prefKeyLastDismissedVersion);
+      final lastDismissedVersion = prefs.getInt(prefKeyLastDismissedVersion);
       final lastDismissedMs = prefs.getInt(prefKeyLastDismissedTime);
 
       // If a brand new version code was released since last dismissal, prompt again.

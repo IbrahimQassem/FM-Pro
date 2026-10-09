@@ -24,7 +24,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('ContactUsDialog', () {
-    testWidgets('renders brand identity, contact section and all social channels in Arabic',
+    testWidgets(
+        'renders brand identity, contact section and all social channels in Arabic',
         (tester) async {
       await tester.pumpWidget(_buildTestWidget(locale: const Locale('ar')));
       await tester.pumpAndSettle();
@@ -44,7 +45,8 @@ void main() {
       expect(find.byKey(const Key('close-contact-dialog')), findsOneWidget);
     });
 
-    testWidgets('renders in English with correct channel labels', (tester) async {
+    testWidgets('renders in English with correct channel labels',
+        (tester) async {
       await tester.pumpWidget(_buildTestWidget(locale: const Locale('en')));
       await tester.pumpAndSettle();
 

@@ -32,7 +32,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('OptionalUpdateDialog', () {
-    testWidgets('renders optional update dialog with Later and Update Now actions',
+    testWidgets(
+        'renders optional update dialog with Later and Update Now actions',
         (tester) async {
       var dismissed = false;
 
@@ -58,7 +59,8 @@ void main() {
       expect(dismissed, isTrue);
     });
 
-    testWidgets('renders in English with correct button labels', (tester) async {
+    testWidgets('renders in English with correct button labels',
+        (tester) async {
       await tester.pumpWidget(_buildTestWidget(
         locale: const Locale('en'),
         updateInfo: const AppUpdateInfo(

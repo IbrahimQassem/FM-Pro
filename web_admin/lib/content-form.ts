@@ -33,6 +33,25 @@ export const contentFields: Record<ContentKind, Field[]> = {
     { key: 'backupStreamUrl', label: 'رابط البث الاحتياطي', type: 'url' },
     { key: 'logoUrl', label: 'رابط الشعار', type: 'url' },
     { key: 'thumbnailUrl', label: 'رابط الصورة المصغرة', type: 'url' },
+    { key: 'websiteUrl', label: 'الموقع الإلكتروني', type: 'url' },
+    { key: 'facebookUrl', label: 'رابط فيسبوك', type: 'url' },
+    { key: 'instagramUrl', label: 'رابط إنستغرام', type: 'url' },
+    { key: 'youtubeUrl', label: 'رابط يوتيوب', type: 'url' },
+    { key: 'twitterUrl', label: 'رابط إكس / تويتر', type: 'url' },
+    { key: 'whatsapp', label: 'واتساب (رابط أو رقم)' },
+    { key: 'owner', label: 'الجهة المالكة / المالك' },
+    { key: 'address', label: 'المقر / العنوان' },
+    { key: 'contactPerson', label: 'مسؤول التواصل' },
+    { key: 'contactPhone', label: 'هاتف التواصل' },
+    { key: 'contactEmail', label: 'البريد الإلكتروني' },
+    { key: 'streamType', label: 'نوع خادم البث (Icecast, Shoutcast, HLS...)' },
+    { key: 'audioCodec', label: 'ترميز الصوت (MP3, AAC, AAC+...)' },
+    { key: 'bitrateKbps', label: 'معدل البت بالكيلوبت (kbps)' },
+    { key: 'sampleRateHz', label: 'معدل العينة بالهرتز (Hz)' },
+    { key: 'transmitterPower', label: 'قدرة جهاز الإرسال (kW أو Watt)' },
+    { key: 'transmitterLocation', label: 'موقع برج الإرسال / الإحداثيات' },
+    { key: 'coverageArea', label: 'نطاق التغطية الجغرافية' },
+    { key: 'rds', label: 'كود / نص نظام الراديو (RDS)' },
   ],
   programs: [
     ...title,
@@ -176,6 +195,14 @@ export function validateContent(
       errors[field.key] = 'أدخل تاريخًا صالحًا.';
     if (field.required && typeof value === 'string' && !value.trim())
       errors[field.key] = 'هذا الحقل مطلوب.';
+    if (
+      field.key === 'contactEmail' &&
+      typeof value === 'string' &&
+      value.trim() &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
+    ) {
+      errors[field.key] = 'أدخل بريدًا إلكترونيًا صالحًا.';
+    }
   }
   for (const [key] of contentFlags[kind])
     if (typeof data[key] !== 'boolean') errors[key] = 'اختر حالة صالحة.';

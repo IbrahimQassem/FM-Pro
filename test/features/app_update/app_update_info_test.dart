@@ -3,7 +3,9 @@ import 'package:hudhud_fm/features/app_update/domain/models/app_update_info.dart
 
 void main() {
   group('AppUpdateInfo', () {
-    test('identifies force update when current version is strictly below minimum', () {
+    test(
+        'identifies force update when current version is strictly below minimum',
+        () {
       const info = AppUpdateInfo(
         minVersionCode: 35,
         minVersionName: '3.1.0',
@@ -63,7 +65,8 @@ void main() {
       expect(reconstructed.optionalUpdateTitleEn, 'Update Available');
       expect(reconstructed.optionalUpdateMessageAr, 'إصدار جديد');
       expect(reconstructed.optionalUpdateMessageEn, 'New version');
-      expect(reconstructed.storeUrlAndroid, 'market://details?id=com.sana.dev.fm');
+      expect(
+          reconstructed.storeUrlAndroid, 'market://details?id=com.sana.dev.fm');
       expect(reconstructed.storeUrlIos, 'https://apps.apple.com/app/id123');
     });
   });

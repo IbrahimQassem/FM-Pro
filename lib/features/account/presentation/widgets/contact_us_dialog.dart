@@ -130,12 +130,15 @@ class ContactUsDialog extends StatelessWidget {
               ),
 
               const SizedBox(height: 18),
-              Divider(height: 1, color: colors.outlineVariant.withValues(alpha: 0.5)),
+              Divider(
+                  height: 1,
+                  color: colors.outlineVariant.withValues(alpha: 0.5)),
 
               // Contact Channels Section
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 color: colors.surfaceContainerHighest.withValues(alpha: 0.35),
                 child: Column(
                   children: [

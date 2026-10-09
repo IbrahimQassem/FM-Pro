@@ -18,6 +18,7 @@ import { loadRelationLabels, reportCommentPath } from '@/lib/admin-relations';
 import { deleteEpisode } from '@/lib/delete-episode';
 import { reviewReport } from '@/lib/review-report';
 import { saveWithRelations } from '@/lib/save-content';
+import { exportStationsToExcel } from '@/lib/export-excel';
 
 import { resourceQuery } from '@/lib/admin-query';
 import { belongsToRoot } from '@/lib/firestore-environment';
@@ -52,6 +53,7 @@ import {
   Calendar,
   CheckCircle2,
   EyeOff,
+  FileSpreadsheet,
   Heart,
   Flag,
   LayoutDashboard,
@@ -1765,6 +1767,27 @@ function ResourceView({
           </div>
         </div>
         <div className="flex items-center gap-2.5">
+          {isSuperAdmin && definition.key === 'stations' && (
+            <Button
+              variant="outline"
+              disabled={loading || records.length === 0}
+              onClick={() => {
+                const outcome = exportStationsToExcel(
+                  filteredAndSorted.map((r) => ({ id: r.id, data: r.data })),
+                  firestoreRoot,
+                );
+                setFeedback({
+                  type: 'success',
+                  message: `تم تصدير ${outcome.count} محطة إلى ملف Excel (${outcome.filename}) بنجاح.`,
+                });
+              }}
+              className="min-h-11 shadow-xs border-emerald-600/30 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
+              aria-label="تصدير المحطات إلى ملف Excel"
+            >
+              <FileSpreadsheet className="size-4 text-emerald-600 dark:text-emerald-400" />
+              تصدير إلى Excel
+            </Button>
+          )}
           {onRefresh && (
             <Button
               variant="outline"

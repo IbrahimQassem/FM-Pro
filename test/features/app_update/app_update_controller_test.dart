@@ -25,7 +25,8 @@ void main() {
   });
 
   group('AppUpdateController', () {
-    test('triggers force update when current version is below minVersionCode', () async {
+    test('triggers force update when current version is below minVersionCode',
+        () async {
       final repo = _FakeAppUpdateRepository(
         const AppUpdateInfo(
           minVersionCode: 40,
@@ -50,7 +51,9 @@ void main() {
       expect(controller.state.shouldPromptOptional, isFalse);
     });
 
-    test('triggers optional update when current version meets min but is below latest', () async {
+    test(
+        'triggers optional update when current version meets min but is below latest',
+        () async {
       final repo = _FakeAppUpdateRepository(
         const AppUpdateInfo(
           minVersionCode: 30,
@@ -74,7 +77,9 @@ void main() {
       expect(controller.state.shouldPromptOptional, isTrue);
     });
 
-    test('dismissing optional update sets shouldPromptOptional to false and respects cooldown', () async {
+    test(
+        'dismissing optional update sets shouldPromptOptional to false and respects cooldown',
+        () async {
       final repo = _FakeAppUpdateRepository(
         const AppUpdateInfo(
           minVersionCode: 30,

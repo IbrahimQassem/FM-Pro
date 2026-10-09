@@ -79,8 +79,10 @@ class AppUpdateInfo {
         'minVersionName': minVersionName,
         'latestVersionCode': latestVersionCode,
         'latestVersionName': latestVersionName,
-        if (forceUpdateTitleAr != null) 'forceUpdateTitleAr': forceUpdateTitleAr,
-        if (forceUpdateTitleEn != null) 'forceUpdateTitleEn': forceUpdateTitleEn,
+        if (forceUpdateTitleAr != null)
+          'forceUpdateTitleAr': forceUpdateTitleAr,
+        if (forceUpdateTitleEn != null)
+          'forceUpdateTitleEn': forceUpdateTitleEn,
         if (forceUpdateMessageAr != null)
           'forceUpdateMessageAr': forceUpdateMessageAr,
         if (forceUpdateMessageEn != null)

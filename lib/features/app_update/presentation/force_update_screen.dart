@@ -72,13 +72,17 @@ class ForceUpdateScreen extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [colors.primaryContainer.withValues(alpha: 0.35), colors.surface],
+              colors: [
+                colors.primaryContainer.withValues(alpha: 0.35),
+                colors.surface
+              ],
             ),
           ),
           child: SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 420),
                   child: Column(
@@ -110,7 +114,8 @@ class ForceUpdateScreen extends StatelessWidget {
 
                       // Version Badge
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.amber.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(20),

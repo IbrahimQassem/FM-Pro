@@ -1237,4 +1237,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateLater => 'Later';
+
+  @override
+  String get stationSocialLinks => 'Links & Social Media';
+
+  @override
+  String get stationWebsite => 'Website';
+
+  @override
+  String get stationFacebook => 'Facebook';
+
+  @override
+  String get stationInstagram => 'Instagram';
+
+  @override
+  String get stationYoutube => 'YouTube';
+
+  @override
+  String get stationTwitter => 'X (Twitter)';
+
+  @override
+  String get stationWhatsapp => 'WhatsApp';
 }

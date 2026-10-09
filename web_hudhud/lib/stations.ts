@@ -16,6 +16,25 @@ export type Station = {
   logoUrl: string;
   thumbnailUrl: string;
   frequency: string;
+  websiteUrl?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
+  youtubeUrl?: string;
+  twitterUrl?: string;
+  whatsapp?: string;
+  owner?: string;
+  address?: string;
+  contactPerson?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  streamType?: string;
+  audioCodec?: string;
+  bitrateKbps?: string;
+  sampleRateHz?: string;
+  transmitterPower?: string;
+  transmitterLocation?: string;
+  coverageArea?: string;
+  rds?: string;
   countryCode: string;
   countryNameAr: string;
   cityCode: string;
@@ -55,6 +74,25 @@ export function stationFromSnapshot(snapshot: {
     logoUrl: textValue(data.logoUrl),
     thumbnailUrl: textValue(data.thumbnailUrl),
     frequency: textValue(data.frequency),
+    websiteUrl: textValue(data.websiteUrl) || textValue(data.website),
+    facebookUrl: textValue(data.facebookUrl),
+    instagramUrl: textValue(data.instagramUrl),
+    youtubeUrl: textValue(data.youtubeUrl),
+    twitterUrl: textValue(data.twitterUrl),
+    whatsapp: textValue(data.whatsapp),
+    owner: textValue(data.owner),
+    address: textValue(data.address),
+    contactPerson: textValue(data.contactPerson),
+    contactPhone: textValue(data.contactPhone),
+    contactEmail: textValue(data.contactEmail),
+    streamType: textValue(data.streamType),
+    audioCodec: textValue(data.audioCodec),
+    bitrateKbps: textValue(data.bitrateKbps),
+    sampleRateHz: textValue(data.sampleRateHz),
+    transmitterPower: textValue(data.transmitterPower),
+    transmitterLocation: textValue(data.transmitterLocation),
+    coverageArea: textValue(data.coverageArea),
+    rds: textValue(data.rds),
     countryCode: textValue(data.countryCode),
     countryNameAr: textValue(data.countryNameAr),
     cityCode: textValue(data.cityCode),

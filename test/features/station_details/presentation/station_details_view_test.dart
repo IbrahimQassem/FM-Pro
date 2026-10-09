@@ -116,6 +116,53 @@ void main() {
     await tester.tap(shareButton);
     expect(sharePressed, isTrue);
   });
+
+  testWidgets('shows basic info and social links in station details', (
+    tester,
+  ) async {
+    const stationWithDetails = Station(
+      id: 'sanaa',
+      name: 'إذاعة صنعاء',
+      countryCode: 'YE',
+      countryNameAr: 'اليمن',
+      cityCode: 'sanaa',
+      cityNameAr: 'صنعاء',
+      priority: 10,
+      isLive: true,
+      isActive: true,
+      isVerified: true,
+      isFeatured: false,
+      programsCount: 4,
+      subscribersCount: 200,
+      totalPlays: 1000,
+      streamUrl: 'https://example.com/live',
+      websiteUrl: 'https://sanaa.fm',
+      facebookUrl: 'https://facebook.com/sanaafm',
+      whatsapp: '770000000',
+    );
+
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      _TestApp(
+        child: StationDetailsView(
+          station: stationWithDetails,
+          playbackStatus: StationPlaybackStatus.idle,
+          onPlayPressed: () {},
+          onStopPressed: () {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('حسابات المحطة والروابط'), findsOneWidget);
+    expect(find.text('الموقع الإلكتروني'), findsOneWidget);
+    expect(find.text('فيسبوك'), findsOneWidget);
+    expect(find.text('واتساب'), findsOneWidget);
+  });
 }
 
 class _TestApp extends StatelessWidget {

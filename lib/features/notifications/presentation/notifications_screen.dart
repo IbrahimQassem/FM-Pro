@@ -30,7 +30,8 @@ class NotificationsScreen extends ConsumerWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
                 side: BorderSide(
-                  color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+                  color:
+                      theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
                 ),
               ),
               child: SwitchListTile(
@@ -43,7 +44,8 @@ class NotificationsScreen extends ConsumerWidget {
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
+                    color: theme.colorScheme.primaryContainer
+                        .withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -200,8 +202,7 @@ class _NotificationCard extends StatelessWidget {
         ),
       ),
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         onTap: onTap,
         leading: Container(
           width: 40,

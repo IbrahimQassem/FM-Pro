@@ -18,13 +18,15 @@ class FirebaseAppUpdateRepository implements AppUpdateRepository {
   Future<AppUpdateInfo?> fetchUpdateInfo() async {
     try {
       final docRef = FirestorePaths.appVersionConfig(_firestore);
-      final snapshot = await docRef.get(const GetOptions(source: Source.serverAndCache));
+      final snapshot =
+          await docRef.get(const GetOptions(source: Source.serverAndCache));
       if (!snapshot.exists || snapshot.data() == null) {
         return null;
       }
       return AppUpdateInfo.fromMap(snapshot.data()!);
     } catch (e, stack) {
-      debugPrint('AppUpdateRepository: Failed to fetch update config: $e\n$stack');
+      debugPrint(
+          'AppUpdateRepository: Failed to fetch update config: $e\n$stack');
       return null;
     }
   }

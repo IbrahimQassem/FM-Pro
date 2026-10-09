@@ -101,7 +101,8 @@ void main() {
     expect(
         find.descendant(
             of: find.byType(AboutAppDialog),
-            matching: find.textContaining("${AppConfig.currentVersionName} (${AppConfig.currentVersionCode})")),
+            matching: find.textContaining(
+                "${AppConfig.currentVersionName} (${AppConfig.currentVersionCode})")),
         findsOneWidget);
   });
 
@@ -156,7 +157,8 @@ void main() {
     expect(find.byType(OnboardingScreen), findsOneWidget);
   });
 
-  testWidgets("shows App Preferences section and opens language selection sheet",
+  testWidgets(
+      "shows App Preferences section and opens language selection sheet",
       (tester) async {
     final repository = _FakeAccountRepository(user: _user);
     final settingsRepo = _FakeSettingsRepository();
@@ -183,7 +185,8 @@ void main() {
     expect(await settingsRepo.getLocale(), const Locale('en'));
   });
 
-  testWidgets("shows App Preferences section and opens appearance selection sheet",
+  testWidgets(
+      "shows App Preferences section and opens appearance selection sheet",
       (tester) async {
     final repository = _FakeAccountRepository(user: _user);
     final settingsRepo = _FakeSettingsRepository();

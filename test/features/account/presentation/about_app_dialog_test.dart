@@ -41,8 +41,8 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(
-        find.textContaining("هدهد إف إم هو دليلك الأول للاستماع"), findsOneWidget);
+    expect(find.textContaining("هدهد إف إم هو دليلك الأول للاستماع"),
+        findsOneWidget);
 
     // Close dialog
     await tester.tap(find.byKey(const Key("close-about-dialog")));

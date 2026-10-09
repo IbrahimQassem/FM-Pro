@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:url_launcher/url_launcher.dart';
 import '../../subscriptions/presentation/station_follow_controls.dart';
 import "../../../core/services/share_service.dart";
 import '../../../core/theme/app_colors.dart';
@@ -559,6 +560,31 @@ class _StationHero extends StatelessWidget {
   }
 }
 
+Future<void> _launchExternalUrl(BuildContext context, String urlString) async {
+  final uri = Uri.tryParse(urlString);
+  if (uri == null) return;
+  try {
+    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!launched && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).launchError),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  } catch (_) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).launchError),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+}
+
 class _AboutTab extends StatelessWidget {
   const _AboutTab({required this.station, required this.hasPlaybackFailed});
 
@@ -569,6 +595,14 @@ class _AboutTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
+
+    final hasSocialLinks = station.websiteUrl.isNotEmpty ||
+        station.facebookUrl.isNotEmpty ||
+        station.instagramUrl.isNotEmpty ||
+        station.youtubeUrl.isNotEmpty ||
+        station.twitterUrl.isNotEmpty ||
+        station.whatsapp.isNotEmpty;
+
     return ListView(
       key: const PageStorageKey('station-about-tab'),
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 32),
@@ -616,6 +650,92 @@ class _AboutTab extends StatelessWidget {
             ),
           ),
         ),
+        if (hasSocialLinks) ...[
+          const SizedBox(height: 14),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    strings.stationSocialLinks,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: colors.primary,
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      if (station.websiteUrl.isNotEmpty)
+                        _SocialChip(
+                          icon: Icons.language_rounded,
+                          label: strings.stationWebsite,
+                          onTap: () => _launchExternalUrl(
+                            context,
+                            station.websiteUrl,
+                          ),
+                        ),
+                      if (station.facebookUrl.isNotEmpty)
+                        _SocialChip(
+                          icon: Icons.facebook_rounded,
+                          label: strings.stationFacebook,
+                          onTap: () => _launchExternalUrl(
+                            context,
+                            station.facebookUrl,
+                          ),
+                        ),
+                      if (station.instagramUrl.isNotEmpty)
+                        _SocialChip(
+                          icon: Icons.camera_alt_outlined,
+                          label: strings.stationInstagram,
+                          onTap: () => _launchExternalUrl(
+                            context,
+                            station.instagramUrl,
+                          ),
+                        ),
+                      if (station.youtubeUrl.isNotEmpty)
+                        _SocialChip(
+                          icon: Icons.smart_display_outlined,
+                          label: strings.stationYoutube,
+                          onTap: () => _launchExternalUrl(
+                            context,
+                            station.youtubeUrl,
+                          ),
+                        ),
+                      if (station.twitterUrl.isNotEmpty)
+                        _SocialChip(
+                          icon: Icons.alternate_email_rounded,
+                          label: strings.stationTwitter,
+                          onTap: () => _launchExternalUrl(
+                            context,
+                            station.twitterUrl,
+                          ),
+                        ),
+                      if (station.whatsapp.isNotEmpty)
+                        _SocialChip(
+                          icon: Icons.chat_bubble_outline_rounded,
+                          label: strings.stationWhatsapp,
+                          onTap: () {
+                            final raw = station.whatsapp.trim();
+                            final url = raw.startsWith('http')
+                                ? raw
+                                : raw.startsWith('wa.me')
+                                    ? 'https://$raw'
+                                    : 'https://wa.me/${raw.replaceAll(RegExp(r'[^0-9]'), '')}';
+                            _launchExternalUrl(context, url);
+                          },
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
         if (hasPlaybackFailed) ...[
           const SizedBox(height: 14),
           Card(
@@ -753,6 +873,28 @@ class _InfoRow extends StatelessWidget {
           child: Text(label, style: TextStyle(color: colors.onSurfaceVariant)),
         ),
       ],
+    );
+  }
+}
+
+class _SocialChip extends StatelessWidget {
+  const _SocialChip({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ActionChip(
+      avatar: Icon(icon, size: 18),
+      label: Text(label),
+      onPressed: onTap,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     );
   }
 }

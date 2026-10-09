@@ -53,79 +53,81 @@ class MiniPlayer extends StatelessWidget {
             onTap: handleOpen,
             borderRadius: BorderRadius.circular(22),
             child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 8, 10),
-            child: Row(
-              children: [
-                _MiniArtwork(url: state.artworkUrl),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                            ),
-                      ),
-                      Text(
-                        hasFailed
-                            ? strings.playbackErrorShort
-                            : isLoading
-                                ? strings.connecting
-                                : isPlaying
-                                    ? strings.nowPlaying
-                                    : strings.playbackPaused,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: hasFailed
-                                  ? colors.error
-                                  : colors.onSurfaceVariant,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (isLoading)
-                  const Padding(
-                    padding: EdgeInsets.all(12),
-                    child: SizedBox.square(
-                      dimension: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2.5),
+              padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 8, 10),
+              child: Row(
+                children: [
+                  _MiniArtwork(url: state.artworkUrl),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                        ),
+                        Text(
+                          hasFailed
+                              ? strings.playbackErrorShort
+                              : isLoading
+                                  ? strings.connecting
+                                  : isPlaying
+                                      ? strings.nowPlaying
+                                      : strings.playbackPaused,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: hasFailed
+                                        ? colors.error
+                                        : colors.onSurfaceVariant,
+                                  ),
+                        ),
+                      ],
                     ),
-                  )
-                else
-                  IconButton.filled(
-                    onPressed: onToggle,
-                    tooltip: hasFailed
-                        ? strings.retry
-                        : isPlaying
-                            ? strings.pause
-                            : strings.resume,
-                    icon: Icon(
-                      hasFailed
-                          ? Icons.refresh_rounded
+                  ),
+                  if (isLoading)
+                    const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: SizedBox.square(
+                        dimension: 22,
+                        child: CircularProgressIndicator(strokeWidth: 2.5),
+                      ),
+                    )
+                  else
+                    IconButton.filled(
+                      onPressed: onToggle,
+                      tooltip: hasFailed
+                          ? strings.retry
                           : isPlaying
-                              ? Icons.pause_rounded
-                              : Icons.play_arrow_rounded,
+                              ? strings.pause
+                              : strings.resume,
+                      icon: Icon(
+                        hasFailed
+                            ? Icons.refresh_rounded
+                            : isPlaying
+                                ? Icons.pause_rounded
+                                : Icons.play_arrow_rounded,
+                      ),
                     ),
+                  IconButton(
+                    onPressed: onStop,
+                    tooltip: strings.closePlayer,
+                    icon: const Icon(Icons.close_rounded),
                   ),
-                IconButton(
-                  onPressed: onStop,
-                  tooltip: strings.closePlayer,
-                  icon: const Icon(Icons.close_rounded),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
   }
 }
 

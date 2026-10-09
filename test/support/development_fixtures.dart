@@ -184,8 +184,7 @@ class ReviewHarness {
                 .overrideWithValue(FakeFavoritesRepository()),
             homeControllerProvider.overrideWith((ref) => home),
             settingsRepositoryProvider.overrideWithValue(FakeSettingsRepository(
-                initialLocale: Locale(language),
-                initialThemeMode: themeMode)),
+                initialLocale: Locale(language), initialThemeMode: themeMode)),
           ],
           child: MaterialApp(
               theme: AppTheme.light(),

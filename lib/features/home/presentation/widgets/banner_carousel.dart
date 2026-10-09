@@ -87,65 +87,65 @@ class _BannerCarouselState extends State<BannerCarousel> {
               controller: _pageController,
               itemCount: widget.banners.length,
               onPageChanged: (value) => setState(() => _currentPage = value),
-            itemBuilder: (context, index) {
-              final banner = widget.banners[index];
-              return Padding(
-                padding: EdgeInsetsDirectional.only(
-                  end: index == widget.banners.length - 1 ? 0 : 8,
-                ),
-                child: Semantics(
-                  label: '${strings.advertisement}: ${banner.title}',
-                  image: true,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(22),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        ColoredBox(color: colors.surfaceContainerHighest),
-                        CachedNetworkImage(
-                          imageUrl: banner.imageUrl,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => const Center(
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                          errorWidget: (context, url, error) => Icon(
-                            Icons.image_not_supported_outlined,
-                            size: 42,
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                        const DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [Colors.transparent, Color(0xB3000000)],
+              itemBuilder: (context, index) {
+                final banner = widget.banners[index];
+                return Padding(
+                  padding: EdgeInsetsDirectional.only(
+                    end: index == widget.banners.length - 1 ? 0 : 8,
+                  ),
+                  child: Semantics(
+                    label: '${strings.advertisement}: ${banner.title}',
+                    image: true,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(22),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          ColoredBox(color: colors.surfaceContainerHighest),
+                          CachedNetworkImage(
+                            imageUrl: banner.imageUrl,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => const Center(
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            errorWidget: (context, url, error) => Icon(
+                              Icons.image_not_supported_outlined,
+                              size: 42,
+                              color: colors.onSurfaceVariant,
                             ),
                           ),
-                        ),
-                        PositionedDirectional(
-                          start: 16,
-                          end: 16,
-                          bottom: 14,
-                          child: Text(
-                            banner.title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w800,
-                                ),
+                          const DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [Colors.transparent, Color(0xB3000000)],
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
+                          PositionedDirectional(
+                            start: 16,
+                            end: 16,
+                            bottom: 14,
+                            child: Text(
+                              banner.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
             ),
           ),
         ),

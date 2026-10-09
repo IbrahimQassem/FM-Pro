@@ -42,6 +42,31 @@ void main() {
       expect(station.isLive, false);
       expect(station.frequency, '92.5 MHz');
     });
+
+    test('maps public basic info and ignores management reference fields', () {
+      final data = {
+        ..._validData(),
+        'websiteUrl': 'https://sanaa.fm',
+        'facebookUrl': 'https://facebook.com/sanaafm',
+        'instagramUrl': 'https://instagram.com/sanaafm',
+        'youtubeUrl': 'https://youtube.com/@sanaafm',
+        'twitterUrl': 'https://x.com/sanaafm',
+        'whatsapp': '+967770000000',
+        'owner': 'وزارة الإعلام',
+        'address': 'صنعاء، التحرير',
+        'contactPerson': 'مسؤول البث',
+        'contactPhone': '01-200000',
+        'contactEmail': 'info@sanaa.fm',
+      };
+
+      final station = StationMapper.fromMap(id: 'extended', data: data);
+      expect(station.websiteUrl, 'https://sanaa.fm');
+      expect(station.facebookUrl, 'https://facebook.com/sanaafm');
+      expect(station.instagramUrl, 'https://instagram.com/sanaafm');
+      expect(station.youtubeUrl, 'https://youtube.com/@sanaafm');
+      expect(station.twitterUrl, 'https://x.com/sanaafm');
+      expect(station.whatsapp, '+967770000000');
+    });
   });
 }
 

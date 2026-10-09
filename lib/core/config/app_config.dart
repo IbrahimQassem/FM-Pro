@@ -94,7 +94,8 @@ abstract final class AppConfig {
   static const String contactEmail = 'hudhudfm.ye@gmail.com';
   static const String contactFacebookUrl = 'https://www.facebook.com/HudhudFm';
   static const String contactTwitterUrl = 'https://x.com/HudhudFm';
-  static const String contactInstagramUrl = 'https://www.instagram.com/hudhudfm';
+  static const String contactInstagramUrl =
+      'https://www.instagram.com/hudhudfm';
   static String get websiteUrl => domain;
 
   /// Official public web player for streaming on browsers.
@@ -104,11 +105,11 @@ abstract final class AppConfig {
   );
 
   /// Store endpoints for application updates.
-  static String get playStoreMarketUrl => 'market://details?id=$androidPackageId';
+  static String get playStoreMarketUrl =>
+      'market://details?id=$androidPackageId';
   static String get playStoreWebUrl =>
       'https://play.google.com/store/apps/details?id=$androidPackageId';
-  static String get appStoreUrl =>
-      'https://apps.apple.com/app/id$iosAppId';
+  static String get appStoreUrl => 'https://apps.apple.com/app/id$iosAppId';
 
   /// Legal and UGC policy endpoints derived dynamically from [domain].
   static String get privacyPolicyUrl => '$domain/privacy';

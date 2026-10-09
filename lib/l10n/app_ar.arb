@@ -417,5 +417,12 @@
   "optionalUpdateTitle": "تحديث جديد متاح",
   "optionalUpdateMessage": "يتوفر إصدار جديد من تطبيق هدهد إف إم. حدّث الآن للاستمتاع بأحدث الميزات وتحسينات الأداء.",
   "updateNow": "تحديث الآن",
-  "updateLater": "لاحقاً"
+  "updateLater": "لاحقاً",
+  "stationSocialLinks": "حسابات المحطة والروابط",
+  "stationWebsite": "الموقع الإلكتروني",
+  "stationFacebook": "فيسبوك",
+  "stationInstagram": "إنستغرام",
+  "stationYoutube": "يوتيوب",
+  "stationTwitter": "إكس (تويتر)",
+  "stationWhatsapp": "واتساب"
 }

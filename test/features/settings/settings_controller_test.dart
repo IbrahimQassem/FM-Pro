@@ -42,7 +42,8 @@ void main() {
       expect(a, equals(b));
       expect(a.hashCode, equals(b.hashCode));
 
-      final c = a.copyWith(themeMode: ThemeMode.dark, locale: const Locale('en'));
+      final c =
+          a.copyWith(themeMode: ThemeMode.dark, locale: const Locale('en'));
       expect(c.themeMode, ThemeMode.dark);
       expect(c.locale, const Locale('en'));
       expect(a, isNot(equals(c)));

@@ -62,8 +62,7 @@ class ShareService {
 
   Future<void> shareStation(BuildContext context, Station station) async {
     final strings = AppLocalizations.of(context);
-    final text =
-        strings.shareStationMessage(station.name, _resolveStoreUrl());
+    final text = strings.shareStationMessage(station.name, _resolveStoreUrl());
     final box = context.findRenderObject() as RenderBox?;
     final origin =
         box != null ? box.localToGlobal(Offset.zero) & box.size : null;

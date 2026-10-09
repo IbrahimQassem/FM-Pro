@@ -26,7 +26,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('ForceUpdateScreen', () {
-    testWidgets('renders blocking non-dismissible screen with update button in Arabic',
+    testWidgets(
+        'renders blocking non-dismissible screen with update button in Arabic',
         (tester) async {
       await tester.pumpWidget(_buildTestWidget(
         locale: const Locale('ar'),
@@ -65,7 +66,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Critical Upgrade Mandatory'), findsOneWidget);
-      expect(find.text('Please install the new release immediately.'), findsOneWidget);
+      expect(find.text('Please install the new release immediately.'),
+          findsOneWidget);
       expect(find.text('Update Now'), findsOneWidget);
     });
   });

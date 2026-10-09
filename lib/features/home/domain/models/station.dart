@@ -22,6 +22,12 @@ class Station {
     this.logoUrl = '',
     this.thumbnailUrl = '',
     this.frequency = '',
+    this.websiteUrl = '',
+    this.facebookUrl = '',
+    this.instagramUrl = '',
+    this.youtubeUrl = '',
+    this.twitterUrl = '',
+    this.whatsapp = '',
   });
 
   final String id;
@@ -34,6 +40,12 @@ class Station {
   final String logoUrl;
   final String thumbnailUrl;
   final String frequency;
+  final String websiteUrl;
+  final String facebookUrl;
+  final String instagramUrl;
+  final String youtubeUrl;
+  final String twitterUrl;
+  final String whatsapp;
   final String countryCode;
   final String countryNameAr;
   final String cityCode;

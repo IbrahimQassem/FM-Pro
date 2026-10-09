@@ -280,4 +280,3 @@ final appUpdateControllerProvider =
     repository: ref.watch(appUpdateRepositoryProvider),
   );
 });
-

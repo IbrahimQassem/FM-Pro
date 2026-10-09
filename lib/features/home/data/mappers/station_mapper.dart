@@ -25,6 +25,14 @@ abstract final class StationMapper {
       logoUrl: _optionalUrl(data, 'logoUrl'),
       thumbnailUrl: _optionalUrl(data, 'thumbnailUrl'),
       frequency: _optionalString(data, 'frequency'),
+      websiteUrl: _optionalUrl(data, 'websiteUrl').isNotEmpty
+          ? _optionalUrl(data, 'websiteUrl')
+          : _optionalUrl(data, 'website'),
+      facebookUrl: _optionalUrl(data, 'facebookUrl'),
+      instagramUrl: _optionalUrl(data, 'instagramUrl'),
+      youtubeUrl: _optionalUrl(data, 'youtubeUrl'),
+      twitterUrl: _optionalUrl(data, 'twitterUrl'),
+      whatsapp: _optionalString(data, 'whatsapp'),
       countryCode: _requiredString(data, 'countryCode'),
       countryNameAr: _requiredString(data, 'countryNameAr'),
       cityCode: _requiredString(data, 'cityCode'),

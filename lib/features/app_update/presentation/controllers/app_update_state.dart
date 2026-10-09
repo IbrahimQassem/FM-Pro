@@ -23,7 +23,8 @@ class AppUpdateState {
   final bool shouldPromptOptional;
 
   bool get isForceUpdate => status == AppUpdateStatus.forceUpdateRequired;
-  bool get isOptionalUpdate => status == AppUpdateStatus.optionalUpdateAvailable;
+  bool get isOptionalUpdate =>
+      status == AppUpdateStatus.optionalUpdateAvailable;
 
   AppUpdateState copyWith({
     AppUpdateStatus? status,

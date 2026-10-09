@@ -40,7 +40,8 @@ abstract final class AppVersionService {
         }
       }
     } catch (e) {
-      debugPrint('AppVersionService: native platform channel not available: $e');
+      debugPrint(
+          'AppVersionService: native platform channel not available: $e');
     }
 
     // Fall back to build-time environment definitions (--dart-define)

@@ -959,7 +959,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get shareAppTitle => 'دعوة صديق ومشاركة التطبيق';
 
   @override
-  String get shareAppSubtitle => 'شارك تطبيق هدهد إف إم مع أصدقائك ومحبي الإذاعة';
+  String get shareAppSubtitle =>
+      'شارك تطبيق هدهد إف إم مع أصدقائك ومحبي الإذاعة';
 
   @override
   String shareAppMessage(String storeUrl, String webUrl) {
@@ -1220,4 +1221,25 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get updateLater => 'لاحقاً';
+
+  @override
+  String get stationSocialLinks => 'حسابات المحطة والروابط';
+
+  @override
+  String get stationWebsite => 'الموقع الإلكتروني';
+
+  @override
+  String get stationFacebook => 'فيسبوك';
+
+  @override
+  String get stationInstagram => 'إنستغرام';
+
+  @override
+  String get stationYoutube => 'يوتيوب';
+
+  @override
+  String get stationTwitter => 'إكس (تويتر)';
+
+  @override
+  String get stationWhatsapp => 'واتساب';
 }

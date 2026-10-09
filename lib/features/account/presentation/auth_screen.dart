@@ -157,8 +157,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     prefixIcon: const Icon(Icons.lock_reset_rounded),
                     suffixIcon: IconButton(
                       onPressed: () => setState(
-                        () => _obscureConfirmPassword =
-                            !_obscureConfirmPassword,
+                        () =>
+                            _obscureConfirmPassword = !_obscureConfirmPassword,
                       ),
                       tooltip: _obscureConfirmPassword
                           ? strings.showPassword
