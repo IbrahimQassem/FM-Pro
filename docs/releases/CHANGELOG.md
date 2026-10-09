@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.1.0] - 2026-10-10
+
+### Added
+- **Station Social Connectivity & Official Links**: Interactive public action chips in station details view enabling listeners to visit station websites and social profiles (Facebook, Instagram, YouTube, Twitter/X, WhatsApp) via secure external browser launcher.
+- **Station Management Reference Metadata**: Structured internal reference contacts model for radio ownership entities, physical studio addresses, authorized contact managers, official hotlines, and direct emails.
+- **Broadcast Engineering & Telemetry Specs**: Engineering documentation and telemetry fields capturing stream server architecture, codecs (AAC+/MP3), bitrates, sample rates, FM transmission power (kW), broadcast tower coordinates, coverage zones, and RDS station identifiers.
+- **Super Admin 44-Column RTL Excel Export**: High-fidelity native Excel workbook generation (`.xlsx`) in Web Admin providing comprehensive 44-column tabular auditing with auto-sized columns and Arabic headers, exclusively accessible to `isSuperAdmin` accounts.
+
+### Changed
+- **Separation of Concerns**: Strict boundary where listener-facing Flutter and web clients receive only public links, while internal reference and technical infrastructure remain exclusive to administrative operations.
+- **Data Contracts & Fixtures**: Updated canonical Station schema contracts and cross-platform fixtures while preserving non-breaking forward compatibility.
+
+---
+
 ## [3.0.4] - 2026-09-23
 
 ### Added
