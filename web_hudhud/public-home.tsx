@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { readIds, toggleId, stationHref, validId, type Episode } from './lib/discovery';
 import { SponsoredPlacement } from './sponsored-placement';
+import { AppCtaSection, GooglePlayButton, GooglePlayIcon, GOOGLE_PLAY_URL } from './app-cta';
 import { FeatureBoundary } from './feature-boundary';
 import type { AccountPort } from './account-panel';
 import type { loadStationContent } from './lib/content-repository';
@@ -216,10 +217,22 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
             </div>
             <div className="hero-note"><span className="live-pulse" /> بث مباشر من محطات موثوقة</div>
           </div>
-          <div className="hero-art" aria-hidden="true">
-            <img className="hero-mascot" src="/assets/images/mascot/mascot_onboarding.webp" alt="" width={1200} height={1258} fetchPriority="high" onError={event => { event.currentTarget.style.display = 'none'; }} />
-            <div className="floating-chip chip-top"><MapPin size={14} /> من كل مدينة</div>
-            <div className="floating-chip chip-bottom"><Volume2 size={14} /> استمع براحتك</div>
+          <div className="hero-art">
+            <img className="hero-mascot" src="/assets/images/mascot/mascot_onboarding.webp" alt="" width={1200} height={1258} fetchPriority="high" aria-hidden="true" onError={event => { event.currentTarget.style.display = 'none'; }} />
+            <a
+              className="floating-chip chip-top chip-cta"
+              href={GOOGLE_PLAY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="تحميل تطبيق هدهد إف إم من متجر Google Play (يفتح في علامة تبويب جديدة)"
+            >
+              <GooglePlayIcon size={18} />
+              <span className="chip-cta-labels">
+                <small>متوفر على</small>
+                <strong>Google Play</strong>
+              </span>
+            </a>
+            <div className="floating-chip chip-bottom" aria-hidden="true"><Volume2 size={14} /> استمع براحتك</div>
           </div>
         </section>
 
@@ -285,12 +298,34 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
         </section>
 
         {accountOpened && <FeatureBoundary><Suspense fallback={<section className="content-section" id="account" role="status">جارٍ تحميل الحساب…</section>}><AccountPanel createRepository={createAccount} stations={stations} selectedStationId={detailStation?.id || null} /></Suspense></FeatureBoundary>}
+        {!detailId && <AppCtaSection />}
         <section className="about-section" id="about">
           <div className="about-mark"><img src="/assets/images/branding/app_icon_1024.png" alt="" width={59} height={59} loading="lazy" /></div>
           <div><span className="section-eyebrow">هدهد إف إم</span><h2>صوت محلي، بتجربة أبسط.</h2><p>هدهد يجمع المحطات النشطة من الكتالوج الرسمي في مكان واحد. بيانات المحطات تُقرأ مباشرة من المصدر الرسمي للمنصة.</p></div>
           <a className="about-link" href="#top">العودة إلى الأعلى <ChevronLeft size={17} /></a>
         </section>
-      <footer className="content-section detail-actions"><a href="https://hudhud-fm-admin-sanadev.web.app/privacy">سياسة الخصوصية</a><a href="https://hudhud-fm-admin-sanadev.web.app/terms">الشروط</a><a href="https://hudhud-fm-admin-sanadev.web.app/account-deletion">معلومات حذف الحساب</a><a href="https://play.google.com/store/apps/details?id=com.sana.dev.fm">تطبيق Android</a></footer></main>
+        <footer className="site-footer content-section">
+          <div className="footer-cta-card">
+            <div className="footer-cta-copy">
+              <span className="footer-badge"><Sparkles size={13} /> تطبيق هدهد إف إم الرسمي</span>
+              <h3>استمع إلى راديو اليمن أينما كنت</h3>
+              <p>تشغيل مستمر في الخلفية، إشعارات البرامج المباشرة، وسرعة فائقة على هاتفك الأندرويد.</p>
+            </div>
+            <GooglePlayButton variant="default" size="normal" />
+          </div>
+          <div className="footer-bottom-bar">
+            <div className="footer-copyright">
+              <span>هدهد إف إم — المنصة الإذاعية اليمنية الموحدة</span>
+            </div>
+            <div className="footer-legal-links">
+              <a href="https://hudhud-fm-admin-sanadev.web.app/privacy">سياسة الخصوصية</a>
+              <a href="https://hudhud-fm-admin-sanadev.web.app/terms">الشروط</a>
+              <a href="https://hudhud-fm-admin-sanadev.web.app/account-deletion">معلومات حذف الحساب</a>
+              <a href={GOOGLE_PLAY_URL} target="_blank" rel="noopener noreferrer">Google Play</a>
+            </div>
+          </div>
+        </footer>
+      </main>
 
       {currentStation && <div className={playerError ? 'player-dock has-error' : 'player-dock'} role="status">
         <StationArtwork station={currentStation} size="tiny" />

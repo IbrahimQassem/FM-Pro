@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Station } from './lib/stations';
 import { loadStationContent, type StationContent } from './lib/content-repository';
 import { scheduleStatus, stationHref, type Episode } from './lib/discovery';
+import { StationAppBanner } from './app-cta';
 const days = ['الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد'];
 const clock = (minute: number) => `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
 export function StationDetail({ station, onPlay, onEpisode, favorite, onFavorite, loadContent = loadStationContent }: { station: Station; onPlay(): void; onEpisode(episode: Episode): void; favorite: boolean; onFavorite(): void; loadContent?: typeof loadStationContent }) {
@@ -21,6 +22,7 @@ export function StationDetail({ station, onPlay, onEpisode, favorite, onFavorite
   return <section className="content-section detail-panel" id="station-detail" aria-labelledby="detail-title">
     <a href="?">العودة إلى كل المحطات</a><h1 id="detail-title" tabIndex={-1}>{station.name}</h1><p>{station.description || station.tagline || 'لا يوجد وصف لهذه المحطة حالياً.'}</p>
     <div className="detail-actions"><button onClick={onPlay}>استمع للبث المباشر</button><button aria-pressed={favorite} onClick={onFavorite}>{favorite ? 'إزالة من المفضلة' : 'أضف إلى المفضلة'}</button><button onClick={() => void share()}>مشاركة المحطة</button><a href="#account">متابعة المحطة وإدارة التنبيهات</a></div><p role="status">{shareMessage}</p>
+    <StationAppBanner />
     {!content && !error && <p role="status">جارٍ تحميل البرامج والحلقات…</p>}
     {error && <p role="alert">تعذر تحميل المحتوى. <button onClick={() => setAttempt(value => value + 1)}>إعادة المحاولة</button></p>}
     {content && <>{content.offline && <p role="status">تُعرض نسخة محفوظة دون اتصال. <button onClick={() => setAttempt(v => v + 1)}>تحديث</button></p>}
