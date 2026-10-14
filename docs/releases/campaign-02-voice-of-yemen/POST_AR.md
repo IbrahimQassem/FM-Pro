@@ -3,7 +3,7 @@
 > **Target:** HudHud FM v3.1.0+ & Web Player  
 > **Official Links:**
 > - Google Play: `https://play.google.com/store/apps/details?id=com.sana.dev.fm`
-> - Web Player: `https://sanadev-fm.web.app`
+> - Web Player: `https://hudhudfm.com`
 
 ---
 
@@ -18,7 +18,7 @@
 > 🔗 https://play.google.com/store/apps/details?id=com.sana.dev.fm  
 >  
 > 🌐 أو افتح الرابط واستمع فوراً بدون تثبيت:  
-> 🔗 https://sanadev-fm.web.app  
+> 🔗 https://hudhudfm.com  
 >  
 > من أي بلد أو ولاية تتابعنا اليوم؟ 🌍👇  
 > #هدهد_إف_إم #اليمن #صوت_اليمن #مغتربين_اليمن #راديو_اليمن
@@ -31,7 +31,7 @@
 > كل مدن اليمن مجتمعة في منصة واحدة بصوت كريستالي بدون تقطيع وبأقل استهلاك نت.  
 >  
 > 📲 متوفر على Google Play: https://play.google.com/store/apps/details?id=com.sana.dev.fm  
-> 🌐 استماع مباشر عبر الويب: https://sanadev-fm.web.app  
+> 🌐 استماع مباشر عبر الويب: https://hudhudfm.com  
 >  
 > #هدهد_FM #اليمن_في_قلوبنا #إذاعات_اليمن
 
@@ -60,7 +60,7 @@
 > 🔗 https://play.google.com/store/apps/details?id=com.sana.dev.fm  
 >  
 > 🌐 **عبر متصفح الويب (مباشرة دون تنزيل):**  
-> 🔗 https://sanadev-fm.web.app  
+> 🔗 https://hudhudfm.com  
 >  
 > 💬 اكتب لنا في التعليقات: من أي مدينة يمنية أنت، وأي إذاعة تسمعها وتذكرك بأيام البلاد؟  
 >  
@@ -102,7 +102,7 @@
 > https://play.google.com/store/apps/details?id=com.sana.dev.fm  
 >  
 > 🌐 **للكمبيوتر والمتصفح (استماع فوري بدون تحميل):**  
-> https://sanadev-fm.web.app  
+> https://hudhudfm.com  
 >  
 > 🕊️ انشر الرابط لأهلك ومغتربيك وشاركهم صوت البلاد!
 

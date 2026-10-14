@@ -4,7 +4,7 @@
 > **Primary Asset:** HudHud FM In-Car / Commute Dual CTA Post  
 > **Official Links:**
 > - Google Play: `https://play.google.com/store/apps/details?id=com.sana.dev.fm`
-> - Web Player: `https://sanadev-fm.web.app`
+> - Web Player: `https://hudhudfm.com`
 
 ---
 
@@ -20,7 +20,7 @@
 > 🔗 https://play.google.com/store/apps/details?id=com.sana.dev.fm  
 >  
 > 🌐 Or tune in instantly on the web:  
-> 🔗 https://sanadev-fm.web.app  
+> 🔗 https://hudhudfm.com  
 >  
 > #HudHudFM #YemenRadio #DriveMusic #Podcast #GooglePlay #Streaming
 
@@ -32,7 +32,7 @@
 > Background audio playback, lock-screen controls, and live streams from Sana'a, Aden, Taiz, Hadramout, and beyond.  
 >  
 > 📲 Download on Google Play: https://play.google.com/store/apps/details?id=com.sana.dev.fm  
-> 🌐 Instant Web Player: https://sanadev-fm.web.app  
+> 🌐 Instant Web Player: https://hudhudfm.com  
 >  
 > #RadioStreaming #AndroidApp #LiveRadio
 
@@ -50,7 +50,7 @@
 > • **Zero-Friction Dual Access:** Available natively on **Google Play** for advanced features (background audio, notifications, lock-screen controls) and instantaneously via our **Web Player** with zero install overhead.  
 >  
 > 📲 Android App: https://play.google.com/store/apps/details?id=com.sana.dev.fm  
-> 🌐 Web Player: https://sanadev-fm.web.app  
+> 🌐 Web Player: https://hudhudfm.com  
 >  
 > #HudHudFM #MobileApp #StreamingTech #Flutter #WebAudio #UIUXDesign
 

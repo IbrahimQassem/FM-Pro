@@ -3,7 +3,7 @@
 > **Target:** HudHud FM v3.1.0+ & Web Player  
 > **Official Links:**
 > - Google Play: `https://play.google.com/store/apps/details?id=com.sana.dev.fm`
-> - Web Player: `https://sanadev-fm.web.app`
+> - Web Player: `https://hudhudfm.com`
 
 ---
 
@@ -20,7 +20,7 @@
 > 🔗 https://play.google.com/store/apps/details?id=com.sana.dev.fm  
 >  
 > 🌐 أو استمع فوراً بكبسة زر عبر المتصفح:  
-> 🔗 https://sanadev-fm.web.app  
+> 🔗 https://hudhudfm.com  
 >  
 > ما هي إذاعتك الأولى وأنت في الطريق؟ 👇  
 > #هدهد_إف_إم #راديو_اليمن #صوت_اليمن #طريق_السلامة
@@ -36,7 +36,7 @@
 > 🔗 https://play.google.com/store/apps/details?id=com.sana.dev.fm  
 >  
 > 🌐 أو شغّل الآن فوراً بدون تحميل:  
-> 🔗 https://sanadev-fm.web.app  
+> 🔗 https://hudhudfm.com  
 >  
 > #هدهد_FM #اليمن #أندرويد #راديو
 
@@ -66,7 +66,7 @@
 >  
 > 🌐 **2. عبر متصفح الإنترنت (بدون أي تحميل أو انتظار):**  
 > افتح الرابط واضغط تشغيل فوراً من أي جهاز أو شاشة:  
-> 🔗 https://sanadev-fm.web.app  
+> 🔗 https://hudhudfm.com  
 >  
 > 💬 شاركنا في التعليقات: ما هي الإذاعة أو البرنامج اللي ما تستغني عنه وأنت في مشوارك؟  
 >  
@@ -114,7 +114,7 @@
 > https://play.google.com/store/apps/details?id=com.sana.dev.fm  
 >  
 > 🌐 **أو استمع الآن عبر المتصفح بضغطة زر واحدة بدون تحميل:**  
-> https://sanadev-fm.web.app  
+> https://hudhudfm.com  
 >  
 > 🛣️ رافقتكم السلامة في كل درب!
 

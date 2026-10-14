@@ -4,7 +4,7 @@
 > **Primary Asset:** Cultural Heritage & Digital Streaming Dual CTA Visual  
 > **Official Links:**
 > - Google Play: `https://play.google.com/store/apps/details?id=com.sana.dev.fm`
-> - Web Player: `https://sanadev-fm.web.app`
+> - Web Player: `https://hudhudfm.com`
 
 ---
 
@@ -19,7 +19,7 @@
 > 🔗 https://play.google.com/store/apps/details?id=com.sana.dev.fm  
 >  
 > 🌐 Instant Web Player (No install needed):  
-> 🔗 https://sanadev-fm.web.app  
+> 🔗 https://hudhudfm.com  
 >  
 > Which Yemeni city's radio are you tuning into today? 🎙️👇  
 > #HudHudFM #Yemen #Diaspora #YemeniCulture #LiveRadio #Streaming
@@ -31,7 +31,7 @@
 > 30+ live broadcast stations, low bandwidth optimization, and zero buffering.  
 >  
 > 📲 Google Play: https://play.google.com/store/apps/details?id=com.sana.dev.fm  
-> 🌐 Web Player: https://sanadev-fm.web.app  
+> 🌐 Web Player: https://hudhudfm.com  
 >  
 > #RadioStreaming #AndroidApp #YemeniCommunity
 
@@ -49,7 +49,7 @@
 > • **Frictionless Dual Access:** Native **Google Play** application for on-the-go background playback, and an instant **Web Player** designed for desktop workspaces, university libraries, and office setups.  
 >  
 > 📲 Android App: https://play.google.com/store/apps/details?id=com.sana.dev.fm  
-> 🌐 Web Player: https://sanadev-fm.web.app  
+> 🌐 Web Player: https://hudhudfm.com  
 >  
 > #HudHudFM #CulturalTech #DigitalInclusion #AudioStreaming #Flutter #Diaspora
 
@@ -66,7 +66,7 @@
 > 🌍 Worldwide access without restrictions  
 >  
 > 📲 **Get the app on Google Play**  
-> 🌐 **Or listen instantly on any browser at sanadev-fm.web.app**  
+> 🌐 **Or listen instantly on any browser at hudhudfm.com**  
 >  
 > Link in bio & stories!  
 >  

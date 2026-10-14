@@ -17,7 +17,7 @@ We are pleased to introduce the latest feature release of **HudHud FM**, expandi
 * **Enterprise 44-Column RTL Excel Export**: Seamless operations and audit data export restricted exclusively to Super Administrators.
 
 Explore HudHud FM today:
-🔗 https://sanadev-fm.web.app
+🔗 https://hudhudfm.com
 
 #Broadcasting #DigitalRadio #Flutter #Firebase #MediaTech
 
@@ -34,4 +34,4 @@ Connect directly with your favorite radio stations:
 
 Plus powerful administrative reporting with 44-column Excel export!
 
-Check it out: https://sanadev-fm.web.app
+Check it out: https://hudhudfm.com
