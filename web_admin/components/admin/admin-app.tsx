@@ -10,6 +10,7 @@ import { UsersAggregateView } from './users-aggregate-view';
 import { StationLogo } from './station-logo';
 import { UserSessionAvatar } from './user-session-avatar';
 import { ResourceThumbnail } from './resource-thumbnail';
+import { BatchImportModal } from './batch-import-modal';
 import {
   isContentKind,
   editableFingerprint,
@@ -1515,6 +1516,7 @@ function ResourceView({
     window.dispatchEvent(new HashChangeEvent('hashchange'));
   };
   const [editor, setEditor] = useState<AdminRecord | 'new' | null>(null);
+  const [batchImportOpen, setBatchImportOpen] = useState(false);
   const [actionUser, setActionUser] = useState<AdminRecord | null>(null);
   const [busyId, setBusyId] = useState('');
   const [feedback, setFeedback] = useState<{
@@ -1786,6 +1788,18 @@ function ResourceView({
             >
               <FileSpreadsheet className="size-4 text-emerald-600 dark:text-emerald-400" />
               تصدير إلى Excel
+            </Button>
+          )}
+          {(definition.key === 'programs' || definition.key === 'episodes') && (
+            <Button
+              variant="outline"
+              disabled={loading}
+              onClick={() => setBatchImportOpen(true)}
+              className="min-h-11 shadow-xs border-emerald-600/30 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
+              aria-label="استيراد دفعة من Excel أو CSV"
+            >
+              <FileSpreadsheet className="size-4 text-emerald-600 dark:text-emerald-400" />
+              استيراد دفعة (XLSX/CSV)
             </Button>
           )}
           {onRefresh && (
@@ -2809,6 +2823,19 @@ function ResourceView({
           }}
         />
       )}
+      <BatchImportModal
+        open={batchImportOpen}
+        onClose={() => setBatchImportOpen(false)}
+        firestore={firestore}
+        firestoreRoot={firestoreRoot}
+        onSuccess={() => {
+          onRefresh?.();
+          setFeedback({
+            type: 'success',
+            message: 'تم استيراد الدفعة وتحديث العلاقات بنجاح.',
+          });
+        }}
+      />
     </div>
   );
 }

@@ -131,3 +131,70 @@
 
 * **Phase 3 (Expansion):**
   1. نشر دالة سحب خلاصات البودكاست القياسية (`RSS Ingestion`).
+
+---
+
+## 8. Google Sheets Ingestion Schema & Batch Import Contract
+
+Google Sheets is an editorial staging surface in this phase. Content enters
+Firestore only through a reviewed XLSX/CSV batch import in `web_admin`; there is
+no live Sheets sync, scheduled import, or direct Sheets write to Firestore.
+The importer must use the existing content validation and relationship-aware
+save path. It must preview all rows and report row-level errors before writing.
+
+### Programs sheet
+
+| Column | Type | Validation and mapping |
+| --- | --- | --- |
+| `stationId` | String | Required; must identify an existing station in the selected root. |
+| `programId` | String | Required stable identifier; becomes the Firestore document ID. |
+| `title` | String | Required Arabic title. |
+| `weekdays` | String | Required comma-separated ISO weekdays 1–7; reject empty, invalid, or duplicate values. |
+| `startTime` | String `HH:mm` | Required 24-hour time; convert to integer minutes after midnight. |
+| `endTime` | String `HH:mm` | Required and later than `startTime`; accept `24:00` only as the end-of-day sentinel and map it to `1440`. |
+| `utcOffsetMinutes` | Number | Must equal `180` for this Yemen schedule import. |
+| `isActive` | Boolean | Required explicit editorial choice; never infer activation from a missing cell. |
+| `isFeatured` | Boolean | Required explicit value. |
+| `priority` | Integer | Required ordering value. |
+
+The importer constructs `schedule: {weekdays, startMinute, endMinute,
+utcOffsetMinutes}` and initializes required `stats` fields to zero for new
+programs. The Firestore document ID is canonical; `programId` is not duplicated
+as a mutable data field unless a separate schema decision requires it.
+
+### Episodes sheet
+
+| Column | Type | Validation and mapping |
+| --- | --- | --- |
+| `episodeId` | String | Required stable identifier; becomes the Firestore document ID. |
+| `programId` | String | Required; must identify a program in the selected root. |
+| `title` | String | Required non-empty title. |
+| `audioUrl` | URL | Required HTTPS URL with a valid authority. |
+| `durationSec` | Number | Required non-negative integer; maps to `durationSeconds`. |
+| `broadcastAt` | Date/time | Required valid timestamp; imported consistently as a Firestore Timestamp. |
+| `utcOffsetMinutes` | Number | Must equal `180` for this Yemen content import. |
+| `isPublished` | Boolean | Required explicit editorial decision; missing values must not publish an episode. |
+| `isFeatured` | Boolean | Required explicit value. |
+| `priority` | Integer | Required ordering value. |
+
+The importer derives `stationId` from the referenced program and rejects a row
+whose program or station relationship is missing or inconsistent. It maps
+`durationSec` to the canonical `durationSeconds` field and initializes the
+required episode `stats` counters to zero for new documents. Optional metadata
+such as description, cover URL, presenter, guest and published date may be
+added as columns only when they pass the existing canonical validation.
+
+### Import and error policy
+
+- Validate the selected Firestore root and all identifiers before any write.
+- The preview shows normalized values, new versus existing document IDs, and
+  every rejected row with a column-specific reason. No commit is allowed while
+  any row is invalid; the editor may correct the sheet and preview again.
+- Re-importing an unchanged row is a no-op. An existing ID with changed data
+  requires an explicit update choice and a preview of the changed fields;
+  import never deletes Firestore documents when rows are absent from a sheet.
+- Commit through the existing `web_admin` relationship-aware save flow so
+  station/program counters remain consistent. A failed row is reported and can
+  be retried without duplicating successful rows.
+- Do not import server-owned counters, moderation state, creation timestamps,
+  notification markers, or other fields outside this schema.
