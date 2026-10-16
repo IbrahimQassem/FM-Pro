@@ -110,6 +110,8 @@ class ReviewAudio implements AudioPlaybackRepository {
   @override
   Stream<AudioPlaybackPhase> get phaseChanges => const Stream.empty();
   @override
+  Stream<String?> get icyTitleChanges => const Stream.empty();
+  @override
   Future<void> load(AudioPlaybackItem item) async {}
   @override
   Future<void> play() async {

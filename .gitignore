@@ -52,6 +52,9 @@ app.*.map.json
 /ios/Flutter/AuthProviders.xcconfig
 /lib/firebase_options.dart
 /.firebase/
+.env
+.env.*
+functions/.env
 
 # Keystores and signing properties
 /android/key.properties

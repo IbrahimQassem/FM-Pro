@@ -4,6 +4,8 @@ import '../../domain/models/audio_playback_phase.dart';
 abstract interface class AudioPlayerDataSource {
   Stream<AudioPlaybackPhase> get phaseChanges;
 
+  Stream<String?> get icyTitleChanges;
+
   Future<void> load(AudioPlaybackItem item);
 
   Future<void> play();

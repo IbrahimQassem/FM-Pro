@@ -9,12 +9,14 @@ class StationPlayerState {
     this.episode,
     this.status = StationPlaybackStatus.idle,
     this.sleepTimerEnd,
+    this.streamTitle,
   });
 
   final Station? station;
   final Episode? episode;
   final StationPlaybackStatus status;
   final DateTime? sleepTimerEnd;
+  final String? streamTitle;
 
   bool isSelected(String stationId) =>
       episode == null && station?.id == stationId;
@@ -41,6 +43,8 @@ class StationPlayerState {
     StationPlaybackStatus? status,
     DateTime? sleepTimerEnd,
     bool clearSleepTimer = false,
+    String? streamTitle,
+    bool clearStreamTitle = false,
   }) {
     return StationPlayerState(
       station: station ?? this.station,
@@ -48,6 +52,8 @@ class StationPlayerState {
       status: status ?? this.status,
       sleepTimerEnd:
           clearSleepTimer ? null : (sleepTimerEnd ?? this.sleepTimerEnd),
+      streamTitle:
+          clearStreamTitle ? null : (streamTitle ?? this.streamTitle),
     );
   }
 }

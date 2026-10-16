@@ -17,6 +17,7 @@
 - [جاهزية الإطلاق والإنتاج](contracts/release-readiness-contract.md)
 - [آلية النشر للإنتاج](contracts/deployment-mechanism-contract.md)
 - [هوية الماركة وشخصية الماسكوت](contracts/mascot-brand-identity-contract.md)
+- [أتمتة المحتوى ودورة الحياة](contracts/content-automation-contract.md)
 
 ## التشغيل
 

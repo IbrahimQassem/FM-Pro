@@ -54,6 +54,12 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
   @override
   Stream<AudioPlaybackPhase> get phaseChanges => _phaseController.stream;
 
+  @override
+  Stream<String?> get icyTitleChanges => _player.icyMetadataStream
+      .map((metadata) => metadata?.info?.title?.trim())
+      .where((title) => title == null || title.isNotEmpty)
+      .distinct();
+
   AudioPlaybackPhase _mapPhase(PlayerState state) {
     return switch (state.processingState) {
       ProcessingState.idle => AudioPlaybackPhase.idle,

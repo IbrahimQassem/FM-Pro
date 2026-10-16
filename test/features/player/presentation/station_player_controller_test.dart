@@ -307,6 +307,27 @@ void main() {
     controller.dispose();
     await repository.dispose();
   });
+
+  test('updates streamTitle when icy title changes during station playback',
+      () async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = StationPlayerController(repository);
+    final station = _station();
+
+    await controller.play(station);
+    expect(controller.state.streamTitle, isNull);
+
+    repository.emitIcy('برنامج البث المباشر - الحلقة 1');
+    await Future<void>.delayed(Duration.zero);
+    expect(controller.state.streamTitle, 'برنامج البث المباشر - الحلقة 1');
+
+    repository.emitIcy('  ');
+    await Future<void>.delayed(Duration.zero);
+    expect(controller.state.streamTitle, isNull);
+
+    controller.dispose();
+    await repository.dispose();
+  });
 }
 
 Station _station() {
@@ -353,6 +374,7 @@ Episode _episode() {
 class _FakeAudioPlaybackRepository implements AudioPlaybackRepository {
   Completer<void>? delayedLoad;
   final _phases = StreamController<AudioPlaybackPhase>.broadcast();
+  final _icy = StreamController<String?>.broadcast();
 
   AudioPlaybackItem? loadedItem;
   int playCalls = 0;
@@ -362,7 +384,11 @@ class _FakeAudioPlaybackRepository implements AudioPlaybackRepository {
   @override
   Stream<AudioPlaybackPhase> get phaseChanges => _phases.stream;
 
+  @override
+  Stream<String?> get icyTitleChanges => _icy.stream;
+
   void emit(AudioPlaybackPhase phase) => _phases.add(phase);
+  void emitIcy(String? title) => _icy.add(title);
   void failPlayback() =>
       _phases.addError(StateError('Synthetic disconnect'), StackTrace.current);
 

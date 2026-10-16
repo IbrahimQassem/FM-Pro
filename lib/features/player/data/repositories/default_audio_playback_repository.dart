@@ -12,6 +12,9 @@ class DefaultAudioPlaybackRepository implements AudioPlaybackRepository {
   Stream<AudioPlaybackPhase> get phaseChanges => _dataSource.phaseChanges;
 
   @override
+  Stream<String?> get icyTitleChanges => _dataSource.icyTitleChanges;
+
+  @override
   Future<void> load(AudioPlaybackItem item) => _dataSource.load(item);
 
   @override

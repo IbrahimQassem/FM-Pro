@@ -20,8 +20,10 @@ abstract final class BannerMapper {
       targetUrl: _optionalUrl(data, 'targetUrl'),
       priority: _requiredInt(data, 'priority'),
       isActive: _requiredBool(data, 'isActive'),
-      startAt: _optionalTimestamp(data, 'startAt'),
-      expiresAt: _optionalTimestamp(data, 'expiresAt'),
+      startAt: _optionalTimestamp(data, 'startAt') ??
+          _optionalTimestamp(data, 'startDate'),
+      expiresAt: _optionalTimestamp(data, 'expiresAt') ??
+          _optionalTimestamp(data, 'endDate'),
     );
   }
 

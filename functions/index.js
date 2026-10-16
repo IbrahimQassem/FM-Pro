@@ -1,5 +1,5 @@
 import { getMessaging } from 'firebase-admin/messaging';
-import { onDocumentWritten } from 'firebase-functions/v2/firestore';
+import { onDocumentCreated, onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { verifiedUid, setSubscription, registerDevice, unregisterDevice, removeAccountDevices } from './lib/station-subscriptions.js';
 import { enqueueEpisodeAlert, collectEpisodeAlerts } from './lib/episode-alerts.js';
 import {
@@ -25,6 +25,10 @@ import { defineJsonSecret } from 'firebase-functions/params';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { servePublicWeb } from './lib/public-web.js';
 import { HttpsError, onCall, onRequest } from 'firebase-functions/v2/https';
+import { checkStationsStreamHealthForRoot } from './lib/stream-health.js';
+import { notifyUpcomingProgramsForRoot } from './lib/program-notifications.js';
+import { handleCommentCreated } from './lib/comment-moderation.js';
+import { ingestConfiguredPodcastFeedsForRoot } from './lib/rss-ingestion.js';
 
 import {
   hasRecentAuthentication,
@@ -743,7 +747,92 @@ export const setStationSubscription = onCall({ timeoutSeconds: 30, maxInstances:
 export const registerStationAlertDevice = onCall({ timeoutSeconds: 30, maxInstances: 20 }, async request => registerDevice({ firestore: getFirestore(), uid: await verifiedUid(request, getAuth()), data: request.data }));
 export const unregisterStationAlertDevice = onCall({ timeoutSeconds: 30, maxInstances: 20 }, async request => unregisterDevice({ firestore: getFirestore(), uid: requireAuthenticatedUid(request), data: request.data }));
 export const queuePublishedEpisodeAlert = onDocumentWritten({ document: '{root}/episodes/episodes/{episodeId}', retry: true }, async event => enqueueEpisodeAlert({ firestore: getFirestore(), root: event.params.root, episodeId: event.params.episodeId, before: event.data?.before.data(), after: event.data?.after.data() }));
+export const moderateEpisodeComment = onDocumentCreated(
+  {
+    document: '{root}/episodes/episodes/{episodeId}/comments/{commentId}',
+    timeoutSeconds: 30,
+    maxInstances: 10,
+  },
+  async (event) => {
+    return handleCommentCreated({
+      snapshot: event.data,
+      root: event.params.root,
+      episodeId: event.params.episodeId,
+      geminiApiKey: process.env.GEMINI_API_KEY,
+    });
+  },
+);
 export const deliverEpisodeAlerts = onSchedule({ schedule: 'every 1 minutes', timeoutSeconds: 540, maxInstances: 1 }, async () => collectEpisodeAlerts({ firestore: getFirestore(), auth: getAuth(), send: message => getMessaging().sendEachForMulticast(message) }));
+export const checkStationsStreamHealth = onSchedule(
+  {
+    schedule: 'every 15 minutes',
+    timeZone: 'Asia/Aden',
+    timeoutSeconds: 300,
+    maxInstances: 1,
+  },
+  async () => {
+    const firestore = getFirestore();
+    for (const root of roots) {
+      try {
+        const summary = await checkStationsStreamHealthForRoot({ firestore, root });
+        logger.info(
+          `Stream health check complete for ${root}: ${summary.probed} probed, ` +
+          `${summary.updated} updated, ${summary.unchanged} unchanged (0-write), ` +
+          `${summary.alerted} alerted.`,
+        );
+      } catch (err) {
+        logger.error(`Stream health check failed for ${root}: ${err?.message}`);
+      }
+    }
+  },
+);
+
+export const notifyUpcomingPrograms = onSchedule(
+  {
+    schedule: 'every 10 minutes',
+    timeZone: 'Asia/Aden',
+    timeoutSeconds: 300,
+    maxInstances: 1,
+  },
+  async () => {
+    const firestore = getFirestore();
+    const messaging = getMessaging();
+    for (const root of roots) {
+      try {
+        const summary = await notifyUpcomingProgramsForRoot({ firestore, messaging, root });
+        logger.info(
+          `Upcoming programs check complete for ${root}: ${summary.checked} checked, ` +
+          `${summary.notified} notified, ${summary.skipped} skipped.`,
+        );
+      } catch (err) {
+        logger.error(`Upcoming programs check failed for ${root}: ${err?.message}`);
+      }
+    }
+  },
+);
+
+export const ingestPodcastFeeds = onSchedule(
+  {
+    schedule: 'every 2 hours',
+    timeZone: 'Asia/Aden',
+    timeoutSeconds: 540,
+    maxInstances: 1,
+  },
+  async () => {
+    const firestore = getFirestore();
+    for (const root of roots) {
+      try {
+        const summary = await ingestConfiguredPodcastFeedsForRoot({ firestore, root });
+        logger.info(
+          `Podcast feed ingestion complete for ${root}: ${summary.feedsProcessed} feeds processed, ` +
+          `${summary.totalIngested} total episodes ingested.`,
+        );
+      } catch (err) {
+        logger.error(`Podcast feed ingestion failed for ${root}: ${err?.message}`);
+      }
+    }
+  },
+);
 
 export const adminSetUserPassword = onCall(
   { timeoutSeconds: 30, maxInstances: 20 },

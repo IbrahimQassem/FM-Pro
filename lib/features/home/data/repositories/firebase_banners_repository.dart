@@ -25,13 +25,17 @@ class FirebaseBannersRepository implements BannersRepository {
       final banners = <BannerItem>[];
       var rejectedRecords = 0;
 
+      final now = DateTime.now();
       for (final document in documents) {
         try {
           final banner = BannerMapper.fromMap(
             id: document.id,
             data: document.data(),
           );
-          if (banner.isActive) banners.add(banner);
+          if (banner.isActive &&
+              (banner.expiresAt == null || banner.expiresAt!.isAfter(now))) {
+            banners.add(banner);
+          }
         } on SchemaDataException {
           rejectedRecords++;
           debugPrint('Rejected a banner document with an invalid schema.');

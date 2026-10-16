@@ -77,9 +77,12 @@ class MiniPlayer extends StatelessWidget {
                               ? strings.playbackErrorShort
                               : isLoading
                                   ? strings.connecting
-                                  : isPlaying
-                                      ? strings.nowPlaying
-                                      : strings.playbackPaused,
+                                  : (state.streamTitle != null &&
+                                          state.streamTitle!.trim().isNotEmpty)
+                                      ? state.streamTitle!
+                                      : isPlaying
+                                          ? strings.nowPlaying
+                                          : strings.playbackPaused,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style:

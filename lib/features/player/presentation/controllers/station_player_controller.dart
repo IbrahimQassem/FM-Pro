@@ -18,6 +18,9 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
       _onPhaseChanged,
       onError: _onPlaybackError,
     );
+    _icySubscription = _repository.icyTitleChanges.listen(
+      _onIcyTitleChanged,
+    );
   }
 
   final AudioPlaybackRepository _repository;
@@ -31,6 +34,7 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
   Timer? _sleepTimer;
   Future<void> _loads = Future.value();
   late final StreamSubscription<AudioPlaybackPhase> _phaseSubscription;
+  late final StreamSubscription<String?> _icySubscription;
 
   Future<void> play(Station station) =>
       _playStation(station, resetReconnect: true);
@@ -391,6 +395,19 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
     return _loads;
   }
 
+  void _onIcyTitleChanged(String? title) {
+    if (!mounted || state.station == null || state.episode != null) return;
+    final trimmed = title?.trim();
+    final effectiveTitle =
+        (trimmed != null && trimmed.isNotEmpty) ? trimmed : null;
+    if (state.streamTitle != effectiveTitle) {
+      state = state.copyWith(
+        streamTitle: effectiveTitle,
+        clearStreamTitle: effectiveTitle == null,
+      );
+    }
+  }
+
   @override
   void dispose() {
     _stablePlaybackTimer?.cancel();
@@ -399,6 +416,7 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
     ++_generation;
     _reconnectTimer?.cancel();
     unawaited(_phaseSubscription.cancel());
+    unawaited(_icySubscription.cancel());
     super.dispose();
   }
 }

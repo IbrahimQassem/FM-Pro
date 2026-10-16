@@ -353,9 +353,14 @@ class _NowPlayingSheetState extends ConsumerState<NowPlayingSheet>
                                     Text(
                                       state.episode != null
                                           ? station.name
-                                          : (station.cityNameAr.isNotEmpty
-                                              ? '${station.cityNameAr} • ${strings.streamQualityHq}'
-                                              : strings.streamQualityHq),
+                                          : (state.streamTitle != null &&
+                                                  state.streamTitle!
+                                                      .trim()
+                                                      .isNotEmpty)
+                                              ? state.streamTitle!
+                                              : (station.cityNameAr.isNotEmpty
+                                                  ? '${station.cityNameAr} • ${strings.streamQualityHq}'
+                                                  : strings.streamQualityHq),
                                       textAlign: TextAlign.center,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
