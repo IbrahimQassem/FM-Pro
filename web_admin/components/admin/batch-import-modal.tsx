@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   RefreshCw,
   FileText,
+  Download,
 } from 'lucide-react';
 import {
   Dialog,
@@ -27,6 +28,7 @@ import {
   parseBatchImportWorkbook,
   previewBatchImport,
   commitBatchImport,
+  downloadBatchImportTemplate,
   type BatchImportPreview,
   type BatchImportCommitResult,
   type ParsedBatchSheets,
@@ -173,9 +175,21 @@ export function BatchImportModal({
               <FileSpreadsheet className="size-5 text-emerald-600 dark:text-emerald-400" />
               استيراد دفعة محتوى (XLSX / CSV)
             </DialogTitle>
-            <Badge variant="outline" className="text-xs">
-              البيئة: {firestoreRoot}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => downloadBatchImportTemplate()}
+                className="text-xs flex items-center gap-1.5 border-emerald-600/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+              >
+                <Download className="size-3.5" />
+                تحميل نموذج Excel
+              </Button>
+              <Badge variant="outline" className="text-xs">
+                البيئة: {firestoreRoot}
+              </Badge>
+            </div>
           </div>
           <DialogDescription className="text-xs text-muted-foreground">
             استيراد البرامج والجداول والحلقات من ملف Excel أو Google Sheets
@@ -219,6 +233,33 @@ export function BatchImportModal({
                 </p>
               </div>
             </button>
+          )}
+
+          {!preview && !analyzing && (
+            <div className="flex items-center justify-between p-3.5 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-600/20 rounded-xl">
+              <div className="flex items-center gap-2.5">
+                <FileSpreadsheet className="size-5 text-emerald-600 shrink-0" />
+                <div className="text-right">
+                  <p className="text-xs font-semibold text-foreground">
+                    هل تحتاج إلى نموذج جاهز لتعبئة البيانات؟
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    حمّل نموذج Excel المعتمد مسبقاً والمطابق لقواعد الربط
+                    والعلاقات لجدول البرامج والحلقات.
+                  </p>
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => downloadBatchImportTemplate()}
+                className="text-xs shrink-0 bg-white dark:bg-zinc-900 gap-1.5 border-emerald-600/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100/50"
+              >
+                <Download className="size-3.5" />
+                تحميل النموذج (XLSX)
+              </Button>
+            </div>
           )}
 
           {analyzing && (

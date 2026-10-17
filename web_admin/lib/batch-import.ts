@@ -1363,3 +1363,145 @@ export async function commitBatchImport(
     results,
   };
 }
+
+/**
+ * Creates a clean, contract-compliant XLSX workbook template with
+ * Programs and Episodes sheets and realistic sample data.
+ */
+export function createBatchImportTemplateWorkbook(): XLSX.WorkBook {
+  const programsData = [
+    {
+      stationId: 's1_1',
+      programId: 'prog_sabah_yemen',
+      title: 'صباح الخير يا يمن',
+      weekdays: '1,2,3,4,5',
+      startTime: '08:00',
+      endTime: '09:30',
+      utcOffsetMinutes: 180,
+      isActive: true,
+      isFeatured: true,
+      priority: 1,
+      description: 'برنامج صباحي يومي يناقش قضايا التنمية والمجتمع اليمني',
+    },
+    {
+      stationId: 's1_1',
+      programId: 'prog_torath',
+      title: 'ألحان من التراث',
+      weekdays: '5,6',
+      startTime: '20:00',
+      endTime: '21:30',
+      utcOffsetMinutes: 180,
+      isActive: true,
+      isFeatured: false,
+      priority: 2,
+      description: 'جولة أسبوعية في الموسيقى والأهازيج الشعبية والتراثية',
+    },
+  ];
+
+  const episodesData = [
+    {
+      episodeId: 'ep_sabah_101',
+      programId: 'prog_sabah_yemen',
+      title: 'الحلقة 101: افتتاح موسم البن اليمني',
+      audioUrl: 'https://audio.hudhud.fm/episodes/sabah-101.mp3',
+      durationSec: 3600,
+      broadcastAt: '2026-10-15T08:00:00+03:00',
+      utcOffsetMinutes: 180,
+      isPublished: true,
+      isFeatured: true,
+      priority: 1,
+      description: 'تغطية خاصة ومقابلات مع مزارعي البن في بني مطر وحراز',
+    },
+    {
+      episodeId: 'ep_sabah_102',
+      programId: 'prog_sabah_yemen',
+      title: 'الحلقة 102: مبادرات التعليم والتقنية',
+      audioUrl: 'https://audio.hudhud.fm/episodes/sabah-102.mp3',
+      durationSec: 3450,
+      broadcastAt: '2026-10-16T08:00:00+03:00',
+      utcOffsetMinutes: 180,
+      isPublished: true,
+      isFeatured: false,
+      priority: 2,
+      description: 'حوار مفتوح حول التعليم الرقمي والمبادرات الشبابية في اليمن',
+    },
+  ];
+
+  const wb = XLSX.utils.book_new();
+
+  const wsPrograms = XLSX.utils.json_to_sheet(programsData, {
+    header: [
+      'stationId',
+      'programId',
+      'title',
+      'weekdays',
+      'startTime',
+      'endTime',
+      'utcOffsetMinutes',
+      'isActive',
+      'isFeatured',
+      'priority',
+      'description',
+    ],
+  });
+  wsPrograms['!cols'] = [
+    { wch: 16 }, // stationId
+    { wch: 20 }, // programId
+    { wch: 24 }, // title
+    { wch: 14 }, // weekdays
+    { wch: 12 }, // startTime
+    { wch: 12 }, // endTime
+    { wch: 18 }, // utcOffsetMinutes
+    { wch: 12 }, // isActive
+    { wch: 12 }, // isFeatured
+    { wch: 10 }, // priority
+    { wch: 45 }, // description
+  ];
+
+  const wsEpisodes = XLSX.utils.json_to_sheet(episodesData, {
+    header: [
+      'episodeId',
+      'programId',
+      'title',
+      'audioUrl',
+      'durationSec',
+      'broadcastAt',
+      'utcOffsetMinutes',
+      'isPublished',
+      'isFeatured',
+      'priority',
+      'description',
+    ],
+  });
+  wsEpisodes['!cols'] = [
+    { wch: 18 }, // episodeId
+    { wch: 20 }, // programId
+    { wch: 35 }, // title
+    { wch: 45 }, // audioUrl
+    { wch: 14 }, // durationSec
+    { wch: 28 }, // broadcastAt
+    { wch: 18 }, // utcOffsetMinutes
+    { wch: 14 }, // isPublished
+    { wch: 12 }, // isFeatured
+    { wch: 10 }, // priority
+    { wch: 50 }, // description
+  ];
+
+  XLSX.utils.book_append_sheet(wb, wsPrograms, 'البرامج');
+  XLSX.utils.book_append_sheet(wb, wsEpisodes, 'الحلقات');
+
+  return wb;
+}
+
+/**
+ * Initiates an automatic download of the import template Excel file in browser.
+ */
+export function downloadBatchImportTemplate(
+  filename = 'hudhud-content-import-template.xlsx',
+): void {
+  const wb = createBatchImportTemplateWorkbook();
+  if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    XLSX.writeFile(wb, filename, { compression: true });
+  }
+}
+

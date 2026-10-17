@@ -1,0 +1,3 @@
+episodeId,programId,title,audioUrl,durationSec,broadcastAt,utcOffsetMinutes,isPublished,isFeatured,priority,description
+ep_sabah_101,prog_sabah_yemen,الحلقة 101: افتتاح موسم البن اليمني,https://audio.hudhud.fm/episodes/sabah-101.mp3,3600,2026-10-15T08:00:00+03:00,180,TRUE,TRUE,1,تغطية خاصة ومقابلات مع مزارعي البن في بني مطر وحراز
+ep_sabah_102,prog_sabah_yemen,الحلقة 102: مبادرات التعليم والتقنية,https://audio.hudhud.fm/episodes/sabah-102.mp3,3450,2026-10-16T08:00:00+03:00,180,TRUE,FALSE,2,حوار مفتوح حول التعليم الرقمي والمبادرات الشبابية في اليمن
