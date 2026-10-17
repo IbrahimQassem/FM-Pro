@@ -25,6 +25,13 @@ import { defineJsonSecret } from 'firebase-functions/params';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { servePublicWeb } from './lib/public-web.js';
 import { HttpsError, onCall, onRequest } from 'firebase-functions/v2/https';
+import { setGlobalOptions } from 'firebase-functions/v2';
+
+setGlobalOptions({
+  region: 'us-central1',
+  cpu: 'gcf_gen1',
+  maxInstances: 10,
+});
 import { checkStationsStreamHealthForRoot } from './lib/stream-health.js';
 import { notifyUpcomingProgramsForRoot } from './lib/program-notifications.js';
 import { handleCommentCreated } from './lib/comment-moderation.js';

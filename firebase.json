@@ -84,8 +84,7 @@
           "source": "**",
           "function": {
             "functionId": "hudhudPublic",
-            "region": "us-central1",
-            "pinTag": true
+            "region": "us-central1"
           }
         }
       ],
