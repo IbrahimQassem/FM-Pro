@@ -1224,6 +1224,7 @@ export async function commitBatchImport(
   preview: BatchImportPreview,
   options?: {
     allowUpdates?: boolean;
+    skipInvalidRows?: boolean;
     onProgress?: (progress: {
       current: number;
       total: number;
@@ -1231,13 +1232,15 @@ export async function commitBatchImport(
     }) => void;
   },
 ): Promise<BatchImportCommitResult> {
-  if (preview.hasErrors || !preview.canCommit) {
+  const allowUpdates = !!options?.allowUpdates;
+  const skipInvalidRows = !!options?.skipInvalidRows;
+
+  if (!skipInvalidRows && (preview.hasErrors || !preview.canCommit)) {
     throw new Error(
       'لا يمكن تنفيذ الاستيراد مع وجود صفوف غير صالحة. يرجى تصحيح الأخطاء في الجدول وإعادة المحاولة.',
     );
   }
 
-  const allowUpdates = !!options?.allowUpdates;
   const results: RowCommitOutcome[] = [];
   let committedCount = 0;
   let skippedCount = 0;
@@ -1254,6 +1257,18 @@ export async function commitBatchImport(
       total,
       currentId: prog.id,
     });
+
+    if (prog.status === 'invalid') {
+      failedCount++;
+      const errMsgs = Object.values(prog.errors).filter(Boolean);
+      results.push({
+        id: prog.id || `row_${prog.rowNumber}`,
+        kind: 'programs',
+        status: 'failed',
+        error: errMsgs.join(' • ') || 'صف يحتوي على أخطاء تحقق أو ارتباط مفقود.',
+      });
+      continue;
+    }
 
     if (prog.status === 'unchanged') {
       skippedCount++;
@@ -1321,6 +1336,18 @@ export async function commitBatchImport(
       currentId: ep.id,
     });
 
+    if (ep.status === 'invalid') {
+      failedCount++;
+      const errMsgs = Object.values(ep.errors).filter(Boolean);
+      results.push({
+        id: ep.id || `row_${ep.rowNumber}`,
+        kind: 'episodes',
+        status: 'failed',
+        error: errMsgs.join(' • ') || 'صف يحتوي على أخطاء تحقق أو ارتباط مفقود.',
+      });
+      continue;
+    }
+
     if (ep.status === 'unchanged') {
       skippedCount++;
       results.push({ id: ep.id, kind: 'episodes', status: 'unchanged' });
@@ -1378,8 +1405,12 @@ export async function commitBatchImport(
     }
   }
 
+  const success =
+    failedCount === 0 ||
+    (skipInvalidRows && (committedCount > 0 || skippedCount > 0));
+
   return {
-    success: failedCount === 0,
+    success,
     committedCount,
     skippedCount,
     failedCount,

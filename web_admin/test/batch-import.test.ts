@@ -12,6 +12,7 @@ import {
   parseBatchImportFromFiles,
   previewBatchImport,
   commitBatchImport,
+  type BatchImportPreview,
 } from '../lib/batch-import.ts';
 import type { Firestore } from 'firebase/firestore';
 
@@ -517,6 +518,53 @@ void test('commitBatchImport rejects when preview has errors', async () => {
         'لا يمكن تنفيذ الاستيراد مع وجود صفوف غير صالحة. يرجى تصحيح الأخطاء في الجدول وإعادة المحاولة.',
     },
   );
+});
+
+void test('commitBatchImport supports skipInvalidRows to approve matched/valid rows while skipping errors', async () => {
+  const dummyFirestore = {} as Firestore;
+  const preview: BatchImportPreview = {
+    firestoreRoot: 'HudHudDev',
+    programs: [
+      {
+        rowNumber: 2,
+        id: 'prog-valid-1',
+        raw: {},
+        normalized: { title: 'P1' },
+        errors: {},
+        status: 'unchanged' as const,
+      },
+      {
+        rowNumber: 3,
+        id: 'prog-invalid-1',
+        raw: {},
+        normalized: { title: 'P2' },
+        errors: { stationId: 'المحطة غير موجودة' },
+        status: 'invalid' as const,
+      },
+    ],
+    episodes: [],
+    summary: {
+      totalRows: 2,
+      validRows: 1,
+      invalidRows: 1,
+      newCount: 0,
+      updateCount: 0,
+      unchangedCount: 1,
+    },
+    canCommit: false,
+    hasErrors: true,
+  };
+
+  const outcome = await commitBatchImport(dummyFirestore, 'HudHudDev', preview, {
+    skipInvalidRows: true,
+  });
+
+  assert.equal(outcome.success, true);
+  assert.equal(outcome.skippedCount, 1);
+  assert.equal(outcome.failedCount, 1);
+  assert.equal(outcome.results[0].status, 'unchanged');
+  assert.equal(outcome.results[1].status, 'failed');
+  assert.match(outcome.results[1].error || '', /المحطة غير موجودة/);
 });
 
 void test('commitBatchImport handles unchanged rows and requires allowUpdates for updates', async () => {

@@ -186,6 +186,8 @@ export function BatchImportModal({
     currentId: string;
   } | null>(null);
   const [allowUpdates, setAllowUpdates] = useState(false);
+  const [skipInvalidRows, setSkipInvalidRows] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'valid' | 'invalid'>('all');
   const [commitResult, setCommitResult] =
     useState<BatchImportCommitResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -202,6 +204,8 @@ export function BatchImportModal({
     setCommitting(false);
     setCommitProgress(null);
     setAllowUpdates(false);
+    setSkipInvalidRows(false);
+    setStatusFilter('all');
     setCommitResult(null);
     setErrorMessage(null);
   };
@@ -257,8 +261,14 @@ export function BatchImportModal({
     }
   };
 
+  const canCommitNow = Boolean(
+    preview &&
+      (preview.canCommit || (skipInvalidRows && preview.summary.validRows > 0)) &&
+      !committing,
+  );
+
   const handleCommit = async () => {
-    if (!preview || !preview.canCommit) return;
+    if (!preview || !canCommitNow) return;
     setCommitting(true);
     setCommitResult(null);
     setErrorMessage(null);
@@ -266,10 +276,14 @@ export function BatchImportModal({
     try {
       const result = await commitBatchImport(firestore, firestoreRoot, preview, {
         allowUpdates,
+        skipInvalidRows,
         onProgress: (p) => setCommitProgress(p),
       });
       setCommitResult(result);
-      if (result.success && result.committedCount > 0) {
+      if (
+        result.success &&
+        (result.committedCount > 0 || (skipInvalidRows && result.skippedCount > 0))
+      ) {
         onSuccess?.();
       }
     } catch (err: unknown) {
@@ -579,21 +593,52 @@ export function BatchImportModal({
 
               {/* Error Policy Alert */}
               {preview.hasErrors && (
-                <Alert variant="destructive" className="py-2.5">
-                  <AlertTriangle className="size-4" />
-                  <AlertTitle className="text-xs font-bold">
-                    تنبيه أمان البيانات (العقد الصارم)
-                  </AlertTitle>
-                  <AlertDescription className="text-xs">
-                    يوجد {preview.summary.invalidRows} صفاً يحتوي أخطاء تحقق أو
-                    علاقات مفقودة. وفقاً لعقد الأتمتة، يُمنع الحفظ طالما وُجد أي
-                    خطأ. يرجى مراجعة الجدول وتصحيح الخانات وإعادة المعاينة.
-                  </AlertDescription>
+                <Alert
+                  variant="destructive"
+                  className="py-3 bg-red-50/60 dark:bg-red-950/20 border-red-500/40 text-red-950 dark:text-red-100"
+                >
+                  <AlertTriangle className="size-4 shrink-0 text-red-600 dark:text-red-400 mt-0.5" />
+                  <div className="space-y-2 w-full">
+                    <AlertTitle className="text-xs font-bold text-red-900 dark:text-red-300">
+                      تنبيه أمان البيانات (العقد الصارم)
+                    </AlertTitle>
+                    <AlertDescription className="text-xs leading-relaxed text-red-800 dark:text-red-200">
+                      يوجد {preview.summary.invalidRows} صفاً يحتوي أخطاء تحقق أو
+                      علاقات مفقودة.
+                      {preview.summary.validRows > 0
+                        ? ` يتوفر ${preview.summary.validRows} صفاً مطابقاً وصالحاً للاعتماد.`
+                        : ' وفقاً لعقد الأتمتة، يُمنع الحفظ طالما وُجد أي خطأ.'}
+                    </AlertDescription>
+
+                    {preview.summary.validRows > 0 && (
+                      <div className="pt-2.5 border-t border-red-200 dark:border-red-900/50 flex items-start gap-2.5">
+                        <Checkbox
+                          id="skip-invalid-rows"
+                          checked={skipInvalidRows}
+                          onCheckedChange={(checked) =>
+                            setSkipInvalidRows(Boolean(checked))
+                          }
+                          className="mt-0.5 border-red-400 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+                        />
+                        <label
+                          htmlFor="skip-invalid-rows"
+                          className="cursor-pointer text-xs font-medium leading-snug text-foreground select-none"
+                        >
+                          <span className="block font-bold text-emerald-800 dark:text-emerald-300">
+                            اعتماد وحفظ البيانات المطابقة والصالحة ({preview.summary.validRows} صف) وتخطي الصفوف التي بها أخطاء ({preview.summary.invalidRows} صف)
+                          </span>
+                          <span className="text-[11px] text-muted-foreground block mt-0.5 font-normal">
+                            سيتم اعتماد السجلات المطابقة ({preview.summary.unchangedCount}) والجديدة والمحدّثة ({preview.summary.newCount + preview.summary.updateCount}) وتخطي السجلات غير الصالحة لتصحيحها لاحقاً.
+                          </span>
+                        </label>
+                      </div>
+                    )}
+                  </div>
                 </Alert>
               )}
 
               {/* Option to allow updates */}
-              {preview.summary.updateCount > 0 && !preview.hasErrors && (
+              {preview.summary.updateCount > 0 && (!preview.hasErrors || skipInvalidRows) && (
                 <div className="flex items-center gap-2 p-3 rounded-xl border bg-blue-50/40 dark:bg-blue-950/20 text-xs text-blue-950 dark:text-blue-100">
                   <Checkbox
                     id="allow-updates"
@@ -615,34 +660,99 @@ export function BatchImportModal({
               {/* Sheet Tabs */}
               <Tabs
                 value={activeTab}
-                onValueChange={(val) =>
-                  setActiveTab(val as 'programs' | 'episodes')
-                }
+                onValueChange={(val) => {
+                  setActiveTab(val as 'programs' | 'episodes');
+                  setStatusFilter('all');
+                }}
               >
-                <TabsList className="grid grid-cols-2 w-full max-w-xs">
-                  <TabsTrigger value="programs" className="text-xs">
-                    البرامج ({preview.programs.length})
-                    {preview.programs.some((p) => p.status === 'invalid') && (
-                      <span className="size-2 rounded-full bg-destructive mr-1.5" />
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  <TabsList className="grid grid-cols-2 w-full sm:w-72">
+                    <TabsTrigger value="programs" className="text-xs">
+                      البرامج ({preview.programs.length})
+                      {preview.programs.some((p) => p.status === 'invalid') && (
+                        <span className="size-2 rounded-full bg-destructive mr-1.5" />
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger value="episodes" className="text-xs">
+                      الحلقات ({preview.episodes.length})
+                      {preview.episodes.some((e) => e.status === 'invalid') && (
+                        <span className="size-2 rounded-full bg-destructive mr-1.5" />
+                      )}
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* Filter Pills */}
+                  <div className="flex items-center gap-1.5 bg-muted/40 p-1 rounded-xl text-[11px] self-start sm:self-auto">
+                    <span className="text-muted-foreground px-1.5 text-[10px]">تصفية:</span>
+                    <button
+                      type="button"
+                      onClick={() => setStatusFilter('all')}
+                      className={`px-2.5 py-1 rounded-lg transition-colors font-medium ${
+                        statusFilter === 'all'
+                          ? 'bg-background text-foreground shadow-xs font-bold'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      الكل ({activeTab === 'programs' ? preview.programs.length : preview.episodes.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStatusFilter('valid')}
+                      className={`px-2.5 py-1 rounded-lg transition-colors font-medium ${
+                        statusFilter === 'valid'
+                          ? 'bg-emerald-600 text-white shadow-xs font-bold'
+                          : 'text-emerald-700 dark:text-emerald-400 hover:text-emerald-800'
+                      }`}
+                    >
+                      الصالحة والمطابقة ({
+                        activeTab === 'programs'
+                          ? preview.programs.filter((p) => p.status !== 'invalid').length
+                          : preview.episodes.filter((e) => e.status !== 'invalid').length
+                      })
+                    </button>
+                    {((activeTab === 'programs' && preview.programs.some((p) => p.status === 'invalid')) ||
+                      (activeTab === 'episodes' && preview.episodes.some((e) => e.status === 'invalid'))) && (
+                      <button
+                        type="button"
+                        onClick={() => setStatusFilter('invalid')}
+                        className={`px-2.5 py-1 rounded-lg transition-colors font-medium ${
+                          statusFilter === 'invalid'
+                            ? 'bg-destructive text-destructive-foreground shadow-xs font-bold'
+                            : 'text-destructive hover:bg-destructive/10'
+                        }`}
+                      >
+                        بها أخطاء ({
+                          activeTab === 'programs'
+                            ? preview.programs.filter((p) => p.status === 'invalid').length
+                            : preview.episodes.filter((e) => e.status === 'invalid').length
+                        })
+                      </button>
                     )}
-                  </TabsTrigger>
-                  <TabsTrigger value="episodes" className="text-xs">
-                    الحلقات ({preview.episodes.length})
-                    {preview.episodes.some((e) => e.status === 'invalid') && (
-                      <span className="size-2 rounded-full bg-destructive mr-1.5" />
-                    )}
-                  </TabsTrigger>
-                </TabsList>
+                  </div>
+                </div>
 
                 {/* Programs Tab Content */}
                 <TabsContent value="programs" className="mt-3">
                   <ScrollArea className="h-[380px] sm:h-[440px] rounded-xl border p-3">
-                    {preview.programs.length === 0 ? (
-                      <p className="text-center py-12 text-xs text-muted-foreground">
-                        لا توجد برامج في هذا الملف.
-                      </p>
-                    ) : (
-                      <div className="space-y-3">
+                    {(() => {
+                      const displayedPrograms = preview.programs.filter((p) => {
+                        if (statusFilter === 'valid') return p.status !== 'invalid';
+                        if (statusFilter === 'invalid') return p.status === 'invalid';
+                        return true;
+                      });
+
+                      if (displayedPrograms.length === 0) {
+                        return (
+                          <p className="text-center py-12 text-xs text-muted-foreground">
+                            {preview.programs.length === 0
+                              ? 'لا توجد برامج في هذا الملف.'
+                              : 'لا توجد برامج تطابق التصفية الحالية.'}
+                          </p>
+                        );
+                      }
+
+                      return (
+                        <div className="space-y-3">
                         {preview.programs.map((p) => {
                           const sched = p.normalized.schedule as
                             | Record<string, unknown>
@@ -799,21 +909,35 @@ export function BatchImportModal({
                             </div>
                           );
                         })}
-                      </div>
-                    )}
+                        </div>
+                      );
+                    })()}
                   </ScrollArea>
                 </TabsContent>
 
                 {/* Episodes Tab Content */}
                 <TabsContent value="episodes" className="mt-3">
                   <ScrollArea className="h-[380px] sm:h-[440px] rounded-xl border p-3">
-                    {preview.episodes.length === 0 ? (
-                      <p className="text-center py-12 text-xs text-muted-foreground">
-                        لا توجد حلقات في هذا الملف.
-                      </p>
-                    ) : (
-                      <div className="space-y-3">
-                        {preview.episodes.map((e) => (
+                    {(() => {
+                      const displayedEpisodes = preview.episodes.filter((e) => {
+                        if (statusFilter === 'valid') return e.status !== 'invalid';
+                        if (statusFilter === 'invalid') return e.status === 'invalid';
+                        return true;
+                      });
+
+                      if (displayedEpisodes.length === 0) {
+                        return (
+                          <p className="text-center py-12 text-xs text-muted-foreground">
+                            {preview.episodes.length === 0
+                              ? 'لا توجد حلقات في هذا الملف.'
+                              : 'لا توجد حلقات تطابق التصفية الحالية.'}
+                          </p>
+                        );
+                      }
+
+                      return (
+                        <div className="space-y-3">
+                          {displayedEpisodes.map((e) => (
                           <div
                             key={e.rowNumber}
                             className={`p-3.5 rounded-xl border text-xs space-y-2.5 transition-all ${
@@ -997,8 +1121,9 @@ export function BatchImportModal({
                             )}
                           </div>
                         ))}
-                      </div>
-                    )}
+                        </div>
+                      );
+                    })()}
                   </ScrollArea>
                 </TabsContent>
               </Tabs>
@@ -1037,8 +1162,8 @@ export function BatchImportModal({
             {preview && (
               <Button
                 onClick={() => void handleCommit()}
-                disabled={!preview.canCommit || committing}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+                disabled={!canCommitNow}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-sm"
               >
                 {committing ? (
                   <>
@@ -1049,7 +1174,9 @@ export function BatchImportModal({
                 ) : (
                   <>
                     <CheckCircle2 className="size-4 ml-1.5" />
-                    تنفيذ الاستيراد (Commit)
+                    {skipInvalidRows && preview.hasErrors
+                      ? `اعتماد وحفظ السجلات الصالحة (${preview.summary.validRows})`
+                      : 'تنفيذ الاستيراد (Commit)'}
                   </>
                 )}
               </Button>
