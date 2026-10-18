@@ -14,6 +14,8 @@ import { BatchImportModal } from './batch-import-modal';
 import {
   isContentKind,
   editableFingerprint,
+  scheduleClock,
+  editableSchedule,
 } from '@/lib/content-form';
 import { loadRelationLabels, reportCommentPath } from '@/lib/admin-relations';
 import { deleteEpisode } from '@/lib/delete-episode';
@@ -78,6 +80,9 @@ import {
   User as UserIcon,
   UserX,
   X,
+  Clock,
+  Layers,
+  Volume2,
 } from 'lucide-react';
 import {
   type User,
@@ -132,6 +137,79 @@ import {
   type ResourceKey,
 } from '@/lib/admin-resources';
 import { getFirebaseServices } from '@/lib/firebase-client';
+
+function formatDurationSec(sec: unknown): string {
+  if (typeof sec !== 'number' || sec <= 0) return '';
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  if (m >= 60) {
+    const h = Math.floor(m / 60);
+    const remM = m % 60;
+    return `${h}س ${remM}د`;
+  }
+  return `${m}:${String(s).padStart(2, '0')} د`;
+}
+
+function formatBroadcastTime(val: unknown): string {
+  if (!val) return '';
+  try {
+    let d: Date | null = null;
+    if (val instanceof Date) d = val;
+    else if (typeof (val as { toDate?: () => Date })?.toDate === 'function')
+      d = (val as { toDate: () => Date }).toDate();
+    else if (typeof val === 'string' || typeof val === 'number')
+      d = new Date(val);
+    if (!d || isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('ar-YE', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch {
+    return '';
+  }
+}
+
+const ISO_DAY_SHORT: Record<number, string> = {
+  1: 'ن',
+  2: 'ث',
+  3: 'ر',
+  4: 'خ',
+  5: 'ج',
+  6: 'س',
+  7: 'ح',
+};
+const ISO_DAY_NAMES: Record<number, string> = {
+  1: 'الإثنين',
+  2: 'الثلاثاء',
+  3: 'الأربعاء',
+  4: 'الخميس',
+  5: 'الجمعة',
+  6: 'السبت',
+  7: 'الأحد',
+};
+const WEEK_ORDER = [6, 7, 1, 2, 3, 4, 5];
+
+function renderWeekdaysMini(weekdays: unknown) {
+  if (!Array.isArray(weekdays) || weekdays.length === 0) return null;
+  const daySet = new Set(weekdays);
+  return (
+    <div className="flex items-center gap-0.5" dir="rtl">
+      {WEEK_ORDER.map((d) => {
+        const active = daySet.has(d);
+        return (
+          <span
+            key={d}
+            title={ISO_DAY_NAMES[d]}
+            className={`size-4 rounded text-[9px] flex items-center justify-center font-bold transition-colors ${
+              active
+                ? 'bg-purple-600 text-white'
+                : 'bg-muted/50 text-muted-foreground/30'
+            }`}
+          >
+            {ISO_DAY_SHORT[d]}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
 
 type Section = 'overview' | 'coverage' | 'schedule' | 'advertising' | ResourceKey;
 export type AdminRecord = {
@@ -1529,6 +1607,7 @@ function ResourceView({
     url: string;
     logoUrl?: unknown;
     thumbnailUrl?: unknown;
+    kind?: 'stations' | 'episodes' | string;
   } | null>(null);
   const stationAudioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -1548,14 +1627,17 @@ function ResourceView({
     const rawUrl =
       (typeof record.data.streamUrl === 'string' &&
         record.data.streamUrl.trim()) ||
+      (typeof record.data.audioUrl === 'string' &&
+        record.data.audioUrl.trim()) ||
       (typeof record.data.backupStreamUrl === 'string' &&
         record.data.backupStreamUrl.trim()) ||
       '';
 
     if (!rawUrl || rawUrl === 'https://' || rawUrl === 'http://') {
+      const isEpisode = definition.key === 'episodes';
       setFeedback({
         type: 'error',
-        message: `المحطة «${recordTitle(record, definition)}» لا تحتوي على رابط بث صالح.`,
+        message: `${isEpisode ? 'الحلقة' : 'المحطة'} «${recordTitle(record, definition)}» لا تحتوي على رابط صوت صالح.`,
       });
       return;
     }
@@ -1568,13 +1650,15 @@ function ResourceView({
       }
       setPlayingStation(null);
     } else {
+      const isEpisode = definition.key === 'episodes';
       const name = recordTitle(record, definition);
       setPlayingStation({
         id: record.id,
         name,
         url: rawUrl,
-        logoUrl: record.data.logoUrl,
-        thumbnailUrl: record.data.thumbnailUrl,
+        logoUrl: record.data.logoUrl || (isEpisode ? record.data.coverUrl : undefined),
+        thumbnailUrl: record.data.thumbnailUrl || (isEpisode ? record.data.coverUrl : undefined),
+        kind: definition.key,
       });
       setFeedback(null);
       if (stationAudioRef.current) {
@@ -2124,6 +2208,8 @@ function ResourceView({
             {paginatedRecords.map((record) => {
               const isPlaying = playingStation?.id === record.id;
               const isStation = definition.key === 'stations';
+              const isProgram = definition.key === 'programs';
+              const isEpisode = definition.key === 'episodes';
               const isUser = definition.key === 'users';
               const isUserActive = isUser ? record.data.isActive !== false : false;
               const userRole = isUser
@@ -2134,6 +2220,26 @@ function ResourceView({
                 : '';
               const cityName = isStation && typeof record.data.cityNameAr === 'string'
                 ? record.data.cityNameAr.trim()
+                : '';
+              const programSchedule = isProgram ? editableSchedule(record.data.schedule) : null;
+              const programEpisodesCount = isProgram
+                ? (typeof (record.data.stats as { episodesCount?: number })?.episodesCount === 'number'
+                    ? (record.data.stats as { episodesCount: number }).episodesCount
+                    : typeof record.data.episodesCount === 'number'
+                      ? record.data.episodesCount
+                      : null)
+                : null;
+              const episodeDurationSec = isEpisode && typeof record.data.durationSeconds === 'number'
+                ? record.data.durationSeconds
+                : null;
+              const episodeDurationStr = formatDurationSec(episodeDurationSec);
+              const episodeBroadcastStr = isEpisode ? formatBroadcastTime(record.data.broadcastAt) : '';
+              const episodeHasAudio = isEpisode && typeof record.data.audioUrl === 'string' &&
+                record.data.audioUrl.trim().length > 0 &&
+                record.data.audioUrl !== 'https://' &&
+                record.data.audioUrl !== 'http://';
+              const episodeStationId = isEpisode && typeof record.data.stationId === 'string'
+                ? record.data.stationId.trim()
                 : '';
               return (
                 <article
@@ -2165,15 +2271,31 @@ function ResourceView({
                               {frequency}
                             </span>
                           )}
+                          {isEpisode && episodeDurationStr && (
+                            <span className="text-[11px] text-primary bg-primary/10 px-1.5 py-0.5 rounded font-mono font-medium inline-flex items-center gap-1">
+                              <Clock className="size-2.5" />
+                              {episodeDurationStr}
+                            </span>
+                          )}
                         </div>
                         {definition.key === 'users' && typeof record.data.email === 'string' && record.data.email && (
                           <p className="text-xs text-muted-foreground font-mono mt-0.5" dir="ltr">
                             {record.data.email}
                           </p>
                         )}
+                        {(isStation || isProgram) && typeof record.data.titleEn === 'string' && record.data.titleEn && (
+                          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5" dir="ltr">
+                            {record.data.titleEn}
+                          </p>
+                        )}
                         {typeof record.data.nameEn === 'string' && record.data.nameEn && (
-                          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5" dir="ltr">
                             {record.data.nameEn}
+                          </p>
+                        )}
+                        {isEpisode && typeof record.data.presenter === 'string' && record.data.presenter && (
+                          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                            تقديم: {record.data.presenter}
                           </p>
                         )}
                       </div>
@@ -2273,6 +2395,76 @@ function ResourceView({
                         )}
                       </div>
                     </div>
+                  ) : isProgram ? (
+                    <div className="space-y-2 text-xs">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
+                          <Radio className="size-3.5 text-primary shrink-0" />
+                          <span>{record.relationLabel || readString(record.data, 'stationId') || '—'}</span>
+                        </span>
+                        {record.data.isFeatured === true && (
+                          <Badge variant="outline" className="text-[11px] text-amber-600 border-amber-500/30 bg-amber-500/10 gap-1 py-0">
+                            <Sparkles className="size-2.5" />
+                            مميز
+                          </Badge>
+                        )}
+                        {typeof programEpisodesCount === 'number' && (
+                          <Badge variant="secondary" className="text-[11px] gap-1 py-0">
+                            <Layers className="size-2.5 text-muted-foreground" />
+                            {programEpisodesCount} حلقة
+                          </Badge>
+                        )}
+                      </div>
+                      {programSchedule && programSchedule.startMinute !== '' && programSchedule.endMinute !== '' && (
+                        <div className="flex flex-wrap items-center gap-2 text-muted-foreground">
+                          <span className="inline-flex items-center gap-1 bg-muted/60 px-1.5 py-0.5 rounded font-mono text-[11px]">
+                            <Clock className="size-3 text-muted-foreground/70" />
+                            {scheduleClock(programSchedule.startMinute)} - {scheduleClock(programSchedule.endMinute)}
+                          </span>
+                          {renderWeekdaysMini(programSchedule.weekdays)}
+                        </div>
+                      )}
+                    </div>
+                  ) : isEpisode ? (
+                    <div className="space-y-2 text-xs">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
+                          <Layers className="size-3.5 text-primary shrink-0" />
+                          <span>{record.relationLabel || readString(record.data, 'programId') || '—'}</span>
+                        </span>
+                        {episodeStationId && (
+                          <span className="font-mono text-[10px] bg-muted/60 px-1.5 py-0.5 rounded border">
+                            {episodeStationId}
+                          </span>
+                        )}
+                        {record.data.isFeatured === true && (
+                          <Badge variant="outline" className="text-[11px] text-amber-600 border-amber-500/30 bg-amber-500/10 gap-1 py-0">
+                            <Sparkles className="size-2.5" />
+                            مميزة
+                          </Badge>
+                        )}
+                        {episodeHasAudio && (
+                          <Badge variant="outline" className="text-[11px] text-emerald-600 border-emerald-500/30 bg-emerald-500/10 gap-1 py-0">
+                            <Volume2 className="size-2.5" />
+                            صوتي
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
+                        {episodeBroadcastStr && (
+                          <span className="inline-flex items-center gap-1">
+                            <Calendar className="size-3 text-muted-foreground/70" />
+                            {episodeBroadcastStr}
+                          </span>
+                        )}
+                        {episodeDurationStr && (
+                          <span className="inline-flex items-center gap-1 text-primary font-medium font-mono text-[11px] bg-primary/10 px-1.5 py-0.5 rounded">
+                            <Clock className="size-2.5" />
+                            {episodeDurationStr}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   ) : (
                     <p className="break-words text-sm text-muted-foreground">
                       {record.relationLabel ||
@@ -2293,6 +2485,7 @@ function ResourceView({
                   {(canEdit ||
                     canDelete ||
                     isStation ||
+                    (isEpisode && episodeHasAudio) ||
                     definition.key === 'users') && (
                     <div className="flex gap-2 pt-1 flex-wrap">
                       {definition.key === 'users' && (
@@ -2304,16 +2497,7 @@ function ResourceView({
                           <ShieldCheck className="size-4" /> إدارة الحساب
                         </Button>
                       )}
-                      {canEdit && (
-                        <Button
-                          variant="outline"
-                          className="min-h-11 flex-1 shadow-xs"
-                          onClick={() => setEditor(record)}
-                        >
-                          <Pencil className="size-4" /> تعديل
-                        </Button>
-                      )}
-                      {isStation ? (
+                      {(isStation || (isEpisode && episodeHasAudio)) && (
                         <Button
                           variant={isPlaying ? 'default' : 'outline'}
                           className={`min-h-11 flex-1 shadow-xs ${
@@ -2326,19 +2510,33 @@ function ResourceView({
                           ) : (
                             <Play className="size-4" />
                           )}
-                          {isPlaying ? 'إيقاف البث' : 'تشغيل البث'}
+                          {isPlaying
+                            ? isEpisode
+                              ? 'إيقاف الحلقة'
+                              : 'إيقاف البث'
+                            : isEpisode
+                              ? 'استماع للحلقة'
+                              : 'تشغيل البث'}
                         </Button>
-                      ) : (
-                        canDelete && (
-                          <Button
-                            variant="destructive"
-                            className="min-h-11"
-                            disabled={busyId === record.id}
-                            onClick={() => remove(record)}
-                          >
-                            <Trash2 /> حذف
-                          </Button>
-                        )
+                      )}
+                      {canEdit && (
+                        <Button
+                          variant="outline"
+                          className="min-h-11 flex-1 shadow-xs"
+                          onClick={() => setEditor(record)}
+                        >
+                          <Pencil className="size-4" /> تعديل
+                        </Button>
+                      )}
+                      {canDelete && !isStation && (
+                        <Button
+                          variant="destructive"
+                          className="min-h-11"
+                          disabled={busyId === record.id}
+                          onClick={() => remove(record)}
+                        >
+                          <Trash2 /> حذف
+                        </Button>
                       )}
                     </div>
                   )}
@@ -2356,24 +2554,40 @@ function ResourceView({
                       ? 'المحطة والتردد'
                       : definition.key === 'users'
                         ? 'المستخدم'
-                        : 'الاسم/المحتوى'}
+                        : definition.key === 'programs'
+                          ? 'البرنامج'
+                          : definition.key === 'episodes'
+                            ? 'الحلقة'
+                            : 'الاسم/المحتوى'}
                   </TableHead>
                   <TableHead className="text-right">
-                    {definition.key === 'users' ? 'تاريخ التسجيل' : 'معرّف السجل'}
+                    {definition.key === 'users'
+                      ? 'تاريخ التسجيل'
+                      : definition.key === 'episodes'
+                        ? 'تاريخ البث والرمز'
+                        : 'معرّف السجل'}
                   </TableHead>
                   <TableHead className="text-right">
                     {definition.key === 'stations'
                       ? 'المدينة'
                       : definition.key === 'users'
                         ? 'الصلاحية والنطاق'
-                        : 'الارتباط'}
+                        : definition.key === 'programs'
+                          ? 'المحطة والجدول'
+                          : definition.key === 'episodes'
+                            ? 'البرنامج والتفاصيل'
+                            : 'الارتباط'}
                   </TableHead>
                   <TableHead className="text-right">
                     {definition.key === 'stations'
                       ? 'الحالة والمميزات'
                       : definition.key === 'users'
                         ? 'حالة الحساب'
-                        : 'الحالة'}
+                        : definition.key === 'programs'
+                          ? 'الحالة والحلقات'
+                          : definition.key === 'episodes'
+                            ? 'الحالة والوسائط'
+                            : 'الحالة'}
                   </TableHead>
                   <TableHead className="px-4 text-left">الإجراءات</TableHead>
                 </TableRow>
@@ -2382,12 +2596,34 @@ function ResourceView({
                 {paginatedRecords.map((record) => {
                   const isPlaying = playingStation?.id === record.id;
                   const isStation = definition.key === 'stations';
+                  const isProgram = definition.key === 'programs';
+                  const isEpisode = definition.key === 'episodes';
                   const isUser = definition.key === 'users';
                   const frequency = isStation && typeof record.data.frequency === 'string'
                     ? record.data.frequency.trim()
                     : '';
                   const cityName = isStation && typeof record.data.cityNameAr === 'string'
                     ? record.data.cityNameAr.trim()
+                    : '';
+                  const programSchedule = isProgram ? editableSchedule(record.data.schedule) : null;
+                  const programEpisodesCount = isProgram
+                    ? (typeof (record.data.stats as { episodesCount?: number })?.episodesCount === 'number'
+                        ? (record.data.stats as { episodesCount: number }).episodesCount
+                        : typeof record.data.episodesCount === 'number'
+                          ? record.data.episodesCount
+                          : null)
+                    : null;
+                  const episodeDurationSec = isEpisode && typeof record.data.durationSeconds === 'number'
+                    ? record.data.durationSeconds
+                    : null;
+                  const episodeDurationStr = formatDurationSec(episodeDurationSec);
+                  const episodeBroadcastStr = isEpisode ? formatBroadcastTime(record.data.broadcastAt) : '';
+                  const episodeHasAudio = isEpisode && typeof record.data.audioUrl === 'string' &&
+                    record.data.audioUrl.trim().length > 0 &&
+                    record.data.audioUrl !== 'https://' &&
+                    record.data.audioUrl !== 'http://';
+                  const episodeStationId = isEpisode && typeof record.data.stationId === 'string'
+                    ? record.data.stationId.trim()
                     : '';
 
                   return (
@@ -2422,15 +2658,36 @@ function ResourceView({
                                   {frequency}
                                 </span>
                               )}
+                              {isEpisode && episodeDurationStr && (
+                                <span className="text-[11px] text-primary bg-primary/10 px-1.5 py-0.5 rounded font-mono font-medium inline-flex items-center gap-1 shrink-0">
+                                  <Clock className="size-2.5" />
+                                  {episodeDurationStr}
+                                </span>
+                              )}
                             </div>
                             {isUser && typeof record.data.email === 'string' && record.data.email && (
                               <p className="text-xs text-muted-foreground font-mono truncate" dir="ltr">
                                 {record.data.email}
                               </p>
                             )}
+                            {(isStation || isProgram) && typeof record.data.titleEn === 'string' && record.data.titleEn && (
+                              <p className="text-xs text-muted-foreground truncate" dir="ltr">
+                                {record.data.titleEn}
+                              </p>
+                            )}
                             {isStation && typeof record.data.nameEn === 'string' && record.data.nameEn && (
-                              <p className="text-xs text-muted-foreground truncate">
+                              <p className="text-xs text-muted-foreground truncate" dir="ltr">
                                 {record.data.nameEn}
+                              </p>
+                            )}
+                            {isEpisode && typeof record.data.presenter === 'string' && record.data.presenter && (
+                              <p className="text-xs text-muted-foreground truncate">
+                                تقديم: {record.data.presenter}
+                              </p>
+                            )}
+                            {isProgram && typeof record.data.description === 'string' && record.data.description && !record.data.titleEn && (
+                              <p className="text-xs text-muted-foreground truncate">
+                                {record.data.description}
                               </p>
                             )}
                           </div>
@@ -2456,6 +2713,28 @@ function ResourceView({
                             >
                               {formatUserDate(record.data.createdAt, 'غير متوفر')}
                             </span>
+                          </div>
+                        ) : isEpisode ? (
+                          <div className="flex flex-col gap-0.5">
+                            {episodeBroadcastStr ? (
+                              <div className="inline-flex items-center gap-1 text-foreground/90 font-medium font-sans text-xs">
+                                <Calendar className="size-3 text-muted-foreground shrink-0" />
+                                <span>{episodeBroadcastStr}</span>
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground/50 italic font-sans">—</span>
+                            )}
+                            <span className="text-[11px] text-muted-foreground font-mono">{record.id}</span>
+                          </div>
+                        ) : isProgram ? (
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-mono text-foreground/80">{record.id}</span>
+                            {typeof programEpisodesCount === 'number' && programEpisodesCount > 0 && (
+                              <span className="text-[11px] font-sans text-muted-foreground inline-flex items-center gap-1">
+                                <Layers className="size-2.5 text-primary/70" />
+                                {programEpisodesCount} حلقة مسجلة
+                              </span>
+                            )}
                           </div>
                         ) : (
                           record.id
@@ -2519,6 +2798,46 @@ function ResourceView({
                             );
 
                           })()
+                        ) : isProgram ? (
+                          <div className="flex flex-col gap-1.5">
+                            <div className="flex items-center gap-1.5 font-medium text-xs text-foreground">
+                              <Radio className="size-3.5 text-primary shrink-0" />
+                              <span className="truncate max-w-[190px]">
+                                {record.relationLabel || readString(record.data, 'stationId') || '—'}
+                              </span>
+                            </div>
+                            {programSchedule && programSchedule.startMinute !== '' && programSchedule.endMinute !== '' && (
+                              <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                                <span className="inline-flex items-center gap-1 bg-muted/60 px-1.5 py-0.5 rounded font-mono">
+                                  <Clock className="size-3 text-muted-foreground/70" />
+                                  {scheduleClock(programSchedule.startMinute)} - {scheduleClock(programSchedule.endMinute)}
+                                </span>
+                                {renderWeekdaysMini(programSchedule.weekdays)}
+                              </div>
+                            )}
+                          </div>
+                        ) : isEpisode ? (
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-1.5 font-medium text-xs text-foreground">
+                              <Layers className="size-3.5 text-primary shrink-0" />
+                              <span className="truncate max-w-[180px]">
+                                {record.relationLabel || readString(record.data, 'programId') || '—'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                              {episodeStationId && (
+                                <span className="font-mono text-[10px] bg-muted/60 px-1.5 py-0.5 rounded border">
+                                  {episodeStationId}
+                                </span>
+                              )}
+                              {episodeDurationStr && (
+                                <span className="inline-flex items-center gap-1 text-muted-foreground">
+                                  <Clock className="size-2.5" />
+                                  {episodeDurationStr}
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         ) : (
                           record.relationLabel ||
                           readString(record.data, definition.relationField) ||
@@ -2573,13 +2892,13 @@ function ResourceView({
                               مباشر
                             </Badge>
                           )}
-                          {isStation && record.data.isFeatured === true && (
+                          {record.data.isFeatured === true && (
                             <Badge
                               variant="outline"
                               className="text-[11px] text-amber-700 dark:text-amber-400 border-amber-500/30 bg-amber-500/10 gap-1"
                             >
                               <Sparkles className="size-3" />
-                              مميزة
+                              {isProgram ? 'مميز' : 'مميزة'}
                             </Badge>
                           )}
                           {isStation && record.data.isVerified === true && (
@@ -2591,16 +2910,50 @@ function ResourceView({
                               موثقة
                             </Badge>
                           )}
+                          {isProgram && typeof programEpisodesCount === 'number' && (
+                            <Badge
+                              variant="secondary"
+                              className="text-[11px] gap-1 bg-muted/80 text-muted-foreground"
+                            >
+                              <Layers className="size-2.5" />
+                              {programEpisodesCount} {programEpisodesCount === 1 ? 'حلقة' : programEpisodesCount === 2 ? 'حلقتان' : programEpisodesCount > 10 ? 'حلقة' : 'حلقات'}
+                            </Badge>
+                          )}
+                          {isEpisode && episodeHasAudio && (
+                            <Badge
+                              variant="outline"
+                              className="text-[11px] text-emerald-700 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10 gap-1"
+                            >
+                              <Volume2 className="size-3" />
+                              صوتي
+                            </Badge>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-end gap-1.5">
-                          {isStation ? (
+                          {(isStation || (isEpisode && episodeHasAudio)) && (
                             <Button
                               variant={isPlaying ? 'default' : 'outline'}
                               size="sm"
-                              aria-label={isPlaying ? 'إيقاف البث' : 'تشغيل البث'}
-                              title={isPlaying ? 'إيقاف البث' : 'تشغيل البث'}
+                              aria-label={
+                                isPlaying
+                                  ? isEpisode
+                                    ? 'إيقاف الحلقة'
+                                    : 'إيقاف البث'
+                                  : isEpisode
+                                    ? 'استماع للحلقة'
+                                    : 'تشغيل البث'
+                              }
+                              title={
+                                isPlaying
+                                  ? isEpisode
+                                    ? 'إيقاف الحلقة'
+                                    : 'إيقاف البث'
+                                  : isEpisode
+                                    ? 'استماع للحلقة'
+                                    : 'تشغيل البث'
+                              }
                               onClick={() => togglePlayStation(record)}
                               className={`h-9 gap-1.5 px-3 shadow-xs ${
                                 isPlaying
@@ -2613,21 +2966,20 @@ function ResourceView({
                               ) : (
                                 <Play className="size-3.5" />
                               )}
-                              <span>{isPlaying ? 'إيقاف' : 'تشغيل'}</span>
+                              <span>{isPlaying ? 'إيقاف' : isEpisode ? 'استماع' : 'تشغيل'}</span>
                             </Button>
-                          ) : (
-                            canDelete && (
-                              <Button
-                                variant="destructive"
-                                size="icon"
-                                aria-label="حذف"
-                                title="حذف"
-                                disabled={busyId === record.id}
-                                onClick={() => remove(record)}
-                              >
-                                <Trash2 />
-                              </Button>
-                            )
+                          )}
+                          {canDelete && !isStation && (
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              aria-label="حذف"
+                              title="حذف"
+                              disabled={busyId === record.id}
+                              onClick={() => remove(record)}
+                            >
+                              <Trash2 />
+                            </Button>
                           )}
                           {definition.key === 'users' && (
                             <Button
@@ -2697,7 +3049,7 @@ function ResourceView({
       </Card>
       {playingStation && (
         <aside
-          aria-label="مشغل البث المباشر"
+          aria-label={playingStation.kind === 'episodes' ? 'مشغل الحلقة الصوتية' : 'مشغل البث المباشر'}
           className="fixed bottom-4 start-4 end-4 z-40 mx-auto max-w-2xl rounded-2xl border border-primary/20 bg-background/95 p-3.5 shadow-2xl backdrop-blur-md transition-all duration-300 sm:bottom-6 sm:p-4"
         >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -2718,7 +3070,9 @@ function ResourceView({
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-semibold text-primary uppercase tracking-wider">
-                    بث مباشر يعمل الآن
+                    {playingStation.kind === 'episodes'
+                      ? 'استماع للحلقة الصوتية'
+                      : 'بث مباشر يعمل الآن'}
                   </span>
                   <div className="flex items-end gap-0.5 h-3">
                     <span className="w-0.5 bg-primary rounded-full animate-pulse h-3" />

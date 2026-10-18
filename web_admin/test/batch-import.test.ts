@@ -33,6 +33,15 @@ void test('schedule conversion: ISO weekdays validation, deduplication and sorti
     valid: true,
     weekdays: [2, 6],
   });
+  // Excel date coercion recovery ('1/3/06' -> [1, 3, 6])
+  assert.deepEqual(parseScheduleWeekdays('1/3/06'), {
+    valid: true,
+    weekdays: [1, 3, 6],
+  });
+  assert.deepEqual(parseScheduleWeekdays('2/4/07'), {
+    valid: true,
+    weekdays: [2, 4, 7],
+  });
 
   // Rejections: duplicates
   const dupRes = parseScheduleWeekdays('1, 2, 1');

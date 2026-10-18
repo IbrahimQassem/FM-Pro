@@ -366,7 +366,22 @@ export function parseScheduleWeekdays(
   } else if (typeof value === 'string') {
     const trimmed = value.trim();
     if (!trimmed) return { valid: false, reason: 'أيام الأسبوع مطلوبة.' };
-    items = trimmed.split(/[,،\s]+/).filter(Boolean);
+    // Check if Excel/SheetJS auto-formatted a 3-day weekday string like '1,3,6' into date '1/3/06' or '01/03/06'
+    const dateMatch = trimmed.match(/^0?([1-7])\/0?([1-7])\/(?:20)?0?([1-7])$/);
+    if (dateMatch) {
+      items = [dateMatch[1], dateMatch[2], dateMatch[3]];
+    } else {
+      items = trimmed.split(/[,،\s]+/).filter(Boolean);
+    }
+  } else if (value instanceof Date && !isNaN(value.getTime())) {
+    const m = value.getMonth() + 1;
+    const d = value.getDate();
+    const y = value.getFullYear() % 100;
+    if (m >= 1 && m <= 7 && d >= 1 && d <= 7 && y >= 1 && y <= 7) {
+      items = [String(m), String(d), String(y)];
+    } else {
+      return { valid: false, reason: 'صيغة أيام الأسبوع غير صالحة.' };
+    }
   } else if (Array.isArray(value)) {
     items = value.map((x) => safeText(x)).filter(Boolean);
   } else {
@@ -796,10 +811,18 @@ export function toFirestorePayload(
 export function parseBatchImportWorkbook(
   data: ArrayBuffer | Uint8Array | string,
 ): ParsedBatchSheets {
+  let isZip = false;
+  if (typeof data !== 'string') {
+    const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+    isZip = bytes.length >= 2 && bytes[0] === 0x50 && bytes[1] === 0x4b;
+  }
+
   const workbook =
     typeof data === 'string'
-      ? XLSX.read(data, { type: 'string', cellDates: true })
-      : XLSX.read(data, { type: 'array', cellDates: true });
+      ? XLSX.read(data, { type: 'string', raw: true })
+      : isZip
+        ? XLSX.read(data, { type: 'array', cellDates: true })
+        : XLSX.read(data, { type: 'array', raw: true });
 
   let programsSheetName: string | null = null;
   let episodesSheetName: string | null = null;
@@ -1494,14 +1517,35 @@ export function createBatchImportTemplateWorkbook(): XLSX.WorkBook {
 }
 
 /**
+ * Options for downloading the batch import template.
+ */
+export interface BatchImportTemplateDownloadOptions {
+  root?: string;
+  filename?: string;
+}
+
+/**
  * Initiates an automatic download of the import template Excel file in browser.
+ * Generates a descriptive filename by default, e.g. `hudhud-programs-and-episodes-template-HudHudOfficial-2026-10-19.xlsx`.
  */
 export function downloadBatchImportTemplate(
-  filename = 'hudhud-content-import-template.xlsx',
-): void {
+  optionsOrFilename?: string | BatchImportTemplateDownloadOptions,
+): string {
+  const dateStr = new Date().toISOString().slice(0, 10);
+  let finalFilename: string;
+  if (typeof optionsOrFilename === 'string') {
+    finalFilename = optionsOrFilename;
+  } else if (optionsOrFilename && typeof optionsOrFilename === 'object') {
+    finalFilename =
+      optionsOrFilename.filename ||
+      `hudhud-programs-and-episodes-template-${optionsOrFilename.root ? `${optionsOrFilename.root}-` : ''}${dateStr}.xlsx`;
+  } else {
+    finalFilename = `hudhud-programs-and-episodes-template-${dateStr}.xlsx`;
+  }
   const wb = createBatchImportTemplateWorkbook();
   if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-    XLSX.writeFile(wb, filename, { compression: true });
+    XLSX.writeFile(wb, finalFilename, { compression: true });
   }
+  return finalFilename;
 }
 
