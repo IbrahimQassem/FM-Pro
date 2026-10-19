@@ -159,6 +159,7 @@ export async function ingestEpisodesFromFeed({
   }
 
   const episodesCol = firestore.collection(root).doc('episodes').collection('episodes');
+  const programRef = firestore.collection(root).doc('programs').collection('programs').doc(programId);
 
   // Query existing episodes for this program to ensure idempotency
   const existingSnapshot = await episodesCol.where('programId', '==', programId).get();
@@ -199,30 +200,32 @@ export async function ingestEpisodesFromFeed({
       utcOffsetMinutes: 180,
       priority: 0,
       isFeatured: false,
-      playsCount: 0,
-      likesCount: 0,
-      commentsCount: 0,
+      stats: {
+        playsCount: 0,
+        likesCount: 0,
+        commentsCount: 0,
+      },
       createdAt: FieldValue.serverTimestamp(),
     };
 
-    await episodeDoc.set(payload);
+    const batch = firestore.batch();
+    batch.set(episodeDoc, payload);
+    batch.update(programRef, {
+      'stats.episodesCount': FieldValue.increment(1),
+      lastIngestedAt: FieldValue.serverTimestamp(),
+    });
+
+    try {
+      await batch.commit();
+    } catch (err) {
+      logger.error(`Failed to commit episode "${item.title}" (ID: ${episodeId}) for program ${programId}: ${err?.message}`);
+      throw err;
+    }
+
     existingExternalIds.add(item.externalId);
     existingAudioUrls.add(item.audioUrl);
     ingested++;
     logger.info(`Ingested episode "${item.title}" (ID: ${episodeId}) for program ${programId}`);
-  }
-
-  // Update program episode counter if any episodes were ingested
-  if (ingested > 0) {
-    try {
-      const programRef = firestore.collection(root).doc('programs').collection('programs').doc(programId);
-      await programRef.update({
-        episodesCount: FieldValue.increment(ingested),
-        lastIngestedAt: FieldValue.serverTimestamp(),
-      });
-    } catch (err) {
-      logger.warn(`Could not update episodesCount for program ${programId}: ${err?.message}`);
-    }
   }
 
   return { programId, totalFeedItems: items.length, ingested, skipped };
