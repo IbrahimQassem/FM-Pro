@@ -501,7 +501,11 @@ class _StationHero extends StatelessWidget {
                                     ? strings.pause
                                     : (station.streamUrl.isEmpty
                                         ? strings.terrestrialBroadcast
-                                        : strings.listenLive),
+                                        : (station.streamHealthState ==
+                                                StationStreamHealthState
+                                                    .temporarilyStopped
+                                            ? strings.tryListening
+                                            : strings.listenLive)),
                       ),
                     ),
                   ),
@@ -643,8 +647,11 @@ class _AboutTab extends StatelessWidget {
                 ],
                 const SizedBox(height: 10),
                 _InfoRow(
-                  icon: Icons.podcasts_rounded,
-                  label: station.isLive ? strings.live : strings.onlineStation,
+                  icon: _resolveStreamDetailsIcon(station.streamHealthState),
+                  label: _resolveStreamDetailsLabel(
+                    station.streamHealthState,
+                    strings,
+                  ),
                 ),
               ],
             ),
@@ -924,4 +931,45 @@ class _TabBarHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant _TabBarHeaderDelegate oldDelegate) => false;
+}
+
+IconData _resolveStreamDetailsIcon(StationStreamHealthState state) {
+  switch (state) {
+    case StationStreamHealthState.available:
+      return Icons.podcasts_rounded;
+    case StationStreamHealthState.backupAvailable:
+      return Icons.sync_rounded;
+    case StationStreamHealthState.unstable:
+      return Icons.warning_amber_rounded;
+    case StationStreamHealthState.temporarilyStopped:
+      return Icons.pause_circle_outline_rounded;
+    case StationStreamHealthState.unverified:
+      return Icons.help_outline_rounded;
+    case StationStreamHealthState.noOnlineSource:
+      return Icons.radio_rounded;
+    case StationStreamHealthState.deviceConnectionError:
+      return Icons.wifi_off_rounded;
+  }
+}
+
+String _resolveStreamDetailsLabel(
+  StationStreamHealthState state,
+  AppLocalizations strings,
+) {
+  switch (state) {
+    case StationStreamHealthState.available:
+      return strings.streamAvailable;
+    case StationStreamHealthState.backupAvailable:
+      return strings.streamAvailableBackup;
+    case StationStreamHealthState.unstable:
+      return strings.streamUnstable;
+    case StationStreamHealthState.temporarilyStopped:
+      return strings.streamTemporarilyStopped;
+    case StationStreamHealthState.unverified:
+      return strings.streamUnverifiedStatus;
+    case StationStreamHealthState.noOnlineSource:
+      return strings.streamNoOnlineSource;
+    case StationStreamHealthState.deviceConnectionError:
+      return strings.streamDeviceConnectionError;
+  }
 }

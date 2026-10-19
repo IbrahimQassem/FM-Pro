@@ -59,10 +59,14 @@ export function shouldNotifyProgram(programData, timeInfo) {
 
 /**
  * Builds standard topic-based FCM payload for program notification.
+ * Namespaces topic with root to avoid cross-environment collisions (IR-08).
  */
-export function createProgramFcmMessage({ programId, programTitle, stationId, stationName }) {
+export function createProgramFcmMessage({ programId, programTitle, stationId, stationName, root }) {
+  const topic = root && root !== 'HudHudOfficial'
+    ? `${root.toLowerCase()}_program_${programId}`
+    : `program_${programId}`;
   return {
-    topic: `program_${programId}`,
+    topic,
     notification: {
       title: 'بدء برنامج مباشر 📻',
       body: `يبدأ الآن برنامج "${programTitle}" عبر ${stationName || 'إذاعتك المفضلة'}`,
@@ -143,19 +147,20 @@ export async function notifyUpcomingProgramsForRoot({
       programTitle: data.title || 'برنامج مميز',
       stationId: data.stationId,
       stationName,
+      root,
     });
 
     try {
+      // Idempotency update before send to prevent duplicate broadcasts on retry (IR-08)
+      await doc.ref.update({
+        lastNotifiedDate: timeInfo.ymd,
+      });
+
       if (messaging) {
         await messaging.send(message);
       }
       notified++;
-
-      // Idempotency update: record lastNotifiedDate
-      await doc.ref.update({
-        lastNotifiedDate: timeInfo.ymd,
-      });
-      logger.info(`Notified topic program_${doc.id} for "${data.title}" starting today at minute ${data.schedule?.startMinute}`);
+      logger.info(`Notified topic ${message.topic} for "${data.title}" starting today at minute ${data.schedule?.startMinute}`);
     } catch (err) {
       logger.error(`Failed to send FCM topic alert for program ${doc.id}: ${err?.message}`);
     }

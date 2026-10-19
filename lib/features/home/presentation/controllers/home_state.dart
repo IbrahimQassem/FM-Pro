@@ -86,7 +86,7 @@ class HomeState {
   }
 
   List<Station> get visibleStations {
-    final normalizedQuery = searchQuery.trim().toLowerCase();
+    final normalizedQuery = normalizeArabicSearchText(searchQuery);
     return stations.where((station) {
       if (station.countryCode.toUpperCase() != defaultCountryCode) {
         return false;
@@ -98,10 +98,13 @@ class HomeState {
         return false;
       }
       if (normalizedQuery.isEmpty) return true;
-      return station.name.toLowerCase().contains(normalizedQuery) ||
-          station.nameEn.toLowerCase().contains(normalizedQuery) ||
-          station.cityNameAr.toLowerCase().contains(normalizedQuery) ||
-          station.frequency.toLowerCase().contains(normalizedQuery);
+      return normalizeArabicSearchText(station.name)
+              .contains(normalizedQuery) ||
+          normalizeArabicSearchText(station.nameEn).contains(normalizedQuery) ||
+          normalizeArabicSearchText(station.cityNameAr)
+              .contains(normalizedQuery) ||
+          normalizeArabicSearchText(station.frequency)
+              .contains(normalizedQuery);
     }).toList(growable: false);
   }
 
@@ -142,4 +145,29 @@ class HomeState {
       rejectedRecords: rejectedRecords ?? this.rejectedRecords,
     );
   }
+}
+
+String normalizeArabicSearchText(String text) {
+  if (text.isEmpty) return '';
+  var result = text.trim().toLowerCase();
+
+  // Strip tashkeel (diacritics: fatha, damma, kasra, sukun, shadda, tanwin) and tatweel
+  result = result.replaceAll(RegExp(r'[\u064B-\u065F\u0670\u0640]'), '');
+
+  // Normalize Alef variants: أ, إ, آ, ٱ -> ا
+  result = result.replaceAll(RegExp(r'[أإآٱ]'), 'ا');
+
+  // Normalize Taa Marbuta: ة -> ه
+  result = result.replaceAll('ة', 'ه');
+
+  // Normalize Alef Maksura: ى -> ي
+  result = result.replaceAll('ى', 'ي');
+
+  // Normalize Eastern Arabic digits to Western digits
+  const easternDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  for (var i = 0; i < easternDigits.length; i++) {
+    result = result.replaceAll(easternDigits[i], '$i');
+  }
+
+  return result;
 }

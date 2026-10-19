@@ -65,6 +65,7 @@ import {
   Megaphone,
   MessageSquare,
   Pause,
+  PauseCircle,
   Pencil,
   Play,
   PlayCircle,
@@ -1676,7 +1677,7 @@ function ResourceView({
   }
 
   const [featureFilter, setFeatureFilter] = useState<
-    'all' | 'live' | 'featured' | 'verified'
+    'all' | 'live' | 'featured' | 'verified' | 'stopped'
   >('all');
   const [userRoleFilter, setUserRoleFilter] = useState<
     'all' | 'super_admin' | 'station_admin' | 'moderator' | 'listener'
@@ -1685,17 +1686,26 @@ function ResourceView({
 
   const featureCounts = useMemo(() => {
     if (definition.key !== 'stations') {
-      return { live: 0, featured: 0, verified: 0 };
+      return { live: 0, featured: 0, verified: 0, stopped: 0 };
     }
     let live = 0;
     let featured = 0;
     let verified = 0;
+    let stopped = 0;
     for (const r of records) {
       if (r.data.isLive === true) live++;
       if (r.data.isFeatured === true) featured++;
       if (r.data.isVerified === true) verified++;
+      if (
+        r.data.healthStatus === 'offline' ||
+        (typeof r.data.consecutiveFailures === 'number' &&
+          r.data.consecutiveFailures >= 3) ||
+        (r.data.isLive === false && r.data.streamUrl)
+      ) {
+        stopped++;
+      }
     }
-    return { live, featured, verified };
+    return { live, featured, verified, stopped };
   }, [definition.key, records]);
 
   const userRoleCounts = useMemo(() => {
@@ -1741,6 +1751,14 @@ function ResourceView({
         list = list.filter((r) => r.data.isFeatured === true);
       } else if (featureFilter === 'verified') {
         list = list.filter((r) => r.data.isVerified === true);
+      } else if (featureFilter === 'stopped') {
+        list = list.filter(
+          (r) =>
+            r.data.healthStatus === 'offline' ||
+            (typeof r.data.consecutiveFailures === 'number' &&
+              r.data.consecutiveFailures >= 3) ||
+            (r.data.isLive === false && r.data.streamUrl),
+        );
       }
     } else if (definition.key === 'users') {
       if (userRoleFilter === 'super_admin') {
@@ -2125,6 +2143,22 @@ function ResourceView({
                   <CheckCircle2 className="size-3 text-blue-500" />
                   موثقة ({featureCounts.verified})
                 </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFeatureFilter((f) =>
+                      f === 'stopped' ? 'all' : 'stopped',
+                    )
+                  }
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
+                    featureFilter === 'stopped'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <PauseCircle className="size-3 text-red-500" />
+                  متوقف مؤقتًا ({featureCounts.stopped})
+                </button>
               </div>
             )}
             {definition.key === 'users' && (
@@ -2341,11 +2375,26 @@ function ResourceView({
                           {cityName}
                         </span>
                       )}
-                      {record.data.isLive === true && (
-                        <Badge variant="outline" className="text-[11px] text-emerald-600 border-emerald-500/30 bg-emerald-500/10 gap-1 py-0">
-                          <span className="size-1 rounded-full bg-emerald-500 animate-pulse" />
-                          بث حي
+                      {record.data.healthStatus === 'offline' ||
+                      (typeof record.data.consecutiveFailures === 'number' &&
+                        record.data.consecutiveFailures >= 3) ? (
+                        <Badge
+                          variant="outline"
+                          className="text-[11px] text-red-600 border-red-500/30 bg-red-500/10 gap-1 py-0"
+                        >
+                          <PauseCircle className="size-2.5 text-red-500" />
+                          متوقف مؤقتًا
                         </Badge>
+                      ) : (
+                        record.data.isLive === true && (
+                          <Badge
+                            variant="outline"
+                            className="text-[11px] text-emerald-600 border-emerald-500/30 bg-emerald-500/10 gap-1 py-0"
+                          >
+                            <span className="size-1 rounded-full bg-emerald-500 animate-pulse" />
+                            بث حي
+                          </Badge>
+                        )
                       )}
                       {record.data.isFeatured === true && (
                         <Badge variant="outline" className="text-[11px] text-amber-600 border-amber-500/30 bg-amber-500/10 gap-1 py-0">
@@ -2883,15 +2932,28 @@ function ResourceView({
                             '—'
                           )}
 
-                          {isStation && record.data.isLive === true && (
-                            <Badge
-                              variant="outline"
-                              className="text-[11px] text-emerald-700 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10 gap-1"
-                            >
-                              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                              مباشر
-                            </Badge>
-                          )}
+                          {isStation &&
+                            (record.data.healthStatus === 'offline' ||
+                            (typeof record.data.consecutiveFailures === 'number' &&
+                              record.data.consecutiveFailures >= 3) ? (
+                              <Badge
+                                variant="outline"
+                                className="text-[11px] text-red-700 dark:text-red-400 border-red-500/30 bg-red-500/10 gap-1"
+                              >
+                                <PauseCircle className="size-3 text-red-500" />
+                                متوقف مؤقتًا
+                              </Badge>
+                            ) : (
+                              record.data.isLive === true && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-[11px] text-emerald-700 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10 gap-1"
+                                >
+                                  <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                  مباشر
+                                </Badge>
+                              )
+                            ))}
                           {record.data.isFeatured === true && (
                             <Badge
                               variant="outline"

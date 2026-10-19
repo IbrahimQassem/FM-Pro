@@ -245,7 +245,13 @@ service cloud.firestore {
     match /{root}/stations/stations/{stationId} {
       allow read: if isKnownRoot(root);
       allow create, delete: if isKnownRoot(root) && isSuperAdmin();
-      allow update: if isKnownRoot(root) && canManageStation(stationId);
+      allow update: if isKnownRoot(root) && canManageStation(stationId)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'healthStatus',
+          'consecutiveFailures',
+          'lastCheckedAt',
+          'streamHealthSource'
+        ]);
     }
 
     match /{root}/banners/banners/{bannerId} {
@@ -254,7 +260,7 @@ service cloud.firestore {
     }
 
     match /{root}/notifications/notifications/{notificationId} {
-      allow read: if isKnownRoot(root);
+      allow read: if isKnownRoot(root) && isSuperAdmin();
       allow create, update, delete: if isKnownRoot(root) && isSuperAdmin();
     }
 
@@ -281,28 +287,28 @@ service cloud.firestore {
       allow delete: if isKnownRoot(root) && (isSuperAdmin() || canManageStation(resource.data.stationId));
 
       match /comments/{commentId} {
-        allow read: if isKnownRoot(root) && (isAdmin() || resource.data.status == 'published');
+        allow read: if isKnownRoot(root) && (isSuperAdmin() || canManageStation(get(/databases/$(database)/documents/$(root)/episodes/episodes/$(episodeId)).data.stationId) || resource.data.status == 'published');
         allow create: if isKnownRoot(root) && validCommentCreate(root, episodeId);
-        allow update, delete: if isKnownRoot(root) && isAdmin();
+        allow update, delete: if isKnownRoot(root) && (isSuperAdmin() || canManageStation(get(/databases/$(database)/documents/$(root)/episodes/episodes/$(episodeId)).data.stationId));
       }
     }
 
     match /{root}/users/users/{uid} {
-      allow get: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
-      allow list: if isKnownRoot(root) && isAdmin();
+      allow get: if isKnownRoot(root) && (isOwner(uid) || isSuperAdmin());
+      allow list: if isKnownRoot(root) && isSuperAdmin();
       allow create, update, delete: if isKnownRoot(root) && isSuperAdmin();
 
       match /agreements/{agreementId} {
-        allow get: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
-        allow list: if isKnownRoot(root) && isAdmin();
+        allow get: if isKnownRoot(root) && (isOwner(uid) || isSuperAdmin());
+        allow list: if isKnownRoot(root) && isSuperAdmin();
         allow create, update: if isKnownRoot(root) && validUgcAgreement(root, uid, agreementId);
-        allow delete: if isKnownRoot(root) && isAdmin();
+        allow delete: if isKnownRoot(root) && isSuperAdmin();
       }
 
       match /blockedUsers/{blockedUid} {
-        allow get, list: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+        allow get, list: if isKnownRoot(root) && (isOwner(uid) || isSuperAdmin());
         allow create: if isKnownRoot(root) && validBlockedUser(root, uid, blockedUid);
-        allow delete: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+        allow delete: if isKnownRoot(root) && (isOwner(uid) || isSuperAdmin());
         allow update: if false;
       }
 

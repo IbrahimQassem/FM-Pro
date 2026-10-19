@@ -111,9 +111,41 @@ export function parseRssFeed(xmlString) {
 }
 
 /**
+ * Generates a deterministic document ID for an ingested episode (IR-11).
+ * Ensures concurrent ingestion runs targeting the same feed item produce the exact same ID.
+ */
+export function deterministicEpisodeId(programId, externalIdOrUrl) {
+  const seed = `${programId}:${String(externalIdOrUrl || '').trim()}`;
+  return createHash('sha256').update(seed).digest('hex').slice(0, 24);
+}
+
+/**
  * Fetches RSS feed from URL and returns parsed items.
  */
 export async function fetchAndParseRss(feedUrl, { fetchFn = globalThis.fetch, timeoutMs = 15000 } = {}) {
+  if (typeof feedUrl !== 'string' || !/^https?:\/\//i.test(feedUrl.trim())) {
+    throw new Error('Invalid feed URL');
+  }
+
+  try {
+    const parsed = new URL(feedUrl.trim());
+    const host = parsed.hostname.toLowerCase();
+    if (
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      host === '::1' ||
+      host.endsWith('.local') ||
+      host.endsWith('.internal') ||
+      host.startsWith('10.') ||
+      host.startsWith('192.168.') ||
+      host.startsWith('169.254.')
+    ) {
+      throw new Error('Unsafe or private feed URL');
+    }
+  } catch (e) {
+    throw new Error(`Feed URL validation failed: ${e.message}`);
+  }
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -128,7 +160,7 @@ export async function fetchAndParseRss(feedUrl, { fetchFn = globalThis.fetch, ti
     });
 
     if (!res.ok) {
-      throw new Error(`HTTP ${res.status} fetching feed: ${feedUrl}`);
+      throw new Error(`HTTP ${res.status} fetching RSS feed`);
     }
 
     const xml = await res.text();
@@ -165,6 +197,7 @@ export async function ingestEpisodesFromFeed({
   const existingSnapshot = await episodesCol.where('programId', '==', programId).get();
   const existingExternalIds = new Set();
   const existingAudioUrls = new Set();
+  const existingDocIds = new Set(existingSnapshot.docs.map((d) => d.id));
 
   for (const doc of existingSnapshot.docs) {
     const data = doc.data();
@@ -176,12 +209,16 @@ export async function ingestEpisodesFromFeed({
   let skipped = 0;
 
   for (const item of items) {
-    if (existingExternalIds.has(item.externalId) || existingAudioUrls.has(item.audioUrl)) {
+    const episodeId = deterministicEpisodeId(programId, item.externalId || item.audioUrl);
+    if (
+      existingDocIds.has(episodeId) ||
+      existingExternalIds.has(item.externalId) ||
+      existingAudioUrls.has(item.audioUrl)
+    ) {
       skipped++;
       continue;
     }
 
-    const episodeId = randomUUID();
     const episodeDoc = episodesCol.doc(episodeId);
 
     const payload = {

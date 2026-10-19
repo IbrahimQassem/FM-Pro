@@ -52,13 +52,11 @@ class CommentsFirestoreDataSource {
       debugPrint('acceptCurrentTerms: user is null!');
       throw const CommentAuthRequiredException();
     }
-    debugPrint(
-        'acceptCurrentTerms: user.uid=${user.uid}, emailVerified=${user.emailVerified}, providers=${user.providerData.map((p) => p.providerId).toList()}');
     try {
       await user.reload();
       await user.getIdToken(true);
-    } on Object catch (e) {
-      debugPrint('acceptCurrentTerms token refresh error: $e');
+    } on Object {
+      // Best-effort token refresh; failures fall through to auth check without leaking sensitive details
     }
 
     try {

@@ -39,10 +39,9 @@ export async function setUserPassword({
   const user = await auth.getUser(trimmedUid);
   await auth.updateUser(trimmedUid, {
     password: newPassword,
-    emailVerified: true,
   });
 
-  // Ensure canonical listener profile is active in Firestore
+  // Ensure canonical listener profile in Firestore preserves verification and account status (IR-03)
   const profileRef = firestore.doc(`${root}/users/users/${trimmedUid}`);
   const profile = await profileRef.get();
   if (!profile.exists) {
@@ -59,8 +58,6 @@ export async function setUserPassword({
   } else {
     await profileRef.update({
       ...(user.email ? { email: user.email } : {}),
-      isActive: true,
-      disabledReason: null,
       updatedAt: FieldValue.serverTimestamp(),
     });
   }

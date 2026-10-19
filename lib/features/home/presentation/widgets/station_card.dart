@@ -59,7 +59,7 @@ class StationCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      _StatusBadges(station: station),
+                      _StatusBadges(station: station, compact: true),
                       if (onFavoriteToggle != null) ...[
                         const SizedBox(height: 6),
                         IconButton(
@@ -197,7 +197,11 @@ class StationCard extends StatelessWidget {
                 onPressed: onPlay,
                 tooltip: station.streamUrl.isEmpty
                     ? AppLocalizations.of(context).terrestrialBroadcast
-                    : AppLocalizations.of(context).playStation(station.name),
+                    : station.streamHealthState ==
+                            StationStreamHealthState.temporarilyStopped
+                        ? AppLocalizations.of(context).tryListening
+                        : AppLocalizations.of(context)
+                            .playStation(station.name),
                 icon: Icon(
                   station.streamUrl.isEmpty
                       ? Icons.radio_rounded
@@ -255,46 +259,124 @@ class _StationLogo extends StatelessWidget {
 }
 
 class _StatusBadges extends StatelessWidget {
-  const _StatusBadges({required this.station});
+  const _StatusBadges({required this.station, this.compact = false});
 
   final Station station;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final isCompact =
+        compact || MediaQuery.textScalerOf(context).scale(1) > 1.3;
+    final (icon, label, color) =
+        _resolveStreamBadge(station, strings, theme.colorScheme);
+
     return Wrap(
-      spacing: 4,
+      spacing: 6,
       runSpacing: 4,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        if (station.isLive)
-          Tooltip(
-            message: strings.live,
-            child: Icon(
-              Icons.podcasts_rounded,
-              size: 20,
-              color: Theme.of(context).colorScheme.error,
-            ),
-          )
-        else if (station.streamUrl.isEmpty)
-          Tooltip(
-            message: strings.terrestrialBroadcast,
-            child: Icon(
-              Icons.radio_rounded,
-              size: 20,
-              color: Theme.of(context).colorScheme.tertiary,
-            ),
-          ),
+        if (label != null)
+          isCompact
+              ? Semantics(
+                  label: label,
+                  child: Tooltip(
+                    message: label,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(6),
+                        border:
+                            Border.all(color: color.withValues(alpha: 0.28)),
+                      ),
+                      child: Icon(icon, size: 16, color: color),
+                    ),
+                  ),
+                )
+              : Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: color.withValues(alpha: 0.28)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icon, size: 13, color: color),
+                      const SizedBox(width: 4),
+                      Text(
+                        label,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: color,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
         if (station.isVerified)
           Tooltip(
             message: strings.verifiedStation,
             child: Icon(
               Icons.verified_rounded,
-              size: 20,
-              color: Theme.of(context).colorScheme.primary,
+              size: 18,
+              color: theme.colorScheme.primary,
             ),
           ),
       ],
     );
+  }
+
+  static (IconData, String?, Color) _resolveStreamBadge(
+    Station station,
+    AppLocalizations strings,
+    ColorScheme colors,
+  ) {
+    switch (station.streamHealthState) {
+      case StationStreamHealthState.available:
+        return (Icons.podcasts_rounded, strings.streamAvailable, colors.error);
+      case StationStreamHealthState.backupAvailable:
+        return (
+          Icons.sync_rounded,
+          strings.streamAvailableBackup,
+          colors.tertiary
+        );
+      case StationStreamHealthState.unstable:
+        return (
+          Icons.warning_amber_rounded,
+          strings.streamUnstable,
+          colors.secondary
+        );
+      case StationStreamHealthState.temporarilyStopped:
+        return (
+          Icons.pause_circle_outline_rounded,
+          strings.streamTemporarilyStopped,
+          colors.outline
+        );
+      case StationStreamHealthState.unverified:
+        return (
+          Icons.help_outline_rounded,
+          strings.streamUnverifiedStatus,
+          colors.outline
+        );
+      case StationStreamHealthState.noOnlineSource:
+        return (
+          Icons.radio_rounded,
+          strings.streamNoOnlineSource,
+          colors.tertiary
+        );
+      case StationStreamHealthState.deviceConnectionError:
+        return (
+          Icons.wifi_off_rounded,
+          strings.streamDeviceConnectionError,
+          colors.error
+        );
+    }
   }
 }
 

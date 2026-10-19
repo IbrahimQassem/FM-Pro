@@ -28,6 +28,10 @@ class Station {
     this.youtubeUrl = '',
     this.twitterUrl = '',
     this.whatsapp = '',
+    this.healthStatus = '',
+    this.lastCheckedAt,
+    this.streamHealthSource = 'primary',
+    this.consecutiveFailures = 0,
   });
 
   final String id;
@@ -58,4 +62,53 @@ class Station {
   final int programsCount;
   final int subscribersCount;
   final int totalPlays;
+  final String healthStatus;
+  final DateTime? lastCheckedAt;
+  final String streamHealthSource;
+  final int consecutiveFailures;
+
+  StationStreamHealthState resolveStreamHealthState({
+    DateTime? now,
+    Duration freshnessThreshold = const Duration(minutes: 45),
+    bool hasDeviceConnectionError = false,
+  }) {
+    if (hasDeviceConnectionError) {
+      return StationStreamHealthState.deviceConnectionError;
+    }
+    if (streamUrl.isEmpty && backupStreamUrl.isEmpty) {
+      return StationStreamHealthState.noOnlineSource;
+    }
+    if (lastCheckedAt == null) {
+      return StationStreamHealthState.unverified;
+    }
+    final currentTime = now ?? DateTime.now();
+    if (currentTime.difference(lastCheckedAt!).abs() > freshnessThreshold) {
+      return StationStreamHealthState.unverified;
+    }
+    if (healthStatus == 'offline' || consecutiveFailures >= 3) {
+      return StationStreamHealthState.temporarilyStopped;
+    }
+    if (healthStatus == 'degraded') {
+      if (streamHealthSource == 'backup') {
+        return StationStreamHealthState.backupAvailable;
+      }
+      return StationStreamHealthState.unstable;
+    }
+    if (healthStatus == 'online') {
+      return StationStreamHealthState.available;
+    }
+    return StationStreamHealthState.unverified;
+  }
+
+  StationStreamHealthState get streamHealthState => resolveStreamHealthState();
+}
+
+enum StationStreamHealthState {
+  available,
+  backupAvailable,
+  unstable,
+  temporarilyStopped,
+  unverified,
+  noOnlineSource,
+  deviceConnectionError,
 }

@@ -24,6 +24,7 @@ class AppUpdateController extends StateNotifier<AppUpdateState> {
   final Future<SharedPreferences>? _preferencesFuture;
   SharedPreferences? _syncPreferences;
   final int _currentVersionCode;
+  int _checkGeneration = 0;
 
   Future<SharedPreferences> get _prefs async =>
       _syncPreferences ??= (_preferencesFuture != null
@@ -37,8 +38,12 @@ class AppUpdateController extends StateNotifier<AppUpdateState> {
   static const Duration optionalUpdateCooldown = Duration(hours: 48);
 
   Future<void> checkForUpdate() async {
+    final generation = ++_checkGeneration;
+    if (!mounted) return;
     state = state.copyWith(status: AppUpdateStatus.checking);
     final info = await _repository.fetchUpdateInfo();
+    if (!mounted || generation != _checkGeneration) return;
+
     if (info == null) {
       state = state.copyWith(status: AppUpdateStatus.upToDate);
       return;
@@ -56,6 +61,7 @@ class AppUpdateController extends StateNotifier<AppUpdateState> {
     if (info.isOptionalUpdate(_currentVersionCode)) {
       final shouldPrompt =
           await _evaluateOptionalPromptCooldown(info.latestVersionCode);
+      if (!mounted || generation != _checkGeneration) return;
       state = state.copyWith(
         status: AppUpdateStatus.optionalUpdateAvailable,
         updateInfo: info,
@@ -106,6 +112,8 @@ class AppUpdateController extends StateNotifier<AppUpdateState> {
       );
       await prefs.setInt(prefKeyLastDismissedVersion, latestCode);
     } catch (_) {}
-    state = state.copyWith(shouldPromptOptional: false);
+    if (mounted) {
+      state = state.copyWith(shouldPromptOptional: false);
+    }
   }
 }

@@ -689,6 +689,31 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get streamAvailable => 'Stream available';
+
+  @override
+  String get streamAvailableBackup => 'Stream available via backup source';
+
+  @override
+  String get streamUnstable => 'Stream unstable';
+
+  @override
+  String get streamTemporarilyStopped => 'Stream temporarily stopped';
+
+  @override
+  String get streamUnverifiedStatus => 'Unable to verify stream status';
+
+  @override
+  String get streamNoOnlineSource => 'No online stream available';
+
+  @override
+  String get streamDeviceConnectionError =>
+      'Unable to connect from your device';
+
+  @override
+  String get tryListening => 'Try listening';
+
+  @override
   String get sleepTimer => 'Sleep timer';
 
   @override

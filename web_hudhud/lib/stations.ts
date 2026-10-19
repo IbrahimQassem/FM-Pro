@@ -44,6 +44,9 @@ export type Station = {
   isActive: boolean;
   isVerified: boolean;
   isFeatured: boolean;
+  healthStatus?: string;
+  consecutiveFailures?: number;
+  streamHealthSource?: string;
   stats: StationStats;
 };
 
@@ -102,6 +105,9 @@ export function stationFromSnapshot(snapshot: {
     isActive: data.isActive === true,
     isVerified: data.isVerified === true,
     isFeatured: data.isFeatured === true,
+    healthStatus: textValue(data.healthStatus),
+    consecutiveFailures: numberValue(data.consecutiveFailures),
+    streamHealthSource: textValue(data.streamHealthSource) || 'primary',
     stats: {
       programsCount: numberValue(stats.programsCount),
       subscribersCount: numberValue(stats.subscribersCount),

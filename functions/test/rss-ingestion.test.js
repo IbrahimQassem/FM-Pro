@@ -551,5 +551,32 @@ describe('RSS Podcast & Episode Ingestion', () => {
       // Verify final document count: 1 initial existing + 2 newly ingested episodes
       assert.strictEqual(existingDocs.length, 3);
     });
+
+    it('generates deterministic episode IDs and prevents duplicates during concurrent runs (IR-11)', async () => {
+      const { deterministicEpisodeId } = await import('../lib/rss-ingestion.js');
+      const id1 = deterministicEpisodeId('prog-1', 'guid-xyz');
+      const id2 = deterministicEpisodeId('prog-1', 'guid-xyz');
+      const id3 = deterministicEpisodeId('prog-1', 'guid-abc');
+
+      assert.strictEqual(id1, id2, 'Identical program and guid must yield identical document ID');
+      assert.notStrictEqual(id1, id3, 'Different guids must yield different IDs');
+      assert.strictEqual(typeof id1, 'string');
+      assert.strictEqual(id1.length, 24);
+    });
+
+    it('rejects loopback and private feed URLs (IR-10)', async () => {
+      const { fetchAndParseRss } = await import('../lib/rss-ingestion.js');
+      for (const unsafeUrl of [
+        'http://localhost/feed.xml',
+        'http://127.0.0.1:8080/feed.xml',
+        'http://169.254.169.254/feed.xml',
+        'http://10.0.0.1/rss',
+      ]) {
+        await assert.rejects(
+          () => fetchAndParseRss(unsafeUrl),
+          /Unsafe or private feed URL/
+        );
+      }
+    });
   });
 });

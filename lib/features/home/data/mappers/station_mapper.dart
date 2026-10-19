@@ -45,6 +45,12 @@ abstract final class StationMapper {
       programsCount: _nonNegativeStat(statsMap, 'programsCount'),
       subscribersCount: _nonNegativeStat(statsMap, 'subscribersCount'),
       totalPlays: _nonNegativeStat(statsMap, 'totalPlays'),
+      healthStatus: _optionalString(data, 'healthStatus'),
+      lastCheckedAt: _optionalDateTime(data, 'lastCheckedAt'),
+      streamHealthSource: _optionalString(data, 'streamHealthSource').isNotEmpty
+          ? _optionalString(data, 'streamHealthSource')
+          : 'primary',
+      consecutiveFailures: _optionalInt(data, 'consecutiveFailures'),
     );
   }
 
@@ -106,5 +112,37 @@ abstract final class StationMapper {
     return uri != null &&
         uri.hasAuthority &&
         (uri.scheme == 'https' || uri.scheme == 'http');
+  }
+
+  static DateTime? _optionalDateTime(Map<String, dynamic> data, String key) {
+    final value = data[key];
+    if (value == null) return null;
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.tryParse(value);
+    if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+    try {
+      final dynamic d = value;
+      if (d.toDate is Function) {
+        return d.toDate() as DateTime;
+      }
+      if (d.toMillis is Function) {
+        return DateTime.fromMillisecondsSinceEpoch(
+          (d.toMillis() as num).toInt(),
+        );
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  static int _optionalInt(
+    Map<String, dynamic> data,
+    String key, {
+    int defaultValue = 0,
+  }) {
+    final value = data[key];
+    if (value == null) return defaultValue;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? defaultValue;
+    return defaultValue;
   }
 }

@@ -1268,6 +1268,54 @@ abstract class AppLocalizations {
   /// **'This station currently broadcasts on terrestrial frequency {frequency} only.'**
   String terrestrialFrequencyNotice(String frequency);
 
+  /// No description provided for @streamAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Stream available'**
+  String get streamAvailable;
+
+  /// No description provided for @streamAvailableBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Stream available via backup source'**
+  String get streamAvailableBackup;
+
+  /// No description provided for @streamUnstable.
+  ///
+  /// In en, this message translates to:
+  /// **'Stream unstable'**
+  String get streamUnstable;
+
+  /// No description provided for @streamTemporarilyStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Stream temporarily stopped'**
+  String get streamTemporarilyStopped;
+
+  /// No description provided for @streamUnverifiedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to verify stream status'**
+  String get streamUnverifiedStatus;
+
+  /// No description provided for @streamNoOnlineSource.
+  ///
+  /// In en, this message translates to:
+  /// **'No online stream available'**
+  String get streamNoOnlineSource;
+
+  /// No description provided for @streamDeviceConnectionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to connect from your device'**
+  String get streamDeviceConnectionError;
+
+  /// No description provided for @tryListening.
+  ///
+  /// In en, this message translates to:
+  /// **'Try listening'**
+  String get tryListening;
+
   /// No description provided for @sleepTimer.
   ///
   /// In en, this message translates to:

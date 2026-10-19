@@ -201,6 +201,14 @@
       }
     }
   },
+  "streamAvailable": "Stream available",
+  "streamAvailableBackup": "Stream available via backup source",
+  "streamUnstable": "Stream unstable",
+  "streamTemporarilyStopped": "Stream temporarily stopped",
+  "streamUnverifiedStatus": "Unable to verify stream status",
+  "streamNoOnlineSource": "No online stream available",
+  "streamDeviceConnectionError": "Unable to connect from your device",
+  "tryListening": "Try listening",
   "sleepTimer": "Sleep timer",
   "sleepTimerOff": "Turn off timer",
   "sleepTimerMinutes": "{minutes} min",

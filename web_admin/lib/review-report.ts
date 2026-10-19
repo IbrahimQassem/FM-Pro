@@ -1,10 +1,8 @@
-import { assertCounterAdjustment } from './relationship-counter.ts';
 import {
   collectionGroup,
   doc,
   documentId,
   getDocsFromServer,
-  increment,
   limit,
   orderBy,
   query,
@@ -104,8 +102,16 @@ export async function reviewReport(
         : null;
     if (episode && !episode.exists())
       throw failure('الحلقة غير موجودة. راجع ارتباط البلاغ.');
-    if (episode)
-      assertCounterAdjustment(episode.get('stats.commentsCount'), -1);
+    let newCommentsCount: number | null = null;
+    if (episode?.exists()) {
+      const currentCount = episode.get('stats.commentsCount');
+      newCommentsCount =
+        typeof currentCount === 'number' &&
+        Number.isSafeInteger(currentCount) &&
+        currentCount > 0
+          ? currentCount - 1
+          : 0;
+    }
     const review = {
       status: resolution === 'noAction' ? 'dismissed' : 'resolved',
       resolution,
@@ -122,8 +128,8 @@ export async function reviewReport(
         moderatedAt: serverTimestamp(),
         moderatedBy: adminUid,
       });
-      if (episode)
-        tx.update(episode.ref, { 'stats.commentsCount': increment(-1) });
+      if (episode && newCommentsCount !== null)
+        tx.update(episode.ref, { 'stats.commentsCount': newCommentsCount });
     }
     if (user?.exists())
       tx.update(user.ref, { isActive: false, updatedAt: serverTimestamp() });

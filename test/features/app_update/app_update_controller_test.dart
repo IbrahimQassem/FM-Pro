@@ -139,5 +139,54 @@ void main() {
       expect(controller.state.isForceUpdate, isFalse);
       expect(controller.state.isOptionalUpdate, isFalse);
     });
+
+    test(
+        'ignores in-flight response after controller disposal without throwing',
+        () async {
+      final repo = _FakeAppUpdateRepository(
+        const AppUpdateInfo(
+          minVersionCode: 50,
+          minVersionName: '5.0.0',
+          latestVersionCode: 55,
+          latestVersionName: '5.5.0',
+        ),
+      );
+
+      final controller = AppUpdateController(
+        repository: repo,
+        syncPreferences: prefs,
+        currentVersionCode: 33,
+      );
+
+      // Dispose immediately while checkForUpdate in constructor is in-flight
+      controller.dispose();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      // No exception should be thrown on disposed controller
+      expect(controller.mounted, isFalse);
+    });
+
+    test('ignores stale response when a newer check has superseded it',
+        () async {
+      final slowRepo = _FakeAppUpdateRepository(null);
+
+      final controller = AppUpdateController(
+        repository: slowRepo,
+        syncPreferences: prefs,
+        currentVersionCode: 33,
+      );
+
+      // Trigger a second check immediately
+      slowRepo.info = const AppUpdateInfo(
+        minVersionCode: 40,
+        minVersionName: '4.0.0',
+        latestVersionCode: 45,
+        latestVersionName: '4.5.0',
+      );
+      final secondCheck = controller.checkForUpdate();
+      await secondCheck;
+
+      expect(controller.state.status, AppUpdateStatus.forceUpdateRequired);
+    });
   });
 }

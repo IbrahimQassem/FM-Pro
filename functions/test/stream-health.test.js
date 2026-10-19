@@ -70,6 +70,54 @@ describe('Live Stream Health Checker', () => {
       assert.strictEqual(res.isHealthy, false);
       assert.strictEqual(res.error, 'HTTP 503');
     });
+
+    it('rejects loopback and private IP URLs to prevent SSRF (IR-10)', async () => {
+      let fetchCalled = false;
+      const mockFetch = async () => {
+        fetchCalled = true;
+        return { ok: true };
+      };
+
+      for (const unsafeUrl of [
+        'http://127.0.0.1:8000/stream',
+        'http://localhost/stream',
+        'http://169.254.169.254/latest/meta-data/',
+        'http://10.0.0.1/radio',
+        'http://192.168.1.1/live',
+      ]) {
+        const res = await probeStream(unsafeUrl, { fetchFn: mockFetch });
+        assert.strictEqual(res.isHealthy, false);
+        assert.match(res.error, /Invalid or unsafe stream URL/);
+      }
+      assert.strictEqual(fetchCalled, false, 'Must never initiate network request to private/loopback IP');
+    });
+
+    it('rejects HTML 200 responses for both audio streams and HLS (IR-09)', async () => {
+      // Audio stream with text/html content-type
+      const htmlFetch = async () => ({
+        ok: true,
+        headers: new Headers({ 'content-type': 'text/html; charset=utf-8' }),
+        text: async () => '<!DOCTYPE html><html><body>Error</body></html>',
+      });
+      const res1 = await probeStream('https://radio.example.com/stream', { fetchFn: htmlFetch });
+      assert.strictEqual(res1.isHealthy, false);
+      assert.match(res1.error, /HTML/);
+
+      // Icecast stream returning HTML bytes in body
+      const htmlChunk = new TextEncoder().encode('<!DOCTYPE html><html>Maintenance</html>');
+      const mockReader = {
+        read: async () => ({ value: htmlChunk, done: false }),
+        cancel: async () => {},
+      };
+      const chunkFetch = async () => ({
+        ok: true,
+        headers: new Headers({ 'content-type': 'audio/mpeg' }),
+        body: { getReader: () => mockReader },
+      });
+      const res2 = await probeStream('https://radio.example.com/stream', { fetchFn: chunkFetch });
+      assert.strictEqual(res2.isHealthy, false);
+      assert.match(res2.error, /HTML/);
+    });
   });
 
   describe('evaluateHealthMutation (Zero-Write & State Machine)', () => {
@@ -94,6 +142,28 @@ describe('Live Stream Health Checker', () => {
         isLive: true,
         healthStatus: 'online',
         consecutiveFailures: 0,
+        streamHealthSource: 'primary',
+        shouldAlert: false,
+      });
+    });
+
+    it('switches to backup stream source when primary fails and backup is healthy (Section 7.3)', () => {
+      const online = {
+        isLive: true,
+        healthStatus: 'online',
+        consecutiveFailures: 0,
+        streamHealthSource: 'primary',
+      };
+      const mutation = evaluateHealthMutation(
+        online,
+        { isHealthy: false, error: 'Primary stream down' },
+        { isHealthy: true, error: null }
+      );
+      assert.deepStrictEqual(mutation, {
+        isLive: true,
+        healthStatus: 'degraded',
+        consecutiveFailures: 0,
+        streamHealthSource: 'backup',
         shouldAlert: false,
       });
     });
@@ -109,6 +179,7 @@ describe('Live Stream Health Checker', () => {
         isLive: true,
         healthStatus: 'degraded',
         consecutiveFailures: 1,
+        streamHealthSource: 'none',
         shouldAlert: false,
       });
 
@@ -120,6 +191,7 @@ describe('Live Stream Health Checker', () => {
         isLive: true,
         healthStatus: 'degraded',
         consecutiveFailures: 2,
+        streamHealthSource: 'none',
         shouldAlert: false,
       });
     });
@@ -135,6 +207,7 @@ describe('Live Stream Health Checker', () => {
         isLive: false,
         healthStatus: 'offline',
         consecutiveFailures: 3,
+        streamHealthSource: 'none',
         shouldAlert: true,
       });
     });
@@ -150,6 +223,7 @@ describe('Live Stream Health Checker', () => {
         isLive: false,
         healthStatus: 'offline',
         consecutiveFailures: 4,
+        streamHealthSource: 'none',
         shouldAlert: false,
       });
     });
