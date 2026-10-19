@@ -1607,7 +1607,7 @@ function ResourceView({
     url: string;
     logoUrl?: unknown;
     thumbnailUrl?: unknown;
-    kind?: 'stations' | 'episodes' | string;
+    kind?: string;
   } | null>(null);
   const stationAudioRef = useRef<HTMLAudioElement | null>(null);
 

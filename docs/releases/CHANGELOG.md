@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.2.0] - 2026-10-19
+
+### Added
+- Content lifecycle automation and spreadsheet synchronization.
+- Administration XLSX/CSV imports, templates, validation and selective import of valid rows.
+
+### Fixed
+- RSS nested statistics and atomic episode/program-counter writes, with failure and retry regression tests verified on Node 22.
+- Release-gate Dart formatting and redundant TypeScript union.
+
+### Release
+- App version `3.2.0+37`; source history integrated into `main`.
+- See [release notes](v3.2.0/release-notes.md) and [validation](v3.2.0/release-validation.md) for scope and limitations. No deployment or production-data backfill.
+
+---
+
 ## [3.1.0] - 2026-10-10
 
 ### Added

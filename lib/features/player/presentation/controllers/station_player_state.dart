@@ -52,8 +52,7 @@ class StationPlayerState {
       status: status ?? this.status,
       sleepTimerEnd:
           clearSleepTimer ? null : (sleepTimerEnd ?? this.sleepTimerEnd),
-      streamTitle:
-          clearStreamTitle ? null : (streamTitle ?? this.streamTitle),
+      streamTitle: clearStreamTitle ? null : (streamTitle ?? this.streamTitle),
     );
   }
 }
