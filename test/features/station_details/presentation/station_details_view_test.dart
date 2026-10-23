@@ -163,6 +163,92 @@ void main() {
     expect(find.text('فيسبوك'), findsOneWidget);
     expect(find.text('واتساب'), findsOneWidget);
   });
+
+  testWidgets('displays stream stoppage notice and try listening when stopped',
+      (
+    tester,
+  ) async {
+    final stoppedStation = Station(
+      id: 'sanaa-radio',
+      name: 'إذاعة صنعاء',
+      streamUrl: 'https://radio.example.com/live',
+      countryCode: 'YE',
+      countryNameAr: 'اليمن',
+      cityCode: 'sanaa',
+      cityNameAr: 'صنعاء',
+      priority: 10,
+      isLive: true,
+      isActive: true,
+      isVerified: true,
+      isFeatured: true,
+      programsCount: 4,
+      subscribersCount: 120,
+      totalPlays: 400,
+      healthStatus: 'offline',
+      lastCheckedAt: DateTime.now(),
+      consecutiveFailures: 3,
+    );
+
+    await tester.pumpWidget(
+      _TestApp(
+        child: StationDetailsView(
+          station: stoppedStation,
+          playbackStatus: StationPlaybackStatus.idle,
+          onPlayPressed: () {},
+          onStopPressed: () {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('محاولة الاستماع'), findsOneWidget);
+    expect(find.text('تنويه البث المباشر:'), findsOneWidget);
+    expect(
+      find.textContaining(
+          'البث المباشر لهذه الإذاعة متوقف حالياً من المصدر الإذاعي نفسه'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('hides stream stoppage notice when stream is available', (
+    tester,
+  ) async {
+    final availableStation = Station(
+      id: 'sanaa-radio',
+      name: 'إذاعة صنعاء',
+      streamUrl: 'https://radio.example.com/live',
+      countryCode: 'YE',
+      countryNameAr: 'اليمن',
+      cityCode: 'sanaa',
+      cityNameAr: 'صنعاء',
+      priority: 10,
+      isLive: true,
+      isActive: true,
+      isVerified: true,
+      isFeatured: true,
+      programsCount: 4,
+      subscribersCount: 120,
+      totalPlays: 400,
+      healthStatus: 'online',
+      lastCheckedAt: DateTime.now(),
+      consecutiveFailures: 0,
+    );
+
+    await tester.pumpWidget(
+      _TestApp(
+        child: StationDetailsView(
+          station: availableStation,
+          playbackStatus: StationPlaybackStatus.idle,
+          onPlayPressed: () {},
+          onStopPressed: () {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('استمع للبث المباشر'), findsOneWidget);
+    expect(find.text('تنويه البث المباشر:'), findsNothing);
+  });
 }
 
 class _TestApp extends StatelessWidget {

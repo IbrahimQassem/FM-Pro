@@ -20,10 +20,15 @@ class StationContentFirestoreDataSource {
   Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> readEpisodes({
     required String stationId,
     required Source source,
+    int limit = 100,
   }) async {
-    final snapshot = await FirestorePaths.episodes(
+    final query = FirestorePaths.episodes(
       _firestore,
-    ).where('stationId', isEqualTo: stationId).get(GetOptions(source: source));
+    ).where('stationId', isEqualTo: stationId);
+
+    final snapshot = await (limit > 0 ? query.limit(limit) : query).get(
+      GetOptions(source: source),
+    );
     return snapshot.docs;
   }
 }

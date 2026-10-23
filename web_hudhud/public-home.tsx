@@ -348,19 +348,41 @@ function SectionHeading({ eyebrow, title, description }: { eyebrow: string; titl
 
 function StationArtwork({ station, size = 'normal' }: { station: Station; size?: 'tiny' | 'small' | 'normal' }) {
   const [imageFailed, setImageFailed] = useState(false);
-  useEffect(() => setImageFailed(false), [station.logoUrl]);
+  const [placeholderFailed, setPlaceholderFailed] = useState(false);
+  useEffect(() => {
+    setImageFailed(false);
+    setPlaceholderFailed(false);
+  }, [station.logoUrl]);
   const validLogo = isHttpUrl(station.logoUrl);
   return <div className={`station-art ${size} palette-${station.id.charCodeAt(0) % 5}`}>
-    {validLogo && !imageFailed ? <img src={station.logoUrl} alt={`شعار ${station.name || 'المحطة'}`} onLoad={() => setImageFailed(false)} onError={() => setImageFailed(true)} /> : <span aria-label={`حرف ${station.name || 'المحطة'}`}>{initials(station.name || 'هدهد')}</span>}
+    {validLogo && !imageFailed ? (
+      <img
+        src={station.logoUrl}
+        alt={`شعار ${station.name || 'المحطة'}`}
+        onLoad={() => setImageFailed(false)}
+        onError={() => setImageFailed(true)}
+      />
+    ) : !placeholderFailed ? (
+      <img
+        src="/images/station_placeholder.webp"
+        alt={`شعار ${station.name || 'المحطة'}`}
+        className="placeholder-mascot"
+        onError={() => setPlaceholderFailed(true)}
+      />
+    ) : (
+      <span aria-label={`حرف ${station.name || 'المحطة'}`}>{initials(station.name || 'هدهد')}</span>
+    )}
   </div>;
 }
 
 function FeaturedCard({ station, index, isPlaying, onPlay }: { station: Station; index: number; isPlaying: boolean; onPlay: () => void }) {
-  return <article className={`featured-card featured-${index}`}><div className="featured-top"><span className="featured-label"><Star size={13} fill="currentColor" /> مميز</span><span className="live-label">{station.isLive ? <><i /> مباشر</> : 'استماع'}</span></div><StationArtwork station={station} size="normal" /><div className="featured-details"><h3><a href={stationHref(station.id)}>{station.name || 'محطة إذاعية'}</a></h3><span>{station.cityNameAr || 'من محطات هدهد'}{station.frequency ? ` · ${station.frequency}` : ''}</span><p>{station.tagline || station.description || 'استمع إلى هذه المحطة من هدهد إف إم.'}</p></div><button className="card-play" type="button" onClick={onPlay} aria-label={`${isPlaying ? 'إيقاف' : 'تشغيل'} ${station.name || 'المحطة'}`}>{isPlaying ? <Pause size={17} /> : <Play size={17} fill="currentColor" />}</button></article>;
+  const isStopped = station.healthStatus === 'offline' || (typeof station.consecutiveFailures === 'number' && station.consecutiveFailures >= 3);
+  return <article className={`featured-card featured-${index}`}><div className="featured-top"><span className="featured-label"><Star size={13} fill="currentColor" /> مميز</span><span className={`live-label ${isStopped ? 'stopped' : ''}`}>{isStopped ? 'متوقف مؤقتًا' : station.isLive ? <><i /> مباشر</> : 'استماع'}</span></div><StationArtwork station={station} size="normal" /><div className="featured-details"><h3><a href={stationHref(station.id)}>{station.name || 'محطة إذاعية'}</a></h3><span>{station.cityNameAr || 'من محطات هدهد'}{station.frequency ? ` · ${station.frequency}` : ''}</span><p>{station.tagline || station.description || 'استمع إلى هذه المحطة من هدهد إف إم.'}</p></div><button className="card-play" type="button" onClick={onPlay} aria-label={`${isPlaying ? 'إيقاف' : 'تشغيل'} ${station.name || 'المحطة'}`}>{isPlaying ? <Pause size={17} /> : <Play size={17} fill="currentColor" />}</button></article>;
 }
 
 function StationCard({ station, isPlaying, onPlay, favorite, onFavorite }: { station: Station; isPlaying: boolean; onPlay: () => void; favorite: boolean; onFavorite(): void }) {
-  return <article className="station-card"><div className="station-card-visual"><StationArtwork station={station} size="normal" /><span className={station.isLive ? 'card-status live' : 'card-status'}>{station.isLive && <i />}{station.isLive ? 'على الهواء' : 'متاح للاستماع'}</span><button className="card-play" type="button" onClick={onPlay} aria-label={`${isPlaying ? 'إيقاف' : 'تشغيل'} ${station.name || 'المحطة'}`}>{isPlaying ? <Pause size={17} /> : <Play size={17} fill="currentColor" />}</button></div><div className="station-card-content"><div><h3><a href={stationHref(station.id)}>{station.name || 'محطة إذاعية'}</a></h3>{station.nameEn && <span className="name-en">{station.nameEn}</span>}</div><span className="city-name"><MapPin size={14} /> {station.cityNameAr || 'غير محدد'}{station.frequency ? ` · ${station.frequency}` : ''}</span><p>{station.tagline || station.description || 'استمع إلى صوت هذه المحطة عبر هدهد إف إم.'}</p><div className="card-footer"><span>{station.isVerified ? 'موثقة من هدهد' : 'من كتالوج هدهد'}</span><button aria-pressed={favorite} onClick={onFavorite} aria-label={`${favorite ? 'إزالة من المفضلة' : 'أضف إلى المفضلة'} ${station.name}`}>{favorite ? '★' : '☆'}</button><a href={stationHref(station.id)}>التفاصيل</a></div></div></article>;
+  const isStopped = station.healthStatus === 'offline' || (typeof station.consecutiveFailures === 'number' && station.consecutiveFailures >= 3);
+  return <article className="station-card"><div className="station-card-visual"><StationArtwork station={station} size="normal" /><span className={isStopped ? 'card-status stopped' : station.isLive ? 'card-status live' : 'card-status'}>{isStopped ? 'متوقف مؤقتًا' : <>{station.isLive && <i />}{station.isLive ? 'على الهواء' : 'متاح للاستماع'}</>}</span><button className="card-play" type="button" onClick={onPlay} aria-label={`${isPlaying ? 'إيقاف' : 'تشغيل'} ${station.name || 'المحطة'}`}>{isPlaying ? <Pause size={17} /> : <Play size={17} fill="currentColor" />}</button></div><div className="station-card-content"><div><h3><a href={stationHref(station.id)}>{station.name || 'محطة إذاعية'}</a></h3>{station.nameEn && <span className="name-en">{station.nameEn}</span>}</div><span className="city-name"><MapPin size={14} /> {station.cityNameAr || 'غير محدد'}{station.frequency ? ` · ${station.frequency}` : ''}</span><p>{station.tagline || station.description || 'استمع إلى صوت هذه المحطة عبر هدهد إف إم.'}</p><div className="card-footer"><span>{station.isVerified ? 'موثقة من هدهد' : 'من كتالوج هدهد'}</span><button aria-pressed={favorite} onClick={onFavorite} aria-label={`${favorite ? 'إزالة من المفضلة' : 'أضف إلى المفضلة'} ${station.name}`}>{favorite ? '★' : '☆'}</button><a href={stationHref(station.id)}>التفاصيل</a></div></div></article>;
 }
 
 function EmptyState({ title, description, compact = false, mascot, actionLabel, onAction }: { title: string; description: string; compact?: boolean; mascot?: 'search' | 'favorites'; actionLabel?: string; onAction?: () => void }) {

@@ -842,6 +842,15 @@ export function BatchImportModal({
                                       خطأ
                                     </Badge>
                                   )}
+                                  {p.status === 'conflict' && (
+                                    <Badge
+                                      variant="destructive"
+                                      className="text-[10px] gap-1 bg-amber-600 hover:bg-amber-600"
+                                    >
+                                      <AlertTriangle className="size-2.5" />
+                                      تعارض
+                                    </Badge>
+                                  )}
                                 </div>
                               </div>
 
@@ -1022,6 +1031,15 @@ export function BatchImportModal({
                                   >
                                     <AlertTriangle className="size-2.5" />
                                     خطأ
+                                  </Badge>
+                                )}
+                                {e.status === 'conflict' && (
+                                  <Badge
+                                    variant="destructive"
+                                    className="text-[10px] gap-1 bg-amber-600 hover:bg-amber-600"
+                                  >
+                                    <AlertTriangle className="size-2.5" />
+                                    تعارض
                                   </Badge>
                                 )}
                               </div>

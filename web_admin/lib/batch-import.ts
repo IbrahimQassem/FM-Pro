@@ -1,8 +1,14 @@
 import * as XLSX from 'xlsx';
 import {
+  collection,
   doc,
   getDocFromServer,
+  getDocsFromServer,
+  query,
+  serverTimestamp,
+  setDoc,
   Timestamp,
+  where,
   type DocumentReference,
   type Firestore,
 } from 'firebase/firestore';
@@ -14,7 +20,7 @@ import {
 } from './content-form.ts';
 import { saveWithRelations } from './save-content.ts';
 
-export type RowStatus = 'create' | 'update' | 'unchanged' | 'invalid';
+export type RowStatus = 'create' | 'update' | 'unchanged' | 'invalid' | 'conflict';
 
 export type FieldDiff = {
   field: string;
@@ -58,6 +64,7 @@ export type BatchImportPreview = {
     totalRows: number;
     validRows: number;
     invalidRows: number;
+    conflictCount: number;
     newCount: number;
     updateCount: number;
     unchangedCount: number;
@@ -69,7 +76,7 @@ export type BatchImportPreview = {
 export type RowCommitOutcome = {
   id: string;
   kind: 'programs' | 'episodes';
-  status: 'created' | 'updated' | 'unchanged' | 'failed';
+  status: 'created' | 'updated' | 'unchanged' | 'failed' | 'conflict';
   error?: string;
 };
 
@@ -90,12 +97,162 @@ export type MockExistingLookup = {
   stations?: Map<string, Record<string, unknown>>;
   programs?: Map<string, Record<string, unknown>>;
   episodes?: Map<string, Record<string, unknown>>;
+  importKeys?: Map<string, Record<string, unknown>>;
 };
 
 function safeText(val: unknown): string {
   if (typeof val === 'string') return val.trim();
   if (typeof val === 'number') return String(val);
   return '';
+}
+
+/**
+ * Normalizes text titles: Unicode NFKC, trim, collapse spaces, lowercase latin,
+ * preserving Arabic characters and punctuation.
+ */
+export function normalizeText(val: string): string {
+  if (typeof val !== 'string') return '';
+  return val
+    .normalize('NFKC')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/[A-Z]/g, (c) => c.toLowerCase());
+}
+
+/**
+ * Normalizes audio URLs: lowercase hostname, strip fragment (#...),
+ * preserve scheme, path and query parameters intact.
+ */
+export function normalizeAudioUrl(rawUrl: string): string {
+  const trimmed = typeof rawUrl === 'string' ? rawUrl.trim() : '';
+  try {
+    const parsed = new URL(trimmed);
+    parsed.hostname = parsed.hostname.toLowerCase();
+    parsed.hash = '';
+    return parsed.toString();
+  } catch {
+    return trimmed.replace(/#.*$/, '');
+  }
+}
+
+/**
+ * Pure synchronous 64-hex SHA-256 implementation.
+ */
+export function sha256Hex(ascii: string): string {
+  function rightRotate(value: number, amount: number) {
+    return (value >>> amount) | (value << (32 - amount));
+  }
+  const hash = [
+    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+    0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
+  ];
+  const k = [
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+  ];
+
+  const utf8Bytes: number[] = [];
+  for (let idx = 0; idx < ascii.length; idx++) {
+    let charcode = ascii.charCodeAt(idx);
+    if (charcode < 0x80) utf8Bytes.push(charcode);
+    else if (charcode < 0x800) {
+      utf8Bytes.push(0xc0 | (charcode >> 6), 0x80 | (charcode & 0x3f));
+    } else if (charcode < 0xd800 || charcode >= 0xe000) {
+      utf8Bytes.push(0xe0 | (charcode >> 12), 0x80 | ((charcode >> 6) & 0x3f), 0x80 | (charcode & 0x3f));
+    } else {
+      idx++;
+      charcode = 0x10000 + (((charcode & 0x3ff) << 10) | (ascii.charCodeAt(idx) & 0x3ff));
+      utf8Bytes.push(
+        0xf0 | (charcode >> 18),
+        0x80 | ((charcode >> 12) & 0x3f),
+        0x80 | ((charcode >> 6) & 0x3f),
+        0x80 | (charcode & 0x3f),
+      );
+    }
+  }
+
+  const bitLength = utf8Bytes.length * 8;
+  utf8Bytes.push(0x80);
+  while (utf8Bytes.length % 64 !== 56) utf8Bytes.push(0);
+  const highBitLength = Math.floor(bitLength / 0x100000000);
+  const lowBitLength = bitLength >>> 0;
+  for (let b = 3; b >= 0; b--) utf8Bytes.push((highBitLength >>> (b * 8)) & 0xff);
+  for (let b = 3; b >= 0; b--) utf8Bytes.push((lowBitLength >>> (b * 8)) & 0xff);
+
+  for (let chunk = 0; chunk < utf8Bytes.length; chunk += 64) {
+    const w: number[] = Array.from({ length: 64 }, () => 0);
+    for (let t = 0; t < 16; t++) {
+      w[t] =
+        (utf8Bytes[chunk + t * 4] << 24) |
+        (utf8Bytes[chunk + t * 4 + 1] << 16) |
+        (utf8Bytes[chunk + t * 4 + 2] << 8) |
+        utf8Bytes[chunk + t * 4 + 3];
+    }
+    for (let t = 16; t < 64; t++) {
+      const s0 =
+        rightRotate(w[t - 15], 7) ^
+        rightRotate(w[t - 15], 18) ^
+        (w[t - 15] >>> 3);
+      const s1 =
+        rightRotate(w[t - 2], 17) ^
+        rightRotate(w[t - 2], 19) ^
+        (w[t - 2] >>> 10);
+      w[t] = (((w[t - 16] + s0) >>> 0) + ((w[t - 7] + s1) >>> 0)) >>> 0;
+    }
+
+    let [a, b, c, d, e, f, g, h] = hash;
+    for (let t = 0; t < 64; t++) {
+      const S1 = rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25);
+      const ch = (e & f) ^ (~e & g);
+      const temp1 =
+        (((((h + S1) >>> 0) + ch) >>> 0) + ((k[t] + w[t]) >>> 0)) >>> 0;
+      const S0 = rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22);
+      const maj = (a & b) ^ (a & c) ^ (b & c);
+      const temp2 = (S0 + maj) >>> 0;
+
+      h = g;
+      g = f;
+      f = e;
+      e = (d + temp1) >>> 0;
+      d = c;
+      c = b;
+      b = a;
+      a = (temp1 + temp2) >>> 0;
+    }
+
+    hash[0] = (hash[0] + a) >>> 0;
+    hash[1] = (hash[1] + b) >>> 0;
+    hash[2] = (hash[2] + c) >>> 0;
+    hash[3] = (hash[3] + d) >>> 0;
+    hash[4] = (hash[4] + e) >>> 0;
+    hash[5] = (hash[5] + f) >>> 0;
+    hash[6] = (hash[6] + g) >>> 0;
+    hash[7] = (hash[7] + h) >>> 0;
+  }
+
+  return hash.map((h) => (h >>> 0).toString(16).padStart(8, '0')).join('');
+}
+
+export function deterministicProgramId(stationId: string, title: string): string {
+  return sha256Hex(`${stationId}\n${normalizeText(title)}`);
+}
+
+export function deterministicEpisodeId(programId: string, audioUrl: string): string {
+  return sha256Hex(`${programId}\n${normalizeAudioUrl(audioUrl)}`);
+}
+
+export function programImportKey(stationId: string, title: string): string {
+  return sha256Hex(`program\n${stationId}\n${normalizeText(title)}`);
+}
+
+export function episodeImportKey(programId: string, audioUrl: string): string {
+  return sha256Hex(`episode\n${programId}\n${normalizeAudioUrl(audioUrl)}`);
 }
 
 // Aliases for header mapping
@@ -528,13 +685,6 @@ export function normalizeProgramRow(
   const mapped = mapRowAliases(rawRow, PROGRAM_ALIASES);
   const errors: Record<string, string> = {};
 
-  // 1. Program ID
-  const idResult = validateDocumentId(mapped.programId, 'programId');
-  const programId = idResult.valid ? idResult.id : '';
-  if (!idResult.valid) {
-    errors.programId = idResult.reason;
-  }
-
   // 2. Station ID
   const stationIdRaw = safeText(mapped.stationId);
   if (!stationIdRaw) {
@@ -547,6 +697,22 @@ export function normalizeProgramRow(
   const title = safeText(mapped.title);
   if (!title) {
     errors.title = 'عنوان البرنامج مطلوب.';
+  }
+
+  // 1. Program ID
+  const rawProgId = safeText(mapped.programId);
+  let programId = '';
+  if (rawProgId) {
+    const idResult = validateDocumentId(rawProgId, 'programId');
+    if (idResult.valid) {
+      programId = idResult.id;
+    } else {
+      errors.programId = idResult.reason;
+    }
+  } else if (stationIdRaw && title) {
+    programId = deterministicProgramId(stationIdRaw, title);
+  } else {
+    errors.programId = 'معرّف البرنامج مطلوب كمعرّف ثابت.';
   }
 
   // 4. Schedule conversion
@@ -659,13 +825,6 @@ export function normalizeEpisodeRow(
   const mapped = mapRowAliases(rawRow, EPISODE_ALIASES);
   const errors: Record<string, string> = {};
 
-  // 1. Episode ID
-  const idResult = validateDocumentId(mapped.episodeId, 'episodeId');
-  const episodeId = idResult.valid ? idResult.id : '';
-  if (!idResult.valid) {
-    errors.episodeId = idResult.reason;
-  }
-
   // 2. Program ID
   const progIdRaw = safeText(mapped.programId);
   if (!progIdRaw) {
@@ -695,6 +854,22 @@ export function normalizeEpisodeRow(
     } catch {
       errors.audioUrl = 'رابط الصوت غير صالح.';
     }
+  }
+
+  // 1. Episode ID
+  const rawEpId = safeText(mapped.episodeId);
+  let episodeId = '';
+  if (rawEpId) {
+    const idResult = validateDocumentId(rawEpId, 'episodeId');
+    if (idResult.valid) {
+      episodeId = idResult.id;
+    } else {
+      errors.episodeId = idResult.reason;
+    }
+  } else if (progIdRaw && audioUrlRaw) {
+    episodeId = deterministicEpisodeId(progIdRaw, audioUrlRaw);
+  } else {
+    errors.episodeId = 'معرّف الحلقة مطلوب كمعرّف ثابت.';
   }
 
   // 5. Duration (Seconds)
@@ -979,10 +1154,76 @@ export async function previewBatchImport(
     normalizeEpisodeRow(r.data, r.rowNumber),
   );
 
-  // Map of programs in the current batch for quick lookup
-  const batchProgramsMap = new Map<string, NormalizedProgramRow>();
+  // 1.1 Intra-sheet duplicate detection
+  const seenExplicitProgramIds = new Map<string, number>();
+  const seenProgramKeys = new Map<string, number>();
+
   for (const p of normalizedPrograms) {
-    if (p.id) batchProgramsMap.set(p.id, p);
+    const rawId = safeText(mapRowAliases(p.raw, PROGRAM_ALIASES).programId);
+    if (rawId) {
+      const prevRow = seenExplicitProgramIds.get(rawId);
+      if (prevRow !== undefined) {
+        p.errors.programId = `معرف برنامج مكرر صراحة داخل نفس الورقة (مكرر مع السطر ${prevRow}).`;
+        p.status = 'invalid';
+      } else {
+        seenExplicitProgramIds.set(rawId, p.rowNumber);
+      }
+    }
+
+    const stId = safeText(p.normalized.stationId);
+    const title = safeText(p.normalized.title);
+    if (stId && title) {
+      const key = `${stId}\n${normalizeText(title)}`;
+      const prevRow = seenProgramKeys.get(key);
+      if (prevRow !== undefined) {
+        p.errors.title = `برنامج مكرر لنفس المحطة بنفس العنوان داخل نفس الورقة (مكرر مع السطر ${prevRow}).`;
+        p.status = 'invalid';
+      } else {
+        seenProgramKeys.set(key, p.rowNumber);
+      }
+    }
+  }
+
+  const seenExplicitEpisodeIds = new Map<string, number>();
+  const seenEpisodeAudioKeys = new Map<string, number>();
+  const seenEpisodeTitleKeys = new Map<string, number>();
+
+  for (const ep of normalizedEpisodes) {
+    const rawId = safeText(mapRowAliases(ep.raw, EPISODE_ALIASES).episodeId);
+    if (rawId) {
+      const prevRow = seenExplicitEpisodeIds.get(rawId);
+      if (prevRow !== undefined) {
+        ep.errors.episodeId = `معرف حلقة مكرر صراحة داخل نفس الورقة (مكرر مع السطر ${prevRow}).`;
+        ep.status = 'invalid';
+      } else {
+        seenExplicitEpisodeIds.set(rawId, ep.rowNumber);
+      }
+    }
+
+    const prId = safeText(ep.normalized.programId);
+    const audioUrl = safeText(ep.normalized.audioUrl);
+    if (prId && audioUrl) {
+      const key = `${prId}\n${normalizeAudioUrl(audioUrl)}`;
+      const prevRow = seenEpisodeAudioKeys.get(key);
+      if (prevRow !== undefined) {
+        ep.errors.audioUrl = `حلقة مكررة لنفس البرنامج بنفس الرابط الصوتي داخل نفس الورقة (مكرر مع السطر ${prevRow}).`;
+        ep.status = 'invalid';
+      } else {
+        seenEpisodeAudioKeys.set(key, ep.rowNumber);
+      }
+    }
+
+    const title = safeText(ep.normalized.title);
+    if (prId && title) {
+      const key = `${prId}\n${normalizeText(title)}`;
+      const prevRow = seenEpisodeTitleKeys.get(key);
+      if (prevRow !== undefined) {
+        ep.errors.title = `حلقة مكررة لنفس البرنامج بنفس العنوان داخل نفس الورقة (مكرر مع السطر ${prevRow}).`;
+        ep.status = 'invalid';
+      } else {
+        seenEpisodeTitleKeys.set(key, ep.rowNumber);
+      }
+    }
   }
 
   // 2. Fetch referenced Stations from Firestore / Mock
@@ -1012,7 +1253,7 @@ export async function previewBatchImport(
     }
   }
 
-  // 3. Validate Program relationships and verify existing Programs in Firestore
+  // 3. Validate Program relationships and cross-database deduplication
   for (const p of normalizedPrograms) {
     const stId = safeText(p.normalized.stationId);
     if (!existingStations.has(stId)) {
@@ -1020,7 +1261,81 @@ export async function previewBatchImport(
       p.status = 'invalid';
     }
 
-    if (p.id && p.status !== 'invalid') {
+    if (p.status === 'invalid') continue;
+
+    // Search existing programs in DB matching (stationId, normalizedTitle)
+    const normTitle = normalizeText(p.normalized.title as string);
+    const matchedPrograms: Array<{
+      id: string;
+      data: Record<string, unknown>;
+      ref?: DocumentReference;
+    }> = [];
+
+    if (isMock) {
+      for (const [docId, docData] of mock.programs?.entries() ?? []) {
+        if (
+          safeText(docData.stationId) === stId &&
+          normalizeText(docData.title as string) === normTitle
+        ) {
+          matchedPrograms.push({ id: docId, data: docData });
+        }
+      }
+    } else {
+      try {
+        const q = query(
+          collection(firestore, `${firestoreRoot}/programs/programs`),
+          where('stationId', '==', stId),
+        );
+        const snap = await getDocsFromServer(q);
+        for (const docSnap of snap.docs) {
+          const docData = docSnap.data();
+          if (normalizeText(docData.title as string) === normTitle) {
+            matchedPrograms.push({
+              id: docSnap.id,
+              data: docData,
+              ref: docSnap.ref,
+            });
+          }
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    if (matchedPrograms.length > 1) {
+      p.status = 'conflict';
+      p.errors.conflict = `تعارض: تم العثور على أكثر من برنامج (${matchedPrograms.length}) مطابق لنفس المحطة والعنوان في قاعدة البيانات.`;
+      continue;
+    }
+
+    if (matchedPrograms.length === 1) {
+      const matched = matchedPrograms[0];
+      p.id = matched.id;
+      const curFp = editableFingerprint(
+        contentPayload('programs', matched.data),
+      );
+      const newFp = editableFingerprint(
+        contentPayload('programs', p.normalized),
+      );
+      if (curFp === newFp) {
+        p.status = 'unchanged';
+      } else {
+        p.status = 'update';
+        p.diff = computeFieldDiff(matched.data, p.normalized);
+        const ref =
+          matched.ref ||
+          (isMock
+            ? undefined
+            : doc(firestore, `${firestoreRoot}/programs/programs`, matched.id));
+        if (ref) {
+          p.previous = { reference: ref, data: matched.data };
+        }
+      }
+      continue;
+    }
+
+    // 0 matches by (stationId, title): check if explicit/deterministic p.id exists
+    if (p.id) {
       let existingDoc: Record<string, unknown> | null = null;
       let existingRef: DocumentReference | null = null;
 
@@ -1039,26 +1354,47 @@ export async function previewBatchImport(
         }
       }
 
+      const hasExplicitId = Boolean(
+        safeText(mapRowAliases(p.raw, PROGRAM_ALIASES).programId),
+      );
+
       if (existingDoc) {
-        const curFp = editableFingerprint(
-          contentPayload('programs', existingDoc),
-        );
-        const newFp = editableFingerprint(
-          contentPayload('programs', p.normalized),
-        );
-        if (curFp === newFp) {
-          p.status = 'unchanged';
-        } else {
-          p.status = 'update';
-          p.diff = computeFieldDiff(existingDoc, p.normalized);
-          if (existingRef) {
-            p.previous = { reference: existingRef, data: existingDoc };
+        if (hasExplicitId) {
+          if (safeText(existingDoc.stationId) !== stId) {
+            p.status = 'conflict';
+            p.errors.conflict =
+              'تعارض: المعرّف الصريح مرتبط بمحطة أخرى في قاعدة البيانات.';
+          } else {
+            const curFp = editableFingerprint(
+              contentPayload('programs', existingDoc),
+            );
+            const newFp = editableFingerprint(
+              contentPayload('programs', p.normalized),
+            );
+            if (curFp === newFp) {
+              p.status = 'unchanged';
+            } else {
+              p.status = 'update';
+              p.diff = computeFieldDiff(existingDoc, p.normalized);
+              if (existingRef) {
+                p.previous = { reference: existingRef, data: existingDoc };
+              }
+            }
           }
+        } else {
+          p.status = 'conflict';
+          p.errors.conflict = `تعارض: المعرّف الحتمي للبرنامج يتعارض مع وثيقة مختلفة في قاعدة البيانات.`;
         }
       } else {
         p.status = 'create';
       }
     }
+  }
+
+  // Map of programs in the current batch for quick lookup
+  const batchProgramsMap = new Map<string, NormalizedProgramRow>();
+  for (const p of normalizedPrograms) {
+    if (p.id) batchProgramsMap.set(p.id, p);
   }
 
   // 4. Fetch Programs needed by Episodes (either from batch or from Firestore / Mock)
@@ -1142,8 +1478,81 @@ export async function previewBatchImport(
       ep.status = 'invalid';
     }
 
-    // 6. Check existing Episodes in Firestore
-    if (ep.id && ep.status !== 'invalid') {
+    if (ep.status === 'invalid') continue;
+
+    // 6. Cross-database deduplication for Episodes: MATCH ONLY by (programId, normalizedAudioUrl)
+    const normAudio = normalizeAudioUrl(ep.normalized.audioUrl as string);
+    const matchedEpisodes: Array<{
+      id: string;
+      data: Record<string, unknown>;
+      ref?: DocumentReference;
+    }> = [];
+
+    if (isMock) {
+      for (const [docId, docData] of mock.episodes?.entries() ?? []) {
+        if (
+          safeText(docData.programId) === prId &&
+          normalizeAudioUrl(docData.audioUrl as string) === normAudio
+        ) {
+          matchedEpisodes.push({ id: docId, data: docData });
+        }
+      }
+    } else {
+      try {
+        const q = query(
+          collection(firestore, `${firestoreRoot}/episodes/episodes`),
+          where('programId', '==', prId),
+        );
+        const snap = await getDocsFromServer(q);
+        for (const docSnap of snap.docs) {
+          const docData = docSnap.data();
+          if (normalizeAudioUrl(docData.audioUrl as string) === normAudio) {
+            matchedEpisodes.push({
+              id: docSnap.id,
+              data: docData,
+              ref: docSnap.ref,
+            });
+          }
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    if (matchedEpisodes.length > 1) {
+      ep.status = 'conflict';
+      ep.errors.conflict = `تعارض: تم العثور على أكثر من حلقة (${matchedEpisodes.length}) مطابقة لنفس البرنامج والرابط الصوتي في قاعدة البيانات.`;
+      continue;
+    }
+
+    if (matchedEpisodes.length === 1) {
+      const matched = matchedEpisodes[0];
+      ep.id = matched.id;
+      const curFp = editableFingerprint(
+        contentPayload('episodes', matched.data),
+      );
+      const newFp = editableFingerprint(
+        contentPayload('episodes', ep.normalized),
+      );
+      if (curFp === newFp) {
+        ep.status = 'unchanged';
+      } else {
+        ep.status = 'update';
+        ep.diff = computeFieldDiff(matched.data, ep.normalized);
+        const ref =
+          matched.ref ||
+          (isMock
+            ? undefined
+            : doc(firestore, `${firestoreRoot}/episodes/episodes`, matched.id));
+        if (ref) {
+          ep.previous = { reference: ref, data: matched.data };
+        }
+      }
+      continue;
+    }
+
+    // 0 matches by (programId, audioUrl): check if explicit/deterministic ep.id exists
+    if (ep.id) {
       let existingDoc: Record<string, unknown> | null = null;
       let existingRef: DocumentReference | null = null;
 
@@ -1162,21 +1571,36 @@ export async function previewBatchImport(
         }
       }
 
+      const hasExplicitId = Boolean(
+        safeText(mapRowAliases(ep.raw, EPISODE_ALIASES).episodeId),
+      );
+
       if (existingDoc) {
-        const curFp = editableFingerprint(
-          contentPayload('episodes', existingDoc),
-        );
-        const newFp = editableFingerprint(
-          contentPayload('episodes', ep.normalized),
-        );
-        if (curFp === newFp) {
-          ep.status = 'unchanged';
-        } else {
-          ep.status = 'update';
-          ep.diff = computeFieldDiff(existingDoc, ep.normalized);
-          if (existingRef) {
-            ep.previous = { reference: existingRef, data: existingDoc };
+        if (hasExplicitId) {
+          if (safeText(existingDoc.programId) !== prId) {
+            ep.status = 'conflict';
+            ep.errors.conflict =
+              'تعارض: المعرّف الصريح مرتبط ببرنامج آخر في قاعدة البيانات.';
+          } else {
+            const curFp = editableFingerprint(
+              contentPayload('episodes', existingDoc),
+            );
+            const newFp = editableFingerprint(
+              contentPayload('episodes', ep.normalized),
+            );
+            if (curFp === newFp) {
+              ep.status = 'unchanged';
+            } else {
+              ep.status = 'update';
+              ep.diff = computeFieldDiff(existingDoc, ep.normalized);
+              if (existingRef) {
+                ep.previous = { reference: existingRef, data: existingDoc };
+              }
+            }
           }
+        } else {
+          ep.status = 'conflict';
+          ep.errors.conflict = `تعارض: المعرّف الحتمي للحلقة يتعارض مع وثيقة مختلفة في قاعدة البيانات.`;
         }
       } else {
         ep.status = 'create';
@@ -1188,12 +1612,16 @@ export async function previewBatchImport(
   const allRows = [...normalizedPrograms, ...normalizedEpisodes];
   const totalRows = allRows.length;
   const invalidRows = allRows.filter((r) => r.status === 'invalid').length;
-  const validRows = totalRows - invalidRows;
+  const conflictCount = allRows.filter((r) => r.status === 'conflict').length;
+  const validRows = allRows.filter(
+    (r) =>
+      r.status === 'create' || r.status === 'update' || r.status === 'unchanged',
+  ).length;
   const newCount = allRows.filter((r) => r.status === 'create').length;
   const updateCount = allRows.filter((r) => r.status === 'update').length;
   const unchangedCount = allRows.filter((r) => r.status === 'unchanged').length;
 
-  const hasErrors = invalidRows > 0;
+  const hasErrors = invalidRows > 0 || conflictCount > 0;
   const canCommit = !hasErrors && totalRows > 0;
 
   return {
@@ -1204,6 +1632,7 @@ export async function previewBatchImport(
       totalRows,
       validRows,
       invalidRows,
+      conflictCount,
       newCount,
       updateCount,
       unchangedCount,
@@ -1225,6 +1654,7 @@ export async function commitBatchImport(
   options?: {
     allowUpdates?: boolean;
     skipInvalidRows?: boolean;
+    mockExisting?: MockExistingLookup;
     onProgress?: (progress: {
       current: number;
       total: number;
@@ -1258,14 +1688,18 @@ export async function commitBatchImport(
       currentId: prog.id,
     });
 
-    if (prog.status === 'invalid') {
+    if (prog.status === 'invalid' || prog.status === 'conflict') {
       failedCount++;
       const errMsgs = Object.values(prog.errors).filter(Boolean);
       results.push({
         id: prog.id || `row_${prog.rowNumber}`,
         kind: 'programs',
-        status: 'failed',
-        error: errMsgs.join(' • ') || 'صف يحتوي على أخطاء تحقق أو ارتباط مفقود.',
+        status: prog.status === 'conflict' ? 'conflict' : 'failed',
+        error:
+          errMsgs.join(' • ') ||
+          (prog.status === 'conflict'
+            ? 'تعارض مع مستند موجود.'
+            : 'صف يحتوي على أخطاء تحقق أو ارتباط مفقود.'),
       });
       continue;
     }
@@ -1283,6 +1717,22 @@ export async function commitBatchImport(
         kind: 'programs',
         status: 'failed',
         error: 'تحديث البرنامج يتطلب تفعيل خيار "السماح بتحديث السجلات الموجودة".',
+      });
+      continue;
+    }
+
+    const progKey = programImportKey(
+      prog.normalized.stationId as string,
+      prog.normalized.title as string,
+    );
+    const existingProgKey = options?.mockExisting?.importKeys?.get(progKey);
+    if (existingProgKey && existingProgKey.targetId !== prog.id) {
+      failedCount++;
+      results.push({
+        id: prog.id,
+        kind: 'programs',
+        status: 'conflict',
+        error: 'تعارض: تم حجز مفتاح الاستيراد لعملية استيراد أخرى.',
       });
       continue;
     }
@@ -1308,6 +1758,29 @@ export async function commitBatchImport(
         undefined,
         defaults,
       );
+
+      if (options?.mockExisting?.importKeys) {
+        options.mockExisting.importKeys.set(progKey, {
+          targetKind: 'programs',
+          targetId: prog.id,
+          keyHash: progKey,
+          reservedAt: Date.now(),
+        });
+      } else if (firestore && typeof firestore === 'object' && 'type' in firestore) {
+        try {
+          await setDoc(
+            doc(firestore, `${firestoreRoot}/importKeys/importKeys`, progKey),
+            {
+              targetKind: 'programs',
+              targetId: prog.id,
+              keyHash: progKey,
+              reservedAt: serverTimestamp(),
+            },
+          );
+        } catch {
+          // Key reservation
+        }
+      }
 
       committedCount++;
       results.push({
@@ -1336,14 +1809,18 @@ export async function commitBatchImport(
       currentId: ep.id,
     });
 
-    if (ep.status === 'invalid') {
+    if (ep.status === 'invalid' || ep.status === 'conflict') {
       failedCount++;
       const errMsgs = Object.values(ep.errors).filter(Boolean);
       results.push({
         id: ep.id || `row_${ep.rowNumber}`,
         kind: 'episodes',
-        status: 'failed',
-        error: errMsgs.join(' • ') || 'صف يحتوي على أخطاء تحقق أو ارتباط مفقود.',
+        status: ep.status === 'conflict' ? 'conflict' : 'failed',
+        error:
+          errMsgs.join(' • ') ||
+          (ep.status === 'conflict'
+            ? 'تعارض مع مستند موجود.'
+            : 'صف يحتوي على أخطاء تحقق أو ارتباط مفقود.'),
       });
       continue;
     }
@@ -1361,6 +1838,22 @@ export async function commitBatchImport(
         kind: 'episodes',
         status: 'failed',
         error: 'تحديث الحلقة يتطلب تفعيل خيار "السماح بتحديث السجلات الموجودة".',
+      });
+      continue;
+    }
+
+    const epKey = episodeImportKey(
+      ep.normalized.programId as string,
+      ep.normalized.audioUrl as string,
+    );
+    const existingEpKey = options?.mockExisting?.importKeys?.get(epKey);
+    if (existingEpKey && existingEpKey.targetId !== ep.id) {
+      failedCount++;
+      results.push({
+        id: ep.id,
+        kind: 'episodes',
+        status: 'conflict',
+        error: 'تعارض: تم حجز مفتاح الاستيراد لعملية استيراد أخرى.',
       });
       continue;
     }
@@ -1386,6 +1879,29 @@ export async function commitBatchImport(
         undefined,
         defaults,
       );
+
+      if (options?.mockExisting?.importKeys) {
+        options.mockExisting.importKeys.set(epKey, {
+          targetKind: 'episodes',
+          targetId: ep.id,
+          keyHash: epKey,
+          reservedAt: Date.now(),
+        });
+      } else if (firestore && typeof firestore === 'object' && 'type' in firestore) {
+        try {
+          await setDoc(
+            doc(firestore, `${firestoreRoot}/importKeys/importKeys`, epKey),
+            {
+              targetKind: 'episodes',
+              targetId: ep.id,
+              keyHash: epKey,
+              reservedAt: serverTimestamp(),
+            },
+          );
+        } catch {
+          // Key reservation
+        }
+      }
 
       committedCount++;
       results.push({

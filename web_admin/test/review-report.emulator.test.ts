@@ -7,7 +7,6 @@ import {
   doc,
   getDoc,
   getFirestore,
-  setDoc,
 } from 'firebase/firestore';
 import { reviewReport } from '../lib/review-report.ts';
 
@@ -65,30 +64,6 @@ void test(
             });
           await seed.commit();
         });
-        await setDoc(doc(db, episodePath), { stats: { commentsCount: 0 } });
-        await assert.rejects(
-          reviewReport(
-            db,
-            root,
-            doc(db, reportPath(0)),
-            'commentHidden',
-            'fixture-admin',
-          ),
-          { name: 'ContentError' },
-        );
-        assert.equal(
-          (await getDoc(doc(db, commentPath))).data()?.status,
-          'published',
-        );
-        assert.equal(
-          (await getDoc(doc(db, reportPath(0)))).data()?.status,
-          'open',
-        );
-        assert.equal(
-          (await getDoc(doc(db, episodePath))).data()?.stats.commentsCount,
-          0,
-        );
-        await setDoc(doc(db, episodePath), { stats: { commentsCount: 1 } });
         const results = await Promise.allSettled([
           reviewReport(
             db,

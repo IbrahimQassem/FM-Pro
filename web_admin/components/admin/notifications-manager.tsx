@@ -158,7 +158,7 @@ export function NotificationsManager({
 
   // History state
   const [history, setHistory] = useState<NotificationRecord[]>([]);
-  const [historyLoading, setHistoryLoading] = useState(true);
+  const [historyLoading, setHistoryLoading] = useState(isSuperAdmin);
   const [historySearch, setHistorySearch] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -217,8 +217,11 @@ export function NotificationsManager({
     };
   }, [firestore]);
 
-  // Fetch broadcast history
+  // Fetch broadcast history (restricted to super admin per IR-01)
   useEffect(() => {
+    if (!isSuperAdmin) {
+      return;
+    }
     const notifQuery = query(
       collection(firestore, `${firestoreRoot}/notifications/notifications`),
       orderBy('sentAt', 'desc'),
@@ -254,7 +257,7 @@ export function NotificationsManager({
     );
 
     return () => unsubHistory();
-  }, [firestore]);
+  }, [firestore, isSuperAdmin]);
 
   // Handle template selection
   const handleApplyTemplate = (tpl: (typeof TEMPLATES)[0]) => {

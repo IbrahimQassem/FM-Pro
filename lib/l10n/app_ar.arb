@@ -202,6 +202,16 @@
       }
     }
   },
+  "streamAvailable": "البث متاح",
+  "streamAvailableBackup": "البث متاح عبر مصدر بديل",
+  "streamUnstable": "البث غير مستقر",
+  "streamTemporarilyStopped": "البث متوقف مؤقتًا",
+  "streamNoticeTitle": "تنويه البث المباشر:",
+  "streamNoticeDisclaimer": "البث المباشر لهذه الإذاعة متوقف حالياً من المصدر الإذاعي نفسه. هدهد إف إم منصة ناقلة ولا تتحمل مسؤولية الانقطاعات الفنية الصادرة من استوديوهات المحطة. بإمكانك تجربة إعادة الاتصال أو الاستماع إلى أرشيف البرامج والحلقات المسجلة.",
+  "streamUnverifiedStatus": "تعذر التحقق من حالة البث",
+  "streamNoOnlineSource": "لا يتوفر بث عبر الإنترنت",
+  "streamDeviceConnectionError": "تعذر الاتصال من جهازك",
+  "tryListening": "محاولة الاستماع",
   "sleepTimer": "مؤقت النوم",
   "sleepTimerOff": "إيقاف المؤقت",
   "sleepTimerMinutes": "{minutes} دقيقة",

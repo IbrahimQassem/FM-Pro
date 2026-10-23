@@ -1,6 +1,7 @@
 import { getMessaging } from 'firebase-admin/messaging';
 import { onDocumentCreated, onDocumentWritten } from 'firebase-functions/v2/firestore';
-import { verifiedUid, setSubscription, registerDevice, unregisterDevice, removeAccountDevices } from './lib/station-subscriptions.js';
+import { saveAdminContent } from './lib/editorial-audit.js';
+import { verifiedUser, verifiedUid, setSubscription, registerDevice, unregisterDevice, removeAccountDevices } from './lib/station-subscriptions.js';
 import { enqueueEpisodeAlert, collectEpisodeAlerts } from './lib/episode-alerts.js';
 import {
   assertSuperAdminCaller,
@@ -750,8 +751,16 @@ export const cleanupProfileImages = onSchedule(
   },
 );
 
-export const setStationSubscription = onCall({ timeoutSeconds: 30, maxInstances: 20 }, async request => setSubscription({ firestore: getFirestore(), uid: await verifiedUid(request, getAuth()), data: request.data }));
-export const registerStationAlertDevice = onCall({ timeoutSeconds: 30, maxInstances: 20 }, async request => registerDevice({ firestore: getFirestore(), uid: await verifiedUid(request, getAuth()), data: request.data }));
+export const setStationSubscription = onCall({ timeoutSeconds: 30, maxInstances: 20 }, async request => {
+  const auth = getAuth();
+  const user = await verifiedUser(request, auth);
+  return setSubscription({ firestore: getFirestore(), uid: user.uid, authUser: user, data: request.data });
+});
+export const registerStationAlertDevice = onCall({ timeoutSeconds: 30, maxInstances: 20 }, async request => {
+  const auth = getAuth();
+  const user = await verifiedUser(request, auth);
+  return registerDevice({ firestore: getFirestore(), uid: user.uid, authUser: user, data: request.data });
+});
 export const unregisterStationAlertDevice = onCall({ timeoutSeconds: 30, maxInstances: 20 }, async request => unregisterDevice({ firestore: getFirestore(), uid: requireAuthenticatedUid(request), data: request.data }));
 export const queuePublishedEpisodeAlert = onDocumentWritten({ document: '{root}/episodes/episodes/{episodeId}', retry: true }, async event => enqueueEpisodeAlert({ firestore: getFirestore(), root: event.params.root, episodeId: event.params.episodeId, before: event.data?.before.data(), after: event.data?.after.data() }));
 export const moderateEpisodeComment = onDocumentCreated(
@@ -927,6 +936,22 @@ export const adminBroadcastNotification = onCall(
   },
 );
 
+
+export const adminSaveContent = onCall(
+  { timeoutSeconds: 30, maxInstances: 20 },
+  async (request) => {
+    const uid = requireAuthenticatedUid(request);
+    const token = request.auth?.token;
+    return saveAdminContent({
+      firestore: getFirestore(),
+      callerUid: uid,
+      callerEmail: token?.email || '',
+      callerRole: token?.role || (token?.admin ? 'super_admin' : 'listener'),
+      callerClaims: token,
+      data: request.data,
+    });
+  },
+);
 
 // Anonymous, rule-enforced public catalog rendering; no account data access.
 export const hudhudPublic = onRequest({ region: 'us-central1', timeoutSeconds: 30, memory: '256MiB', maxInstances: 10 }, servePublicWeb);

@@ -55,6 +55,37 @@ void main() {
 
       expect(state.visibleStations.single.id, 'sanaa');
     });
+
+    test(
+        'normalizes Arabic search query: alef variants, taa marbuta, tashkeel, and Eastern digits',
+        () {
+      // Alef variant and taa marbuta: "اذاعه" should match "إذاعة صنعاء" and "إذاعة عدن"
+      final stateAlef = HomeState(
+        stations: stations,
+        referenceLocations: locations,
+        searchQuery: 'اذاعه',
+        isInitialLoading: false,
+      );
+      expect(stateAlef.visibleStations.map((s) => s.id), ['sanaa', 'aden']);
+
+      // Diacritics/tashkeel: "إِذَاعَةُ صَنْعَاءَ" should match "إذاعة صنعاء"
+      final stateTashkeel = HomeState(
+        stations: stations,
+        referenceLocations: locations,
+        searchQuery: 'إِذَاعَةُ صَنْعَاءَ',
+        isInitialLoading: false,
+      );
+      expect(stateTashkeel.visibleStations.single.id, 'sanaa');
+
+      // Eastern Arabic numerals: "٩٢.٥" should match "92.5"
+      final stateEasternDigits = HomeState(
+        stations: stations,
+        referenceLocations: locations,
+        searchQuery: '٩٢.٥',
+        isInitialLoading: false,
+      );
+      expect(stateEasternDigits.visibleStations.single.id, 'sanaa');
+    });
   });
 }
 

@@ -154,8 +154,8 @@ export async function handleCommentCreated({
 
   if (typeof content !== 'string') return null;
 
-  // Don't re-moderate if already decided
-  if (data.status === 'rejected' || data.status === 'flagged') {
+  // Don't re-moderate if already decided (IR-06: include hidden and removed)
+  if (['rejected', 'flagged', 'hidden', 'removed'].includes(data.status)) {
     return null;
   }
 
@@ -167,7 +167,28 @@ export async function handleCommentCreated({
     moderatedAt: FieldValue.serverTimestamp(),
   };
 
-  await snapshot.ref.update(updateData);
+  // Guard against overwriting concurrent manual moderator actions (IR-06)
+  if (snapshot.ref?.firestore?.runTransaction) {
+    await snapshot.ref.firestore.runTransaction(async (tx) => {
+      const fresh = await tx.get(snapshot.ref);
+      if (!fresh.exists) return;
+      const currentStatus = fresh.data()?.status;
+      if (['rejected', 'flagged', 'hidden', 'removed'].includes(currentStatus)) {
+        logger.info(`Comment ${snapshot.id} already moderated to ${currentStatus}; preserving decision`);
+        return;
+      }
+      tx.update(snapshot.ref, updateData);
+    });
+  } else {
+    if (snapshot.ref?.get) {
+      const fresh = await snapshot.ref.get();
+      const currentStatus = fresh?.data?.()?.status;
+      if (['rejected', 'flagged', 'hidden', 'removed'].includes(currentStatus)) {
+        return result;
+      }
+    }
+    await snapshot.ref.update(updateData);
+  }
   logger.info(`Comment ${snapshot.id} in episode ${episodeId} moderated to status: ${result.status} (${result.moderationReason || 'clean'})`);
 
   return result;

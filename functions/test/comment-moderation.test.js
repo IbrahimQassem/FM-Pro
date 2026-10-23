@@ -184,5 +184,80 @@ describe('UGC Comment Moderation Pipeline', () => {
       assert.strictEqual(updatedPayload.status, 'published');
       assert.strictEqual(updatedPayload.moderationReason, null);
     });
+
+    it('skips already hidden or removed comments (IR-06)', async () => {
+      let updateCalled = false;
+      const mockSnapshot = {
+        exists: true,
+        id: 'comm-hidden',
+        data: () => ({
+          content: 'تعليق تم إخفاؤه',
+          status: 'hidden',
+        }),
+        ref: {
+          update: async () => {
+            updateCalled = true;
+          },
+        },
+      };
+
+      const result = await handleCommentCreated({
+        snapshot: mockSnapshot,
+        root: 'HudHudDev',
+        episodeId: 'ep-1',
+        geminiApiKey: 'TEST_KEY',
+      });
+
+      assert.strictEqual(result, null);
+      assert.strictEqual(updateCalled, false);
+    });
+
+    it('preserves concurrent manual moderation in transaction (IR-06)', async () => {
+      let committedUpdate = false;
+      const mockRef = {
+        firestore: {
+          runTransaction: async (fn) => {
+            await fn({
+              get: async () => ({
+                exists: true,
+                data: () => ({ status: 'hidden' }), // Moderated to hidden concurrently
+              }),
+              update: () => {
+                committedUpdate = true;
+              },
+            });
+          },
+        },
+      };
+
+      const mockSnapshot = {
+        exists: true,
+        id: 'comm-concurrent',
+        data: () => ({
+          content: 'محتوى سليم',
+          status: 'pending',
+        }),
+        ref: mockRef,
+      };
+
+      const mockFetch = async () => ({
+        ok: true,
+        json: async () => ({
+          candidates: [
+            { content: { parts: [{ text: '{"isAppropriate": true, "flagReason": null}' }] } },
+          ],
+        }),
+      });
+
+      await handleCommentCreated({
+        snapshot: mockSnapshot,
+        root: 'HudHudDev',
+        episodeId: 'ep-1',
+        geminiApiKey: 'TEST_KEY',
+        fetchFn: mockFetch,
+      });
+
+      assert.strictEqual(committedUpdate, false, 'Must not overwrite concurrent manual hide');
+    });
   });
 });

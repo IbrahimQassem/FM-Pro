@@ -16,7 +16,7 @@ const notificationPayload = JSON.parse(
 
 test('validates the complete relational demo graph', () => {
   assert.deepEqual(validateSeed(seed), {
-    locations: 2,
+    locations: 24,
     stations: 4,
     banners: 1,
     users: 3,
@@ -49,7 +49,7 @@ test('validates the complete relational demo graph', () => {
 
 test('builds canonical paths and converts timestamps', () => {
   const plan = buildSeedPlan(seed);
-  assert.equal(plan.entries.length, 43);
+  assert.equal(plan.entries.length, 65);
   assert.equal(plan.stationCountUpdates.length, 0);
 
   const comment = plan.entries.find((entry) =>

@@ -680,6 +680,37 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get streamAvailable => 'البث متاح';
+
+  @override
+  String get streamAvailableBackup => 'البث متاح عبر مصدر بديل';
+
+  @override
+  String get streamUnstable => 'البث غير مستقر';
+
+  @override
+  String get streamTemporarilyStopped => 'البث متوقف مؤقتًا';
+
+  @override
+  String get streamNoticeTitle => 'تنويه البث المباشر:';
+
+  @override
+  String get streamNoticeDisclaimer =>
+      'البث المباشر لهذه الإذاعة متوقف حالياً من المصدر الإذاعي نفسه. هدهد إف إم منصة ناقلة ولا تتحمل مسؤولية الانقطاعات الفنية الصادرة من استوديوهات المحطة. بإمكانك تجربة إعادة الاتصال أو الاستماع إلى أرشيف البرامج والحلقات المسجلة.';
+
+  @override
+  String get streamUnverifiedStatus => 'تعذر التحقق من حالة البث';
+
+  @override
+  String get streamNoOnlineSource => 'لا يتوفر بث عبر الإنترنت';
+
+  @override
+  String get streamDeviceConnectionError => 'تعذر الاتصال من جهازك';
+
+  @override
+  String get tryListening => 'محاولة الاستماع';
+
+  @override
   String get sleepTimer => 'مؤقت النوم';
 
   @override

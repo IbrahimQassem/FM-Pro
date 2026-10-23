@@ -167,10 +167,18 @@ describe('Program Start FCM Notifier', () => {
       assert.strictEqual(summary.notified, 1);
       assert.strictEqual(summary.skipped, 1);
       assert.strictEqual(sentMessages.length, 1);
-      assert.strictEqual(sentMessages[0].topic, 'program_prog-1');
+      assert.strictEqual(sentMessages[0].topic, 'hudhuddev_program_prog-1');
       assert.strictEqual(updates.length, 1);
       assert.strictEqual(updates[0].id, 'prog-1');
       assert.strictEqual(updates[0].payload.lastNotifiedDate, '2026-10-19');
+
+      // Also verify official root produces production topic
+      const officialMsg = createProgramFcmMessage({
+        programId: 'morning-glory',
+        programTitle: 'الصباح',
+        root: 'HudHudOfficial',
+      });
+      assert.strictEqual(officialMsg.topic, 'program_morning-glory');
     });
   });
 });

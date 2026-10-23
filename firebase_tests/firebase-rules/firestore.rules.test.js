@@ -671,3 +671,136 @@ test("station admin can update adminRelationRevision on location but cannot edit
   }
 });
 
+test("notifications audit log is private to super admin in both roots (IR-01)", async () => {
+  for (const root of ["HudHudDev", "HudHudOfficial"]) {
+    const notifPath = `${root}/notifications/notifications/notif-1`;
+    await seed(notifPath, {
+      title: "Test",
+      body: "Body",
+      sentBy: "super@hudhud.fm",
+      messageId: "fcm-msg-123",
+      status: "sent",
+    });
+
+    const superAdmin = userDb("super-admin-user", {
+      role: "super_admin",
+    });
+    const stationAdmin = userDb("station-admin-user", {
+      admin: true,
+      role: "station_admin",
+      allStations: true,
+    });
+    const listener = userDb("listener-user");
+    const guest = anonymousDb();
+
+    // Super admin can read
+    await assertSucceeds(getDoc(doc(superAdmin, notifPath)));
+    // Station admin, listener, and guest are denied (IR-01)
+    await assertFails(getDoc(doc(stationAdmin, notifPath)));
+    await assertFails(getDoc(doc(listener, notifPath)));
+    await assertFails(getDoc(doc(guest, notifPath)));
+  }
+});
+
+test("station admin cannot read user profiles or moderate other station comments (IR-02)", async () => {
+  for (const root of ["HudHudDev", "HudHudOfficial"]) {
+    const listenerUid = "listener-profile-target";
+    const profilePath = `${root}/users/users/${listenerUid}`;
+    await seed(profilePath, {
+      displayName: "Target Listener",
+      email: "listener@example.com",
+      isActive: true,
+      role: "listener",
+    });
+
+    const epStationAPath = `${root}/episodes/episodes/ep-station-a`;
+    const epStationBPath = `${root}/episodes/episodes/ep-station-b`;
+    await seed(epStationAPath, { stationId: "station-a" });
+    await seed(epStationBPath, { stationId: "station-b" });
+
+    const commentBPath = `${epStationBPath}/comments/comment-b`;
+    const commentAPath = `${epStationAPath}/comments/comment-a`;
+    await seed(commentBPath, {
+      authorId: listenerUid,
+      content: "Comment on Station B",
+      status: "published",
+    });
+    await seed(commentAPath, {
+      authorId: listenerUid,
+      content: "Comment on Station A",
+      status: "published",
+    });
+
+    const stationAdminA = userDb("station-admin-a", {
+      admin: true,
+      role: "station_admin",
+      assignedStations: ["station-a"],
+    });
+    const superAdmin = userDb("super-admin", {
+      role: "super_admin",
+    });
+
+    // Station admin cannot read listener's private user document
+    await assertFails(getDoc(doc(stationAdminA, profilePath)));
+    // Super admin CAN read listener's document
+    await assertSucceeds(getDoc(doc(superAdmin, profilePath)));
+
+    // Station admin A cannot moderate comment on station B episode
+    await assertFails(
+      updateDoc(doc(stationAdminA, commentBPath), { status: "hidden" }),
+    );
+    // Station admin A CAN moderate comment on station A episode
+    await assertSucceeds(
+      updateDoc(doc(stationAdminA, commentAPath), { status: "hidden" }),
+    );
+    // Super admin CAN moderate comment on any station
+    await assertSucceeds(
+      updateDoc(doc(superAdmin, commentBPath), { status: "hidden" }),
+    );
+  }
+});
+
+test("station health monitoring fields cannot be updated by client or station admin (ST-3)", async () => {
+  for (const root of ["HudHudDev", "HudHudOfficial"]) {
+    const stationPath = `${root}/stations/stations/station-a`;
+    await seed(stationPath, {
+      name: "Station A",
+      countryCode: "YE",
+      countryNameAr: "اليمن",
+      cityCode: "sanaa",
+      cityNameAr: "صنعاء",
+      priority: 1,
+      isLive: true,
+      isActive: true,
+      isVerified: true,
+      isFeatured: false,
+      healthStatus: "online",
+      consecutiveFailures: 0,
+      streamHealthSource: "primary",
+    });
+
+    const stationAdminA = userDb("station-admin-a", {
+      admin: true,
+      role: "station_admin",
+      assignedStations: ["station-a"],
+    });
+
+    // Allowed to update editorial / content metadata
+    await assertSucceeds(
+      updateDoc(doc(stationAdminA, stationPath), { tagline: "New Tagline" }),
+    );
+
+    // Denied from forging healthStatus or automated monitoring fields (ST-3)
+    await assertFails(
+      updateDoc(doc(stationAdminA, stationPath), { healthStatus: "offline" }),
+    );
+    await assertFails(
+      updateDoc(doc(stationAdminA, stationPath), { consecutiveFailures: 3 }),
+    );
+    await assertFails(
+      updateDoc(doc(stationAdminA, stationPath), { streamHealthSource: "backup" }),
+    );
+  }
+});
+
+

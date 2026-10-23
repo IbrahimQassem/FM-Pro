@@ -110,8 +110,37 @@ test('setUserPassword updates auth password, verifies email, and ensures profile
   assert.equal(result.success, true);
   assert.equal(result.uid, 'user-legacy-123');
   assert.equal(updatedAuth.password, 'new-secure-password');
-  assert.equal(updatedAuth.emailVerified, true);
+  assert.equal(updatedAuth.emailVerified, undefined); // IR-03: verification status preserved, not forced
   assert.equal(firestoreDoc.isActive, true);
+
+  // Test existing disabled profile preservation (IR-03)
+  const existingDisabledProfile = {
+    isActive: false,
+    disabledReason: 'Terms violation',
+    email: 'disabled@hudhud.fm',
+  };
+  let updatedExistingProfile = null;
+  const mockFirestoreDisabled = {
+    doc: () => ({
+      get: async () => ({
+        exists: true,
+        data: () => existingDisabledProfile,
+      }),
+      update: async (data) => {
+        updatedExistingProfile = data;
+      },
+    }),
+  };
+  await setUserPassword({
+    auth: mockAuth,
+    firestore: mockFirestoreDisabled,
+    targetUid: 'user-disabled-123',
+    newPassword: 'another-secure-password',
+    root: 'HudHudDev',
+  });
+  // Must NOT re-activate or clear disabledReason on password reset
+  assert.equal(updatedExistingProfile.isActive, undefined);
+  assert.equal(updatedExistingProfile.disabledReason, undefined);
 });
 
 test('toggleUserDisabled disables user, revokes tokens, and updates profile', async () => {

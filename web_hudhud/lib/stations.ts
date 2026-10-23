@@ -44,6 +44,10 @@ export type Station = {
   isActive: boolean;
   isVerified: boolean;
   isFeatured: boolean;
+  healthStatus?: string;
+  consecutiveFailures?: number;
+  streamHealthSource?: string;
+  lastCheckedAt?: number | string | null;
   stats: StationStats;
 };
 
@@ -102,6 +106,14 @@ export function stationFromSnapshot(snapshot: {
     isActive: data.isActive === true,
     isVerified: data.isVerified === true,
     isFeatured: data.isFeatured === true,
+    healthStatus: textValue(data.healthStatus),
+    consecutiveFailures: numberValue(data.consecutiveFailures),
+    streamHealthSource: textValue(data.streamHealthSource) || 'primary',
+    lastCheckedAt: data.lastCheckedAt
+      ? (typeof (data.lastCheckedAt as { toMillis?: () => number }).toMillis === 'function'
+          ? (data.lastCheckedAt as { toMillis: () => number }).toMillis()
+          : data.lastCheckedAt as number | string)
+      : null,
     stats: {
       programsCount: numberValue(stats.programsCount),
       subscribersCount: numberValue(stats.subscribersCount),
@@ -116,6 +128,43 @@ export function sortStations(a: Station, b: Station): number {
   return a.name.localeCompare(b.name, 'ar', { sensitivity: 'base' });
 }
 
+
+export type StationStreamHealthState =
+  | 'available'
+  | 'backupAvailable'
+  | 'unstable'
+  | 'temporarilyStopped'
+  | 'unverified'
+  | 'noOnlineSource'
+  | 'deviceConnectionError';
+
+export function resolveStreamHealthState(station: Station, now: number = Date.now()): StationStreamHealthState {
+  if (!station.streamUrl && !station.backupStreamUrl) {
+    return 'noOnlineSource';
+  }
+  if (!station.lastCheckedAt) {
+    return 'unverified';
+  }
+  const checkedTime = typeof station.lastCheckedAt === 'number'
+    ? station.lastCheckedAt
+    : Date.parse(String(station.lastCheckedAt));
+  if (!Number.isFinite(checkedTime) || Math.abs(now - checkedTime) > 45 * 60 * 1000) {
+    return 'unverified';
+  }
+  if (station.healthStatus === 'offline' || (station.consecutiveFailures ?? 0) >= 3) {
+    return 'temporarilyStopped';
+  }
+  if (station.healthStatus === 'degraded') {
+    if (station.streamHealthSource === 'backup') {
+      return 'backupAvailable';
+    }
+    return 'unstable';
+  }
+  if (station.healthStatus === 'online') {
+    return 'available';
+  }
+  return 'unverified';
+}
 
 export function recentStation(stations: Station[], history: { stationId: string }[]): Station | null {
   for (const entry of history) {

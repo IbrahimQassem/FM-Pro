@@ -36,6 +36,26 @@ export function validateSeed(seed, expectedProjectId = 'sanadev-fm') {
   const locationCityCodes = new Set(
     [...locations.values()].map((entry) => entry.data.cityCode),
   );
+  for (const loc of locations.values()) {
+    if (loc.data.countryCode !== 'YE' || loc.data.countryNameAr !== 'اليمن') {
+      errors.push(`Location ${loc.id} country must be YE / اليمن.`);
+    }
+    if (typeof loc.data.cityCode !== 'string' || loc.data.cityCode.length === 0) {
+      errors.push(`Location ${loc.id} cityCode must be a non-empty string.`);
+    }
+    if (typeof loc.data.cityNameAr !== 'string' || loc.data.cityNameAr.length === 0) {
+      errors.push(`Location ${loc.id} cityNameAr must be a non-empty string.`);
+    }
+    if (!['governorate', 'national'].includes(loc.data.locationType)) {
+      errors.push(`Location ${loc.id} locationType must be 'governorate' or 'national'.`);
+    }
+    if (typeof loc.data.sortOrder !== 'number' || loc.data.sortOrder < 0) {
+      errors.push(`Location ${loc.id} sortOrder must be a non-negative number.`);
+    }
+    if (typeof loc.data.isActive !== 'boolean') {
+      errors.push(`Location ${loc.id} isActive must be a boolean.`);
+    }
+  }
   for (const station of stations.values()) {
     if (!locationCityCodes.has(station.data.cityCode)) {
       errors.push(

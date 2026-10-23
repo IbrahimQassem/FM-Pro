@@ -19,6 +19,7 @@ import { AudioPreview } from './audio-preview';
 import { episodeBroadcastTime } from '@/lib/episode-time';
 import { LocationImpact } from './location-impact';
 import { BannerStatusBadge } from './banner-status-badge';
+import { formatUserDate } from '@/lib/user-date';
 import {
   Dialog,
   DialogContent,
@@ -211,6 +212,10 @@ export function RelationPicker({
         aria-label={label}
         value={selected}
         onChange={(e) => {
+          if (!e.target.value) {
+            onSelect({ id: '', data: {} });
+            return;
+          }
           const v = options.find((o) => optionValue(o) === e.target.value);
           if (v) onSelect(v);
         }}
@@ -227,6 +232,7 @@ export function RelationPicker({
             {fieldText(
               o.data.name ?? o.data.title ?? o.data.cityNameAr ?? o.id,
             )}
+            {o.data.locationType === 'national' ? ' (إذاعات وطنية)' : ''}
             {o.data.isActive === false ? ' (غير نشط)' : ''}
           </option>
         ))}
@@ -573,6 +579,42 @@ export function ContentEditor({
               </section>
             ) : (
               <>
+                {kind === 'stations' && (
+                  <RelationPicker
+                    firestore={firestore}
+                    kind="locations"
+                    selected={fieldText(form.cityCode || '')}
+                    error={errors.location}
+                    onSelect={(o) => {
+                      setDirty(true);
+                      if (!o.id) {
+                        setForm((f) => ({
+                          ...f,
+                          cityCode: '',
+                          cityNameAr: '',
+                          countryCode: '',
+                          countryNameAr: '',
+                          locationType: undefined,
+                        }));
+                        return;
+                      }
+                      const isNat =
+                        o.data.locationType === 'national' ||
+                        o.data.cityCode === 'yemen' ||
+                        o.id === 'yemen';
+                      setForm((f) => ({
+                        ...f,
+                        cityCode: o.data.cityCode ?? o.id,
+                        cityNameAr: o.data.cityNameAr ?? '',
+                        countryCode: o.data.countryCode ?? 'YE',
+                        countryNameAr: o.data.countryNameAr ?? 'اليمن',
+                        locationType:
+                          o.data.locationType ??
+                          (isNat ? 'national' : 'governorate'),
+                      }));
+                    }}
+                  />
+                )}
                 {kind === 'programs' && (
                   <RelationPicker
                     firestore={firestore}
@@ -860,6 +902,52 @@ export function ContentEditor({
                   </section>
                 )}
               </>
+            )}
+            {recordId && !isNew && (
+              <div
+                className="rounded-xl border bg-muted/30 p-3 text-xs text-muted-foreground flex flex-wrap items-center justify-between gap-2 mt-4"
+                data-testid="editorial-audit-footer"
+              >
+                {initial?.createdBy || initial?.createdAt ? (
+                  <div>
+                    <span>أنشأه: </span>
+                    <span className="font-semibold text-foreground">
+                      {typeof initial?.createdByName === 'string'
+                        ? initial.createdByName
+                        : typeof initial?.createdBy === 'string'
+                          ? initial.createdBy
+                          : 'غير محدد'}
+                    </span>
+                    {Boolean(initial?.createdAt) && (
+                      <span className="text-muted-foreground mr-1">
+                        {' '}في {formatUserDate(initial?.createdAt)}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-muted-foreground italic">
+                    سجل قديم (لا توجد بيانات إنشاء مدققة)
+                  </div>
+                )}
+
+                {initial?.updatedBy || initial?.updatedAt ? (
+                  <div>
+                    <span>آخر تعديل: </span>
+                    <span className="font-semibold text-foreground">
+                      {typeof initial?.updatedByName === 'string'
+                        ? initial.updatedByName
+                        : typeof initial?.updatedBy === 'string'
+                          ? initial.updatedBy
+                          : 'غير محدد'}
+                    </span>
+                    {Boolean(initial?.updatedAt) && (
+                      <span className="text-muted-foreground mr-1">
+                        {' '}في {formatUserDate(initial?.updatedAt)}
+                      </span>
+                    )}
+                  </div>
+                ) : null}
+              </div>
             )}
             <footer className="sticky bottom-0 flex justify-between gap-3 border-t bg-background py-4">
               <Button

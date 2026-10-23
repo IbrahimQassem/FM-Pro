@@ -471,8 +471,20 @@ class _StationHero extends StatelessWidget {
                       key: const Key('station-playback-button'),
                       style: FilledButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),
-                        backgroundColor: Colors.white,
-                        foregroundColor: AppColors.primary,
+                        backgroundColor: (station.streamHealthState ==
+                                    StationStreamHealthState
+                                        .temporarilyStopped ||
+                                station.streamHealthState ==
+                                    StationStreamHealthState.noOnlineSource)
+                            ? Colors.amber.shade100
+                            : Colors.white,
+                        foregroundColor: (station.streamHealthState ==
+                                    StationStreamHealthState
+                                        .temporarilyStopped ||
+                                station.streamHealthState ==
+                                    StationStreamHealthState.noOnlineSource)
+                            ? Colors.amber.shade900
+                            : AppColors.primary,
                       ),
                       onPressed: isLoading ? null : onPlayPressed,
                       icon: isLoading
@@ -501,7 +513,14 @@ class _StationHero extends StatelessWidget {
                                     ? strings.pause
                                     : (station.streamUrl.isEmpty
                                         ? strings.terrestrialBroadcast
-                                        : strings.listenLive),
+                                        : ((station.streamHealthState ==
+                                                    StationStreamHealthState
+                                                        .temporarilyStopped ||
+                                                station.streamHealthState ==
+                                                    StationStreamHealthState
+                                                        .noOnlineSource)
+                                            ? strings.tryListening
+                                            : strings.listenLive)),
                       ),
                     ),
                   ),
@@ -521,6 +540,16 @@ class _StationHero extends StatelessWidget {
                   ],
                 ],
               ),
+              if (station.streamHealthState ==
+                      StationStreamHealthState.temporarilyStopped ||
+                  station.streamHealthState ==
+                      StationStreamHealthState.noOnlineSource) ...[
+                const SizedBox(height: 14),
+                _StreamNoticeCard(
+                  title: strings.streamNoticeTitle,
+                  disclaimer: strings.streamNoticeDisclaimer,
+                ),
+              ],
               const SizedBox(height: 16),
               DecoratedBox(
                 decoration: BoxDecoration(
@@ -643,8 +672,11 @@ class _AboutTab extends StatelessWidget {
                 ],
                 const SizedBox(height: 10),
                 _InfoRow(
-                  icon: Icons.podcasts_rounded,
-                  label: station.isLive ? strings.live : strings.onlineStation,
+                  icon: _resolveStreamDetailsIcon(station.streamHealthState),
+                  label: _resolveStreamDetailsLabel(
+                    station.streamHealthState,
+                    strings,
+                  ),
                 ),
               ],
             ),
@@ -924,4 +956,110 @@ class _TabBarHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant _TabBarHeaderDelegate oldDelegate) => false;
+}
+
+IconData _resolveStreamDetailsIcon(StationStreamHealthState state) {
+  switch (state) {
+    case StationStreamHealthState.available:
+      return Icons.podcasts_rounded;
+    case StationStreamHealthState.backupAvailable:
+      return Icons.sync_rounded;
+    case StationStreamHealthState.unstable:
+      return Icons.warning_amber_rounded;
+    case StationStreamHealthState.temporarilyStopped:
+      return Icons.pause_circle_outline_rounded;
+    case StationStreamHealthState.unverified:
+      return Icons.help_outline_rounded;
+    case StationStreamHealthState.noOnlineSource:
+      return Icons.radio_rounded;
+    case StationStreamHealthState.deviceConnectionError:
+      return Icons.wifi_off_rounded;
+  }
+}
+
+String _resolveStreamDetailsLabel(
+  StationStreamHealthState state,
+  AppLocalizations strings,
+) {
+  switch (state) {
+    case StationStreamHealthState.available:
+      return strings.streamAvailable;
+    case StationStreamHealthState.backupAvailable:
+      return strings.streamAvailableBackup;
+    case StationStreamHealthState.unstable:
+      return strings.streamUnstable;
+    case StationStreamHealthState.temporarilyStopped:
+      return strings.streamTemporarilyStopped;
+    case StationStreamHealthState.unverified:
+      return strings.streamUnverifiedStatus;
+    case StationStreamHealthState.noOnlineSource:
+      return strings.streamNoOnlineSource;
+    case StationStreamHealthState.deviceConnectionError:
+      return strings.streamDeviceConnectionError;
+  }
+}
+
+class _StreamNoticeCard extends StatelessWidget {
+  const _StreamNoticeCard({
+    required this.title,
+    required this.disclaimer,
+  });
+
+  final String title;
+  final String disclaimer;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      container: true,
+      label: '$title $disclaimer',
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.amber.shade900.withValues(alpha: 0.18),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.amber.shade400.withValues(alpha: 0.4),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    color: Colors.amber.shade300,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                disclaimer,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.9),
+                  fontSize: 12.5,
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
