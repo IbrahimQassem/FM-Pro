@@ -41,6 +41,8 @@ import {
   sortRecords,
   stationSortChoices,
   genericSortChoices,
+  isHealthyStream,
+  formatLastCheckedTime,
   type StatusChoice,
 } from '@/lib/resource-filters';
 import {
@@ -87,6 +89,7 @@ import {
 } from 'lucide-react';
 import {
   type User,
+  getAuth,
   getIdTokenResult,
   onIdTokenChanged,
   sendPasswordResetEmail,
@@ -1677,7 +1680,7 @@ function ResourceView({
   }
 
   const [featureFilter, setFeatureFilter] = useState<
-    'all' | 'live' | 'featured' | 'verified' | 'stopped'
+    'all' | 'healthy' | 'live' | 'featured' | 'verified' | 'stopped'
   >('all');
   const [userRoleFilter, setUserRoleFilter] = useState<
     'all' | 'super_admin' | 'station_admin' | 'moderator' | 'listener'
@@ -1686,13 +1689,15 @@ function ResourceView({
 
   const featureCounts = useMemo(() => {
     if (definition.key !== 'stations') {
-      return { live: 0, featured: 0, verified: 0, stopped: 0 };
+      return { healthy: 0, live: 0, featured: 0, verified: 0, stopped: 0 };
     }
+    let healthy = 0;
     let live = 0;
     let featured = 0;
     let verified = 0;
     let stopped = 0;
     for (const r of records) {
+      if (isHealthyStream(r.data)) healthy++;
       if (r.data.isLive === true) live++;
       if (r.data.isFeatured === true) featured++;
       if (r.data.isVerified === true) verified++;
@@ -1705,7 +1710,7 @@ function ResourceView({
         stopped++;
       }
     }
-    return { live, featured, verified, stopped };
+    return { healthy, live, featured, verified, stopped };
   }, [definition.key, records]);
 
   const userRoleCounts = useMemo(() => {
@@ -1745,7 +1750,9 @@ function ResourceView({
     );
 
     if (definition.key === 'stations') {
-      if (featureFilter === 'live') {
+      if (featureFilter === 'healthy') {
+        list = list.filter((r) => isHealthyStream(r.data));
+      } else if (featureFilter === 'live') {
         list = list.filter((r) => r.data.isLive === true);
       } else if (featureFilter === 'featured') {
         list = list.filter((r) => r.data.isFeatured === true);
@@ -2100,6 +2107,20 @@ function ResourceView({
                 <button
                   type="button"
                   onClick={() =>
+                    setFeatureFilter((f) => (f === 'healthy' ? 'all' : 'healthy'))
+                  }
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
+                    featureFilter === 'healthy'
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <span className="size-1.5 rounded-full bg-emerald-500" />
+                  بث سليم ({featureCounts.healthy})
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
                     setFeatureFilter((f) => (f === 'live' ? 'all' : 'live'))
                   }
                   className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
@@ -2375,7 +2396,22 @@ function ResourceView({
                           {cityName}
                         </span>
                       )}
-                      {record.data.healthStatus === 'offline' ||
+                      {isHealthyStream(record.data) ? (
+                        <span
+                          title={`آخر فحص: ${formatLastCheckedTime(record.data.lastCheckedAt)}`}
+                          aria-label={`بث سليم (${record.data.streamHealthSource === 'backup' ? 'بديل' : 'أساسي'})`}
+                        >
+                          <Badge
+                            variant="outline"
+                            className="text-[11px] text-emerald-700 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10 gap-1 py-0 cursor-help"
+                          >
+                            <span className="size-1 rounded-full bg-emerald-500" />
+                            {record.data.streamHealthSource === 'backup'
+                              ? '🟢 بث سليم (بديل)'
+                              : '🟢 بث سليم (أساسي)'}
+                          </Badge>
+                        </span>
+                      ) : record.data.healthStatus === 'offline' ||
                       (typeof record.data.consecutiveFailures === 'number' &&
                         record.data.consecutiveFailures >= 3) ? (
                         <Badge
@@ -2933,7 +2969,22 @@ function ResourceView({
                           )}
 
                           {isStation &&
-                            (record.data.healthStatus === 'offline' ||
+                            (isHealthyStream(record.data) ? (
+                              <span
+                                title={`آخر فحص: ${formatLastCheckedTime(record.data.lastCheckedAt)}`}
+                                aria-label={`بث سليم (${record.data.streamHealthSource === 'backup' ? 'بديل' : 'أساسي'})`}
+                              >
+                                <Badge
+                                  variant="outline"
+                                  className="text-[11px] text-emerald-700 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10 gap-1 cursor-help"
+                                >
+                                  <span className="size-1.5 rounded-full bg-emerald-500" />
+                                  {record.data.streamHealthSource === 'backup'
+                                    ? '🟢 بث سليم (بديل)'
+                                    : '🟢 بث سليم (أساسي)'}
+                                </Badge>
+                              </span>
+                            ) : record.data.healthStatus === 'offline' ||
                             (typeof record.data.consecutiveFailures === 'number' &&
                               record.data.consecutiveFailures >= 3) ? (
                               <Badge
@@ -3271,6 +3322,7 @@ function ResourceEditor({
   onSaved: () => void;
   onDeleted?: () => void;
 }) {
+  const authUser = getAuth().currentUser;
   const [id] = useState(
     () =>
       record?.id ??
@@ -3312,6 +3364,12 @@ function ResourceEditor({
           record,
           location,
           definition.template?.stats,
+          authUser
+            ? {
+                uid: authUser.uid,
+                nameOrEmail: authUser.displayName || authUser.email || authUser.uid,
+              }
+            : undefined,
         );
         onSaved();
       }}
@@ -3360,7 +3418,24 @@ async function validateRelations(
     );
     if (locations.size !== 1)
       throw contentError('اختر مدينة موجودة برمز فريد في المرجع.');
-    return locations.docs[0].ref;
+    const locDoc = locations.docs[0];
+    const locData = locDoc.data();
+    if (locData.isActive === false)
+      throw contentError('الموقع المرجعي المحدد غير نشط. اختر موقعًا نشطًا.');
+    if (
+      locData.cityNameAr !== data.cityNameAr ||
+      locData.countryNameAr !== data.countryNameAr
+    )
+      throw contentError('تغيّرت بيانات المدينة. أعد اختيار المدينة قبل الحفظ.');
+    const isNatLoc =
+      locData.locationType === 'national' || locData.cityCode === 'yemen';
+    if (isNatLoc && !data.isNational)
+      throw contentError(
+        'الموقع الوطني مخصص للمحطات الوطنية فقط. فعّل خيار إذاعة وطنية أو اختر محافظة محلية.',
+      );
+    if (data.isNational && !isNatLoc)
+      throw contentError('المحطة الوطنية تتطلب اختيار الموقع الوطني العام.');
+    return locDoc.ref;
   }
 }
 

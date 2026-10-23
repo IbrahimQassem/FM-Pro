@@ -12,6 +12,11 @@ import {
   parseBatchImportFromFiles,
   previewBatchImport,
   commitBatchImport,
+  normalizeText,
+  normalizeAudioUrl,
+  deterministicProgramId,
+  deterministicEpisodeId,
+  programImportKey,
   type BatchImportPreview,
 } from '../lib/batch-import.ts';
 import type { Firestore } from 'firebase/firestore';
@@ -495,14 +500,15 @@ void test('unchanged re-imports are detected as unchanged no-ops and diffs are c
 
 void test('commitBatchImport rejects when preview has errors', async () => {
   const dummyFirestore = {} as Firestore;
-  const preview = {
-    firestoreRoot: 'HudHudDev' as const,
+  const preview: BatchImportPreview = {
+    firestoreRoot: 'HudHudDev',
     programs: [],
     episodes: [],
     summary: {
       totalRows: 1,
       validRows: 0,
       invalidRows: 1,
+      conflictCount: 0,
       newCount: 0,
       updateCount: 0,
       unchangedCount: 0,
@@ -547,6 +553,7 @@ void test('commitBatchImport supports skipInvalidRows to approve matched/valid r
       totalRows: 2,
       validRows: 1,
       invalidRows: 1,
+      conflictCount: 0,
       newCount: 0,
       updateCount: 0,
       unchangedCount: 1,
@@ -569,14 +576,21 @@ void test('commitBatchImport supports skipInvalidRows to approve matched/valid r
 
 void test('commitBatchImport handles unchanged rows and requires allowUpdates for updates', async () => {
   const dummyFirestore = {} as Firestore;
-  const preview = {
-    firestoreRoot: 'HudHudDev' as const,
+  const preview: BatchImportPreview = {
+    firestoreRoot: 'HudHudDev',
     programs: [
       {
         rowNumber: 2,
         id: 'prog-1',
         raw: {},
-        normalized: { title: 'P1' },
+        normalized: {
+          title: 'P1',
+          stationId: 'st-1',
+          schedule: { weekdays: [1], startMinute: 60, endMinute: 120, utcOffsetMinutes: 180 },
+          isActive: true,
+          isFeatured: false,
+          priority: 0,
+        },
         errors: {},
         status: 'unchanged' as const,
       },
@@ -584,7 +598,14 @@ void test('commitBatchImport handles unchanged rows and requires allowUpdates fo
         rowNumber: 3,
         id: 'prog-2',
         raw: {},
-        normalized: { title: 'P2' },
+        normalized: {
+          title: 'P2',
+          stationId: 'st-1',
+          schedule: { weekdays: [1], startMinute: 60, endMinute: 120, utcOffsetMinutes: 180 },
+          isActive: true,
+          isFeatured: false,
+          priority: 0,
+        },
         errors: {},
         status: 'update' as const,
       },
@@ -594,6 +615,7 @@ void test('commitBatchImport handles unchanged rows and requires allowUpdates fo
       totalRows: 2,
       validRows: 2,
       invalidRows: 0,
+      conflictCount: 0,
       newCount: 0,
       updateCount: 1,
       unchangedCount: 1,
@@ -622,8 +644,8 @@ void test('commitBatchImport handles unchanged rows and requires allowUpdates fo
 void test('partial failures and retry: tracks per-row failure without duplicating successful rows', async () => {
   const dummyFirestore = {} as Firestore;
   // A batch preview with two new programs
-  const preview = {
-    firestoreRoot: 'HudHudDev' as const,
+  const preview: BatchImportPreview = {
+    firestoreRoot: 'HudHudDev',
     programs: [
       {
         rowNumber: 2,
@@ -662,6 +684,7 @@ void test('partial failures and retry: tracks per-row failure without duplicatin
       totalRows: 2,
       validRows: 2,
       invalidRows: 0,
+      conflictCount: 0,
       newCount: 2,
       updateCount: 0,
       unchangedCount: 0,
@@ -736,4 +759,232 @@ void test('partial failures and retry: tracks per-row failure without duplicatin
   assert.equal(retryOutcome.committedCount, 0);
   assert.equal(retryOutcome.results[0].status, 'unchanged');
 });
+
+void test('PKG-07 text and audioUrl normalization standards', () => {
+  // 1. Text normalization: NFKC, collapse spaces, lowercase latin, preserve Arabic
+  const rawText = '  بَرْنَامَجُ   Morning Show  ١٢٣!  ';
+  const norm = normalizeText(rawText);
+  assert.equal(norm, 'بَرْنَامَجُ morning show ١٢٣!');
+
+  // 2. Audio URL normalization: lowercase host, strip fragment #... only, keep query and path
+  const rawUrl = 'https://CDN.HudHud.FM:8080/audio/file_1.mp3?token=ABC123xyz#timestamp=45';
+  const normUrl = normalizeAudioUrl(rawUrl);
+  assert.equal(
+    normUrl,
+    'https://cdn.hudhud.fm:8080/audio/file_1.mp3?token=ABC123xyz',
+  );
+  assert.ok(!normUrl.includes('#timestamp=45'));
+
+  // 3. Deterministic 64-hex SHA-256 IDs
+  const progId = deterministicProgramId('st-1', 'صباح الخير');
+  assert.equal(progId.length, 64);
+  assert.match(progId, /^[0-9a-f]{64}$/);
+
+  const epId = deterministicEpisodeId(
+    'prog-1',
+    'https://cdn.example.com/ep.mp3?key=1#part1',
+  );
+  assert.equal(epId.length, 64);
+  assert.match(epId, /^[0-9a-f]{64}$/);
+});
+
+void test('PKG-07 intra-sheet duplicate rejection reports row numbers', async () => {
+  const dummyFirestore = {} as Firestore;
+  const mockStations = new Map<string, Record<string, unknown>>([
+    ['st-1', { name: 'إذاعة صنعاء', stats: {} }],
+  ]);
+
+  // Duplicate explicit program ID in sheet
+  const dupProgSheets = {
+    programsRaw: [
+      {
+        rowNumber: 2,
+        data: {
+          programId: 'prog-explicit',
+          stationId: 'st-1',
+          title: 'برنامج أ',
+          weekdays: '1',
+          startTime: '01:00',
+          endTime: '02:00',
+          utcOffsetMinutes: 180,
+          isActive: true,
+          isFeatured: false,
+          priority: 0,
+        },
+      },
+      {
+        rowNumber: 3,
+        data: {
+          programId: 'prog-explicit', // DUPLICATE!
+          stationId: 'st-1',
+          title: 'برنامج ب',
+          weekdays: '1',
+          startTime: '01:00',
+          endTime: '02:00',
+          utcOffsetMinutes: 180,
+          isActive: true,
+          isFeatured: false,
+          priority: 0,
+        },
+      },
+    ],
+    episodesRaw: [],
+  };
+
+  const progPreview = await previewBatchImport(
+    dummyFirestore,
+    'HudHudDev',
+    dupProgSheets,
+    { mockExisting: { stations: mockStations } },
+  );
+
+  assert.equal(progPreview.programs[1].status, 'invalid');
+  assert.ok(progPreview.programs[1].errors.programId.includes('السطر 2'));
+
+  // Duplicate program (stationId, title)
+  const dupContentSheets = {
+    programsRaw: [
+      {
+        rowNumber: 2,
+        data: {
+          stationId: 'st-1',
+          title: 'برنامج الصباح',
+          weekdays: '1',
+          startTime: '01:00',
+          endTime: '02:00',
+          utcOffsetMinutes: 180,
+          isActive: true,
+          isFeatured: false,
+          priority: 0,
+        },
+      },
+      {
+        rowNumber: 4,
+        data: {
+          stationId: 'st-1',
+          title: '  برنامج   الصباح  ', // DUPLICATE CONTENT!
+          weekdays: '1',
+          startTime: '01:00',
+          endTime: '02:00',
+          utcOffsetMinutes: 180,
+          isActive: true,
+          isFeatured: false,
+          priority: 0,
+        },
+      },
+    ],
+    episodesRaw: [],
+  };
+
+  const contentPreview = await previewBatchImport(
+    dummyFirestore,
+    'HudHudDev',
+    dupContentSheets,
+    { mockExisting: { stations: mockStations } },
+  );
+
+  assert.equal(contentPreview.programs[1].status, 'invalid');
+  assert.ok(contentPreview.programs[1].errors.title.includes('السطر 2'));
+});
+
+void test('PKG-07 cross-database conflict detection and concurrency keys', async () => {
+  const dummyFirestore = {} as Firestore;
+  const mockStations = new Map<string, Record<string, unknown>>([
+    ['st-1', { name: 'إذاعة صنعاء', stats: {} }],
+  ]);
+
+  // Multiple programs with identical (stationId, normalizedTitle) in database -> conflict!
+  const mockPrograms = new Map<string, Record<string, unknown>>([
+    ['prog-a', { stationId: 'st-1', title: 'برنامج التراث' }],
+    ['prog-b', { stationId: 'st-1', title: 'برنامج التراث' }],
+  ]);
+
+  const sheets = {
+    programsRaw: [
+      {
+        rowNumber: 2,
+        data: {
+          stationId: 'st-1',
+          title: 'برنامج التراث',
+          weekdays: '1',
+          startTime: '01:00',
+          endTime: '02:00',
+          utcOffsetMinutes: 180,
+          isActive: true,
+          isFeatured: false,
+          priority: 0,
+        },
+      },
+    ],
+    episodesRaw: [],
+  };
+
+  const preview = await previewBatchImport(
+    dummyFirestore,
+    'HudHudDev',
+    sheets,
+    { mockExisting: { stations: mockStations, programs: mockPrograms } },
+  );
+
+  assert.equal(preview.programs[0].status, 'conflict');
+  assert.equal(preview.summary.conflictCount, 1);
+  assert.equal(preview.canCommit, false);
+
+  // Concurrency keys: race collision in commitBatchImport
+  const singleProgSheets = {
+    programsRaw: [
+      {
+        rowNumber: 2,
+        data: {
+          programId: 'prog-unique-1',
+          stationId: 'st-1',
+          title: 'برنامج حصري',
+          weekdays: '1',
+          startTime: '01:00',
+          endTime: '02:00',
+          utcOffsetMinutes: 180,
+          isActive: true,
+          isFeatured: false,
+          priority: 0,
+        },
+      },
+    ],
+    episodesRaw: [],
+  };
+
+  const validPreview = await previewBatchImport(
+    dummyFirestore,
+    'HudHudDev',
+    singleProgSheets,
+    { mockExisting: { stations: mockStations } },
+  );
+
+  assert.equal(validPreview.programs[0].status, 'create');
+
+  // If another process holds the importKey for this program:
+  const keyHash = programImportKey('st-1', 'برنامج حصري');
+  const mockImportKeys = new Map<string, Record<string, unknown>>([
+    [
+      keyHash,
+      {
+        targetKind: 'programs',
+        targetId: 'other-program-id', // DIFFERENT targetId
+        keyHash,
+        reservedAt: Date.now(),
+      },
+    ],
+  ]);
+
+  const commitOutcome = await commitBatchImport(
+    dummyFirestore,
+    'HudHudDev',
+    validPreview,
+    { mockExisting: { stations: mockStations, importKeys: mockImportKeys } },
+  );
+
+  assert.equal(commitOutcome.failedCount, 1);
+  assert.equal(commitOutcome.results[0].status, 'conflict');
+  assert.ok(commitOutcome.results[0].error?.includes('حجز مفتاح الاستيراد'));
+});
+
 

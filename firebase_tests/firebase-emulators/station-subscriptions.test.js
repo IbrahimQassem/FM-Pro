@@ -115,3 +115,62 @@ test('canonical and latest legacy opt-outs override older active duplicate recor
   for(let page=0;page<4;page++) await processEpisodeAlert({firestore:db,auth,send,reference,now});
   assert.equal(calls,0); assert.equal((await reference.get()).get('status'),'done');
 });
+
+test('PKG-08: profile self-healing and support for listener, station_admin and super_admin', async () => {
+  const root = 'HudHudDev';
+  await db.doc(`${root}/stations/stations/s`).set({ isActive: true, name: 'Active Station' });
+
+  // 1. Missing profile auto-creation (self-healing)
+  const newUid = 'self-healing-listener';
+  const authUser = { uid: newUid, email: 'healed@hudhud.fm', displayName: 'Healed User' };
+  // Verify doc does not exist
+  assert.equal((await db.doc(`${root}/users/users/${newUid}`).get()).exists, false);
+
+  // Subscribe should auto-create profile
+  await setSubscription({
+    firestore: db,
+    uid: newUid,
+    authUser,
+    data: { root, stationId: 's', isActive: true, notificationsEnabled: true },
+  });
+
+  const healedProfile = await db.doc(`${root}/users/users/${newUid}`).get();
+  assert.equal(healedProfile.exists, true);
+  assert.equal(healedProfile.get('role'), 'listener');
+  assert.equal(healedProfile.get('isActive'), true);
+  assert.equal(healedProfile.get('email'), 'healed@hudhud.fm');
+
+  const subDoc = await db.doc(`${root}/users/users/${newUid}/subscriptions/station_s`).get();
+  assert.equal(subDoc.exists, true);
+  assert.equal(subDoc.get('isActive'), true);
+
+  // 2. Roles station_admin and super_admin can subscribe
+  for (const role of ['station_admin', 'super_admin']) {
+    const adminUid = `admin-${role}`;
+    await db.doc(`${root}/users/users/${adminUid}`).set({
+      isActive: true,
+      role,
+      displayName: `Admin ${role}`,
+      email: `${role}@hudhud.fm`,
+    });
+    await setSubscription({
+      firestore: db,
+      uid: adminUid,
+      data: { root, stationId: 's', isActive: true, notificationsEnabled: false },
+    });
+    const adminSub = await db.doc(`${root}/users/users/${adminUid}/subscriptions/station_s`).get();
+    assert.equal(adminSub.exists, true);
+    assert.equal(adminSub.get('isActive'), true);
+  }
+
+  // 3. Inactive station rejection
+  await db.doc(`${root}/stations/stations/inactive-station`).set({ isActive: false, name: 'Inactive' });
+  await assert.rejects(
+    setSubscription({
+      firestore: db,
+      uid: newUid,
+      data: { root, stationId: 'inactive-station', isActive: true, notificationsEnabled: false },
+    }),
+    { code: 'not-found' }
+  );
+});

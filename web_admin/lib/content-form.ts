@@ -115,6 +115,7 @@ export const contentFlags: Record<ContentKind, Array<[string, string]>> = {
     ['isFeatured', 'محطة مميزة'],
     ['isVerified', 'محطة موثقة'],
     ['isLive', 'بث مباشر'],
+    ['isNational', 'إذاعة عامة / وطنية'],
   ],
   programs: [
     ['isActive', 'ظاهر في التطبيق'],
@@ -204,8 +205,14 @@ export function validateContent(
       errors[field.key] = 'أدخل بريدًا إلكترونيًا صالحًا.';
     }
   }
-  for (const [key] of contentFlags[kind])
-    if (typeof data[key] !== 'boolean') errors[key] = 'اختر حالة صالحة.';
+  for (const [key] of contentFlags[kind]) {
+    if (key === 'isNational') {
+      if (data[key] !== undefined && typeof data[key] !== 'boolean')
+        errors[key] = 'اختر حالة صالحة.';
+    } else if (typeof data[key] !== 'boolean') {
+      errors[key] = 'اختر حالة صالحة.';
+    }
+  }
   if (kind === 'locations' && Number(data.sortOrder) < 0)
     errors.sortOrder = 'الترتيب لا يمكن أن يكون سالبًا.';
   if (kind !== 'locations' && !Number.isInteger(data.priority))
@@ -215,8 +222,23 @@ export function validateContent(
     data.countryCode !== 'YE'
   )
     errors.countryCode = 'المحتوى الحالي مخصص لليمن.';
-  if (kind === 'stations' && (!data.cityCode || !data.cityNameAr))
-    errors.location = 'اختر مدينة مرجعية.';
+  if (kind === 'stations') {
+    if (!data.cityCode || !data.cityNameAr) {
+      errors.location = 'اختر مدينة مرجعية.';
+    } else if (
+      (data.locationType === 'national' || data.cityCode === 'yemen') &&
+      !data.isNational
+    ) {
+      errors.location =
+        'الموقع الوطني مخصص للمحطات الوطنية فقط. فعّل خيار إذاعة وطنية أو اختر محافظة محلية.';
+    } else if (
+      data.isNational &&
+      data.locationType !== 'national' &&
+      data.cityCode !== 'yemen'
+    ) {
+      errors.location = 'المحطة الوطنية تتطلب اختيار الموقع الوطني العام.';
+    }
+  }
   if (kind === 'programs' && !data.stationId) errors.stationId = 'اختر المحطة.';
   if (kind === 'episodes') {
     if (!data.programId || !data.stationId)
@@ -267,7 +289,8 @@ export function contentPayload(
     'priority',
   ];
   if (kind === 'stations' || kind === 'locations')
-    keys.push('countryCode', 'countryNameAr', 'cityCode', 'cityNameAr');
+    keys.push('countryCode', 'countryNameAr', 'cityCode', 'cityNameAr', 'locationType');
+  if (kind === 'stations') keys.push('isNational');
   if (kind === 'programs') keys.push('stationId', 'schedule');
   if (kind === 'episodes') keys.push('programId', 'stationId');
   // Preserve existing banner target metadata, without offering unsupported navigation.

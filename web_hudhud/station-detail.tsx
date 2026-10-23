@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Station } from './lib/stations';
+import { resolveStreamHealthState, type Station } from './lib/stations';
 import { loadStationContent, type StationContent } from './lib/content-repository';
 import { scheduleStatus, stationHref, type Episode } from './lib/discovery';
 import { StationAppBanner } from './app-cta';
@@ -19,9 +19,17 @@ export function StationDetail({ station, onPlay, onEpisode, favorite, onFavorite
   const selectedProgram = new URLSearchParams(location.search).get('program');
   const requestedEpisode = new URLSearchParams(location.search).get('episode');
   const selectedEpisode = content?.episodes.some(e => e.id === requestedEpisode && (!selectedProgram || e.programId === selectedProgram)) ? requestedEpisode : null;
+  const healthState = resolveStreamHealthState(station, now);
+  const isStopped = healthState === 'temporarilyStopped' || healthState === 'noOnlineSource';
   return <section className="content-section detail-panel" id="station-detail" aria-labelledby="detail-title">
     <a href="?">العودة إلى كل المحطات</a><h1 id="detail-title" tabIndex={-1}>{station.name}</h1><p>{station.description || station.tagline || 'لا يوجد وصف لهذه المحطة حالياً.'}</p>
-    <div className="detail-actions"><button onClick={onPlay}>استمع للبث المباشر</button><button aria-pressed={favorite} onClick={onFavorite}>{favorite ? 'إزالة من المفضلة' : 'أضف إلى المفضلة'}</button><button onClick={() => void share()}>مشاركة المحطة</button><a href="#account">متابعة المحطة وإدارة التنبيهات</a></div><p role="status">{shareMessage}</p>
+    <div className="detail-actions"><button onClick={onPlay}>{isStopped ? 'محاولة الاستماع' : 'استمع للبث المباشر'}</button><button aria-pressed={favorite} onClick={onFavorite}>{favorite ? 'إزالة من المفضلة' : 'أضف إلى المفضلة'}</button><button onClick={() => void share()}>مشاركة المحطة</button><a href="#account">متابعة المحطة وإدارة التنبيهات</a></div><p role="status">{shareMessage}</p>
+    {isStopped && (
+      <aside className="stream-notice-card" role="note" aria-labelledby="stream-notice-title">
+        <strong id="stream-notice-title">⚠️ تنويه البث المباشر:</strong>
+        <p>البث المباشر لهذه الإذاعة متوقف حالياً من المصدر الإذاعي نفسه. هدهد إف إم منصة ناقلة ولا تتحمل مسؤولية الانقطاعات الفنية الصادرة من استوديوهات المحطة. بإمكانك تجربة إعادة الاتصال أو الاستماع إلى أرشيف البرامج والحلقات المسجلة.</p>
+      </aside>
+    )}
     <StationAppBanner />
     {!content && !error && <p role="status">جارٍ تحميل البرامج والحلقات…</p>}
     {error && <p role="alert">تعذر تحميل المحتوى. <button onClick={() => setAttempt(value => value + 1)}>إعادة المحاولة</button></p>}

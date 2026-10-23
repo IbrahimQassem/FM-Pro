@@ -104,6 +104,7 @@ export async function prepareStationLocation(
   const location = await tx.get(reference);
   if (
     !location.exists() ||
+    location.data()?.isActive === false ||
     fields.some((key) => location.data()[key] !== data[key])
   )
     throw failure('تغيّرت بيانات المدينة. أعد اختيار المدينة قبل الحفظ.');

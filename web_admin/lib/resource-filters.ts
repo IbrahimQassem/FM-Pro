@@ -291,3 +291,86 @@ export function sortRecords<
   });
 }
 
+/**
+ * Determines whether a station has a healthy, active live stream.
+ * Meets all 3 conditions:
+ * 1. healthStatus === 'online'
+ * 2. consecutiveFailures === 0
+ * 3. lastCheckedAt is valid and age <= 45 minutes (exact 45m boundary is valid).
+ */
+export function isHealthyStream(
+  data: Record<string, unknown>,
+  now: number = Date.now(),
+): boolean {
+  if (data.healthStatus !== 'online') return false;
+  const failures = Number(data.consecutiveFailures ?? 0);
+  if (failures !== 0) return false;
+  if (!data.lastCheckedAt) return false;
+
+  let timestampMs: number | null = null;
+  const raw = data.lastCheckedAt;
+  if (typeof raw === 'number' && Number.isFinite(raw)) {
+    timestampMs = raw;
+  } else if (
+    typeof raw === 'object' &&
+    raw !== null &&
+    'toMillis' in raw &&
+    typeof (raw as { toMillis: () => number }).toMillis === 'function'
+  ) {
+    timestampMs = (raw as { toMillis: () => number }).toMillis();
+  } else if (
+    typeof raw === 'object' &&
+    raw !== null &&
+    'seconds' in raw &&
+    typeof (raw as { seconds: number }).seconds === 'number'
+  ) {
+    timestampMs =
+      (raw as { seconds: number; nanoseconds?: number }).seconds * 1000;
+  } else if (typeof raw === 'string') {
+    const parsed = Date.parse(raw);
+    if (Number.isFinite(parsed)) {
+      timestampMs = parsed;
+    }
+  }
+
+  if (timestampMs === null || !Number.isFinite(timestampMs)) return false;
+
+  const ageMs = Math.abs(now - timestampMs);
+  return ageMs <= 45 * 60 * 1000;
+}
+
+/** Formats lastCheckedAt for admin tooltips without exposing stream URLs. */
+export function formatLastCheckedTime(value: unknown): string {
+  if (!value) return 'غير محدد';
+  let ms: number | null = null;
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    ms = value;
+  } else if (
+    typeof value === 'object' &&
+    value !== null &&
+    'toMillis' in value &&
+    typeof (value as { toMillis: () => number }).toMillis === 'function'
+  ) {
+    ms = (value as { toMillis: () => number }).toMillis();
+  } else if (
+    typeof value === 'object' &&
+    value !== null &&
+    'seconds' in value &&
+    typeof (value as { seconds: number }).seconds === 'number'
+  ) {
+    ms = (value as { seconds: number }).seconds * 1000;
+  } else if (typeof value === 'string') {
+    const parsed = Date.parse(value);
+    if (Number.isFinite(parsed)) ms = parsed;
+  }
+  if (!ms || !Number.isFinite(ms)) return 'غير محدد';
+  try {
+    return new Intl.DateTimeFormat('ar-YE', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }).format(new Date(ms));
+  } catch {
+    return new Date(ms).toLocaleString('ar');
+  }
+}
+

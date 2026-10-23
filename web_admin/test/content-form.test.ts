@@ -158,3 +158,69 @@ void test('episode audioUrl permits HTTP while coverUrl rejects it', () => {
   const invalidCover = { ...episode, coverUrl: 'http://example.com/cover.jpg' };
   assert.ok(validateContent('episodes', invalidCover).coverUrl);
 });
+
+void test('station location selection and national scope validation (PKG-02)', () => {
+  const baseStation = {
+    name: 'إذاعة صنعاء',
+    streamUrl: 'https://example.com/live',
+    priority: 1,
+    countryCode: 'YE',
+    isActive: true,
+    isFeatured: false,
+    isVerified: false,
+    isLive: true,
+    isNational: false,
+  };
+
+  // Missing location
+  const missingLocation = validateContent('stations', baseStation);
+  assert.ok(missingLocation.location);
+
+  // Regional governorate location
+  const regionalStation = {
+    ...baseStation,
+    cityCode: 'sanaa',
+    cityNameAr: 'صنعاء',
+    locationType: 'governorate',
+  };
+  assert.deepEqual(validateContent('stations', regionalStation), {});
+  const regionalPayload = contentPayload('stations', regionalStation);
+  assert.equal(regionalPayload.cityCode, 'sanaa');
+  assert.equal(regionalPayload.cityNameAr, 'صنعاء');
+  assert.equal(regionalPayload.locationType, 'governorate');
+  assert.equal(regionalPayload.isNational, false);
+
+  // National location without isNational: true must fail
+  const invalidNational = {
+    ...baseStation,
+    cityCode: 'yemen',
+    cityNameAr: 'الجمهورية اليمنية (إذاعات وطنية)',
+    locationType: 'national',
+    isNational: false,
+  };
+  assert.ok(validateContent('stations', invalidNational).location);
+
+  // National location with isNational: true passes
+  const validNational = {
+    ...baseStation,
+    cityCode: 'yemen',
+    cityNameAr: 'الجمهورية اليمنية (إذاعات وطنية)',
+    locationType: 'national',
+    isNational: true,
+  };
+  assert.deepEqual(validateContent('stations', validNational), {});
+  const nationalPayload = contentPayload('stations', validNational);
+  assert.equal(nationalPayload.cityCode, 'yemen');
+  assert.equal(nationalPayload.locationType, 'national');
+  assert.equal(nationalPayload.isNational, true);
+
+  // National flag with regional city must fail
+  const mismatchedNational = {
+    ...baseStation,
+    cityCode: 'aden',
+    cityNameAr: 'عدن',
+    locationType: 'governorate',
+    isNational: true,
+  };
+  assert.ok(validateContent('stations', mismatchedNational).location);
+});

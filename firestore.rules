@@ -371,6 +371,15 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    match /{root}/importKeys/{document=**} {
+      allow read, write: if isKnownRoot(root) && isAdmin();
+    }
+
+    match /{root}/auditLogs/{document=**} {
+      allow read: if isKnownRoot(root) && isAdmin();
+      allow write: if false;
+    }
+
     // Collection-group audits used by the admin console. Document-level
     // listener permissions remain constrained by the canonical matches above.
     match /{path=**}/favorites/{favoriteId} {

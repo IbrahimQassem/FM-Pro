@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Radio } from 'lucide-react';
 
+export const DEFAULT_STATION_PLACEHOLDER = '/images/station_placeholder.webp';
+
 export function StationLogo({
   name,
   logoUrl,
@@ -17,6 +19,7 @@ export function StationLogo({
   iconClassName?: string;
 }) {
   const [error, setError] = useState(false);
+  const [placeholderFailed, setPlaceholderFailed] = useState(false);
 
   const rawUrl =
     typeof logoUrl === 'string' && logoUrl.trim()
@@ -35,6 +38,18 @@ export function StationLogo({
         alt={cleanName || 'شعار المحطة'}
         loading="lazy"
         onError={() => setError(true)}
+        className={`${className} shrink-0 rounded-xl object-cover border bg-muted/50 shadow-2xs`}
+      />
+    );
+  }
+
+  if (!placeholderFailed) {
+    return (
+      <img
+        src={DEFAULT_STATION_PLACEHOLDER}
+        alt={cleanName ? `شعار ${cleanName}` : 'شعار هدهد الافتراضي'}
+        loading="lazy"
+        onError={() => setPlaceholderFailed(true)}
         className={`${className} shrink-0 rounded-xl object-cover border bg-muted/50 shadow-2xs`}
       />
     );

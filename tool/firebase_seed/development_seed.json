@@ -41,24 +41,278 @@
   ],
   "locations": [
     {
-      "id": "ye-sanaa",
+      "id": "sanaa",
       "data": {
         "countryCode": "YE",
         "countryNameAr": "اليمن",
         "cityCode": "sanaa",
         "cityNameAr": "صنعاء",
+        "locationType": "governorate",
         "sortOrder": 10,
         "isActive": true
       }
     },
     {
-      "id": "ye-aden",
+      "id": "aden",
       "data": {
         "countryCode": "YE",
         "countryNameAr": "اليمن",
         "cityCode": "aden",
         "cityNameAr": "عدن",
+        "locationType": "governorate",
         "sortOrder": 20,
+        "isActive": true
+      }
+    },
+    {
+      "id": "taiz",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "taiz",
+        "cityNameAr": "تعز",
+        "locationType": "governorate",
+        "sortOrder": 30,
+        "isActive": true
+      }
+    },
+    {
+      "id": "mukalla",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "mukalla",
+        "cityNameAr": "المكلا",
+        "locationType": "governorate",
+        "sortOrder": 40,
+        "isActive": true
+      }
+    },
+    {
+      "id": "seiyun",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "seiyun",
+        "cityNameAr": "سيئون",
+        "locationType": "governorate",
+        "sortOrder": 50,
+        "isActive": true
+      }
+    },
+    {
+      "id": "hudaydah",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "hudaydah",
+        "cityNameAr": "الحديدة",
+        "locationType": "governorate",
+        "sortOrder": 60,
+        "isActive": true
+      }
+    },
+    {
+      "id": "ibb",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "ibb",
+        "cityNameAr": "إب",
+        "locationType": "governorate",
+        "sortOrder": 70,
+        "isActive": true
+      }
+    },
+    {
+      "id": "marib",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "marib",
+        "cityNameAr": "مأرب",
+        "locationType": "governorate",
+        "sortOrder": 80,
+        "isActive": true
+      }
+    },
+    {
+      "id": "dhamar",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "dhamar",
+        "cityNameAr": "ذمار",
+        "locationType": "governorate",
+        "sortOrder": 90,
+        "isActive": true
+      }
+    },
+    {
+      "id": "shabwah",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "shabwah",
+        "cityNameAr": "شبوة",
+        "locationType": "governorate",
+        "sortOrder": 100,
+        "isActive": true
+      }
+    },
+    {
+      "id": "al_mahrah",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "al_mahrah",
+        "cityNameAr": "المهرة",
+        "locationType": "governorate",
+        "sortOrder": 110,
+        "isActive": true
+      }
+    },
+    {
+      "id": "lahj",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "lahj",
+        "cityNameAr": "لحج",
+        "locationType": "governorate",
+        "sortOrder": 120,
+        "isActive": true
+      }
+    },
+    {
+      "id": "abyan",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "abyan",
+        "cityNameAr": "أبين",
+        "locationType": "governorate",
+        "sortOrder": 130,
+        "isActive": true
+      }
+    },
+    {
+      "id": "socotra",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "socotra",
+        "cityNameAr": "سقطرى",
+        "locationType": "governorate",
+        "sortOrder": 140,
+        "isActive": true
+      }
+    },
+    {
+      "id": "saadah",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "saadah",
+        "cityNameAr": "صعدة",
+        "locationType": "governorate",
+        "sortOrder": 150,
+        "isActive": true
+      }
+    },
+    {
+      "id": "amran",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "amran",
+        "cityNameAr": "عمران",
+        "locationType": "governorate",
+        "sortOrder": 160,
+        "isActive": true
+      }
+    },
+    {
+      "id": "hajjah",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "hajjah",
+        "cityNameAr": "حجة",
+        "locationType": "governorate",
+        "sortOrder": 170,
+        "isActive": true
+      }
+    },
+    {
+      "id": "al_mahwit",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "al_mahwit",
+        "cityNameAr": "المحويت",
+        "locationType": "governorate",
+        "sortOrder": 180,
+        "isActive": true
+      }
+    },
+    {
+      "id": "raymah",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "raymah",
+        "cityNameAr": "ريمة",
+        "locationType": "governorate",
+        "sortOrder": 190,
+        "isActive": true
+      }
+    },
+    {
+      "id": "al_jawf",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "al_jawf",
+        "cityNameAr": "الجوف",
+        "locationType": "governorate",
+        "sortOrder": 200,
+        "isActive": true
+      }
+    },
+    {
+      "id": "al_bayda",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "al_bayda",
+        "cityNameAr": "البيضاء",
+        "locationType": "governorate",
+        "sortOrder": 210,
+        "isActive": true
+      }
+    },
+    {
+      "id": "al_dhalee",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "al_dhalee",
+        "cityNameAr": "الضالع",
+        "locationType": "governorate",
+        "sortOrder": 220,
+        "isActive": true
+      }
+    },
+    {
+      "id": "yemen",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "yemen",
+        "cityNameAr": "الجمهورية اليمنية (إذاعات وطنية)",
+        "locationType": "national",
+        "sortOrder": 1,
         "isActive": true
       }
     }

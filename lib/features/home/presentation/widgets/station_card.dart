@@ -36,95 +36,103 @@ class StationCard extends StatelessWidget {
   }
 
   Widget _buildGrid(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final strings = AppLocalizations.of(context);
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onOpen,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Align(
-                      alignment: AlignmentDirectional.topStart,
-                      child: _StationLogo(station: station, size: 78),
+    final isLargeText = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+    final logoSize = isLargeText ? 60.0 : 78.0;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: colors.outlineVariant.withValues(alpha: 0.35),
+            width: 1,
+          ),
+        ),
+        child: InkWell(
+          onTap: onOpen,
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Align(
+                        alignment: AlignmentDirectional.topStart,
+                        child: _StationLogo(station: station, size: logoSize),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      _StatusBadges(station: station, compact: true),
-                      if (onFavoriteToggle != null) ...[
-                        const SizedBox(height: 6),
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          constraints:
-                              const BoxConstraints(minWidth: 48, minHeight: 48),
-                          iconSize: 22,
-                          onPressed: onFavoriteToggle,
-                          tooltip: isFavorite
-                              ? strings.removeFromFavorites
-                              : strings.addToFavorites,
-                          icon: Icon(
-                            isFavorite
-                                ? Icons.favorite_rounded
-                                : Icons.favorite_border_rounded,
-                            color: isFavorite
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        _StatusBadges(station: station, compact: true),
+                        if (onFavoriteToggle != null) ...[
+                          const SizedBox(height: 6),
+                          _AnimatedFavoriteButton(
+                            isFavorite: isFavorite,
+                            onToggle: onFavoriteToggle!,
+                            tooltip: isFavorite
+                                ? strings.removeFromFavorites
+                                : strings.addToFavorites,
                           ),
-                        ),
+                        ],
                       ],
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              Text(
-                station.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                '${station.cityNameAr} · ${station.frequency.isEmpty ? strings.unknownFrequency : station.frequency}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
-              ),
-              const Spacer(),
-              _StationStats(station: station),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.tonalIcon(
-                  onPressed: onPlay,
-                  icon: Icon(
-                    station.streamUrl.isEmpty
-                        ? Icons.radio_rounded
-                        : Icons.play_arrow_rounded,
-                  ),
-                  label: Text(
-                    station.streamUrl.isEmpty
-                        ? strings.terrestrialBroadcast
-                        : strings.playNow,
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  station.name,
+                  maxLines: isLargeText ? 1 : 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 6),
+                _StationMetadataChip(station: station),
+                const Spacer(),
+                _StationStats(station: station),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.tonalIcon(
+                    onPressed: onPlay,
+                    icon: Icon(
+                      station.streamUrl.isEmpty
+                          ? Icons.radio_rounded
+                          : Icons.play_arrow_rounded,
+                    ),
+                    label: Text(
+                      station.streamUrl.isEmpty
+                          ? strings.terrestrialBroadcast
+                          : station.streamHealthState ==
+                                  StationStreamHealthState.temporarilyStopped
+                              ? strings.tryListening
+                              : strings.playNow,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -132,83 +140,92 @@ class StationCard extends StatelessWidget {
   }
 
   Widget _buildList(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onOpen,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _StationLogo(station: station, size: 74),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            station.name,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w800),
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final strings = AppLocalizations.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: colors.outlineVariant.withValues(alpha: 0.35),
+            width: 1,
+          ),
+        ),
+        child: InkWell(
+          onTap: onOpen,
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _StationLogo(station: station, size: 74),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              station.name,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                           ),
-                        ),
-                        _StatusBadges(station: station),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      [
-                        station.cityNameAr,
-                        station.frequency,
-                      ].where((value) => value.isNotEmpty).join(' · '),
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                    const SizedBox(height: 10),
-                    _StationStats(station: station),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 4),
-              if (onFavoriteToggle != null)
-                IconButton(
-                  onPressed: onFavoriteToggle,
-                  tooltip: isFavorite
-                      ? AppLocalizations.of(context).removeFromFavorites
-                      : AppLocalizations.of(context).addToFavorites,
-                  icon: Icon(
-                    isFavorite
-                        ? Icons.favorite_rounded
-                        : Icons.favorite_border_rounded,
-                    color: isFavorite
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                          const SizedBox(width: 6),
+                          _StatusBadges(station: station, compact: true),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      _StationMetadataChip(station: station),
+                      const SizedBox(height: 10),
+                      _StationStats(station: station),
+                    ],
                   ),
                 ),
-              IconButton.filledTonal(
-                onPressed: onPlay,
-                tooltip: station.streamUrl.isEmpty
-                    ? AppLocalizations.of(context).terrestrialBroadcast
-                    : station.streamHealthState ==
-                            StationStreamHealthState.temporarilyStopped
-                        ? AppLocalizations.of(context).tryListening
-                        : AppLocalizations.of(context)
-                            .playStation(station.name),
-                icon: Icon(
-                  station.streamUrl.isEmpty
-                      ? Icons.radio_rounded
-                      : Icons.play_arrow_rounded,
+                const SizedBox(width: 4),
+                if (onFavoriteToggle != null)
+                  _AnimatedFavoriteButton(
+                    isFavorite: isFavorite,
+                    onToggle: onFavoriteToggle!,
+                    tooltip: isFavorite
+                        ? strings.removeFromFavorites
+                        : strings.addToFavorites,
+                  ),
+                IconButton.filledTonal(
+                  onPressed: onPlay,
+                  tooltip: station.streamUrl.isEmpty
+                      ? strings.terrestrialBroadcast
+                      : station.streamHealthState ==
+                              StationStreamHealthState.temporarilyStopped
+                          ? strings.tryListening
+                          : strings.playStation(station.name),
+                  icon: Icon(
+                    station.streamUrl.isEmpty
+                        ? Icons.radio_rounded
+                        : Icons.play_arrow_rounded,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -425,6 +442,157 @@ class _Stat extends StatelessWidget {
         const SizedBox(width: 4),
         Flexible(child: Text(label, style: style?.copyWith(color: color))),
       ],
+    );
+  }
+}
+
+class _StationMetadataChip extends StatelessWidget {
+  const _StationMetadataChip({required this.station});
+
+  final Station station;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final city = station.cityNameAr.trim();
+    final freq = station.frequency.trim();
+
+    final parts = <String>[];
+    if (city.isNotEmpty) parts.add(city);
+    if (freq.isNotEmpty) parts.add(freq);
+    if (parts.isEmpty) return const SizedBox.shrink();
+
+    final label = parts.join(' · ');
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: 0.25),
+          width: 0.8,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.location_on_outlined,
+            size: 13,
+            color: colors.onSurfaceVariant,
+          ),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: colors.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AnimatedFavoriteButton extends StatefulWidget {
+  const _AnimatedFavoriteButton({
+    required this.isFavorite,
+    required this.onToggle,
+    required this.tooltip,
+  });
+
+  final bool isFavorite;
+  final VoidCallback onToggle;
+  final String tooltip;
+
+  @override
+  State<_AnimatedFavoriteButton> createState() =>
+      _AnimatedFavoriteButtonState();
+}
+
+class _AnimatedFavoriteButtonState extends State<_AnimatedFavoriteButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 240),
+    );
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 1.25)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.25, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 50,
+      ),
+    ]).animate(_controller);
+  }
+
+  @override
+  void didUpdateWidget(covariant _AnimatedFavoriteButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isFavorite != oldWidget.isFavorite && widget.isFavorite) {
+      final disableAnimations =
+          MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+      if (!disableAnimations) {
+        _controller.forward(from: 0.0);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final disableAnimations =
+        MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+
+    Widget iconWidget = Icon(
+      widget.isFavorite
+          ? Icons.favorite_rounded
+          : Icons.favorite_border_rounded,
+      color: widget.isFavorite
+          ? colorScheme.primary
+          : colorScheme.onSurfaceVariant,
+    );
+
+    if (!disableAnimations) {
+      iconWidget = ScaleTransition(
+        key: const ValueKey('favorite_button_scale'),
+        scale: _scaleAnimation,
+        child: iconWidget,
+      );
+    }
+
+    return IconButton(
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+      iconSize: 22,
+      onPressed: widget.onToggle,
+      tooltip: widget.tooltip,
+      icon: iconWidget,
     );
   }
 }

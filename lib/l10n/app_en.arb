@@ -205,6 +205,8 @@
   "streamAvailableBackup": "Stream available via backup source",
   "streamUnstable": "Stream unstable",
   "streamTemporarilyStopped": "Stream temporarily stopped",
+  "streamNoticeTitle": "Live Stream Notice:",
+  "streamNoticeDisclaimer": "The live broadcast of this station is currently stopped by the radio source itself. HudHud FM is a relay platform and is not responsible for technical outages originating from station studios. You can try reconnecting or listen to the archive of recorded programs and episodes.",
   "streamUnverifiedStatus": "Unable to verify stream status",
   "streamNoOnlineSource": "No online stream available",
   "streamDeviceConnectionError": "Unable to connect from your device",

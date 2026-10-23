@@ -2,6 +2,7 @@ import {
   doc,
   increment,
   runTransaction,
+  serverTimestamp,
   type Firestore,
   type DocumentReference,
 } from 'firebase/firestore';
@@ -20,6 +21,12 @@ import {
   readLocationStations,
 } from './location-relations.ts';
 import { assertCounterAdjustment } from './relationship-counter.ts';
+
+export type ActorContext = {
+  uid: string;
+  nameOrEmail?: string;
+};
+
 function contentError(message: string): Error {
   const error = new Error(message);
   error.name = 'ContentError';
@@ -39,6 +46,7 @@ export async function saveWithRelations(
   } | null,
   location?: DocumentReference,
   defaults?: unknown,
+  actor?: ActorContext,
 ) {
   if (
     !['HudHudDev', 'HudHudOfficial'].includes(firestoreRoot) ||
@@ -139,9 +147,36 @@ export async function saveWithRelations(
     reserveLocation?.();
     for (const station of locationStations)
       transaction.update(station, locationFields(data));
+
+    const auditFields: Record<string, unknown> = {};
+    if (actor) {
+      if (!previous) {
+        auditFields.createdBy = actor.uid;
+        auditFields.createdByName = actor.nameOrEmail || actor.uid;
+        auditFields.createdAt = serverTimestamp();
+        auditFields.updatedBy = actor.uid;
+        auditFields.updatedByName = actor.nameOrEmail || actor.uid;
+        auditFields.updatedAt = serverTimestamp();
+      } else {
+        const currentData = current.data()!;
+        if (currentData.createdBy) auditFields.createdBy = currentData.createdBy;
+        if (currentData.createdByName) auditFields.createdByName = currentData.createdByName;
+        if (currentData.createdAt) auditFields.createdAt = currentData.createdAt;
+        auditFields.updatedBy = actor.uid;
+        auditFields.updatedByName = actor.nameOrEmail || actor.uid;
+        auditFields.updatedAt = serverTimestamp();
+      }
+    }
+
+    const payload = {
+      ...data,
+      ...auditFields,
+      ...(previous || !defaults ? {} : { stats: defaults }),
+    };
+
     transaction.set(
       reference,
-      previous || !defaults ? data : { ...data, stats: defaults },
+      payload,
       { merge: previous !== null },
     );
   });

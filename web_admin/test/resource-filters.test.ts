@@ -10,6 +10,8 @@ import {
   normalizeSearchText,
   matchRecordSearch,
   sortRecords,
+  isHealthyStream,
+  formatLastCheckedTime,
 } from '../lib/resource-filters.ts';
 void test('resource status filters allow only supported fields and values', () => {
   assert.deepEqual(readResourceStatus('episodes', '#episodes?status=false'), {
@@ -237,5 +239,155 @@ void test('search matching works accurately across all other resources', () => {
   assert.equal(matchRecordSearch(sub, 'usr_789', 'subscriptions'), true);
   assert.equal(matchRecordSearch(sub, 'st_taiz', 'favorites'), true);
 });
+
+void test('isHealthyStream tests exact 45-min boundary and edge cases', () => {
+  const now = 1700000000000;
+  const fortyFiveMinMs = 45 * 60 * 1000;
+
+  // 1. Exact 45-min boundary (equal to 45 min) is healthy
+  assert.equal(
+    isHealthyStream(
+      {
+        healthStatus: 'online',
+        consecutiveFailures: 0,
+        lastCheckedAt: now - fortyFiveMinMs,
+      },
+      now,
+    ),
+    true,
+  );
+
+  // 2. 45-min + 1ms is NOT healthy
+  assert.equal(
+    isHealthyStream(
+      {
+        healthStatus: 'online',
+        consecutiveFailures: 0,
+        lastCheckedAt: now - fortyFiveMinMs - 1,
+      },
+      now,
+    ),
+    false,
+  );
+
+  // 3. Fresh check (< 45 min) is healthy
+  assert.equal(
+    isHealthyStream(
+      {
+        healthStatus: 'online',
+        consecutiveFailures: 0,
+        lastCheckedAt: now - 10000,
+      },
+      now,
+    ),
+    true,
+  );
+
+  // 4. consecutiveFailures > 0 is NOT healthy
+  assert.equal(
+    isHealthyStream(
+      {
+        healthStatus: 'online',
+        consecutiveFailures: 1,
+        lastCheckedAt: now - 10000,
+      },
+      now,
+    ),
+    false,
+  );
+
+  // 5. healthStatus !== 'online' is NOT healthy
+  assert.equal(
+    isHealthyStream(
+      {
+        healthStatus: 'offline',
+        consecutiveFailures: 0,
+        lastCheckedAt: now - 10000,
+      },
+      now,
+    ),
+    false,
+  );
+  assert.equal(
+    isHealthyStream(
+      {
+        healthStatus: 'degraded',
+        consecutiveFailures: 0,
+        lastCheckedAt: now - 10000,
+      },
+      now,
+    ),
+    false,
+  );
+
+  // 6. Missing or malformed lastCheckedAt is NOT healthy
+  assert.equal(
+    isHealthyStream(
+      {
+        healthStatus: 'online',
+        consecutiveFailures: 0,
+        lastCheckedAt: null,
+      },
+      now,
+    ),
+    false,
+  );
+  assert.equal(
+    isHealthyStream(
+      {
+        healthStatus: 'online',
+        consecutiveFailures: 0,
+        lastCheckedAt: 'invalid-date',
+      },
+      now,
+    ),
+    false,
+  );
+
+  // 7. Supports Firestore Timestamp { toMillis() }
+  assert.equal(
+    isHealthyStream(
+      {
+        healthStatus: 'online',
+        consecutiveFailures: 0,
+        lastCheckedAt: { toMillis: () => now - 60000 },
+      },
+      now,
+    ),
+    true,
+  );
+
+  // 8. Supports Firestore Timestamp { seconds }
+  assert.equal(
+    isHealthyStream(
+      {
+        healthStatus: 'online',
+        consecutiveFailures: 0,
+        lastCheckedAt: { seconds: Math.floor((now - 60000) / 1000) },
+      },
+      now,
+    ),
+    true,
+  );
+
+  // 9. Supports ISO string
+  assert.equal(
+    isHealthyStream(
+      {
+        healthStatus: 'online',
+        consecutiveFailures: 0,
+        lastCheckedAt: new Date(now - 60000).toISOString(),
+      },
+      now,
+    ),
+    true,
+  );
+
+  // Tooltip formatting does not expose URL
+  const formatted = formatLastCheckedTime(now - 60000);
+  assert.notEqual(formatted, 'غير محدد');
+  assert.equal(formatLastCheckedTime(null), 'غير محدد');
+});
+
 
 

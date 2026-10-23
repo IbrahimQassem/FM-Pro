@@ -701,6 +701,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get streamTemporarilyStopped => 'Stream temporarily stopped';
 
   @override
+  String get streamNoticeTitle => 'Live Stream Notice:';
+
+  @override
+  String get streamNoticeDisclaimer =>
+      'The live broadcast of this station is currently stopped by the radio source itself. HudHud FM is a relay platform and is not responsible for technical outages originating from station studios. You can try reconnecting or listen to the archive of recorded programs and episodes.';
+
+  @override
   String get streamUnverifiedStatus => 'Unable to verify stream status';
 
   @override

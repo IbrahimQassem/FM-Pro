@@ -348,10 +348,30 @@ function SectionHeading({ eyebrow, title, description }: { eyebrow: string; titl
 
 function StationArtwork({ station, size = 'normal' }: { station: Station; size?: 'tiny' | 'small' | 'normal' }) {
   const [imageFailed, setImageFailed] = useState(false);
-  useEffect(() => setImageFailed(false), [station.logoUrl]);
+  const [placeholderFailed, setPlaceholderFailed] = useState(false);
+  useEffect(() => {
+    setImageFailed(false);
+    setPlaceholderFailed(false);
+  }, [station.logoUrl]);
   const validLogo = isHttpUrl(station.logoUrl);
   return <div className={`station-art ${size} palette-${station.id.charCodeAt(0) % 5}`}>
-    {validLogo && !imageFailed ? <img src={station.logoUrl} alt={`شعار ${station.name || 'المحطة'}`} onLoad={() => setImageFailed(false)} onError={() => setImageFailed(true)} /> : <span aria-label={`حرف ${station.name || 'المحطة'}`}>{initials(station.name || 'هدهد')}</span>}
+    {validLogo && !imageFailed ? (
+      <img
+        src={station.logoUrl}
+        alt={`شعار ${station.name || 'المحطة'}`}
+        onLoad={() => setImageFailed(false)}
+        onError={() => setImageFailed(true)}
+      />
+    ) : !placeholderFailed ? (
+      <img
+        src="/images/station_placeholder.webp"
+        alt={`شعار ${station.name || 'المحطة'}`}
+        className="placeholder-mascot"
+        onError={() => setPlaceholderFailed(true)}
+      />
+    ) : (
+      <span aria-label={`حرف ${station.name || 'المحطة'}`}>{initials(station.name || 'هدهد')}</span>
+    )}
   </div>;
 }
 

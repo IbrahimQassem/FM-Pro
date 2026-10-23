@@ -1292,6 +1292,18 @@ abstract class AppLocalizations {
   /// **'Stream temporarily stopped'**
   String get streamTemporarilyStopped;
 
+  /// No description provided for @streamNoticeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Stream Notice:'**
+  String get streamNoticeTitle;
+
+  /// No description provided for @streamNoticeDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'The live broadcast of this station is currently stopped by the radio source itself. HudHud FM is a relay platform and is not responsible for technical outages originating from station studios. You can try reconnecting or listen to the archive of recorded programs and episodes.'**
+  String get streamNoticeDisclaimer;
+
   /// No description provided for @streamUnverifiedStatus.
   ///
   /// In en, this message translates to:

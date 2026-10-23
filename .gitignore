@@ -65,6 +65,7 @@ functions/.env
 users.json
 firestore-debug.log
 ui-debug.log
+tool/backups/
 
 # Local agent configuration and disposable structural indexes
 /.agents/mcp_config.json
