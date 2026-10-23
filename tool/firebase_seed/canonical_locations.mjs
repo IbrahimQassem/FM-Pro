@@ -40,9 +40,21 @@ export const CANONICAL_NATIONAL_LOCATION = {
   isActive: true,
 };
 
+export const CANONICAL_GENERAL_ARABIC_LOCATION = {
+  id: 'global-ar',
+  cityCode: 'global-ar',
+  cityNameAr: 'عربي',
+  countryCode: 'YE',
+  countryNameAr: 'اليمن',
+  locationType: 'governorate',
+  sortOrder: 230,
+  isActive: true,
+};
+
 export const ALL_CANONICAL_LOCATIONS = [
   CANONICAL_NATIONAL_LOCATION,
   ...CANONICAL_GOVERNORATES,
+  CANONICAL_GENERAL_ARABIC_LOCATION,
 ];
 
 export const CANONICAL_LOCATION_IDS = new Set(

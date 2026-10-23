@@ -315,6 +315,18 @@
         "sortOrder": 1,
         "isActive": true
       }
+    },
+    {
+      "id": "global-ar",
+      "data": {
+        "countryCode": "YE",
+        "countryNameAr": "اليمن",
+        "cityCode": "global-ar",
+        "cityNameAr": "عربي",
+        "locationType": "governorate",
+        "sortOrder": 230,
+        "isActive": true
+      }
     }
   ],
   "stations": [

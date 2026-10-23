@@ -25,7 +25,7 @@ void main() {
 
     expect(seed['projectId'], 'sanadev-fm');
     expect(seed['root'], 'HudHudDev');
-    expect(locations, hasLength(23));
+    expect(locations, hasLength(24));
     expect(stations, hasLength(4));
     expect(banners, hasLength(1));
     expect(users, hasLength(3));

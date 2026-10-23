@@ -15,7 +15,7 @@ import {
 
 test('canonical governorates and national location adhere to PKG-01 requirements', () => {
   assert.equal(CANONICAL_GOVERNORATES.length, 22, 'Must have exactly 22 governorates');
-  assert.equal(ALL_CANONICAL_LOCATIONS.length, 23, 'Must have 22 governorates + 1 national location');
+  assert.equal(ALL_CANONICAL_LOCATIONS.length, 24, 'Must have 22 governorates + 1 national location + 1 general arabic location');
 
   // Verify national location
   assert.equal(CANONICAL_NATIONAL_LOCATION.id, 'yemen');
@@ -23,6 +23,13 @@ test('canonical governorates and national location adhere to PKG-01 requirements
   assert.equal(CANONICAL_NATIONAL_LOCATION.countryCode, 'YE');
   assert.equal(CANONICAL_NATIONAL_LOCATION.countryNameAr, 'اليمن');
   assert.ok(CANONICAL_NATIONAL_LOCATION.isActive);
+
+  // Verify general arabic location
+  const globalAr = ALL_CANONICAL_LOCATIONS.find((l) => l.id === 'global-ar');
+  assert.ok(globalAr, 'global-ar location must exist');
+  assert.equal(globalAr.cityCode, 'global-ar');
+  assert.equal(globalAr.cityNameAr, 'عربي');
+  assert.ok(globalAr.isActive);
 
   // Verify all 22 canonical IDs exist
   const expectedGovIds = [
@@ -117,14 +124,14 @@ test('buildRootSeedPlan plans creation, update, and unchanged idempotently', () 
     sortOrder: 999,
     isActive: true,
   });
-  // other 21 locations do not exist yet
+  // other 22 locations do not exist yet
 
   const plan = buildRootSeedPlan(existingMap);
   assert.equal(plan.unchanged.length, 1);
   assert.equal(plan.unchanged[0], 'sanaa');
   assert.equal(plan.toUpdate.length, 1);
   assert.equal(plan.toUpdate[0].id, 'aden');
-  assert.equal(plan.toCreate.length, 21);
+  assert.equal(plan.toCreate.length, 22);
 
   // If we simulate an already fully-seeded database:
   const fullySeededMap = new Map();
@@ -135,7 +142,7 @@ test('buildRootSeedPlan plans creation, update, and unchanged idempotently', () 
   const idempotentPlan = buildRootSeedPlan(fullySeededMap);
   assert.equal(idempotentPlan.toCreate.length, 0);
   assert.equal(idempotentPlan.toUpdate.length, 0);
-  assert.equal(idempotentPlan.unchanged.length, 23);
+  assert.equal(idempotentPlan.unchanged.length, 24);
 });
 
 test('runLocationsSeeding works in dry-run with mock firestore and does not commit writes', async () => {
@@ -180,7 +187,7 @@ test('runLocationsSeeding works in dry-run with mock firestore and does not comm
   );
 
   assert.equal(writesCount, 0, 'Dry-run must not write any documents');
-  assert.equal(outcome.results.HudHudDev.created, 22);
+  assert.equal(outcome.results.HudHudDev.created, 23);
   assert.equal(outcome.results.HudHudDev.unchanged, 1);
   assert.equal(outcome.results.HudHudDev.updated, 0);
 });
