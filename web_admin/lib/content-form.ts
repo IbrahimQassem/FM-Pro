@@ -177,15 +177,10 @@ export function validateContent(
     if (field.type === 'number' && !Number.isInteger(value))
       errors[field.key] = 'أدخل عددًا صحيحًا.';
     const isMediaUrl = kind === 'stations';
-    if (
-      field.type === 'url' &&
-      value &&
-      !isNetworkUrl(value, isMediaUrl)
-    )
-      errors[field.key] =
-        isMediaUrl
-          ? 'أدخل رابط HTTP أو HTTPS صالحًا.'
-          : 'أدخل رابط HTTPS صالحًا.';
+    if (field.type === 'url' && value && !isNetworkUrl(value, isMediaUrl))
+      errors[field.key] = isMediaUrl
+        ? 'أدخل رابط HTTP أو HTTPS صالحًا.'
+        : 'أدخل رابط HTTPS صالحًا.';
     if (
       field.type === 'date' &&
       value &&
@@ -217,9 +212,15 @@ export function validateContent(
     errors.priority = 'أدخل أولوية صحيحة.';
   if (
     (kind === 'stations' || kind === 'locations') &&
-    data.countryCode !== 'YE'
+    !(
+      (data.countryCode === 'YE' && data.locationType !== 'regional') ||
+      (data.countryCode === 'ARAB' &&
+        data.countryNameAr === 'العالم العربي' &&
+        data.cityCode === 'global-ar' &&
+        data.locationType === 'regional')
+    )
   )
-    errors.countryCode = 'المحتوى الحالي مخصص لليمن.';
+    errors.countryCode = 'اختر موقعًا يمنيًا أو النطاق العربي المرجعي.';
   if (kind === 'stations') {
     if (!data.cityCode || !data.cityNameAr) {
       errors.location = 'اختر مدينة مرجعية.';
@@ -287,7 +288,13 @@ export function contentPayload(
     'priority',
   ];
   if (kind === 'stations' || kind === 'locations')
-    keys.push('countryCode', 'countryNameAr', 'cityCode', 'cityNameAr', 'locationType');
+    keys.push(
+      'countryCode',
+      'countryNameAr',
+      'cityCode',
+      'cityNameAr',
+      'locationType',
+    );
   if (kind === 'stations') keys.push('isNational');
   if (kind === 'programs') keys.push('stationId', 'schedule');
   if (kind === 'episodes') keys.push('programId', 'stationId');

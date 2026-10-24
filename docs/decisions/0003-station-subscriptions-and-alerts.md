@@ -61,3 +61,13 @@ catch-all Rules, including to admin clients. Dedicated emulator tests prove this
 Validation uses synthetic accounts/data and an injected FCM sender. New indexes,
 Functions and device delivery require a separately authorized development
 deployment before external verification; they are not deployed by this task.
+
+## November delivery-state amendment
+
+Per-device receipts now use the shared transaction protocol described in the
+[automation contract](../contracts/content-automation-contract.md#durable-delivery-amendment--november-2026).
+A definite retryable rejection retries; an ambiguous send is `unknown` and is not
+automatically resent. The job lease alone is insufficient because an old worker
+may still be sending when it expires; the device receipt fences this boundary.
+This changes retry semantics while preserving existing audience, retention,
+consent, publication and payload contracts. No new provider/queue or deployment.

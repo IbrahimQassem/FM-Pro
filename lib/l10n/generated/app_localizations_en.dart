@@ -9,6 +9,34 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get episodeProgress => 'Episode progress';
+
+  @override
+  String get episodeDurationUnknown => 'Duration unavailable';
+
+  @override
+  String get episodeSeekUnavailable =>
+      'Seeking is unavailable for this episode';
+
+  @override
+  String get workingStreamsFilter => 'Working streams';
+
+  @override
+  String get workingStreamsHint =>
+      'Last checked within 45 minutes. Playback on your device may differ.';
+
+  @override
+  String get workingStreamsEmptyTitle =>
+      'No recently working streams match these filters';
+
+  @override
+  String get workingStreamsEmptyMessage =>
+      'Unknown and archive stations remain available when you turn off this filter.';
+
+  @override
+  String get showAllStreamStates => 'Show all stream states';
+
+  @override
   String get advertisementOpenLink => 'Visit sponsor — opens an external link';
 
   @override

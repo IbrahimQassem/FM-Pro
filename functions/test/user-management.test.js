@@ -368,14 +368,7 @@ test('broadcastNotification sends FCM message to topic and stores record in fire
   };
 
   const store = new Map();
-  const mockFirestore = {
-    doc: (path) => ({
-      path,
-      set: async (data) => {
-        store.set(path, data);
-      },
-    }),
-  };
+  const mockFirestore = broadcastStore(store);
 
   const result = await broadcastNotification({
     messaging: mockMessaging,
@@ -384,6 +377,7 @@ test('broadcastNotification sends FCM message to topic and stores record in fire
     callerEmail: 'admin@hudhudfm.com',
     root: 'HudHudOfficial',
     data: {
+      operationId: 'synthetic-broadcast-station',
       title: 'بث مباشر خاص',
       body: 'استمع الآن إلى التغطية الإخبارية المباشرة',
       targetType: 'station',
@@ -468,18 +462,7 @@ test('broadcastNotification resolves episode metadata and formats imageUrl corre
     title: 'حلقة الصباح',
   });
 
-  const mockFirestore = {
-    doc: (path) => ({
-      path,
-      get: async () => ({
-        exists: store.has(path),
-        data: () => store.get(path),
-      }),
-      set: async (data) => {
-        store.set(path, data);
-      },
-    }),
-  };
+  const mockFirestore = broadcastStore(store);
 
   const result = await broadcastNotification({
     messaging: mockMessaging,
@@ -488,6 +471,7 @@ test('broadcastNotification resolves episode metadata and formats imageUrl corre
     callerEmail: 'admin@hudhudfm.com',
     root: 'HudHudOfficial',
     data: {
+      operationId: 'synthetic-broadcast-episode',
       title: 'حلقة جديدة متاحة الآن',
       body: 'استمع إلى حلقة الصباح عبر أثير إذاعة عدن',
       targetType: 'episode',
@@ -510,3 +494,52 @@ test('broadcastNotification resolves episode metadata and formats imageUrl corre
 });
 
 
+
+function broadcastStore(store = new Map(), failHistory = () => false) {
+  const ref = path => ({ path, get: async () => ({ exists: store.has(path), data: () => store.get(path) }) });
+  let queue = Promise.resolve();
+  return {
+    doc: ref,
+    runTransaction(fn) {
+      const next = queue.then(async () => {
+        const writes = [];
+        const result = await fn({ get: reference => reference.get(),
+          set: (reference, value) => { if (reference.path.includes('/notifications/') && failHistory()) throw new Error('Synthetic history failure'); writes.push(() => store.set(reference.path, value)); },
+          update: (reference, value) => writes.push(() => store.set(reference.path, { ...store.get(reference.path), ...value })),
+        });
+        writes.forEach(write => write()); return result;
+      });
+      queue = next.catch(() => {}); return next;
+    },
+  };
+}
+const broadcastInput = { title: 'Synthetic notification', body: 'Synthetic body', operationId: 'synthetic-broadcast-retry' };
+test('broadcast operation identity prevents concurrent sends and binds the original payload', async () => {
+  const db = broadcastStore(); let sends = 0;
+  const args = { firestore: db, messaging: { send: async () => { sends++; return 'ack'; } }, callerUid: 'super', root: 'HudHudDev', data: broadcastInput };
+  await Promise.all([broadcastNotification(args), broadcastNotification(args)]);
+  assert.equal(sends, 1);
+  await assert.rejects(broadcastNotification({ ...args, data: { ...broadcastInput, body: 'Changed body' } }), { code: 'failed-precondition' });
+  assert.equal(sends, 1);
+});
+test('lost broadcast acknowledgement remains unknown on a repeated request', async () => {
+  const db = broadcastStore(); let sends = 0;
+  const args = { firestore: db, messaging: { send: async () => { sends++; throw new Error('Synthetic lost ack'); } }, callerUid: 'super', root: 'HudHudDev', data: broadcastInput };
+  assert.equal((await broadcastNotification(args)).status, 'unknown');
+  assert.equal((await broadcastNotification(args)).status, 'unknown'); assert.equal(sends, 1);
+});
+test('broadcast history failure after provider acknowledgement recovers without another send', async () => {
+  let sends = 0; let failed = false;
+  const store = new Map();
+  const db = broadcastStore(store, () => { if (sends === 1 && !failed) { failed = true; return true; } return false; });
+  const args = { firestore: db, messaging: { send: async () => { sends++; return 'ack'; } }, callerUid: 'super', root: 'HudHudOfficial', data: broadcastInput };
+  await assert.rejects(broadcastNotification(args));
+  const result = await broadcastNotification(args);
+  assert.equal(result.status, 'sent'); assert.equal(result.messageId, 'ack'); assert.equal(sends, 1);
+  assert.equal(store.get(`HudHudOfficial/notifications/notifications/${result.notificationId}`).status, 'sent');
+});
+test('broadcast validates explicit root and intent identity before any send', async () => {
+  const args = { messaging: { send: () => assert.fail('Invalid broadcast reached FCM') }, callerUid: 'super', data: broadcastInput };
+  await assert.rejects(broadcastNotification({ ...args, root: 'Unknown' }), { code: 'invalid-argument' });
+  await assert.rejects(broadcastNotification({ ...args, root: 'HudHudDev', data: { ...broadcastInput, operationId: undefined } }), { code: 'invalid-argument' });
+});

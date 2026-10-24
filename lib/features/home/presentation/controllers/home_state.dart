@@ -28,6 +28,7 @@ class HomeState {
     this.searchQuery = '',
     this.selectedCityCode = '',
     this.isFavoritesOnly = false,
+    this.isWorkingStreamsOnly = false,
     this.favoriteStationIds = const {},
     this.viewMode = StationViewMode.grid,
     this.isInitialLoading = true,
@@ -46,6 +47,7 @@ class HomeState {
   final String searchQuery;
   final String selectedCityCode;
   final bool isFavoritesOnly;
+  final bool isWorkingStreamsOnly;
   final Set<String> favoriteStationIds;
   final StationViewMode viewMode;
   final bool isInitialLoading;
@@ -57,14 +59,14 @@ class HomeState {
   List<CityFilter> get cities {
     final stationCityCodes = <String>{};
     for (final station in stations) {
-      if (station.countryCode.toUpperCase() == defaultCountryCode) {
+      if (isDiscoveryLocation(station.countryCode, station.cityCode)) {
         stationCityCodes.add(station.cityCode);
       }
     }
     final filtersByCode = <String, CityFilter>{};
     for (final location in referenceLocations) {
       final isVisible = location.isActive &&
-          location.countryCode.toUpperCase() == defaultCountryCode &&
+          isDiscoveryLocation(location.countryCode, location.cityCode) &&
           stationCityCodes.contains(location.cityCode);
       if (isVisible) {
         filtersByCode.putIfAbsent(
@@ -85,10 +87,16 @@ class HomeState {
     return List.unmodifiable(values);
   }
 
-  List<Station> get visibleStations {
+  List<Station> get visibleStations => filterStations();
+
+  List<Station> filterStations({DateTime? now}) {
+    final checkedAt = now ?? DateTime.now();
     final normalizedQuery = normalizeArabicSearchText(searchQuery);
     return stations.where((station) {
-      if (station.countryCode.toUpperCase() != defaultCountryCode) {
+      if (!isDiscoveryLocation(station.countryCode, station.cityCode)) {
+        return false;
+      }
+      if (isWorkingStreamsOnly && !station.isWorkingStream(now: checkedAt)) {
         return false;
       }
       if (isFavoritesOnly && !favoriteStationIds.contains(station.id)) {
@@ -109,7 +117,7 @@ class HomeState {
   }
 
   bool get hasStations => stations.any(
-        (station) => station.countryCode.toUpperCase() == defaultCountryCode,
+        (station) => isDiscoveryLocation(station.countryCode, station.cityCode),
       );
 
   HomeState copyWith({
@@ -120,6 +128,7 @@ class HomeState {
     String? searchQuery,
     String? selectedCityCode,
     bool? isFavoritesOnly,
+    bool? isWorkingStreamsOnly,
     Set<String>? favoriteStationIds,
     StationViewMode? viewMode,
     bool? isInitialLoading,
@@ -136,6 +145,7 @@ class HomeState {
       searchQuery: searchQuery ?? this.searchQuery,
       selectedCityCode: selectedCityCode ?? this.selectedCityCode,
       isFavoritesOnly: isFavoritesOnly ?? this.isFavoritesOnly,
+      isWorkingStreamsOnly: isWorkingStreamsOnly ?? this.isWorkingStreamsOnly,
       favoriteStationIds: favoriteStationIds ?? this.favoriteStationIds,
       viewMode: viewMode ?? this.viewMode,
       isInitialLoading: isInitialLoading ?? this.isInitialLoading,

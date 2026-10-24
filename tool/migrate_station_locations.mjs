@@ -266,6 +266,10 @@ export async function runMigration(options, firestoreClient = null) {
     return { report, applied: false };
   }
 
+  if (decisions.some(item => item.status === 'proposed_update' && item.proposed.cityCode === 'global-ar')) {
+    throw new Error('Regional updates require tool/migrate_regional_location.mjs and its reviewed atomic scope.');
+  }
+
   // Apply mode
   console.log(`\n=== Applying Migration [Root: ${root}] ===`);
   const existingReportRaw = await readFile(reportPath, 'utf8');

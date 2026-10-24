@@ -9,6 +9,33 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
+  String get episodeProgress => 'تقدم الحلقة';
+
+  @override
+  String get episodeDurationUnknown => 'المدة غير متاحة';
+
+  @override
+  String get episodeSeekUnavailable => 'التقديم غير متاح لهذه الحلقة';
+
+  @override
+  String get workingStreamsFilter => 'البث السليم';
+
+  @override
+  String get workingStreamsHint =>
+      'حسب آخر فحص خلال 45 دقيقة؛ قد تختلف قابلية التشغيل على جهازك.';
+
+  @override
+  String get workingStreamsEmptyTitle =>
+      'لا يوجد بث سليم حديث يطابق هذه الفلاتر';
+
+  @override
+  String get workingStreamsEmptyMessage =>
+      'تبقى المحطات غير المفحوصة والأرشيف متاحة عند إيقاف هذا الفلتر.';
+
+  @override
+  String get showAllStreamStates => 'عرض جميع حالات البث';
+
+  @override
   String get advertisementOpenLink => 'زيارة المعلن — يفتح رابطًا خارجيًا';
 
   @override

@@ -1,3 +1,4 @@
+import '../features/player/domain/models/audio_playback_progress.dart';
 import '../features/advertising/data/firebase_advertising_repository.dart';
 import '../features/advertising/domain/sponsored_ad.dart';
 import '../features/app_update/data/app_update_repository.dart';
@@ -200,6 +201,11 @@ final audioPlaybackRepositoryProvider = Provider<AudioPlaybackRepository>((
   return DefaultAudioPlaybackRepository(
     ref.watch(audioPlayerDataSourceProvider),
   );
+});
+
+final audioPlaybackProgressProvider =
+    StreamProvider.autoDispose<AudioPlaybackProgress>((ref) {
+  return ref.watch(audioPlaybackRepositoryProvider).progressChanges;
 });
 
 final stationPlayerControllerProvider =

@@ -1,3 +1,4 @@
+import 'package:hudhud_fm/features/player/domain/models/audio_playback_progress.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -111,6 +112,12 @@ class ReviewAudio implements AudioPlaybackRepository {
   Stream<AudioPlaybackPhase> get phaseChanges => const Stream.empty();
   @override
   Stream<String?> get icyTitleChanges => const Stream.empty();
+
+  @override
+  Stream<AudioPlaybackProgress> get progressChanges => const Stream.empty();
+
+  @override
+  Future<bool> seek(Duration position, {required String itemId}) async => false;
   @override
   Future<void> load(AudioPlaybackItem item) async {}
   @override

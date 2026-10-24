@@ -134,20 +134,7 @@ describe('Program Start FCM Notifier', () => {
         },
       ];
 
-      const mockFirestore = {
-        collection: (root) => ({
-          doc: (sub) => ({
-            collection: (col) => ({
-              where: (field, op, val) => ({
-                get: async () => ({ docs: programs, size: programs.length }),
-              }),
-              doc: (id) => ({
-                get: async () => ({ exists: true, data: () => ({ name: 'إذاعة صوت اليمن' }) }),
-              }),
-            }),
-          }),
-        }),
-      };
+      const mockFirestore = notificationStore(programs, updates);
 
       const mockMessaging = {
         send: async (msg) => { sentMessages.push(msg); },
@@ -181,4 +168,88 @@ describe('Program Start FCM Notifier', () => {
       assert.strictEqual(officialMsg.topic, 'program_morning-glory');
     });
   });
+});
+
+// Serial transactions model lease ownership; emulator tests cover native contention.
+function notificationStore(programs, updates = []) {
+  const values = new Map(programs.map(item => [item.id, item.data()]));
+  const operations = new Map();
+  const reference = (id, operation = false) => ({
+    id,
+    get: async () => ({ exists: (operation ? operations : values).has(id), data: () => (operation ? operations : values).get(id) }),
+    update: async data => { updates.push({ id, payload: data }); values.set(id, { ...values.get(id), ...data }); },
+  });
+  const docs = programs.map(item => ({ ...item, ref: reference(item.id) }));
+  let queue = Promise.resolve();
+  return {
+    operations,
+    doc: path => reference(path.split('/').at(-1), true),
+    collection: () => ({ doc: sub => ({ collection: () => ({
+      where: () => ({ get: async () => ({ docs, size: docs.length }) }),
+      doc: () => ({ get: async () => ({ exists: true, data: () => ({ name: 'Synthetic station' }) }) }),
+    }) }) }),
+    runTransaction(fn) {
+      const task = queue.then(() => fn({
+        get: ref => ref.get(),
+        set: (ref, data) => operations.set(ref.id, data),
+        update: (ref, data) => operations.set(ref.id, { ...operations.get(ref.id), ...data }),
+      }));
+      queue = task.catch(() => {}); return task;
+    },
+  };
+}
+const upcoming = () => [{ id: 'race-program', data: () => ({ title: 'Synthetic', stationId: 'station', isActive: true, schedule: { weekdays: [1], startMinute: 600 } }) }];
+const notifyDate = new Date('2026-10-19T06:55:00Z');
+it('concurrent scheduled runs claim only one program send', async () => {
+  const db = notificationStore(upcoming()); let sends = 0;
+  const args = { firestore: db, messaging: { send: async () => { sends++; return 'ack'; } }, root: 'HudHudDev', now: notifyDate };
+  await Promise.all([notifyUpcomingProgramsForRoot(args), notifyUpcomingProgramsForRoot(args)]);
+  assert.equal(sends, 1);
+  assert.equal([...db.operations.values()][0].status, 'sent');
+});
+it('known program send failure retries after backoff without marking the program notified', async () => {
+  const updates = []; const db = notificationStore(upcoming(), updates); let sends = 0;
+  const args = { firestore: db, messaging: { send: async () => { sends++; if (sends === 1) throw Object.assign(new Error('synthetic'), { code: 'messaging/server-unavailable' }); return 'ack'; } }, root: 'HudHudDev' };
+  await notifyUpcomingProgramsForRoot({ ...args, now: notifyDate });
+  assert.equal(updates.length, 0);
+  assert.equal([...db.operations.values()][0].status, 'failed');
+  await notifyUpcomingProgramsForRoot({ ...args, now: new Date(notifyDate.getTime() + 121000) });
+  assert.equal(sends, 2); assert.equal(updates.length, 1);
+});
+it('lost program acknowledgement is explicit unknown and never automatically resent', async () => {
+  const db = notificationStore(upcoming()); let sends = 0;
+  const args = { firestore: db, messaging: { send: async () => { sends++; throw new Error('synthetic transport failure'); } }, root: 'HudHudOfficial', now: notifyDate };
+  await notifyUpcomingProgramsForRoot(args); await notifyUpcomingProgramsForRoot(args);
+  assert.equal(sends, 1); assert.equal([...db.operations.values()][0].status, 'unknown');
+});
+it('missing program sender never records an alert as delivered', async () => {
+  const updates = []; const db = notificationStore(upcoming(), updates);
+  const result = await notifyUpcomingProgramsForRoot({ firestore: db, root: 'HudHudDev', now: notifyDate });
+  assert.equal(result.notified, 0); assert.equal(updates.length, 0); assert.equal(db.operations.size, 0);
+});
+it('a preparation read failure remains retryable because no send began', async () => {
+  const db = notificationStore(upcoming()); const original = db.collection; let failed = false; let sends = 0;
+  db.collection = root => {
+    const parent = original(root);
+    const originalDoc = parent.doc;
+    parent.doc = sub => { if (sub === 'stations' && !failed) { failed = true; throw new Error('Synthetic pre-send read failure'); } return originalDoc(sub); };
+    return parent;
+  };
+  const args = { firestore: db, messaging: { send: async () => { sends++; return 'ack'; } }, root: 'HudHudDev' };
+  await notifyUpcomingProgramsForRoot({ ...args, now: notifyDate });
+  assert.equal(sends, 0); assert.equal([...db.operations.values()][0].status, 'failed');
+  await notifyUpcomingProgramsForRoot({ ...args, now: new Date(notifyDate.getTime() + 121000) });
+  assert.equal(sends, 1);
+});
+it('provider acknowledgement survives failure of the compatibility date stamp', async () => {
+  const programs = upcoming(); const db = notificationStore(programs); let sends = 0;
+  const collection = db.collection;
+  db.collection = root => ({ doc: sub => ({ collection: () => {
+    const source = collection(root).doc(sub).collection();
+    if (sub === 'programs') return { ...source, where: () => ({ get: async () => ({ size: 1, docs: [{ ...programs[0], ref: { get: async () => ({ data: programs[0].data }), update: async () => { throw new Error('Synthetic stamp failure'); } } }] }) }) };
+    return source;
+  } }) });
+  const args = { firestore: db, messaging: { send: async () => { sends++; return 'ack'; } }, root: 'HudHudDev', now: notifyDate };
+  await notifyUpcomingProgramsForRoot(args); await notifyUpcomingProgramsForRoot(args);
+  assert.equal(sends, 1); assert.equal([...db.operations.values()][0].status, 'sent');
 });

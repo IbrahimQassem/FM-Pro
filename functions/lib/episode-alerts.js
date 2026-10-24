@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { claimDelivery, startDelivery, finishDelivery, notificationFailure } from './notification-delivery.js';
 import { FieldPath, Timestamp } from 'firebase-admin/firestore';
 import { alertRoots, identifier, profilePath, deviceOwnerPath, removeDeviceIfCurrent, collectStaleDevices } from './station-subscriptions.js';
 const hour = 3600000;
@@ -17,6 +18,8 @@ export async function enqueueEpisodeAlert({ firestore, root, episodeId, before, 
   });
 }
 export async function processEpisodeAlert({ firestore, auth, send, reference, now = Date.now() }) {
+  const started = Date.now();
+  const clock = () => now + Date.now() - started;
   const lease = randomUUID();
   const job = await firestore.runTransaction(async tx => {
     const snapshot = await tx.get(reference);
@@ -73,23 +76,64 @@ export async function processEpisodeAlert({ firestore, auth, send, reference, no
         const owner = await firestore.doc(deviceOwnerPath(device.id)).get();
         if (owner.get('uid') !== uid || owner.get('root') !== root) continue;
         const delivery = reference.collection('deliveries').doc(device.id);
-        if ((await delivery.get()).get('status') === 'sent') continue;
         if ((device.get('updatedAt')?.toMillis?.() ?? 0) < now - 30 * 24 * hour) {
           await removeDeviceIfCurrent(firestore, device, root, uid); continue;
         }
-        pending.push({ device, delivery });
+        const deliveryLease = await claimDelivery({ firestore, reference: delivery, now: clock() });
+        if (!deliveryLease) {
+          const receipt = (await delivery.get()).data();
+          if (receipt?.status === 'pending' || (receipt?.status === 'failed' && receipt.retryable)) transient = true;
+          continue;
+        }
+        pending.push({ device, delivery, lease: deliveryLease });
       }
       if (!pending.length) continue;
-      // Recheck revocation after resolving device receipts, immediately before the send.
-      const [latestProfile, latestSubscription, latestEpisode] = await Promise.all([profileRef.get(), sub.ref.get(), episode.ref.get()]);
-      if (latestProfile.get('isActive') !== true || latestSubscription.get('isActive') !== true || latestSubscription.get('notificationsEnabled') !== true || latestSubscription.get('targetType') !== 'station' || latestSubscription.get('targetId') !== job.stationId || latestEpisode.get('isPublished') !== true) continue;
-      const response = await send({ tokens: pending.map(item => item.device.get('token')), notification: { title: String(station.get('name') ?? '').slice(0, 100), body: String(episode.get('title') ?? '').slice(0, 200) }, data: { version: '1', type: 'episode', eventId: `${root}:${job.episodeId}`, root, stationId: job.stationId, programId: job.programId, episodeId: job.episodeId }, android: { ttl: 24 * hour, notification: { tag: `${root}:${job.episodeId}` } }, apns: { headers: { 'apns-collapse-id': job.episodeId.slice(0, 64) } } });
-      for (let index = 0; index < pending.length; index++) {
-        const item = pending[index]; const result = response.responses[index];
-        if (result.success) await item.delivery.set({ status: 'sent', updatedAt: Timestamp.fromMillis(now) });
-        else if (['messaging/registration-token-not-registered', 'messaging/invalid-registration-token'].includes(result.error?.code)) {
+      // Recheck revocation and job ownership after resolving private device receipts.
+      const [latestProfile, latestSubscription, latestEpisode, latestStation, latestProgram, latestJob, latestBarriers] = await Promise.all([
+        profileRef.get(), sub.ref.get(), episode.ref.get(), station.ref.get(), program.ref.get(), reference.get(),
+        Promise.all(alertRoots.map(r => firestore.doc(`${r}/accountDeletionRequests/requests/${uid}`).get())),
+      ]);
+      const eligible = latestProfile.get('isActive') === true && latestSubscription.get('isActive') === true &&
+        latestSubscription.get('notificationsEnabled') === true && latestSubscription.get('targetType') === 'station' &&
+        latestSubscription.get('targetId') === job.stationId && latestEpisode.get('isPublished') === true &&
+        latestEpisode.get('stationId') === job.stationId && latestEpisode.get('programId') === job.programId &&
+        !latestEpisode.get('adminDeletionToken') && latestStation.get('isActive') === true && latestProgram.get('isActive') === true &&
+        latestProgram.get('stationId') === job.stationId && !latestBarriers.some(item => item.exists);
+      const ownsJob = latestJob.get('lease') === lease && latestJob.get('leaseUntil').toMillis() > clock();
+      if (!eligible || !ownsJob) {
+        for (const item of pending) await finishDelivery({ firestore, reference: item.delivery, lease: item.lease,
+          status: 'failed', retryable: !ownsJob, reason: eligible ? 'preparation-failed' : 'ineligible', now: clock() });
+        if (!ownsJob) transient = true;
+        continue;
+      }
+      const sending = [];
+      for (const item of pending) {
+        const [owner, currentDevice] = await Promise.all([firestore.doc(deviceOwnerPath(item.device.id)).get(), item.device.ref.get()]);
+        if (owner.get('uid') !== uid || owner.get('root') !== root || !currentDevice.exists || currentDevice.get('token') !== item.device.get('token')) {
+          await finishDelivery({ firestore, reference: item.delivery, lease: item.lease, status: 'failed', reason: 'ineligible', now: clock() });
+          continue;
+        }
+        if (await startDelivery({ firestore, reference: item.delivery, lease: item.lease, now: clock() })) sending.push(item);
+        else transient = true;
+      }
+      if (!sending.length) continue;
+      let response;
+      try {
+        response = await send({ tokens: sending.map(item => item.device.get('token')), notification: { title: String(station.get('name') ?? '').slice(0, 100), body: String(episode.get('title') ?? '').slice(0, 200) }, data: { version: '1', type: 'episode', eventId: `${root}:${job.episodeId}`, root, stationId: job.stationId, programId: job.programId, episodeId: job.episodeId }, android: { ttl: 24 * hour, notification: { tag: `${root}:${job.episodeId}` } }, apns: { headers: { 'apns-collapse-id': job.episodeId.slice(0, 64) } } });
+      } catch (error) {
+        const outcome = notificationFailure(error);
+        for (const item of sending) await finishDelivery({ firestore, reference: item.delivery, lease: item.lease, ...outcome, now: clock() });
+        if (outcome.retryable) transient = true;
+        continue;
+      }
+      for (let index = 0; index < sending.length; index++) {
+        const item = sending[index]; const result = response?.responses?.[index];
+        const outcome = result?.success === true ? { status: 'sent' } : notificationFailure(result?.error);
+        await finishDelivery({ firestore, reference: item.delivery, lease: item.lease, ...outcome, now: clock() });
+        if (['messaging/registration-token-not-registered', 'messaging/invalid-registration-token'].includes(result?.error?.code)) {
           await removeDeviceIfCurrent(firestore, item.device, root, uid);
-        } else transient = true;
+        }
+        if (outcome.retryable) transient = true;
       }
     }
     const attempts = job.attempts + 1;

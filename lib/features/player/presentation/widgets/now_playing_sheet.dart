@@ -10,6 +10,7 @@ import '../../../../core/services/share_service.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../station_details/presentation/station_details_screen.dart';
 import '../controllers/station_player_state.dart';
+import 'episode_progress_controls.dart';
 
 class NowPlayingSheet extends ConsumerStatefulWidget {
   const NowPlayingSheet({super.key});
@@ -510,6 +511,12 @@ class _NowPlayingSheetState extends ConsumerState<NowPlayingSheet>
                           ),
 
                           const SizedBox(height: 28),
+
+                          if (state.episode != null)
+                            EpisodeProgressControls(
+                              key: ValueKey(state.episode!.id),
+                              episodeId: state.episode!.id,
+                            ),
 
                           // Primary Controls (Previous, Play/Pause Hero, Next)
                           Row(

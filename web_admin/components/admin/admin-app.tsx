@@ -18,7 +18,7 @@ import {
   editableSchedule,
 } from '@/lib/content-form';
 import { loadRelationLabels, reportCommentPath } from '@/lib/admin-relations';
-import { deleteEpisode } from '@/lib/delete-episode';
+import { deleteContentWithAudit } from '@/lib/delete-episode';
 import { reviewReport } from '@/lib/review-report';
 import { saveWithRelations } from '@/lib/save-content';
 import { exportStationsToExcel } from '@/lib/export-excel';
@@ -27,7 +27,6 @@ import { resourceQuery } from '@/lib/admin-query';
 import { belongsToRoot } from '@/lib/firestore-environment';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { assertCounterAdjustment } from '@/lib/relationship-counter';
 import { createAdminSessionGuard } from '@/lib/admin-session';
 import { useAdminHash } from '@/lib/use-admin-hash';
 import {
@@ -106,7 +105,6 @@ import {
   collection,
   doc,
   where,
-  increment,
   limit,
   onSnapshot,
   query,
@@ -892,7 +890,6 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
               <ResourcePanel
                 key={section}
                 firestore={firestore}
-                user={user}
                 resource={section}
                 isSuperAdmin={isSuperAdmin}
               />
@@ -906,12 +903,10 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
 
 function ResourcePanel({
   firestore,
-  user,
   resource,
   isSuperAdmin = true,
 }: {
   firestore: Firestore;
-  user: User;
   resource: ResourceKey;
   isSuperAdmin?: boolean;
 }) {
@@ -1007,7 +1002,6 @@ function ResourcePanel({
       <ResourcePage
         key={`${resource}:${status?.value ?? ''}:${parent}:${reportType}`}
         firestore={firestore}
-        user={user}
         resource={resource}
         status={status}
         choices={choices}
@@ -1049,7 +1043,6 @@ function resourceCountLabel(key: ResourceKey, count: number): string {
 
 function ResourcePage({
   firestore,
-  user,
   resource,
   status,
   choices,
@@ -1058,7 +1051,6 @@ function ResourcePage({
   isSuperAdmin = true,
 }: {
   firestore: Firestore;
-  user: User;
   resource: ResourceKey;
   status?: StatusChoice;
   choices?: StatusChoice[];
@@ -1224,7 +1216,6 @@ function ResourcePage({
       ) : resource === 'reports' ? (
         <ModerationQueue
           firestore={firestore}
-          adminUid={user.uid}
           reports={records}
           comments={comments}
           commentContext={commentContext}
@@ -1292,14 +1283,12 @@ function ResourcePage({
 
 function ModerationQueue({
   firestore,
-  adminUid,
   reports,
   comments,
   commentContext,
   error,
 }: {
   firestore: Firestore;
-  adminUid: string;
   reports: AdminRecord[];
   comments: AdminRecord[];
   commentContext: 'loading' | 'ready' | 'error';
@@ -1359,8 +1348,7 @@ function ModerationQueue({
         firestoreRoot,
         report.reference,
         resolution,
-        adminUid,
-      );
+            );
       setFeedback({
         type: 'success',
         message:
@@ -3436,69 +3424,12 @@ async function deleteWithRelations(
   record: AdminRecord,
 ) {
   assertSelectedRoot(record.reference.path);
-  if (
-    key === 'stations' &&
-    (
-      await getDocsFromServer(
-        query(
-          collection(firestore, `${firestoreRoot}/programs/programs`),
-          where('stationId', '==', record.id),
-          limit(1),
-        ),
-      )
-    ).size > 0
-  )
-    throw new Error(
-      'لا يمكن حذف محطة مرتبطة ببرامج. انقل البرامج أو احذفها أولًا.',
-    );
-  if (
-    key === 'programs' &&
-    (
-      await getDocsFromServer(
-        query(
-          collection(firestore, `${firestoreRoot}/episodes/episodes`),
-          where('programId', '==', record.id),
-          limit(1),
-        ),
-      )
-    ).size > 0
-  )
-    throw new Error(
-      'لا يمكن حذف برنامج مرتبط بحلقات. انقل الحلقات أو احذفها أولًا.',
-    );
-  if (key === 'episodes')
-    return deleteEpisode(firestore, record.reference, record.data);
-  await runTransaction(firestore, async (transaction) => {
+  if (isContentKind(key)) return deleteContentWithAudit(firestore, firestoreRoot, key, record.reference, record.data);
+  // Non-content resources retain their existing rule-enforced deletion path.
+  await runTransaction(firestore, async transaction => {
     const current = await transaction.get(record.reference);
     if (!current.exists()) return;
-    const data = current.data();
-    if (editableFingerprint(data) !== editableFingerprint(record.data))
-      throw contentError('تغيّر السجل منذ تحميله. أعد تحميل الصفحة قبل الحذف.');
-    const counter =
-      key === 'stations'
-        ? 'programsCount'
-        : key === 'programs'
-          ? 'episodesCount'
-          : null;
-    if (counter && Number(data.stats?.[counter] ?? 0) > 0)
-      throw contentError('لا يمكن حذف سجل مرتبط بمحتوى آخر.');
-    if (key === 'programs') {
-      const parentKind = 'stations';
-      const relation = 'stationId';
-      const count = 'programsCount';
-      const parent = doc(
-        firestore,
-        `${firestoreRoot}/${parentKind}/${parentKind}`,
-        readString(data, relation),
-      );
-      const snapshot = await transaction.get(parent);
-      if (!snapshot.exists())
-        throw contentError(
-          'الارتباط السابق غير موجود. راجع البيانات قبل الحذف.',
-        );
-      assertCounterAdjustment(snapshot.get(`stats.${count}`), -1);
-      transaction.update(parent, { [`stats.${count}`]: increment(-1) });
-    }
+    if (editableFingerprint(current.data()) !== editableFingerprint(record.data)) throw contentError('تغيّر السجل منذ تحميله. أعد تحميل الصفحة قبل الحذف.');
     transaction.delete(record.reference);
   });
 }

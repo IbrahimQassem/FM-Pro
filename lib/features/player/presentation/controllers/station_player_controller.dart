@@ -153,6 +153,28 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
     }
   }
 
+  Future<bool> seek(Duration position, {required String episodeId}) async {
+    bool isCurrent() =>
+        mounted &&
+        state.isEpisodeSelected(episodeId) &&
+        (state.status == StationPlaybackStatus.playing ||
+            state.status == StationPlaybackStatus.paused);
+    if (!isCurrent()) return false;
+    final generation = _generation;
+    var accepted = false;
+    _loads = _loads.catchError((Object _) {}).then((_) async {
+      if (generation != _generation || !isCurrent()) return;
+      try {
+        accepted =
+            await _repository.seek(position, itemId: 'episode:$episodeId');
+      } on Object {
+        accepted = false;
+      }
+    });
+    await _loads;
+    return accepted && generation == _generation && isCurrent();
+  }
+
   Future<void> pause() async {
     if (state.station == null) return;
     final generation = ++_generation;

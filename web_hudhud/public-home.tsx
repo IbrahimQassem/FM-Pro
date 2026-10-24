@@ -1,3 +1,4 @@
+import { filterDiscoveryStations } from './lib/discovery';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
@@ -26,7 +27,7 @@ const StationDetail = lazy(() => import('./station-detail').then(module => ({ de
 const AccountPanel = lazy(() => import('./account-panel').then(module => ({ default: module.AccountPanel })));
 const loadPublicStations = () => import('./lib/station-repository').then(module => module.loadPublicStations());
 import { RadioPlayer, isHttpUrl, type PlaybackState } from '@/lib/radio-player';
-import { recentStation, resolveStreamHealthState, type Station } from '@/lib/stations';
+import { recentStation, resolveStreamHealthState, nextStreamHealthChange, streamHealthLabels, type Station } from '@/lib/stations';
 
 import { cityHref, pageModel, updateMetadata, type Catalog, type City } from './lib/seo';
 import { firestoreRoot } from './lib/firestore-environment';
@@ -87,6 +88,8 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
   const [loadState, setLoadState] = useState<LoadState>(initialCatalog?.status === 200 ? 'ready' : initialCatalog?.status === 503 ? 'error' : 'loading');
   const [loadError, setLoadError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [workingOnly, setWorkingOnly] = useState(false);
+  const [healthNow, setHealthNow] = useState(() => Date.now());
   const selectedCity = params.get('city') || 'all';
   const [cities, setCities] = useState<City[]>(initialCatalog?.cities || []);
   const [cityError, setCityError] = useState(initialCatalog?.citiesUnavailable || false);
@@ -116,6 +119,7 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
       if (epoch !== loadEpoch.current) return;
       try { const nextCities = await loadCityCatalog(activeStations); if (epoch !== loadEpoch.current) return; setCities(nextCities); setCityError(false); } catch { if (epoch !== loadEpoch.current) return; setCities([]); setCityError(true); }
       setStations(activeStations);
+      setHealthNow(Date.now());
       setLoadState('ready');
     } catch {
       if (epoch !== loadEpoch.current) return;
@@ -134,25 +138,24 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
     [stations],
   );
   const cityOptions = cities.map(city => [city.code, city.name]);
-  const filteredStations = useMemo(() => {
-    const query = searchQuery.trim().toLocaleLowerCase('ar');
-    const result = stations.filter((station) => {
-      if (library === 'favorites' && !favorites.includes(station.id)) return false;
-      if (library === 'recent' && !history.some(entry => entry.stationId === station.id)) return false;
-      const matchesCity = selectedCity === 'all' || (station.countryCode === 'YE' && station.cityCode === selectedCity);
-      if (!matchesCity) return false;
-      if (!query) return true;
-      return [
-        station.name,
-        station.nameEn,
-        station.cityNameAr,
-        station.frequency,
-        station.tagline,
-        station.description,
-      ].some((value) => value.toLocaleLowerCase('ar').includes(query));
-    });
-    return library === 'recent' ? result.sort((a,b) => history.findIndex(e => e.stationId === a.id) - history.findIndex(e => e.stationId === b.id)) : result;
-  }, [searchQuery, selectedCity, stations, library, favorites, history]);
+  const filteredStations = useMemo(() => filterDiscoveryStations(stations, {
+    search: searchQuery, city: selectedCity, library, favorites, history, workingOnly, now: healthNow,
+  }), [searchQuery, selectedCity, stations, library, favorites, history, workingOnly, healthNow]);
+  useEffect(() => {
+    const now = Date.now();
+    const deadlines = stations.map(station => nextStreamHealthChange(station, now)).filter((value): value is number => value !== null);
+    const delay = deadlines.length ? Math.min(86400000, Math.max(1, Math.min(...deadlines) - now)) : null;
+    const refresh = () => setHealthNow(Date.now());
+    const visible = () => { if (document.visibilityState === 'visible') refresh(); };
+    const timer = delay === null ? null : window.setTimeout(refresh, delay);
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', visible);
+    return () => {
+      if (timer !== null) window.clearTimeout(timer);
+      window.removeEventListener('focus', refresh);
+      document.removeEventListener('visibilitychange', visible);
+    };
+  }, [workingOnly, stations, healthNow]);
   const liveCount = stations.filter((station) => station.isLive).length;
   const currentStation = episodeMedia?.id === currentStationId ? episodeMedia : stations.find((station) => station.id === currentStationId) || null;
   const detailStation = validId(detailId) ? stations.find(station => station.id === detailId) : null;
@@ -170,7 +173,7 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
   }, [loadState, currentStationId, currentStation, stations]);
   const recommendation = useMemo(() => recentStation(stations, history), [history, stations]);
 
-  const emptyLibrary = !searchQuery.trim() && selectedCity === 'all' ? library : 'all';
+  const emptyLibrary = !workingOnly && !searchQuery.trim() && selectedCity === 'all' ? library : 'all';
 
   function playStation(station: Station) { episodeOwner.current = null; setEpisodeMedia(null); player.current?.select(station); }
   function playEpisode(episode: Episode) { const station = stations.find(s => s.id === episode.stationId); if (!station) return; const media = { ...station, id: `episode:${episode.id}`, resume: true, name: `${episode.title} · ${station.name}`, streamUrl: episode.audioUrl, backupStreamUrl: '' }; episodeOwner.current = station.id; setEpisodeMedia(media); player.current?.select(media); }
@@ -238,7 +241,7 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
 
         <section className="stats-strip" aria-label="إحصاءات المحطات">
           <StatItem value={loadState === 'ready' ? stations.length : '—'} label="محطة نشطة" icon={<Radio size={19} />} />
-          <StatItem value={loadState === 'ready' ? cityOptions.length : '—'} label="مدينة على الخريطة" icon={<MapPin size={19} />} />
+          <StatItem value={loadState === 'ready' ? cityOptions.length : '—'} label="منطقة تغطية" icon={<MapPin size={19} />} />
           <StatItem value={loadState === 'ready' ? liveCount : '—'} label="تبث الآن" icon={<Volume2 size={19} />} />
           <div className="stats-message"><Sparkles size={18} /><span>تجربة استماع عربية، مصممة لك</span></div>
         </section>
@@ -273,25 +276,27 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
 
         {!detailId && <SponsoredPlacement />}
         <section className="content-section stations-section" id="stations">
-          <div className="stations-heading"><SectionHeading eyebrow="الكتالوج الكامل" title="كل المحطات، أقرب إلى أذنك" description="ابحث باسم المحطة أو المدينة أو التردد، ثم اختر ما يناسب لحظتك." /><span className="count-badge">{loadState === 'ready' ? `${stations.length} محطة` : '...'}</span></div>
+          <div className="stations-heading"><SectionHeading eyebrow="الكتالوج الكامل" title="كل المحطات، أقرب إلى أذنك" description="ابحث باسم المحطة أو المدينة أو التردد، ثم اختر ما يناسب لحظتك." /><span className="count-badge">{loadState === 'ready' ? `${filteredStations.length} محطة` : '...'}</span></div>
           <div className="detail-actions" aria-label="مكتبتي"><button aria-pressed={library === 'all'} onClick={() => setLibrary('all')}>كل المحطات</button><button aria-pressed={library === 'favorites'} onClick={() => setLibrary('favorites')}>المفضلة على هذا المتصفح</button><button aria-pressed={library === 'recent'} onClick={() => setLibrary('recent')}>استمعت إليها مؤخراً</button><button onClick={clearHistory} disabled={!history.length}>مسح سجل الاستماع</button></div><p role="status">{storageMessage}</p>
           <div className="filters-bar">
             <label className="search-field"><Search size={19} /><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="ابحث عن محطة، مدينة، أو تردد..." aria-label="البحث في المحطات" />{searchQuery && <button type="button" onClick={() => setSearchQuery('')} aria-label="مسح البحث"><X size={16} /></button>}</label>
-            <div className="city-filters" aria-label="تصفية حسب المدينة">
-              <a className={selectedCity === 'all' ? 'city-filter active' : 'city-filter'} href="?#stations" aria-current={selectedCity === 'all' ? 'page' : undefined}>كل المدن</a>
+            <button type="button" className={workingOnly ? 'city-filter active' : 'city-filter'} aria-pressed={workingOnly} aria-describedby={workingOnly ? 'working-streams-hint' : undefined} onClick={() => { setHealthNow(Date.now()); setWorkingOnly(value => !value); }}>البث السليم</button>
+            <div className="city-filters" aria-label="تصفية حسب المنطقة">
+              <a className={selectedCity === 'all' ? 'city-filter active' : 'city-filter'} href="?#stations" aria-current={selectedCity === 'all' ? 'page' : undefined}>كل المناطق</a>
               {cityOptions.map(([code, label]) => <a className={selectedCity === code ? 'city-filter active' : 'city-filter'} key={code} href={cityHref(code)} aria-current={selectedCity === code ? 'page' : undefined}>{label}</a>)}
             </div>
           </div>
+          {workingOnly && <p id="working-streams-hint">حسب آخر فحص خلال 45 دقيقة؛ قد تختلف قابلية التشغيل على جهازك.</p>}
           {loadState === 'loading' && <div className="station-grid"><StationSkeleton /><StationSkeleton /><StationSkeleton /><StationSkeleton /></div>}
           {loadState === 'error' && <ErrorState message={loadError} onRetry={() => void loadStations()} />}
           {loadState === 'ready' && stations.length === 0 && <EmptyState title="لا توجد محطات نشطة حالياً" description="لم يتم العثور على محطات مفعّلة في الكتالوج. حاول مرة أخرى لاحقاً." />}
           {loadState === 'ready' && stations.length > 0 && filteredStations.length === 0 && (
             <EmptyState
               mascot={emptyLibrary === 'favorites' ? 'favorites' : emptyLibrary === 'recent' ? undefined : 'search'}
-              title={emptyLibrary === 'favorites' ? 'لم تضف محطات إلى المفضلة بعد' : emptyLibrary === 'recent' ? 'لم تستمع إلى أي محطة بعد' : 'لم نعثر على محطة بهذا البحث'}
-              description={emptyLibrary === 'favorites' ? 'اضغط على النجمة بجانب أي محطة لحفظها في المفضلة على هذا المتصفح.' : emptyLibrary === 'recent' ? 'ابدأ الاستماع إلى محطة لتظهر هنا على هذا المتصفح.' : 'جرّب اسماً آخر أو أزل فلتر المدينة للبحث في كل المحطات.'}
+              title={workingOnly ? 'لا يوجد بث سليم حديث يطابق هذه الفلاتر' : emptyLibrary === 'favorites' ? 'لم تضف محطات إلى المفضلة بعد' : emptyLibrary === 'recent' ? 'لم تستمع إلى أي محطة بعد' : 'لم نعثر على محطة بهذا البحث'}
+              description={workingOnly ? 'تبقى المحطات غير المفحوصة والأرشيف متاحة عند إيقاف الفلتر.' : emptyLibrary === 'favorites' ? 'اضغط على النجمة بجانب أي محطة لحفظها في المفضلة على هذا المتصفح.' : emptyLibrary === 'recent' ? 'ابدأ الاستماع إلى محطة لتظهر هنا على هذا المتصفح.' : 'جرّب اسماً آخر أو أزل فلتر المدينة للبحث في كل المحطات.'}
               actionLabel="إظهار كل المحطات"
-              onAction={() => { setSearchQuery(''); setSelectedCity('all'); setLibrary('all'); }}
+              onAction={() => { setSearchQuery(''); setSelectedCity('all'); setLibrary('all'); setWorkingOnly(false); }}
             />
           )}
           {loadState === 'ready' && filteredStations.length > 0 && <div className="station-grid">{filteredStations.map((station) => <StationCard key={station.id} favorite={favorites.includes(station.id)} onFavorite={() => toggleFavorite(station.id)} station={station} isPlaying={isPlaying && currentStationId === station.id} onPlay={() => void playStation(station)} />)}</div>}
@@ -377,14 +382,16 @@ function StationArtwork({ station, size = 'normal' }: { station: Station; size?:
 
 function FeaturedCard({ station, index, isPlaying, onPlay }: { station: Station; index: number; isPlaying: boolean; onPlay: () => void }) {
   const healthState = resolveStreamHealthState(station);
-  const isStopped = healthState === 'temporarilyStopped' || healthState === 'noOnlineSource';
-  return <article className={`featured-card featured-${index}`}><div className="featured-top"><span className="featured-label"><Star size={13} fill="currentColor" /> مميز</span><span className={`live-label ${isStopped ? 'stopped' : ''}`}>{isStopped ? 'متوقف مؤقتًا' : station.isLive ? <><i /> مباشر</> : 'استماع'}</span></div><StationArtwork station={station} size="normal" /><div className="featured-details"><h3><a href={stationHref(station.id)}>{station.name || 'محطة إذاعية'}</a></h3><span>{station.cityNameAr || 'من محطات هدهد'}{station.frequency ? ` · ${station.frequency}` : ''}</span><p>{station.tagline || station.description || 'استمع إلى هذه المحطة من هدهد إف إم.'}</p></div><button className="card-play" type="button" onClick={onPlay} aria-label={`${isPlaying ? 'إيقاف' : 'تشغيل'} ${station.name || 'المحطة'}`}>{isPlaying ? <Pause size={17} /> : <Play size={17} fill="currentColor" />}</button></article>;
+  const isStopped = healthState === 'temporarilyStopped';
+  const noSource = healthState === 'noOnlineSource';
+  return <article className={`featured-card featured-${index}`}><div className="featured-top"><span className="featured-label"><Star size={13} fill="currentColor" /> مميز</span><span className={`live-label ${isStopped || noSource ? 'stopped' : ''}`}>{healthState === 'available' && <i />}{streamHealthLabels[healthState]}</span></div><StationArtwork station={station} size="normal" /><div className="featured-details"><h3><a href={stationHref(station.id)}>{station.name || 'محطة إذاعية'}</a></h3><span>{station.cityNameAr || 'من محطات هدهد'}{station.frequency ? ` · ${station.frequency}` : ''}</span><p>{station.tagline || station.description || 'استمع إلى هذه المحطة من هدهد إف إم.'}</p></div><button className="card-play" type="button" disabled={noSource} onClick={onPlay} aria-label={`${isPlaying ? 'إيقاف' : 'تشغيل'} ${station.name || 'المحطة'}`}>{isPlaying ? <Pause size={17} /> : <Play size={17} fill="currentColor" />}</button></article>;
 }
 
 function StationCard({ station, isPlaying, onPlay, favorite, onFavorite }: { station: Station; isPlaying: boolean; onPlay: () => void; favorite: boolean; onFavorite(): void }) {
   const healthState = resolveStreamHealthState(station);
-  const isStopped = healthState === 'temporarilyStopped' || healthState === 'noOnlineSource';
-  return <article className="station-card"><div className="station-card-visual"><StationArtwork station={station} size="normal" /><span className={isStopped ? 'card-status stopped' : station.isLive ? 'card-status live' : 'card-status'}>{isStopped ? 'متوقف مؤقتًا' : <>{station.isLive && <i />}{station.isLive ? 'على الهواء' : 'متاح للاستماع'}</>}</span><button className="card-play" type="button" onClick={onPlay} aria-label={`${isPlaying ? 'إيقاف' : 'تشغيل'} ${station.name || 'المحطة'}`}>{isPlaying ? <Pause size={17} /> : <Play size={17} fill="currentColor" />}</button></div><div className="station-card-content"><div><h3><a href={stationHref(station.id)}>{station.name || 'محطة إذاعية'}</a></h3>{station.nameEn && <span className="name-en">{station.nameEn}</span>}</div><span className="city-name"><MapPin size={14} /> {station.cityNameAr || 'غير محدد'}{station.frequency ? ` · ${station.frequency}` : ''}</span><p>{station.tagline || station.description || 'استمع إلى صوت هذه المحطة عبر هدهد إف إم.'}</p><div className="card-footer"><span>{station.isVerified ? 'موثقة من هدهد' : 'من كتالوج هدهد'}</span><button aria-pressed={favorite} onClick={onFavorite} aria-label={`${favorite ? 'إزالة من المفضلة' : 'أضف إلى المفضلة'} ${station.name}`}>{favorite ? '★' : '☆'}</button><a href={stationHref(station.id)}>التفاصيل</a></div></div></article>;
+  const isStopped = healthState === 'temporarilyStopped';
+  const noSource = healthState === 'noOnlineSource';
+  return <article className="station-card"><div className="station-card-visual"><StationArtwork station={station} size="normal" /><span className={isStopped || noSource ? 'card-status stopped' : healthState === 'available' ? 'card-status live' : 'card-status'}>{healthState === 'available' && <i />}{streamHealthLabels[healthState]}</span><button className="card-play" type="button" disabled={noSource} onClick={onPlay} aria-label={`${isPlaying ? 'إيقاف' : 'تشغيل'} ${station.name || 'المحطة'}`}>{isPlaying ? <Pause size={17} /> : <Play size={17} fill="currentColor" />}</button></div><div className="station-card-content"><div><h3><a href={stationHref(station.id)}>{station.name || 'محطة إذاعية'}</a></h3>{station.nameEn && <span className="name-en">{station.nameEn}</span>}</div><span className="city-name"><MapPin size={14} /> {station.cityNameAr || 'غير محدد'}{station.frequency ? ` · ${station.frequency}` : ''}</span><p>{station.tagline || station.description || 'استمع إلى صوت هذه المحطة عبر هدهد إف إم.'}</p><div className="card-footer"><span>{station.isVerified ? 'موثقة من هدهد' : 'من كتالوج هدهد'}</span><button aria-pressed={favorite} onClick={onFavorite} aria-label={`${favorite ? 'إزالة من المفضلة' : 'أضف إلى المفضلة'} ${station.name}`}>{favorite ? '★' : '☆'}</button><a href={stationHref(station.id)}>التفاصيل</a></div></div></article>;
 }
 
 function EmptyState({ title, description, compact = false, mascot, actionLabel, onAction }: { title: string; description: string; compact?: boolean; mascot?: 'search' | 'favorites'; actionLabel?: string; onAction?: () => void }) {

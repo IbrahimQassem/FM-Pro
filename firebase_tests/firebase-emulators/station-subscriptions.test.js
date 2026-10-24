@@ -6,6 +6,9 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { readFile } from 'node:fs/promises';
 import { setSubscription, registerDevice, unregisterDevice, deviceId, removeAccountDevices } from '../../functions/lib/station-subscriptions.js';
 import { enqueueEpisodeAlert, processEpisodeAlert } from '../../functions/lib/episode-alerts.js';
+import { notifyUpcomingProgramsForRoot, collectNotificationOperations } from '../../functions/lib/program-notifications.js';
+import { broadcastNotification } from '../../functions/lib/user-management.js';
+import { claimDelivery, startDelivery } from '../../functions/lib/notification-delivery.js';
 const require = createRequire(new URL('../../functions/package.json', import.meta.url));
 const { initializeApp, deleteApp } = require('firebase-admin/app');
 const { getFirestore, Timestamp } = require('firebase-admin/firestore');
@@ -77,7 +80,7 @@ test('transient send failures retry and invalid tokens are removed', async () =>
 });
 test('device and delivery collections are private even to admin clients', async () => {
   for (const context of [env.unauthenticatedContext(),env.authenticatedContext('a',{email_verified:true}),env.authenticatedContext('admin',{admin:true})]) {
-    for (const path of [`${userPath('a')}/alertDevices/device`, 'notificationDeviceOwners/device', `${root}/episodeAlerts/jobs/e`, `${root}/episodeAlertPublications/markers/e`]) {
+    for (const path of [`${userPath('a')}/alertDevices/device`, 'notificationDeviceOwners/device', `${root}/episodeAlerts/jobs/e`, `${root}/episodeAlertPublications/markers/e`, `${root}/notificationOperations/operations/program`, `${root}/episodeAlerts/jobs/e/deliveries/device`]) {
       await assertFails(getDoc(doc(context.firestore(),path))); await assertFails(setDoc(doc(context.firestore(),path),{token:'forged'}));
     }
   }
@@ -174,3 +177,112 @@ test('PKG-08: profile self-healing and support for listener, station_admin and s
     { code: 'not-found' }
   );
 });
+
+for (const r of ['HudHudDev', 'HudHudOfficial']) {
+  async function deliveryFixture(label) {
+    const id = `delivery-${label}-${r}`;
+    const now = Date.now();
+    await db.doc(`${r}/users/users/${id}`).set({ isActive: true, role: 'listener' });
+    await db.doc(`${r}/stations/stations/${id}`).set({ isActive: true, name: 'Synthetic delivery station' });
+    await db.doc(`${r}/programs/programs/${id}`).set({ isActive: true, stationId: id });
+    await setSubscription({ firestore: db, uid: id, data: { root: r, stationId: id, isActive: true, notificationsEnabled: true } });
+    const token = `synthetic-delivery-device-${id}`;
+    await registerDevice({ firestore: db, uid: id, data: { root: r, token }, now });
+    const after = { isPublished: true, stationId: id, programId: id, title: 'Synthetic episode' };
+    await db.doc(`${r}/episodes/episodes/${id}`).set(after);
+    await enqueueEpisodeAlert({ firestore: db, root: r, episodeId: id, after, now });
+    return { now, reference: db.doc(`${r}/episodeAlerts/jobs/${id}`), receipt: db.doc(`${r}/episodeAlerts/jobs/${id}/deliveries/${deviceId(token)}`) };
+  }
+  test(`${r}: lost episode acknowledgement stays unknown across retries`, async () => {
+    const fixture = await deliveryFixture('lost-ack'); let sends = 0;
+    const args = { firestore: db, auth, ...fixture, send: async () => { sends++; throw new Error('Synthetic lost acknowledgement'); } };
+    await processEpisodeAlert(args);
+    await processEpisodeAlert({ ...args, now: fixture.now + 3600000 });
+    assert.equal(sends, 1);
+    assert.equal((await fixture.receipt.get()).get('status'), 'unknown');
+  });
+  test(`${r}: an expired job lease cannot start a second in-flight device send`, async () => {
+    const fixture = await deliveryFixture('inflight'); let sends = 0;
+    let began, release;
+    const entered = new Promise(resolve => { began = resolve; });
+    const blocked = new Promise(resolve => { release = resolve; });
+    const first = processEpisodeAlert({ firestore: db, auth, ...fixture, send: async () => {
+      sends++; began(); await blocked; return { responses: [{ success: true }] };
+    } });
+    await entered;
+    try {
+      await processEpisodeAlert({ firestore: db, auth, ...fixture, now: fixture.now + 11 * 60000, send: async () => {
+        sends++; return { responses: [{ success: true }] };
+      } });
+    } finally { release(); await first; }
+    assert.equal(sends, 1);
+    assert.equal((await fixture.receipt.get()).get('status'), 'unknown');
+  });
+}
+
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  test(`${root}: program claims serialize, known failures retry and lost acknowledgement never resends`, async () => {
+    const now = new Date('2026-10-19T06:55:00Z');
+    const base = { isActive: true, title: 'Synthetic scheduled program', stationId: 's', schedule: { weekdays: [1], startMinute: 600 } };
+    const create = id => db.doc(`${root}/programs/programs/${id}`).set(base);
+    await create('delivery-program-concurrent'); let sends = 0; const messages = [];
+    const args = { firestore: db, root, now, messaging: { send: async message => { sends++; messages.push(message); return 'ack'; } } };
+    await Promise.all([notifyUpcomingProgramsForRoot(args), notifyUpcomingProgramsForRoot(args)]);
+    assert.equal(sends, 1);
+    assert.equal(messages[0].topic, root === 'HudHudDev' ? 'hudhuddev_program_delivery-program-concurrent' : 'program_delivery-program-concurrent');
+    await create('delivery-program-unknown'); let uncertainSends = 0;
+    const uncertain = { ...args, messaging: { send: async () => { uncertainSends++; throw new Error('Synthetic lost acknowledgement'); } } };
+    await notifyUpcomingProgramsForRoot(uncertain); await notifyUpcomingProgramsForRoot(uncertain);
+    assert.equal(uncertainSends, 1);
+    await create('delivery-program-retry'); let retrySends = 0;
+    const retry = { ...args, messaging: { send: async () => { retrySends++; if (retrySends === 1) throw Object.assign(new Error('Synthetic provider rejection'), { code: 'messaging/server-unavailable' }); return 'ack'; } } };
+    await notifyUpcomingProgramsForRoot(retry);
+    await notifyUpcomingProgramsForRoot({ ...retry, now: new Date(now.getTime() + 121000) });
+    assert.equal(retrySends, 2);
+    const operations = await db.collection(`${root}/notificationOperations/operations`).get();
+    assert.equal(operations.docs.filter(item => item.get('status') === 'sent').length, 2);
+    assert.equal(operations.docs.filter(item => item.get('status') === 'unknown').length, 1);
+    await collectNotificationOperations({ firestore: db, root, now: now.getTime() + 31 * 86400000 });
+    assert.equal((await db.collection(`${root}/notificationOperations/operations`).get()).empty, true);
+  });
+  test(`${root}: native delivery transaction admits one lease and fences an expired sending attempt`, async () => {
+    const reference = db.doc(`${root}/notificationOperations/operations/native-lease`);
+    const claims = await Promise.all([claimDelivery({ firestore: db, reference, now: 1000 }), claimDelivery({ firestore: db, reference, now: 1000 })]);
+    const leases = claims.filter(Boolean); assert.equal(leases.length, 1);
+    assert.equal(await startDelivery({ firestore: db, reference, lease: leases[0], now: 1001 }), true);
+    assert.equal(await claimDelivery({ firestore: db, reference, now: 601001 }), null);
+    assert.equal((await reference.get()).get('status'), 'unknown');
+  });
+}
+
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  test(`${root}: manual broadcasts serialize, preserve unknown and recover acknowledged history writes`, async () => {
+    const input = { operationId: 'native-manual-concurrent', title: 'Synthetic broadcast', body: 'Synthetic body' };
+    let sends = 0; const messages = [];
+    const args = { firestore: db, callerUid: 'synthetic-super', root, data: input,
+      messaging: { send: async message => { sends++; messages.push(message); return 'synthetic-ack'; } } };
+    await Promise.all([broadcastNotification(args), broadcastNotification(args)]);
+    assert.equal(sends, 1);
+    assert.equal(messages[0].topic, root === 'HudHudDev' ? 'hudhuddev_hudhud_fm_announcements' : 'hudhud_fm_announcements');
+    await assert.rejects(broadcastNotification({ ...args, data: { ...input, body: 'Changed body' } }), { code: 'failed-precondition' });
+    let uncertainSends = 0;
+    const uncertain = { ...args, data: { ...input, operationId: 'native-manual-uncertain' }, messaging: { send: async () => { uncertainSends++; throw new Error('Synthetic lost ack'); } } };
+    assert.equal((await broadcastNotification(uncertain)).status, 'unknown');
+    assert.equal((await broadcastNotification(uncertain)).status, 'unknown'); assert.equal(uncertainSends, 1);
+    let acknowledged = 0, failed = false;
+    const failureDb = { doc: db.doc.bind(db), runTransaction: fn => db.runTransaction(tx => fn(new Proxy(tx, {
+      get(target, key) {
+        if (key === 'set') return (ref, value) => {
+          if (ref.path.includes('/notifications/') && acknowledged && !failed) { failed = true; throw new Error('Synthetic history failure'); }
+          return target.set(ref, value);
+        };
+        return typeof target[key] === 'function' ? target[key].bind(target) : target[key];
+      },
+    }))) };
+    const recovery = { ...args, firestore: failureDb, data: { ...input, operationId: 'native-manual-history-failure' }, messaging: { send: async () => { acknowledged++; return 'recovered-ack'; } } };
+    await assert.rejects(broadcastNotification(recovery));
+    const result = await broadcastNotification(recovery);
+    assert.equal(acknowledged, 1); assert.equal(result.status, 'sent'); assert.equal(result.messageId, 'recovered-ack');
+    assert.equal((await db.doc(`${root}/notifications/notifications/${result.notificationId}`).get()).get('status'), 'sent');
+  });
+}

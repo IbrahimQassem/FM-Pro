@@ -1,3 +1,4 @@
+import { callableEmulator } from './support/callable-emulator.ts';
 // Manual PL-03 acceptance probe. See docs/operations/ecc-pilot.md.
 // Intentionally excluded from *.test.ts until PL-03 fixes the failing journey.
 import assert from 'node:assert/strict';
@@ -47,12 +48,14 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
         );
         return db;
       };
+      let harness: Awaited<ReturnType<typeof callableEmulator>> | undefined;
       try {
         const authorId = `fixture-author-${id}`;
         const reporterId = `fixture-reporter-${id}`;
         const author = client(authorId);
         const reporter = client(reporterId);
-        const admin = client('fixture-admin', true);
+        harness = await callableEmulator();
+        const admin = harness.db;
         const guest = client();
         const episodePath = `${root}/episodes/episodes/${id}`;
         const commentPath = `${episodePath}/comments/comment`;
@@ -119,7 +122,6 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
             root,
             doc(admin, reportPath),
             'commentHidden',
-            'fixture-admin',
           );
         } catch (error) {
           failureName = error instanceof Error ? error.name : 'UnknownError';
@@ -144,7 +146,8 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
           code: 'permission-denied',
         });
       } finally {
-        await environment.cleanup();
+        await harness?.close();
+          await environment.cleanup();
         await Promise.all(apps.map(deleteApp));
       }
     });

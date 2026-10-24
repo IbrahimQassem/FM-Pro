@@ -1,5 +1,6 @@
 /**
- * Canonical Yemeni Governorates (22) and Independent National Location (1).
+ * Legacy 22-entry Yemeni coverage catalog plus national and regional scopes.
+ * Governorate accuracy remains under editorial review; do not equate count with validation.
  * Compliant with Station Governorates, Stream Health, Brand Identity, and Import Deduplication Contract
  * and Roadmap 2026-10 (PKG-01).
  */
@@ -44,9 +45,9 @@ export const CANONICAL_GENERAL_ARABIC_LOCATION = {
   id: 'global-ar',
   cityCode: 'global-ar',
   cityNameAr: 'عربي',
-  countryCode: 'YE',
-  countryNameAr: 'اليمن',
-  locationType: 'governorate',
+  countryCode: 'ARAB',
+  countryNameAr: 'العالم العربي',
+  locationType: 'regional',
   sortOrder: 230,
   isActive: true,
 };

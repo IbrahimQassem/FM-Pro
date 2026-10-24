@@ -15,3 +15,8 @@ class LocationReference {
   final int sortOrder;
   final bool isActive;
 }
+
+/// ARAB is a catalog region identifier, never an ISO country or governorate.
+bool isDiscoveryLocation(String countryCode, String cityCode) =>
+    countryCode.toUpperCase() == 'YE' ||
+    (countryCode.toUpperCase() == 'ARAB' && cityCode == 'global-ar');

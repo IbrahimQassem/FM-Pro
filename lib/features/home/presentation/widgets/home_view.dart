@@ -1,3 +1,4 @@
+import "dart:async";
 import "package:flutter/material.dart";
 
 import "../../../../l10n/generated/app_localizations.dart";
@@ -22,6 +23,7 @@ class HomeView extends StatefulWidget {
     required this.onStationPressed,
     required this.onStationPlayPressed,
     this.onFavoritesFilterToggled,
+    this.onWorkingStreamsFilterToggled,
     this.onFavoriteToggle,
     this.playerBar,
     this.sponsoredPlacement,
@@ -41,6 +43,7 @@ class HomeView extends StatefulWidget {
   final ValueChanged<Station> onStationPressed;
   final ValueChanged<Station> onStationPlayPressed;
   final ValueChanged<bool>? onFavoritesFilterToggled;
+  final ValueChanged<bool>? onWorkingStreamsFilterToggled;
   final ValueChanged<Station>? onFavoriteToggle;
   final Widget? playerBar;
   final Widget? sponsoredPlacement;
@@ -53,17 +56,20 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   late final TextEditingController _searchController;
+  Timer? _healthRefresh;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _searchController = TextEditingController(text: widget.state.searchQuery);
+    _scheduleHealthRefresh();
   }
 
   @override
   void didUpdateWidget(HomeView oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _scheduleHealthRefresh();
     if (widget.state.searchQuery != _searchController.text) {
       _searchController.text = widget.state.searchQuery;
     }
@@ -71,6 +77,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _healthRefresh?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _searchController.dispose();
     super.dispose();
@@ -78,7 +85,35 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) widget.onResume?.call();
+    if (state == AppLifecycleState.resumed) {
+      setState(() {});
+      _scheduleHealthRefresh();
+      widget.onResume?.call();
+    } else {
+      _healthRefresh?.cancel();
+    }
+  }
+
+  void _scheduleHealthRefresh() {
+    _healthRefresh?.cancel();
+    final lifecycle = WidgetsBinding.instance.lifecycleState;
+    if (lifecycle != null && lifecycle != AppLifecycleState.resumed) return;
+    final now = DateTime.now();
+    DateTime? next;
+    for (final station in widget.state.stations) {
+      final change = station.nextStreamHealthChange(now: now);
+      if (change != null && (next == null || change.isBefore(next))) {
+        next = change;
+      }
+    }
+    if (next == null) return;
+    final delay = next.difference(now);
+    _healthRefresh = Timer(
+        delay > const Duration(days: 1) ? const Duration(days: 1) : delay, () {
+      if (!mounted) return;
+      setState(() {});
+      _scheduleHealthRefresh();
+    });
   }
 
   void _clearSearch() {
@@ -165,7 +200,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                   ),
                 ),
               ),
-              if (widget.state.cities.isNotEmpty)
+              if (widget.state.hasStations)
                 SliverToBoxAdapter(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -174,15 +209,13 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                       children: [
                         ChoiceChip(
                           label: Text(strings.allCities),
-                          selected: !widget.state.isFavoritesOnly &&
-                              widget.state.selectedCityCode.isEmpty,
+                          selected: widget.state.selectedCityCode.isEmpty,
                           onSelected: (_) {
-                            widget.onFavoritesFilterToggled?.call(false);
                             widget.onCitySelected("");
                           },
                         ),
                         const SizedBox(width: 8),
-                        ChoiceChip(
+                        FilterChip(
                           avatar: Icon(
                             widget.state.isFavoritesOnly
                                 ? Icons.favorite_rounded
@@ -195,14 +228,20 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                             widget.onFavoritesFilterToggled?.call(selected);
                           },
                         ),
+                        const SizedBox(width: 8),
+                        FilterChip(
+                          label: Text(strings.workingStreamsFilter),
+                          tooltip: strings.workingStreamsHint,
+                          selected: widget.state.isWorkingStreamsOnly,
+                          onSelected: widget.onWorkingStreamsFilterToggled,
+                        ),
                         for (final city in widget.state.cities) ...[
                           const SizedBox(width: 8),
                           ChoiceChip(
                             label: Text(city.nameAr),
-                            selected: !widget.state.isFavoritesOnly &&
+                            selected:
                                 widget.state.selectedCityCode == city.code,
                             onSelected: (_) {
-                              widget.onFavoritesFilterToggled?.call(false);
                               widget.onCitySelected(city.code);
                             },
                           ),
@@ -211,6 +250,13 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                     ),
                   ),
                 ),
+              if (widget.state.isWorkingStreamsOnly)
+                SliverToBoxAdapter(
+                    child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: Text(strings.workingStreamsHint,
+                      style: Theme.of(context).textTheme.bodySmall),
+                )),
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
                 sliver: SliverToBoxAdapter(
@@ -278,6 +324,16 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                   message: strings.noStationsMessage,
                   actionLabel: strings.retry,
                   onAction: widget.onRefresh,
+                )
+              else if (widget.state.isWorkingStreamsOnly &&
+                  visibleStations.isEmpty)
+                HomeEmptyState(
+                  icon: Icons.radio_outlined,
+                  title: strings.workingStreamsEmptyTitle,
+                  message: strings.workingStreamsEmptyMessage,
+                  actionLabel: strings.showAllStreamStates,
+                  onAction: () async =>
+                      widget.onWorkingStreamsFilterToggled?.call(false),
                 )
               else if (widget.state.isFavoritesOnly && visibleStations.isEmpty)
                 HomeEmptyState(

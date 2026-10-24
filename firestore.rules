@@ -234,7 +234,8 @@ service cloud.firestore {
 
     // Private serialization point for admin location identity changes.
     match /{root}/locations {
-      allow get, create, update: if isKnownRoot(root) && isAdmin();
+      allow get: if isKnownRoot(root) && isAdmin();
+      allow write: if false;
     }
 
     match /{root}/system/config/{configId} {
@@ -242,54 +243,41 @@ service cloud.firestore {
       allow write: if isKnownRoot(root) && isSuperAdmin();
     }
 
+    // Editorial writes, counters and audit records are committed by callables.
     match /{root}/stations/stations/{stationId} {
       allow read: if isKnownRoot(root);
-      allow create, delete: if isKnownRoot(root) && isSuperAdmin();
-      allow update: if isKnownRoot(root) && canManageStation(stationId)
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
-          'healthStatus',
-          'consecutiveFailures',
-          'lastCheckedAt',
-          'streamHealthSource'
-        ]);
+      allow write: if false;
     }
 
     match /{root}/banners/banners/{bannerId} {
       allow read: if isKnownRoot(root);
-      allow create, update, delete: if isKnownRoot(root) && isSuperAdmin();
+      allow write: if false;
     }
 
     match /{root}/notifications/notifications/{notificationId} {
       allow read: if isKnownRoot(root) && isSuperAdmin();
-      allow create, update, delete: if isKnownRoot(root) && isSuperAdmin();
+      allow create, update: if false;
+      allow delete: if isKnownRoot(root) && isSuperAdmin();
     }
 
     match /{root}/locations/locations/{locationId} {
       allow read: if isKnownRoot(root);
-      allow create, delete: if isKnownRoot(root) && isSuperAdmin();
-      allow update: if isKnownRoot(root) && (
-        isSuperAdmin() ||
-        (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['adminRelationRevision']))
-      );
+      allow write: if false;
     }
 
     match /{root}/programs/programs/{programId} {
       allow read: if isKnownRoot(root);
-      allow create: if isKnownRoot(root) && canManageStation(request.resource.data.stationId);
-      allow update: if isKnownRoot(root) && canManageStation(resource.data.stationId) && canManageStation(request.resource.data.stationId);
-      allow delete: if isKnownRoot(root) && (isSuperAdmin() || canManageStation(resource.data.stationId));
+      allow write: if false;
     }
 
     match /{root}/episodes/episodes/{episodeId} {
       allow read: if isKnownRoot(root);
-      allow create: if isKnownRoot(root) && canManageStation(request.resource.data.stationId);
-      allow update: if isKnownRoot(root) && canManageStation(resource.data.stationId) && canManageStation(request.resource.data.stationId);
-      allow delete: if isKnownRoot(root) && (isSuperAdmin() || canManageStation(resource.data.stationId));
+      allow write: if false;
 
       match /comments/{commentId} {
         allow read: if isKnownRoot(root) && (isSuperAdmin() || canManageStation(get(/databases/$(database)/documents/$(root)/episodes/episodes/$(episodeId)).data.stationId) || resource.data.status == 'published');
         allow create: if isKnownRoot(root) && validCommentCreate(root, episodeId);
-        allow update, delete: if isKnownRoot(root) && (isSuperAdmin() || canManageStation(get(/databases/$(database)/documents/$(root)/episodes/episodes/$(episodeId)).data.stationId));
+        allow update, delete: if false;
       }
     }
 
@@ -324,7 +312,7 @@ service cloud.firestore {
             commentId,
             request.resource.data.reportedAuthorId
           );
-          allow update: if isKnownRoot(root) && validCommentReportReview();
+          allow update: if false;
           allow delete: if false;
         }
       }
@@ -343,7 +331,7 @@ service cloud.firestore {
               request.resource.data.commentId,
               reportedUid
             );
-          allow update: if isKnownRoot(root) && validCommentReportReview();
+          allow update: if false;
           allow delete: if false;
         }
       }
@@ -372,7 +360,8 @@ service cloud.firestore {
     }
 
     match /{root}/importKeys/{document=**} {
-      allow read, write: if isKnownRoot(root) && isAdmin();
+      allow read: if isKnownRoot(root) && isAdmin();
+      allow write: if false;
     }
 
     match /{root}/auditLogs/{document=**} {

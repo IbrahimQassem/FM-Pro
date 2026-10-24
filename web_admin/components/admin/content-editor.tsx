@@ -13,7 +13,14 @@ import {
   type Firestore,
   type QueryDocumentSnapshot,
 } from 'firebase/firestore';
-import { Radio, Eye, Save, ChevronRight, Trash2, AlertTriangle } from 'lucide-react';
+import {
+  Radio,
+  Eye,
+  Save,
+  ChevronRight,
+  Trash2,
+  AlertTriangle,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AudioPreview } from './audio-preview';
 import { episodeBroadcastTime } from '@/lib/episode-time';
@@ -94,18 +101,18 @@ export function RelationPicker({
       const data =
         kind === 'locations'
           ? await getDocsFromServer(
-            query(
-              base,
-              where('countryCode', '==', 'YE'),
-              where('cityCode', '==', selected),
-              limit(2),
-            ),
-          ).then((result) =>
-            result.size === 1 ? result.docs[0].data() : undefined,
-          )
+              query(
+                base,
+                where('countryCode', 'in', ['YE', 'ARAB']),
+                where('cityCode', '==', selected),
+                limit(2),
+              ),
+            ).then((result) =>
+              result.size === 1 ? result.docs[0].data() : undefined,
+            )
           : await getDocFromServer(doc(base, selected)).then((result) =>
-            result.data(),
-          );
+              result.data(),
+            );
       if (active && data)
         setCurrentLabel({
           value: selected,
@@ -525,9 +532,9 @@ export function ContentEditor({
                 <h3 className="text-2xl font-bold">
                   {fieldText(
                     form.name ||
-                    form.title ||
-                    form.cityNameAr ||
-                    'عنوان المحتوى',
+                      form.title ||
+                      form.cityNameAr ||
+                      'عنوان المحتوى',
                   )}
                 </h3>
                 <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">
@@ -587,11 +594,14 @@ export function ContentEditor({
                     نوع الموقع
                     <select
                       value={fieldText(form.locationType)}
-                      onChange={(event) => update('locationType', event.target.value)}
+                      onChange={(event) =>
+                        update('locationType', event.target.value)
+                      }
                       className="h-11 rounded-xl border bg-background px-3"
                     >
                       <option value="governorate">محافظة</option>
                       <option value="national">موقع وطني</option>
+                      <option value="regional">نطاق إقليمي</option>
                     </select>
                   </label>
                 )}
@@ -790,11 +800,11 @@ export function ContentEditor({
                             'schedule',
                             e.target.checked
                               ? {
-                                weekdays: [1],
-                                startMinute: 480,
-                                endMinute: 540,
-                                utcOffsetMinutes: 180,
-                              }
+                                  weekdays: [1],
+                                  startMinute: 480,
+                                  endMinute: 540,
+                                  utcOffsetMinutes: 180,
+                                }
                               : null,
                           )
                         }
@@ -822,8 +832,8 @@ export function ContentEditor({
                                     weekdays: e.target.checked
                                       ? [...schedule.weekdays, i + 1]
                                       : schedule.weekdays.filter(
-                                        (d) => d !== i + 1,
-                                      ),
+                                          (d) => d !== i + 1,
+                                        ),
                                   })
                                 }
                               />
@@ -867,9 +877,9 @@ export function ContentEditor({
                                           ? ''
                                           : Number(e.target.value)
                                         : scheduleMinutes(
-                                          e.target.value,
-                                          key === 'endMinute',
-                                        ),
+                                            e.target.value,
+                                            key === 'endMinute',
+                                          ),
                                   })
                                 }
                               />
@@ -936,7 +946,8 @@ export function ContentEditor({
                     </span>
                     {Boolean(initial?.createdAt) && (
                       <span className="text-muted-foreground mr-1">
-                        {' '}في {formatUserDate(initial?.createdAt)}
+                        {' '}
+                        في {formatUserDate(initial?.createdAt)}
                       </span>
                     )}
                   </div>
@@ -958,7 +969,8 @@ export function ContentEditor({
                     </span>
                     {Boolean(initial?.updatedAt) && (
                       <span className="text-muted-foreground mr-1">
-                        {' '}في {formatUserDate(initial?.updatedAt)}
+                        {' '}
+                        في {formatUserDate(initial?.updatedAt)}
                       </span>
                     )}
                   </div>

@@ -10,17 +10,27 @@ import '../../domain/repositories/notifications_repository.dart';
 
 class FirebaseNotificationsRepository implements NotificationsRepository {
   FirebaseNotificationsRepository(this._messaging,
-      {Stream<RemoteMessage>? foregroundMessages,
+      {String root = FirestorePaths.root,
+      Stream<RemoteMessage>? foregroundMessages,
       Stream<RemoteMessage>? openedMessages})
-      : _foregroundMessages = foregroundMessages ?? FirebaseMessaging.onMessage,
+      : _root = root,
+        _foregroundMessages = foregroundMessages ?? FirebaseMessaging.onMessage,
         _openedMessages =
-            openedMessages ?? FirebaseMessaging.onMessageOpenedApp;
+            openedMessages ?? FirebaseMessaging.onMessageOpenedApp {
+    FirestorePaths.validate(value: root, release: false);
+  }
 
   final Stream<RemoteMessage> _foregroundMessages;
   final Stream<RemoteMessage> _openedMessages;
 
   static const _preferenceKey = 'notifications.announcementsEnabled';
-  static const _announcementsTopic = 'hudhud_fm_announcements';
+  final String _root;
+  String get _announcementsTopic => _root == FirestorePaths.devRoot
+      ? 'hudhuddev_hudhud_fm_announcements'
+      : 'hudhud_fm_announcements';
+  String get _otherAnnouncementsTopic => _root == FirestorePaths.devRoot
+      ? 'hudhud_fm_announcements'
+      : 'hudhuddev_hudhud_fm_announcements';
 
   final FirebaseMessaging _messaging;
   final StreamController<AppNotification> _controller =
@@ -72,8 +82,14 @@ class FirebaseNotificationsRepository implements NotificationsRepository {
     final canReceive = permission == NotificationPermissionState.enabled;
     final isEnabled = savedEnabled && canReceive;
 
-    if (isEnabled) {
-      await _messaging.subscribeToTopic(_announcementsTopic);
+    if (canReceive) {
+      // Reconcile memberships from older builds without prompting for permission.
+      await _messaging.unsubscribeFromTopic(_otherAnnouncementsTopic);
+      if (isEnabled) {
+        await _messaging.subscribeToTopic(_announcementsTopic);
+      } else {
+        await _messaging.unsubscribeFromTopic(_announcementsTopic);
+      }
     }
     return NotificationPreference(
       isEnabled: isEnabled,
@@ -86,6 +102,7 @@ class FirebaseNotificationsRepository implements NotificationsRepository {
     final preferences = await SharedPreferences.getInstance();
     if (!enabled) {
       await _messaging.unsubscribeFromTopic(_announcementsTopic);
+      await _messaging.unsubscribeFromTopic(_otherAnnouncementsTopic);
       await preferences.setBool(_preferenceKey, false);
       final settings = await _messaging.getNotificationSettings();
       return NotificationPreference(
@@ -110,6 +127,7 @@ class FirebaseNotificationsRepository implements NotificationsRepository {
       return NotificationPreference(isEnabled: false, permission: permission);
     }
 
+    await _messaging.unsubscribeFromTopic(_otherAnnouncementsTopic);
     await _messaging.subscribeToTopic(_announcementsTopic);
     await preferences.setBool(_preferenceKey, true);
     return NotificationPreference(isEnabled: true, permission: permission);
@@ -117,14 +135,14 @@ class FirebaseNotificationsRepository implements NotificationsRepository {
 
   void _emit(RemoteMessage message, {bool openRequested = false}) {
     if (_controller.isClosed) return;
+    if (message.data['root'] != null && message.data['root'] != _root) return;
     final notification = message.notification;
     final title =
         (notification?.title ?? message.data['title'] ?? '').toString().trim();
     final body =
         (notification?.body ?? message.data['body'] ?? '').toString().trim();
     if (title.isEmpty && body.isEmpty) return;
-    final target = EpisodeAlertTarget.parse(message.data,
-        expectedRoot: FirestorePaths.root);
+    final target = EpisodeAlertTarget.parse(message.data, expectedRoot: _root);
     if (message.data['type'] == 'episode' && target == null) return;
     _controller.add(
       AppNotification(

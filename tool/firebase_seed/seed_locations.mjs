@@ -152,6 +152,9 @@ export async function runLocationsSeeding(options, firestoreClient = null) {
       },
     };
 
+    if (shouldApply && !dryRun && plan.toUpdate.some(item => item.id === 'global-ar')) {
+      throw new Error('Regional reference updates require tool/migrate_regional_location.mjs so station projections and audit remain atomic.');
+    }
     if (shouldApply && !dryRun) {
       console.log(`Applying changes to root ${root}...`);
       let FieldValue;

@@ -1,3 +1,4 @@
+import '../../domain/models/audio_playback_progress.dart';
 import '../../domain/models/audio_playback_item.dart';
 import '../../domain/models/audio_playback_phase.dart';
 import '../../domain/repositories/audio_playback_repository.dart';
@@ -13,6 +14,14 @@ class DefaultAudioPlaybackRepository implements AudioPlaybackRepository {
 
   @override
   Stream<String?> get icyTitleChanges => _dataSource.icyTitleChanges;
+
+  @override
+  Stream<AudioPlaybackProgress> get progressChanges =>
+      _dataSource.progressChanges;
+
+  @override
+  Future<bool> seek(Duration position, {required String itemId}) =>
+      _dataSource.seek(position, itemId: itemId);
 
   @override
   Future<void> load(AudioPlaybackItem item) => _dataSource.load(item);

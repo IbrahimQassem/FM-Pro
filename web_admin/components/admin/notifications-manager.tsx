@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useId } from 'react';
+import { useState, useEffect, useMemo, useId, useRef } from 'react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import {
   collection,
@@ -12,6 +12,7 @@ import {
 } from 'firebase/firestore';
 import { type User } from 'firebase/auth';
 import { firestoreRoot } from '@/lib/firestore-root';
+import { broadcastAttempt, type BroadcastAttempt } from '@/lib/broadcast-attempt';
 import { formatNotificationDateTime } from '@/lib/user-date';
 
 import {
@@ -124,7 +125,7 @@ const TEMPLATES = [
 
 export function NotificationsManager({
   firestore,
-  user: _user,
+  user,
   isSuperAdmin = true,
 }: {
   firestore: Firestore;
@@ -149,6 +150,7 @@ export function NotificationsManager({
 
   // Broadcast state
   const [isSending, setIsSending] = useState(false);
+  const attempt = useRef<BroadcastAttempt | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{
     type: 'success' | 'error';
@@ -305,9 +307,10 @@ export function NotificationsManager({
     setIsSending(true);
     setStatusMessage(null);
     try {
-      const functions = getFunctions();
+      const functions = getFunctions(firestore.app);
       const broadcastFn = httpsCallable<
         {
+          operationId: string;
           title: string;
           body: string;
           imageUrl?: string;
@@ -316,10 +319,10 @@ export function NotificationsManager({
           targetLabel?: string;
           root?: string;
         },
-        { success: boolean; notificationId: string; messageId: string }
+        { success: boolean; status: 'pending' | 'sent' | 'failed' | 'unknown'; retryable: boolean; notificationId: string; messageId: string }
       >(functions, 'adminBroadcastNotification');
 
-      const res = await broadcastFn({
+      const payload = {
         title: title.trim(),
         body: body.trim(),
         imageUrl: imageUrl.trim() || undefined,
@@ -327,11 +330,25 @@ export function NotificationsManager({
         targetId: targetId.trim() || undefined,
         targetLabel: targetLabel.trim() || undefined,
         root: firestoreRoot,
-      });
-
+      };
+      attempt.current = broadcastAttempt(attempt.current, { ...payload, actorId: user.uid });
+      const res = await broadcastFn({ ...payload, operationId: attempt.current.operationId });
+      if (!res.data.success || res.data.status !== 'sent') {
+        const text = res.data.status === 'unknown'
+          ? 'نتيجة الإرسال غير مؤكدة. راجع السجل قبل إنشاء إشعار آخر؛ لن تعيد هذه المحاولة الإرسال تلقائيًا.'
+          : res.data.status === 'pending'
+            ? 'محاولة الإرسال قيد التحقق. احتفظ بالبيانات وأعد التحقق بالمحاولة نفسها.'
+            : res.data.retryable
+              ? 'رفض مزود الإشعارات المحاولة. احتفظ بالبيانات وأعد المحاولة بعد انقضاء مهلة الانتظار.'
+              : 'لم يرسل الإشعار. راجع المحتوى والإعدادات قبل إنشاء محاولة جديدة.';
+        setStatusMessage({ type: 'error', text });
+        setConfirmOpen(false);
+        return;
+      }
+      attempt.current = null;
       setStatusMessage({
         type: 'success',
-        text: 'تم إرسال الإشعار بنجاح إلى جميع الأجهزة والمستمعين عبر FCM!',
+        text: 'قبل مزود الإشعارات الرسالة. وصولها إلى الجهاز يعتمد على إعدادات المستمع واتصاله.',
         messageId: res.data.messageId,
       });
       setConfirmOpen(false);
@@ -342,8 +359,8 @@ export function NotificationsManager({
       setTargetType('general');
       setTargetId('');
       setTargetLabel('');
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'فشل إرسال الإشعار. يرجى المحاولة لاحقاً.';
+    } catch {
+      const message = 'تعذر تأكيد النتيجة. احتفظ بالبيانات وراجع السجل أو أعد التحقق بالمحاولة نفسها قبل إنشاء إشعار جديد.';
       setStatusMessage({
         type: 'error',
         text: message,
@@ -429,7 +446,7 @@ export function NotificationsManager({
           )}
           <Badge variant="outline" className="px-3 py-1 font-mono text-xs gap-1.5 border-primary/20 bg-primary/5 text-primary">
             <Wifi className="size-3.5" />
-            <span>Topic: hudhud_fm_announcements</span>
+            <span>Topic: {firestoreRoot === 'HudHudDev' ? 'hudhuddev_hudhud_fm_announcements' : 'hudhud_fm_announcements'}</span>
           </Badge>
         </div>
       </div>
@@ -988,10 +1005,10 @@ export function NotificationsManager({
           <DialogHeader>
             <DialogTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
               <AlertCircle className="size-5 text-amber-500" />
-              <span>تأكيد إرسال الإشعار لجميع المستمعين</span>
+              <span>تأكيد إرسال الإشعار للمستمعين المشتركين</span>
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground mt-1.5">
-              يرجى مراجعة محتوى الإشعار قبل الإرسال. سيتم إرسال هذا الإشعار فوراً لجميع الأجهزة المشتركة في قناة التنبيهات عبر Firebase Cloud Messaging.
+              يرجى مراجعة محتوى الإشعار قبل الإرسال. ستُرسل الرسالة إلى المشتركين في تنبيهات البيئة المحددة؛ تأكيد المزود لا يضمن وصولها لكل جهاز.
             </DialogDescription>
           </DialogHeader>
 
@@ -1145,6 +1162,9 @@ export function NotificationsManager({
                         )}
                         {notif.title}
                       </div>
+                      <Badge variant="outline" className="mt-1 text-xs">
+                        {notif.status === 'sent' ? 'قبله مزود الإشعارات' : notif.status === 'pending' ? 'قيد التحقق' : notif.status === 'failed' ? 'لم يرسل' : 'نتيجة غير مؤكدة'}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground leading-relaxed line-clamp-2 max-w-[350px]">
                       {notif.body}

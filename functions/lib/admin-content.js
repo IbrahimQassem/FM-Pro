@@ -57,6 +57,12 @@ export const validContentId = (value) =>
   !value.includes('/') &&
   value !== '.' &&
   value !== '..';
+export const contentIdentityScope = (kind, parentId) =>
+  ['programs', 'episodes'].includes(kind) && validContentId(parentId)
+    ? createHash('sha256')
+        .update(JSON.stringify([kind, parentId]))
+        .digest('hex')
+    : null;
 const invalid = () => {
   throw new HttpsError('invalid-argument', 'Invalid editable content.');
 };
@@ -171,8 +177,14 @@ export function validateAdminContent(kind, value) {
     invalid();
   if (kind === 'stations' || kind === 'locations') {
     if (
-      content.countryCode !== 'YE' ||
-      !['governorate', 'national'].includes(content.locationType)
+      !(
+        (content.countryCode === 'YE' &&
+          ['governorate', 'national'].includes(content.locationType)) ||
+        (content.countryCode === 'ARAB' &&
+          content.cityCode === 'global-ar' &&
+          content.countryNameAr === 'العالم العربي' &&
+          content.locationType === 'regional')
+      )
     )
       invalid();
     if (

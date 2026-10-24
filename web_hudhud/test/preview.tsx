@@ -7,17 +7,19 @@ import { createRoot } from 'react-dom/client';
 import { PublicHome } from '../public-home';
 import { stationFromSnapshot } from '../lib/stations';
 import '../styles.css';
+import { publicCities } from '../lib/seo';
 const mode = new URLSearchParams(location.search).get('state');
 const loadCatalog = async () => {
   if (mode === 'error') throw new Error('Synthetic unavailable catalog');
   if (mode === 'empty') return [];
   return ['صنعاء', 'عدن', 'تعز'].map((city, index) => stationFromSnapshot({
-    id: `review-${index}`, data: () => ({ name: `إذاعة ${city} — صوت المجتمع والثقافة`, cityNameAr: city,
-      cityCode: `city-${index}`, countryCode: 'YE', isActive: true, isFeatured: index === 0, isLive: true,
-      description: 'بيانات تجريبية لفحص الواجهة فقط.', streamUrl: '', backupStreamUrl: '', }),
+    id: `review-${index}`, data: () => ({ name: `إذاعة ${city} — صوت المجتمع والثقافة`, cityNameAr: mode === 'regional' && index === 2 ? 'عربي' : city,
+      cityCode: mode === 'regional' && index === 2 ? 'global-ar' : `city-${index}`, countryCode: mode === 'regional' && index === 2 ? 'ARAB' : 'YE', isActive: true, isFeatured: index === 0, isLive: true,
+      description: 'بيانات تجريبية لفحص الواجهة فقط.', streamUrl: mode === 'working' && index < 2 ? 'https://example.invalid/fixture-live' : '', backupStreamUrl: '',
+      ...(mode === 'working' ? { healthStatus: 'online', consecutiveFailures: 0, lastCheckedAt: index === 0 ? Date.now() : Date.now() - 46 * 60000 } : {}), }),
   }));
 };
-const loadCityCatalog = async () => ['صنعاء', 'عدن', 'تعز'].map((name, i) => ({ code: `city-${i}`, name }));
+const loadCityCatalog = async () => mode === 'regional' ? publicCities([{ data: () => ({ countryCode: 'ARAB', cityCode: 'global-ar', cityNameAr: 'عربي', isActive: true }) }, ...['صنعاء', 'عدن'].map((cityNameAr, i) => ({ data: () => ({ countryCode: 'YE', cityCode: `city-${i}`, cityNameAr, isActive: true }) }))], await loadCatalog()) : ['صنعاء', 'عدن', 'تعز'].map((name, i) => ({ code: `city-${i}`, name }));
 const loadContent = async (stationId: string) => {
  if (mode === 'content-error') throw new Error('Synthetic content failure');
  return { offline: mode === 'offline', programs: [{ id: 'p', stationId, title: 'حكايات المجتمع', description: 'برنامج تجريبي عن الثقافة والمجتمع.', priority: 1, schedule: { weekdays: [1,3,7], startMinute: 600, endMinute: 660, utcOffsetMinutes: 180 } }], episodes: [{ id: 'e', stationId, programId: 'p', title: 'الحلقة التجريبية الأولى', description: 'وصف تجريبي للحلقة.', audioUrl: 'https://example.invalid/fixture-audio', broadcastAt: Date.UTC(2026,8,13), utcOffsetMinutes: 180 }] };

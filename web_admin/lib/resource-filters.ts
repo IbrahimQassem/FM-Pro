@@ -303,7 +303,9 @@ export function isHealthyStream(
   now: number = Date.now(),
 ): boolean {
   if (data.healthStatus !== 'online') return false;
-  const failures = Number(data.consecutiveFailures ?? 0);
+  const rawFailures = data.consecutiveFailures;
+  const failures = rawFailures == null ? 0 : typeof rawFailures === 'number' ||
+    (typeof rawFailures === 'string' && rawFailures.trim()) ? Number(rawFailures) : NaN;
   if (failures !== 0) return false;
   if (!data.lastCheckedAt) return false;
 

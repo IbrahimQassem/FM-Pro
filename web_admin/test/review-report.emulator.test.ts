@@ -1,12 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
-import { initializeApp, deleteApp } from 'firebase/app';
+import { callableEmulator } from './support/callable-emulator.ts';
 import {
-  connectFirestoreEmulator,
   doc,
   getDoc,
-  getFirestore,
 } from 'firebase/firestore';
 import { reviewReport } from '../lib/review-report.ts';
 
@@ -16,12 +14,8 @@ void test(
   async () => {
     const projectId = process.env.GCLOUD_PROJECT;
     assert.ok(projectId?.startsWith('demo-'));
-    const app = initializeApp({ projectId }, `review-${crypto.randomUUID()}`);
-    const db = getFirestore(app);
+    const { db, close } = await callableEmulator();
     const [host, port] = process.env.FIRESTORE_EMULATOR_HOST!.split(':');
-    connectFirestoreEmulator(db, host, Number(port), {
-      mockUserToken: { sub: 'fixture-admin', admin: true },
-    });
     const environment = await initializeTestEnvironment({
       projectId,
       firestore: { host, port: Number(port) },
@@ -70,14 +64,12 @@ void test(
             root,
             doc(db, reportPath(0)),
             'commentHidden',
-            'fixture-admin',
           ),
           reviewReport(
             db,
             root,
             doc(db, reportPath(1)),
             'commentRemoved',
-            'fixture-admin',
           ),
         ]);
         assert.equal(
@@ -108,7 +100,6 @@ void test(
             root,
             doc(db, reportPath(0)),
             'commentRemoved',
-            'fixture-admin',
           ),
         );
         assert.equal(
@@ -123,7 +114,6 @@ void test(
           root,
           doc(db, reportPath(455)),
           'userDisabled',
-          'fixture-admin',
         );
         assert.equal(
           (await getDoc(doc(db, `${root}/users/users/${id}`))).data()?.isActive,
@@ -139,13 +129,12 @@ void test(
             root === 'HudHudDev' ? 'HudHudOfficial' : 'HudHudDev',
             doc(db, reportPath(0)),
             'noAction',
-            'fixture-admin',
           ),
         );
       }
     } finally {
       await environment.cleanup();
-      await deleteApp(app);
+      await close();
     }
   },
 );

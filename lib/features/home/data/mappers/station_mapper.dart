@@ -141,8 +141,17 @@ abstract final class StationMapper {
   }) {
     final value = data[key];
     if (value == null) return defaultValue;
-    if (value is num) return value.toInt();
-    if (value is String) return int.tryParse(value) ?? defaultValue;
-    return defaultValue;
+    final parsed = value is num
+        ? value
+        : value is String && value.trim().isNotEmpty
+            ? num.tryParse(value)
+            : null;
+    if (parsed != null &&
+        parsed.isFinite &&
+        parsed >= 0 &&
+        parsed == parsed.truncateToDouble()) {
+      return parsed.toInt();
+    }
+    return -1;
   }
 }

@@ -1,3 +1,4 @@
+import { callableEmulator } from './support/callable-emulator.ts';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
@@ -43,12 +44,14 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
           );
           return db;
         };
+        let harness: Awaited<ReturnType<typeof callableEmulator>> | undefined;
         try {
           const authorId = `fixture-author-${id}`;
           const reporterId = `fixture-reporter-${id}`;
           const author = client(authorId);
           const reporter = client(reporterId);
-          const admin = client('fixture-admin', true);
+          harness = await callableEmulator();
+          const admin = harness.db;
           const guest = client();
           const episodePath = `${root}/episodes/episodes/${id}`;
           const commentPath = `${episodePath}/comments/comment`;
@@ -102,7 +105,7 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
           });
           if (correctedCounter) {
             // Diagnostic control only; this is not a proposed client-side fix.
-            await setDoc(
+            await harness.seed(
               doc(admin, episodePath),
               { stats: { commentsCount: 1 } },
               { merge: true },
@@ -115,7 +118,6 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
               root,
               doc(admin, reportPath),
               'commentHidden',
-              'fixture-admin',
             );
           } catch (error) {
             failureName = error instanceof Error ? error.name : 'UnknownError';
@@ -140,6 +142,7 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
             code: 'permission-denied',
           });
         } finally {
+          await harness?.close();
           await environment.cleanup();
           await Promise.all(apps.map(deleteApp));
         }

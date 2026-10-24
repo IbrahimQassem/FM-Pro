@@ -1,7 +1,10 @@
 import { isSafePublicUrl, withPublicResponse, readResponseBytes } from './public-fetch.js';
-import { createHash, randomUUID } from 'node:crypto';
+import { createHash } from 'node:crypto';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
+import { contentIdentity, validContentId } from './admin-content.js';
+import { assertCounterAdjustment, prepareContentIdentity } from './admin-content-relations.js';
+import { recordEditorialAuditLog } from './editorial-audit.js';
 
 export const ingestionRoots = ['HudHudDev', 'HudHudOfficial'];
 
@@ -146,7 +149,7 @@ export async function ingestEpisodesFromFeed({
   fetchFn,
   lookupFn,
 }) {
-  if (!ingestionRoots.includes(root)) {
+  if (!ingestionRoots.includes(root) || !validContentId(programId) || !validContentId(stationId)) {
     throw new Error(`Unknown root environment: ${root}`);
   }
 
@@ -162,12 +165,15 @@ export async function ingestEpisodesFromFeed({
   const existingSnapshot = await episodesCol.where('programId', '==', programId).get();
   const existingExternalIds = new Set();
   const existingAudioUrls = new Set();
+  const existingIdentities = new Set();
   const existingDocIds = new Set(existingSnapshot.docs.map((d) => d.id));
 
   for (const doc of existingSnapshot.docs) {
     const data = doc.data();
     if (data.externalId) existingExternalIds.add(String(data.externalId));
     if (data.audioUrl) existingAudioUrls.add(String(data.audioUrl));
+    const identity = contentIdentity('episodes', data);
+    if (identity) existingIdentities.add(identity);
   }
 
   let ingested = 0;
@@ -178,7 +184,8 @@ export async function ingestEpisodesFromFeed({
     if (
       existingDocIds.has(episodeId) ||
       existingExternalIds.has(item.externalId) ||
-      existingAudioUrls.has(item.audioUrl)
+      existingAudioUrls.has(item.audioUrl) ||
+      existingIdentities.has(contentIdentity('episodes', { programId, audioUrl: item.audioUrl }))
     ) {
       skipped++;
       continue;
@@ -210,24 +217,35 @@ export async function ingestEpisodesFromFeed({
       createdAt: FieldValue.serverTimestamp(),
     };
 
-    const batch = firestore.batch();
-    batch.set(episodeDoc, payload);
-    batch.update(programRef, {
-      'stats.episodesCount': FieldValue.increment(1),
-      lastIngestedAt: FieldValue.serverTimestamp(),
-    });
-
+    let created = false;
     try {
-      await batch.commit();
-    } catch (err) {
-      logger.error(`Failed to commit episode "${item.title}" (ID: ${episodeId}) for program ${programId}: ${err?.message}`);
-      throw err;
+      created = await firestore.runTransaction(async tx => {
+        const [current, program, station] = await Promise.all([tx.get(episodeDoc), tx.get(programRef), tx.get(firestore.doc(`${root}/stations/stations/${stationId}`))]);
+        if (current.exists) {
+          if (current.get('programId') !== programId || contentIdentity('episodes', current.data()) !== contentIdentity('episodes', payload)) throw new Error('RSS deterministic identity conflicts with existing content.');
+          return false;
+        }
+        if (!program.exists || program.get('stationId') !== stationId || program.get('isActive') === false || program.get('adminDeletionToken') || !station.exists || station.get('adminDeletionToken')) throw new Error('RSS parent is unavailable or changed.');
+        assertCounterAdjustment(program.get('stats.episodesCount'), 1);
+        const identities = await prepareContentIdentity(tx, firestore, { root, kind: 'episodes', id: episodeId, content: payload, existing: null });
+        for (const write of identities) write();
+        tx.create(episodeDoc, { ...payload, createdBy: 'system:rss', createdByName: 'RSS', updatedBy: 'system:rss', updatedByName: 'RSS', updatedAt: FieldValue.serverTimestamp() });
+        tx.update(programRef, { 'stats.episodesCount': FieldValue.increment(1), lastIngestedAt: FieldValue.serverTimestamp() });
+        await recordEditorialAuditLog(tx, firestore, { root, targetKind: 'episodes', targetId: episodeId, targetTitle: item.title,
+          action: 'import', actorUid: 'system:rss', actorEmail: '', summary: 'RSS import' });
+        return true;
+      });
+    } catch (error) {
+      if (error.code === 'already-exists') { skipped++; continue; }
+      logger.warn('RSS content transaction failed; no partial item commit was accepted.');
+      throw error;
     }
-
+    existingDocIds.add(episodeId);
     existingExternalIds.add(item.externalId);
     existingAudioUrls.add(item.audioUrl);
-    ingested++;
-    logger.info(`Ingested episode "${item.title}" (ID: ${episodeId}) for program ${programId}`);
+    existingIdentities.add(contentIdentity('episodes', payload));
+    if (created) ingested++; else skipped++;
+
   }
 
   return { programId, totalFeedItems: items.length, ingested, skipped };
@@ -266,7 +284,7 @@ export async function ingestConfiguredPodcastFeedsForRoot({
       });
       totalIngested += res.ingested;
     } catch (err) {
-      logger.error(`Error ingesting feed for program ${doc.id}: ${err?.message}`);
+      logger.warn('RSS ingestion failed for a configured feed.');
     }
   }
 

@@ -21,13 +21,13 @@ type AdminSaveResult = {
   action: 'create' | 'update' | 'unchanged';
 };
 
-function contentError(message: string, code?: string): Error {
+export function contentError(message: string, code?: string): Error {
   const error: Error & { code?: string } = new Error(message);
   error.name = 'ContentError';
   if (code) error.code = code;
   return error;
 }
-function portable(value: unknown): unknown {
+export function portable(value: unknown): unknown {
   if (value instanceof Date) return value.toISOString();
   if (
     value &&
@@ -36,6 +36,8 @@ function portable(value: unknown): unknown {
     typeof value.toDate === 'function'
   )
     return value.toDate().toISOString();
+  if (value && typeof value === 'object' && 'firestore' in value && 'path' in value && typeof value.path === 'string') return { referencePath: value.path };
+  if (value && typeof value === 'object' && 'isEqual' in value && typeof value.isEqual === 'function' && 'latitude' in value && 'longitude' in value) return { latitude: value.latitude, longitude: value.longitude };
   if (Array.isArray(value)) return value.map(portable);
   if (value && typeof value === 'object')
     return Object.fromEntries(
@@ -112,15 +114,19 @@ export async function saveWithRelations(
     location,
     source,
   );
+  const result = await invokeAdminContent<AdminSaveResult>(firestore, 'adminSaveContent', request);
+  if (result.id !== id || !['create', 'update', 'unchanged'].includes(result.action)) throw contentError('لم يتم تأكيد حفظ المحتوى. أعد تحميل السجل قبل المحاولة.');
+  return result;
+}
+
+export async function invokeAdminContent<T extends { success: boolean }>(
+  firestore: Firestore,
+  name: 'adminSaveContent' | 'adminDeleteContent' | 'adminReviewReport',
+  request: Record<string, unknown>,
+): Promise<T> {
   try {
-    const result = await httpsCallable<AdminSaveRequest, AdminSaveResult>(
-      getFunctions(firestore.app),
-      'adminSaveContent',
-    )(request);
-    if (result.data?.success !== true || result.data.id !== id)
-      throw contentError(
-        'لم يتم تأكيد حفظ المحتوى. أعد تحميل السجل قبل المحاولة.',
-      );
+    const result = await httpsCallable<Record<string, unknown>, T>(getFunctions(firestore.app), name)(request);
+    if (result.data?.success !== true) throw contentError('لم يتم تأكيد العملية. أعد تحميل البيانات قبل المحاولة.');
     return result.data;
   } catch (error) {
     if (error instanceof Error && error.name === 'ContentError') throw error;
@@ -137,6 +143,12 @@ export async function saveWithRelations(
         ? String(details.reason)
         : '';
     const reasons: Record<string, string> = {
+      'episode-has-comments': 'لا يمكن حذف حلقة لها تعليقات. ألغِ نشرها بدلًا من حذفها.',
+      'content-has-children': 'لا يمكن حذف سجل مرتبط بمحتوى آخر. انقل المحتوى المرتبط أولًا.',
+      'stale-content': 'تغيّر السجل منذ تحميله. أعد تحميله قبل الحذف.',
+      'deletion-replaced': 'توجد محاولة حذف أخرى. أعد تحميل السجل قبل المحاولة.',
+      'missing-parent': 'الارتباط السابق غير موجود. راجع البيانات قبل الحذف.',
+      'report-limit': 'يتجاوز عدد البلاغات المفتوحة حد العملية. أغلق البلاغات غير المستحقة ثم أعد المحاولة.',
       'relationship-counter':
         'عداد الارتباط غير متسق. راجع السجل المرتبط قبل النقل أو الحفظ.',
       'location-children-limit':
@@ -151,15 +163,15 @@ export async function saveWithRelations(
         'تغيّر السجل أو الارتباط أو عداده. أعد تحميل البيانات وراجعها قبل الحفظ.',
       'functions/already-exists':
         'يوجد سجل مطابق أو حجز استيراد متعارض. أعد معاينة البيانات.',
-      'functions/permission-denied': 'لا تملك صلاحية حفظ هذا المحتوى أو نقله.',
-      'functions/unauthenticated': 'أعد تسجيل الدخول قبل حفظ المحتوى.',
+      'functions/permission-denied': 'لا تملك صلاحية تنفيذ هذه العملية على المحتوى المحدد.',
+      'functions/unauthenticated': 'أعد تسجيل الدخول قبل متابعة العملية.',
       'functions/invalid-argument':
         'بيانات المحتوى غير صالحة. راجع الحقول والارتباطات.',
     };
     throw contentError(
       reasons[reason] ||
         messages[code] ||
-        'تعذّر تأكيد الحفظ. أعد تحميل البيانات قبل المحاولة مجددًا.',
+        'تعذّر تأكيد العملية. أعد تحميل البيانات قبل المحاولة مجددًا.',
       code,
     );
   }

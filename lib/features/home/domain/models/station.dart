@@ -85,6 +85,7 @@ class Station {
     if (currentTime.difference(lastCheckedAt!).abs() > freshnessThreshold) {
       return StationStreamHealthState.unverified;
     }
+    if (consecutiveFailures < 0) return StationStreamHealthState.unverified;
     if (healthStatus == 'offline' || consecutiveFailures >= 3) {
       return StationStreamHealthState.temporarilyStopped;
     }
@@ -101,6 +102,27 @@ class Station {
   }
 
   StationStreamHealthState get streamHealthState => resolveStreamHealthState();
+
+  bool isWorkingStream({DateTime? now}) =>
+      consecutiveFailures == 0 &&
+      resolveStreamHealthState(now: now) == StationStreamHealthState.available;
+
+  DateTime? nextStreamHealthChange({DateTime? now}) {
+    if (!['online', 'offline', 'degraded'].contains(healthStatus) ||
+        consecutiveFailures < 0 ||
+        lastCheckedAt == null ||
+        (streamUrl.isEmpty && backupStreamUrl.isEmpty)) {
+      return null;
+    }
+    final current = now ?? DateTime.now();
+    final entry = lastCheckedAt!.subtract(const Duration(minutes: 45));
+    final expiry = lastCheckedAt!.add(const Duration(minutes: 45));
+    if (current.isBefore(entry)) return entry;
+    if (!current.isAfter(expiry)) {
+      return expiry.add(const Duration(milliseconds: 1));
+    }
+    return null;
+  }
 }
 
 enum StationStreamHealthState {

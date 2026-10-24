@@ -1,6 +1,6 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
-import { contentIdentity, validContentId } from './admin-content.js';
+import { contentIdentity, contentIdentityScope, validContentId } from './admin-content.js';
 
 const fail = (message, reason = 'relationship-changed') => {
   throw new HttpsError('failed-precondition', message, { reason });
@@ -23,7 +23,7 @@ const equalLocation = (first, second) =>
     (key) => locationValue(first, key) === locationValue(second, key),
   );
 
-function counter(value, delta) {
+export function assertCounterAdjustment(value, delta) {
   if (
     !Number.isSafeInteger(value) ||
     value < 0 ||
@@ -136,8 +136,8 @@ export async function prepareContentRelations(
       ) {
         fail('The previous parent is missing or inconsistent.');
       }
-      counter(next.get(`stats.${count}`), 1);
-      if (previous) counter(previous.get(`stats.${count}`), -1);
+      assertCounterAdjustment(next.get(`stats.${count}`), 1);
+      if (previous) assertCounterAdjustment(previous.get(`stats.${count}`), -1);
       if (previous)
         writes.push(() =>
           tx.update(previous.ref, {
@@ -211,6 +211,13 @@ export async function prepareContentIdentity(
         'The content identity is reserved by another record.',
       );
     }
+  }
+  if (!trustedReservation) {
+    const parentField = kind === 'programs' ? 'stationId' : 'programId';
+    const scope = await tx.get(db.doc(`${root}/identityScopes/scopes/${contentIdentityScope(kind, content[parentField])}`));
+    trustedReservation = scope.exists && scope.get('version') === 1 && scope.get('state') === 'complete' &&
+      scope.get('targetKind') === kind && scope.get('parentId') === content[parentField] &&
+      /^[a-f0-9]{64}$/.test(scope.get('runId') ?? '');
   }
   if (!trustedReservation) {
     // Legacy records predate reservations. Never infer their absence from the

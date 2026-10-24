@@ -184,14 +184,15 @@ class HomeController extends StateNotifier<HomeState> {
   }
 
   void selectCity(String code) {
-    state = state.copyWith(selectedCityCode: code, isFavoritesOnly: false);
+    state = state.copyWith(selectedCityCode: code);
   }
 
   void toggleFavoritesFilter(bool enabled) {
-    state = state.copyWith(
-      isFavoritesOnly: enabled,
-      selectedCityCode: enabled ? '' : state.selectedCityCode,
-    );
+    state = state.copyWith(isFavoritesOnly: enabled);
+  }
+
+  void toggleWorkingStreamsFilter(bool enabled) {
+    state = state.copyWith(isWorkingStreamsOnly: enabled);
   }
 
   void updateFavoriteStationIds(Set<String> ids) {

@@ -10,6 +10,7 @@ import {
   serverTimestamp,
   setDoc,
 } from 'firebase/firestore';
+import { callableEmulator } from './support/callable-emulator.ts';
 import { deleteEpisode } from '../lib/delete-episode.ts';
 
 const emulator = process.env.FIRESTORE_EMULATOR_HOST;
@@ -19,16 +20,8 @@ void test(
   async () => {
     const projectId = process.env.GCLOUD_PROJECT;
     assert.ok(projectId?.startsWith('demo-'), 'Only demo projects are allowed');
-    const app = initializeApp({ projectId }, `deletion-${crypto.randomUUID()}`);
-    const database = getFirestore(app);
+    const { db: database, seed, close } = await callableEmulator();
     const [host, port] = emulator!.split(':');
-    connectFirestoreEmulator(database, host, Number(port), {
-      mockUserToken: {
-        sub: 'fixture-admin',
-        admin: true,
-        email_verified: true,
-      },
-    });
     const environment = await initializeTestEnvironment({
       projectId,
       firestore: { host, port: Number(port) },
@@ -60,14 +53,14 @@ void test(
         const id = crypto.randomUUID();
         const program = doc(database, `${root}/programs/programs`, id);
         const episode = doc(database, `${root}/episodes/episodes`, id);
-        await setDoc(program, { stats: { episodesCount: 1 } });
+        await seed(program, { stats: { episodesCount: 1 } });
         const data = {
           programId: id,
           title: 'Synthetic episode',
           stats: { commentsCount: 0 },
         };
-        await setDoc(episode, data);
-        await setDoc(program, { stats: { episodesCount: 0 } });
+        await seed(episode, data);
+        await seed(program, { stats: { episodesCount: 0 } });
         await assert.rejects(deleteEpisode(database, episode, data), {
           name: 'ContentError',
         });
@@ -77,8 +70,8 @@ void test(
           undefined,
         );
         assert.equal((await getDoc(program)).data()?.stats.episodesCount, 0);
-        await setDoc(program, { stats: { episodesCount: 1 } });
-        await setDoc(episode, {
+        await seed(program, { stats: { episodesCount: 1 } });
+        await seed(episode, {
           ...data,
           adminDeletionToken: 'interrupted-attempt',
         });
@@ -86,8 +79,8 @@ void test(
         await deleteEpisode(database, episode, data);
         assert.equal((await getDoc(episode)).exists(), false);
         assert.equal((await getDoc(program)).data()?.stats.episodesCount, 0);
-        await setDoc(episode, data);
-        await setDoc(program, { stats: { episodesCount: 1 } });
+        await seed(episode, data);
+        await seed(program, { stats: { episodesCount: 1 } });
         await Promise.allSettled([
           deleteEpisode(database, episode, data),
           deleteEpisode(database, episode, data),
@@ -100,8 +93,8 @@ void test(
         const episode = doc(database, 'HudHudDev/episodes/episodes', id);
         const program = doc(database, 'HudHudDev/programs/programs', id);
         const data = { programId: id, title: 'Concurrent fixture' };
-        await setDoc(program, { stats: { episodesCount: 1 } });
-        await setDoc(episode, data);
+        await seed(program, { stats: { episodesCount: 1 } });
+        await seed(episode, data);
         const comment = doc(
           listener,
           `${episode.path}/comments/fixture-comment`,
@@ -141,7 +134,7 @@ void test(
         programId: crypto.randomUUID(),
         title: 'Missing program',
       };
-      await setDoc(orphan, orphanData);
+      await seed(orphan, orphanData);
       await assert.rejects(deleteEpisode(database, orphan, orphanData));
       assert.equal(
         (await getDoc(orphan)).data()?.adminDeletionToken,
@@ -157,7 +150,7 @@ void test(
     } finally {
       await environment.cleanup();
       await deleteApp(listenerApp);
-      await deleteApp(app);
+      await close();
     }
   },
 );

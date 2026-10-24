@@ -59,6 +59,22 @@ class Preferences implements HomePreferencesRepository {
 }
 
 void main() {
+  test('working, city, search and favorites selections remain independent', () {
+    final controller = HomeController(
+        Stations(), Banners(), Locations(), User(), Preferences());
+    controller.selectCity('aden');
+    controller.toggleFavoritesFilter(true);
+    controller.toggleWorkingStreamsFilter(true);
+    controller.updateSearch('station');
+    expect(controller.state.selectedCityCode, 'aden');
+    expect(controller.state.isFavoritesOnly, true);
+    controller.selectCity('sanaa');
+    expect(controller.state.isFavoritesOnly, true);
+    expect(controller.state.isWorkingStreamsOnly, true);
+    expect(controller.state.searchQuery, 'station');
+    controller.dispose();
+  });
+
   test('late Home cache cannot overwrite a completed refresh', () async {
     final stations = Stations()..cache = Completer<DataBatch<Station>>();
     final controller =

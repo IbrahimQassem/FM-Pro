@@ -88,9 +88,45 @@ HLS segment availability. No client-triggered polling is introduced.
   * اليوم الحالي يطابق مصفوفة `weekdays`.
   * الفرق بين `startMinute` والوقت الحالي بتوقيت اليمن يقع بين `0` و `10` دقائق.
   * حقل `lastNotifiedDate` لا يساوي تاريخ اليوم (`YYYY-MM-DD`).
-* **Action:**
-  * إرسال إشعار FCM إلى الموضوع: `program_{programId}`.
-  * تحديث حقل واحد فقط في وثيقة البرنامج: `lastNotifiedDate: "YYYY-MM-DD"` لمنع تكرار الإشعار (Idempotency).
+* **Action:** إرسال إلى موضوع البرنامج في بيئته؛ موضوع التطوير يبدأ بـ
+  `hudhuddev_`، والإنتاج يحتفظ بـ`program_{programId}`.
+
+### Durable delivery amendment — November 2026
+
+Program operations live at `{root}/notificationOperations/operations/{sha256}`;
+SHA-256 input is JSON `[programId, YemenDate]`, with the root scoped by the path.
+`lastNotifiedDate` is a compatibility stamp after provider acknowledgement,
+not the concurrency guard. Episode alerts retain the existing private job/device
+receipt path and audience rules from [ADR0003](../decisions/0003-station-subscriptions-and-alerts.md).
+That ADR permits per-device episode alerts; general program alerts remain topics.
+
+Both senders use the same server-only transaction protocol:
+
+- `pending/claimed`: a ten-minute lease, safely reclaimable if no send began.
+- `pending/sending`: ownership is checked before starting the provider call.
+  An expired sending lease becomes `unknown`, with no automatic resend.
+- `sent`: provider acknowledgement recorded; does not guarantee device receipt.
+- `failed`: definite rejection; only retryable provider codes or preparation
+  failures retry with exponential backoff from two minutes up to one hour.
+- `unknown`: transport/lost acknowledgement, malformed batch result or crash
+  during send. Never automatically retry; inspect the safe reason/status through
+  trusted operations access. Absence of a provider receipt is not proof of no send.
+
+No exactly-once promise is made. If the provider acknowledged but writing the
+receipt failed, the sending lease expires to unknown. A successful durable receipt
+still prevents a resend if updating the compatibility program stamp fails.
+Program preparation revalidates current schedule; episode preparation rechecks
+job ownership, current station/program/episode visibility and relationships,
+profile/subscription/opt-out, account-deletion barriers and device ownership.
+Private receipts never store raw errors, tokens or user data.
+
+Program and manual-broadcast receipts expire for retry purposes after24 hours and are removed in
+bounded batches of20 after30 days. Episode receipts retain job expiry/recursive
+cleanup. Existing legacy sent device receipts remain terminal. Client access to
+these private collections remains denied, including admin web clients. Rollout
+must quiesce older scheduler instances first: the old notifier does not honor
+operation leases. Development tests use injected senders; no live FCM send or
+real-device acceptance is claimed.
 
 ---
 
@@ -217,3 +253,29 @@ added as columns only when they pass the existing canonical validation.
   be retried without duplicating successful rows.
 - Do not import server-owned counters, moderation state, creation timestamps,
   notification markers, or other fields outside this schema.
+
+### Manual broadcast operations
+
+`adminBroadcastNotification` requires a stable `operationId` (16–100 ASCII
+letters/digits/underscore/hyphen). The server scopes its SHA-256 key by caller and
+root, binds it to a fingerprint of the normalized payload, and rejects reuse with
+changed content. The admin composer keeps that ID on retries of the same payload
+and creates a new intent after successful completion or content/account/root
+changes. This ID is in memory: after reload, review history before composing a new
+broadcast. It does not claim to deduplicate independently created intents/tabs.
+
+History is recorded before a send begins. The private delivery receipt is the
+source for `pending/sent/failed/unknown`; history updates read it transactionally.
+A provider acknowledgement is retained before updating history so a failed
+history write can be repaired on retry without another send. History timestamps
+represent the latest recorded state, not proof of device receipt. Admin clients
+may read/delete history but cannot create or forge outcomes. Removing history
+does not remove delivery deduplication. The callable returns status/retryable;
+only `sent` is success. Unknown/pending leave the composer intact with safe text.
+
+Development announcements use `hudhuddev_hudhud_fm_announcements`; Official
+retains `hudhud_fm_announcements`. Flutter reconciles previous topic memberships
+when platform permission allows, unsubscribes both topics on opt-out, and rejects
+payloads explicitly marked for another root. Denied-permission initialization
+never requests a token/topic operation or permission prompt. Existing clients
+need the compatible topic update before testing Development announcements.

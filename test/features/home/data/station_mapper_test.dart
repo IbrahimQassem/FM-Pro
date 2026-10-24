@@ -4,6 +4,18 @@ import 'package:hudhud_fm/features/home/data/mappers/station_mapper.dart';
 
 void main() {
   group('StationMapper', () {
+    test('malformed failure counters cannot qualify as working streams', () {
+      final now = DateTime.utc(2026, 10, 24);
+      for (final value in ['bad', '', true, 0.5, double.nan, double.infinity]) {
+        final data = _validData()
+          ..['healthStatus'] = 'online'
+          ..['lastCheckedAt'] = now
+          ..['consecutiveFailures'] = value;
+        final item = StationMapper.fromMap(id: 'malformed-health', data: data);
+        expect(item.isWorkingStream(now: now), false);
+        expect(item.resolveStreamHealthState(now: now).name, 'unverified');
+      }
+    });
     test('maps a canonical station document', () {
       final station = StationMapper.fromMap(
         id: 'sanaa-radio',

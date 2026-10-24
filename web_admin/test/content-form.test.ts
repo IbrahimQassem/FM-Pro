@@ -154,7 +154,13 @@ void test('episode audio and artwork require HTTPS consistently with playback cl
     priority: 0,
   };
   assert.ok(validateContent('episodes', episode).audioUrl);
-  assert.deepEqual(validateContent('episodes', { ...episode, audioUrl: 'https://example.com/audio.mp3' }), {});
+  assert.deepEqual(
+    validateContent('episodes', {
+      ...episode,
+      audioUrl: 'https://example.com/audio.mp3',
+    }),
+    {},
+  );
 
   const invalidCover = { ...episode, coverUrl: 'http://example.com/cover.jpg' };
   assert.ok(validateContent('episodes', invalidCover).coverUrl);
@@ -224,4 +230,26 @@ void test('station location selection and national scope validation (PKG-02)', (
     isNational: true,
   };
   assert.ok(validateContent('stations', mismatchedNational).location);
+});
+
+void test('the Arabic regional reference is distinct from national/governorate locations', () => {
+  const regional = {
+    cityCode: 'global-ar',
+    cityNameAr: 'عربي',
+    countryCode: 'ARAB',
+    countryNameAr: 'العالم العربي',
+    locationType: 'regional',
+    sortOrder: 230,
+    isActive: true,
+  };
+  assert.deepEqual(validateContent('locations', regional), {});
+  for (const patch of [
+    { countryCode: 'YE' },
+    { cityCode: 'aden' },
+    { locationType: 'governorate' },
+  ]) {
+    assert.ok(
+      validateContent('locations', { ...regional, ...patch }).countryCode,
+    );
+  }
 });

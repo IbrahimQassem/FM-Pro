@@ -38,6 +38,38 @@ const userReportPath = (uid, reportedUid = "user-b", commentId = "comment-1") =>
 const favoritePath = (uid, id = "station-1") => `${userPath(uid)}/favorites/${id}`;
 const subscriptionPath = (uid, id = "program-1") => `${userPath(uid)}/subscriptions/${id}`;
 
+test('editorial documents, identity reservations and catalog revisions reject every direct client mutation', async () => {
+  for (const root of ['HudHudDev', 'HudHudOfficial']) {
+    for (const kind of ['stations', 'programs', 'episodes', 'banners', 'locations', 'importKeys']) {
+      const path = `${root}/${kind}/${kind}/editorial-existing`;
+      const value = { name: 'Original', title: 'Original', stationId: 'owned', isActive: true };
+      await seed(path, value);
+      for (const db of [anonymousDb(), userDb('listener'), userDb('editor-super', { admin: true }),
+        userDb('editor-station', { admin: true, role: 'station_admin', allStations: true })]) {
+        await assertFails(setDoc(doc(db, `${root}/${kind}/${kind}/editorial-new`), value));
+        await assertFails(updateDoc(doc(db, path), { title: 'Forged edit' }));
+        await assertFails(deleteDoc(doc(db, path)));
+      }
+    }
+    await seed(`${root}/locations`, { adminIdentityRevision: 1 });
+    await assertFails(updateDoc(doc(userDb('editor-super', { admin: true }), `${root}/locations`), { adminIdentityRevision: 2 }));
+  }
+});
+
+test('report decisions and comment moderation cannot bypass the trusted moderation transaction', async () => {
+  for (const root of ['HudHudDev', 'HudHudOfficial']) {
+    const report = `${root}/users/users/reporter/commentReportEpisodes/e/moderationReports/c`;
+    const comment = `${root}/episodes/episodes/e/comments/c`;
+    await seed(report, { targetType: 'comment', episodeId: 'e', commentId: 'c', reportedAuthorId: 'author',
+      reason: 'spam', details: '', status: 'open', createdAt: new Date() });
+    await seed(comment, { episodeId: 'e', authorId: 'author', status: 'published' });
+    const db = userDb('editor-super', { admin: true });
+    await assertFails(updateDoc(doc(db, report), { status: 'dismissed', resolution: 'noAction', reviewedAt: serverTimestamp(), reviewedBy: 'editor-super' }));
+    await assertFails(updateDoc(doc(db, comment), { status: 'hidden' }));
+    await assertFails(deleteDoc(doc(db, comment)));
+  }
+});
+
 let testEnv;
 
 function anonymousDb() {
@@ -288,9 +320,10 @@ describe("episode comments", () => {
     const comments = collection(anonymousDb(), `${episodePath()}/comments`);
     await assertFails(getDocs(comments));
     await assertSucceeds(getDocs(query(comments, where("status", "==", "published"))));
-    await assertSucceeds(
+    await assertFails(
       updateDoc(doc(userDb("admin-a", { admin: true }), commentPath()), { status: "hidden" }),
     );
+    await seed(commentPath(), { ...validComment("user-a"), createdAt: new Date(), status: "hidden" });
     await assertFails(getDoc(doc(anonymousDb(), commentPath())));
   });
 });
@@ -522,10 +555,10 @@ describe("comment reports and personal blocks", () => {
       reviewedAt: serverTimestamp(),
       reviewedBy: "admin-a",
     });
-    await assertSucceeds(batch.commit());
-    assert.equal((await getDoc(doc(admin, commentReportPath("user-a")))).data().status, "resolved");
-    assert.equal((await getDoc(doc(admin, commentPath()))).data().status, "removed");
-    await assertFails(getDoc(doc(anonymousDb(), commentPath())));
+    await assertFails(batch.commit());
+    assert.equal((await getDoc(doc(admin, commentReportPath("user-a")))).data().status, "open");
+    assert.equal((await getDoc(doc(admin, commentPath()))).data().status, "published");
+    await assertSucceeds(getDoc(doc(anonymousDb(), commentPath())));
   });
 
   test("administrators can disable a reported account and close its report", async () => {
@@ -554,8 +587,8 @@ describe("comment reports and personal blocks", () => {
       reviewedAt: serverTimestamp(),
       reviewedBy: "admin-a",
     });
-    await assertSucceeds(batch.commit());
-    assert.equal((await getDoc(doc(admin, userPath("user-b")))).data().isActive, false);
+    await assertFails(batch.commit());
+    assert.equal((await getDoc(doc(admin, userPath("user-b")))).data().isActive, true);
   });
 
   test("a listener can create and remove only their own canonical block", async () => {
@@ -630,10 +663,11 @@ test('cached verified tokens cannot recreate deleted-user data or bypass either-
 });
 
 
-test("location identity catalog is private to admins in known roots", async () => {
+test("location identity catalog is admin-readable but server-written in known roots", async () => {
   for (const root of ["HudHudDev", "HudHudOfficial"]) {
     const path = `${root}/locations`;
-    await assertSucceeds(setDoc(doc(userDb("admin", { admin: true }), path), { adminIdentityRevision: 1 }));
+    await seed(path, { adminIdentityRevision: 1 });
+    await assertFails(setDoc(doc(userDb("admin", { admin: true }), path), { adminIdentityRevision: 1 }));
     await assertSucceeds(getDoc(doc(userDb("admin", { admin: true }), path)));
     for (const db of [anonymousDb(), userDb("listener"), userDb("forged", { role: "admin" })]) {
       await assertFails(getDoc(doc(db, path)));
@@ -643,7 +677,7 @@ test("location identity catalog is private to admins in known roots", async () =
   await assertFails(setDoc(doc(userDb("admin", { admin: true }), "Unknown/locations"), { adminIdentityRevision: 1 }));
 });
 
-test("station admin can update adminRelationRevision on location but cannot edit other fields", async () => {
+test("location fields and relation revisions require the trusted save callable", async () => {
   for (const root of ["HudHudDev", "HudHudOfficial"]) {
     const locPath = `${root}/locations/locations/loc-1`;
     await seed(locPath, {
@@ -658,8 +692,8 @@ test("station admin can update adminRelationRevision on location but cannot edit
       role: "station_admin",
       allStations: true,
     });
-    // Allowed to touch revision
-    await assertSucceeds(
+    // Even revision touches are now owned by the trusted transaction.
+    await assertFails(
       updateDoc(doc(stationAdmin, locPath), { adminRelationRevision: increment(1) }),
     );
     // Denied from editing other location fields
@@ -749,12 +783,12 @@ test("station admin cannot read user profiles or moderate other station comments
     await assertFails(
       updateDoc(doc(stationAdminA, commentBPath), { status: "hidden" }),
     );
-    // Station admin A CAN moderate comment on station A episode
-    await assertSucceeds(
+    // Own-station moderation also uses the callable, which stamps its actor.
+    await assertFails(
       updateDoc(doc(stationAdminA, commentAPath), { status: "hidden" }),
     );
-    // Super admin CAN moderate comment on any station
-    await assertSucceeds(
+    // Super admins cannot bypass the coupled moderation/counter transaction.
+    await assertFails(
       updateDoc(doc(superAdmin, commentBPath), { status: "hidden" }),
     );
   }
@@ -785,8 +819,8 @@ test("station health monitoring fields cannot be updated by client or station ad
       assignedStations: ["station-a"],
     });
 
-    // Allowed to update editorial / content metadata
-    await assertSucceeds(
+    // Editorial metadata also requires the trusted, audited callable.
+    await assertFails(
       updateDoc(doc(stationAdminA, stationPath), { tagline: "New Tagline" }),
     );
 
@@ -804,3 +838,27 @@ test("station health monitoring fields cannot be updated by client or station ad
 });
 
 
+
+test('broadcast history outcomes are server-owned while super admins retain history deletion', async () => {
+  for (const root of ['HudHudDev', 'HudHudOfficial']) {
+    const path = `${root}/notifications/notifications/trusted-history`;
+    const admin = userDb('history-admin', { admin: true, role: 'super_admin' });
+    await assertFails(setDoc(doc(admin, path), { title: 'Forged', status: 'sent' }));
+    await seed(path, { title: 'Synthetic', status: 'unknown' });
+    await assertFails(updateDoc(doc(admin, path), { status: 'sent' }));
+    await assertSucceeds(getDoc(doc(admin, path)));
+    await assertSucceeds(deleteDoc(doc(admin, path)));
+  }
+});
+
+test('identity scope proofs and backfill checkpoints stay private to trusted maintenance', async () => {
+  for (const root of ['HudHudDev', 'HudHudOfficial']) {
+    for (const context of [anonymousDb(), userDb('identity-listener'), userDb('identity-super', { admin: true, role: 'super_admin' })]) {
+      for (const path of [`${root}/regionalMigrations/runs/synthetic`, `${root}/identityScopes/scopes/synthetic`, `${root}/identityScopeLocks/locks/synthetic`, `${root}/identityBackfills/runs/synthetic`, `${root}/identityBackfills/runs/synthetic/items/key`]) {
+        await seed(path, { state: 'complete' });
+        await assertFails(getDoc(doc(context, path)));
+        await assertFails(setDoc(doc(context, path), { state: 'complete' }));
+      }
+    }
+  }
+});

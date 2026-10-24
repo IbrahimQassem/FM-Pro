@@ -1,5 +1,7 @@
 import { HttpsError } from 'firebase-functions/v2/https';
 import { FieldValue } from 'firebase-admin/firestore';
+import { createHash } from 'node:crypto';
+import { claimDelivery, startDelivery, finishDelivery, notificationFailure } from './notification-delivery.js';
 
 export function assertSuperAdminCaller(request) {
   const uid = request.auth?.uid;
@@ -344,8 +346,39 @@ export async function broadcastNotification({
     throw new HttpsError('invalid-argument', 'يجب ألا يتجاوز نص الإشعار 250 حرفاً.');
   }
 
-  const notificationId = `notif_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-  const topic = 'hudhud_fm_announcements';
+  const operationId = data?.operationId;
+  if (!['HudHudDev', 'HudHudOfficial'].includes(root) || typeof operationId !== 'string' || !/^[a-zA-Z0-9_-]{16,100}$/.test(operationId)) {
+    throw new HttpsError('invalid-argument', 'بيئة الإرسال أو معرّف المحاولة غير صالح.');
+  }
+  if (!callerUid) throw new HttpsError('unauthenticated', 'Authentication is required.');
+  const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+  const notificationId = `notif_${digest([callerUid, operationId])}`;
+  const topic = root === 'HudHudDev' ? 'hudhuddev_hudhud_fm_announcements' : 'hudhud_fm_announcements';
+  const reference = firestore.doc(`${root}/notificationOperations/operations/broadcast_${digest([callerUid, operationId])}`);
+  const fingerprint = digest([title, body, imageUrl, targetType, targetId, targetLabel]);
+  let lease;
+  try { lease = await claimDelivery({ firestore, reference, fingerprint }); }
+  catch (error) {
+    if (error.code === 'delivery/payload-conflict') throw new HttpsError('failed-precondition', 'تغير محتوى المحاولة. أعد فتح محرر الإشعار لمحاولة جديدة.');
+    throw new HttpsError('internal', 'تعذر تأكيد حالة محاولة الإرسال. احتفظ بالمحاولة وأعد التحقق.');
+  }
+  const recordRef = firestore.doc(`${root}/notifications/notifications/${notificationId}`);
+  const synchronizeHistory = () => firestore.runTransaction(async tx => {
+    const receipt = (await tx.get(reference)).data();
+    if (!receipt || receipt.fingerprint !== fingerprint) throw new HttpsError('failed-precondition', 'تعذر تأكيد سجل الإرسال.');
+    tx.set(recordRef, { id: notificationId, title, body, targetType, targetId, targetLabel, topic,
+      sentAt: receipt.updatedAt, createdAt: receipt.createdAt, sentBy: callerEmail || callerUid,
+      status: receipt.status, retryable: receipt.retryable === true, messageId: receipt.messageId || '',
+      ...(imageUrl ? { imageUrl } : {}) });
+    return { success: receipt.status === 'sent', status: receipt.status, retryable: receipt.retryable === true,
+      notificationId, messageId: receipt.messageId || '', title, body, topic };
+  });
+  if (!lease) return synchronizeHistory();
+  try { await synchronizeHistory(); }
+  catch {
+    await finishDelivery({ firestore, reference, lease, status: 'failed', retryable: true, reason: 'preparation-failed' });
+    throw new HttpsError('internal', 'لم يبدأ الإرسال؛ تعذر تسجيل المحاولة. أعد المحاولة بالبيانات نفسها.');
+  }
 
   let episodeData = null;
   if (targetType === 'episode' && targetId) {
@@ -400,7 +433,7 @@ export async function broadcastNotification({
       notification: {
         channelId: 'announcements',
         sound: 'default',
-        tag: `announcement_${Date.now()}`,
+        tag: notificationId,
         ...(imageUrl ? { imageUrl } : {}),
       },
     },
@@ -416,36 +449,17 @@ export async function broadcastNotification({
     },
   };
 
-  const messageId = await messaging.send(fcmPayload);
-
-  const firestoreRecord = {
-    id: notificationId,
-    title,
-    body,
-    targetType,
-    targetId,
-    targetLabel,
-    topic,
-    sentAt: FieldValue.serverTimestamp(),
-    sentBy: callerEmail || callerUid,
-    status: 'sent',
-    messageId,
-  };
-  if (imageUrl) {
-    firestoreRecord.imageUrl = imageUrl;
+  if (!await startDelivery({ firestore, reference, lease })) return synchronizeHistory();
+  let outcome;
+  try {
+    const messageId = await messaging.send(fcmPayload);
+    outcome = typeof messageId === 'string' && messageId ? { status: 'sent', messageId } : notificationFailure(null);
+  } catch (error) { outcome = notificationFailure(error); }
+  try {
+    await finishDelivery({ firestore, reference, lease, ...outcome });
+    return await synchronizeHistory();
+  } catch {
+    // Keep the sending lease/known receipt. Retrying this intent cannot start a second send.
+    throw new HttpsError('internal', 'تعذر تأكيد نتيجة الإرسال. راجع السجل أو أعد التحقق بالمحاولة نفسها دون إنشاء إشعار جديد.');
   }
-
-  const recordRef = firestore.doc(
-    `${root}/notifications/notifications/${notificationId}`,
-  );
-  await recordRef.set(firestoreRecord);
-
-  return {
-    success: true,
-    notificationId,
-    messageId,
-    title,
-    body,
-    topic,
-  };
 }

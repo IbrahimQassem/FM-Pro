@@ -44,11 +44,11 @@ test('canonical governorates and national location adhere to PKG-01 requirements
   }
 
   for (const loc of ALL_CANONICAL_LOCATIONS) {
-    assert.equal(loc.countryCode, 'YE');
-    assert.equal(loc.countryNameAr, 'اليمن');
+    assert.equal(loc.countryCode, loc.id === 'global-ar' ? 'ARAB' : 'YE');
+    assert.equal(loc.countryNameAr, loc.id === 'global-ar' ? 'العالم العربي' : 'اليمن');
     assert.ok(typeof loc.sortOrder === 'number' && loc.sortOrder >= 0);
     assert.equal(loc.isActive, true);
-    assert.ok(['governorate', 'national'].includes(loc.locationType));
+    assert.ok(['governorate', 'national', 'regional'].includes(loc.locationType));
     assert.equal(loc.id, loc.cityCode);
   }
 });

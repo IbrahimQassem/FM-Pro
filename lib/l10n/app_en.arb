@@ -1,4 +1,12 @@
 {
+  "episodeProgress": "Episode progress",
+  "episodeDurationUnknown": "Duration unavailable",
+  "episodeSeekUnavailable": "Seeking is unavailable for this episode",
+  "workingStreamsFilter": "Working streams",
+  "workingStreamsHint": "Last checked within 45 minutes. Playback on your device may differ.",
+  "workingStreamsEmptyTitle": "No recently working streams match these filters",
+  "workingStreamsEmptyMessage": "Unknown and archive stations remain available when you turn off this filter.",
+  "showAllStreamStates": "Show all stream states",
   "advertisementOpenLink": "Visit sponsor — opens an external link",
   "advertisementLinkFailed": "Unable to open the sponsor link",
   "appName": "HudHud FM",

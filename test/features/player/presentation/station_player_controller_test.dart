@@ -1,3 +1,4 @@
+import 'package:hudhud_fm/features/player/domain/models/audio_playback_progress.dart';
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -10,6 +11,66 @@ import 'package:hudhud_fm/features/player/presentation/controllers/station_playe
 import 'package:hudhud_fm/features/station_content/domain/models/episode.dart';
 
 void main() {
+  test('seek accepts only a ready selected episode and preserves pause',
+      () async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = StationPlayerController(repository);
+    expect(
+        await controller.seek(const Duration(seconds: 9),
+            episodeId: _episode().id),
+        false);
+    await controller.playEpisode(_episode(), _station());
+    expect(
+        await controller.seek(const Duration(seconds: 9),
+            episodeId: _episode().id),
+        false);
+    repository.emit(AudioPlaybackPhase.playing);
+    await pumpEventQueue();
+    await controller.pause();
+    expect(
+        await controller.seek(const Duration(seconds: 9), episodeId: 'wrong'),
+        false);
+    expect(
+        await controller.seek(const Duration(seconds: 9),
+            episodeId: _episode().id),
+        true);
+    expect(repository.seekItems, ['episode:episode-1']);
+    expect(repository.playCalls, 1);
+    expect(repository.pauseCalls, 1);
+    expect(controller.state.status, StationPlaybackStatus.paused);
+    controller.dispose();
+    await repository.dispose();
+  });
+  test(
+      'source replacement waits for an in-flight seek and cancels queued old seeks',
+      () async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = StationPlayerController(repository);
+    await controller.playEpisode(_episode(), _station());
+    repository.emit(AudioPlaybackPhase.playing);
+    await pumpEventQueue();
+    repository.delayedSeek = Completer<void>();
+    final seeking =
+        controller.seek(const Duration(seconds: 9), episodeId: _episode().id);
+    await pumpEventQueue();
+    final obsolete =
+        controller.seek(const Duration(seconds: 20), episodeId: _episode().id);
+    final replacement = controller.play(_station());
+    await pumpEventQueue();
+    expect(repository.loadedItem!.id, 'episode:episode-1');
+    repository.delayedSeek!.complete();
+    expect(await seeking, false);
+    expect(await obsolete, false);
+    await replacement;
+    expect(repository.loadedItem!.id, _station().id);
+    expect(repository.seekItems, ['episode:episode-1']);
+    expect(
+        await controller.seek(const Duration(seconds: 9),
+            episodeId: _episode().id),
+        false);
+    controller.dispose();
+    await repository.dispose();
+  });
   testWidgets(
       'a reconnect timer cannot start Android playback after backgrounding',
       (tester) async {
@@ -373,6 +434,8 @@ Episode _episode() {
 
 class _FakeAudioPlaybackRepository implements AudioPlaybackRepository {
   Completer<void>? delayedLoad;
+  Completer<void>? delayedSeek;
+  final seekItems = <String>[];
   final _phases = StreamController<AudioPlaybackPhase>.broadcast();
   final _icy = StreamController<String?>.broadcast();
 
@@ -386,6 +449,16 @@ class _FakeAudioPlaybackRepository implements AudioPlaybackRepository {
 
   @override
   Stream<String?> get icyTitleChanges => _icy.stream;
+
+  @override
+  Stream<AudioPlaybackProgress> get progressChanges => const Stream.empty();
+
+  @override
+  Future<bool> seek(Duration position, {required String itemId}) async {
+    seekItems.add(itemId);
+    await delayedSeek?.future;
+    return true;
+  }
 
   void emit(AudioPlaybackPhase phase) => _phases.add(phase);
   void emitIcy(String? title) => _icy.add(title);

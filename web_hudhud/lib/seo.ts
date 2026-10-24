@@ -1,5 +1,5 @@
 import type { Station } from './stations.ts';
-import { stationHref, validId } from './discovery.ts';
+import { stationHref, validId, isDiscoveryLocation } from './discovery.ts';
 
 export const canonicalOrigin = 'https://www.hudhudfm.com';
 export const homeTitle = 'هدهد إف إم — إذاعات اليمن كلها .. في مكان واحد';
@@ -13,7 +13,7 @@ export function publicCities(docs: { data(): Record<string, unknown> }[], statio
   const cities = new Map<string, City>();
   for (const doc of docs) {
     const d = doc.data();
-    if (d.isActive === true && d.countryCode === 'YE' && validId(d.cityCode) && typeof d.cityNameAr === 'string' && d.cityNameAr.trim() && stations.some(s => s.countryCode === 'YE' && s.cityCode === d.cityCode)) {
+    if (d.isActive === true && isDiscoveryLocation(d.countryCode, d.cityCode) && validId(d.cityCode) && typeof d.cityNameAr === 'string' && d.cityNameAr.trim() && stations.some(s => isDiscoveryLocation(s.countryCode, s.cityCode) && s.cityCode === d.cityCode)) {
       cities.set(d.cityCode, { code: d.cityCode, name: d.cityNameAr.trim() });
     }
   }
@@ -34,9 +34,9 @@ export function pageModel(url: URL, catalog: Catalog, state: 'ready' | 'loading'
   const description = status !== 200 ? 'عد إلى دليل المحطات أو حاول مرة أخرى لاحقاً.' : station ? station.description || station.tagline || `استمع إلى ${station.name} على هدهد إف إم.` : city ? `تصفح محطات ${city.name} النشطة في هدهد إف إم واستمع إلى بثها المباشر.` : homeDescription;
   const canonical = status === 404 ? null : stationId && validId(stationId) ? stationCanonical(stationId) : cityCode && validId(cityCode) ? cityCanonical(cityCode) : `${canonicalOrigin}/`;
   const noindex = status !== 200 || params.has('episode') || params.has('program') || url.hash === '#account';
-  const stations = status !== 200 ? [] : station ? [station] : city ? catalog.stations.filter(s => s.countryCode === 'YE' && s.cityCode === city.code) : catalog.stations;
+  const stations = status !== 200 ? [] : station ? [station] : city ? catalog.stations.filter(s => isDiscoveryLocation(s.countryCode, s.cityCode) && s.cityCode === city.code) : catalog.stations;
   const image = `${canonicalOrigin}/assets/images/branding/app_icon_1024.png`;
-  const schema = status !== 200 ? null : station ? { '@context': 'https://schema.org', '@type': 'RadioStation', name: station.name, description, url: canonical, ...(station.cityNameAr ? { address: { '@type': 'PostalAddress', addressLocality: station.cityNameAr, addressCountry: station.countryNameAr } } : {}) } : { '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, url: canonical, inLanguage: 'ar', mainEntity: { '@type': 'ItemList', itemListElement: stations.map((s, i) => ({ '@type': 'ListItem', position: i + 1, name: s.name, url: stationCanonical(s.id) })) } };
+  const schema = status !== 200 ? null : station ? { '@context': 'https://schema.org', '@type': 'RadioStation', name: station.name, description, url: canonical, ...(station.cityNameAr && station.countryCode !== 'ARAB' ? { address: { '@type': 'PostalAddress', addressLocality: station.cityNameAr, addressCountry: station.countryNameAr } } : {}) } : { '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, url: canonical, inLanguage: 'ar', mainEntity: { '@type': 'ItemList', itemListElement: stations.map((s, i) => ({ '@type': 'ListItem', position: i + 1, name: s.name, url: stationCanonical(s.id) })) } };
   return { status, title, description, canonical, noindex, image, schema, stations, city, station };
 }
 export type PageModel = ReturnType<typeof pageModel>;

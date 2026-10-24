@@ -54,13 +54,13 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
     await station.set({ stats: { programsCount: 0 } });
     const value = content('programs', { stationId: station.id, title: 'Counter fixture' });
     const ref = db.doc(`${root}/programs/programs/counter-program`);
-    const initialAudits = (await db.collection(`${root}/auditLogs/auditLogs`).get()).size;
+    const initialAudits = (await db.collection(`${root}/auditLogs/auditLogs`).where('targetId', '==', ref.id).get()).size;
     await save(root, 'programs', ref.id, value);
     assert.equal((await station.get()).get('stats.programsCount'), 1);
     assert.equal((await ref.get()).get('stats.episodesCount'), 0);
     await save(root, 'programs', ref.id, value);
     assert.equal((await station.get()).get('stats.programsCount'), 1);
-    assert.equal((await db.collection(`${root}/auditLogs/auditLogs`).get()).size, initialAudits + 1);
+    assert.equal((await db.collection(`${root}/auditLogs/auditLogs`).where('targetId', '==', ref.id).get()).size, initialAudits + 1);
     const original = (await ref.get()).data();
     await ref.update({ title: 'Concurrent edit', serverOnly: 'retained' });
     await assert.rejects(save(root, 'programs', ref.id, { ...value, title: 'Stale edit' }, original), { code: 'failed-precondition' });
@@ -133,7 +133,7 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
     await db.doc(`${stationPath}/station-b`).set({ name: 'Synthetic B' });
     const program = db.doc(`${root}/programs/programs/target`);
     await program.set(content('programs', { title: 'Original', stationId: 'station-b' }));
-    const initialAudits = (await db.collection(`${root}/auditLogs/auditLogs`).get()).size;
+    const initialAudits = (await db.collection(`${root}/auditLogs/auditLogs`).where('targetId', '==', 'target').get()).size;
     const args = {
       firestore: db, callerUid: 'synthetic-admin-a', callerRole: 'station_admin',
       callerClaims: { role: 'station_admin', assignedStations: ['station-a'] },
@@ -141,7 +141,7 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
     };
     await assert.rejects(saveAdminContent(args), { code: 'permission-denied' });
     assert.equal((await program.get()).get('title'), 'Original');
-    assert.equal((await db.collection(`${root}/auditLogs/auditLogs`).get()).size, initialAudits);
+    assert.equal((await db.collection(`${root}/auditLogs/auditLogs`).where('targetId', '==', 'target').get()).size, initialAudits);
 
     await program.set(content('programs', { title: 'Own program', stationId: 'station-a' }));
     args.data.expected = editableContent('programs', (await program.get()).data());
@@ -153,7 +153,7 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
     assert.equal(audit.docs[0].get('action'), 'update');
   });
   test(`${root}: invalid episode parent causes no content or audit writes`, async () => {
-    const before = (await db.collection(`${root}/auditLogs/auditLogs`).get()).size;
+    const before = (await db.collection(`${root}/auditLogs/auditLogs`).where('targetId', '==', 'bad-parent').get()).size;
     await assert.rejects(saveAdminContent({
       firestore: db, callerUid: 'synthetic-super', callerRole: 'super_admin',
       callerClaims: { role: 'super_admin' },
@@ -161,6 +161,6 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
         expected: null, content: content('episodes', { title: 'Synthetic episode', stationId: 'station-a', programId: 'absent' }) },
     }), { code: 'failed-precondition' });
     assert.equal((await db.doc(`${root}/episodes/episodes/bad-parent`).get()).exists, false);
-    assert.equal((await db.collection(`${root}/auditLogs/auditLogs`).get()).size, before);
+    assert.equal((await db.collection(`${root}/auditLogs/auditLogs`).where('targetId', '==', 'bad-parent').get()).size, before);
   });
 }

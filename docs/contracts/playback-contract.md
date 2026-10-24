@@ -100,3 +100,29 @@ stop and disposal; superseded load completions cannot start playback. Canonical
 Station/Episode models currently contain media URLs internally; UI text, logs and
 notification navigation payloads never expose them. This clarifies the earlier
 blanket presentation-state wording without adding duplicate content models.
+
+## Recorded-episode progress and seeking
+
+NOV-10 uses the existing single player. `AudioPlaybackProgress` flows through the
+existing datasource/repository and a separate auto-disposed StreamProvider into
+`EpisodeProgressControls`; elapsed ticks do not update StationPlayerState or Home.
+The datasource owns one500ms timer only while a recorded source is ready/playing
+and has a listener, plus a generation-bound playback-event subscription. Paused
+late subscribers get current progress. Replacement, stop and disposal clear
+progress and cancel these resources.
+
+Seeking is episode-ID-bound and serialized with loads in the controller, with
+generation checks before and after the native request. It never starts playback
+or changes pause intent. A positive native duration is required; catalog duration
+alone proves no seek capability. Targets are clamped. A rejected seek disables
+scrubbing for that source attempt and leaves elapsed playback visible; reloading
+resets the attempt. Unknown duration and live sources have no seek control.
+Slider movement holds a local draft; release submits one request. AR/EN labels,
+semantic elapsed/total time and200-percent text are covered by widget tests.
+The progress label, time and adjustable actions merge into one semantic control;
+AR/EN tests exercise actual increase/decrease and Tab/arrow keyboard actions.
+No persistence, speed control, download or second player is introduced.
+
+Automated checks and simulator/debug builds do not prove device audio behavior.
+Physical Android/iOS background, interruption, headset and long-listening gates
+remain in the November acceptance matrix until exercised on actual devices.

@@ -1,3 +1,5 @@
+import { deleteAdminContent } from './lib/admin-content-delete.js';
+import { reviewAdminReport } from './lib/admin-report-review.js';
 import { getMessaging } from 'firebase-admin/messaging';
 import { onDocumentCreated, onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { saveAdminContent } from './lib/editorial-audit.js';
@@ -34,7 +36,7 @@ setGlobalOptions({
   maxInstances: 10,
 });
 import { checkStationsStreamHealthForRoot } from './lib/stream-health.js';
-import { notifyUpcomingProgramsForRoot } from './lib/program-notifications.js';
+import { notifyUpcomingProgramsForRoot, collectNotificationOperations } from './lib/program-notifications.js';
 import { handleCommentCreated } from './lib/comment-moderation.js';
 import { ingestConfiguredPodcastFeedsForRoot } from './lib/rss-ingestion.js';
 
@@ -816,12 +818,13 @@ export const notifyUpcomingPrograms = onSchedule(
     for (const root of roots) {
       try {
         const summary = await notifyUpcomingProgramsForRoot({ firestore, messaging, root });
+        await collectNotificationOperations({ firestore, root });
         logger.info(
           `Upcoming programs check complete for ${root}: ${summary.checked} checked, ` +
           `${summary.notified} notified, ${summary.skipped} skipped.`,
         );
       } catch (err) {
-        logger.error(`Upcoming programs check failed for ${root}: ${err?.message}`);
+        logger.error(`Upcoming programs check failed for ${root}.`);
       }
     }
   },
@@ -937,20 +940,21 @@ export const adminBroadcastNotification = onCall(
 );
 
 
+function contentAdminArguments(request) {
+  const uid = requireAuthenticatedUid(request);
+  const token = request.auth?.token;
+  return { firestore: getFirestore(), callerUid: uid, callerEmail: token?.email || '',
+    callerRole: token?.role || (token?.admin ? 'super_admin' : 'listener'), callerClaims: token, data: request.data };
+}
+
 export const adminSaveContent = onCall(
-  { timeoutSeconds: 30, maxInstances: 20 },
-  async (request) => {
-    const uid = requireAuthenticatedUid(request);
-    const token = request.auth?.token;
-    return saveAdminContent({
-      firestore: getFirestore(),
-      callerUid: uid,
-      callerEmail: token?.email || '',
-      callerRole: token?.role || (token?.admin ? 'super_admin' : 'listener'),
-      callerClaims: token,
-      data: request.data,
-    });
-  },
+  { timeoutSeconds: 30, maxInstances: 20 }, request => saveAdminContent(contentAdminArguments(request)),
+);
+export const adminDeleteContent = onCall(
+  { timeoutSeconds: 30, maxInstances: 20 }, request => deleteAdminContent(contentAdminArguments(request)),
+);
+export const adminReviewReport = onCall(
+  { timeoutSeconds: 30, maxInstances: 20 }, request => reviewAdminReport(contentAdminArguments(request)),
 );
 
 // Anonymous, rule-enforced public catalog rendering; no account data access.

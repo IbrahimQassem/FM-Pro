@@ -98,6 +98,54 @@ abstract class AppLocalizations {
     Locale('en')
   ];
 
+  /// No description provided for @episodeProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode progress'**
+  String get episodeProgress;
+
+  /// No description provided for @episodeDurationUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration unavailable'**
+  String get episodeDurationUnknown;
+
+  /// No description provided for @episodeSeekUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Seeking is unavailable for this episode'**
+  String get episodeSeekUnavailable;
+
+  /// No description provided for @workingStreamsFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Working streams'**
+  String get workingStreamsFilter;
+
+  /// No description provided for @workingStreamsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Last checked within 45 minutes. Playback on your device may differ.'**
+  String get workingStreamsHint;
+
+  /// No description provided for @workingStreamsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No recently working streams match these filters'**
+  String get workingStreamsEmptyTitle;
+
+  /// No description provided for @workingStreamsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown and archive stations remain available when you turn off this filter.'**
+  String get workingStreamsEmptyMessage;
+
+  /// No description provided for @showAllStreamStates.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all stream states'**
+  String get showAllStreamStates;
+
   /// No description provided for @advertisementOpenLink.
   ///
   /// In en, this message translates to:

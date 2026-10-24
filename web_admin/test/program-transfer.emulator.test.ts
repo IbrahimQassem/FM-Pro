@@ -1,115 +1,54 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { initializeApp, deleteApp } from 'firebase/app';
-import {
-  connectFirestoreEmulator,
-  doc,
-  getDoc,
-  getFirestore,
-  increment,
-  runTransaction,
-  writeBatch,
-} from 'firebase/firestore';
-import { readProgramTransferEpisodes } from '../lib/program-transfer.ts';
+import { readFile } from 'node:fs/promises';
+import { doc, getDocFromServer } from 'firebase/firestore';
+import { saveWithRelations } from '../lib/save-content.ts';
+import { callableEmulator } from './support/callable-emulator.ts';
 
-void test(
-  'program transfer includes off-page and concurrently created episodes atomically',
-  {
-    skip: !process.env.FIRESTORE_EMULATOR_HOST,
-  },
-  async () => {
-    const projectId = process.env.GCLOUD_PROJECT;
-    assert.ok(projectId?.startsWith('demo-'));
-    const app = initializeApp({ projectId }, `transfer-${crypto.randomUUID()}`);
-    const db = getFirestore(app);
-    const [host, port] = process.env.FIRESTORE_EMULATOR_HOST!.split(':');
-    connectFirestoreEmulator(db, host, Number(port), {
-      mockUserToken: {
-        sub: 'fixture-admin',
-        admin: true,
-        email_verified: true,
-      },
-    });
+void test('trusted program transfer includes off-page children, races safely with creation and rejects overflow',
+  { skip: !process.env.FIRESTORE_EMULATOR_HOST }, async () => {
+    const harness = await callableEmulator();
+    const fixtures = JSON.parse(await readFile(new URL('../../test/fixtures/admin-content-contract.json', import.meta.url), 'utf8'));
     try {
-      for (const root of ['HudHudDev', 'HudHudOfficial']) {
+      for (const root of ['HudHudDev', 'HudHudOfficial'] as const) {
         const id = crypto.randomUUID();
-        const program = doc(db, `${root}/programs/programs`, id);
-        const oldStation = doc(db, `${root}/stations/stations`, `${id}-old`);
-        const nextStation = doc(db, `${root}/stations/stations`, `${id}-next`);
-        const episodes = Array.from({ length: 56 }, (_, i) =>
-          doc(db, `${root}/episodes/episodes`, `${id}-${i}`),
-        );
-        const seed = writeBatch(db);
-        seed.set(program, {
-          stationId: oldStation.id,
-          stats: { episodesCount: 55 },
-        });
-        seed.set(oldStation, { stats: { programsCount: 1 } });
-        seed.set(nextStation, { stats: { programsCount: 0 } });
-        for (const episode of episodes.slice(0, 55))
-          seed.set(episode, {
-            programId: id,
-            stationId: oldStation.id,
-            title: 'Fixture',
-          });
-        await seed.commit();
-        let attempts = 0;
-        await runTransaction(db, async (tx) => {
-          const current = await tx.get(program);
-          const children = await readProgramTransferEpisodes(tx, current);
-          await tx.get(oldStation);
-          await tx.get(nextStation);
-          if (++attempts === 1) {
-            const concurrent = writeBatch(db);
-            concurrent.set(episodes[55], {
-              programId: id,
-              stationId: oldStation.id,
-              title: 'Concurrent fixture',
-            });
-            concurrent.update(program, { 'stats.episodesCount': increment(1) });
-            await concurrent.commit();
-          }
-          for (const child of children)
-            tx.update(child, { stationId: nextStation.id });
-          tx.update(program, { stationId: nextStation.id });
-          tx.update(oldStation, { 'stats.programsCount': increment(-1) });
-          tx.update(nextStation, { 'stats.programsCount': increment(1) });
-        });
-        assert.ok(
-          attempts > 1,
-          'Concurrent creation must retry the child query',
-        );
-        for (const episode of episodes)
-          assert.equal(
-            (await getDoc(episode)).data()?.stationId,
-            nextStation.id,
-          );
-        assert.equal((await getDoc(program)).data()?.stats.episodesCount, 56);
-        assert.equal((await getDoc(oldStation)).data()?.stats.programsCount, 0);
-        assert.equal(
-          (await getDoc(nextStation)).data()?.stats.programsCount,
-          1,
-        );
-
-        const overflow = writeBatch(db);
-        for (let i = 56; i < 451; i++)
-          overflow.set(doc(db, `${root}/episodes/episodes`, `${id}-${i}`), {
-            programId: id,
-            stationId: nextStation.id,
-          });
-        await overflow.commit();
-        await assert.rejects(
-          runTransaction(db, async (tx) => {
-            const current = await tx.get(program);
-            await readProgramTransferEpisodes(tx, current);
-            tx.update(program, { stationId: oldStation.id });
-          }),
-          /450/,
-        );
-        assert.equal((await getDoc(program)).data()?.stationId, nextStation.id);
+        const old = harness.adminDb.doc(`${root}/stations/stations/${id}-old`);
+        const next = harness.adminDb.doc(`${root}/stations/stations/${id}-next`);
+        await old.set({ stats: { programsCount: 0 } }); await next.set({ stats: { programsCount: 0 } });
+        const path = `${root}/programs/programs`;
+        const program = doc(harness.db, path, id);
+        const { stats: programStats, ...programFields } = fixtures.programs;
+        const data = { ...programFields, stationId: old.id, title: `Transfer ${id}` };
+        await saveWithRelations(harness.db, root, 'programs', path, id, data, null);
+        assert.equal((await getDocFromServer(program)).get('stats.episodesCount'), programStats.episodesCount);
+        const seed = harness.adminDb.batch();
+        for (let index = 0; index < 55; index++) seed.set(harness.adminDb.doc(`${root}/episodes/episodes/${id}-${index}`), { programId: id, stationId: old.id, createdBy: 'fixture-creator' });
+        seed.update(harness.adminDb.doc(program.path), { 'stats.episodesCount': 55 }); await seed.commit();
+        const previous = (await getDocFromServer(program)).data()!;
+        const { stats: episodeStats, ...episodeFields } = fixtures.episodes;
+        const results = await Promise.allSettled([
+          saveWithRelations(harness.db, root, 'programs', path, id, { ...data, stationId: next.id }, { reference: program, data: previous }),
+          saveWithRelations(harness.db, root, 'episodes', `${root}/episodes/episodes`, `${id}-concurrent`,
+            { ...episodeFields, stationId: old.id, programId: id, audioUrl: `https://radio.example/${id}.mp3` }, null),
+        ]);
+        assert.equal(results[0].status, 'fulfilled');
+        const children = await harness.adminDb.collection(`${root}/episodes/episodes`).where('programId', '==', id).get();
+        assert.equal(children.size, results[1].status === 'fulfilled' ? 56 : 55);
+        assert.equal(children.docs.every((item: { get(key: string): unknown }) => item.get('stationId') === next.id), true);
+        assert.equal((await harness.adminDb.doc(`${root}/episodes/episodes/${id}-0`).get()).get('createdBy'), 'fixture-creator');
+        assert.equal((await getDocFromServer(program)).get('stats.episodesCount'), children.size);
+        if (results[1].status === 'fulfilled') {
+          assert.equal((await harness.adminDb.doc(`${root}/episodes/episodes/${id}-concurrent`).get()).get('stats.playsCount'), episodeStats.playsCount);
+        }
+        assert.equal((await old.get()).get('stats.programsCount'), 0); assert.equal((await next.get()).get('stats.programsCount'), 1);
+        const overflow = harness.adminDb.batch();
+        for (let index = children.size; index < 451; index++) overflow.set(harness.adminDb.doc(`${root}/episodes/episodes/${id}-overflow-${index}`), { programId: id, stationId: next.id });
+        overflow.update(harness.adminDb.doc(program.path), { 'stats.episodesCount': 451 }); await overflow.commit();
+        const before = (await getDocFromServer(program)).data()!;
+        await assert.rejects(saveWithRelations(harness.db, root, 'programs', path, id, { ...data, stationId: old.id }, { reference: program, data: before }),
+          error => error instanceof Error && error.message.includes('450'));
+        assert.equal((await getDocFromServer(program)).get('stationId'), next.id);
+        assert.equal((await next.get()).get('stats.programsCount'), 1);
       }
-    } finally {
-      await deleteApp(app);
-    }
-  },
-);
+    } finally { await harness.close(); }
+  });

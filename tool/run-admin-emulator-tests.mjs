@@ -32,7 +32,7 @@ try {
   // handlers or loading any developer .env/.secret.local into the emulator.
   await writeFile(
     join(source, 'index.js'),
-    `export { adminSaveContent } from ${JSON.stringify(join(root, 'functions/index.js'))};\n`,
+    `export { adminSaveContent, adminDeleteContent, adminReviewReport } from ${JSON.stringify(join(root, 'functions/index.js'))};\n`,
   );
   await symlink(
     join(root, 'functions/node_modules'),

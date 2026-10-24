@@ -191,6 +191,7 @@ class HomeScreen extends ConsumerWidget {
       onSearchChanged: controller.updateSearch,
       onCitySelected: controller.selectCity,
       onFavoritesFilterToggled: controller.toggleFavoritesFilter,
+      onWorkingStreamsFilterToggled: controller.toggleWorkingStreamsFilter,
       onFavoriteToggle: handleFavoriteToggle,
       onViewModeChanged: controller.setViewMode,
       onNotificationsPressed: openNotifications,

@@ -1,4 +1,7 @@
 import { logger } from 'firebase-functions';
+import { createHash } from 'node:crypto';
+import { Timestamp } from 'firebase-admin/firestore';
+import { claimDelivery, startDelivery, finishDelivery, notificationFailure } from './notification-delivery.js';
 
 export const programRoots = ['HudHudDev', 'HudHudOfficial'];
 
@@ -47,7 +50,7 @@ export function shouldNotifyProgram(programData, timeInfo) {
     return false;
   }
   const startMinute = Number(schedule.startMinute);
-  if (Number.isNaN(startMinute)) return false;
+  if (!Number.isInteger(startMinute) || startMinute < 0 || startMinute > 1439) return false;
 
   const diff = startMinute - timeInfo.currentMinute;
   if (diff < 0 || diff > 10) return false;
@@ -107,6 +110,8 @@ export async function notifyUpcomingProgramsForRoot({
     throw new Error(`Unknown root environment: ${root}`);
   }
 
+  const started = Date.now();
+  const clock = () => now.getTime() + Date.now() - started;
   const timeInfo = getYemenTimeInfo(now);
   const programsRef = firestore.collection(root).doc('programs').collection('programs');
   const snapshot = await programsRef.where('isActive', '==', true).get();
@@ -124,47 +129,60 @@ export async function notifyUpcomingProgramsForRoot({
       continue;
     }
 
-    // Resolve station name if available
-    let stationName = '';
-    if (data.stationId) {
-      try {
-        const stationDoc = await firestore
-          .collection(root)
-          .doc('stations')
-          .collection('stations')
-          .doc(data.stationId)
-          .get();
-        if (stationDoc.exists) {
-          stationName = stationDoc.data()?.name || '';
-        }
-      } catch (err) {
-        logger.warn(`Could not resolve station name for program ${doc.id}: ${err?.message}`);
-      }
-    }
-
-    const message = createProgramFcmMessage({
-      programId: doc.id,
-      programTitle: data.title || 'برنامج مميز',
-      stationId: data.stationId,
-      stationName,
-      root,
-    });
-
+    if (typeof messaging?.send !== 'function') { skipped++; continue; }
+    const key = createHash('sha256').update(JSON.stringify([doc.id, timeInfo.ymd])).digest('hex');
+    const reference = firestore.doc(`${root}/notificationOperations/operations/${key}`);
+    const lease = await claimDelivery({ firestore, reference, now: clock() });
+    if (!lease) { skipped++; continue; }
+    let outcome;
+    let current;
+    let sending = false;
     try {
-      // Idempotency update before send to prevent duplicate broadcasts on retry (IR-08)
-      await doc.ref.update({
-        lastNotifiedDate: timeInfo.ymd,
-      });
-
-      if (messaging) {
-        await messaging.send(message);
+      current = (await doc.ref.get()).data();
+      if (!shouldNotifyProgram(current, getYemenTimeInfo(new Date(clock())))) {
+        await finishDelivery({ firestore, reference, lease, status: 'failed', reason: 'ineligible', now: clock() });
+        skipped++; continue;
       }
-      notified++;
-      logger.info(`Notified topic ${message.topic} for "${data.title}" starting today at minute ${data.schedule?.startMinute}`);
-    } catch (err) {
-      logger.error(`Failed to send FCM topic alert for program ${doc.id}: ${err?.message}`);
+      let stationName = '';
+      if (current.stationId) {
+        const stationDoc = await firestore.collection(root).doc('stations').collection('stations').doc(current.stationId).get();
+        stationName = stationDoc.data()?.name || '';
+      }
+      const message = createProgramFcmMessage({ programId: doc.id, programTitle: current.title || 'برنامج مميز',
+        stationId: current.stationId, stationName, root });
+      if (!await startDelivery({ firestore, reference, lease, now: clock() })) { skipped++; continue; }
+      sending = true;
+      try {
+        await messaging.send(message);
+        outcome = { status: 'sent' };
+      } catch (error) {
+        outcome = notificationFailure(error);
+      }
+      await finishDelivery({ firestore, reference, lease, ...outcome, now: clock() });
+      if (outcome.status === 'sent') {
+        // Compatibility stamp follows acknowledgement; the durable receipt owns deduplication.
+        await doc.ref.update({ lastNotifiedDate: timeInfo.ymd });
+        notified++;
+      }
+    } catch {
+      // Preparation can retry safely; a send or receipt-write failure may be ambiguous.
+      await finishDelivery({ firestore, reference, lease, status: sending ? 'unknown' : 'failed',
+        retryable: !sending, reason: sending ? 'delivery-uncertain' : 'preparation-failed', now: clock() });
+      logger.warn('Program notification operation needs delivery-state review.');
     }
+
   }
 
   return { root, total: snapshot.size, checked, notified, skipped };
+}
+
+/** Bounded retention for private program/broadcast receipts; episode receipts follow their job cleanup. */
+export async function collectNotificationOperations({ firestore, root, now = Date.now() }) {
+  if (!programRoots.includes(root)) throw new Error('Unknown notification root.');
+  const expired = await firestore.collection(`${root}/notificationOperations/operations`)
+    .where('cleanupAt', '<=', Timestamp.fromMillis(now)).limit(20).get();
+  if (expired.empty) return;
+  const batch = firestore.batch();
+  for (const item of expired.docs) batch.delete(item.ref);
+  await batch.commit();
 }

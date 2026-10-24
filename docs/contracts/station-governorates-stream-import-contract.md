@@ -10,7 +10,7 @@
 
 ```text
 [Firestore Root: HudHudDev / HudHudOfficial]
- ├── locations/locations/{locationId}           <-- Canonical Yemeni Governorates (locationType: 'governorate') & National ('national')
+ ├── locations/locations/{locationId}           <-- Yemeni coverage/national references and regional scope ('regional')
  ├── stations/stations/{stationId}              <-- Stations with strictly validated cityCode, locationType & health metadata
  ├── programs/programs/{programId}              <-- Station Programs (deduplicated by stationId + normalizedTitle)
  ├── episodes/episodes/{episodeId}              <-- Episodes (deduplicated by programId + normalizedAudioUrl / deterministic SHA-256 ID)
@@ -35,10 +35,24 @@
 
 ## 2. عقد المحافظات وهوية المواقع (Governorates & Location Identity Contract)
 
+### 2.0 نطاق عربي مستقل وحالة اعتماد الجغرافيا
+
+- `global-ar` يحتفظ بمعرّفه؛ `locationType: regional`، `countryCode: ARAB`،
+  `countryNameAr: العالم العربي`. ARAB معرّف نطاق في الكتالوج وليس ISO أو دولة.
+  المرجع والإسقاط الخادمي للمحطة يجب أن يتطابقا؛ لا يفتح ذلك بلدانًا أخرى.
+- عملاء Flutter/Admin/Public يدعمون النطاق العربي؛ YE/global-ar القديم يبقى
+  ظاهرًا خلال rollout. Schema الخادم يسمح regional فقط لهذا المرجع/النطاق.
+- قائمة22 أدناه **قائمة تغطية قديمة قيد اعتماد المالك وليست إثباتًا لـ22 محافظة**.
+  المكلا وسيئون مدينتان، وصنعاء تحتاج تمييزًا عن أمانة العاصمة، وحضرموت تحتاج
+  مرجعًا مستقلًا. لم تُغيّر هذه IDs أو تُنقل المحطات بافتراض قرار جغرافي.
+- الترحيل الإقليمي فقط يتبع [الدليل الآمن](../operations/regional-location-migration.md):
+  preview محدد المشروع/الجذر، backup قبل mutation، معاملة محدودة وaudit/checkpoint
+  واستعادة مشروطة. لا تستخدم مسار seed/update المباشر لتغيير مرجع مستخدم.
+
 ### 2.1 الثوابت المرجعية لمحافظات اليمن (Canonical Governorates & National Location)
-1. تحتوي مجموعة `locations/locations` في كلا الجذرين (`HudHudDev` و `HudHudOfficial`) على جميع المحافظات الـ 22 الرئيسية في اليمن وموقع الإذاعات الوطنية المستقل:
-   - **المحافظات الـ 22 (`locationType: 'governorate'`)**:
-     - `sanaa` (صنعاء / أمانة العاصمة)
+1. مصدر البذرة الحالي يحتوي22 مرجع تغطية يمنيًا قديمًا وموقعًا وطنيًا مستقلًا؛ لم تُثبت مطابقة هذه المراجع لـ22 محافظة إدارية. بيانات أي جذر حي تحتاج معاينة مستقلة:
+   - **مراجع التغطية القديمة (ما زالت تحمل `governorate` إلى حين اعتماد التصحيح)**:
+     - `sanaa` (صنعاء؛ تمييزها عن أمانة العاصمة يحتاج اعتمادًا)
      - `aden` (عدن)
      - `taiz` (تعز)
      - `mukalla` (المكلا - حضرموت الساحل)
@@ -61,16 +75,16 @@
      - `al_bayda` (البيضاء)
      - `al_dhalee` (الضالع)
    - **الموقع الوطني المستقل (`locationType: 'national'`)**:
-     - `yemen` (الإذاعات العامة / الوطنية) — يبقى موقعاً وطنياً مستقلاً للإذاعات العامة؛ لا يُحتسب ضمن الـ 22 محافظة ولا يُعرض كخيار محافظة محلية.
+     - `yemen` (الإذاعات العامة / الوطنية) — يبقى موقعاً وطنياً مستقلاً للإذاعات العامة؛ لا يُحتسب ضمن المحافظات الإدارية ولا يُعرض كخيار محافظة محلية.
 2. تتضمن كل وثيقة موقع الحقول الإلزامية:
    ```ts
    {
      id: string,               // e.g. 'sanaa', 'yemen'
      cityCode: string,         // e.g. 'sanaa', 'yemen'
      cityNameAr: string,       // e.g. 'صنعاء', 'الجمهورية اليمنية (إذاعات وطنية)'
-     countryCode: 'YE',
-     countryNameAr: 'اليمن',
-     locationType: 'governorate' | 'national',
+     countryCode: 'YE' | 'ARAB',
+     countryNameAr: 'اليمن' | 'العالم العربي',
+     locationType: 'governorate' | 'national' | 'regional',
      sortOrder: number,
      isActive: true
    }
@@ -84,8 +98,8 @@
      ```ts
      cityCode: selected.cityCode,
      cityNameAr: selected.cityNameAr,
-     countryCode: 'YE',
-     countryNameAr: 'اليمن',
+     countryCode: selected.countryCode,
+     countryNameAr: selected.countryNameAr,
      locationType: selected.locationType // 'governorate' | 'national'
      ```
    - يُسمح باختيار الموقع الوطني (`national`) فقط عندما تكون المحطة محددة كنطاق وطني (`isNational: true` أو `scope === 'national'`)، ويُحظر اختيارها كمحافظة عادية.
@@ -253,7 +267,9 @@ Natural import keys are reserved in this same transaction for both editor and
 import saves. The hash format remains the client's SHA-256 format. On a first
 claim, legacy siblings are checked in the parent scope with a hard 451-record
 read bound; more than 450 requires a reviewed identity backfill. A trusted existing
-reservation avoids that scan. Changed identities release only reservations owned
+reservation avoids that scan. A version1 completed-scope marker also permits new
+identities in a fully backfilled scope; the reviewed maintenance workflow owns
+that proof and verifies every item plus the parent version and aggregate count. Changed identities release only reservations owned
 by the edited document. Stale reservations pointing at absent/changed content can
 be reclaimed. No preview-only lookup proves uniqueness.
 
@@ -262,11 +278,28 @@ Audit entries use `action: 'import'` for import mutations and optionally include
 documents retain creation fields and receive the trusted updater fields.
 Counter, identity, content and audit writes commit or roll back together.
 
-This amendment specifies saves/imports. **NOV-05 remains in progress until the
-existing deletion flow is audited and matching Rules close direct client
-content/identity writes.** Existing deletion markers, child guards and counters
-must be preserved during that move. Do not deploy this intermediate checkpoint
-as proof of complete server-only editorial enforcement.
+#### Trusted deletion and Rules amendment — 2026-10-24
+
+`adminDeleteContent` accepts `{root, kind, id, expected}` for stations, programs,
+episodes and banners. The complete expected snapshot includes creation fields,
+backend data and counters; only the attempt's deletion token is ignored. Existing
+children block station/program deletion even when a legacy counter is zero.
+Episode deletion first commits a token after authorizing the actual parent,
+blocks new comments through Rules, checks existing comments, then rechecks the
+token and snapshot. Deletion, parent decrement, own identity-key release and audit
+are atomic. Cleanup removes only the attempt's own token without recreating a
+deleted record. An absent retry is unchanged; a recreated ID requires its new
+snapshot. Locations remain subject to the reviewed maintenance workflow.
+
+Rules deny all client content/identity writes, including admin SDK web clients,
+and catalog revision mutations. Moderation uses `adminReviewReport` because its
+episode counter update also belongs on the server. Listener comment/report
+creation and unrelated user operations retain their existing authorization.
+
+Release order is backend callables, compatible admin client, then Rules. Confirm
+new-client acceptance before closing Rules; an old admin client will be denied
+after closure. Recovery must preserve the trusted boundary and use a compatible
+client/backend pair. Local tests and builds do not constitute deployment.
 تُدار عمليات الحفظ والإنشاء والتعديل التحريري عبر مسار مركزي محمي يضمن حقن الحقول التالية ذرياً:
 1. **عند الإنشاء (`create`)**:
    - `createdBy`: معرّف المشرف القائم بالعملية (`adminUid` من سياق التوثيق المعتمد).
@@ -323,3 +356,33 @@ as proof of complete server-only editorial enforcement.
 | **ترقية كارد الإذاعات (PKG-09)** | `station_card.dart`, Widget & Screen acceptance tests | انحناء 20px، شريحة الموقع والتردد، خلو من أي overflow عند 1.0x و 2.0x في الوضعين الليلي والنهاري |
 | **حقول وسجل التدقيق (PKG-10)** | `save-content.ts`, `firestore.rules`, Rules tests | حقول التدقيق وسجل العمليات مسجلة ذرياً، غير قابلة للتعديل أو الحذف من العملاء، وقراءة مقصورة للإدارة |
 | **بوابة القبول الشامل (PKG-11)** | كامل أدوات الفحص والاختبارات في جميع المنصات | صفر أخطاء وصفر فشل في الاختبارات ونجاح بناء المشاريع الثلاثة بالكامل |
+
+### Reviewed legacy identity scopes
+
+The [backfill operation](../operations/content-identity-backfill.md) owns explicit
+project/root/kind/parent previews, hash-bound manifests, backup-first create-only
+reservations, checkpoints, complete-scope markers and run-owned rollback. All proof
+and progress collections are private to trusted maintenance. The tool never
+changes content or counters. RSS must share the same identity/counter/audit
+transaction before a completion marker is treated as full coverage. A source test
+or preview is not an applied production backfill.
+
+### Listener working-stream discovery — November2026
+
+Flutter Home and public web offer an optional working-stream filter, off by
+default and scoped to the current discovery session. It composes with city,
+search and favorites; the web also preserves its recent library order. Only a
+source with fresh online health, zero consecutive failures and a valid check
+within45 minutes qualifies (absolute clock difference, exact45-minute boundary
+included). Malformed counters are unknown, never a healthy zero.
+
+Local clocks update the filter/status at entry/expiry and on foreground/focus,
+without a new server poll or permanent listener. This is explicitly a last-checked
+classification, not a device-playback guarantee. Turning it off restores unknown
+and archive stations; archive details and recorded episodes remain reachable.
+No-source data does not assert an outage at the broadcaster. Card/detail health
+labels use the same resolver; valid last-check time is shown in details.
+
+Flutter labels/empty recovery are localized AR/EN and checked at200-percent text.
+The existing Arabic public-web conventions remain unchanged. No filter
+persistence, new query index or additional data cache is introduced.

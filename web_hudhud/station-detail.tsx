@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { resolveStreamHealthState, type Station } from './lib/stations';
+import { resolveStreamHealthState, streamHealthLabels, streamCheckedAt, type Station } from './lib/stations';
 import { loadStationContent, type StationContent } from './lib/content-repository';
 import { scheduleStatus, stationHref, type Episode } from './lib/discovery';
 import { StationAppBanner } from './app-cta';
@@ -19,11 +19,15 @@ export function StationDetail({ station, onPlay, onEpisode, favorite, onFavorite
   const selectedProgram = new URLSearchParams(location.search).get('program');
   const requestedEpisode = new URLSearchParams(location.search).get('episode');
   const selectedEpisode = content?.episodes.some(e => e.id === requestedEpisode && (!selectedProgram || e.programId === selectedProgram)) ? requestedEpisode : null;
-  const healthState = resolveStreamHealthState(station, now);
-  const isStopped = healthState === 'temporarilyStopped' || healthState === 'noOnlineSource';
+  const healthState = resolveStreamHealthState(station);
+  const isStopped = healthState === 'temporarilyStopped';
+  const noSource = healthState === 'noOnlineSource';
+  const checkedAt = streamCheckedAt(station);
   return <section className="content-section detail-panel" id="station-detail" aria-labelledby="detail-title">
     <a href="?">العودة إلى كل المحطات</a><h1 id="detail-title" tabIndex={-1}>{station.name}</h1><p>{station.description || station.tagline || 'لا يوجد وصف لهذه المحطة حالياً.'}</p>
-    <div className="detail-actions"><button onClick={onPlay}>{isStopped ? 'محاولة الاستماع' : 'استمع للبث المباشر'}</button><button aria-pressed={favorite} onClick={onFavorite}>{favorite ? 'إزالة من المفضلة' : 'أضف إلى المفضلة'}</button><button onClick={() => void share()}>مشاركة المحطة</button><a href="#account">متابعة المحطة وإدارة التنبيهات</a></div><p role="status">{shareMessage}</p>
+    <div className="detail-actions"><button onClick={onPlay} disabled={noSource}>{noSource ? 'لا يتوفر بث مباشر' : isStopped ? 'محاولة الاستماع' : 'استمع للبث المباشر'}</button><button aria-pressed={favorite} onClick={onFavorite}>{favorite ? 'إزالة من المفضلة' : 'أضف إلى المفضلة'}</button><button onClick={() => void share()}>مشاركة المحطة</button><a href="#account">متابعة المحطة وإدارة التنبيهات</a></div><p role="status">{shareMessage}</p>
+    <p>{streamHealthLabels[healthState]}{checkedAt !== null ? ` — آخر فحص: ${new Date(checkedAt).toLocaleString('ar-YE', { timeZone: 'Asia/Aden' })}` : ''}</p>
+    {noSource && <p role="note">لا يوجد رابط بث مباشر لهذه المحطة حاليًا؛ يمكنك استكشاف البرامج والحلقات المسجلة أدناه.</p>}
     {isStopped && (
       <aside className="stream-notice-card" role="note" aria-labelledby="stream-notice-title">
         <strong id="stream-notice-title">⚠️ تنويه البث المباشر:</strong>

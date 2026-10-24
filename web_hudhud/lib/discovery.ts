@@ -1,3 +1,4 @@
+import { isWorkingStream, type Station } from './stations.ts';
 export function validId(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0 && value.length <= 128 && !value.includes('/') && value !== '.' && value !== '..';
 }
@@ -63,4 +64,25 @@ export function resolveFollows(docs: Snapshot[]): Follow[] {
     const chosen = entries.find(d => d.id === `station_${stationId}`) || entries.sort((a,b) => time(b) - time(a) || b.id.localeCompare(a.id))[0];
     const d = chosen.data(); return { stationId, isActive: d.isActive === true, notificationsEnabled: d.isActive === true && d.notificationsEnabled === true };
   });
+}
+
+export function filterDiscoveryStations(stations: Station[], options: {
+  search: string; city: string; library: string; favorites: readonly string[];
+  history: readonly { stationId: string }[]; workingOnly?: boolean; now?: number;
+}): Station[] {
+  const query = options.search.trim().toLocaleLowerCase('ar');
+  const result = stations.filter(station => {
+    if (options.workingOnly && !isWorkingStream(station, options.now)) return false;
+    if (options.library === 'favorites' && !options.favorites.includes(station.id)) return false;
+    if (options.library === 'recent' && !options.history.some(entry => entry.stationId === station.id)) return false;
+    if (options.city !== 'all' && !(isDiscoveryLocation(station.countryCode, station.cityCode) && station.cityCode === options.city)) return false;
+    return !query || [station.name, station.nameEn, station.cityNameAr, station.frequency, station.tagline, station.description]
+      .some(value => value.toLocaleLowerCase('ar').includes(query));
+  });
+  return options.library === 'recent' ? result.sort((a, b) => options.history.findIndex(item => item.stationId === a.id) - options.history.findIndex(item => item.stationId === b.id)) : result;
+}
+
+// ARAB is an internal catalog region, not an ISO country identifier.
+export function isDiscoveryLocation(countryCode: unknown, cityCode: unknown): boolean {
+  return countryCode === 'YE' || (countryCode === 'ARAB' && cityCode === 'global-ar');
 }

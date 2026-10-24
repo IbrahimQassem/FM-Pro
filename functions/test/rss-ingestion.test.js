@@ -109,66 +109,50 @@ describe('RSS Podcast & Episode Ingestion', () => {
       let shouldFailPredicate = failCommitPredicate;
       let shouldFailUpdate = failUpdate;
 
+      const documents = new Map();
+      const reference = path => ({ path, id: path.split('/').at(-1) });
+      const query = (path, constraints = [], bound = Infinity) => ({
+        _query: true, path, constraints, bound,
+        where: (field, op, value) => query(path, [...constraints, [field, value]], bound),
+        limit: value => query(path, constraints, value),
+        get: async () => {
+          const docs = existingDocs.filter(item => constraints.every(([field, value]) => item.data()[field] === value)).slice(0, bound);
+          return { docs, size: docs.length, empty: docs.length === 0 };
+        },
+        doc: id => reference(`${path}/${id}`),
+      });
+      const collection = path => ({ ...query(path), doc: id => ({ ...reference(`${path}/${id}`), collection: name => collection(`${path}/${id}/${name}`) }) });
+      const snapshot = ref => {
+        let data;
+        if (ref.path.includes('/episodes/episodes/')) data = existingDocs.find(item => item.id === ref.id)?.data();
+        else if (ref.path.includes('/programs/programs/')) data = { stationId: 'st-sanaa', isActive: true, stats: { episodesCount: existingDocs.length } };
+        else if (ref.path.includes('/stations/stations/')) data = { isActive: true };
+        else data = documents.get(ref.path);
+        return { ref, exists: !!data, data: () => data, get: field => field.split('.').reduce((value, key) => value?.[key], data) };
+      };
+      let queue = Promise.resolve();
       const firestore = {
-        collection: (root) => ({
-          doc: (sub) => ({
-            collection: (col) => ({
-              where: (field, op, val) => ({
-                get: async () => ({ docs: [...existingDocs] }),
-              }),
-              doc: (id) => ({
-                id,
-                set: async (data) => {
-                  setCalls.push({ id, data });
-                  existingDocs.push({
-                    id,
-                    data: () => data,
-                  });
-                },
-                update: async (data) => {
-                  if (shouldFailUpdate) {
-                    throw new Error('Simulated network failure on program update');
-                  }
-                  programUpdates.push(data);
-                },
-              }),
-            }),
-          }),
-        }),
-        batch: () => {
-          const stagedOps = [];
-          return {
-            set: (docRef, data) => {
-              stagedOps.push({ type: 'set', docRef, data });
-            },
-            update: (docRef, data) => {
-              stagedOps.push({ type: 'update', docRef, data });
-            },
-            delete: (docRef) => {
-              stagedOps.push({ type: 'delete', docRef });
-            },
-            commit: async () => {
-              const shouldFail =
-                (typeof shouldFailPredicate === 'function' && shouldFailPredicate()) ||
-                shouldFailCommit ||
-                shouldFailUpdate;
-              if (shouldFail) {
-                throw new Error('Simulated network failure on batch commit');
-              }
-              for (const op of stagedOps) {
-                if (op.type === 'set') {
-                  const id = op.docRef.id;
-                  setCalls.push({ id, data: op.data });
-                  existingDocs.push({
-                    id,
-                    data: () => op.data,
-                  });
-                } else if (op.type === 'update') {
-                  programUpdates.push(op.data);
-                }
-              }
-            },
-          };
+        doc: reference, collection,
+        runTransaction(fn) {
+          const operation = queue.then(async () => {
+            const writes = [];
+            const stage = (type, ref, data) => writes.push({ type, ref, data });
+            const result = await fn({ get: async target => target._query ? target.get() : snapshot(target),
+              set: (ref, data) => stage('set', ref, data), create: (ref, data) => stage('create', ref, data),
+              update: (ref, data) => stage('update', ref, data), delete: ref => stage('delete', ref),
+            });
+            if (writes.length && ((typeof shouldFailPredicate === 'function' && shouldFailPredicate()) || shouldFailCommit || shouldFailUpdate)) throw new Error('Simulated network failure on content transaction commit');
+            for (const { ref, data, type } of writes) {
+              if (ref.path.includes('/episodes/episodes/')) {
+                if (type === 'create' && existingDocs.some(item => item.id === ref.id)) throw new Error('Unexpected duplicate create');
+                setCalls.push({ id: ref.id, data }); existingDocs.push({ id: ref.id, data: () => data });
+              } else if (ref.path.includes('/programs/programs/')) programUpdates.push(data);
+              else if (type === 'delete') documents.delete(ref.path);
+              else documents.set(ref.path, data);
+            }
+            return result;
+          });
+          queue = operation.catch(() => {}); return operation;
         },
       };
 
@@ -426,13 +410,13 @@ describe('RSS Podcast & Episode Ingestion', () => {
           feedUrl: 'https://example.com/podcast.xml',
           fetchFn: mockFetch, lookupFn,
         }),
-        /Simulated network failure on batch commit/,
+        /Simulated network failure on content transaction commit/,
         'Must reject and surface failure to caller instead of falsely claiming success'
       );
 
       // Verify no partial writes occurred
-      assert.strictEqual(setCalls.length, 0, 'No episode write must be committed when batch fails');
-      assert.strictEqual(programUpdates.length, 0, 'No program counter update must be committed when batch fails');
+      assert.strictEqual(setCalls.length, 0, 'No episode write must be committed when transaction fails');
+      assert.strictEqual(programUpdates.length, 0, 'No program counter update must be committed when transaction fails');
       assert.strictEqual(existingDocs.length, 0, 'Firestore existingDocs must remain empty');
 
       // Run 2 (Retry): Failure condition cleared -> succeeds completely exactly once
@@ -531,7 +515,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
           feedUrl: 'https://example.com/podcast.xml',
           fetchFn: mockFetch, lookupFn,
         }),
-        /Simulated network failure on batch commit/
+        /Simulated network failure on content transaction commit/
       );
 
       // Verify that Item 1 was committed along with its counter increment

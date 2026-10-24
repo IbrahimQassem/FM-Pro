@@ -1,30 +1,18 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { initializeApp, deleteApp } from 'firebase/app';
 import {
-  connectFirestoreEmulator,
   doc,
   getCountFromServer,
-  getFirestore,
-  writeBatch,
 } from 'firebase/firestore';
 import { editorialQueries } from '../lib/editorial-queries.ts';
+import { callableEmulator } from './support/callable-emulator.ts';
 
 void test(
   'editorial aggregates respect expiry boundaries, activation and explicit null schedules in both roots',
   { skip: !process.env.FIRESTORE_EMULATOR_HOST },
   async () => {
-    const projectId = process.env.GCLOUD_PROJECT;
-    assert.ok(projectId?.startsWith('demo-'));
-    const app = initializeApp(
-      { projectId },
-      `editorial-${crypto.randomUUID()}`,
-    );
-    const db = getFirestore(app);
-    const [host, port] = process.env.FIRESTORE_EMULATOR_HOST!.split(':');
-    connectFirestoreEmulator(db, host, Number(port), {
-      mockUserToken: { sub: 'fixture-admin', admin: true },
-    });
+    const harness = await callableEmulator();
+    const db = harness.db;
     const now = new Date('2030-01-01T00:00:00Z');
     try {
       for (const root of ['HudHudDev', 'HudHudOfficial'] as const) {
@@ -62,8 +50,8 @@ void test(
           doc(db, `${root}/${kind}/${kind}`, `${prefix}-${i}`),
         );
         try {
-          const batch = writeBatch(db);
-          cases.forEach(([, data], i) => batch.set(refs[i], data));
+          const batch = harness.adminDb.batch();
+          cases.forEach(([, data], i) => batch.set(harness.adminDb.doc(refs[i].path), data));
           await batch.commit();
           const after = await counts();
           assert.deepEqual(
@@ -71,13 +59,13 @@ void test(
             [1, 2, 1],
           );
         } finally {
-          const cleanup = writeBatch(db);
-          refs.forEach((ref) => cleanup.delete(ref));
+          const cleanup = harness.adminDb.batch();
+          refs.forEach((ref) => cleanup.delete(harness.adminDb.doc(ref.path)));
           await cleanup.commit();
         }
       }
     } finally {
-      await deleteApp(app);
+      await harness.close();
     }
   },
 );

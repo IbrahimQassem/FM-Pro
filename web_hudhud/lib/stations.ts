@@ -64,6 +64,9 @@ export function stationFromSnapshot(snapshot: {
   data: () => Record<string, unknown>;
 }): Station {
   const data = snapshot.data();
+  const rawFailures = data.consecutiveFailures;
+  const failures = rawFailures == null ? 0 : typeof rawFailures === 'number' ||
+    (typeof rawFailures === 'string' && rawFailures.trim()) ? Number(rawFailures) : NaN;
   const stats = typeof data.stats === 'object' && data.stats !== null
     ? data.stats as Record<string, unknown>
     : {};
@@ -107,7 +110,7 @@ export function stationFromSnapshot(snapshot: {
     isVerified: data.isVerified === true,
     isFeatured: data.isFeatured === true,
     healthStatus: textValue(data.healthStatus),
-    consecutiveFailures: numberValue(data.consecutiveFailures),
+    consecutiveFailures: Number.isSafeInteger(failures) && failures >= 0 ? failures : -1,
     streamHealthSource: textValue(data.streamHealthSource) || 'primary',
     lastCheckedAt: data.lastCheckedAt
       ? (typeof (data.lastCheckedAt as { toMillis?: () => number }).toMillis === 'function'
@@ -142,15 +145,9 @@ export function resolveStreamHealthState(station: Station, now: number = Date.no
   if (!station.streamUrl && !station.backupStreamUrl) {
     return 'noOnlineSource';
   }
-  if (!station.lastCheckedAt) {
-    return 'unverified';
-  }
-  const checkedTime = typeof station.lastCheckedAt === 'number'
-    ? station.lastCheckedAt
-    : Date.parse(String(station.lastCheckedAt));
-  if (!Number.isFinite(checkedTime) || Math.abs(now - checkedTime) > 45 * 60 * 1000) {
-    return 'unverified';
-  }
+  const checkedTime = streamCheckedAt(station);
+  if (checkedTime === null || Math.abs(now - checkedTime) > 45 * 60 * 1000) return 'unverified';
+  if (!Number.isSafeInteger(station.consecutiveFailures ?? 0) || (station.consecutiveFailures ?? 0) < 0) return 'unverified';
   if (station.healthStatus === 'offline' || (station.consecutiveFailures ?? 0) >= 3) {
     return 'temporarilyStopped';
   }
@@ -172,4 +169,28 @@ export function recentStation(stations: Station[], history: { stationId: string 
     if (station) return station;
   }
   return stations[0] || null;
+}
+
+/** A last-checked classification, not a guarantee of playback on this device. */
+export function isWorkingStream(station: Station, now = Date.now()): boolean {
+  return (station.consecutiveFailures ?? 0) === 0 && resolveStreamHealthState(station, now) === 'available';
+}
+export function nextStreamHealthChange(station: Station, now = Date.now()): number | null {
+  if (!['online', 'offline', 'degraded'].includes(station.healthStatus ?? '') || (station.consecutiveFailures ?? 0) < 0 || (!station.streamUrl && !station.backupStreamUrl) || !station.lastCheckedAt) return null;
+  const checked = streamCheckedAt(station);
+  if (checked === null) return null;
+  const entry = checked - 45 * 60000, expiry = checked + 45 * 60000;
+  return now < entry ? entry : now <= expiry ? expiry + 1 : null;
+}
+
+export const streamHealthLabels: Record<StationStreamHealthState, string> = {
+  available: 'سليم في آخر فحص', backupAvailable: 'بث بديل', unstable: 'بث غير مستقر',
+  temporarilyStopped: 'متوقف مؤقتًا', unverified: 'لم يُفحص حديثًا',
+  noOnlineSource: 'بدون بث مباشر', deviceConnectionError: 'تعذر الاتصال من جهازك',
+};
+
+export function streamCheckedAt(station: Station): number | null {
+  if (station.lastCheckedAt === null || station.lastCheckedAt === undefined) return null;
+  const time = typeof station.lastCheckedAt === 'number' ? station.lastCheckedAt : Date.parse(String(station.lastCheckedAt));
+  return Number.isFinite(time) && Number.isFinite(new Date(time).getTime()) ? time : null;
 }

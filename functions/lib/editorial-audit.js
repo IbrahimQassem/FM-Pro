@@ -1,3 +1,4 @@
+import { administrativeActor } from './admin-content-authorization.js';
 import { randomUUID } from 'node:crypto';
 import { FieldValue } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
@@ -56,27 +57,8 @@ export async function saveAdminContent({
     throw new HttpsError('invalid-argument', 'Missing content payload.');
   }
 
-  const isSuperAdmin =
-    callerRole === 'super_admin' ||
-    (callerClaims?.admin === true &&
-      callerRole !== 'station_admin' &&
-      callerRole !== 'moderator');
-
-  if (!validId(callerUid)) {
-    throw new HttpsError('unauthenticated', 'Authentication is required.');
-  }
-  if ((callerClaims?.role && callerClaims.role !== callerRole) ||
-      (!isSuperAdmin && callerRole !== 'station_admin')) {
-    throw new HttpsError('permission-denied', 'Administrative privileges are required.');
-  }
-  const canManageStation = stationId => isSuperAdmin || (
-    callerRole === 'station_admin' && (
-      callerClaims?.allStations === true ||
-      (Array.isArray(callerClaims?.assignedStations) &&
-        (callerClaims.assignedStations.includes(stationId) ||
-          callerClaims.assignedStations.includes('*')))
-    )
-  );
+  const actor = administrativeActor({ callerUid, callerEmail, callerRole, callerClaims });
+  const { isSuperAdmin, canManageStation } = actor;
 
   if (['stations', 'locations', 'banners'].includes(kind) && !isSuperAdmin) {
     throw new HttpsError('permission-denied', 'Super admin privileges are required.');
@@ -98,8 +80,7 @@ export async function saveAdminContent({
     throw new HttpsError('invalid-argument', 'An explicit edit precondition is required.');
   }
   content = validateAdminContent(kind, content);
-  const actorName = [callerClaims?.name, callerClaims?.displayName].find(value => typeof value === 'string' && value.trim()) ||
-    (typeof callerEmail === 'string' && callerEmail ? callerEmail.split('@')[0] : callerUid);
+  const actorName = actor.name;
   const docRef = firestore.doc(`${root}/${kind}/${kind}/${id}`);
   let action;
 

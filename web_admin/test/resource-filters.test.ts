@@ -391,3 +391,10 @@ void test('isHealthyStream tests exact 45-min boundary and edge cases', () => {
 
 
 
+
+void test('malformed failure flags cannot qualify for the healthy stream filter', () => {
+  const now = Date.now();
+  for (const value of ['', false, true, 'bad', 0.5, NaN, Infinity]) {
+    assert.equal(isHealthyStream({ healthStatus: 'online', consecutiveFailures: value, lastCheckedAt: now }, now), false);
+  }
+});
