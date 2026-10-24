@@ -2,6 +2,84 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { recordEditorialAuditLog, saveAdminContent } from '../lib/editorial-audit.js';
 
+function fixture(root, kind, existing, parents = {}) {
+  const written = [];
+  const firestore = {
+    doc: path => ({ path }),
+    runTransaction: async fn => fn({
+      get: async ref => {
+        const value = ref.path === `${root}/${kind}/${kind}/target`
+          ? existing : parents[ref.path];
+        return { exists: value !== undefined, data: () => value };
+      },
+      set: (ref, data) => written.push({ path: ref.path, data }),
+    }),
+  };
+  return {
+    written,
+    save: (content, extra = {}) => saveAdminContent({
+      firestore, callerUid: 'admin-a', callerRole: 'station_admin',
+      callerClaims: { role: 'station_admin', assignedStations: ['station-a'] },
+      data: { root, kind, id: 'target', content }, ...extra,
+    }),
+  };
+}
+
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  const parents = {
+    [`${root}/stations/stations/station-a`]: { name: 'Station A' },
+    [`${root}/stations/stations/station-b`]: { name: 'Station B' },
+    [`${root}/programs/programs/program-a`]: { stationId: 'station-a' },
+    [`${root}/programs/programs/program-b`]: { stationId: 'station-b' },
+  };
+  for (const kind of ['programs', 'episodes']) {
+    const content = { stationId: 'station-a', title: 'Edited',
+      ...(kind === 'episodes' ? { programId: 'program-a' } : {}) };
+    test(`${root}: ${kind} rejects taking over another station's existing ID`, async () => {
+      const f = fixture(root, kind, { stationId: 'station-b' }, parents);
+      await assert.rejects(f.save(content), { code: 'permission-denied' });
+      assert.equal(f.written.length, 0);
+    });
+    test(`${root}: ${kind} permits an own-station edit with valid parent`, async () => {
+      const f = fixture(root, kind, { stationId: 'station-a' }, parents);
+      await f.save(content);
+      assert.equal(f.written.length, 2);
+    });
+    test(`${root}: ${kind} rejects listener claims with station assignments`, async () => {
+      const f = fixture(root, kind, undefined, parents);
+      await assert.rejects(f.save(content, {
+        callerRole: 'listener', callerClaims: { assignedStations: ['station-a'], allStations: true },
+      }), { code: 'permission-denied' });
+      assert.equal(f.written.length, 0);
+    });
+    test(`${root}: ${kind} rejects missing parent and deletion in progress`, async () => {
+      const missing = fixture(root, kind, undefined);
+      await assert.rejects(missing.save(content), { code: 'failed-precondition' });
+      const deleting = fixture(root, kind, { stationId: 'station-a', adminDeletionToken: 'deleting' }, parents);
+      await assert.rejects(deleting.save(content), { code: 'failed-precondition' });
+      assert.equal(deleting.written.length, 0);
+    });
+  }
+  test(`${root}: episode cannot claim a station different from its program`, async () => {
+    const f = fixture(root, 'episodes', undefined, parents);
+    await assert.rejects(f.save({ stationId: 'station-a', programId: 'program-b', title: 'Episode' }),
+      { code: 'failed-precondition' });
+    assert.equal(f.written.length, 0);
+  });
+  test(`${root}: rejects operational and forged attribution fields`, async () => {
+    for (const key of ['createdBy', 'createdByName', 'createdAt', 'updatedBy', 'stats', 'adminDeletionToken', 'healthStatus']) {
+      const f = fixture(root, 'programs', undefined, parents);
+      await assert.rejects(f.save({ stationId: 'station-a', title: 'Program', [key]: 'forged' }),
+        { code: 'invalid-argument' });
+      assert.equal(f.written.length, 0);
+    }
+  });
+  test(`${root}: rejects path-valued parent IDs`, async () => {
+    const f = fixture(root, 'programs', undefined, parents);
+    await assert.rejects(f.save({ stationId: '../station-a', title: 'Program' }), { code: 'invalid-argument' });
+  });
+}
+
 test('recordEditorialAuditLog creates audit log record with actor details and timestamp', async () => {
   const written = [];
   const mockTx = {

@@ -20,6 +20,25 @@
 
 ## 2. Live Stream Health Checker (عقد فحص جودة البث المباشر)
 
+### Public network boundary — November 2026
+
+Stream probes and RSS reads share `functions/lib/public-fetch.js`. Each HTTP(S)
+hop validates the URL and all resolved IPv4/IPv6 addresses, rejects private,
+loopback, link-local/metadata and reserved destinations, and pins the selected
+address in the native request while preserving the original Host/TLS hostname.
+Redirects are manual and revalidated, with at most three redirects. TLS checks
+remain enabled. Credentials in URLs are rejected; public radio ports remain
+supported. Raw resolver/socket errors are not exposed in application errors.
+
+One deadline includes queueing, DNS, redirects, response headers and body reads:
+8 seconds for a probe and 15 seconds for RSS. There are at most four concurrent
+public fetches per Function instance; the existing station/feed iteration stays
+sequential. HLS manifests are limited to 256 KiB decoded, RSS to 2 MiB decoded,
+and a non-HLS probe consumes at most a 64 KiB prefix then closes the stream.
+Gzip/deflate/Brotli responses are decoded under the same body limits. A bounded
+probe is evidence of source response, not a guarantee of continuous playback or
+HLS segment availability. No client-triggered polling is introduced.
+
 * **Trigger:** Cloud Scheduler (`every 15 minutes`, Timezone: `Asia/Aden`).
 * **Target Collection:** `{root}/stations/stations/{stationId}`
 * **Execution Spec:**

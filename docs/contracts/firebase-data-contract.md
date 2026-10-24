@@ -310,6 +310,24 @@ HTTPS فقط. القراءة فقط؛ لا يكتب التطبيق counters.
 هذا العقد في التغيير نفسه. migrations والإصلاحات الجماعية أدوات إدارية خارج
 التطبيق، مع dry-run وrollback وتفويض مستقل.
 
+## Location cleanup maintenance — November 2026
+
+`tool/remove_old_locations.mjs` requires an explicit project and one root and
+defaults to dry-run. A reviewed version-1 report contains typed snapshots of
+unreferenced, noncanonical locations; apply verifies an independently persisted
+backup before deletion and rechecks current values and station references in
+each transaction. A bounded invocation changes at most 25 locations by default
+(explicit `--max-items` accepts 1..100).
+
+Private server-owned checkpoints live at
+`{root}/locationCleanup/runs/{runId}/items/{locationId}` with `state` equal to
+`deleted` or `restored` and server timestamp `at`. Default Rules deny clients
+access, including admins. The checkpoint, deletion/restoration, and catalog
+identity-revision increment are atomic. The same reviewed report resumes a
+partial run; restore creates only absent records with a matching deletion
+checkpoint and never overwrites a location. Restored runs cannot be reapplied;
+a fresh preview produces a new run identity. This does not authorize live runs.
+
 ## Development demo seed
 
 - `tool/firebase_seed/development_seed.json` هو سيناريو العرض canonical الوحيد.

@@ -1,3 +1,4 @@
+import { isSafePublicUrl, withPublicResponse, readResponseBytes } from './public-fetch.js';
 import { createHash, randomUUID } from 'node:crypto';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
@@ -122,52 +123,15 @@ export function deterministicEpisodeId(programId, externalIdOrUrl) {
 /**
  * Fetches RSS feed from URL and returns parsed items.
  */
-export async function fetchAndParseRss(feedUrl, { fetchFn = globalThis.fetch, timeoutMs = 15000 } = {}) {
-  if (typeof feedUrl !== 'string' || !/^https?:\/\//i.test(feedUrl.trim())) {
-    throw new Error('Invalid feed URL');
-  }
-
-  try {
-    const parsed = new URL(feedUrl.trim());
-    const host = parsed.hostname.toLowerCase();
-    if (
-      host === 'localhost' ||
-      host === '127.0.0.1' ||
-      host === '::1' ||
-      host.endsWith('.local') ||
-      host.endsWith('.internal') ||
-      host.startsWith('10.') ||
-      host.startsWith('192.168.') ||
-      host.startsWith('169.254.')
-    ) {
-      throw new Error('Unsafe or private feed URL');
-    }
-  } catch (e) {
-    throw new Error(`Feed URL validation failed: ${e.message}`);
-  }
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const res = await fetchFn(feedUrl, {
-      method: 'GET',
-      headers: {
-        'User-Agent': 'HudHud-FM-RssIngest/1.0 (Podcast Aggregator)',
-        'Accept': 'application/rss+xml, application/xml, text/xml',
-      },
-      signal: controller.signal,
-    });
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status} fetching RSS feed`);
-    }
-
-    const xml = await res.text();
-    return parseRssFeed(xml);
-  } finally {
-    clearTimeout(timer);
-  }
+export async function fetchAndParseRss(feedUrl, { fetchFn, lookupFn, timeoutMs = 15000 } = {}) {
+  if (!isSafePublicUrl(feedUrl)) throw new Error('Unsafe or private feed URL');
+  return withPublicResponse(feedUrl.trim(), { fetchFn, lookupFn, timeoutMs,
+    headers: { 'User-Agent': 'HudHud-FM-RssIngest/1.0', Accept: 'application/rss+xml, application/xml, text/xml' },
+  }, async (response, signal) => {
+    if (!response.ok) throw new Error(`HTTP ${response.status} fetching RSS feed`);
+    const bytes = await readResponseBytes(response, { maxBytes: 2 * 1024 * 1024, signal });
+    return parseRssFeed(new TextDecoder().decode(bytes));
+  });
 }
 
 /**
@@ -179,13 +143,14 @@ export async function ingestEpisodesFromFeed({
   programId,
   stationId,
   feedUrl,
-  fetchFn = globalThis.fetch,
+  fetchFn,
+  lookupFn,
 }) {
   if (!ingestionRoots.includes(root)) {
     throw new Error(`Unknown root environment: ${root}`);
   }
 
-  const items = await fetchAndParseRss(feedUrl, { fetchFn });
+  const items = await fetchAndParseRss(feedUrl, { fetchFn, lookupFn });
   if (items.length === 0) {
     return { programId, totalFeedItems: 0, ingested: 0, skipped: 0 };
   }
@@ -274,7 +239,8 @@ export async function ingestEpisodesFromFeed({
 export async function ingestConfiguredPodcastFeedsForRoot({
   firestore,
   root,
-  fetchFn = globalThis.fetch,
+  fetchFn,
+  lookupFn,
 }) {
   const programsRef = firestore.collection(root).doc('programs').collection('programs');
   const snapshot = await programsRef.where('isActive', '==', true).get();
@@ -296,6 +262,7 @@ export async function ingestConfiguredPodcastFeedsForRoot({
         stationId: data.stationId || '',
         feedUrl,
         fetchFn,
+        lookupFn,
       });
       totalIngested += res.ingested;
     } catch (err) {

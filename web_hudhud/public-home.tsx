@@ -26,7 +26,7 @@ const StationDetail = lazy(() => import('./station-detail').then(module => ({ de
 const AccountPanel = lazy(() => import('./account-panel').then(module => ({ default: module.AccountPanel })));
 const loadPublicStations = () => import('./lib/station-repository').then(module => module.loadPublicStations());
 import { RadioPlayer, isHttpUrl, type PlaybackState } from '@/lib/radio-player';
-import { recentStation, type Station } from '@/lib/stations';
+import { recentStation, resolveStreamHealthState, type Station } from '@/lib/stations';
 
 import { cityHref, pageModel, updateMetadata, type Catalog, type City } from './lib/seo';
 import { firestoreRoot } from './lib/firestore-environment';
@@ -376,12 +376,14 @@ function StationArtwork({ station, size = 'normal' }: { station: Station; size?:
 }
 
 function FeaturedCard({ station, index, isPlaying, onPlay }: { station: Station; index: number; isPlaying: boolean; onPlay: () => void }) {
-  const isStopped = station.healthStatus === 'offline' || (typeof station.consecutiveFailures === 'number' && station.consecutiveFailures >= 3);
+  const healthState = resolveStreamHealthState(station);
+  const isStopped = healthState === 'temporarilyStopped' || healthState === 'noOnlineSource';
   return <article className={`featured-card featured-${index}`}><div className="featured-top"><span className="featured-label"><Star size={13} fill="currentColor" /> مميز</span><span className={`live-label ${isStopped ? 'stopped' : ''}`}>{isStopped ? 'متوقف مؤقتًا' : station.isLive ? <><i /> مباشر</> : 'استماع'}</span></div><StationArtwork station={station} size="normal" /><div className="featured-details"><h3><a href={stationHref(station.id)}>{station.name || 'محطة إذاعية'}</a></h3><span>{station.cityNameAr || 'من محطات هدهد'}{station.frequency ? ` · ${station.frequency}` : ''}</span><p>{station.tagline || station.description || 'استمع إلى هذه المحطة من هدهد إف إم.'}</p></div><button className="card-play" type="button" onClick={onPlay} aria-label={`${isPlaying ? 'إيقاف' : 'تشغيل'} ${station.name || 'المحطة'}`}>{isPlaying ? <Pause size={17} /> : <Play size={17} fill="currentColor" />}</button></article>;
 }
 
 function StationCard({ station, isPlaying, onPlay, favorite, onFavorite }: { station: Station; isPlaying: boolean; onPlay: () => void; favorite: boolean; onFavorite(): void }) {
-  const isStopped = station.healthStatus === 'offline' || (typeof station.consecutiveFailures === 'number' && station.consecutiveFailures >= 3);
+  const healthState = resolveStreamHealthState(station);
+  const isStopped = healthState === 'temporarilyStopped' || healthState === 'noOnlineSource';
   return <article className="station-card"><div className="station-card-visual"><StationArtwork station={station} size="normal" /><span className={isStopped ? 'card-status stopped' : station.isLive ? 'card-status live' : 'card-status'}>{isStopped ? 'متوقف مؤقتًا' : <>{station.isLive && <i />}{station.isLive ? 'على الهواء' : 'متاح للاستماع'}</>}</span><button className="card-play" type="button" onClick={onPlay} aria-label={`${isPlaying ? 'إيقاف' : 'تشغيل'} ${station.name || 'المحطة'}`}>{isPlaying ? <Pause size={17} /> : <Play size={17} fill="currentColor" />}</button></div><div className="station-card-content"><div><h3><a href={stationHref(station.id)}>{station.name || 'محطة إذاعية'}</a></h3>{station.nameEn && <span className="name-en">{station.nameEn}</span>}</div><span className="city-name"><MapPin size={14} /> {station.cityNameAr || 'غير محدد'}{station.frequency ? ` · ${station.frequency}` : ''}</span><p>{station.tagline || station.description || 'استمع إلى صوت هذه المحطة عبر هدهد إف إم.'}</p><div className="card-footer"><span>{station.isVerified ? 'موثقة من هدهد' : 'من كتالوج هدهد'}</span><button aria-pressed={favorite} onClick={onFavorite} aria-label={`${favorite ? 'إزالة من المفضلة' : 'أضف إلى المفضلة'} ${station.name}`}>{favorite ? '★' : '☆'}</button><a href={stationHref(station.id)}>التفاصيل</a></div></div></article>;
 }
 

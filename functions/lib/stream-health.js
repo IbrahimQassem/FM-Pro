@@ -1,133 +1,33 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
+import { isSafePublicUrl, withPublicResponse, readResponseBytes } from './public-fetch.js';
+export { isSafePublicUrl } from './public-fetch.js';
 
 export const healthRoots = ['HudHudDev', 'HudHudOfficial'];
 
-/**
- * Validates that a URL is a valid public HTTP(S) endpoint.
- * Blocks private IP ranges, loopback, link-local / cloud metadata (169.254.169.254),
- * and local hostnames to prevent SSRF (IR-10).
- */
-export function isSafePublicUrl(urlString) {
-  if (typeof urlString !== 'string' || !urlString.trim()) return false;
-  let parsed;
+/** Validate destinations and bound DNS, redirects and body consumption. */
+export async function probeStream(url, { timeoutMs = 8000, fetchFn, lookupFn } = {}) {
+  if (!isSafePublicUrl(url)) return { isHealthy: false, error: 'Invalid or unsafe stream URL' };
   try {
-    parsed = new URL(urlString.trim());
-  } catch {
-    return false;
-  }
-
-  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-    return false;
-  }
-
-  const hostname = parsed.hostname.toLowerCase();
-  if (
-    hostname === 'localhost' ||
-    hostname === '127.0.0.1' ||
-    hostname === '::1' ||
-    hostname === '0.0.0.0' ||
-    hostname.endsWith('.localhost') ||
-    hostname.endsWith('.local') ||
-    hostname.endsWith('.internal')
-  ) {
-    return false;
-  }
-
-  // IPv4 private & link-local checks
-  const ipv4Match = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(hostname);
-  if (ipv4Match) {
-    const [b0, b1] = [Number(ipv4Match[1]), Number(ipv4Match[2])];
-    if (b0 === 127) return false; // Loopback 127.0.0.0/8
-    if (b0 === 10) return false; // Private 10.0.0.0/8
-    if (b0 === 169 && b1 === 254) return false; // Link-local / Cloud metadata 169.254.0.0/16
-    if (b0 === 172 && b1 >= 16 && b1 <= 31) return false; // Private 172.16.0.0/12
-    if (b0 === 192 && b1 === 168) return false; // Private 192.168.0.0/16
-    if (b0 === 0) return false; // 0.0.0.0/8
-  }
-
-  if (hostname.startsWith('[fc') || hostname.startsWith('[fd') || hostname.startsWith('[fe80')) {
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * Probes a live stream URL according to contract specifications:
- * - Rejects private/SSRF URLs without network calls (IR-10).
- * - GET request with AbortController (timeout 8000ms).
- * - Rejects HTML / text responses even if status is 200 (IR-09).
- * - For HLS (.m3u8), verifies response contains #EXTM3U and not HTML.
- * - For Icecast/Shoutcast, reads the first chunk and verifies it does not start with HTML tags.
- */
-export async function probeStream(url, { timeoutMs = 8000, fetchFn = globalThis.fetch } = {}) {
-  if (!isSafePublicUrl(url)) {
-    return { isHealthy: false, error: 'Invalid or unsafe stream URL' };
-  }
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const response = await fetchFn(url.trim(), {
-      method: 'GET',
-      headers: {
-        'User-Agent': 'HudHud-FM-StreamHealth/1.0',
-        'Accept': '*/*',
-        'Icy-MetaData': '1',
-      },
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      return { isHealthy: false, error: `HTTP ${response.status}` };
-    }
-
-    const contentType = (response.headers.get('content-type') || '').toLowerCase();
-    if (contentType.includes('text/html') || contentType.includes('application/xhtml')) {
-      return { isHealthy: false, error: 'Response is HTML, not audio stream' };
-    }
-
-    const isHls = url.toLowerCase().includes('.m3u8') || contentType.includes('mpegurl');
-
-    if (isHls) {
-      const text = await response.text();
-      if (text.toLowerCase().includes('<!doctype') || text.toLowerCase().includes('<html')) {
-        return { isHealthy: false, error: 'HLS manifest returned HTML' };
+    return await withPublicResponse(url.trim(), { timeoutMs, fetchFn, lookupFn,
+      headers: { 'User-Agent': 'HudHud-FM-StreamHealth/1.0', Accept: '*/*', 'Icy-MetaData': '1' },
+    }, async (response, signal, finalUrl) => {
+      if (!response.ok) return { isHealthy: false, error: `HTTP ${response.status}` };
+      const type = (response.headers.get('content-type') || '').toLowerCase();
+      if (type.includes('text/html') || type.includes('application/xhtml')) {
+        return { isHealthy: false, error: 'Response is HTML, not audio stream' };
       }
-      const isHealthy = text.includes('#EXTM3U');
-      return { isHealthy, error: isHealthy ? null : 'Missing #EXTM3U header' };
-    }
-
-    if (!response.body) {
-      return { isHealthy: false, error: 'No response body stream' };
-    }
-
-    const reader = response.body.getReader();
-    try {
-      const { value, done } = await reader.read();
-      if (done || !value || value.length === 0) {
-        return { isHealthy: false, error: 'Stream produced empty chunk' };
-      }
-
-      // Check if initial bytes look like HTML text
-      const headString = new TextDecoder('utf-8', { fatal: false })
-        .decode(value.slice(0, 50))
-        .toLowerCase();
-      if (headString.includes('<!doctype') || headString.includes('<html')) {
-        return { isHealthy: false, error: 'Stream content is HTML' };
-      }
-
+      const hls = finalUrl.pathname.toLowerCase().endsWith('.m3u8') || type.includes('mpegurl');
+      const bytes = await readResponseBytes(response, { maxBytes: hls ? 256 * 1024 : 64 * 1024,
+        firstChunkOnly: !hls, signal });
+      if (!bytes.length) return { isHealthy: false, error: 'Stream produced empty chunk' };
+      const text = new TextDecoder().decode(bytes).toLowerCase();
+      if (text.includes('<!doctype') || text.includes('<html')) return { isHealthy: false, error: 'Stream content is HTML' };
+      if (hls && !text.includes('#extm3u')) return { isHealthy: false, error: 'Missing #EXTM3U header' };
       return { isHealthy: true, error: null };
-    } finally {
-      await reader.cancel().catch(() => {});
-    }
-  } catch (err) {
-    const isTimeout = err?.name === 'AbortError' || err?.code === 20;
-    return { isHealthy: false, error: isTimeout ? 'Timeout (8000ms)' : (err?.message || 'Network error') };
-  } finally {
-    clearTimeout(timer);
+    });
+  } catch (error) {
+    return { isHealthy: false, error: error?.name === 'AbortError' ? `Timeout (${timeoutMs}ms)` : 'Stream could not be checked safely' };
   }
 }
 

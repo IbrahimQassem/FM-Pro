@@ -6,6 +6,8 @@
     "node": ">=20 <25"
   },
   "scripts": {
+    "emulators:editorial": "firebase emulators:exec --only firestore --project demo-hudhud-editorial \"node --test firebase_tests/firebase-emulators/editorial-audit.test.js\"",
+    "emulators:location-cleanup": "firebase emulators:exec --only firestore --project demo-hudhud-location-cleanup \"node --test firebase_tests/firebase-emulators/location-cleanup.test.js\"",
     "emulators:advertising": "firebase emulators:exec --only firestore --project demo-hudhud-advertising \"node --test firebase_tests/firebase-emulators/advertising.test.js\"",
     "emulators:test": "firebase emulators:exec --only firestore --project demo-hudhud-fm-rules-test \"node --test firebase_tests/firebase-rules/firestore.rules.test.js\"",
     "emulators:account-deletion": "firebase emulators:exec --only auth,firestore,functions --project demo-hudhud-fm-account-deletion \"node --test firebase_tests/firebase-emulators/account-deletion.test.js\"",

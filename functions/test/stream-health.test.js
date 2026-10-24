@@ -7,6 +7,8 @@ import {
   checkStationsStreamHealthForRoot,
 } from '../lib/stream-health.js';
 
+const lookupFn = async () => [{ address: '93.184.216.34', family: 4 }];
+
 describe('Live Stream Health Checker', () => {
   describe('probeStream', () => {
     it('rejects invalid or non-http URLs without network calls', async () => {
@@ -21,10 +23,10 @@ describe('Live Stream Health Checker', () => {
       const mockFetch = async () => ({
         ok: true,
         headers: new Headers({ 'content-type': 'application/vnd.apple.mpegurl' }),
-        text: async () => '#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:10',
+        body: new Response('#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:10').body,
       });
 
-      const res = await probeStream('https://radio.example.com/live.m3u8', { fetchFn: mockFetch });
+      const res = await probeStream('https://radio.example.com/live.m3u8', { lookupFn, fetchFn: mockFetch });
       assert.strictEqual(res.isHealthy, true);
       assert.strictEqual(res.error, null);
     });
@@ -33,10 +35,10 @@ describe('Live Stream Health Checker', () => {
       const mockFetch = async () => ({
         ok: true,
         headers: new Headers({ 'content-type': 'application/vnd.apple.mpegurl' }),
-        text: async () => 'Error: Stream not ready',
+        body: new Response('Error: Stream not ready').body,
       });
 
-      const res = await probeStream('https://radio.example.com/live.m3u8', { fetchFn: mockFetch });
+      const res = await probeStream('https://radio.example.com/live.m3u8', { lookupFn, fetchFn: mockFetch });
       assert.strictEqual(res.isHealthy, false);
       assert.match(res.error, /Missing #EXTM3U/);
     });
@@ -54,7 +56,7 @@ describe('Live Stream Health Checker', () => {
         body: { getReader: () => mockReader },
       });
 
-      const res = await probeStream('https://radio.example.com/stream', { fetchFn: mockFetch });
+      const res = await probeStream('https://radio.example.com/stream', { lookupFn, fetchFn: mockFetch });
       assert.strictEqual(res.isHealthy, true);
       assert.strictEqual(cancelled, true);
     });
@@ -66,7 +68,7 @@ describe('Live Stream Health Checker', () => {
         headers: new Headers(),
       });
 
-      const res = await probeStream('https://radio.example.com/stream', { fetchFn: mockFetch });
+      const res = await probeStream('https://radio.example.com/stream', { lookupFn, fetchFn: mockFetch });
       assert.strictEqual(res.isHealthy, false);
       assert.strictEqual(res.error, 'HTTP 503');
     });
@@ -85,7 +87,7 @@ describe('Live Stream Health Checker', () => {
         'http://10.0.0.1/radio',
         'http://192.168.1.1/live',
       ]) {
-        const res = await probeStream(unsafeUrl, { fetchFn: mockFetch });
+        const res = await probeStream(unsafeUrl, { lookupFn, fetchFn: mockFetch });
         assert.strictEqual(res.isHealthy, false);
         assert.match(res.error, /Invalid or unsafe stream URL/);
       }
@@ -99,7 +101,7 @@ describe('Live Stream Health Checker', () => {
         headers: new Headers({ 'content-type': 'text/html; charset=utf-8' }),
         text: async () => '<!DOCTYPE html><html><body>Error</body></html>',
       });
-      const res1 = await probeStream('https://radio.example.com/stream', { fetchFn: htmlFetch });
+      const res1 = await probeStream('https://radio.example.com/stream', { lookupFn, fetchFn: htmlFetch });
       assert.strictEqual(res1.isHealthy, false);
       assert.match(res1.error, /HTML/);
 
@@ -114,7 +116,7 @@ describe('Live Stream Health Checker', () => {
         headers: new Headers({ 'content-type': 'audio/mpeg' }),
         body: { getReader: () => mockReader },
       });
-      const res2 = await probeStream('https://radio.example.com/stream', { fetchFn: chunkFetch });
+      const res2 = await probeStream('https://radio.example.com/stream', { lookupFn, fetchFn: chunkFetch });
       assert.strictEqual(res2.isHealthy, false);
       assert.match(res2.error, /HTML/);
     });

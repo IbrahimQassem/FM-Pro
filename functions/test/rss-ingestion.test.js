@@ -5,7 +5,25 @@ import {
   parseDurationToSeconds,
   parseRssFeed,
   ingestEpisodesFromFeed,
+  ingestConfiguredPodcastFeedsForRoot,
 } from '../lib/rss-ingestion.js';
+
+const lookupFn = async () => [{ address: '93.184.216.34', family: 4 }];
+
+it('scheduled ingestion forwards its validated resolver to the feed boundary', async () => {
+  let lookups = 0;
+  const firestore = {
+    collection: () => ({ doc: () => ({ collection: () => ({ where: () => ({ get: async () => ({
+      docs: [{ id: 'synthetic-program', data: () => ({ rssFeedUrl: 'https://radio.example/feed', stationId: 's' }) }],
+    }) }) }) }) }),
+  };
+  const result = await ingestConfiguredPodcastFeedsForRoot({ firestore, root: 'HudHudDev',
+    lookupFn: async () => { lookups++; return lookupFn(); },
+    fetchFn: async () => new Response('<rss><channel></channel></rss>'),
+  });
+  assert.equal(lookups, 1);
+  assert.equal(result.feedsProcessed, 1);
+});
 
 describe('RSS Podcast & Episode Ingestion', () => {
   describe('parseDurationToSeconds', () => {
@@ -182,7 +200,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
 
       const mockFetch = async () => ({
         ok: true,
-        text: async () => singleItemFeedXml,
+        headers: new Headers(), body: new Response(singleItemFeedXml).body,
       });
 
       const result = await ingestEpisodesFromFeed({
@@ -191,7 +209,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
         programId: 'prog-podcast',
         stationId: 'st-sanaa',
         feedUrl: 'https://example.com/podcast.xml',
-        fetchFn: mockFetch,
+        fetchFn: mockFetch, lookupFn,
       });
 
       assert.strictEqual(result.ingested, 1);
@@ -237,7 +255,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
 
       const mockFetch = async () => ({
         ok: true,
-        text: async () => singleItemFeedXml,
+        headers: new Headers(), body: new Response(singleItemFeedXml).body,
       });
 
       // Run 1: Ingest
@@ -247,7 +265,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
         programId: 'prog-podcast',
         stationId: 'st-sanaa',
         feedUrl: 'https://example.com/podcast.xml',
-        fetchFn: mockFetch,
+        fetchFn: mockFetch, lookupFn,
       });
 
       assert.strictEqual(result1.ingested, 1);
@@ -262,7 +280,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
         programId: 'prog-podcast',
         stationId: 'st-sanaa',
         feedUrl: 'https://example.com/podcast.xml',
-        fetchFn: mockFetch,
+        fetchFn: mockFetch, lookupFn,
       });
 
       assert.strictEqual(result2.ingested, 0, 'Second run must ingest 0 items');
@@ -305,7 +323,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
 
       const mockFetch = async () => ({
         ok: true,
-        text: async () => mixedFeedXml,
+        headers: new Headers(), body: new Response(mixedFeedXml).body,
       });
 
       const result = await ingestEpisodesFromFeed({
@@ -314,7 +332,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
         programId: 'prog-podcast',
         stationId: 'st-sanaa',
         feedUrl: 'https://example.com/podcast.xml',
-        fetchFn: mockFetch,
+        fetchFn: mockFetch, lookupFn,
       });
 
       assert.strictEqual(result.totalFeedItems, 3);
@@ -361,7 +379,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
 
       const mockFetch = async () => ({
         ok: true,
-        text: async () => allExistingFeedXml,
+        headers: new Headers(), body: new Response(allExistingFeedXml).body,
       });
 
       const result = await ingestEpisodesFromFeed({
@@ -370,7 +388,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
         programId: 'prog-podcast',
         stationId: 'st-sanaa',
         feedUrl: 'https://example.com/podcast.xml',
-        fetchFn: mockFetch,
+        fetchFn: mockFetch, lookupFn,
       });
 
       assert.strictEqual(result.ingested, 0);
@@ -395,7 +413,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
 
       const mockFetch = async () => ({
         ok: true,
-        text: async () => feedXml,
+        headers: new Headers(), body: new Response(feedXml).body,
       });
 
       // Run 1: Batch commit fails (simulated network or Firestore error)
@@ -406,7 +424,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
           programId: 'prog-podcast',
           stationId: 'st-sanaa',
           feedUrl: 'https://example.com/podcast.xml',
-          fetchFn: mockFetch,
+          fetchFn: mockFetch, lookupFn,
         }),
         /Simulated network failure on batch commit/,
         'Must reject and surface failure to caller instead of falsely claiming success'
@@ -425,7 +443,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
         programId: 'prog-podcast',
         stationId: 'st-sanaa',
         feedUrl: 'https://example.com/podcast.xml',
-        fetchFn: mockFetch,
+        fetchFn: mockFetch, lookupFn,
       });
 
       assert.strictEqual(retryResult.ingested, 1, 'Retry must ingest the episode successfully');
@@ -442,7 +460,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
         programId: 'prog-podcast',
         stationId: 'st-sanaa',
         feedUrl: 'https://example.com/podcast.xml',
-        fetchFn: mockFetch,
+        fetchFn: mockFetch, lookupFn,
       });
 
       assert.strictEqual(duplicateResult.ingested, 0, 'Subsequent run must ingest 0 items');
@@ -500,7 +518,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
 
       const mockFetch = async () => ({
         ok: true,
-        text: async () => multiItemFeedXml,
+        headers: new Headers(), body: new Response(multiItemFeedXml).body,
       });
 
       // Run 1: Existing item skipped; Item 1 commits successfully; Item 2 commit fails and throws
@@ -511,7 +529,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
           programId: 'prog-podcast',
           stationId: 'st-sanaa',
           feedUrl: 'https://example.com/podcast.xml',
-          fetchFn: mockFetch,
+          fetchFn: mockFetch, lookupFn,
         }),
         /Simulated network failure on batch commit/
       );
@@ -537,7 +555,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
         programId: 'prog-podcast',
         stationId: 'st-sanaa',
         feedUrl: 'https://example.com/podcast.xml',
-        fetchFn: mockFetch,
+        fetchFn: mockFetch, lookupFn,
       });
 
       assert.strictEqual(retryResult.ingested, 1, 'Only Item 2 newly ingested on retry');
