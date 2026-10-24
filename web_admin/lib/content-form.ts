@@ -176,9 +176,7 @@ export function validateContent(
       errors[field.key] = 'أدخل قائمة نصوص صالحة.';
     if (field.type === 'number' && !Number.isInteger(value))
       errors[field.key] = 'أدخل عددًا صحيحًا.';
-    const isMediaUrl =
-      kind === 'stations' ||
-      (kind === 'episodes' && field.key === 'audioUrl');
+    const isMediaUrl = kind === 'stations';
     if (
       field.type === 'url' &&
       value &&

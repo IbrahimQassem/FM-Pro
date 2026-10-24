@@ -89,7 +89,6 @@ import {
 } from 'lucide-react';
 import {
   type User,
-  getAuth,
   getIdTokenResult,
   onIdTokenChanged,
   sendPasswordResetEmail,
@@ -3322,7 +3321,6 @@ function ResourceEditor({
   onSaved: () => void;
   onDeleted?: () => void;
 }) {
-  const authUser = getAuth().currentUser;
   const [id] = useState(
     () =>
       record?.id ??
@@ -3363,13 +3361,6 @@ function ResourceEditor({
           fromEditable(data) as Record<string, unknown>,
           record,
           location,
-          definition.template?.stats,
-          authUser
-            ? {
-                uid: authUser.uid,
-                nameOrEmail: authUser.displayName || authUser.email || authUser.uid,
-              }
-            : undefined,
         );
         onSaved();
       }}

@@ -2,18 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { FieldValue } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
 
-const editableFields = {
-  stations: new Set(('name nameEn tagline description frequency streamUrl backupStreamUrl logoUrl thumbnailUrl websiteUrl facebookUrl instagramUrl youtubeUrl twitterUrl whatsapp owner address contactPerson contactPhone contactEmail streamType audioCodec bitrateKbps sampleRateHz transmitterPower transmitterLocation coverageArea rds isActive isFeatured isVerified isLive isNational priority countryCode countryNameAr cityCode cityNameAr locationType').split(' ')),
-  programs: new Set(('title titleEn description coverUrl thumbnailUrl presenters categories schedule isActive isFeatured priority stationId').split(' ')),
-  episodes: new Set(('title description coverUrl audioUrl durationSeconds presenter guest broadcastAt utcOffsetMinutes publishedAt isPublished isFeatured priority programId stationId').split(' ')),
-  locations: new Set(('cityCode cityNameAr sortOrder priority isActive countryCode countryNameAr locationType').split(' ')),
-};
-
-function validId(value) {
-  return typeof value === 'string' && value === value.trim() &&
-    value.length > 0 && value.length <= 128 && !value.includes('/') &&
-    value !== '.' && value !== '..';
-}
+import { editableFields, editableContent, validateAdminContent, validContentId as validId, initialContentStats } from './admin-content.js';
+import { prepareContentRelations, prepareContentIdentity } from './admin-content-relations.js';
 
 export async function recordEditorialAuditLog(tx, firestore, {
   root,
@@ -24,6 +14,7 @@ export async function recordEditorialAuditLog(tx, firestore, {
   actorUid,
   actorEmail,
   summary = '',
+  relatedTargets = [],
 }) {
   const logId = randomUUID();
   const logRef = firestore.doc(`${root}/auditLogs/auditLogs/${logId}`);
@@ -36,6 +27,7 @@ export async function recordEditorialAuditLog(tx, firestore, {
     actorEmail: actorEmail || '',
     timestamp: FieldValue.serverTimestamp(),
     summary: summary || '',
+    ...(relatedTargets.length ? { relatedTargets } : {}),
   });
   return logId;
 }
@@ -48,11 +40,12 @@ export async function saveAdminContent({
   callerClaims,
   data,
 }) {
-  const { root, kind, id, content } = data ?? {};
+  const { root, kind, id, content: input, expected, locationId, source } = data ?? {};
+  let content = input;
   if (!['HudHudDev', 'HudHudOfficial'].includes(root)) {
     throw new HttpsError('invalid-argument', 'Unknown environment.');
   }
-  if (!['stations', 'programs', 'episodes', 'locations'].includes(kind)) {
+  if (!Object.hasOwn(editableFields, kind)) {
     throw new HttpsError('invalid-argument', 'Invalid content kind.');
   }
   if (!validId(id)) {
@@ -85,7 +78,7 @@ export async function saveAdminContent({
     )
   );
 
-  if (['stations', 'locations'].includes(kind) && !isSuperAdmin) {
+  if (['stations', 'locations', 'banners'].includes(kind) && !isSuperAdmin) {
     throw new HttpsError('permission-denied', 'Super admin privileges are required.');
   }
 
@@ -99,74 +92,52 @@ export async function saveAdminContent({
     }
   }
 
-  const actorName =
-    callerClaims?.name ||
-    callerClaims?.displayName ||
-    (callerEmail ? callerEmail.split('@')[0] : callerUid);
-
+  if (!Object.hasOwn(data, 'expected') || (expected !== null &&
+      (typeof expected !== 'object' || Array.isArray(expected))) ||
+      (source !== undefined && source !== 'editor' && source !== 'import')) {
+    throw new HttpsError('invalid-argument', 'An explicit edit precondition is required.');
+  }
+  content = validateAdminContent(kind, content);
+  const actorName = [callerClaims?.name, callerClaims?.displayName].find(value => typeof value === 'string' && value.trim()) ||
+    (typeof callerEmail === 'string' && callerEmail ? callerEmail.split('@')[0] : callerUid);
   const docRef = firestore.doc(`${root}/${kind}/${kind}/${id}`);
-  let action = 'create';
+  let action;
 
   await firestore.runTransaction(async tx => {
     const current = await tx.get(docRef);
-    action = current.exists ? 'update' : 'create';
-    const existing = current.exists ? current.data() : {};
-    if (existing.adminDeletionToken) {
-      throw new HttpsError('failed-precondition', 'Content deletion is in progress.');
+    const existing = current.exists ? current.data() : null;
+    if (existing?.adminDeletionToken) throw new HttpsError('failed-precondition', 'Content deletion is in progress.');
+    if (existing && ['programs', 'episodes'].includes(kind) &&
+        (!validId(existing.stationId) || !canManageStation(existing.stationId))) {
+      throw new HttpsError('permission-denied', 'Not authorized to manage the existing station.');
     }
-    if (['programs', 'episodes'].includes(kind)) {
-      // Authorize the stored owner as well as the submitted destination. Admin
-      // SDK writes bypass Rules, so trusting only the payload permits takeover.
-      if (current.exists && (!validId(existing.stationId) || !canManageStation(existing.stationId))) {
-        throw new HttpsError('permission-denied', 'Not authorized to manage the existing station.');
-      }
+    const same = (first, second) => JSON.stringify(editableContent(kind, first)) === JSON.stringify(editableContent(kind, second));
+    if (existing && same(existing, content)) { action = 'unchanged'; return; }
+    if ((expected !== null && !existing) || (existing && (expected === null || !same(existing, expected)))) {
+      throw new HttpsError('failed-precondition', 'The record changed. Reload it before saving.');
+    }
+    action = existing ? 'update' : 'create';
+    if (kind === 'episodes') {
       const station = await tx.get(firestore.doc(`${root}/stations/stations/${content.stationId}`));
-      if (!station.exists || station.data()?.adminDeletionToken) {
-        throw new HttpsError('failed-precondition', 'The parent station is unavailable.');
-      }
-      if (kind === 'episodes') {
-        const program = await tx.get(firestore.doc(`${root}/programs/programs/${content.programId}`));
-        if (!program.exists || program.data()?.adminDeletionToken || program.data()?.stationId !== content.stationId) {
-          throw new HttpsError('failed-precondition', 'The program does not belong to this station.');
-        }
-      }
+      if (!station.exists || station.data().adminDeletionToken) throw new HttpsError('failed-precondition', 'The parent station is unavailable.');
     }
-
-    const auditFields = {};
-    if (action === 'create') {
-      auditFields.createdBy = callerUid;
-      auditFields.createdByName = actorName;
-      auditFields.createdAt = FieldValue.serverTimestamp();
-      auditFields.updatedBy = callerUid;
-      auditFields.updatedByName = actorName;
-      auditFields.updatedAt = FieldValue.serverTimestamp();
-    } else {
-      if (existing.createdBy) auditFields.createdBy = existing.createdBy;
-      if (existing.createdByName) auditFields.createdByName = existing.createdByName;
-      if (existing.createdAt) auditFields.createdAt = existing.createdAt;
-      auditFields.updatedBy = callerUid;
-      auditFields.updatedByName = actorName;
-      auditFields.updatedAt = FieldValue.serverTimestamp();
-    }
-
-    const finalData = {
-      ...content,
-      ...auditFields,
+    const actorFields = { updatedBy: callerUid, updatedByName: actorName, updatedAt: FieldValue.serverTimestamp() };
+    const { writes, relatedTargets } = await prepareContentRelations(tx, firestore, { root, kind, id, current, content, locationId, actorFields });
+    const identityWrites = await prepareContentIdentity(tx, firestore, { root, kind, id, content, existing });
+    const stats = initialContentStats(kind);
+    const payload = {
+      ...content, ...actorFields,
+      ...(!existing ? { createdBy: callerUid, createdByName: actorName, createdAt: FieldValue.serverTimestamp(),
+        ...(stats ? { stats } : {}) } : {}),
     };
-
-    tx.set(docRef, finalData, { merge: action === 'update' });
-
-    await recordEditorialAuditLog(tx, firestore, {
-      root,
-      targetKind: kind,
-      targetId: id,
+    for (const write of [...writes, ...identityWrites]) write();
+    tx.set(docRef, payload, { merge: Boolean(existing) });
+    await recordEditorialAuditLog(tx, firestore, { root, targetKind: kind, targetId: id,
       targetTitle: content.name || content.title || content.cityNameAr || id,
-      action,
-      actorUid: callerUid,
-      actorEmail: callerEmail,
-      summary: `${action} ${kind} ${id}`,
+      action: source === 'import' ? 'import' : action,
+      actorUid: callerUid, actorEmail: callerEmail,
+      summary: `${action} ${kind}`, relatedTargets,
     });
   });
-
   return { success: true, id, action };
 }

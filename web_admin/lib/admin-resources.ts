@@ -45,6 +45,7 @@ export const resourceDefinitions: Record<ResourceKey, ResourceDefinition> = {
       countryNameAr: 'اليمن',
       cityCode: '',
       cityNameAr: '',
+      locationType: 'governorate',
       sortOrder: 0,
       isActive: true,
     },

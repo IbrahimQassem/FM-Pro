@@ -1,28 +1,17 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { initializeApp, deleteApp } from 'firebase/app';
+import { callableEmulator } from './support/callable-emulator.ts';
 import {
-  connectFirestoreEmulator,
   doc,
   getDocFromServer,
-  getFirestore,
-  setDoc,
-  writeBatch,
 } from 'firebase/firestore';
 import { saveWithRelations } from '../lib/save-content.ts';
 void test(
   'actual save transaction preserves retry counters, rejects stale edits and moves atomically in both roots',
   { skip: !process.env.FIRESTORE_EMULATOR_HOST },
   async () => {
-    const projectId = process.env.GCLOUD_PROJECT;
-    assert.ok(projectId?.startsWith('demo-'));
-    const app = initializeApp({ projectId }, `save-${crypto.randomUUID()}`);
-    const db = getFirestore(app);
-    const [host, port] = process.env.FIRESTORE_EMULATOR_HOST!.split(':');
-    connectFirestoreEmulator(db, host, Number(port), {
-      mockUserToken: { sub: 'fixture-admin', admin: true },
-    });
+    const { db, adminDb, seed: setDoc, close } = await callableEmulator();
     const fixture = JSON.parse(
       readFileSync(
         new URL(
@@ -52,9 +41,8 @@ void test(
             id,
             data,
             null,
-            undefined,
-            stats,
           );
+          assert.equal((await getDocFromServer(program)).get('stats.episodesCount'), stats.episodesCount);
           await saveWithRelations(
             db,
             root,
@@ -68,8 +56,6 @@ void test(
               ),
             },
             null,
-            undefined,
-            stats,
           );
           assert.equal(
             (await getDocFromServer(old)).get('stats.programsCount'),
@@ -137,13 +123,13 @@ void test(
             { name: 'ContentError' },
           );
         } finally {
-          const batch = writeBatch(db);
-          [program, old, next].forEach((ref) => batch.delete(ref));
+          const batch = adminDb.batch();
+          [program, old, next].forEach((ref) => batch.delete(adminDb.doc(ref.path)));
           await batch.commit();
         }
       }
     } finally {
-      await deleteApp(app);
+      await close();
     }
   },
 );

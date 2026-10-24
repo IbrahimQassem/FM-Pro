@@ -232,6 +232,41 @@
 ## 9. عقد سجلات التدقيق وتتبع المسؤولية التحريرية (Editorial Audit Log & Responsibility Tracking Contract)
 
 ### 9.1 حقول التدقيق المباشرة في الوثيقة (Inline Document Audit Fields)
+
+#### Trusted save amendment — 2026-10-24
+
+The editor and batch importer call `adminSaveContent` with explicit
+`{root, kind, id, content, expected, locationId?, source}`. `expected` is null
+for create and an editable snapshot for update. Dates cross the callable boundary
+as ISO strings and become Firestore timestamps on the server. Actor identity,
+timestamps and initial counters are derived on the server; clients cannot supply
+those fields. Banners use the same save boundary as the four original kinds.
+
+The transaction checks both stored and destination station ownership, edit
+preconditions, active location fields, parent existence, counter integrity and
+bounded child transfers. An equivalent replay returns `action: 'unchanged'`
+without writes or another audit entry. A changed editable snapshot fails instead
+of overwriting another editor. Legacy empty list entries normalize like the
+existing editor so they do not create false conflicts.
+
+Natural import keys are reserved in this same transaction for both editor and
+import saves. The hash format remains the client's SHA-256 format. On a first
+claim, legacy siblings are checked in the parent scope with a hard 451-record
+read bound; more than 450 requires a reviewed identity backfill. A trusted existing
+reservation avoids that scan. Changed identities release only reservations owned
+by the edited document. Stale reservations pointing at absent/changed content can
+be reclaimed. No preview-only lookup proves uniqueness.
+
+Audit entries use `action: 'import'` for import mutations and optionally include
+`relatedTargets: [{kind, id}]` for atomic projection/child changes. Cascaded
+documents retain creation fields and receive the trusted updater fields.
+Counter, identity, content and audit writes commit or roll back together.
+
+This amendment specifies saves/imports. **NOV-05 remains in progress until the
+existing deletion flow is audited and matching Rules close direct client
+content/identity writes.** Existing deletion markers, child guards and counters
+must be preserved during that move. Do not deploy this intermediate checkpoint
+as proof of complete server-only editorial enforcement.
 تُدار عمليات الحفظ والإنشاء والتعديل التحريري عبر مسار مركزي محمي يضمن حقن الحقول التالية ذرياً:
 1. **عند الإنشاء (`create`)**:
    - `createdBy`: معرّف المشرف القائم بالعملية (`adminUid` من سياق التوثيق المعتمد).

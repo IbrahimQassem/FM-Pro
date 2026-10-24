@@ -1,18 +1,31 @@
+import { readFile } from 'node:fs/promises';
+import { editableContent } from '../lib/admin-content.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { recordEditorialAuditLog, saveAdminContent } from '../lib/editorial-audit.js';
 
-function fixture(root, kind, existing, parents = {}) {
+const fixtures = JSON.parse(await readFile(new URL('../../test/fixtures/admin-content-contract.json', import.meta.url), 'utf8'));
+function validContent(kind) {
+  const { stats, ...value } = fixtures[kind];
+  return { ...value, ...(kind === 'programs' || kind === 'episodes' ? { stationId: 'station-a' } : {}),
+    ...(kind === 'episodes' ? { programId: 'program-a' } : {}) };
+}
+function fixture(root, kind, value, parents = {}) {
+  const existing = value === undefined ? undefined : { ...validContent(kind), title: 'Existing', ...value };
   const written = [];
   const firestore = {
     doc: path => ({ path }),
+    collection: () => ({ query: true, where() { return this; }, limit() { return this; } }),
     runTransaction: async fn => fn({
       get: async ref => {
-        const value = ref.path === `${root}/${kind}/${kind}/target`
-          ? existing : parents[ref.path];
-        return { exists: value !== undefined, data: () => value };
+        if (ref.query) return { docs: [], size: 0 };
+        const value = ref.path === `${root}/${kind}/${kind}/target` ? existing : parents[ref.path];
+        return { exists: value !== undefined, data: () => value, ref,
+          get: field => field.split('.').reduce((item, key) => item?.[key], value) };
       },
-      set: (ref, data) => written.push({ path: ref.path, data }),
+      set: (ref, data, options) => written.push({ path: ref.path, data, options }),
+      update: (ref, data) => written.push({ path: ref.path, data }),
+      delete: ref => written.push({ path: ref.path, deleted: true }),
     }),
   };
   return {
@@ -20,7 +33,7 @@ function fixture(root, kind, existing, parents = {}) {
     save: (content, extra = {}) => saveAdminContent({
       firestore, callerUid: 'admin-a', callerRole: 'station_admin',
       callerClaims: { role: 'station_admin', assignedStations: ['station-a'] },
-      data: { root, kind, id: 'target', content }, ...extra,
+      data: { root, kind, id: 'target', content: { ...validContent(kind), ...content }, expected: existing ? editableContent(kind, existing) : null }, ...extra,
     }),
   };
 }
@@ -43,7 +56,7 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
     test(`${root}: ${kind} permits an own-station edit with valid parent`, async () => {
       const f = fixture(root, kind, { stationId: 'station-a' }, parents);
       await f.save(content);
-      assert.equal(f.written.length, 2);
+      assert.equal(f.written.length, 3);
     });
     test(`${root}: ${kind} rejects listener claims with station assignments`, async () => {
       const f = fixture(root, kind, undefined, parents);
@@ -143,99 +156,26 @@ test('saveAdminContent rejects unauthorized callers for restricted kinds', async
   );
 });
 
-test('saveAdminContent on create sets createdBy, createdByName and atomic audit log', async () => {
-  const written = [];
-  const mockTx = {
-    get: async () => ({ exists: false }),
-    set: (ref, data, opts) => {
-      written.push({ path: ref.path, data, opts });
-    },
-  };
-  const mockFirestore = {
-    doc: path => ({ path }),
-    runTransaction: async fn => fn(mockTx),
-  };
-
-  const result = await saveAdminContent({
-    firestore: mockFirestore,
-    callerUid: 'super-admin-uid',
-    callerEmail: 'super@hudhud.fm',
-    callerRole: 'super_admin',
-    callerClaims: { role: 'super_admin', displayName: 'Super User' },
-    data: {
-      root: 'HudHudDev',
-      kind: 'stations',
-      id: 'st-1',
-      content: { name: 'محطة التجربة', cityNameAr: 'صنعاء' },
-    },
-  });
-
+test('trusted create stamps attribution from caller claims and commits its audit', async () => {
+  const f = fixture('HudHudDev', 'banners', undefined);
+  const result = await f.save({ title: 'New banner' }, { callerRole: 'super_admin', callerClaims: { role: 'super_admin', displayName: 'Trusted editor' } });
   assert.equal(result.action, 'create');
-  assert.equal(written.length, 2);
-
-  // Document write
-  const docWrite = written.find(w => w.path === 'HudHudDev/stations/stations/st-1');
-  assert.ok(docWrite);
-  assert.equal(docWrite.data.name, 'محطة التجربة');
-  assert.equal(docWrite.data.createdBy, 'super-admin-uid');
-  assert.equal(docWrite.data.createdByName, 'Super User');
-  assert.equal(docWrite.data.updatedBy, 'super-admin-uid');
-  assert.equal(docWrite.data.updatedByName, 'Super User');
-
-  // Audit log write
-  const auditWrite = written.find(w => w.path.startsWith('HudHudDev/auditLogs/auditLogs/'));
-  assert.ok(auditWrite);
-  assert.equal(auditWrite.data.action, 'create');
-  assert.equal(auditWrite.data.targetId, 'st-1');
-  assert.equal(auditWrite.data.actorUid, 'super-admin-uid');
+  const document = f.written.find(item => item.path.endsWith('/banners/banners/target'));
+  assert.equal(document.data.createdBy, 'admin-a');
+  assert.equal(document.data.createdByName, 'Trusted editor');
+  assert.equal(document.data.updatedBy, 'admin-a');
+  assert.equal(f.written.length, 2);
 });
 
-test('saveAdminContent on update preserves createdBy and updates updatedBy atomically', async () => {
-  const written = [];
-  const mockTx = {
-    get: async () => ({
-      exists: true,
-      data: () => ({
-        name: 'اسم قديم',
-        createdBy: 'original-creator',
-        createdByName: 'Original User',
-        createdAt: '2026-01-01T00:00:00Z',
-      }),
-    }),
-    set: (ref, data, opts) => {
-      written.push({ path: ref.path, data, opts });
-    },
-  };
-  const mockFirestore = {
-    doc: path => ({ path }),
-    runTransaction: async fn => fn(mockTx),
-  };
-
-  const result = await saveAdminContent({
-    firestore: mockFirestore,
-    callerUid: 'editor-uid',
-    callerEmail: 'editor@hudhud.fm',
-    callerRole: 'super_admin',
-    callerClaims: { role: 'super_admin', displayName: 'Editor User' },
-    data: {
-      root: 'HudHudDev',
-      kind: 'stations',
-      id: 'st-1',
-      content: { name: 'اسم جديد' },
-    },
-  });
-
+test('trusted update merges without replacing original creation or backend fields', async () => {
+  const f = fixture('HudHudDev', 'banners', { createdBy: 'original-creator', createdAt: 'original-time', serverOnly: 'retained' });
+  const result = await f.save({ title: 'Updated banner' }, { callerRole: 'super_admin', callerClaims: { role: 'super_admin' } });
   assert.equal(result.action, 'update');
-  assert.equal(written.length, 2);
-
-  const docWrite = written.find(w => w.path === 'HudHudDev/stations/stations/st-1');
-  assert.ok(docWrite);
-  assert.equal(docWrite.data.name, 'اسم جديد');
-  // Created fields MUST be preserved from original
-  assert.equal(docWrite.data.createdBy, 'original-creator');
-  assert.equal(docWrite.data.createdByName, 'Original User');
-  assert.equal(docWrite.data.createdAt, '2026-01-01T00:00:00Z');
-  // Updated fields MUST reflect the new editor
-  assert.equal(docWrite.data.updatedBy, 'editor-uid');
-  assert.equal(docWrite.data.updatedByName, 'Editor User');
+  const document = f.written.find(item => item.path.endsWith('/banners/banners/target'));
+  assert.equal(document.data.updatedBy, 'admin-a');
+  assert.equal('createdBy' in document.data, false);
+  assert.equal('createdAt' in document.data, false);
+  assert.equal('serverOnly' in document.data, false);
+  assert.equal(document.options.merge, true);
+  assert.equal(f.written.length, 2);
 });

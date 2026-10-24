@@ -103,6 +103,7 @@ before treating application checks as supported. No global Node version was chan
 | Public web | `web_hudhud` | `npm run lint`; `VITE_FIRESTORE_ROOT=HudHudDev npm run build`; browser checks |
 | Functions | `functions` | `npm run lint`; `npm test` |
 | Rules / changed writes | Repository root | `npm run emulators:test` |
+| Trusted editor/import saves | Repository root | `npm run emulators:editorial`; `npm run emulators:admin` (the latter uses isolated Auth/Firestore/Functions with only the production save callable exported) |
 | Account deletion | Repository root | `npm run emulators:account-deletion` plus affected Functions/web/app checks |
 | Email verification | Repository root | `npm run emulators:email-verification` plus affected Functions/app checks |
 | Seed tooling | `tool/firebase_seed` | Inspect current README/package scripts; use validation/dry-run within authorized scope |

@@ -307,6 +307,9 @@ export function ContentEditor({
       if (!val.countryCode) val.countryCode = 'YE';
       if (!val.countryNameAr) val.countryNameAr = 'اليمن';
     }
+    if (kind === 'locations' && !val.locationType) {
+      val.locationType = val.cityCode === 'yemen' ? 'national' : 'governorate';
+    }
     return val;
   });
   const [validationRequested, setValidationRequested] = useState(false);
@@ -579,6 +582,19 @@ export function ContentEditor({
               </section>
             ) : (
               <>
+                {kind === 'locations' && (
+                  <label className="grid gap-2 text-sm font-medium">
+                    نوع الموقع
+                    <select
+                      value={fieldText(form.locationType)}
+                      onChange={(event) => update('locationType', event.target.value)}
+                      className="h-11 rounded-xl border bg-background px-3"
+                    >
+                      <option value="governorate">محافظة</option>
+                      <option value="national">موقع وطني</option>
+                    </select>
+                  </label>
+                )}
                 {kind === 'stations' && (
                   <RelationPicker
                     firestore={firestore}

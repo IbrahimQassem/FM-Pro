@@ -21,6 +21,14 @@ import {
 } from '../lib/batch-import.ts';
 import type { Firestore } from 'firebase/firestore';
 
+void test('commit rejects a preview from another root before any content call', async () => {
+  const preview: BatchImportPreview = {
+    firestoreRoot: 'HudHudDev', programs: [], episodes: [], canCommit: true, hasErrors: false,
+    summary: { totalRows: 0, validRows: 0, invalidRows: 0, conflictCount: 0, newCount: 0, updateCount: 0, unchangedCount: 0 },
+  };
+  await assert.rejects(commitBatchImport({} as Firestore, 'HudHudOfficial', preview), /بيئة/);
+});
+
 void test('schedule conversion: ISO weekdays validation, deduplication and sorting', () => {
   // Valid weekdays
   assert.deepEqual(parseScheduleWeekdays('1, 7'), {

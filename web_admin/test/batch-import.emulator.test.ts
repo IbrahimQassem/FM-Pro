@@ -1,13 +1,9 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { initializeApp, deleteApp } from 'firebase/app';
+import { callableEmulator } from './support/callable-emulator.ts';
 import {
-  connectFirestoreEmulator,
   doc,
   getDocFromServer,
-  getFirestore,
-  setDoc,
-  writeBatch,
 } from 'firebase/firestore';
 import {
   previewBatchImport,
@@ -18,17 +14,7 @@ void test(
   'batch import against emulator: creates programs and episodes, increments counters, and handles unchanged re-imports as no-ops',
   { skip: !process.env.FIRESTORE_EMULATOR_HOST },
   async () => {
-    const projectId = process.env.GCLOUD_PROJECT;
-    assert.ok(projectId?.startsWith('demo-'));
-    const app = initializeApp(
-      { projectId },
-      `batch-import-${crypto.randomUUID()}`,
-    );
-    const db = getFirestore(app);
-    const [host, port] = process.env.FIRESTORE_EMULATOR_HOST!.split(':');
-    connectFirestoreEmulator(db, host, Number(port), {
-      mockUserToken: { sub: 'fixture-admin', admin: true },
-    });
+    const { db, adminDb, seed: setDoc, close } = await callableEmulator();
 
     const root = 'HudHudDev';
     const unique = crypto.randomUUID().slice(0, 8);
@@ -118,6 +104,15 @@ void test(
       assert.ok(epSnap.exists());
       assert.equal(epSnap.get('stationId'), stationId);
 
+      // Retrying the original request after an uncertain response must report
+      // unchanged rows and must not increment counters or append new audits.
+      const retry = await commitBatchImport(db, root, preview1);
+      assert.equal(retry.committedCount, 0);
+      assert.equal(retry.skippedCount, 2);
+      const auditRows = await adminDb.collection(`${root}/auditLogs/auditLogs`).where('targetId', 'in', [programId, episodeId]).get();
+      assert.equal(auditRows.size, 2);
+      assert.equal(auditRows.docs.every((entry: { get(field: string): unknown }) => entry.get('action') === 'import'), true);
+
       // 4. Unchanged Re-import check
       const preview2 = await previewBatchImport(db, root, sheets);
       assert.equal(preview2.hasErrors, false);
@@ -168,10 +163,10 @@ void test(
       // Counter is still 1
       assert.equal(prUpdatedSnap.get('stats.episodesCount'), 1);
     } finally {
-      const batch = writeBatch(db);
-      [stationRef, programRef, episodeRef].forEach((ref) => batch.delete(ref));
+      const batch = adminDb.batch();
+      [stationRef, programRef, episodeRef].forEach((ref) => batch.delete(adminDb.doc(ref.path)));
       await batch.commit();
-      await deleteApp(app);
+      await close();
     }
   },
 );

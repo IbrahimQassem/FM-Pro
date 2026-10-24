@@ -5,8 +5,6 @@ import {
   getDocFromServer,
   getDocsFromServer,
   query,
-  serverTimestamp,
-  setDoc,
   Timestamp,
   where,
   type DocumentReference,
@@ -1662,6 +1660,9 @@ export async function commitBatchImport(
     }) => void;
   },
 ): Promise<BatchImportCommitResult> {
+  if (preview.firestoreRoot !== firestoreRoot) {
+    throw new Error('بيئة المعاينة لا تطابق بيئة الاستيراد المحددة. أعد المعاينة قبل الحفظ.');
+  }
   const allowUpdates = !!options?.allowUpdates;
   const skipInvalidRows = !!options?.skipInvalidRows;
 
@@ -1742,12 +1743,7 @@ export async function commitBatchImport(
         string,
         unknown
       >;
-      const defaults =
-        prog.status === 'create'
-          ? { episodesCount: 0, subscribersCount: 0, totalPlays: 0 }
-          : undefined;
-
-      await saveWithRelations(
+      const saved = await saveWithRelations(
         firestore,
         firestoreRoot,
         'programs',
@@ -1756,8 +1752,14 @@ export async function commitBatchImport(
         payload,
         prog.previous || null,
         undefined,
-        defaults,
+        'import',
       );
+
+      if (saved.action === 'unchanged') {
+        skippedCount++;
+        results.push({ id: prog.id, kind: 'programs', status: 'unchanged' });
+        continue;
+      }
 
       if (options?.mockExisting?.importKeys) {
         options.mockExisting.importKeys.set(progKey, {
@@ -1766,27 +1768,13 @@ export async function commitBatchImport(
           keyHash: progKey,
           reservedAt: Date.now(),
         });
-      } else if (firestore && typeof firestore === 'object' && 'type' in firestore) {
-        try {
-          await setDoc(
-            doc(firestore, `${firestoreRoot}/importKeys/importKeys`, progKey),
-            {
-              targetKind: 'programs',
-              targetId: prog.id,
-              keyHash: progKey,
-              reservedAt: serverTimestamp(),
-            },
-          );
-        } catch {
-          // Key reservation
-        }
       }
 
       committedCount++;
       results.push({
         id: prog.id,
         kind: 'programs',
-        status: prog.status === 'create' ? 'created' : 'updated',
+        status: saved.action === 'create' ? 'created' : 'updated',
       });
     } catch (err: unknown) {
       failedCount++;
@@ -1794,7 +1782,7 @@ export async function commitBatchImport(
       results.push({
         id: prog.id,
         kind: 'programs',
-        status: 'failed',
+        status: err && typeof err === 'object' && 'code' in err && err.code === 'functions/already-exists' ? 'conflict' : 'failed',
         error: msg,
       });
     }
@@ -1863,12 +1851,7 @@ export async function commitBatchImport(
         string,
         unknown
       >;
-      const defaults =
-        ep.status === 'create'
-          ? { playsCount: 0, likesCount: 0, commentsCount: 0 }
-          : undefined;
-
-      await saveWithRelations(
+      const saved = await saveWithRelations(
         firestore,
         firestoreRoot,
         'episodes',
@@ -1877,8 +1860,14 @@ export async function commitBatchImport(
         payload,
         ep.previous || null,
         undefined,
-        defaults,
+        'import',
       );
+
+      if (saved.action === 'unchanged') {
+        skippedCount++;
+        results.push({ id: ep.id, kind: 'episodes', status: 'unchanged' });
+        continue;
+      }
 
       if (options?.mockExisting?.importKeys) {
         options.mockExisting.importKeys.set(epKey, {
@@ -1887,27 +1876,13 @@ export async function commitBatchImport(
           keyHash: epKey,
           reservedAt: Date.now(),
         });
-      } else if (firestore && typeof firestore === 'object' && 'type' in firestore) {
-        try {
-          await setDoc(
-            doc(firestore, `${firestoreRoot}/importKeys/importKeys`, epKey),
-            {
-              targetKind: 'episodes',
-              targetId: ep.id,
-              keyHash: epKey,
-              reservedAt: serverTimestamp(),
-            },
-          );
-        } catch {
-          // Key reservation
-        }
       }
 
       committedCount++;
       results.push({
         id: ep.id,
         kind: 'episodes',
-        status: ep.status === 'create' ? 'created' : 'updated',
+        status: saved.action === 'create' ? 'created' : 'updated',
       });
     } catch (err: unknown) {
       failedCount++;
@@ -1915,7 +1890,7 @@ export async function commitBatchImport(
       results.push({
         id: ep.id,
         kind: 'episodes',
-        status: 'failed',
+        status: err && typeof err === 'object' && 'code' in err && err.code === 'functions/already-exists' ? 'conflict' : 'failed',
         error: msg,
       });
     }

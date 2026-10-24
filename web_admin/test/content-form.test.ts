@@ -139,7 +139,7 @@ void test('save fingerprints ignore map order but preserve meaningful content ch
   );
 });
 
-void test('episode audioUrl permits HTTP while coverUrl rejects it', () => {
+void test('episode audio and artwork require HTTPS consistently with playback clients', () => {
   const episode = {
     title: 'حلقة',
     stationId: 'st-1',
@@ -153,7 +153,8 @@ void test('episode audioUrl permits HTTP while coverUrl rejects it', () => {
     isFeatured: false,
     priority: 0,
   };
-  assert.deepEqual(validateContent('episodes', episode), {});
+  assert.ok(validateContent('episodes', episode).audioUrl);
+  assert.deepEqual(validateContent('episodes', { ...episode, audioUrl: 'https://example.com/audio.mp3' }), {});
 
   const invalidCover = { ...episode, coverUrl: 'http://example.com/cover.jpg' };
   assert.ok(validateContent('episodes', invalidCover).coverUrl);
