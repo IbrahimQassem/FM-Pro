@@ -32,7 +32,7 @@ try {
   // handlers or loading any developer .env/.secret.local into the emulator.
   await writeFile(
     join(source, 'index.js'),
-    `export { adminSaveContent, adminDeleteContent, adminReviewReport } from ${JSON.stringify(join(root, 'functions/index.js'))};\n`,
+    `export { adminSaveContent, adminDeleteContent, adminReviewReport, adminUploadImage } from ${JSON.stringify(join(root, 'functions/index.js'))};\n`,
   );
   await symlink(
     join(root, 'functions/node_modules'),
@@ -44,10 +44,12 @@ try {
     JSON.stringify({
       functions: { source: 'functions' },
       firestore: { rules: join(root, 'firestore.rules') },
+      storage: { rules: join(root, 'storage.rules') },
       emulators: {
         auth: { port: 9099 },
         firestore: { port: 8180 },
         functions: { port: 5001 },
+        storage: { port: 9199 },
         ui: { enabled: false },
         singleProjectMode: true,
       },
@@ -63,7 +65,7 @@ try {
         '--config',
         join(temporary, 'firebase.json'),
         '--only',
-        'auth,firestore,functions',
+        'auth,firestore,functions,storage',
         '--project',
         'demo-hudhud-admin-test',
         `node --experimental-strip-types --test ${quote(join(root, 'web_admin/test'))}/*.emulator.test.ts`,

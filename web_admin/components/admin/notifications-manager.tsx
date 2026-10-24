@@ -1,3 +1,4 @@
+import { ImageField } from './image-field';
 import { useState, useEffect, useMemo, useId, useRef } from 'react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import {
@@ -139,6 +140,8 @@ export function NotificationsManager({
   const [targetId, setTargetId] = useState('');
   const [targetLabel, setTargetLabel] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageDraft, setImageDraft] = useState(0);
 
   // Dropdown data
   const [stations, setStations] = useState<StationItem[]>([]);
@@ -303,6 +306,7 @@ export function NotificationsManager({
 
   // Send broadcast notification via Cloud Function
   const handleSendBroadcast = async () => {
+    if (imageUploading) return;
     if (!title.trim() || !body.trim()) return;
     setIsSending(true);
     setStatusMessage(null);
@@ -386,6 +390,7 @@ export function NotificationsManager({
 
   // Re-use notification as template
   const handleReuseNotification = (notif: NotificationRecord) => {
+    setImageDraft(current => current + 1);
     setTitle(notif.title);
     setBody(notif.body);
     setImageUrl(notif.imageUrl || '');
@@ -594,48 +599,16 @@ export function NotificationsManager({
                 />
               </div>
 
-              {/* Image URL (optional) */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="notif-image-url" className="text-sm font-medium text-foreground flex items-center gap-1.5">
-                    <ImageIcon className="size-3.5 text-muted-foreground" />
-                    صورة الإشعار (اختياري)
-                  </label>
-                  {imageUrl && (
-                    <button
-                      type="button"
-                      onClick={() => setImageUrl('')}
-                      className="text-xs text-muted-foreground hover:text-destructive"
-                    >
-                      إزالة الصورة
-                    </button>
-                  )}
-                </div>
-                <Input
-                  id="notif-image-url"
-                  type="url"
-                  placeholder="https://example.com/image.jpg (رابط صورة HTTPS)"
-                  value={imageUrl}
-                  dir="ltr"
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  className="text-sm font-mono"
-                />
-                {imageUrl && (
-                  <div className="flex items-start gap-2 pt-1">
-                    <img
-                      src={imageUrl}
-                      alt="معاينة الصورة"
-                      className="h-14 w-24 rounded-lg object-cover border bg-muted shrink-0"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      ستظهر الصورة أسفل نص الإشعار في معظم أجهزة Android وiOS التي تدعم الصور في الإشعارات.
-                    </p>
-                  </div>
-                )}
-              </div>
+              <ImageField
+                key={imageDraft}
+                id="notif-image-url"
+                label="صورة الإشعار (اختياري)"
+                value={imageUrl}
+                onChange={setImageUrl}
+                disabled={isSending || imageUploading}
+                scope={{ root: firestoreRoot, kind: 'notifications', field: 'imageUrl' }}
+                onBusyChange={setImageUploading}
+              />
 
               {/* Action Destination */}
               <div className="space-y-3 pt-2 border-t">
@@ -777,7 +750,7 @@ export function NotificationsManager({
               <div className="pt-4 border-t">
                 <Button
                   size="lg"
-                  disabled={!title.trim() || !body.trim() || isSending}
+                  disabled={!title.trim() || !body.trim() || isSending || imageUploading}
                   onClick={() => setConfirmOpen(true)}
                   className="w-full h-12 text-base font-semibold gap-2 shadow-md bg-gradient-to-r from-primary to-primary/80 hover:from-primary/95 hover:to-primary text-primary-foreground transition-all cursor-pointer"
                 >
@@ -1055,13 +1028,13 @@ export function NotificationsManager({
           <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="outline"
-              disabled={isSending}
+              disabled={isSending || imageUploading}
               onClick={() => setConfirmOpen(false)}
             >
               إلغاء
             </Button>
             <Button
-              disabled={isSending}
+              disabled={isSending || imageUploading}
               onClick={handleSendBroadcast}
               className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
             >

@@ -1,3 +1,5 @@
+import { ImageField } from './image-field';
+import { isAdminImageField } from '@/lib/admin-images';
 import { useEffect, useRef, useState } from 'react';
 import {
   collection,
@@ -323,6 +325,8 @@ export function ContentEditor({
   const errors = validationRequested ? validateContent(kind, form) : {};
   const [failure, setFailure] = useState('');
   const [saving, setSaving] = useState(false);
+  const [uploads, setUploads] = useState<Record<string, boolean>>({});
+  const imageUploading = Object.values(uploads).some(Boolean);
   const [dirty, setDirty] = useState(false);
   const [tab, setTab] = useState<'edit' | 'preview'>('edit');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -343,6 +347,7 @@ export function ContentEditor({
     const navigate = (event: Event) => {
       if (
         saving ||
+        imageUploading ||
         (dirty && !window.confirm('لديك تغييرات غير محفوظة. هل تريد تجاهلها؟'))
       )
         event.preventDefault();
@@ -353,17 +358,18 @@ export function ContentEditor({
       window.removeEventListener('beforeunload', prevent);
       window.removeEventListener('admin-before-navigate', navigate);
     };
-  }, [dirty, saving]);
+  }, [dirty, saving, imageUploading]);
   function close() {
     if (
       !saving &&
+      !imageUploading &&
       (!dirty || window.confirm('لديك تغييرات غير محفوظة. هل تريد تجاهلها؟'))
     )
       onClose();
   }
   async function save(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (saving) return;
+    if (saving || imageUploading) return;
     const validation = validateContent(kind, form);
     setValidationRequested(true);
     setFailure('');
@@ -390,7 +396,7 @@ export function ContentEditor({
   );
 
   async function handleDeleteConfirm() {
-    if (!canConfirmDelete || !onDelete) return;
+    if (!canConfirmDelete || !onDelete || imageUploading) return;
     setDeleting(true);
     setDeleteError('');
     try {
@@ -446,6 +452,7 @@ export function ContentEditor({
           </Button>
           <Button
             variant={tab === 'preview' ? 'default' : 'outline'}
+            disabled={imageUploading}
             onClick={() => setTab('preview')}
           >
             <Eye /> معاينة
@@ -670,6 +677,39 @@ export function ContentEditor({
                   {contentFields[kind].map((field) => {
                     const id = `field-${field.key}`;
                     const value = form[field.key];
+                    if (isAdminImageField(kind, field.key))
+                      return (
+                        <ImageField
+                          key={id}
+                          id={id}
+                          label={field.label.replace(/^رابط /, '')}
+                          value={fieldText(value ?? '')}
+                          required={field.required}
+                          error={errors[field.key]}
+                          disabled={saving}
+                          allowHttp={kind === 'stations'}
+                          scope={{
+                            root: firestoreRoot,
+                            kind,
+                            field: field.key,
+                            ...(recordId ? { recordId } : {}),
+                            ...(['programs', 'episodes'].includes(kind)
+                              ? { stationId: fieldText(form.stationId) }
+                              : {}),
+                            ...(kind === 'episodes'
+                              ? { programId: fieldText(form.programId) }
+                              : {}),
+                          }}
+                          onChange={(url) => update(field.key, url)}
+                          onBusyChange={(busy) => {
+                            setUploads((current) => ({
+                              ...current,
+                              [field.key]: busy,
+                            }));
+                            if (busy) setDirty(true);
+                          }}
+                        />
+                      );
                     const common = {
                       id,
                       className: control,
@@ -920,7 +960,7 @@ export function ContentEditor({
                           setDeleteError('');
                           setDeleteDialogOpen(true);
                         }}
-                        disabled={saving || deleting}
+                        disabled={saving || deleting || imageUploading}
                       >
                         <Trash2 /> حذف {label}…
                       </Button>
@@ -982,11 +1022,14 @@ export function ContentEditor({
                 type="button"
                 variant="outline"
                 onClick={close}
-                disabled={saving || deleting}
+                disabled={saving || deleting || imageUploading}
               >
                 <ChevronRight /> إلغاء
               </Button>
-              <Button type="submit" disabled={saving || deleting}>
+              <Button
+                type="submit"
+                disabled={saving || deleting || imageUploading}
+              >
                 <Save />
                 {saving ? 'جارٍ الحفظ…' : 'حفظ التغييرات'}
               </Button>

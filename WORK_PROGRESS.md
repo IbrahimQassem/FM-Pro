@@ -644,3 +644,69 @@ arrowUp عند200-percent. تحقق analyzer/full Flutter والحزم يُعا�
   مفترضة أو تغييرات إضافية في المصدر. جميع الملفات محفوظة؛ لا Commit/Reset.
 - الاستئناف: عند وصول القرار أو توفر البيئة المطلوبة، اقرأ هذه النقطة وملفات
   القبول، ونفذ المتبقي دون إعادة ما أُنجز. نطاق الهدف الكامل محفوظ.
+
+
+## طلب جديد — صور نماذج الإدارة وتقليل مساحة التخزين
+
+- المستخدم طلب file upload أو paste link للصور، ثم شدد على تقليل مساحة التخزين.
+  النطاق مستقل عن بوابات الجغرافيا/الأجهزة السابقة. بداية العمل HEAD da80eda
+  وشجرة نظيفة (commit ظهر في الحالة الخارجية؛ لم أنفذه أنا).
+- ImageField مشترك وُصل بشعار/مصغرة المحطة وأغلفة/مصغرات البرامج والحلقات
+  والبنرات والحملات وصور الإشعارات. يوقف save/send أثناء الرفع، ويحفظ الرابط
+  عند الفشل، ويلغي انتظار النتيجة دون الادعاء بإلغاء job، ويمنع callbacks قديمة.
+- backend adminUploadImage + private quota/idempotency + actual ownership وparent/
+  deletion barriers قبل الضغط وبعدStorage. القواعد لا تسمح SDK uploads مباشرة.
+- الأصل غير مخزن. static JPEG/PNG/WebP<=2MiB/16MP؛ stripping + adaptive WebP
+  بسقوف thumbnail48KiB/logo64KiB/other160KiB. notifications JPEG مضغوط للتوافق
+  وفق FCM؛ لا WebP افتراضًا للإشعارات. pending/failed cleanup bounded25/root/hour؛
+  ready assets قابلة لإعادة الاستخدام ولا تُحذف بإغلاق النموذج.
+- RED/GREEN: وحدة server/client مفقودة أولًا؛ testAPNG كشف flatten صامتًا فأضيف
+  فحصacTL قبلdecode؛ testnotifications كشفWebP بدلJPEG فأضيف encoder/contexttype.
+  Functions152 نجحت قبل آخر تحديثات tests فقط؛ lint/typecheck ناجحان.
+- actual Auth/Storage15 ثم17 نجحت، Native editorial41 نجحت، Rules/profile gates
+  نجحت في السلسلة21436. إعادة Native41 ثم Auth17 النهائية جاريةsession36096
+  لتغطية JPEG notification blob/cleanup بعد اكتمال تحسين الكود.
+- browser tab10269555/browser1، fixture localhost127.0.0.1:5182/test/image-field-preview.html
+  فقط؛ لاFirebase/FCMحقيقي. File pickerنجح، invalidtxtلميرفع، error/retryنجح،
+  pendingتعطلSave، cancelثمpasteرابطوlatecompletionلمتغيره، newdraftبقيتفارغة.
+- Vitepreview session96336؛ Native36096؛ codecmetrics51406؛ NodeFuncs55788.
+  سجلات /tmp/hudhud-admin-image-*.log. لاCommit/Reset/deploy أوحذفبياناتحية.
+- المتبقي: mobile/keyboard/screenshot بعدfinalfixtureReload، آخرunit/lint/typecheck/
+  build، جمعنتائجالسلاسل، تحديثREADME/contracts وأدلةالتحقق. مصدرالتصميم
+  web_admin/DESIGN.md، دليل docs/operations/admin-images.md، plan2026-10-24-admin-images.md.
+
+### نقطة الاستئناف النهائية — صور الإدارة، 2026-10-24
+
+- اكتمل تنفيذ الطلب محليًا، بما فيه ضغط الملفات لتقليل التخزين. الفقرة السابقة
+  التي تقول إن الاختبارات/المتصفح جارية أصبحت تاريخية؛ لا تعِد هذه الأعمال.
+- الملفات الجديدة: functions/lib/admin-images.js وfunctions/test/admin-images.test.js؛
+  web_admin/lib/admin-images.ts وcomponents/admin/image-field.tsx؛
+  web_admin/test/admin-images.test.ts وadmin-images.emulator.test.ts؛
+  firebase_tests/firebase-emulators/editorial-images.test.js؛ fixture HTML/TSX
+  وtest/fixtures/admin-image.png؛ web_admin/DESIGN.md ودليل التشغيل وخطة الصور.
+- الملفات المعدلة: functions/index.js وpackage.json؛ نماذج content-editor/
+  notifications-manager/advertising-workspace؛ tool/run-admin-emulator-tests.mjs؛
+  اختبار Firestore Rules، README الخاص بالإدارة، docs/README.md، عقد Firebase وهذا الملف.
+- تحقق نهائي: Functions152/152، admin76 ناجحة مع17 emulator skips نُفذت منفصلة؛
+  native editorial41/41، actual callable17/17، Rules33/33، profile images3/3.
+  آخر callable شمل Storage JPEG/WebP وحفظ رابط الشعار عبر adminSaveContent في الجذرين.
+- السجلات: /tmp/hudhud-admin-image-functions.log، admin-tests.log، native-final.log،
+  callable-final.log، rules.log، profiles.log (كلها بنفس بادئة hudhud-admin-image-).
+  typecheck/lint النهائيان exit0 في final-types.log وfinal-lint.log؛ build.log ناجح
+  مع تحذير chunk كبير موجود مسبقًا. governance وgit diff --check ناجحان؛
+  ui-audit.json strict: صفر أخطاء/تحذيرات. لا تغييرات Flutter تستدعي إعادة حزم الهاتف.
+- متصفح fixture فقط: file/link، رفض invalidtxt قبل الطلب، error/retry، pending Save،
+  cancel ثم رابط ونتيجة قديمة، new draft، لوحة مفاتيح فعلية لاختيار الملف، عرض390px
+  وتكبير النص200% دون overflow. أُعيد التكبير والـviewport للوضع الأصلي.
+  صور /tmp/hudhud-admin-image-{desktop,mobile,mobile-200}.png محفوظة.
+- قرارات ثابتة: الروابط الملصقة لا يعاد ضغطها؛ الملفات فقط static raster<=2MiB/16MP.
+  WebP مع alpha؛ الإشعارات JPEG بخلفية بيضاء للتوافق، موضح في UI والدليل.
+  حدود48/64/160KiB، لا نسخة أصلية، retry لنفس العملية لا يكرر الملف. لا dedupe
+  عام بين عمليات مختلفة. Ready قابل لإعادة الاستخدام ولا يُحذف بإغلاق المسودة؛
+  failed/interrupted فقط له cleanup محدود. فحوص الملكية قبل المعالجة وبعد التخزين.
+- عينة noise اصطناعية1,473,382byte أصبحت logo45,654byte وnotification152,168byte؛
+  ليست نسبة توفير مضمونة لكل الصور. التفاصيل في compression.json بالبادئة نفسها.
+- لا مشكلة تنفيذ متبقية لهذا الطلب. الخطوة التالية للإتاحة الحية هي نشر callable/
+  collector أولًا ثم adminUI ضمن تفويض إصدار منفصل. لم يحدث deploy أو رفع حي أو
+  إرسال إشعار أو Commit/Reset/push. الهدف السابق لخارطة نوفمبر يبقى blocked
+  بقرار الجغرافيا والأجهزة الفعلية؛ اكتمال الصور لا يغير بواباته أو أدلة قبوله.

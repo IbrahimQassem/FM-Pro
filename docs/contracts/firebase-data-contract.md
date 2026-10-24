@@ -394,3 +394,16 @@ the earlier topic-only/no-payload-navigation boundary for version-1 episode aler
 only. General announcements remain independent; arbitrary URLs remain rejected.
 Private device/job paths are denied by the default Rules, including admin clients.
 No production deployment or app release is included.
+
+
+## Administrative editorial image uploads
+
+`adminUploadImage` accepts only explicit root/kind/image field, parent/current
+record context, a UUID operation ID and base64 JPEG/PNG/WebP. Authenticated admin
+claims and existing super/scoped roles are checked, including actual stored
+ownership, parents and deletion barriers. Only processed media is saved. Limits,
+WebP/JPEG notification compatibility, private job/quota paths, reuse semantics and
+bounded failed-upload cleanup are in [admin image operations](../operations/admin-images.md).
+URL fields and their trusted content-save path stay canonical; uploads do not
+create content records or notification broadcasts. Direct SDK Storage writes and
+client metadata/quota reads/writes remain denied.

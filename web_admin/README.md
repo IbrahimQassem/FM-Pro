@@ -124,3 +124,12 @@ fixture credentials for real accounts.
 Add `--large-only` to the guarded seeder command to add stations/cities 56–305
 without resetting earlier fixture edits. `--banners-only` seeds only the four
 banner timing examples. Both flags retain the same demo-project/host guards.
+
+
+## صور النماذج
+
+كل حقول الصور تدعم رفع JPEG/PNG/WebP أو لصق رابط، عبر مكوّن موحد. الملف يُضغط
+على الخادم قبلStorage؛ لا تُحفظ النسخة الأصلية. سقوف التخزين48KiB للمصغرات،
+64KiB للشعارات،160KiB للأغلفة/البنرات/الحملات والإشعارات. الصور العادية WebP،
+والإشعارات JPEG للتوافق. الرفع لا يحفظ النموذج ولا يرسل إشعارًا. التفاصيل
+والصلاحيات والاحتفاظ: [دليل صور الإدارة](../docs/operations/admin-images.md).

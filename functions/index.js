@@ -1,3 +1,4 @@
+import { uploadAdminImage, collectAdminImages } from './lib/admin-images.js';
 import { deleteAdminContent } from './lib/admin-content-delete.js';
 import { reviewAdminReport } from './lib/admin-report-review.js';
 import { getMessaging } from 'firebase-admin/messaging';
@@ -748,6 +749,8 @@ export const updateAccountProfile = onCall(
 export const cleanupProfileImages = onSchedule(
   { schedule: 'every 60 minutes', timeoutSeconds: 300, maxInstances: 1 },
   async () => {
+    try { await collectAdminImages(getFirestore(), () => getStorage().bucket()); }
+    catch { logger.error('Editorial image cleanup failed; pending jobs will be retried.'); }
     try { await collectProfileImages(getFirestore(), () => getStorage().bucket()); }
     catch { logger.error('Profile image cleanup failed; pending jobs will be retried.'); }
   },
@@ -946,6 +949,11 @@ function contentAdminArguments(request) {
   return { firestore: getFirestore(), callerUid: uid, callerEmail: token?.email || '',
     callerRole: token?.role || (token?.admin ? 'super_admin' : 'listener'), callerClaims: token, data: request.data };
 }
+
+export const adminUploadImage = onCall(
+  { timeoutSeconds: 60, memory: '512MiB', concurrency: 2, maxInstances: 5 },
+  request => uploadAdminImage({ ...contentAdminArguments(request), bucket: () => getStorage().bucket() }),
+);
 
 export const adminSaveContent = onCall(
   { timeoutSeconds: 30, maxInstances: 20 }, request => saveAdminContent(contentAdminArguments(request)),

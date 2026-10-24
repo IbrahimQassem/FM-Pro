@@ -1,3 +1,4 @@
+import { ImageField } from './image-field';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { getFirebaseServices } from '@/lib/firebase-client';
@@ -92,6 +93,8 @@ function AdvertisingManager({ request = call }: { request?: typeof call }) {
     isActive: true,
   });
   const [campaign, setCampaign] = useState<Campaign>(fresh);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageDraft, setImageDraft] = useState(0);
   const [busy, setBusy] = useState(true);
   const [message, setMessage] = useState('');
   const [reportId, setReportId] = useState('');
@@ -143,7 +146,12 @@ function AdvertisingManager({ request = call }: { request?: typeof call }) {
   useEffect(() => {
     alive.current = true;
     let cancelled = false;
-    void Promise.resolve().then(() => cancelled ? undefined : Promise.all([load('advertisers'), load('adCampaigns')]))
+    void Promise.resolve()
+      .then(() =>
+        cancelled
+          ? undefined
+          : Promise.all([load('advertisers'), load('adCampaigns')]),
+      )
       .catch(() => {
         if (!cancelled)
           setMessage(
@@ -308,6 +316,7 @@ function AdvertisingManager({ request = call }: { request?: typeof call }) {
         <form
           onSubmit={(e) => {
             e.preventDefault();
+            if (imageUploading) return;
             void run(async () => {
               await request({
                 action: 'saveCampaign',
@@ -317,6 +326,7 @@ function AdvertisingManager({ request = call }: { request?: typeof call }) {
                 value: campaign,
               });
               if (!alive.current) return;
+              setImageDraft((current) => current + 1);
               setCampaign(fresh());
               await load('adCampaigns');
               setRows(null);
@@ -452,11 +462,8 @@ function AdvertisingManager({ request = call }: { request?: typeof call }) {
                 <option value="sponsorship">رعاية نصية</option>
               </select>
             </label>
-            {(['title', 'body', 'imageUrl', 'targetUrl'] as const)
-              .filter(
-                (key) =>
-                  key !== 'imageUrl' || campaign.creative.kind === 'image',
-              )
+            {(['title', 'body', 'targetUrl'] as const)
+
               .map((key) => (
                 <label key={key} className="grid gap-2">
                   {
@@ -469,7 +476,7 @@ function AdvertisingManager({ request = call }: { request?: typeof call }) {
                   }
                   <Input
                     type={key.endsWith('Url') ? 'url' : 'text'}
-                    required={key === 'title' || key === 'imageUrl'}
+                    required={key === 'title'}
                     maxLength={
                       key === 'title' ? 100 : key === 'body' ? 240 : 2048
                     }
@@ -486,17 +493,44 @@ function AdvertisingManager({ request = call }: { request?: typeof call }) {
                   />
                 </label>
               ))}
+            {campaign.creative.kind === 'image' && (
+              <ImageField
+                key={imageDraft}
+                id="campaign-image"
+                label="صورة الحملة"
+                value={campaign.creative.imageUrl}
+                required
+                disabled={busy}
+                onBusyChange={setImageUploading}
+                scope={{
+                  root: firestoreRoot,
+                  kind: 'campaigns',
+                  field: 'imageUrl',
+                }}
+                onChange={(url) =>
+                  setCampaign((current) => ({
+                    ...current,
+                    creative: { ...current.creative, imageUrl: url },
+                  }))
+                }
+              />
+            )}
             {field('agreementReference', 'مرجع الاتفاق التجاري (خاص)', 120)}
             {field(
               'agreementNotes',
               'ملاحظات الاتفاق دون بيانات شخصية (خاص)',
               1000,
             )}
-            <Button type="submit">حفظ الحملة</Button>
+            <Button type="submit" disabled={busy || imageUploading}>
+              حفظ الحملة
+            </Button>
             <Button
               type="button"
               variant="outline"
-              onClick={() => setCampaign(fresh())}
+              onClick={() => {
+                setImageDraft((current) => current + 1);
+                setCampaign(fresh());
+              }}
             >
               حملة جديدة
             </Button>
@@ -508,7 +542,10 @@ function AdvertisingManager({ request = call }: { request?: typeof call }) {
               <Button
                 disabled={busy}
                 variant="ghost"
-                onClick={() => setCampaign(item)}
+                onClick={() => {
+                  setImageDraft((current) => current + 1);
+                  setCampaign(item);
+                }}
               >
                 {item.name} —{' '}
                 {

@@ -854,7 +854,7 @@ test('broadcast history outcomes are server-owned while super admins retain hist
 test('identity scope proofs and backfill checkpoints stay private to trusted maintenance', async () => {
   for (const root of ['HudHudDev', 'HudHudOfficial']) {
     for (const context of [anonymousDb(), userDb('identity-listener'), userDb('identity-super', { admin: true, role: 'super_admin' })]) {
-      for (const path of [`${root}/regionalMigrations/runs/synthetic`, `${root}/identityScopes/scopes/synthetic`, `${root}/identityScopeLocks/locks/synthetic`, `${root}/identityBackfills/runs/synthetic`, `${root}/identityBackfills/runs/synthetic/items/key`]) {
+      for (const path of [`${root}/adminImages/images/synthetic`, `${root}/adminImageUploadLimits/actors/synthetic`, `${root}/regionalMigrations/runs/synthetic`, `${root}/identityScopes/scopes/synthetic`, `${root}/identityScopeLocks/locks/synthetic`, `${root}/identityBackfills/runs/synthetic`, `${root}/identityBackfills/runs/synthetic/items/key`]) {
         await seed(path, { state: 'complete' });
         await assertFails(getDoc(doc(context, path)));
         await assertFails(setDoc(doc(context, path), { state: 'complete' }));
