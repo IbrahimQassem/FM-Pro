@@ -2335,11 +2335,7 @@ function ResourceView({
                             </span>
                           )}
                         </div>
-                        {definition.key === 'users' && typeof record.data.email === 'string' && record.data.email && (
-                          <p className="text-xs text-muted-foreground font-mono mt-0.5" dir="ltr">
-                            {record.data.email}
-                          </p>
-                        )}
+
                         {(isStation || isProgram) && typeof record.data.titleEn === 'string' && record.data.titleEn && (
                           <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5" dir="ltr">
                             {record.data.titleEn}
@@ -2752,11 +2748,7 @@ function ResourceView({
                                 </span>
                               )}
                             </div>
-                            {isUser && typeof record.data.email === 'string' && record.data.email && (
-                              <p className="text-xs text-muted-foreground font-mono truncate" dir="ltr">
-                                {record.data.email}
-                              </p>
-                            )}
+
                             {(isStation || isProgram) && typeof record.data.titleEn === 'string' && record.data.titleEn && (
                               <p className="text-xs text-muted-foreground truncate" dir="ltr">
                                 {record.data.titleEn}
@@ -3344,13 +3336,12 @@ function ResourceEditor({
   );
   const [privateState, setPrivateState] = useState<StationPrivateState | null>(null);
   const [privateError, setPrivateError] = useState('');
+  const privateFailure = !isSuperAdmin
+    ? 'Super admin privileges are required to edit stations.'
+    : privateError;
   useEffect(() => {
-    if (definition.key !== 'stations') return;
+    if (definition.key !== 'stations' || !isSuperAdmin) return;
     let active = true;
-    if (!isSuperAdmin) {
-      setPrivateError('Super admin privileges are required to edit stations.');
-      return;
-    }
     void loadStationPrivatePage(firestore, firestoreRoot, [id]).then(states => {
       if (active) setPrivateState(states[id]);
     }).catch(caught => {
@@ -3359,14 +3350,14 @@ function ResourceEditor({
     return () => { active = false; };
   }, [firestore, definition.key, id, isSuperAdmin]);
   if (!isContentKind(definition.key)) return null;
-  if (definition.key === 'stations' && (!isSuperAdmin || !privateState || privateError)) {
+  if (definition.key === 'stations' && (!privateState || privateFailure)) {
     return <Dialog open onOpenChange={open => { if (!open) onClose(); }}>
       <DialogContent dir="rtl">
         <DialogHeader>
           <DialogTitle>Station metadata</DialogTitle>
-          <DialogDescription>{privateError || 'Loading station metadata…'}</DialogDescription>
+          <DialogDescription>{privateFailure || 'Loading station metadata…'}</DialogDescription>
         </DialogHeader>
-        {privateError && <p role="alert">Editing is blocked. Close and reload before trying again.</p>}
+        {privateFailure && <p role="alert">Editing is blocked. Close and reload before trying again.</p>}
         <Button variant="outline" onClick={onClose}>Close</Button>
       </DialogContent>
     </Dialog>;
@@ -3558,9 +3549,8 @@ function recordTitle(record: AdminRecord, definition: ResourceDefinition) {
   if (definition.key === 'users') {
     const name =
       readString(record.data, 'displayName') ||
-      readString(record.data, 'username') ||
-      readString(record.data, 'email');
-    return name || 'مستخدم بدون اسم';
+      readString(record.data, 'username');
+    return name || record.id;
   }
   return readString(record.data, definition.titleField) || record.id;
 }

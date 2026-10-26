@@ -290,7 +290,12 @@ service cloud.firestore {
     match /{root}/users/users/{uid} {
       allow get: if isKnownRoot(root) && (isOwner(uid) || isSuperAdmin());
       allow list: if isKnownRoot(root) && isSuperAdmin();
-      allow create, update, delete: if isKnownRoot(root) && isSuperAdmin();
+      allow create: if isKnownRoot(root) && isSuperAdmin()
+        && !request.resource.data.keys().hasAny(['email']);
+      allow update: if isKnownRoot(root) && isSuperAdmin()
+        && (!request.resource.data.keys().hasAny(['email'])
+          || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['email']));
+      allow delete: if isKnownRoot(root) && isSuperAdmin();
 
       match /agreements/{agreementId} {
         allow get: if isKnownRoot(root) && (isOwner(uid) || isSuperAdmin());

@@ -111,3 +111,37 @@ Status: **INCOMPLETE — STOPPED**, as required by the user's instruction to sto
 ### Outstanding acceptance and approvals
 
 R01 and R10 remain **OPEN**. The 17 registered skipped emulator identities remain explicit acceptance obligations; no skip has been converted into passing evidence. Full Flutter tests, physical-device acceptance, B15 cross-component integration, and remaining independent/integration gates remain pending. Production backup location/retention, migration and rollout approvals remain separate and ungranted. No production checkpoint has been executed. The B03 lint failure is the immediate local blocker.
+
+## Authorized continuation — 2026-10-26
+
+The user authorized correcting the B03 lint blocker and continuing WO-01. The synchronous authorization-error state update was replaced with a derived authorization error. Asynchronous read errors still block the editor; no security rule was disabled. Initial resumed HEAD was `f3c9485`; a later read-only refresh found externally created commit `487402b` containing prior work. This agent did not create either commit or rewrite history.
+
+### Actual continued evidence
+
+| Check | Actual result | Evidence under `evidence/WO-01/` |
+|---|---|---|
+| T06 original lint blocker retry | PASS | `B03-T06-lint-retry.log` |
+| T10 profile-email search RED | 19 tests:18 passed,1 intended assertion failure,0 skipped | `B03-email-ui-red.log` |
+| T10 focused GREEN | 19 passed,0 failed/skipped | `B03-email-ui-green.log` |
+| T11 actual Rules RED | 39 tests:35 passed,4 intended assertions that forbidden writes succeeded,0 skipped | `B03-rules-email-red.log` |
+| T11 actual Rules GREEN | 39 passed,0 failed/skipped | `B03-rules-email-green.log` |
+| Whole admin lint | PASS | `B03-admin-lint.log` |
+| Ordinary admin tests | 113 discovered:94 passed,19 skipped,0 failed; skips are not acceptance evidence | `B03-admin-unit.log` |
+| Development-root admin build | PASS; bundle-size warning retained, no dependency/build rewrite | `B03-admin-build.log` |
+| Actual admin emulator gate | **FAIL**:19 discovered,18 passed,1 failed,0 skipped | `B03-admin-emulator.log` |
+
+T10 removes profile-email search, display and name fallback from the admin user projections; the signed-in administrator's own Auth email is preserved. T11 rejects email creation/change including super-admin SDK clients, permits historical email removal and unchanged-email unrelated updates, and preserves existing root/role boundaries. These changes remain part of incomplete B03.
+
+### New mandatory stop
+
+The mandatory actual admin gate failed in `web_admin/test/location-relations.emulator.test.ts:34`. Its shared station fixture contains private fields and both new-station request calls omit the explicit private state. The new helper correctly fails closed with `ContentError: Reload station metadata before continuing.` before the stale-location RPC. The test expects `functions/failed-precondition`, so its intended stale-location assertion is no longer reached. Its concurrent station-creation branch can also accept this early failure without proving the original race behavior.
+
+No source/test fix was made after this mandatory gate failed. Do not weaken the private-revision guard or change the expected rejection to a client error to make the gate pass. The proposed next change is a narrowly scoped test-compatibility amendment: preserve the public-only location fixture or supply explicitly loaded private revision state to both station requests, and retain the actual server stale-location assertion/concurrency coverage. Before touching that currently WO-03-registered test file, I must record the WO-01/R01 write-set and ownership amendment. The existing 33 shared-file owners remain unchanged until an explicit amendment is recorded.
+
+All 17 previously skipped registered cases ran in the actual command:16 passed and the location case failed; the2 new T05 privacy cases passed. This does not waive B15 integration, full Flutter or physical-device obligations, nor close any other finding. Ordinary test19-skips were not counted as passes. Independent B03 review is being collected read-only; B03 is not accepted or complete, and B06 has not started. R01/R10 remain OPEN. No migration, production access, deployment or protected merge was performed.
+
+Continued source/test modifications: `web_admin/components/admin/admin-app.tsx`, `web_admin/components/admin/user-actions-modal.tsx`, `web_admin/lib/resource-filters.ts`, `web_admin/test/resource-filters.test.ts`, `firestore.rules`, `firebase_tests/firebase-rules/firestore.rules.test.js`; execution report and Boss runtime/rendered artifacts also updated.
+
+### Independent B03 review disposition
+
+Independent reviewer `wo01_b03_independent_review` found no concrete privacy bypass in the current source and independently ran48 focused Node22 cases, all passing with zero skips. The reviewer confirmed the location-test compatibility failure and concealed early rejection in its concurrent branch. **Completion approval is withheld** until the mandatory emulator gate passes on the corrected candidate. The reviewer did not edit files or run emulators/production operations. Browser interaction was not performed; network-error fail-closed handling was source-reviewed but still lacks an explicit SDK failure regression. These remain verification limitations, not passes.

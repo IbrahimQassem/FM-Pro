@@ -13,6 +13,17 @@ import {
   isHealthyStream,
   formatLastCheckedTime,
 } from '../lib/resource-filters.ts';
+
+void test('R10 user search uses supported identity fields without profile email', () => {
+  const record = { id: 'privacy-user-id', data: { displayName: 'Chosen listener', username: 'chosen-handle', email: 'private-sentinel@example.test' } };
+  assert.equal(matchRecordSearch(record, 'private-sentinel@example.test', 'users'), false);
+  for (const term of ['privacy-user-id', 'Chosen listener', 'chosen-handle']) {
+    assert.equal(matchRecordSearch(record, term, 'users'), true);
+  }
+  const { email, ...emailFree } = record.data;
+  assert.ok(email);
+  assert.equal(matchRecordSearch({ ...record, data: emailFree }, 'chosen-handle', 'users'), true);
+});
 void test('resource status filters allow only supported fields and values', () => {
   assert.deepEqual(readResourceStatus('episodes', '#episodes?status=false'), {
     value: 'false',

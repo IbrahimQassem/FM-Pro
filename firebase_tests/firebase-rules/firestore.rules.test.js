@@ -10,6 +10,7 @@ import {
   collection,
   collectionGroup,
   deleteDoc,
+  deleteField,
   documentId,
   limit,
   doc,
@@ -37,6 +38,35 @@ const userReportPath = (uid, reportedUid = "user-b", commentId = "comment-1") =>
   `${userPath(uid)}/userReportTargets/${reportedUid}/moderationReports/${commentId}`;
 const favoritePath = (uid, id = "station-1") => `${userPath(uid)}/favorites/${id}`;
 const subscriptionPath = (uid, id = "program-1") => `${userPath(uid)}/subscriptions/${id}`;
+
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  test(`R10 clients cannot introduce or change profile email in ${root}`, async () => {
+    const path = `${root}/users/users/privacy-existing`;
+    const emailFreePath = `${root}/users/users/privacy-email-free`;
+    await seed(path, { displayName: 'Chosen listener', email: 'historical@example.test', isActive: true });
+    await seed(emailFreePath, { displayName: 'Email-free listener', isActive: true });
+    const clients = [anonymousDb(), userDb('privacy-existing'),
+      userDb('scoped', { admin: true, role: 'station_admin', allStations: true }),
+      userDb('moderator', { admin: true, role: 'moderator' }),
+      userDb('legacy-super', { admin: true }), userDb('explicit-super', { role: 'super_admin' })];
+    for (let index = 0; index < clients.length; index++) {
+      const db = clients[index];
+      await assertFails(setDoc(doc(db, `${root}/users/users/privacy-new-${index}`), { displayName: 'Listener', email: 'new@example.test' }));
+      await assertFails(updateDoc(doc(db, emailFreePath), { email: 'backfill@example.test' }));
+      await assertFails(updateDoc(doc(db, path), { email: 'replacement@example.test' }));
+    }
+  });
+
+  test(`R10 super-admin transition permits safe unrelated updates and email removal in ${root}`, async () => {
+    const db = userDb('transition-super', { admin: true });
+    const path = `${root}/users/users/privacy-transition`;
+    await seed(path, { displayName: 'Chosen listener', email: 'historical@example.test', isActive: true });
+    await assertSucceeds(updateDoc(doc(db, path), { isActive: false }));
+    await assertSucceeds(updateDoc(doc(db, path), { email: deleteField() }));
+    await assertSucceeds(setDoc(doc(db, `${root}/users/users/privacy-new-safe`), { displayName: 'Email-free listener', isActive: true }));
+    await assertFails(updateDoc(doc(db, path), { email: '' }));
+  });
+}
 
 test('editorial documents, identity reservations and catalog revisions reject every direct client mutation', async () => {
   for (const root of ['HudHudDev', 'HudHudOfficial']) {

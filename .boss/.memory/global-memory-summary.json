@@ -1,5 +1,11 @@
 {
-  "generatedAt": "2026-10-26T14:45:23.062Z",
-  "startupSummary": [],
+  "generatedAt": "2026-10-26T16:11:29.942Z",
+  "startupSummary": [
+    {
+      "category": "agent_failure_pattern",
+      "scope": "global",
+      "summary": "boss-frontend failed in stage 3"
+    }
+  ],
   "agentSections": {}
 }

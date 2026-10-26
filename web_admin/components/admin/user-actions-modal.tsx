@@ -23,7 +23,6 @@ import {
   AlertCircle,
   CheckCircle2,
   Loader2,
-  Mail,
   Phone,
   Calendar,
   Fingerprint,
@@ -38,7 +37,6 @@ export type UserRecord = {
   id: string;
   data: {
     displayName?: string;
-    email?: string;
     username?: string;
     avatarUrl?: string;
     photoUrl?: string;
@@ -303,7 +301,6 @@ function UserActionsModalContent({
             name={
               user.data.displayName ||
               user.data.username ||
-              user.data.email ||
               user.id
             }
             avatarUrl={
@@ -366,18 +363,7 @@ function UserActionsModalContent({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 text-xs text-muted-foreground pt-1">
-              <div className="flex items-center gap-1.5 truncate">
-                <Mail className="size-3.5 shrink-0 text-muted-foreground" />
-                {user.data.email ? (
-                  <span className="font-mono truncate select-all" dir="ltr">
-                    {user.data.email}
-                  </span>
-                ) : (
-                  <span className="italic text-muted-foreground/70">
-                    بدون بريد إلكتروني
-                  </span>
-                )}
-              </div>
+
 
               <div className="flex items-center gap-1.5 truncate">
                 <Phone className="size-3.5 shrink-0 text-muted-foreground" />

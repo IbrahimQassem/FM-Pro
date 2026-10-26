@@ -1,3 +1,37 @@
 {
-  "records": []
+  "records": [
+    {
+      "influence": "preference",
+      "tags": [
+        "boss-frontend"
+      ],
+      "id": "global-agent_failure_pattern:3:boss-frontend:boss-frontend",
+      "scope": "global",
+      "kind": "execution",
+      "category": "agent_failure_pattern",
+      "feature": null,
+      "stage": 3,
+      "agent": "boss-frontend",
+      "summary": "boss-frontend failed in stage 3",
+      "source": {
+        "type": "events",
+        "window": "latest"
+      },
+      "evidence": [
+        {
+          "type": "event",
+          "ref": "37"
+        },
+        {
+          "type": "event",
+          "ref": "37"
+        }
+      ],
+      "confidence": 0.8,
+      "createdAt": "2026-10-26T16:11:04.214Z",
+      "lastSeenAt": "2026-10-26T16:11:04.214Z",
+      "expiresAt": null,
+      "decayScore": 9
+    }
+  ]
 }

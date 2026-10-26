@@ -2,7 +2,7 @@
   "schemaVersion": "0.2.0",
   "feature": "technical-review",
   "createdAt": "2026-10-25T18:24:59.037Z",
-  "updatedAt": "2026-10-26T14:45:23.014Z",
+  "updatedAt": "2026-10-26T16:11:29.891Z",
   "status": "initialized",
   "parameters": {
     "pipelinePack": "api-only",
@@ -145,13 +145,13 @@
         },
         "boss-frontend": {
           "status": "failed",
-          "startTime": null,
-          "endTime": "2026-10-26T14:45:21.872Z",
+          "startTime": "2026-10-26T16:08:33.832Z",
+          "endTime": "2026-10-26T16:11:04.214Z",
           "retryCount": 0,
           "maxRetries": 2,
-          "failureReason": "WO-01 B03 mandatory admin lint failed: synchronous setPrivateError inside station-loading effect at admin-app.tsx3351. User stop-on-gate-failure honored; T10/T11/B06 unexecuted; R01/R10 OPEN. See WO-01-validation.md.",
-          "promptFingerprint": null,
-          "inputDigest": null
+          "failureReason": "B03 resumed lint passed; mandatory actual admin emulator gate failed19total18pass1fail0skip. Location regression omits private revision and fails before intended stale-location RPC. Stopped per user gate policy; B06 unstarted; findings OPEN.",
+          "promptFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "inputDigest": "f98a07fb568621992a84e403bbe017c2ef542afd32f8b7a682710c49d9c21390"
         }
       }
     },
@@ -395,8 +395,8 @@
         ],
         "parallelGroup": "stage-3-code",
         "status": "failed",
-        "reason": "WO-01 B03 mandatory admin lint failed: synchronous setPrivateError inside station-loading effect at admin-app.tsx3351. User stop-on-gate-failure honored; T10/T11/B06 unexecuted; R01/R10 OPEN. See WO-01-validation.md.",
-        "updatedAt": "2026-10-26T14:45:21.872Z"
+        "reason": "B03 resumed lint passed; mandatory actual admin emulator gate failed19total18pass1fail0skip. Location regression omits private revision and fails before intended stale-location RPC. Stopped per user gate policy; B06 unstarted; findings OPEN.",
+        "updatedAt": "2026-10-26T16:11:04.214Z"
       },
       "artifact:qa-report.md": {
         "id": "artifact:qa-report.md",
@@ -527,7 +527,7 @@
     "nextNodeIds": [
       "artifact:prd.md"
     ],
-    "updatedAt": "2026-10-26T14:45:23.014Z"
+    "updatedAt": "2026-10-26T16:11:29.891Z"
   },
   "pause": null
 }
