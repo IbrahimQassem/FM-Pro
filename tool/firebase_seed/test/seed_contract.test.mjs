@@ -132,3 +132,42 @@ test('keeps the notification example on the allowlisted topic and text only', ()
   assert.equal('data' in notificationPayload.message, false);
   assert.equal('token' in notificationPayload.message, false);
 });
+
+const stationPrivateFields = 'owner address contactPerson contactPhone contactEmail streamType audioCodec bitrateKbps sampleRateHz transmitterPower transmitterLocation coverageArea rds'.split(' ');
+for (const field of [...stationPrivateFields, 'unexpectedStationField']) {
+  test(`station seed rejects non-public ${field} before validation or planning`, () => {
+    const invalid = structuredClone(seed);
+    invalid.stations[0].data[field] = 'synthetic-private-value';
+    assert.throws(() => validateSeed(invalid), /public station/i);
+    assert.throws(() => buildSeedPlan(invalid), /public station/i);
+  });
+}
+
+for (const [field, value] of [
+  ['streamUrl', { contactEmail: 'synthetic-private' }],
+  ['stats', { programsCount: 2, subscribersCount: 0, totalPlays: 0, owner: 'synthetic-private' }],
+  ['stats', { programsCount: 2, subscribersCount: -1, totalPlays: 0 }],
+  ['stats', { programsCount: 2, totalPlays: 0 }],
+  ['tags', [{ owner: 'synthetic-private' }]],
+  ['tags', 'not-an-array'], ['isLive', 'true'], ['priority', 1.5],
+  ['consecutiveFailures', -1], ['createdAt', { owner: 'synthetic-private' }],
+  ['updatedAt', new Date('invalid')],
+]) {
+  test(`station seed rejects malformed public ${field} values`, () => {
+    const invalid = structuredClone(seed);
+    invalid.stations[0].data[field] = value;
+    assert.throws(() => validateSeed(invalid), /public station/i);
+    assert.throws(() => buildSeedPlan(invalid), /public station/i);
+  });
+}
+
+
+test('public station types retain valid dates, tags, counters and signed integer priority', () => {
+  const valid = structuredClone(seed);
+  Object.assign(valid.stations[0].data, {
+    createdAt: new Date('2026-01-01T00:00:00Z'), tags: ['Synthetic'],
+    consecutiveFailures: 0, priority: -1,
+  });
+  assert.doesNotThrow(() => validateSeed(valid));
+  assert.doesNotThrow(() => buildSeedPlan(valid));
+});

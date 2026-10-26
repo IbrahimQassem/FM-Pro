@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HudHud FM — Technical-review execution plan - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">目录</div>
+      <ul><li class="toc-level-1"><a href="#hudhud-fm-technical-review-execution-plan">HudHud FM — Technical-review execution plan</a></li><li class="toc-level-2"><a href="#summary">Summary</a></li><li class="toc-level-2"><a href="#document-information">Document information</a></li><li class="toc-level-2"><a href="#0-repository-preflight">0. Repository preflight</a></li><li class="toc-level-2"><a href="#1-work-order-overview">1. Work-order overview</a></li><li class="toc-level-3"><a href="#1-1-status-lifecycle-and-closure">1.1 Status lifecycle and closure</a></li><li class="toc-level-3"><a href="#1-2-change-impact">1.2 Change impact</a></li><li class="toc-level-2"><a href="#2-dependencies-and-integration-ownership">2. Dependencies and integration ownership</a></li><li class="toc-level-3"><a href="#2-1-dependency-graph">2.1 Dependency graph</a></li><li class="toc-level-3"><a href="#2-2-shared-file-lock-registry">2.2 Shared-file lock registry</a></li><li class="toc-level-3"><a href="#2-3-explicit-parallel-safe-groups">2.3 Explicit parallel-safe groups</a></li><li class="toc-level-2"><a href="#3-evidence-waves-and-contract-matrix">3. Evidence waves and contract matrix</a></li><li class="toc-level-3"><a href="#3-1-wave-registry">3.1 Wave registry</a></li><li class="toc-level-3"><a href="#3-2-cross-component-contracts">3.2 Cross-component contracts</a></li><li class="toc-level-3"><a href="#3-3-security-acceptance-matrix">3.3 Security acceptance matrix</a></li><li class="toc-level-2"><a href="#4-test-execution-plan-and-skipped-test-debt">4. Test execution plan and skipped-test debt</a></li><li class="toc-level-3"><a href="#4-1-command-matrix">4.1 Command matrix</a></li><li class="toc-level-3"><a href="#4-2-the-17-skipped-tests-remain-open-debt">4.2 The 17 skipped tests remain open debt</a></li><li class="toc-level-2"><a href="#5-data-operations-rollback-and-release-gates">5. Data operations, rollback and release gates</a></li><li class="toc-level-3"><a href="#5-1-migration-safety-envelope">5.1 Migration safety envelope</a></li><li class="toc-level-3"><a href="#5-2-independent-review-and-qa">5.2 Independent review and QA</a></li><li class="toc-level-3"><a href="#5-3-physical-device-and-product-acceptance">5.3 Physical-device and product acceptance</a></li><li class="toc-level-2"><a href="#6-deliverables-and-final-acceptance">6. Deliverables and final acceptance</a></li><li class="toc-level-2"><a href="#change-log">Change log</a></li></ul>
+    </aside>
+    <main>
+      <h1>HudHud FM — Technical-review execution plan</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: execution-plan.md</div>
+        <div>Generated: 2026-10-25T18:48:00.776Z</div>
+      </div>
+      <section class="summary">
+        <h2>摘要</h2>
+        <p>暂无摘要。</p>
+      </section>
+      <hr>
+<p>type: tasks outputFor: [delivery-lead, frontend, backend, tech-lead, qa] dependencies: [tech-review, existing-contracts]</p>
+<hr>
+<h1 id="hudhud-fm-technical-review-execution-plan">HudHud FM — Technical-review execution plan</h1>
+<h2 id="summary">Summary</h2>
+<ul><li><strong>Planning only. All R01–R13 remain OPEN.</strong> This package defines implementation and evidence requirements; it does not claim fixes, new passing tests, migrations or deployment.</li><li>Four bounded work orders cover privacy, Flutter reliability, query completeness and backend lifecycle processing. Preserve the existing architecture; use small reviewed changes and existing tools.</li><li>Privacy/data contracts precede dependent implementations. The <strong>Delivery / Integration Lead</strong> owns shared-file integration and rejects overlapping or unknown write sets before dispatch.</li><li>Each work order requires an independent code reviewer and independent QA against an exact candidate commit. Missing required integration/device evidence blocks release approval.</li><li>Historical evidence is <strong>368 passed, 17 skipped and three expected failing temporary reproductions</strong> on the review baseline. These are not fresh implementation results.</li></ul>
+<h2 id="document-information">Document information</h2>
+<table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Project</td><td><code>hudhud_fm</code> only; excludes adjacent <code>FM-Pro</code></td></tr><tr><td>Date / baseline</td><td>2026-10-25 / <code>9fae3248aadecaa53198a5fb9f06576fdcc182cf</code></td></tr><tr><td>Current branch / locally recorded default</td><td><code>hudhud_fm</code> / <code>origin/main</code></td></tr><tr><td>Sources</td><td>[Technical review](tech-review.md), repository contracts and actual source/callers</td></tr><tr><td>Artifacts</td><td>[WO-01](WO-01.md), [WO-02](WO-02.md), [WO-03](WO-03.md), [WO-04](WO-04.md)</td></tr><tr><td>Authority</td><td>Future implementation requires separately authorized scope; no permission question or execution is part of this planning step</td></tr></tbody></table>
+<h2 id="0-repository-preflight">0. Repository preflight</h2>
+<table><thead><tr><th>Fact</th><th>Evidence and disposition</th></tr></thead><tbody><tr><td>Working tree</td><td>No tracked source diff at planning baseline; pre-existing untracked <code>.boss/</code> contains review/planning artifacts</td></tr><tr><td>Architecture</td><td>Flutter/Riverpod repositories/data sources; React admin/public sites; Firebase Functions/Rules; preserve their established boundaries</td></tr><tr><td>CI</td><td>No <code>.github/workflows</code>, <code>.gitlab-ci.yml</code>, <code>.circleci</code>, Vercel or Netlify configuration found in the inspected project. Actual hosted CI commands remain <strong>UNKNOWN</strong>; do not invent them</td></tr><tr><td>Executable checks</td><td>Root, <code>functions</code>, <code>web_admin</code>, <code>web_hudhud</code> package scripts plus [quality contract](../../docs/contracts/quality-release-contract.md)</td></tr><tr><td>Node</td><td>Functions require Node 22; current PATH Node 26 is unsuitable for the planned shared validation. Select an installed Node 22 or a separately validated portable Node 22 environment and record <code>node --version</code></td></tr><tr><td>Dependencies</td><td>npm lockfiles exist; no installation, dependency upgrade or lockfile edit is planned</td></tr><tr><td>Schema/authority</td><td>[Firebase data contract](../../docs/contracts/firebase-data-contract.md), [security contract](../../docs/contracts/security-privacy-contract.md), source validators and Rules</td></tr><tr><td>Navigation</td><td>Existing Flutter Navigator and public web routes; bounded queries must retain direct episode navigation without autoplay</td></tr><tr><td>Device evidence</td><td>[Physical-device worksheet](../../docs/release/november-2026-device-acceptance.md) currently NOT RUN; simulator/builds do not substitute</td></tr><tr><td>Migration</td><td>WO-01 privacy migration; WO-03 conditional missing-field repair; WO-04 conditional derived-data reconciliation. Prepare/test tools first, never execute live data changes by implication</td></tr><tr><td>R13 decision — CONTRACT_DECISION_REQUIRED while OPEN</td><td>Existing scheduler behavior and allowed schedule offsets conflict. Resolve the timezone contract before implementing notification changes; no silent narrowing of accepted data</td></tr></tbody></table>
+<p>Recheck HEAD, status, contracts, installed runtimes, implementer inventory and each exact write set immediately before dispatch. Unknown paths/owners or unclassified shared files block dispatch. No credential/config contents are needed for preflight.</p>
+<h2 id="1-work-order-overview">1. Work-order overview</h2>
+<table><thead><tr><th>Work order</th><th>Exact findings</th><th>Intended outcome</th><th>Principal owners</th></tr></thead><tbody><tr><td>[WO-01](WO-01.md)</td><td>R01, R10</td><td>Separate private station metadata; eliminate listener-email copies while retaining authorized admin workflows</td><td>Data architect, backend/admin/tool implementers, Integration Lead</td></tr><tr><td>[WO-02](WO-02.md)</td><td>R02, R03, R05</td><td>Visible/correct sleep timers, safe episode replay, truthful registration delivery results</td><td>Playback and Account implementers</td></tr><tr><td>[WO-03](WO-03.md)</td><td>R04, R06, R07, R08</td><td>Stable bounded queries, complete admin access/export, safe aggregate-only statistics, bounded public archives</td><td>Flutter, admin/public and backend query owners</td></tr><tr><td>[WO-04](WO-04.md)</td><td>R09, R11, R12, R13</td><td>Correct RSS decoding, fair resumable health work, idempotent comment counts, schedule-aware notifications</td><td>Backend lifecycle implementers</td></tr></tbody></table>
+<h3 id="1-1-status-lifecycle-and-closure">1.1 Status lifecycle and closure</h3>
+<p><code>OPEN -&gt; IN_PROGRESS -&gt; IMPLEMENTED -&gt; VERIFIED -&gt; CLOSED</code></p>
+<ul><li>OPEN: current status of every finding; planning and historical passing tests do not advance it.</li><li>IN_PROGRESS: implementation actually started within an authorized exact write set.</li><li>IMPLEMENTED: candidate code exists, not a declaration of correctness.</li><li>VERIFIED: permanent regression, relevant unit/integration gates and independent review passed on the recorded candidate.</li><li>CLOSED: finding-specific acceptance and applicable data/device gates are complete, with independent QA evidence. Missing mandatory device evidence continues to block release; do not erase that distinction with a qualified pass.</li></ul>
+<p>R01 remains a release blocker where private fields are populated. Production contents were not inspected, so no claim of actual disclosure counts is made. No finding is closed by this plan.</p>
+<h3 id="1-2-change-impact">1.2 Change impact</h3>
+<p>This is a multi-wave change touching authorization/data boundaries, shared entry points, query interfaces, playback and derived-state workers. No rewrite or new state-management system is needed. Each work order supplies atomic task write sets, usually at most five files; the Integration Lead computes their union before implementation. New files/types/test cases are explicitly <strong>PLANNED</strong>, not existing APIs.</p>
+<p>No dependency installation or production rollout is included. Signing, real notifications, live migration and store publication require their separately scoped authorization and release gates.</p>
+<h2 id="2-dependencies-and-integration-ownership">2. Dependencies and integration ownership</h2>
+<h3 id="2-1-dependency-graph">2.1 Dependency graph</h3>
+<pre><code class="language-mermaid">flowchart TD
+  P[Preflight and contract decisions] --&gt; W1[WO-01 reviewed privacy contract and patch handoff]
+  P --&gt; W2[WO-02 playback and delivery]
+  P --&gt; M4[WO-04 isolated modules and R13 decision]
+  W1 --&gt; Q3[WO-03 reviewed contract, index, entry and harness handoffs]
+  W1 --&gt; I[Shared-file integration: WO-01 then WO-03 then WO-04]
+  Q3 --&gt; I
+  M4 --&gt; I
+  Q3 --&gt; C4[WO-04 integration and actual PL03 worker coverage]
+  C4 --&gt; I
+  W2 --&gt; I
+  I --&gt; R[Independent code reviews]
+  R --&gt; Q[Independent QA on merged commit]
+  Q --&gt; D[Physical-device and authorized migration evidence]
+  D --&gt; C[Closure assessment; release remains separately authorized]</code></pre>
+<p>Arrows express <strong>contract/patch handoff boundaries, not whole-work-order closure dependencies</strong>. They do not permit all tasks inside a work order to run concurrently. Module-only work may start after its own decisions; shared-file patches follow the sequence below.</p>
+<p><strong>No closure cycle:</strong> WO-04 waits only for WO-03's reviewed contract/index/entry-export/harness patch handoffs, never for WO-03 final acceptance. WO-03 <code>03-T18</code> must execute all 17 integrations, including PL03 requiring <code>04-T08</code>; WO-01 final admin QA may also wait for that worker integration. Mark an exclusive-file release/contract-patch transfer <strong>INTERIM HANDOFF</strong> after independent review and targeted evidence. This is not WO CLOSED or full-wave GREEN. After all dependent patches integrate, the exact merged candidate must pass the full gates and all 17 identities before final acceptance.</p>
+<h3 id="2-2-shared-file-lock-registry">2.2 Shared-file lock registry</h3>
+<p>The <strong>Delivery / Integration Lead</strong> is the single integration owner; task specialists supply reviewed patches. This table is authoritative where work-order prose is less specific. A task may not acquire a shared file out of order.</p>
+<table><thead><tr><th>Shared file(s)</th><th>Serial integration order / condition</th></tr></thead><tbody><tr><td><code>functions/index.js</code></td><td>WO-01 -&gt; WO-03 -&gt; WO-04</td></tr><tr><td><code>web_admin/components/admin/admin-app.tsx</code>, <code>web_admin/lib/export-excel.ts</code></td><td>WO-01 -&gt; WO-03; WO-03 pagination before its export wiring</td></tr><tr><td><code>firestore.rules</code>, <code>firebase_tests/firebase-rules/firestore.rules.test.js</code></td><td>WO-01 -&gt; WO-03 only where needed -&gt; WO-04; WO-03 currently plans Rules tests, not a Rules relaxation</td></tr><tr><td><code>firestore.indexes.json</code></td><td>WO-03 -&gt; WO-04 if needed; reconcile exact query shapes before integration</td></tr><tr><td><code>tool/run-admin-emulator-tests.mjs</code></td><td>WO-01 -&gt; WO-03 -&gt; WO-04 if needed; one merged temporary Functions export set</td></tr><tr><td>Shared <code>docs/contracts/*</code></td><td>Coordinate WO-01 -&gt; WO-03 -&gt; WO-04; WO-02 playback/account contract files also require exclusive ownership if another package touches them</td></tr><tr><td><code>lib/app/providers.dart</code>, shared station-content/screens</td><td>WO-02 -&gt; WO-03 if both need writes; WO-02 currently declares them read-only</td></tr><tr><td>ARB/generated localization</td><td>Central localization owner; WO-02 currently reuses messages, WO-03 owns planned additions; no concurrent generation</td></tr></tbody></table>
+<p>Rebase/reconcile after each predecessor, then rerun affected tests on the integrated commit. Passing isolated branches does not prove a passing merge. An unexpected required file triggers plan/write-set revision before edits.</p>
+<h3 id="2-3-explicit-parallel-safe-groups">2.3 Explicit parallel-safe groups</h3>
+<p>These groups are derived from exact disjoint files, not whole-work-order labels. Preconditions and task-local dependencies still apply.</p>
+<table><thead><tr><th>Group</th><th>Eligible tasks</th><th>Disjoint write sets / conditions</th></tr></thead><tbody><tr><td>G-A</td><td><code>02-T01</code> and <code>02-T05</code></td><td>Player controller test vs account data-source test; no shared files</td></tr><tr><td>G-B</td><td><code>01-T02</code>, <code>02-T02</code>, <code>03-T14</code>, <code>04-T02</code></td><td>WO-01 <code>station-privacy.js</code>, its test, <code>admin-content.js</code>; WO-02 player controller/now-playing test; WO-03 public content repository/discovery/tests; WO-04 <code>rss-ingestion.js</code>, <code>rss-ingestion.test.js</code>, <code>admin-content-relations.js</code>, <code>admin-content.test.js</code>. Start only after each contract/audit prerequisite is complete; no index/Rules/harness/docs writes in this group</td></tr><tr><td>G-C</td><td><code>03-T04</code>, <code>03-T10</code>, <code>03-T11</code>, <code>03-T14</code></td><td>Flutter content data/tests; admin aggregate client/view/test; admin query/filter/pagination/tests; public content repository/discovery/tests. All predecessors complete; exclude simultaneous G-B reuse of T14</td></tr><tr><td>G-D</td><td>Playback <code>02-T03 -&gt; 02-T04</code> alongside Account <code>02-T06 -&gt; 02-T07 -&gt; 02-T08 -&gt; 02-T09 -&gt; 02-T10</code></td><td>Tracks have disjoint source/test files; each track remains serial; account signature migration is one integration unit</td></tr><tr><td>G-E</td><td>Independent reviews of completed WOs</td><td>Distinct review artifacts; read-only source; reviewers must not be their own implementers</td></tr></tbody></table>
+<p>WO-04 module tasks <code>04-T02</code> (RSS), <code>04-T04</code> (health), <code>04-T06</code> (comment authority), and <code>04-T10</code> (notification time) may overlap other disjoint module work only after <code>04-T01</code> is approved and a fresh exact write-set comparison excludes shared files. Unknown paths/extra files block dispatch, not a reason to guess. Task-local dependencies still apply. <code>04-T05</code> is not module-only: it writes <code>functions/index.js</code> and must wait for the shared integration lane. <code>04-T07</code> also writes <code>functions/lib/admin-content-delete.js</code> and must wait for WO-01's deletion handoff, in addition to the index lock.</p>
+<h2 id="3-evidence-waves-and-contract-matrix">3. Evidence waves and contract matrix</h2>
+<h3 id="3-1-wave-registry">3.1 Wave registry</h3>
+<table><thead><tr><th>Work order</th><th>Wave references</th><th>Required evidence progression</th></tr></thead><tbody><tr><td>WO-01</td><td>W1–W6</td><td>Privacy contract/Rules -&gt; admin and all writers -&gt; email producers/consumers -&gt; migration tools -&gt; independent integration/rehearsal -&gt; separately authorized operations</td></tr><tr><td>WO-02</td><td>W02-A–W02-D</td><td>Two permanent timer regressions -&gt; permanent replay regression/races -&gt; partial registration outcome -&gt; independent full/device acceptance</td></tr><tr><td>WO-03</td><td>W03-A–W03-F</td><td>Legacy-field audit/restore -&gt; Flutter pagination/deep links -&gt; aggregate authorization -&gt; admin paging/export -&gt; bounded public archive -&gt; independent acceptance</td></tr><tr><td>WO-04</td><td>W1–W7</td><td>Policy decision -&gt; RSS -&gt; health -&gt; comment counts -&gt; timezone -&gt; integrated QA/review/rehearsal -&gt; separately authorized operations</td></tr></tbody></table>
+<p>Each implementation wave requires behavioral RED before the fix, GREEN afterward, owner/write set, exact cwd/argv, contract row and stop condition. A missing module, compilation failure, skipped test or missing emulator is not behavioral RED. The coordinator records code waves in [waves.json](waves.json): <code>W01-W1</code>–<code>W01-W4</code>, <code>W02-A</code>–<code>W02-C</code>, <code>W03-A</code>–<code>W03-E</code>, and WO-04 W2–W5 code/repair-tool waves plus **<code>W04-W6-CODE</code> for <code>04-T12</code> private Rules/index/test integration**. Every wave starts <code>pending</code>; cwd and argv are explicit without shell interpolation. Independent QA/review/rehearsal/operation checkpoints (WO-01 W5/W6, WO-02 W02-D, WO-03 W03-F and WO-04 W1 policy, the remaining W6 QA/review/rehearsal checkpoints and W7 operations) remain in a manual evidence ledger. <code>04-T12</code> is registered code work, not omitted as a manual-only checkpoint; it depends on <code>04-T08</code>, which creates its shared emulator fixture. The manifest must not auto-run production operations. No wave command ran during planning.</p>
+<h3 id="3-2-cross-component-contracts">3.2 Cross-component contracts</h3>
+<table><thead><tr><th>Contract</th><th>Authoritative work-order rows</th><th>Cross-boundary requirement</th></tr></thead><tbody><tr><td>Public/private station split</td><td>WO-01 CM01–05</td><td>Client DTO, callable allowlist, private storage, Rules, importer/exporter/restore agree; no private values reappear in public docs</td></tr><tr><td>Listener email minimization</td><td>WO-01 CM06–07</td><td>Auth remains email authority; profile producers/admin consumers/direct-write rules agree; verification challenge semantics preserved</td></tr><tr><td>Timer/replay/delivery</td><td>WO-02 CM02-1–CM02-5</td><td>UI state equals real timer/player/delivery outcome; generation guards and verification authority maintained</td></tr><tr><td>Paging/cursors/deep links</td><td>WO-03 CM03-01/02/03/05/06/07</td><td>Filters/order before limit, stable cursor semantics, bounded DOM/read work and complete access/export; no first-page-only deep links</td></tr><tr><td>Safe user aggregates</td><td>WO-03 CM03-04</td><td>Authorized count-only response; no global profile-list grant to scoped roles</td></tr><tr><td>RSS/health/counts/timezone</td><td>WO-04 CM09 / CM11 / CM12 / CM13</td><td>Decoding before URL identity; bounded resumable work; duplicate-safe derived counts; schedule offset and notification identity consistent</td></tr><tr><td>Operational recovery</td><td>WO-01 CM08–10 and WO-03/04 migration rows</td><td>Reviewed manifest, protected backup, conditional restore, concurrency detection and no replay of uncertain sends</td></tr></tbody></table>
+<p>All rows are currently <strong>PENDING</strong>. Candidate closure requires actual evidence for both implementation and consumers, not only a matching enum name or document.</p>
+<h3 id="3-3-security-acceptance-matrix">3.3 Security acceptance matrix</h3>
+<p>For <strong>both HudHudDev and HudHudOfficial</strong>, exercise guest, unverified user, verified owner, another user, assigned station admin, foreign-station admin, moderator and super-admin. Include invalid/forged root and role/identity claims supplied in the request body.</p>
+<ul><li>Private station fields: only explicitly authorized server/admin paths; public station reads still work without private keys. Direct client private writes stay denied.</li><li>Listener profiles: enforce the chosen email-minimization contract; owner permissions cannot grant arbitrary fields or trusted verification state.</li><li>Counts: scoped roles receive only authorized aggregate output, never user documents/UID/email lists.</li><li>Query/deep-link paths: root, publication and parent relationships validated; UI filtering is not authorization.</li><li>Workers and repair markers: default deny to clients, including authenticated administrators using client SDKs. Trusted Admin SDK workers bypass Rules and require server-side authorization. Follow each work order's exact role matrix without relaxing access to make tests pass.</li></ul>
+<h2 id="4-test-execution-plan-and-skipped-test-debt">4. Test execution plan and skipped-test debt</h2>
+<h3 id="4-1-command-matrix">4.1 Command matrix</h3>
+<p>Commands below are <strong>planned, not run in this planning phase</strong>. Node commands use validated Node 22. All emulator targets use demo projects, synthetic fixtures and no production secrets.</p>
+<table><thead><tr><th>cwd</th><th>Commands / scope</th></tr></thead><tbody><tr><td>Repository root</td><td><code>./tool/verify-governance.sh</code>; <code>dart format --output=none --set-exit-if-changed lib test</code>; <code>flutter analyze</code>; **<code>flutter test</code>**</td></tr><tr><td>Repository root</td><td><code>flutter build apk --debug</code>; <code>flutter build ios --simulator --debug</code> for shared Dart/playback acceptance</td></tr><tr><td><code>functions</code></td><td><code>npm run lint</code>; <code>npm test</code>; work-order-specific new regression files using their exact <code>node --test</code> argv</td></tr><tr><td><code>web_admin</code></td><td><code>npm test</code>; <code>npm run lint</code>; <code>VITE_FIRESTORE_ROOT=HudHudDev npm run build</code></td></tr><tr><td><code>web_hudhud</code></td><td><code>npm test</code>; <code>npm run lint</code>; <code>npm run typecheck</code>; <code>VITE_FIRESTORE_ROOT=HudHudDev npm run build</code></td></tr><tr><td>Repository root</td><td><code>npm run emulators:test</code>; <code>npm run emulators:admin</code>; <code>npm run emulators:editorial</code> for relevant Rules/admin/editorial integration</td></tr><tr><td>Repository root</td><td><code>npm run emulators:account-deletion</code>; <code>npm run emulators:email-verification</code>; <code>npm run emulators:subscriptions</code>; <code>npm run emulators:profile-images</code> for privacy/account/image/subscription regression coverage</td></tr><tr><td>Repository root</td><td><code>npm run emulators:location-cleanup</code> when maintenance/restore writers change; <code>npm run emulators:advertising</code> if shared private/query changes affect campaign paths</td></tr></tbody></table>
+<p>Admin has no package <code>typecheck</code> script; do not invent <code>npm run typecheck</code> there. Public build already invokes typecheck and client/server builds. No Firebase deploy, seeding real projects, signing, notification send or store upload belongs to validation.</p>
+<h3 id="4-2-the-17-skipped-tests-remain-open-debt">4.2 The 17 skipped tests remain open debt</h3>
+<p>The exact file and test-name registry is in <strong>WO-03, section 5, “17 skipped tests”</strong>. Keep those identities in the acceptance record instead of replacing them with an aggregate number.</p>
+<table><thead><tr><th>Debt category / exact registry rows</th><th>Accountable owner</th><th>Deadline gate</th></tr></thead><tbody><tr><td>Image callable: 1–3; save authorization/content: 16–17</td><td>WO-01 QA, with shared integration QA</td><td>WO-01 independent acceptance, then merged gate before closure</td></tr><tr><td>Import/query/location/program transfer: 4–5, 7, 14</td><td>WO-03 QA</td><td>WO-03 W03-F / 03-T18 before closure</td></tr><tr><td>Episode deletion: 6</td><td>WO-03 lifecycle/query QA with WO-04 regression review</td><td>WO-03 W03-F and WO-04 merged lifecycle gate</td></tr><tr><td>Moderation authorization/PL03/report review: 8–13, 15</td><td>WO-04 QA</td><td>WO-04 W6 independent QA before R12 closure</td></tr><tr><td>Complete merged run</td><td>Delivery / Integration Lead and independent QA</td><td>Exact merged commit before any affected finding closes or release is approved</td></tr></tbody></table>
+<p>Ordinary <code>web_admin npm test</code> skips emulator tests when the required environment is absent. Only a real emulator run with those identities executed can retire the debt; “17 skipped” never becomes “17 passed” by relabeling output.</p>
+<p>Current <code>tool/run-admin-emulator-tests.mjs</code> exports only <code>adminSaveContent</code>, <code>adminDeleteContent</code>, <code>adminReviewReport</code>, <code>adminUploadImage</code> into its temporary Functions source, then runs all <code>web_admin/test/*.emulator.test.ts</code>. WO-03 must add its aggregate callable; WO-04 must integrate the actual comment worker path, deterministically stub external AI and prove its trigger/transaction effects. Direct fixture counter writes are not R12 worker coverage. Preserve demo isolation and no developer secrets.</p>
+<h2 id="5-data-operations-rollback-and-release-gates">5. Data operations, rollback and release gates</h2>
+<h3 id="5-1-migration-safety-envelope">5.1 Migration safety envelope</h3>
+<p>Before any authorized apply, require a reviewed dry-run manifest tied to commit, schema/tool version, explicit project and <strong>one explicitly selected root, with no production defaults</strong>. Write a durable protected backup before mutation; never include private contents in logs or public artifacts.</p>
+<p>Use bounded batches of at most 25 transactions with source timestamps/version comparisons, resumable checkpoints and conflict counts. WO-01's limit of 100 records per invocation may comprise multiple batches of at most 25 transactions; its read-page limit is 50. These are separate bounds, not permission for one unbounded write batch. A failed precondition skips/stops explicitly; it must not overwrite a newer edit. Prove interruption/resume and conditional restore on synthetic/demo data. Restore must <strong>never restore private fields into public station documents</strong> or reintroduce forbidden email storage.</p>
+<p>Pause affected scheduled workers during reconciliation where needed; preserve idempotency markers/receipts and leases. Do not reset processed state or replay an unknown/sent notification to manufacture success. Record rollback/recovery boundaries and retention. Production apply remains outside planning and requires its exact separately authorized target/manifest.</p>
+<h3 id="5-2-independent-review-and-qa">5.2 Independent review and QA</h3>
+<ul><li>Assign a code reviewer who did not implement that work order and QA separate from its implementer. Record names/roles and exact candidate commit/artifact hash.</li><li>Reject unresolved P0/P1 findings; also enforce each work order's P2 acceptance and stop conditions. Rework returns to the owning task, followed by rerunning affected evidence.</li><li>After integration, rerun shared Functions/Rules/admin gates and full Flutter verification on the merged commit. No combination of isolated GREEN results substitutes for integration GREEN.</li><li>Keep test failures, skips, unknown CI and device gaps explicit. Required missing evidence blocks closure/release; documentation completeness is not implementation acceptance.</li></ul>
+<h3 id="5-3-physical-device-and-product-acceptance">5.3 Physical-device and product acceptance</h3>
+<p>Use [the existing worksheet](../../docs/release/november-2026-device-acceptance.md), currently NOT RUN, on <strong>physical Android and iPhone</strong>. Record baseline/candidate fingerprints, test source alias, network, model/OS without identifiers, actual timestamps and results.</p>
+<p>Required rows include <strong>more than 30 minutes background/lock playback</strong>, interruption/duck/resume, manual pause, headset/Bluetooth, timer across content changes and remote stop, completed-episode replay, source replacement during seek/load, offline/recovery and primary/backup. Confirm AR/EN, RTL, 200% text, screen readers and small/large layouts. No invented latency improvement or acceptance timing threshold beyond stated requirements.</p>
+<p>Simulator and debug builds prove neither physical audio behavior nor delivery. Missing required device/full-suite/build evidence remains <strong>PENDING and blocks release approval</strong>. Production rollout, signing and real notifications are separately scoped, even after local acceptance.</p>
+<h2 id="6-deliverables-and-final-acceptance">6. Deliverables and final acceptance</h2>
+<p>WO-01 now has 18 tasks, including <code>01-T09a</code> for the existing <code>tool/migrate-legacy-users.mjs</code> producer and its regression test. This writer copies profile email and logs personal fields; its remediation/quiescence must precede <code>01-T12</code> cleanup preparation and any apply. The Integration Lead enforces that dependency and requires a fresh repository-wide writer/import/restore search before cleanup. Discovery of another unhandled producer stops cleanup and expands the explicit inventory. All source findings remain OPEN.</p>
+<p>Task-level exact source/test write sets live in the four work orders. This master adds no source files. The coordinator may create a consolidated wave manifest and evidence records under <code>.boss/technical-review/</code>; unknown source paths must be resolved before dispatch.</p>
+<p>Acceptance is measurable: no private keys in authorized public projections; no prohibited profile email writes; three permanent playback regressions GREEN; one account creation despite delivery retry; latest valid episode beyond 100 visible; admin record 2,001 reachable/searchable/exportable; bounded large-archive reads/DOM; decoded RSS parameters; health progress across roots; comment count equals actual published comments under replay/concurrency; correct schedule-local notification time and deduplication. Detailed fixtures/bounds are in the work orders, not claims about production measurements.</p>
+<p>Application rollback uses a reviewed integrated revert/previous artifact without destructive Git operations. Never delete an already-created account as rollback for failed email dispatch. Data recovery follows conditional private-safe restore, not blind snapshot replay. Retain audit evidence and preserve newer data.</p>
+<h2 id="change-log">Change log</h2>
+<table><thead><tr><th>Version</th><th>Date</th><th>Change</th></tr></thead><tbody><tr><td>1.0</td><td>2026-10-25</td><td>English planning package for all 13 OPEN findings; no source fixes, new test runs, live migrations or deployment</td></tr></tbody></table>
+    </main>
+  </div>
+</body>
+</html>

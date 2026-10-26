@@ -46,25 +46,17 @@ export async function prepareActiveSubscriptionProfile(tx, firestore, uid, root,
     if (!allowedSubscriptionRoles.includes(role)) {
       throw new HttpsError('failed-precondition', 'Role is not authorized for subscriptions.');
     }
-    const email = authUser?.email;
-    const shouldUpdateEmail = Boolean(!profile.get('email') && email);
     return {
       profileRef,
       exists: true,
       role,
-      applyWrite: () => {
-        if (shouldUpdateEmail) {
-          tx.update(profileRef, { email, updatedAt: FieldValue.serverTimestamp() });
-        }
-      },
+      applyWrite: () => {},
     };
   }
 
-  const email = authUser?.email || '';
-  const displayName = authUser?.displayName || (email ? email.split('@')[0] : 'المستمع');
+  const displayName = authUser?.displayName || 'المستمع';
   const newProfile = {
     displayName,
-    email,
     username: '',
     avatarUrl: authUser?.photoURL || '',
     isActive: true,

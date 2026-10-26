@@ -1,0 +1,25 @@
+{
+  "kind": "controlled pre-fix reproduction, not contemporaneous RED",
+  "snapshot": "/tmp/hudhud-b04-prefixed-l8gkutz4",
+  "method": "Copy current seed files and corrected tests. Replace only residual value-validation declarations/function with exact prior top-level validator captured during B04. No live working source reverted.",
+  "baseline_source_sha256": "a365011a863069491bc7fcc5370b7279ab6ea49c1921772e8f9181ed1b113815",
+  "snapshot_source_sha256": "49de76ef79e4995115fbd80dccc3a2b2603160160f35ba09a97eca46e35ae132",
+  "corrected_test_sha256": "9cee0b94384b2ca00f5f7792ca3a466547be3f3c6b44fd355aa0f3b66d223e97",
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern=station seed rejects malformed public stats values",
+    "test/seed_contract.test.mjs"
+  ],
+  "cwd": "/tmp/hudhud-b04-prefixed-l8gkutz4",
+  "expected": "3 selected tests fail specifically Missing expected exception; nonselected tests are not run",
+  "replacement_source": "export function validatePublicStationWrite(data, { streamUpdate = false } = {}) {\n  const fields = streamUpdate ? streamUpdateFields : publicStationFields;\n  if (!data || typeof data !== 'object' || Array.isArray(data) ||\n      Object.keys(data).some(key => !fields.has(key))) {\n    throw new Error('Invalid public station payload.');\n  }\n  return data;\n}\n",
+  "observed": {
+    "tests": 3,
+    "fail": 3,
+    "skip": 0,
+    "error": "Missing expected exception."
+  },
+  "original_evidence_note": "B04-types-red.log remains unchanged: 12 valid business failures and 3 preexisting counter-fixture mismatches. This separate controlled reproduction replaces only the evidentiary claim for those 3 stats cases, not the historical log.",
+  "original_red_sha256": "6781e85293a75d643c632f2aa91d8ac54a1d0763ccef06bbc32d681b1f313f15"
+}

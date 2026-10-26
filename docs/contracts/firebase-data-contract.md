@@ -13,6 +13,7 @@
 
 ```text
 {root}/stations/stations/{stationId}
+{root}/stationPrivate/stations/{stationId}
 {root}/banners/banners/{bannerId}
 {root}/users/users/{uid}
 {root}/users/users/{uid}/agreements/ugc
@@ -93,10 +94,7 @@ stats.programsCount, stats.subscribersCount, stats.totalPlays
 ```text
 nameEn, tagline, description, backupStreamUrl,
 logoUrl, thumbnailUrl, frequency,
-websiteUrl, facebookUrl, instagramUrl, youtubeUrl, twitterUrl, whatsapp,
-owner, address, contactPerson, contactPhone, contactEmail,
-streamType, audioCodec, bitrateKbps, sampleRateHz,
-transmitterPower, transmitterLocation, coverageArea, rds
+websiteUrl, facebookUrl, instagramUrl, youtubeUrl, twitterUrl, whatsapp
 ```
 
 - `streamUrl` و`backupStreamUrl` يقبلان HTTP أو HTTPS لأن بعض محطات البث legacy.
@@ -106,6 +104,148 @@ transmitterPower, transmitterLocation, coverageArea, rds
 - image URLs تقبل network URLs المصرح بها في mapper الحالي؛ لا تُعرض قيمة فاسدة.
 - counters أعداد غير سالبة، والـflags الإلزامية لا تملك defaults مخفية.
 - تعرض المحطات النشطة فقط، وترتب featured ثم priority ثم الاسم.
+
+## Station privacy amendment — C01, 2026-10-25
+
+This amendment defines the implementation target for WO-01/R01 and R10; it does
+not assert deployment, migration completion or closure of either finding. It
+supersedes only the former placement of internal station fields in the public
+station document. Existing public playback, geography, relationships and counters
+retain their contracts; no new dependency or client architecture is introduced.
+
+### Private station document
+
+For each known root (`HudHudDev` or `HudHudOfficial`), the optional one-to-one
+private document is `{root}/stationPrivate/stations/{stationId}`. Its ID is the
+existing public station ID, never a newly generated station identity. No private
+field below may occur in `{root}/stations/stations/{stationId}`, including empty
+values. Public stream/backup URLs, social links and other public fields remain
+public. The internal-field descriptions above refer to this private document.
+
+```text
+owner, address, contactPerson, contactPhone, contactEmail,
+streamType, audioCodec, bitrateKbps, sampleRateHz,
+transmitterPower, transmitterLocation, coverageArea, rds
+schemaVersion: 1
+revision: positive safe integer
+```
+
+All 13 editable private values retain the existing validated string type and trim
+normalization, including bitrate/sample-rate values; this amendment does not
+introduce numeric conversion. Empty string is a stored value, not field deletion.
+`schemaVersion` and `revision` are server-owned, rejected in editable payloads.
+Revision starts at 1 on first creation and increases exactly once for each
+committed private-field change. An empty private document retains its metadata to
+avoid revision reuse; eligible station deletion removes both documents atomically.
+If the public station is absent but a private orphan exists, creation fails closed
+and an ordinary public-absent delete leaves the orphan unchanged for separately
+reviewed repair; it must not blindly delete metadata.
+Public-only and exact no-op saves do not increase private revision. Unsupported
+schema, invalid revisions and conflicting legacy copies stop without overwrites.
+
+### Compatible callable save protocol
+
+Keep `adminSaveContent` and its existing `root,kind,id,content,expected,locationId,
+source` request and `success,id,action` response. For `kind: stations` only, add:
+
+- `expectedPrivateRevision`: optional; explicit `null` means no private document,
+  otherwise a positive safe integer matching the transaction read.
+- `deletePrivateFields`: optional array of unique names from the 13-field set.
+  Reject unknown/duplicate names and a name present in both this array and
+  `content`. Explicit deletion requires a private precondition; `null` values
+  are invalid. Other content kinds reject these station-only options.
+
+`content` continues to accept the existing mixed editable station shape. Partition
+it on the server before building public writes. Capture actual key presence before
+normalization: omission preserves a private value, an included string sets it,
+and `deletePrivateFields` removes it. Required public fields and all existing
+public validation remain unchanged. Do not turn the public snapshot API into an
+unrestricted partial-update API. Compare `expected` against the current normalized
+public editable projection, stripping only these 13 private fields from both
+sides. Retain the existing create (`expected: null`) versus update distinction.
+
+For an existing station, any requested private change requires an explicit matching
+`expectedPrivateRevision`; absence is not an instruction to reset or overwrite.
+An older client with no private precondition may save public changes only when
+its supplied private values equal the authoritative private values; omitted keys
+are preserved. Stale values, default blanks that differ, or new private values
+fail with a safe `failed-precondition` reload/upgrade error and zero writes. For
+new station creation, an older mixed request with `expected: null` may create both
+projections atomically only when both documents are absent; an orphan private
+document is a conflict. New clients send explicit `expectedPrivateRevision: null`.
+An authenticated exact-state retry may return `unchanged` despite stale expected
+values only when the complete effective public and private desired states equal
+the current canonical states, no legacy public keys need scrubbing, and no deletion
+or schema conflict exists. Never use public equality alone for this exception.
+A real private mutation requires the matching private precondition.
+
+Read the public/private documents and relation/identity prerequisites before any
+transaction writes. Validate public and private preconditions before mutation; permit only the
+exact-state retry exception above before returning `unchanged`. Keep current authorization: station saves remain super-admin-only;
+this amendment grants no new scoped-admin station-edit permission. Reject forged
+private or mixed payloads atomically. Preserve current permissions for unrelated
+public program/episode operations. Admin SDK bypasses Rules, so enforce these
+checks inside the callable as well as the client UI.
+
+On a transitional legacy station, resolve the 13-field preimage before saving:
+when no private document exists, use the validated legacy private projection as
+the initial private state; when both copies exist, identical overlaps are safe
+and differing overlaps are a conflict requiring reviewed migration resolution.
+When a canonical private document exists, any legacy-only private key absent
+from it is also a conflict: never merge or drop it without an explicit reviewed
+migration resolution, even when all overlapping keys match.
+A successful authorized save preserves/moves the resolved private state and
+removes every legacy public private key in the same transaction, even if editable
+values are unchanged. Public cleanup is an `update`, not an early no-op. Preserve
+relation/counter/identity/audit atomicity, and never copy private values into audit
+summaries, exceptions or logs. Retry must not duplicate committed changes.
+
+### Station deletion preconditions
+
+For `adminDeleteContent` with `kind: stations` only, accept
+`expectedPrivateRevision` with the same null/positive-integer semantics as save.
+Read public and private documents in the same transaction, preserve the existing
+public expected-snapshot check after stripping only the 13 private keys from both
+current and legacy/mixed expected snapshots, and preserve relation/deletion guards.
+If a canonical private document exists, its matching revision is mandatory; an
+older delete request lacking that precondition fails closed rather than deleting
+unseen metadata. An explicit null requires private absence. An older request with
+no private precondition may proceed only when private absence is verified in the
+transaction and the public precondition is valid. Legacy private-key conflicts
+obey the save conflict policy; unresolved legacy metadata is not silently discarded.
+An eligible deletion removes both existing projections atomically. A missing
+public station leaves any orphan private document unchanged for separately
+reviewed repair. These options confer no permission on non-super-admin callers.
+The admin delete helper `web_admin/lib/delete-episode.ts` must transmit the station
+private precondition; other resource deletion semantics remain unchanged.
+
+### Reads and listener email
+
+Private get/list is super-admin-only for client SDKs, with bounded page/ID reads
+for editing/export. Every direct client create/update/delete is denied, including
+super-admin clients. All other roles, unknown roots and unauthenticated callers
+are denied. The parent `stationPrivate` document grants no additional access.
+Admin export reads this authorized private source; it never falls back to public
+legacy fields. Read failure must not become an empty form that overwrites data.
+
+Listener projections at `{root}/users/users/{uid}` must not contain `email`.
+Client profile create/update Rules reject a resulting document containing the
+`email` key (including null/empty values), even for super-admin clients; an
+otherwise-authorized update that removes the key is allowed. Validate resulting
+state, not merely changed fields. This does not grant new profile-write rights.
+Auth remains the identity/email authority; bootstrap, subscriptions, password
+management and both legacy migration paths must not copy it. Admin profile
+lists/search/name fallbacks use UID/name, not profile email. Do not derive a new
+fallback from email, and preserve existing user-provided displayName without a
+blind scrub. No replacement
+other-user Auth-email endpoint is authorized. Preserve the explicitly authorized
+private, expiring email-verification challenge and its existing lifecycle. This
+is not an Auth-email deletion or an administrative `actorEmail` audit-policy change.
+
+Writer coverage, deployment ordering, backup retention and conditional recovery
+are specified in [station privacy migration](../operations/station-privacy-migration.md).
+R01 remains open until both roots have verified clean public projections and all
+writers are safe; a private-path Rules test alone is insufficient.
 
 ## Location schema
 

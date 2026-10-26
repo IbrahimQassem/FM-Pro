@@ -249,6 +249,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Internal station metadata is readable only by Super Users; writes use the trusted callable.
+    match /{root}/stationPrivate/stations/{stationId} {
+      allow read: if isKnownRoot(root) && isSuperAdmin();
+      allow write: if false;
+    }
+
     match /{root}/banners/banners/{bannerId} {
       allow read: if isKnownRoot(root);
       allow write: if false;

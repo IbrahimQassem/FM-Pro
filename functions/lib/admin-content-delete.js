@@ -1,3 +1,4 @@
+import { publicStation, assertStationPrivateDeletion, validateStationPrivacyOptions } from './station-privacy.js';
 import { assertCounterAdjustment } from './admin-content-relations.js';
 import { randomUUID } from 'node:crypto';
 import { FieldValue } from 'firebase-admin/firestore';
@@ -27,6 +28,8 @@ export async function deleteAdminContent(args) {
       !validContentId(id) || !expected || typeof expected !== 'object' || Array.isArray(expected)) {
     throw new HttpsError('invalid-argument', 'Invalid deletion target or snapshot.');
   }
+  if (Object.hasOwn(data, 'deletePrivateFields')) throw new HttpsError('invalid-argument', 'Invalid deletion options.');
+  validateStationPrivacyOptions(kind, data);
   const actor = administrativeActor(args);
   if (['stations', 'banners'].includes(kind) && !actor.isSuperAdmin) throw new HttpsError('permission-denied', 'Super admin privileges are required.');
   const ref = db.doc(`${root}/${kind}/${kind}/${id}`);
@@ -34,7 +37,7 @@ export async function deleteAdminContent(args) {
     if (!actor.canManageStation(current.stationId) && ['programs', 'episodes'].includes(kind)) {
       throw new HttpsError('permission-denied', 'Not authorized to delete this station content.');
     }
-    if (deletionSnapshot(current) !== deletionSnapshot(expected)) fail('stale-content', 'The record changed. Reload it before deleting.');
+    if (deletionSnapshot(kind === 'stations' ? publicStation(current) : current) !== deletionSnapshot(kind === 'stations' ? publicStation(expected) : expected)) fail('stale-content', 'The record changed. Reload it before deleting.');
   };
   const token = randomUUID();
   let acquired = false;
@@ -65,6 +68,9 @@ export async function deleteAdminContent(args) {
       if (!current.exists) return;
       const value = current.data();
       authorize(value);
+      const privateRef = kind === 'stations' ? db.doc(`${root}/stationPrivate/stations/${id}`) : null;
+      const privateSnapshot = privateRef ? await tx.get(privateRef) : null;
+      if (privateRef) assertStationPrivateDeletion(value, privateSnapshot.exists ? privateSnapshot.data() : null, data);
       if (acquired && value.adminDeletionToken !== token) fail('deletion-replaced', 'Another deletion attempt replaced this one.');
       if (kind === 'stations' || kind === 'programs') {
         const group = kind === 'stations' ? 'programs' : 'episodes';
@@ -99,6 +105,7 @@ export async function deleteAdminContent(args) {
       const reservation = identityRef ? await tx.get(identityRef) : null;
       if (parent) tx.update(parent.ref, { [`stats.${counter}`]: FieldValue.increment(-1) });
       if (reservation?.exists && reservation.data().targetId === id) tx.delete(identityRef);
+      if (privateSnapshot?.exists) tx.delete(privateRef);
       tx.delete(ref);
       await recordEditorialAuditLog(tx, db, { root, targetKind: kind, targetId: id,
         targetTitle: value.name || value.title || id, action: 'delete', actorUid: actor.uid, actorEmail: actor.email,

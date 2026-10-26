@@ -1,0 +1,341 @@
+{
+  "schemaVersion": "1.0.0",
+  "feature": "technical-review",
+  "source": {
+    "pack": {
+      "name": "api-only",
+      "version": "1.0.0",
+      "hash": {
+        "algorithm": "sha256",
+        "value": "d3dfe8bdc4be0591506349dbda8db27ec8c1556521c9c9adbda0c09ea087c60c"
+      }
+    },
+    "artifactDag": {
+      "path": "../../../.codex/plugins/cache/boss-skill/boss/5.0.3/skill/assets/artifact-dag.json",
+      "version": "1.0.0",
+      "hash": {
+        "algorithm": "sha256",
+        "value": "7abbf1e47e6cbd2bfd61bcfe169aed63fe4db166ce34d743f4580ad2eb80986f"
+      }
+    }
+  },
+  "phases": [
+    {
+      "id": "stage-0",
+      "stage": 0,
+      "name": "intake",
+      "nodeIds": [
+        "artifact:design-brief"
+      ]
+    },
+    {
+      "id": "stage-1",
+      "stage": 1,
+      "name": "planning",
+      "nodeIds": [
+        "artifact:architecture.md",
+        "artifact:prd.md",
+        "artifact:ui-design-variants.json",
+        "artifact:ui-design.json",
+        "artifact:ui-spec.md"
+      ]
+    },
+    {
+      "id": "stage-2",
+      "stage": 2,
+      "name": "review",
+      "nodeIds": [
+        "artifact:strategic-review.md",
+        "artifact:tasks.md",
+        "artifact:tech-review.md"
+      ]
+    },
+    {
+      "id": "stage-3",
+      "stage": 3,
+      "name": "development",
+      "nodeIds": [
+        "artifact:code",
+        "artifact:qa-report.md",
+        "gate:gate0",
+        "gate:gate1",
+        "gate:gate2",
+        "gate:llm-judge",
+        "gate:owasp-scan"
+      ]
+    },
+    {
+      "id": "stage-4",
+      "stage": 4,
+      "name": "deployment",
+      "nodeIds": [
+        "artifact:changelog.md",
+        "artifact:deploy-report.md"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "artifact:design-brief",
+      "kind": "input",
+      "artifact": "design-brief",
+      "stage": 0,
+      "phase": "stage-0",
+      "inputs": [],
+      "writes": [],
+      "optional": true,
+      "description": "需求澄清产出（brainstorming）",
+      "agent": null
+    },
+    {
+      "id": "artifact:architecture.md",
+      "kind": "agent",
+      "artifact": "architecture.md",
+      "stage": 1,
+      "phase": "stage-1",
+      "inputs": [
+        "prd.md"
+      ],
+      "writes": [],
+      "optional": false,
+      "description": "架构设计文档",
+      "agent": "boss-architect"
+    },
+    {
+      "id": "artifact:prd.md",
+      "kind": "agent",
+      "artifact": "prd.md",
+      "stage": 1,
+      "phase": "stage-1",
+      "inputs": [
+        "design-brief"
+      ],
+      "writes": [],
+      "optional": false,
+      "description": "产品需求文档",
+      "agent": "boss-pm"
+    },
+    {
+      "id": "artifact:ui-design-variants.json",
+      "kind": "agent",
+      "artifact": "ui-design-variants.json",
+      "stage": 1,
+      "phase": "stage-1",
+      "inputs": [
+        "prd.md"
+      ],
+      "writes": [],
+      "optional": true,
+      "description": "UI 设计变体方案（2-3 个变体 + 对比分析）",
+      "agent": "boss-ui-designer"
+    },
+    {
+      "id": "artifact:ui-design.json",
+      "kind": "agent",
+      "artifact": "ui-design.json",
+      "stage": 1,
+      "phase": "stage-1",
+      "inputs": [
+        "prd.md"
+      ],
+      "writes": [],
+      "optional": true,
+      "description": "可渲染 UI 原型与机器约束 JSON",
+      "agent": "boss-ui-designer"
+    },
+    {
+      "id": "artifact:ui-spec.md",
+      "kind": "agent",
+      "artifact": "ui-spec.md",
+      "stage": 1,
+      "phase": "stage-1",
+      "inputs": [
+        "prd.md"
+      ],
+      "writes": [],
+      "optional": true,
+      "description": "UI/UX 设计规范",
+      "agent": "boss-ui-designer"
+    },
+    {
+      "id": "artifact:strategic-review.md",
+      "kind": "agent",
+      "artifact": "strategic-review.md",
+      "stage": 2,
+      "phase": "stage-2",
+      "inputs": [
+        "prd.md"
+      ],
+      "writes": [],
+      "optional": true,
+      "description": "战略评审报告（市场契合度、ROI、竞争优势）",
+      "agent": "boss-pm"
+    },
+    {
+      "id": "artifact:tasks.md",
+      "kind": "agent",
+      "artifact": "tasks.md",
+      "stage": 2,
+      "phase": "stage-2",
+      "inputs": [
+        "tech-review.md"
+      ],
+      "writes": [],
+      "optional": false,
+      "description": "任���拆解与测试用例",
+      "agent": "boss-scrum-master"
+    },
+    {
+      "id": "artifact:tech-review.md",
+      "kind": "agent",
+      "artifact": "tech-review.md",
+      "stage": 2,
+      "phase": "stage-2",
+      "inputs": [
+        "architecture.md",
+        "ui-spec.md",
+        "ui-design.json"
+      ],
+      "writes": [],
+      "optional": false,
+      "description": "技术评审报告",
+      "agent": "boss-tech-lead"
+    },
+    {
+      "id": "artifact:code",
+      "kind": "agent",
+      "artifact": "code",
+      "stage": 3,
+      "phase": "stage-3",
+      "inputs": [
+        "tasks.md"
+      ],
+      "writes": [],
+      "optional": false,
+      "description": "代码实现（前后端并行）",
+      "agent": [
+        "boss-frontend",
+        "boss-backend"
+      ],
+      "parallelGroup": "stage-3-code"
+    },
+    {
+      "id": "artifact:qa-report.md",
+      "kind": "agent",
+      "artifact": "qa-report.md",
+      "stage": 3,
+      "phase": "stage-3",
+      "inputs": [
+        "code",
+        "prd.md"
+      ],
+      "writes": [],
+      "optional": false,
+      "description": "QA 测试报告",
+      "agent": "boss-qa"
+    },
+    {
+      "id": "gate:gate0",
+      "kind": "gate",
+      "artifact": "gate0",
+      "stage": 3,
+      "phase": "stage-3",
+      "inputs": [
+        "code"
+      ],
+      "writes": [],
+      "optional": false,
+      "description": "代码质量门禁（编译 + Lint + 安全扫描）",
+      "gate": "gate0"
+    },
+    {
+      "id": "gate:gate1",
+      "kind": "gate",
+      "artifact": "gate1",
+      "stage": 3,
+      "phase": "stage-3",
+      "inputs": [
+        "code"
+      ],
+      "writes": [],
+      "optional": false,
+      "description": "测试门禁（覆盖率 + 通过率 + E2E）",
+      "gate": "gate1"
+    },
+    {
+      "id": "gate:gate2",
+      "kind": "gate",
+      "artifact": "gate2",
+      "stage": 3,
+      "phase": "stage-3",
+      "inputs": [
+        "code"
+      ],
+      "writes": [],
+      "optional": true,
+      "description": "性能门禁（Lighthouse + API P99，仅 Web 项目）",
+      "gate": "gate2"
+    },
+    {
+      "id": "gate:llm-judge",
+      "kind": "gate",
+      "artifact": "llm-judge",
+      "stage": 3,
+      "phase": "stage-3",
+      "inputs": [
+        "code",
+        "qa-report.md"
+      ],
+      "writes": [],
+      "optional": true,
+      "description": "LLM-as-Judge 产物质量评估（代码质量、测试完整性、架构合理性）",
+      "gate": "llm-judge"
+    },
+    {
+      "id": "gate:owasp-scan",
+      "kind": "gate",
+      "artifact": "owasp-scan",
+      "stage": 3,
+      "phase": "stage-3",
+      "inputs": [
+        "code"
+      ],
+      "writes": [],
+      "optional": true,
+      "description": "OWASP Top 10 安全模式扫描（注入、XSS、认证失效等）",
+      "gate": "owasp-scan"
+    },
+    {
+      "id": "artifact:changelog.md",
+      "kind": "agent",
+      "artifact": "changelog.md",
+      "stage": 4,
+      "phase": "stage-4",
+      "inputs": [
+        "deploy-report.md"
+      ],
+      "writes": [],
+      "optional": true,
+      "description": "自动生成的变更日志",
+      "agent": "boss-devops"
+    },
+    {
+      "id": "artifact:deploy-report.md",
+      "kind": "agent",
+      "artifact": "deploy-report.md",
+      "stage": 4,
+      "phase": "stage-4",
+      "inputs": [
+        "qa-report.md"
+      ],
+      "writes": [],
+      "optional": false,
+      "description": "部署报告",
+      "agent": "boss-devops"
+    }
+  ],
+  "validation": {
+    "deterministic": true,
+    "errors": []
+  }
+}

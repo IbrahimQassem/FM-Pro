@@ -137,3 +137,42 @@ web browsing with optional email/password accounts and browser episode alerts.
 Guest content remains read-only; personal mutations reuse the existing callables.
 The web persists only local station IDs/history and a push opt-in boolean outside
 Firebase SDK-managed Auth/Messaging storage. No production publication is implied.
+
+
+## Station and listener privacy amendment — C01, 2026-10-25
+
+The [data contract](firebase-data-contract.md#station-privacy-amendment--c01-2026-10-25)
+owns the exact 13-field partition, private revision and compatible save protocol.
+This amendment specifies the target boundary, not proof of deployment or cleanup.
+
+| Actor using client SDK | Public station read | Private station get/list | Private direct write |
+|---|---|---|---|
+| Guest, listener (verified or unverified) | Existing public policy | Deny | Deny |
+| Station admin (assigned or foreign station), moderator | Existing public policy | Deny | Deny |
+| Super-admin with validated existing claims | Existing public policy | Allow | Deny |
+| Unknown root or forged privilege | No additional access | Deny | Deny |
+
+Trusted server writes require validated super-admin authority for private edits;
+Admin SDK credentials do not replace callable authorization. Existing station
+save permissions remain super-admin-only. Mixed unauthorized payloads fail
+atomically. Synthetic Rules tests must exercise get/list and create/update/delete
+for both roots, including super-admin direct-write denial and unknown-root denial.
+Public snapshots must exclude all 13 keys, even for empty values. Client caches,
+exports and historical public reads cannot be retroactively revoked by moving a
+document; do not claim that migration removes previously obtained copies.
+
+The listener-email prohibition applies to canonical and legacy profile writers,
+logs, search and display fallbacks. Firebase Auth retains email for authentication
+and the current user's account screen. The existing private verification challenge
+is the narrow temporary-email exception already described above, not permission
+for a permanent user-email projection. No cleanup may delete Auth identities,
+change credentials, purge active verification challenges, or introduce a bulk
+Auth-email lookup. Existing administrative actor-email audit policy is outside
+this change and must not be silently expanded.
+
+Before bulk cleanup, all producer and restore paths must satisfy the
+[migration protocol](../operations/station-privacy-migration.md). Backups containing
+private values are encrypted, access-controlled, temporary and excluded from
+Git, `.boss/`, logs and public artifacts. Restore never puts station-private fields
+back into public documents or automatically restores profile email. Contract/code
+approval does not authorize production reads, deployment or data mutation.

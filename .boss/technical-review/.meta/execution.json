@@ -1,0 +1,523 @@
+{
+  "schemaVersion": "0.2.0",
+  "feature": "technical-review",
+  "createdAt": "2026-10-25T18:24:59.037Z",
+  "updatedAt": "2026-10-25T19:31:38.965Z",
+  "status": "initialized",
+  "parameters": {
+    "pipelinePack": "api-only",
+    "pipelinePackVersion": "1.0.0",
+    "enabledGates": [
+      "gate0",
+      "gate1",
+      "gate2"
+    ],
+    "activeAgents": [
+      "boss-pm",
+      "boss-architect",
+      "boss-tech-lead",
+      "boss-scrum-master",
+      "boss-backend",
+      "boss-qa",
+      "boss-devops"
+    ],
+    "packConfig": {
+      "roles": "custom",
+      "agents": [
+        "boss-pm",
+        "boss-architect",
+        "boss-tech-lead",
+        "boss-scrum-master",
+        "boss-backend",
+        "boss-qa",
+        "boss-devops"
+      ],
+      "gates": [
+        "gate0",
+        "gate1",
+        "gate2"
+      ],
+      "skipUI": true,
+      "skipFrontend": true
+    },
+    "skipUI": true,
+    "skipDeploy": false,
+    "quick": false,
+    "hitlLevel": "auto",
+    "roles": "custom",
+    "skipFrontend": true,
+    "artifactDag": {
+      "path": "../../../.codex/plugins/cache/boss-skill/boss/5.0.3/skill/assets/artifact-dag.json",
+      "version": "1.0.0",
+      "hash": {
+        "algorithm": "sha256",
+        "value": "7abbf1e47e6cbd2bfd61bcfe169aed63fe4db166ce34d743f4580ad2eb80986f"
+      }
+    },
+    "workflowPlanPath": ".boss/technical-review/.meta/workflow-plan.json",
+    "workflowHash": "e69d59cf67439a4e26cb70d86a57aeeecc7ebd44ae2dd3b7932e60b5433c920c",
+    "packHash": "d3dfe8bdc4be0591506349dbda8db27ec8c1556521c9c9adbda0c09ea087c60c",
+    "artifactDagHash": "7abbf1e47e6cbd2bfd61bcfe169aed63fe4db166ce34d743f4580ad2eb80986f",
+    "runId": "d75f785a8e7610e45bf5467f4eda0fdd4b3148b03f87609b18550888c3dd4d79"
+  },
+  "stages": {
+    "1": {
+      "name": "planning",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "retryCount": 0,
+      "maxRetries": 2,
+      "failureReason": null,
+      "artifacts": [],
+      "gateResults": {}
+    },
+    "2": {
+      "name": "review",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "retryCount": 0,
+      "maxRetries": 2,
+      "failureReason": null,
+      "artifacts": [
+        "tech-review.md",
+        "tech-review.html",
+        "WO-01.md",
+        "WO-01.html",
+        "WO-02.md",
+        "WO-02.html",
+        "WO-03.md",
+        "WO-03.html",
+        "WO-04.md",
+        "WO-04.html",
+        "execution-plan.md",
+        "execution-plan.html",
+        "waves.json"
+      ],
+      "gateResults": {},
+      "agents": {
+        "boss-tech-lead": {
+          "status": "completed",
+          "startTime": null,
+          "endTime": "2026-10-25T18:31:39.572Z",
+          "retryCount": 0,
+          "maxRetries": 2,
+          "failureReason": null,
+          "promptFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "inputDigest": "e2026d7b9a1a6b1efc3b9ec15558d708840d58ae26b91a2d2567ff0b1b0156f4"
+        },
+        "boss-scrum-master": {
+          "status": "completed",
+          "startTime": null,
+          "endTime": "2026-10-25T19:09:28.270Z",
+          "retryCount": 0,
+          "maxRetries": 2,
+          "failureReason": null,
+          "promptFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "inputDigest": "8eeca291c39c80da6c90e185f7361ba77818f85bad81fd5e57f392870a3a718c"
+        }
+      }
+    },
+    "3": {
+      "name": "development",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "retryCount": 0,
+      "maxRetries": 2,
+      "failureReason": null,
+      "artifacts": [
+        "WO-01-validation.md",
+        "WO-01-validation.html"
+      ],
+      "gateResults": {},
+      "agents": {
+        "boss-backend": {
+          "status": "running",
+          "startTime": "2026-10-25T19:31:38.965Z",
+          "endTime": null,
+          "retryCount": 0,
+          "maxRetries": 2,
+          "failureReason": null,
+          "promptFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "inputDigest": "b780f9cf4ff4565a233e9420abc8f754a28b302086b256954b36e80fc3c9997b"
+        }
+      }
+    },
+    "4": {
+      "name": "deployment",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "retryCount": 0,
+      "maxRetries": 2,
+      "failureReason": null,
+      "artifacts": [],
+      "gateResults": {}
+    }
+  },
+  "qualityGates": {
+    "gate0": {
+      "status": "pending",
+      "passed": null,
+      "checks": [],
+      "executedAt": null
+    },
+    "gate1": {
+      "status": "pending",
+      "passed": null,
+      "checks": [],
+      "executedAt": null
+    },
+    "gate2": {
+      "status": "pending",
+      "passed": null,
+      "checks": [],
+      "executedAt": null
+    }
+  },
+  "metrics": {
+    "totalDuration": null,
+    "stageTimings": {},
+    "gatePassRate": null,
+    "retryTotal": 0,
+    "agentSuccessCount": 2,
+    "agentFailureCount": 0,
+    "meanRetriesPerStage": 0,
+    "revisionLoopCount": 0,
+    "pluginFailureCount": 0
+  },
+  "plugins": [],
+  "pluginLifecycle": {
+    "discovered": [],
+    "activated": [],
+    "executed": [],
+    "failed": []
+  },
+  "conversations": {
+    "threads": [],
+    "messages": [],
+    "resolutions": []
+  },
+  "derivedTodos": [],
+  "conversationMetrics": {
+    "opened": 0,
+    "resolved": 0,
+    "todos": 0,
+    "huddles": 0,
+    "unresolved": 0
+  },
+  "humanInterventions": [],
+  "revisionRequests": [],
+  "feedbackLoops": {
+    "maxRounds": 2,
+    "currentRound": 0,
+    "rounds": {}
+  },
+  "workflow": {
+    "planPath": ".boss/technical-review/.meta/workflow-plan.json",
+    "hash": "e69d59cf67439a4e26cb70d86a57aeeecc7ebd44ae2dd3b7932e60b5433c920c",
+    "nodes": {
+      "artifact:design-brief": {
+        "id": "artifact:design-brief",
+        "kind": "input",
+        "artifact": "design-brief",
+        "stage": 0,
+        "phase": "stage-0",
+        "inputs": [],
+        "writes": [],
+        "optional": true,
+        "description": "需求澄清产出（brainstorming）",
+        "agent": null,
+        "status": "skipped",
+        "decision": "skip",
+        "reason": "input-node",
+        "updatedAt": "2026-10-25T18:31:39.187Z"
+      },
+      "artifact:architecture.md": {
+        "id": "artifact:architecture.md",
+        "kind": "agent",
+        "artifact": "architecture.md",
+        "stage": 1,
+        "phase": "stage-1",
+        "inputs": [
+          "prd.md"
+        ],
+        "writes": [],
+        "optional": false,
+        "description": "架构设计文档",
+        "agent": "boss-architect",
+        "status": "blocked"
+      },
+      "artifact:prd.md": {
+        "id": "artifact:prd.md",
+        "kind": "agent",
+        "artifact": "prd.md",
+        "stage": 1,
+        "phase": "stage-1",
+        "inputs": [
+          "design-brief"
+        ],
+        "writes": [],
+        "optional": false,
+        "description": "产品需求文档",
+        "agent": "boss-pm",
+        "status": "ready"
+      },
+      "artifact:ui-design-variants.json": {
+        "id": "artifact:ui-design-variants.json",
+        "kind": "agent",
+        "artifact": "ui-design-variants.json",
+        "stage": 1,
+        "phase": "stage-1",
+        "inputs": [
+          "prd.md"
+        ],
+        "writes": [],
+        "optional": true,
+        "description": "UI 设计变体方案（2-3 个变体 + 对比分析）",
+        "agent": "boss-ui-designer",
+        "status": "skipped",
+        "decision": "skip",
+        "reason": "opt-in-only-artifact",
+        "updatedAt": "2026-10-25T18:31:39.187Z"
+      },
+      "artifact:ui-design.json": {
+        "id": "artifact:ui-design.json",
+        "kind": "agent",
+        "artifact": "ui-design.json",
+        "stage": 1,
+        "phase": "stage-1",
+        "inputs": [
+          "prd.md"
+        ],
+        "writes": [],
+        "optional": true,
+        "description": "可渲染 UI 原型与机器约束 JSON",
+        "agent": "boss-ui-designer",
+        "status": "blocked"
+      },
+      "artifact:ui-spec.md": {
+        "id": "artifact:ui-spec.md",
+        "kind": "agent",
+        "artifact": "ui-spec.md",
+        "stage": 1,
+        "phase": "stage-1",
+        "inputs": [
+          "prd.md"
+        ],
+        "writes": [],
+        "optional": true,
+        "description": "UI/UX 设计规范",
+        "agent": "boss-ui-designer",
+        "status": "blocked"
+      },
+      "artifact:strategic-review.md": {
+        "id": "artifact:strategic-review.md",
+        "kind": "agent",
+        "artifact": "strategic-review.md",
+        "stage": 2,
+        "phase": "stage-2",
+        "inputs": [
+          "prd.md"
+        ],
+        "writes": [],
+        "optional": true,
+        "description": "战略评审报告（市场契合度、ROI、竞争优势）",
+        "agent": "boss-pm",
+        "status": "skipped",
+        "decision": "skip",
+        "reason": "opt-in-only-artifact",
+        "updatedAt": "2026-10-25T18:31:39.187Z"
+      },
+      "artifact:tasks.md": {
+        "id": "artifact:tasks.md",
+        "kind": "agent",
+        "artifact": "tasks.md",
+        "stage": 2,
+        "phase": "stage-2",
+        "inputs": [
+          "tech-review.md"
+        ],
+        "writes": [],
+        "optional": false,
+        "description": "任���拆解与测试用例",
+        "agent": "boss-scrum-master",
+        "status": "completed",
+        "reason": "agent-completed",
+        "updatedAt": "2026-10-25T19:09:28.270Z"
+      },
+      "artifact:tech-review.md": {
+        "id": "artifact:tech-review.md",
+        "kind": "agent",
+        "artifact": "tech-review.md",
+        "stage": 2,
+        "phase": "stage-2",
+        "inputs": [
+          "architecture.md",
+          "ui-spec.md",
+          "ui-design.json"
+        ],
+        "writes": [],
+        "optional": false,
+        "description": "技术评审报告",
+        "agent": "boss-tech-lead",
+        "status": "completed",
+        "reason": "agent-completed",
+        "updatedAt": "2026-10-25T18:31:39.572Z"
+      },
+      "artifact:code": {
+        "id": "artifact:code",
+        "kind": "agent",
+        "artifact": "code",
+        "stage": 3,
+        "phase": "stage-3",
+        "inputs": [
+          "tasks.md"
+        ],
+        "writes": [],
+        "optional": false,
+        "description": "代码实现（前后端并行）",
+        "agent": [
+          "boss-frontend",
+          "boss-backend"
+        ],
+        "parallelGroup": "stage-3-code",
+        "status": "running",
+        "reason": "agent-started",
+        "updatedAt": "2026-10-25T19:31:38.965Z"
+      },
+      "artifact:qa-report.md": {
+        "id": "artifact:qa-report.md",
+        "kind": "agent",
+        "artifact": "qa-report.md",
+        "stage": 3,
+        "phase": "stage-3",
+        "inputs": [
+          "code",
+          "prd.md"
+        ],
+        "writes": [],
+        "optional": false,
+        "description": "QA 测试报告",
+        "agent": "boss-qa",
+        "status": "blocked"
+      },
+      "gate:gate0": {
+        "id": "gate:gate0",
+        "kind": "gate",
+        "artifact": "gate0",
+        "stage": 3,
+        "phase": "stage-3",
+        "inputs": [
+          "code"
+        ],
+        "writes": [],
+        "optional": false,
+        "description": "代码质量门禁（编译 + Lint + 安全扫描）",
+        "gate": "gate0",
+        "status": "blocked"
+      },
+      "gate:gate1": {
+        "id": "gate:gate1",
+        "kind": "gate",
+        "artifact": "gate1",
+        "stage": 3,
+        "phase": "stage-3",
+        "inputs": [
+          "code"
+        ],
+        "writes": [],
+        "optional": false,
+        "description": "测试门禁（覆盖率 + 通过率 + E2E）",
+        "gate": "gate1",
+        "status": "blocked"
+      },
+      "gate:gate2": {
+        "id": "gate:gate2",
+        "kind": "gate",
+        "artifact": "gate2",
+        "stage": 3,
+        "phase": "stage-3",
+        "inputs": [
+          "code"
+        ],
+        "writes": [],
+        "optional": true,
+        "description": "性能门禁（Lighthouse + API P99，仅 Web 项目）",
+        "gate": "gate2",
+        "status": "blocked"
+      },
+      "gate:llm-judge": {
+        "id": "gate:llm-judge",
+        "kind": "gate",
+        "artifact": "llm-judge",
+        "stage": 3,
+        "phase": "stage-3",
+        "inputs": [
+          "code",
+          "qa-report.md"
+        ],
+        "writes": [],
+        "optional": true,
+        "description": "LLM-as-Judge 产物质量评估（代码质量、测试完整性、架构合理性）",
+        "gate": "llm-judge",
+        "status": "blocked"
+      },
+      "gate:owasp-scan": {
+        "id": "gate:owasp-scan",
+        "kind": "gate",
+        "artifact": "owasp-scan",
+        "stage": 3,
+        "phase": "stage-3",
+        "inputs": [
+          "code"
+        ],
+        "writes": [],
+        "optional": true,
+        "description": "OWASP Top 10 安全模式扫描（注入、XSS、认证失效等）",
+        "gate": "owasp-scan",
+        "status": "blocked"
+      },
+      "artifact:changelog.md": {
+        "id": "artifact:changelog.md",
+        "kind": "agent",
+        "artifact": "changelog.md",
+        "stage": 4,
+        "phase": "stage-4",
+        "inputs": [
+          "deploy-report.md"
+        ],
+        "writes": [],
+        "optional": true,
+        "description": "自动生成的变更日志",
+        "agent": "boss-devops",
+        "status": "skipped",
+        "decision": "skip",
+        "reason": "opt-in-only-artifact",
+        "updatedAt": "2026-10-25T18:31:39.187Z"
+      },
+      "artifact:deploy-report.md": {
+        "id": "artifact:deploy-report.md",
+        "kind": "agent",
+        "artifact": "deploy-report.md",
+        "stage": 4,
+        "phase": "stage-4",
+        "inputs": [
+          "qa-report.md"
+        ],
+        "writes": [],
+        "optional": false,
+        "description": "部署报告",
+        "agent": "boss-devops",
+        "status": "blocked"
+      }
+    },
+    "nextNodeIds": [
+      "artifact:prd.md"
+    ],
+    "updatedAt": "2026-10-25T19:31:38.965Z"
+  },
+  "pause": null
+}

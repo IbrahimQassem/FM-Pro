@@ -1,3 +1,4 @@
+import { publicStation, prepareStationPrivacy, validateStationPrivacyOptions } from './station-privacy.js';
 import { administrativeActor } from './admin-content-authorization.js';
 import { randomUUID } from 'node:crypto';
 import { FieldValue } from 'firebase-admin/firestore';
@@ -79,6 +80,7 @@ export async function saveAdminContent({
       (source !== undefined && source !== 'editor' && source !== 'import')) {
     throw new HttpsError('invalid-argument', 'An explicit edit precondition is required.');
   }
+  validateStationPrivacyOptions(kind, data);
   content = validateAdminContent(kind, content);
   const actorName = actor.name;
   const docRef = firestore.doc(`${root}/${kind}/${kind}/${id}`);
@@ -92,8 +94,13 @@ export async function saveAdminContent({
         (!validId(existing.stationId) || !canManageStation(existing.stationId))) {
       throw new HttpsError('permission-denied', 'Not authorized to manage the existing station.');
     }
-    const same = (first, second) => JSON.stringify(editableContent(kind, first)) === JSON.stringify(editableContent(kind, second));
-    if (existing && same(existing, content)) { action = 'unchanged'; return; }
+    const privateRef = kind === 'stations' ? firestore.doc(`${root}/stationPrivate/stations/${id}`) : null;
+    const privateSnapshot = privateRef ? await tx.get(privateRef) : null;
+    const privacy = privateRef ? prepareStationPrivacy(existing, privateSnapshot.exists ? privateSnapshot.data() : null, data) : null;
+    const projection = value => editableContent(kind, kind === 'stations' ? publicStation(value) : value);
+    const same = (first, second) => JSON.stringify(projection(first)) === JSON.stringify(projection(second));
+    if (existing && same(existing, content) && (!privacy || (!privacy.changed && !privacy.scrub))) { action = 'unchanged'; return; }
+    privacy?.checkPrecondition();
     if ((expected !== null && !existing) || (existing && (expected === null || !same(existing, expected)))) {
       throw new HttpsError('failed-precondition', 'The record changed. Reload it before saving.');
     }
@@ -107,12 +114,13 @@ export async function saveAdminContent({
     const identityWrites = await prepareContentIdentity(tx, firestore, { root, kind, id, content, existing });
     const stats = initialContentStats(kind);
     const payload = {
-      ...content, ...actorFields,
+      ...(privacy ? publicStation(content) : content), ...actorFields,
       ...(!existing ? { createdBy: callerUid, createdByName: actorName, createdAt: FieldValue.serverTimestamp(),
         ...(stats ? { stats } : {}) } : {}),
     };
     for (const write of [...writes, ...identityWrites]) write();
-    tx.set(docRef, payload, { merge: Boolean(existing) });
+    if (privacy?.needsWrite) tx.set(privateRef, privacy.document);
+    tx.set(docRef, privacy ? { ...publicStation(existing), ...payload } : payload, { merge: privacy ? false : Boolean(existing) });
     await recordEditorialAuditLog(tx, firestore, { root, targetKind: kind, targetId: id,
       targetTitle: content.name || content.title || content.cityNameAr || id,
       action: source === 'import' ? 'import' : action,

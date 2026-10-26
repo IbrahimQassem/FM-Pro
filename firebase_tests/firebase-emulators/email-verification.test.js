@@ -14,7 +14,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { connectFunctionsEmulator, getFunctions, httpsCallable } from "firebase/functions";
-import { doc, getDoc, Timestamp, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, Timestamp, updateDoc } from "firebase/firestore";
 
 const projectId = "demo-hudhud-fm-email-verification";
 const email = "verify-me@example.test";
@@ -94,6 +94,7 @@ test("delivers a code, verifies Auth, and creates the canonical profile", async 
     );
     assert.equal(profile.get("displayName"), "Verified listener");
     assert.equal(profile.get("role"), "listener");
+    assert.equal(Object.hasOwn(profile.data(), 'email'), false);
     assert.equal(challenge.exists(), false);
   });
 
@@ -102,6 +103,41 @@ test("delivers a code, verifies Auth, and creates the canonical profile", async 
     (error) => error.code === "functions/not-found",
   );
 });
+
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  test(`R10 verification creates an email-free profile with a neutral fallback in ${root}`, async () => {
+    await signOut(auth);
+    const { user } = await signInAnonymously(auth);
+    const address = `privacy-fallback-${root.toLowerCase()}@example.test`;
+    await httpsCallable(functions, 'requestEmailVerificationCode')({ root, email: address });
+    await httpsCallable(functions, 'verifyEmailCode')({ root, code: deliveredCode });
+    const verified = await adminAuth.getUser(user.uid);
+    assert.equal(verified.email, address);
+    assert.equal(verified.emailVerified, true);
+    await testEnvironment.withSecurityRulesDisabled(async context => {
+      const profile = await getDoc(doc(context.firestore(), `${root}/users/users/${user.uid}`));
+      assert.equal(profile.get('displayName'), 'Listener');
+      assert.equal(Object.hasOwn(profile.data(), 'email'), false);
+    });
+  });
+
+  test(`R10 bootstrap preserves an existing explicit name without email backfill in ${root}`, async () => {
+    await signOut(auth);
+    const address = `privacy-existing-${root.toLowerCase()}@example.test`;
+    const user = await adminAuth.createUser({ email: address, emailVerified: true, password });
+    const existing = { displayName: 'Chosen@listener', isActive: true, role: 'listener', username: 'chosen' };
+    await testEnvironment.withSecurityRulesDisabled(async context => {
+      await setDoc(doc(context.firestore(), `${root}/users/users/${user.uid}`), existing);
+    });
+    await signInWithEmailAndPassword(auth, address, password);
+    assert.equal((await httpsCallable(functions, 'ensureAccountProfile')({ root })).data.ready, true);
+    await testEnvironment.withSecurityRulesDisabled(async context => {
+      const profile = await getDoc(doc(context.firestore(), `${root}/users/users/${user.uid}`));
+      assert.deepEqual(profile.data(), existing);
+    });
+    assert.equal((await adminAuth.getUser(user.uid)).email, address);
+  });
+}
 
 test("rejects a wrong code and preserves the remaining attempt count", async () => {
   await signOut(auth);

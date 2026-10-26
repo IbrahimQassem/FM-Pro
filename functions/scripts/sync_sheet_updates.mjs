@@ -1,23 +1,10 @@
+import { validatePublicStationWrite } from '../../tool/firebase_seed/seed_contract.mjs';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { initializeApp } from 'firebase-admin/app';
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
 
 const expectedProjectId = 'sanadev-fm';
-const args = process.argv.slice(2);
-const shouldApply = args.includes('--apply');
-const targetRoots = args.includes('--both-roots') 
-  ? ['HudHudOfficial', 'HudHudDev'] 
-  : ['HudHudOfficial'];
-
-console.log('====================================================');
-console.log('HudHud FM — Google Sheet Sync to Firestore');
-console.log(`Target Project: ${expectedProjectId}`);
-console.log(`Roots: ${targetRoots.join(', ')}`);
-console.log(`Mode: ${shouldApply ? 'APPLY (Live Writes)' : 'DRY-RUN (Simulation)'}`);
-console.log('====================================================\n');
-
-initializeApp({ projectId: expectedProjectId });
-const db = getFirestore();
-
 // 1. Location definition for Socotra
 const socotraLocation = {
   id: 'ye-socotra',
@@ -276,67 +263,103 @@ const streamUpgrades = [
   },
 ];
 
-async function run() {
+export async function runSheetSync({
+  db, targetRoots = ['HudHudOfficial'], shouldApply = false,
+  stations = newStations, upgrades = streamUpgrades, log = console.log,
+}) {
+  // Validate the entire plan before any reads or writes, including dry runs.
+  if (!Array.isArray(targetRoots) || !targetRoots.length ||
+      targetRoots.some(root => !['HudHudDev', 'HudHudOfficial'].includes(root))) {
+    throw new Error('Invalid sheet sync root.');
+  }
+  const isTimestamp = value => value instanceof Timestamp ||
+    (value instanceof FieldValue && value.isEqual(FieldValue.serverTimestamp()));
+  for (const station of stations) validatePublicStationWrite(station.data, { isTimestamp });
+  for (const upgrade of upgrades) {
+    validatePublicStationWrite(upgrade.updates, { streamUpdate: true, isTimestamp });
+  }
   for (const root of targetRoots) {
-    console.log(`\n--- Processing Root: ${root} ---`);
+    log(`\n--- Processing Root: ${root} ---`);
     const stationsCol = db.collection(root).doc('stations').collection('stations');
     const locationsCol = db.collection(root).doc('locations').collection('locations');
 
     // Check location ye-socotra
     const locDoc = await locationsCol.doc(socotraLocation.id).get();
     if (!locDoc.exists) {
-      console.log(`[+] Location to create: ${root}/locations/locations/${socotraLocation.id} (${socotraLocation.data.cityNameAr})`);
+      log('[+] Location to create.');
       if (shouldApply) {
         await locationsCol.doc(socotraLocation.id).set(socotraLocation.data);
       }
     } else {
-      console.log(`[=] Location already exists: ${root}/locations/locations/${socotraLocation.id}`);
+      log('[=] Location already exists.');
     }
 
     // Check and create new stations
-    for (const st of newStations) {
+    for (const st of stations) {
       const doc = await stationsCol.doc(st.id).get();
       if (!doc.exists) {
-        console.log(`[+] New Station to create: ${st.id} - ${st.data.name} (Frequency: ${st.data.frequency}, Live: ${st.data.isLive})`);
+        log('[+] Station to create.');
         if (shouldApply) {
           await stationsCol.doc(st.id).set(st.data);
         }
       } else {
-        console.log(`[=] Station already exists: ${st.id} - ${st.data.name}`);
+        log('[=] Station already exists.');
       }
     }
 
     // Check and upgrade live streams on existing stations
-    for (const up of streamUpgrades) {
+    for (const up of upgrades) {
       const doc = await stationsCol.doc(up.id).get();
       if (doc.exists) {
         const currentUrl = doc.get('streamUrl');
         if (currentUrl !== up.updates.streamUrl) {
-          console.log(`[^] Stream upgrade for ${up.id} (${up.name}):\n    From: ${currentUrl}\n    To:   ${up.updates.streamUrl}`);
+          log('[^] Stream update required.');
           if (shouldApply) {
             await stationsCol.doc(up.id).update(up.updates);
           }
         } else {
-          console.log(`[=] Stream already updated for ${up.id} (${up.name})`);
+          log('[=] Stream already updated.');
         }
       } else {
-        console.log(`[!] Warning: Existing station ${up.id} not found in ${root}`);
+        log('[!] Existing station not found.');
       }
     }
   }
 
-  console.log('\n====================================================');
+  log('\n====================================================');
   if (shouldApply) {
-    console.log('✅ ALL UPDATES APPLIED TO FIRESTORE SUCCESSFULLY!');
+    log('✅ ALL UPDATES APPLIED TO FIRESTORE SUCCESSFULLY!');
   } else {
-    console.log('🔍 DRY RUN COMPLETE — No changes were written to Firestore.');
-    console.log('To apply these changes, run:');
-    console.log('  node scripts/sync_sheet_updates.mjs --apply');
+    log('🔍 DRY RUN COMPLETE — No changes were written to Firestore.');
+    log('To apply these changes, run:');
+    log('  node scripts/sync_sheet_updates.mjs --apply');
   }
-  console.log('====================================================');
+  log('====================================================');
 }
 
-run().catch((err) => {
-  console.error('Fatal error during sync:', err);
-  process.exit(1);
-});
+async function main() {
+  const args = process.argv.slice(2);
+  const shouldApply = args.includes('--apply');
+  const targetRoots = args.includes('--both-roots')
+    ? ['HudHudOfficial', 'HudHudDev']
+    : ['HudHudOfficial'];
+
+  console.log('====================================================');
+  console.log('HudHud FM — Google Sheet Sync to Firestore');
+  console.log(`Target Project: ${expectedProjectId}`);
+  console.log(`Roots: ${targetRoots.join(', ')}`);
+  console.log(`Mode: ${shouldApply ? 'APPLY (Live Writes)' : 'DRY-RUN (Simulation)'}`);
+  console.log('====================================================\n');
+
+  initializeApp({ projectId: expectedProjectId });
+  const db = getFirestore();
+
+  await runSheetSync({ db, targetRoots, shouldApply });
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch(() => {
+    console.error('Sheet sync failed; no payload details logged.');
+    process.exitCode = 1;
+  });
+}

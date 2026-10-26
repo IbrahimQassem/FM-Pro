@@ -102,6 +102,35 @@ function listenerProfile(overrides = {}) {
   };
 }
 
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  test(`${root}: R01 private station metadata is super-admin readable and server-write-only`, async () => {
+    const path = `${root}/stationPrivate/stations/privacy-fixture`;
+    await seed(path, { schemaVersion: 1, revision: 1, owner: 'Synthetic owner' });
+    const denied = [anonymousDb(), userDb('unverified', { email_verified: false }),
+      userDb('listener'), userDb('station-admin', { admin: true, role: 'station_admin', assignedStations: ['privacy-fixture'] }),
+      userDb('foreign-admin', { admin: true, role: 'station_admin', assignedStations: ['elsewhere'] }),
+      userDb('moderator', { admin: true, role: 'moderator' })];
+    for (const db of denied) {
+      await assertFails(getDoc(doc(db, path)));
+      await assertFails(getDocs(collection(db, `${root}/stationPrivate/stations`)));
+    }
+    for (const db of [userDb('legacy-super', { admin: true }),
+      userDb('explicit-super', { role: 'super_admin' })]) {
+      await assertSucceeds(getDoc(doc(db, path)));
+      await assertSucceeds(getDocs(collection(db, `${root}/stationPrivate/stations`)));
+    }
+    for (const db of [...denied, userDb('super-writer', { admin: true })]) {
+      await assertFails(setDoc(doc(db, `${path}-new`), { owner: 'Forged' }));
+      await assertFails(updateDoc(doc(db, path), { owner: 'Forged' }));
+      await assertFails(deleteDoc(doc(db, path)));
+    }
+    const superDb = userDb('unknown-root-super', { admin: true });
+    await seed('UnknownRoot/stationPrivate/stations/privacy-fixture', { revision: 1 });
+    await assertFails(getDoc(doc(superDb, 'UnknownRoot/stationPrivate/stations/privacy-fixture')));
+    await assertFails(getDocs(collection(superDb, 'UnknownRoot/stationPrivate/stations')));
+  });
+}
+
 function validComment(uid, overrides = {}) {
   return {
     episodeId: "episode-1",

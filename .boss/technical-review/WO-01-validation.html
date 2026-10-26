@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WO-01 implementation evidence - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#wo-01-implementation-evidence">WO-01 implementation evidence</a></li><li class="toc-level-2"><a href="#summary">Summary</a></li><li class="toc-level-2"><a href="#execution-and-locks">Execution and locks</a></li><li class="toc-level-2"><a href="#actual-evidence">Actual evidence</a></li><li class="toc-level-2"><a href="#independent-b02-reviewed-source-hashes">Independent B02 reviewed source hashes</a></li><li class="toc-level-2"><a href="#remaining-checkpoints">Remaining checkpoints</a></li><li class="toc-level-2"><a href="#b02-disposition">B02 disposition</a></li></ul>
+    </aside>
+    <main>
+      <h1>WO-01 implementation evidence</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: WO-01-validation.md</div>
+        <div>Generated: 2026-10-25T19:31:27.870Z</div>
+      </div>
+      <h1 id="wo-01-implementation-evidence">WO-01 implementation evidence</h1>
+<h2 id="summary">Summary</h2>
+<ul><li>Authorized scope: WO-01/R01/R10 code and tests only. No production access, deployment, live migration or protected-branch merge.</li><li>Baseline: <code>9fae3248aadecaa53198a5fb9f06576fdcc182cf</code>, branch <code>hudhud_fm</code>; initial tracked tree clean.</li><li>Node gates use installed Node <code>22.23.3</code>; PATH default Node26 is not used for application acceptance.</li><li>C01 contract independently reviewed; deletion-precondition and legacy-conflict clarifications incorporated before fixes.</li><li>R01 and R10 remain <strong>OPEN</strong>. Code and local proof do not establish live-data cleanup.</li></ul>
+<h2 id="execution-and-locks">Execution and locks</h2>
+<p>I owns the shared contracts, Rules/tests and delete source. BE owns the unique partition/save/helper tests and real editorial emulator test. Runtime E is exclusive to I. All other work orders remain unexecuted. B01 executes C01 only; its WO-03/04 milestones are outside this authorization.</p>
+<h2 id="actual-evidence">Actual evidence</h2>
+<table><thead><tr><th>Check</th><th>Result</th><th>Evidence</th></tr></thead><tbody><tr><td>B02 original existing-boundary RED</td><td>44 cases:34 pass,10 intended assertion failures,0 skips</td><td><code>evidence/WO-01/B02-privacy-baseline-red.log</code></td></tr><tr><td>B02 C01-aligned RED</td><td>44 cases:32 pass,12 intended behavior failures; no setup failure counted</td><td><code>evidence/WO-01/B02-C01-baseline-red.log</code></td></tr><tr><td>Functions owning-package GREEN</td><td>192 passed,0 failed/skipped</td><td><code>evidence/WO-01/B02-functions-full-test.log</code></td></tr><tr><td>Functions lint and explicit new-helper syntax</td><td>Passed</td><td><code>B02-functions-lint.log</code>, <code>B02-helper-syntax.log</code> in evidence directory</td></tr><tr><td>Rules baseline RED</td><td>35 cases:33 pass,2 intended super-admin private-read denials,0 skips</td><td><code>evidence/WO-01/B02-rules-red.log</code></td></tr><tr><td>Rules GREEN</td><td>35 passed,0 failed/skipped</td><td><code>evidence/WO-01/B02-rules-green.log</code></td></tr><tr><td>Independent source review</td><td>No concrete B02 bypass/regression; independent70/70 focused tests pass</td><td>Reviewer <code>wo01_b02_independent_review</code>, source hashes retained below</td></tr><tr><td>Real editorial transaction/rollback/concurrency GREEN</td><td>51 passed,0 failed/skipped</td><td><code>evidence/WO-01/B02-editorial-green.log</code>, including10 new both-root cases</td></tr></tbody></table>
+<p>The initial sandbox-localhost startup failure was environmental, was not counted as RED, and was rerun with approved emulator permissions. No pending/failed integration check is treated as PASS.</p>
+<h2 id="independent-b02-reviewed-source-hashes">Independent B02 reviewed source hashes</h2>
+<pre><code class="language-text">firestore.rules 88257caf2c8728d89139c79df4b34d79dad099fa2fd5bf5c6055e50af9e5fb68
+firebase_tests/firebase-rules/firestore.rules.test.js 3c3958499e93b924fd7700bf9463bd54b04336e65a42857ab2a8d0d78a2873f9
+functions/lib/editorial-audit.js 23b3b34953ad59f82a19a2ccdb64699e4d223468eeb786bff7a89f037080fd55
+functions/lib/admin-content-delete.js edc6ef13b7785a81635301c0a9974275bd08183fd3cb862d7ffdf055bf1d3cc2
+functions/lib/station-privacy.js d5ba30dead1e65a34d3cb253e8e91a730a3b4a5e66adf88e849b069d3df85305</code></pre>
+<h2 id="remaining-checkpoints">Remaining checkpoints</h2>
+<p>B02 is locally verified with independent review; B04 is in progress under DT ownership. B05/B03/B06 have not started. Full B15 privacy integration includes out-of-scope dependencies and cannot be completed by this authorization alone. The17 skipped-test registry remains mandatory. Live cleanup, backup location/retention approval, production verification and any rollout remain pending and prohibited in this run.</p>
+<h2 id="b02-disposition">B02 disposition</h2>
+<p>01-T02/03/04 have local implementation, behavioral RED, relevant owning-package GREEN, independent source review, and real demo Firestore transaction/Rules evidence. This permits the B04 code dependency handoff. It is not WO-01 completion, live-data acceptance or finding closure. The approved C01 private deletion/legacy conflict protocol supersedes the earlier planning ambiguity. <code>admin-content.js</code> required no change because its existing validator already accepts and validates the mixed editable input; the storage partition is enforced at the shared save boundary.</p>
+    </main>
+  </div>
+</body>
+</html>

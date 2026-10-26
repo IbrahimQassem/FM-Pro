@@ -70,7 +70,7 @@ test('ensureActiveSubscriptionProfile creates self-healing profile when missing'
   assert.equal(created[0].path, 'HudHudDev/users/users/user-new');
   assert.equal(created[0].data.role, 'listener');
   assert.equal(created[0].data.isActive, true);
-  assert.equal(created[0].data.email, 'new@example.com');
+  assert.equal(Object.hasOwn(created[0].data, 'email'), false);
   assert.equal(created[0].data.displayName, 'New Listener');
 });
 
@@ -128,3 +128,19 @@ test('ensureActiveSubscriptionProfile rejects inactive profile, disallowed roles
   };
   await assert.rejects(ensureActiveSubscriptionProfile(deletionTx, mockFirestore, 'u', 'HudHudDev'), { code: 'failed-precondition' });
 });
+
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  for (const exists of [false, true]) {
+    test(`${root}: R10 subscription ${exists ? 'repair' : 'creation'} does not project Auth email or derive a name`, async () => {
+      const writes = [];
+      const tx = { get: async ref => ({ exists: !ref.path.includes('accountDeletionRequests') && exists,
+        get: key => ({ isActive: true, role: 'listener', displayName: 'Existing name' })[key] }),
+        set: (_ref, data) => writes.push(data), update: (_ref, data) => writes.push(data) };
+      await ensureActiveSubscriptionProfile(tx, { doc: path => ({ path }) }, 'synthetic-user', root,
+        { email: 'private-localpart@example.test', displayName: '', photoURL: 'https://example.test/avatar' });
+      assert.equal(writes.some(data => Object.hasOwn(data, 'email')), false, 'Auth email must not enter a profile write');
+      if (exists) assert.equal(writes.length, 0);
+      else { assert.equal(writes.length, 1); assert.notEqual(writes[0].displayName, 'private-localpart'); }
+    });
+  }
+}

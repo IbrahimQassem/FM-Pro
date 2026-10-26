@@ -164,3 +164,94 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
     assert.equal((await db.collection(`${root}/auditLogs/auditLogs`).where('targetId', '==', 'bad-parent').get()).size, before);
   });
 }
+
+const privateStationKeys = 'owner address contactPerson contactPhone contactEmail streamType audioCodec bitrateKbps sampleRateHz transmitterPower transmitterLocation coverageArea rds'.split(' ');
+const privateStationFixture = Object.fromEntries(privateStationKeys.map(key => [key,
+  key === 'contactEmail' ? 'station-fixture@example.test' : `synthetic-${key}`]));
+const publicStationContent = value => Object.fromEntries(Object.entries(value).filter(([key]) => !privateStationKeys.includes(key)));
+async function privacyStationFixture(root, label, create = true) {
+  const id = `r01-${label}`;
+  const locationId = `${id}-location`;
+  const location = content('locations', { cityCode: locationId, locationType: 'governorate', isActive: true });
+  await db.doc(`${root}/locations/locations/${locationId}`).set(location);
+  const value = content('stations', { ...privateStationFixture, name: id, cityCode: location.cityCode,
+    cityNameAr: location.cityNameAr, locationType: location.locationType });
+  const publicRef = db.doc(`${root}/stations/stations/${id}`);
+  const privateRef = db.doc(`${root}/stationPrivate/stations/${id}`);
+  if (create) await save(root, 'stations', id, value, null, { locationId, expectedPrivateRevision: null });
+  return { id, locationId, value, publicRef, privateRef };
+}
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  test(`${root}: R01 station create atomically separates all 13 private fields at revision one`, async () => {
+    const f = await privacyStationFixture(root, 'create');
+    const publicValue = (await f.publicRef.get()).data();
+    const privateValue = (await f.privateRef.get()).data();
+    assert.deepEqual(privateStationKeys.filter(key => Object.hasOwn(publicValue, key)), []);
+    assert.deepEqual(privateValue, { ...privateStationFixture, schemaVersion: 1, revision: 1 });
+    assert.equal(publicValue.streamUrl, f.value.streamUrl);
+    assert.equal(publicValue.stats.programsCount, 0);
+  });
+  test(`${root}: R01 injected audit failure rolls back both station projections and relation revision`, async () => {
+    const f = await privacyStationFixture(root, 'audit-rollback', false);
+    const failingDb = {
+      doc: db.doc.bind(db), collection: db.collection.bind(db),
+      runTransaction: operation => db.runTransaction(tx => operation(new Proxy(tx, {
+        get(target, key) {
+          if (key === 'set') return (ref, ...args) => {
+            if (ref.path.includes('/auditLogs/')) throw new Error('Synthetic station audit failure');
+            return target.set(ref, ...args);
+          };
+          return typeof target[key] === 'function' ? target[key].bind(target) : target[key];
+        },
+      }))),
+    };
+    await assert.rejects(saveAdminContent({ firestore: failingDb, callerUid: 'synthetic-super', callerRole: 'super_admin',
+      callerClaims: { role: 'super_admin' }, data: { root, kind: 'stations', id: f.id, content: f.value,
+        expected: null, expectedPrivateRevision: null, locationId: f.locationId } }), /Synthetic station audit failure/);
+    assert.equal((await f.publicRef.get()).exists, false);
+    assert.equal((await f.privateRef.get()).exists, false);
+    assert.equal((await db.doc(`${root}/locations/locations/${f.locationId}`).get()).get('adminRelationRevision'), undefined);
+    assert.equal((await db.collection(`${root}/auditLogs/auditLogs`).where('targetId', '==', f.id).get()).size, 0);
+  });
+  test(`${root}: R01 simultaneous private updates accept one revision-one editor and keep public/private state coherent`, async () => {
+    const f = await privacyStationFixture(root, 'race');
+    const original = (await f.publicRef.get()).data();
+    const candidates = ['synthetic-first', 'synthetic-second'];
+    const results = await Promise.allSettled(candidates.map(marker => save(root, 'stations', f.id,
+      { ...publicStationContent(f.value), name: marker, owner: marker }, original,
+      { locationId: f.locationId, expectedPrivateRevision: 1 })));
+    assert.equal(results.filter(result => result.status === 'fulfilled').length, 1);
+    const failure = results.find(result => result.status === 'rejected');
+    assert.equal(failure.reason.code, 'failed-precondition');
+    const publicValue = (await f.publicRef.get()).data();
+    const privateValue = (await f.privateRef.get()).data();
+    assert.equal(privateValue.revision, 2);
+    assert.equal(publicValue.name, privateValue.owner);
+    assert.ok(candidates.includes(privateValue.owner));
+    assert.deepEqual(privateStationKeys.filter(key => Object.hasOwn(publicValue, key)), []);
+    assert.equal((await db.collection(`${root}/auditLogs/auditLogs`).where('targetId', '==', f.id).get()).size, 2);
+  });
+  test(`${root}: R01 stale private revision rejects without changing either projection`, async () => {
+    const f = await privacyStationFixture(root, 'stale');
+    const original = (await f.publicRef.get()).data();
+    await save(root, 'stations', f.id, { ...publicStationContent(f.value), owner: 'current-owner' }, original,
+      { locationId: f.locationId, expectedPrivateRevision: 1 });
+    const beforePublic = (await f.publicRef.get()).data();
+    const beforePrivate = (await f.privateRef.get()).data();
+    await assert.rejects(save(root, 'stations', f.id, { ...publicStationContent(f.value), owner: 'stale-owner' }, beforePublic,
+      { locationId: f.locationId, expectedPrivateRevision: 1 }), { code: 'failed-precondition' });
+    assert.deepEqual((await f.publicRef.get()).data(), beforePublic);
+    assert.deepEqual((await f.privateRef.get()).data(), beforePrivate);
+  });
+  test(`${root}: R01 omitted private fields survive an older public-only station edit`, async () => {
+    const f = await privacyStationFixture(root, 'omission');
+    const original = (await f.publicRef.get()).data();
+    const privateBefore = (await f.privateRef.get()).data();
+    await save(root, 'stations', f.id, { ...publicStationContent(f.value), name: 'Public-only edit' }, original,
+      { locationId: f.locationId });
+    const publicValue = (await f.publicRef.get()).data();
+    assert.equal(publicValue.name, 'Public-only edit');
+    assert.deepEqual(privateStationKeys.filter(key => Object.hasOwn(publicValue, key)), []);
+    assert.deepEqual((await f.privateRef.get()).data(), privateBefore);
+  });
+}

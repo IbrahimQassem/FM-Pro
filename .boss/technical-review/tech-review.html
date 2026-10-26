@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HudHud FM 技术代码评审报告 - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">目录</div>
+      <ul><li class="toc-level-1"><a href="#hudhud-fm-技术代码评审报告">HudHud FM 技术代码评审报告</a></li><li class="toc-level-2"><a href="#摘要">摘要</a></li><li class="toc-level-2"><a href="#1-评审概述">1. 评审概述</a></li><li class="toc-level-2"><a href="#2-评审结论">2. 评审结论</a></li><li class="toc-level-2"><a href="#3-技术风险评估">3. 技术风险评估</a></li><li class="toc-level-3"><a href="#r01-p1-separate-private-station-metadata-from-public-documents">R01 — P1：Separate private station metadata from public documents</a></li><li class="toc-level-3"><a href="#r02-p2-synchronize-sleep-timer-state-and-lifecycle">R02 — P2：Synchronize sleep-timer state and lifecycle</a></li><li class="toc-level-3"><a href="#r03-p2-seek-completed-episodes-before-replay">R03 — P2：Seek completed episodes before replay</a></li><li class="toc-level-3"><a href="#r04-p2-filter-and-order-episodes-before-limiting">R04 — P2：Filter and order episodes before limiting</a></li><li class="toc-level-3"><a href="#r05-p2-report-verification-delivery-failure-accurately">R05 — P2：Report verification delivery failure accurately</a></li><li class="toc-level-3"><a href="#r06-p2-admin-pagination-stops-at-2-000-records">R06 — P2：Admin pagination stops at 2,000 records</a></li><li class="toc-level-3"><a href="#r07-p2-scoped-administrators-cannot-load-user-statistics">R07 — P2：Scoped administrators cannot load user statistics</a></li><li class="toc-level-3"><a href="#r08-p2-public-station-pages-load-the-full-archive">R08 — P2：Public station pages load the full archive</a></li><li class="toc-level-3"><a href="#r09-p2-decode-xml-entities-in-rss-enclosure-urls">R09 — P2：Decode XML entities in RSS enclosure URLs</a></li><li class="toc-level-3"><a href="#r10-p2-resolve-listener-email-persistence-against-the-privacy-contract">R10 — P2：Resolve listener-email persistence against the privacy contract</a></li><li class="toc-level-3"><a href="#r11-p2-bound-stream-health-work-and-preserve-progress">R11 — P2：Bound stream-health work and preserve progress</a></li><li class="toc-level-3"><a href="#r12-p2-maintain-comment-counts-across-lifecycle-changes">R12 — P2：Maintain comment counts across lifecycle changes</a></li><li class="toc-level-3"><a href="#r13-p2-use-each-schedule-s-utc-offset-for-program-alerts">R13 — P2：Use each schedule's UTC offset for program alerts</a></li><li class="toc-level-2"><a href="#4-技术可行性分析">4. 技术可行性分析</a></li><li class="toc-level-3"><a href="#4-1-核心功能可行性">4.1 核心功能可行性</a></li><li class="toc-level-3"><a href="#4-2-技术难点">4.2 技术难点</a></li><li class="toc-level-2"><a href="#5-架构改进建议">5. 架构改进建议</a></li><li class="toc-level-3"><a href="#5-1-必须修改-阻塞项">5.1 必须修改（阻塞项）</a></li><li class="toc-level-3"><a href="#5-2-建议优化-p2-修复">5.2 建议优化（P2 修复）</a></li><li class="toc-level-2"><a href="#6-实施建议">6. 实施建议</a></li><li class="toc-level-3"><a href="#6-1-开发顺序建议">6.1 开发顺序建议</a></li><li class="toc-level-3"><a href="#6-2-里程碑建议与实际验证">6.2 里程碑建议与实际验证</a></li><li class="toc-level-3"><a href="#6-3-技术债务预警">6.3 技术债务预警</a></li><li class="toc-level-2"><a href="#7-代码规范建议">7. 代码规范建议</a></li><li class="toc-level-3"><a href="#7-1-目录结构规范">7.1 目录结构规范</a></li><li class="toc-level-3"><a href="#7-2-命名规范">7.2 命名规范</a></li><li class="toc-level-3"><a href="#7-3-代码风格">7.3 代码风格</a></li><li class="toc-level-2"><a href="#8-评审结论">8. 评审结论</a></li></ul>
+    </aside>
+    <main>
+      <h1>HudHud FM 技术代码评审报告</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: tech-review.md</div>
+        <div>Generated: 2026-10-25T18:31:39.184Z</div>
+      </div>
+      <section class="summary">
+        <h2>摘要</h2>
+        <ul><li><strong>结论：评审完成，需要修改。</strong> 确认 13 项问题：1 项 P1、12 项 P2；没有需要重写主架构的证据。</li><li><strong>主要风险：</strong> 公共电台文档混入内部资料；播放器隐藏计时器及完成后重播有可复现缺陷；客户端查询存在截断或无界加载。</li><li><strong>发布阻塞：</strong> 若内部电台字段已填充，R01 构成发布阻塞。未读取生产数据，不宣称已发生线上泄漏。</li><li><strong>验证：</strong> 现有检查合计 <strong>368 passed、17 skipped</strong>；另有 <strong>3 个预期失败的临时复现</strong>，证明两类播放器缺陷，不能计为通过。</li><li><strong>边界：</strong> 仅生成 <code>.boss/technical-review/</code> 产物，源代码未修改；这是独立 Boss Tech Lead 评审，不要求运行完整研发流水线，也不构成发布批准。</li></ul>
+      </section>
+      <hr>
+<p>type: tech-review outputFor: [scrum-master, frontend, backend] dependencies: [existing-source, architecture-contract, firebase-data-contract, security-privacy-contract]</p>
+<hr>
+<h1 id="hudhud-fm-技术代码评审报告">HudHud FM 技术代码评审报告</h1>
+<h2 id="摘要">摘要</h2>
+<ul><li><strong>结论：评审完成，需要修改。</strong> 确认 13 项问题：1 项 P1、12 项 P2；没有需要重写主架构的证据。</li><li><strong>主要风险：</strong> 公共电台文档混入内部资料；播放器隐藏计时器及完成后重播有可复现缺陷；客户端查询存在截断或无界加载。</li><li><strong>发布阻塞：</strong> 若内部电台字段已填充，R01 构成发布阻塞。未读取生产数据，不宣称已发生线上泄漏。</li><li><strong>验证：</strong> 现有检查合计 <strong>368 passed、17 skipped</strong>；另有 <strong>3 个预期失败的临时复现</strong>，证明两类播放器缺陷，不能计为通过。</li><li><strong>边界：</strong> 仅生成 <code>.boss/technical-review/</code> 产物，源代码未修改；这是独立 Boss Tech Lead 评审，不要求运行完整研发流水线，也不构成发布批准。</li></ul>
+<h2 id="1-评审概述">1. 评审概述</h2>
+<ul><li><strong>项目：</strong> <code>hudhud_fm</code>，不包括相邻 <code>FM-Pro</code>。</li><li><strong>日期：</strong> 2026-10-25。</li><li><strong>基线：</strong> <code>9fae3248aadecaa53198a5fb9f06576fdcc182cf</code>；初始工作树干净。</li><li><strong>流程：</strong> 已安装 Boss 5.0.3 的独立 review/Tech Lead 流程、代码评审与技术规范方法，辅以 HudHud workspace-check。</li><li><strong>范围：</strong> Flutter/Riverpod 应用、React 管理与公共网站、Firebase Functions、Firestore/Storage Rules 及相关测试。</li><li><strong>方法：</strong> 实际代码、调用者、测试与契约交叉检查；对关键缺陷使用临时测试或合成输入复现。</li><li><strong>技术栈：</strong> packs 自动检测受根 <code>package.json</code> 影响给出 <code>api-only</code>；本次直接检查混合 Flutter/React/Firebase 项目，不依赖该分类缩小范围。</li><li><strong>输入：</strong> 采用现有契约，不虚构本任务专属 PRD、architecture.md 或 UI 设计文件。</li></ul>
+<p>评审依据：</p>
+<ul><li>[架构契约](../../docs/contracts/architecture-contract.md)、[Firebase 数据契约](../../docs/contracts/firebase-data-contract.md)。</li><li>[安全隐私契约](../../docs/contracts/security-privacy-contract.md)、[播放契约](../../docs/contracts/playback-contract.md)。</li><li>[节目单集契约](../../docs/contracts/station-content-contract.md)、[内容自动化契约](../../docs/contracts/content-automation-contract.md)。</li><li>[账号评论通知契约](../../docs/contracts/account-comments-notifications-contract.md)。</li></ul>
+<p>P1 表示应优先阻断的实质安全风险；P2 表示需修复的功能、数据一致性、隐私契约或规模化问题。代码路径的高置信度不等于已经观察到生产事故。</p>
+<h2 id="2-评审结论">2. 评审结论</h2>
+<table><thead><tr><th>维度</th><th>结论</th><th>依据</th></tr></thead><tbody><tr><td>架构合理性</td><td>保留主架构，修正边界</td><td>Riverpod/repository/data source 可沿用；公共/内部数据缺乏隔离</td></tr><tr><td>技术选型</td><td>无须更换技术栈</td><td>基于当前依赖与 Node 22 检查，未作未验证的依赖漏洞声明</td></tr><tr><td>可扩展性</td><td>需要改进</td><td>Flutter 任意截断、管理站 2,000 条上限、公共站全量归档、调度预算问题</td></tr><tr><td>可维护性</td><td>可局部修复</td><td>生命周期、派生计数与时区语义不一致</td></tr><tr><td>安全与隐私</td><td>存在 P1 和契约偏差</td><td>内部字段可公开读取，邮箱持久化违背明确约束</td></tr><tr><td>验证充分性</td><td>有定向证据，非完整验收</td><td>现有测试通过但漏掉关键分支；没有设备/部署验收</td></tr></tbody></table>
+<p><strong>总体评价：评审完成，代码需要修改；不得将现有测试通过解释为已修复。</strong></p>
+<h2 id="3-技术风险评估">3. 技术风险评估</h2>
+<table><thead><tr><th>ID</th><th>等级</th><th>问题</th><th>影响</th></tr></thead><tbody><tr><td>R01</td><td>P1</td><td>内部电台资料存于公共文档</td><td>未认证者读取已填充的联络和运营字段</td></tr><tr><td>R02</td><td>P2</td><td>睡眠计时器脱离可见状态</td><td>隐藏计时器停止后续播放</td></tr><tr><td>R03</td><td>P2</td><td>完成的单集不能正确重播</td><td>无声音，可能停留 loading</td></tr><tr><td>R04</td><td>P2</td><td>Flutter 筛选排序前截断单集</td><td>有效或最新内容不可见</td></tr><tr><td>R05</td><td>P2</td><td>验证邮件失败仍提示发送成功</td><td>用户等待未发送验证码</td></tr><tr><td>R06</td><td>P2</td><td>管理站分页止于 2,000 条</td><td>内容、搜索、总数和导出不完整</td></tr><tr><td>R07</td><td>P2</td><td>非超级管理员统计查询被拒绝</td><td>已提供的统计页面无法加载</td></tr><tr><td>R08</td><td>P2</td><td>公共站加载渲染完整归档</td><td>读取量、内存和 DOM 随归档增长</td></tr><tr><td>R09</td><td>P2</td><td>RSS 未解码 XML 属性实体</td><td>参数化音频 URL 失效</td></tr><tr><td>R10</td><td>P2</td><td>邮箱重复写入 Firestore</td><td>违反数据最小化契约</td></tr><tr><td>R11</td><td>P2</td><td>健康扫描无预算续跑</td><td>慢 Development 站点阻塞 Official</td></tr><tr><td>R12</td><td>P2</td><td>评论创建不维护计数</td><td>单集评论数长期失真</td></tr><tr><td>R13</td><td>P2</td><td>节目通知忽略 schedule 时区</td><td>通知错时或错日</td></tr></tbody></table>
+<h3 id="r01-p1-separate-private-station-metadata-from-public-documents">R01 — P1：Separate private station metadata from public documents</h3>
+<ul><li><strong>位置：</strong> [firestore.rules:247](../../firestore.rules:247)、[admin-content.js:7](../../functions/lib/admin-content.js:7)、[editorial-audit.js:109](../../functions/lib/editorial-audit.js:109)。</li><li><strong>触发：</strong> 管理员保存含 <code>contactEmail</code>、<code>contactPhone</code>、<code>contactPerson</code>、<code>owner</code>、地址或技术资料的电台。</li><li><strong>影响：</strong> <code>allow read: if isKnownRoot(root)</code> 不要求认证；游客读完整文档即可获取这些字段，Flutter 忽略字段不能保护它们。</li><li><strong>证据/置信度：</strong> 高；字段白名单、同一文档写入与 Rules 连通。[数据契约:104](../../docs/contracts/firebase-data-contract.md:104) 明确这些字段仅用于内部管理/Super User。现有 Rules 测试不是该字段泄漏的专属复现。</li><li><strong>建议：</strong> 将受限字段移到独立私有文档，公共文档保留 allowlist projection；检查管理编辑/导出并计划已有数据迁移。</li><li><strong>验收：</strong> 两个 root 的游客和未授权角色无法读取私有文档，公共播放资料仍可访问，授权管理与导出正常。</li><li><strong>发布判断：</strong> 字段已填充时阻塞发布；生产字段是否实际填充未检查，不能推断泄漏数量。</li></ul>
+<h3 id="r02-p2-synchronize-sleep-timer-state-and-lifecycle">R02 — P2：Synchronize sleep-timer state and lifecycle</h3>
+<ul><li><strong>位置：</strong> [station_player_controller.dart:125](../../lib/features/player/presentation/controllers/station_player_controller.dart:125)、[同文件:315](../../lib/features/player/presentation/controllers/station_player_controller.dart:315)。</li><li><strong>触发：</strong> 设置计时器后切换单集；或系统通知停止后再次开始播放。</li><li><strong>影响：</strong> 状态重建清除 <code>sleepTimerEnd</code>，但 <code>_sleepTimer</code> 仍运行；UI 没有计时器提示时，旧回调仍停止新会话。</li><li><strong>证据/置信度：</strong> 高；两个临时 controller 测试分别复现这两个分支并失败。</li><li><strong>建议：</strong> 明确定义切换时保留或取消计时器并同步截止时间；远程停止与本地停止使用一致的清理语义。</li><li><strong>验收：</strong> 两个复现变绿；保留时截止时间可见，取消后旧会话回调不影响新会话。</li></ul>
+<h3 id="r03-p2-seek-completed-episodes-before-replay">R03 — P2：Seek completed episodes before replay</h3>
+<ul><li><strong>位置：</strong> [station_player_controller.dart:196](../../lib/features/player/presentation/controllers/station_player_controller.dart:196)、[同文件:351](../../lib/features/player/presentation/controllers/station_player_controller.dart:351)、[just_audio_player_data_source.dart:277](../../lib/features/player/data/datasources/just_audio_player_data_source.dart:277)。</li><li><strong>触发：</strong> 单集播放完成后再次点击播放。</li><li><strong>影响：</strong> <code>completed</code> 映射为 <code>paused</code>，resume 仅调用 <code>play()</code>，没有归零 seek；controller 先进入 loading，随后可能没有新 phase 将其解除。</li><li><strong>证据/置信度：</strong> 高；临时测试证明既未 seek 也未 reload；本地锁定 <code>just_audio 0.10.6</code> 源码及 README 支持完成后需 seek 的结论。未做真实设备音频测试。</li><li><strong>建议：</strong> 保留完成语义；重播执行绑定 episode/generation 的归零 seek，处理失败和过期会话。</li><li><strong>验收：</strong> 重播从头开始，异步 seek 不操作新单集，不能永久停留 loading。</li></ul>
+<h3 id="r04-p2-filter-and-order-episodes-before-limiting">R04 — P2：Filter and order episodes before limiting</h3>
+<ul><li><strong>位置：</strong> [station_content_firestore_data_source.dart:23](../../lib/features/station_content/data/datasources/station_content_firestore_data_source.dart:23)、[firebase_station_content_repository.dart:57](../../lib/features/station_content/data/repositories/firebase_station_content_repository.dart:57)、[同文件:66](../../lib/features/station_content/data/repositories/firebase_station_content_repository.dart:66)。</li><li><strong>触发：</strong> 电台超过 100 个单集文档，第一批含草稿或旧内容。</li><li><strong>影响：</strong> 查询只有 <code>stationId</code> 与默认 <code>limit(100)</code>，随后才在客户端筛发布状态、排日期；遗漏的有效/最新单集无法恢复，也没有下一页入口。</li><li><strong>证据/置信度：</strong> 高，静态调用链确定；未执行 101+ 文档 emulator 复现。契约推迟分页不意味着任意截断正确。</li><li><strong>建议：</strong> 定义已发布查询和稳定服务端排序，增加有界分页或目标单集读取，同步检查索引与通知深链。</li><li><strong>验收：</strong> 101+ 草稿/发布混合数据中最新内容可见，翻页无重漏，深链不受第一批限制。</li></ul>
+<h3 id="r05-p2-report-verification-delivery-failure-accurately">R05 — P2：Report verification delivery failure accurately</h3>
+<ul><li><strong>位置：</strong> [account_auth_data_source.dart:192](../../lib/features/account/data/datasources/account_auth_data_source.dart:192)、[account_controller.dart:79](../../lib/features/account/presentation/controllers/account_controller.dart:79)。</li><li><strong>触发：</strong> 账号注册成功，但验证码 callable 因限流或邮件服务问题失败。</li><li><strong>影响：</strong> data source 吞掉投递异常后正常返回，controller 无条件设置 <code>verificationCodeSent: true</code>，UI 提示验证码已发送。</li><li><strong>证据/置信度：</strong> 高；实际错误处理和状态写入直接连通，现有 controller 测试未覆盖此组合结果。</li><li><strong>建议：</strong> 保留账号创建成功，单独返回投递结果；仅确认发送成功时显示成功，否则提供可重试状态。</li><li><strong>验收：</strong> 账号成功/投递失败分支不显示“已发送”，重试成功才显示，且不重复创建账号。</li></ul>
+<h3 id="r06-p2-admin-pagination-stops-at-2-000-records">R06 — P2：Admin pagination stops at 2,000 records</h3>
+<ul><li><strong>位置：</strong> [admin-app.tsx:1088](../../web_admin/components/admin/admin-app.tsx:1088)、[同文件:1777](../../web_admin/components/admin/admin-app.tsx:1777)、[同文件:1852](../../web_admin/components/admin/admin-app.tsx:1852)。</li><li><strong>触发：</strong> 单集、用户、评论或其他资源超过 2,000 条匹配记录。</li><li><strong>影响：</strong> 只有 reports 使用服务端 cursor；其他资源固定取 2,000 条再本地分页，把数组长度称为总数。后续内容无法正常访问，本地搜索与导出也不完整。</li><li><strong>证据/置信度：</strong> 高；查询、本地切片与 Next 禁用逻辑连通；未执行 2,001 条 emulator 数据集。</li><li><strong>建议：</strong> 使用稳定服务端 cursor 分页与准确统计；若部分加载，明确标示范围并提供完整访问路径。</li><li><strong>验收：</strong> 第 2,001 条可访问和搜索，分页无重漏，总数与导出范围准确。</li></ul>
+<h3 id="r07-p2-scoped-administrators-cannot-load-user-statistics">R07 — P2：Scoped administrators cannot load user statistics</h3>
+<ul><li><strong>位置：</strong> [admin-app.tsx:887](../../web_admin/components/admin/admin-app.tsx:887)、[users-aggregate-view.tsx:34](../../web_admin/components/admin/users-aggregate-view.tsx:34)、[firestore.rules:284](../../firestore.rules:284)。</li><li><strong>触发：</strong> station admin/moderator 打开已提供的 Users 导航。</li><li><strong>影响：</strong> 代码将非 super-admin 路由至聚合视图，却对 users 集合执行无范围 count；Rules 的 list 只允许 super-admin。页面进入错误态，重试仍失败。</li><li><strong>证据/置信度：</strong> 高；路由、查询和权限规则共同确定拒绝路径；未做浏览器角色会话复现。</li><li><strong>建议：</strong> 提供经过授权的 aggregate-only 服务端接口或安全维护的汇总值，不放宽整个 users 集合的读取权限。</li><li><strong>验收：</strong> scoped admin 能读取被允许的统计，仍不能列出个人资料；超级管理员完整管理不受影响。</li></ul>
+<h3 id="r08-p2-public-station-pages-load-the-full-archive">R08 — P2：Public station pages load the full archive</h3>
+<ul><li><strong>位置：</strong> [content-repository.ts:9](../../web_hudhud/lib/content-repository.ts:9)、[同文件:17](../../web_hudhud/lib/content-repository.ts:17)、[discovery.ts:41](../../web_hudhud/lib/discovery.ts:41)、[station-detail.tsx:44](../../web_hudhud/station-detail.tsx:44)。</li><li><strong>触发：</strong> 电台节目和单集归档持续增长。</li><li><strong>影响：</strong> 查询没有 limit/cursor；映射逐单集扫描节目，渲染逐节目扫描全部单集并创建所有行，分钟计时器重渲染该树。读取量、内存、DOM 和部分 O(P×E) 工作随归档增长。</li><li><strong>证据/置信度：</strong> 高，增长路径由代码确定；未测量生产延迟、内存或计费，不能声称具体节省比例。</li><li><strong>建议：</strong> 有界单集页、深链目标单独获取、按 program ID 一次分组；根据实际规模验证边界。</li><li><strong>验收：</strong> 大归档首屏读取和 DOM 有上限，翻页/深链可用，分钟更新不重复遍历完整历史归档。</li></ul>
+<h3 id="r09-p2-decode-xml-entities-in-rss-enclosure-urls">R09 — P2：Decode XML entities in RSS enclosure URLs</h3>
+<ul><li><strong>位置：</strong> [rss-ingestion.js:69](../../functions/lib/rss-ingestion.js:69)、[同文件:196](../../functions/lib/rss-ingestion.js:196)。</li><li><strong>触发：</strong> 合法 enclosure URL 含 <code>?part=1&amp;amp;sig=abc</code> 等 XML 转义查询分隔符。</li><li><strong>影响：</strong> parser 原样保存属性，参数名成为 <code>amp;sig</code> 而非 <code>sig</code>；签名或参数依赖音频失效，文本实体也未完整解码。</li><li><strong>证据/置信度：</strong> 高；真实 <code>parseRssFeed</code> 的合成断言确认参数损坏，无网络访问。</li><li><strong>建议：</strong> 在 URL 校验和 identity 计算前正确解码 XML 属性/文本，覆盖数值实体，保留安全校验。</li><li><strong>验收：</strong> XML 实体解码后 URL 参数与原始语义一致；重复导入保持幂等。</li></ul>
+<h3 id="r10-p2-resolve-listener-email-persistence-against-the-privacy-contract">R10 — P2：Resolve listener-email persistence against the privacy contract</h3>
+<ul><li><strong>位置：</strong> [index.js:559](../../functions/index.js:559)、[station-subscriptions.js:49](../../functions/lib/station-subscriptions.js:49)、[user-management.js:52](../../functions/lib/user-management.js:52)。</li><li><strong>触发：</strong> 创建/修复 profile、订阅电台、注册提醒或相关用户管理操作。</li><li><strong>影响：</strong> Auth email 被写入或补入 Firestore，违反[安全契约:41](../../docs/contracts/security-privacy-contract.md:41) 的“仅从 Auth 在账号页显示，不写 Firestore”约束，扩大个人数据存储面。</li><li><strong>证据/置信度：</strong> 高；源码及合成 mock transaction 均确认写入；没有声称 listener profile 对游客公开。</li><li><strong>建议：</strong> 明确裁决契约偏差；若保留最小化原则，以 Auth 为邮箱来源，检查管理使用者后计划旧字段清理。不能静默修改契约掩盖偏差。</li><li><strong>验收：</strong> 所有 profile/订阅路径符合选定策略，旧数据处理和管理员必要功能具有明确验收记录。</li></ul>
+<h3 id="r11-p2-bound-stream-health-work-and-preserve-progress">R11 — P2：Bound stream-health work and preserve progress</h3>
+<ul><li><strong>位置：</strong> [stream-health.js:180](../../functions/lib/stream-health.js:180)、[同文件:198](../../functions/lib/stream-health.js:198)、[index.js:787](../../functions/index.js:787)。</li><li><strong>触发：</strong> 慢或不可达的电台较多，每台主/备用源分别可能耗尽 8 秒。</li><li><strong>影响：</strong> 300 秒函数先全量顺序扫描 Development 再 Official；19 台双源超时已需 304 秒，未计数据库开销。无 cursor，后续运行从头重复，Official 可持续得不到检查。</li><li><strong>证据/置信度：</strong> 高，明确 timeout 与循环顺序的预算分析；未宣称发生生产超时。</li><li><strong>建议：</strong> 有界批次与持久进度，确保 root 独立或公平获得预算；保留出站并发限制。</li><li><strong>验收：</strong> 注入大量超时 probe 后所有 root/电台最终完成检查，崩溃恢复不会无限重做同一前缀。</li></ul>
+<h3 id="r12-p2-maintain-comment-counts-across-lifecycle-changes">R12 — P2：Maintain comment counts across lifecycle changes</h3>
+<ul><li><strong>位置：</strong> [comment-moderation.js:170](../../functions/lib/comment-moderation.js:170)、[admin-report-review.js:58](../../functions/lib/admin-report-review.js:58)、[index.js:644](../../functions/index.js:644)。</li><li><strong>触发：</strong> 新单集收到发布评论，或自动 moderation 改变已计数评论的可见状态。</li><li><strong>影响：</strong> 创建 trigger 只更新 comment，不增加 episode <code>stats.commentsCount</code>；现有路径只有管理 review 减计数和账号删除时重算。Flutter 在 [program_details_screen.dart:329](../../lib/features/station_content/presentation/program_details_screen.dart:329) 显示失真数字。</li><li><strong>证据/置信度：</strong> 高；完整计数写入搜索和 trigger 调用链未找到创建增量维护；未执行专属端到端计数测试。</li><li><strong>建议：</strong> 幂等服务端 lifecycle 维护 published 数量，覆盖重投递、人工/自动 moderation 与删除，保留核对修复能力。</li><li><strong>验收：</strong> 创建、拒绝、隐藏、删除、重复事件及并发后，计数等于实际 published 评论数。</li></ul>
+<h3 id="r13-p2-use-each-schedule-s-utc-offset-for-program-alerts">R13 — P2：Use each schedule's UTC offset for program alerts</h3>
+<ul><li><strong>位置：</strong> [program-notifications.js:45](../../functions/lib/program-notifications.js:45)、[同文件:115](../../functions/lib/program-notifications.js:115)、[admin-content.js:148](../../functions/lib/admin-content.js:148)。</li><li><strong>触发：</strong> 合法节目 <code>schedule.utcOffsetMinutes != 180</code>；validator 接受 −720 至 840，[契约:37](../../docs/contracts/station-content-contract.md:37) 将偏移作为显式数据。</li><li><strong>影响：</strong> notifier 用固定 Yemen 时间比较所有节目。UTC 周一 10:00 节目在 07:00Z 被判定可通知，实际 10:00Z 却不满足条件；跨日时星期与去重日期也可能偏离。</li><li><strong>证据/置信度：</strong> 高；真实 <code>shouldNotifyProgram/getYemenTimeInfo</code> 纯函数断言复现 2026-10-26 两时刻的错误，无实际 FCM 发送。</li><li><strong>建议：</strong> 按每个 schedule 偏移计算本地日期、星期和分钟，统一 delivery identity/去重日期；或通过明确契约决策拒绝不支持的偏移。</li><li><strong>验收：</strong> UTC、UTC+3、负偏移和跨日正确，同一节目本地日期只生成一个正确通知意图。</li></ul>
+<h2 id="4-技术可行性分析">4. 技术可行性分析</h2>
+<h3 id="4-1-核心功能可行性">4.1 核心功能可行性</h3>
+<table><thead><tr><th>功能</th><th>结论</th><th>修复边界</th></tr></thead><tbody><tr><td>公共/管理电台资料</td><td>可修复，需跨层验证</td><td>私有隔离、编辑导出、已有字段迁移</td></tr><tr><td>播放生命周期</td><td>可沿用现有分层</td><td>completed、timer ownership、generation</td></tr><tr><td>内容查询</td><td>可修复，需统一语义</td><td>稳定分页、深链和索引</td></tr><tr><td>导入/通知/评论</td><td>可局部修复</td><td>XML、时区、幂等计数、调度批次</td></tr></tbody></table>
+<h3 id="4-2-技术难点">4.2 技术难点</h3>
+<ul><li>私有字段迁移须兼容管理员查询/导出及旧数据，仅隐藏 UI 无效。</li><li>翻页须明确过滤、排序、索引与 cursor 稳定性，提高 limit 不能解决完整性。</li><li>计数和通知必须考虑重复事件与并发，不能直接增加无幂等保护的计数器。</li><li>数据规模和设备验收未确认，本次不提供虚构实施工时。</li></ul>
+<h2 id="5-架构改进建议">5. 架构改进建议</h2>
+<h3 id="5-1-必须修改-阻塞项">5.1 必须修改（阻塞项）</h3>
+<ul><li>[ ] R01：含内部字段的环境先完成私有隔离、已有数据复核及权限验证，再发布。</li></ul>
+<h3 id="5-2-建议优化-p2-修复">5.2 建议优化（P2 修复）</h3>
+<ul><li>[ ] R02–R05：播放器生命周期与邮件结果，保持既有 Riverpod/领域接口。</li><li>[ ] R06–R08：统一查询完整性和加载预算，不以任意截断或全量读取替代分页。</li><li>[ ] R09–R13：导入、隐私契约、扫描预算、计数与时区语义。</li><li>原始错误日志和重复 account watcher 仅列为后续检查方向；未证实凭据泄漏或量化读取放大，不另计确认问题。</li></ul>
+<h2 id="6-实施建议">6. 实施建议</h2>
+<h3 id="6-1-开发顺序建议">6.1 开发顺序建议</h3>
+<ol><li>确认 R01 已存字段范围与隔离方案，先建立权限测试再计划迁移。</li><li>将三个临时播放器复现转为正式回归并修复 R02/R03；修正 R05 结果表达。</li><li>按客户端拆分 R04/R06–R08，先确定查询、索引与深链契约。</li><li>分别修复 R09–R13，以合成数据、mock 发送器或 demo emulator 验收。</li></ol>
+<h3 id="6-2-里程碑建议与实际验证">6.2 里程碑建议与实际验证</h3>
+<table><thead><tr><th>里程碑</th><th>交付证据</th><th>状态</th></tr></thead><tbody><tr><td>M1 安全边界</td><td>字段隔离、游客拒绝、迁移复核</td><td>未实施</td></tr><tr><td>M2 用户可见正确性</td><td>播放、邮件、分页、角色统计回归</td><td>已定位，未修复</td></tr><tr><td>M3 后台一致性</td><td>RSS、计数、时区、超时批次测试</td><td>已定位，未修复</td></tr></tbody></table>
+<table><thead><tr><th>检查</th><th>实际结果</th><th>限制</th></tr></thead><tbody><tr><td>Functions <code>npm run lint</code> / <code>npm test</code></td><td>152 passed，20 suites，0 failed/skip；lint 通过</td><td>Node 22.23.3；<code>/tmp/boss-backend-node22-tests.log</code></td></tr><tr><td>公共网站 test/lint/typecheck</td><td>53 passed；lint/typecheck 通过</td><td>Node 22.23.3；无浏览器实测</td></tr><tr><td>管理网站 test/lint</td><td>76 passed、17 skipped、0 failed；lint 通过</td><td>跳过项依赖 emulator，不计为通过</td></tr><tr><td>Flutter 定向测试</td><td>54 passed</td><td>player、account、subscriptions、home controller</td></tr><tr><td>根 <code>npm run emulators:test</code></td><td>33 passed，5 suites，0 failed/skip</td><td>仅 demo 项目；<code>/tmp/boss-rules-tests.log</code></td></tr><tr><td>现有测试合计</td><td><strong>368 passed、17 skipped</strong></td><td>不是完整项目验收</td></tr><tr><td>临时 Flutter 缺陷复现</td><td><strong>3 expected failures</strong></td><td>证明 R02 两分支与 R03，不是修复验收</td></tr><tr><td>治理检查/Git diff 检查</td><td>通过</td><td>仅 <code>.boss/</code> 新产物，无源代码修改</td></tr><tr><td>RSS、邮箱、时区合成检查</td><td>相应缺陷复现成功</td><td>无真实邮件、推送、生产数据访问</td></tr></tbody></table>
+<p>Flutter 实际命令：</p>
+<pre><code class="language-sh">flutter test --no-pub test/features/player test/features/account/presentation/account_controller_test.dart test/features/subscriptions/station_subscriptions_controller_test.dart test/features/home/presentation/home_controller_test.dart
+flutter test --no-pub /tmp/hudhud-boss-playback-review_test.dart --plain-name 'review:'</code></pre>
+<p>环境说明：默认 Node 26.6.0 不符合 Functions Node 22 目标，公共网站测试还因已移除参数失败；使用已安装 Node 22.23.3 重跑后，上表以支持环境结果为准。Rules emulator 初次因 sandbox 禁止 localhost 绑定而失败，获准升级后通过；Flutter SDK cache 写入也使用允许的测试升级路径。这些环境失败未列为产品缺陷。</p>
+<p>未执行完整 Flutter 套件、全量 analyzer、平台/web 构建、真实设备/浏览器音频验收、部署或线上探测。未发送真实邮件/FCM，未检查生产数据库。独立评审不要求补齐 PRD/tasks 或运行完整 Boss pipeline；本报告不将缺少那些产物作为 gate 失败。</p>
+<h3 id="6-3-技术债务预警">6.3 技术债务预警</h3>
+<table><thead><tr><th>债务</th><th>成因</th><th>处理时机</th></tr></thead><tbody><tr><td>公共/私有模型混合</td><td>station 文档同时承担展示与管理</td><td>填充内部字段前，已有数据立即评估</td></tr><tr><td>查询契约分散</td><td>客户端分别截断或全量加载</td><td>分页修复及数据增长前</td></tr><tr><td>生命周期语义丢失</td><td>completed/paused 合并、timer/state 分离</td><td>播放器下次发布前</td></tr><tr><td>派生计数与日期</td><td>事件维护不完整、固定全局时区</td><td>对应后台修复时</td></tr></tbody></table>
+<h2 id="7-代码规范建议">7. 代码规范建议</h2>
+<h3 id="7-1-目录结构规范">7.1 目录结构规范</h3>
+<p>保持 <code>presentation -&gt; domain &lt;- data</code>、<code>app/providers.dart</code> 组装职责、<code>functions/lib</code> 和两个 web 工程的现有结构。只在所有者明确的边界增加必要逻辑，不建立平行实现或新状态管理框架。</p>
+<h3 id="7-2-命名规范">7.2 命名规范</h3>
+<p>遵循项目 Dart/JavaScript/TypeScript 约定，不把个人命名偏好列为缺陷。<code>completed</code>、<code>sent</code>、<code>count</code> 与 pagination total 等名称应对应真实可观察语义。</p>
+<h3 id="7-3-代码风格">7.3 代码风格</h3>
+<ul><li>服务端授权与字段隔离优先于 UI 隐藏，保留默认拒绝策略。</li><li>异步资源和可见状态同生命周期，generation/ownership 检查覆盖切换场景。</li><li>回归测试验证业务结果、权限与竞态，不仅镜像实现。</li></ul>
+<h2 id="8-评审结论">8. 评审结论</h2>
+<ul><li><strong>评审状态：</strong> 完成，<code>DONE_WITH_CONCERNS</code>；应用发布未获批准。</li><li><strong>确认问题：</strong> 13 项：P1 1 项、P2 12 项。</li><li><strong>发布阻塞：</strong> R01，在内部字段已填充时成立；生产数据状态未知。</li><li><strong>产物：</strong> <code>.boss/technical-review/tech-review.md</code>；源代码未修改。</li><li><strong>下一步：</strong> 按 R01–R13 实施最小修复，满足对应验收后再评审；现有通过测试不抵消已复现缺陷。</li><li><strong>Runtime：</strong> 协调者负责正式产物记录与 review 状态登记，不执行完整研发/部署流程。</li></ul>
+    </main>
+  </div>
+</body>
+</html>

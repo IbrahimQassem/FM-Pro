@@ -48,8 +48,7 @@ export async function setUserPassword({
   const profile = await profileRef.get();
   if (!profile.exists) {
     await profileRef.set({
-      displayName: user.displayName || user.email?.split('@')[0] || 'Listener',
-      email: user.email || '',
+      displayName: user.displayName || 'Listener',
       username: '',
       avatarUrl: user.photoURL || '',
       isActive: !user.disabled,
@@ -59,7 +58,6 @@ export async function setUserPassword({
     });
   } else {
     await profileRef.update({
-      ...(user.email ? { email: user.email } : {}),
       updatedAt: FieldValue.serverTimestamp(),
     });
   }
@@ -238,9 +236,6 @@ export async function migrateLegacyUsers({
     if (targetExists && !overwrite) {
       // If target exists, only backfill missing fields without overwriting active data
       const backfill = {};
-      if (!targetData.email && legacy.email) {
-        backfill.email = String(legacy.email).trim().toLowerCase();
-      }
       if (!targetData.displayName && (legacy.displayName || legacy.name || legacy.username)) {
         backfill.displayName = legacy.displayName || legacy.name || legacy.username;
       }
@@ -253,16 +248,15 @@ export async function migrateLegacyUsers({
         skippedCount++;
       }
     } else {
-      const email = legacy.email ? String(legacy.email).trim().toLowerCase() : '';
       const displayName = legacy.displayName ||
         legacy.name ||
         legacy.username ||
         legacy.userName ||
-        (email ? email.split('@')[0] : 'Listener');
+        targetData.displayName ||
+        'Listener';
 
       currentBatch.set(targetRef, {
         displayName,
-        email,
         username: legacy.username || legacy.userName || '',
         avatarUrl: legacy.avatarUrl || legacy.photoUrl || legacy.photoURL || legacy.image || '',
         isActive: legacy.isActive !== false && legacy.disabled !== true,
@@ -271,7 +265,7 @@ export async function migrateLegacyUsers({
         updatedAt: FieldValue.serverTimestamp(),
         migratedFrom: sourceRef.path || sourcePath,
         migratedAt: FieldValue.serverTimestamp(),
-      });
+      }, { merge: targetExists });
       opCount++;
       migratedCount++;
     }

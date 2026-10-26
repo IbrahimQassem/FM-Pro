@@ -42,3 +42,69 @@ test('a station admin must own the real episode parent before any deletion-fence
     data: { root, kind: 'episodes', id: 'e', expected } }), { code: 'permission-denied' });
   assert.equal(writes, 0);
 });
+
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  test(`${root}: R01 eligible station deletion removes private metadata atomically`, async () => {
+    const publicPath = `${root}/stations/stations/target`;
+    const privatePath = `${root}/stationPrivate/stations/target`;
+    const expected = { name: 'Synthetic station', stats: { programsCount: 0 } };
+    const documents = new Map([[publicPath, expected], [privatePath, { owner: 'synthetic-owner', schemaVersion: 1, revision: 1 }]]);
+    const commits = [];
+    const db = {
+      doc: path => ({ path }),
+      collection: () => ({ query: true, where() { return this; }, limit() { return this; } }),
+      runTransaction: async callback => {
+        const writes = [];
+        await callback({
+          get: async ref => ref.query ? { empty: true, docs: [] } : {
+            exists: documents.has(ref.path), data: () => documents.get(ref.path), ref,
+            get: field => field.split('.').reduce((value, key) => value?.[key], documents.get(ref.path)),
+          },
+          delete: ref => writes.push({ path: ref.path, deleted: true }),
+          set: (ref, data) => writes.push({ path: ref.path, data }),
+          update: (ref, data) => writes.push({ path: ref.path, data }),
+        });
+        commits.push(writes);
+      },
+    };
+    const result = await deleteAdminContent({ firestore: db, callerUid: 'synthetic-admin',
+      callerRole: 'super_admin', callerClaims: { role: 'super_admin' },
+      data: { root, kind: 'stations', id: 'target', expected, expectedPrivateRevision: 1 } });
+    assert.equal(result.action, 'delete');
+    assert.equal(commits.length, 1);
+    assert.deepEqual(commits[0].filter(write => write.deleted).map(write => write.path).sort(),
+      [publicPath, privatePath].sort(), 'Public and private station deletion must share the same transaction');
+  });
+}
+
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  for (const precondition of [undefined, null, 1]) {
+    test(`${root}: R01 station deletion rejects unseen or stale private revision ${String(precondition)}`, async () => {
+      const expected = { name: 'Synthetic station', stats: { programsCount: 0 } };
+      let writes = 0;
+      const db = {
+        doc: path => ({ path }),
+        collection: () => ({ query: true, where() { return this; }, limit() { return this; } }),
+        runTransaction: callback => callback({
+          get: async ref => ref.query ? { empty: true, docs: [] } : { exists: true, ref,
+            data: () => ref.path.includes('/stationPrivate/') ? { owner: 'synthetic-owner', schemaVersion: 1, revision: 2 } : expected },
+          set: () => { writes++; }, update: () => { writes++; }, delete: () => { writes++; },
+        }),
+      };
+      await assert.rejects(deleteAdminContent({ firestore: db, callerUid: 'synthetic-admin', callerRole: 'super_admin',
+        callerClaims: { role: 'super_admin' }, data: { root, kind: 'stations', id: 'target', expected,
+          ...(precondition === undefined ? {} : { expectedPrivateRevision: precondition }) } }), { code: 'failed-precondition' });
+      assert.equal(writes, 0);
+    });
+  }
+  test(`${root}: R01 public-absent deletion leaves private orphan untouched`, async () => {
+    const db = { doc: path => ({ path }), runTransaction: callback => callback({
+      get: async ref => ({ exists: ref.path.includes('/stationPrivate/'), data: () => ({ owner: 'orphan', schemaVersion: 1, revision: 1 }) }),
+      delete: () => assert.fail('Orphan metadata must not be deleted'),
+      set: () => assert.fail('Public-absent deletion must not write'),
+    }) };
+    const result = await deleteAdminContent({ firestore: db, callerUid: 'synthetic-admin', callerRole: 'super_admin',
+      callerClaims: { role: 'super_admin' }, data: { root, kind: 'stations', id: 'target', expected: { name: 'Missing' } } });
+    assert.equal(result.action, 'unchanged');
+  });
+}

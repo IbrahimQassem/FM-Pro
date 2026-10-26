@@ -112,6 +112,7 @@ test('setUserPassword updates auth password, verifies email, and ensures profile
   assert.equal(updatedAuth.password, 'new-secure-password');
   assert.equal(updatedAuth.emailVerified, undefined); // IR-03: verification status preserved, not forced
   assert.equal(firestoreDoc.isActive, true);
+  assert.equal(firestoreDoc.displayName, 'Listener');
 
   // Test existing disabled profile preservation (IR-03)
   const existingDisabledProfile = {
@@ -332,7 +333,7 @@ test('migrateLegacyUsers migrates legacy documents to canonical schema and enfor
   const user1 = store.get('HudHudOfficial/users/users/legacy-user-1');
   assert.ok(user1);
   assert.equal(user1.displayName, 'أحمد اليمني');
-  assert.equal(user1.email, 'ahmed@legacy.test');
+  assert.equal(Object.hasOwn(user1, 'email'), false);
   assert.equal(user1.role, 'listener');
   assert.equal(user1.isActive, true);
   assert.equal(user1.migratedFrom, 'HudHudFmGooglePlay/Users/Users');
@@ -543,3 +544,38 @@ test('broadcast validates explicit root and intent identity before any send', as
   await assert.rejects(broadcastNotification({ ...args, root: 'Unknown' }), { code: 'invalid-argument' });
   await assert.rejects(broadcastNotification({ ...args, root: 'HudHudDev', data: { ...broadcastInput, operationId: undefined } }), { code: 'invalid-argument' });
 });
+
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  for (const exists of [false, true]) {
+    test(`${root}: R10 password ${exists ? 'repair' : 'creation'} preserves Auth semantics without profile email`, async () => {
+      const writes = [], authWrites = [];
+      const existing = { displayName: 'Existing explicit name', email: 'old@example.test', isActive: false };
+      const firestore = { doc: () => ({ get: async () => ({ exists, data: () => existing }),
+        set: async data => writes.push(data), update: async data => writes.push(data) }) };
+      await setUserPassword({ firestore, auth: { getUser: async () => ({ email: 'private-localpart@example.test', displayName: '' }),
+        updateUser: async (_uid, data) => authWrites.push(data) }, root, targetUid: 'synthetic-user', newPassword: 'synthetic-password' });
+      assert.equal(writes.some(data => Object.hasOwn(data, 'email')), false, 'Password operation must not project email');
+      assert.equal(Object.hasOwn(authWrites[0], 'emailVerified'), false);
+      if (exists) { assert.equal(Object.hasOwn(writes[0], 'displayName'), false); assert.equal(Object.hasOwn(writes[0], 'isActive'), false); }
+      else assert.notEqual(writes[0].displayName, 'private-localpart');
+    });
+  }
+  for (const mode of ['create', 'backfill', 'overwrite']) {
+    test(`${root}: R10 legacy ${mode} excludes email payload and automatic email-derived name`, async () => {
+      const targetPath = `${root}/users/users/synthetic-legacy`;
+      const store = new Map(); const writes = [];
+      if (mode !== 'create') store.set(targetPath, { displayName: 'Existing explicit name', ...(mode === 'overwrite' ? { email: 'old@example.test' } : {}), isActive: false });
+      const ref = path => ({ path, get: async () => ({ exists: store.has(path), data: () => store.get(path) }),
+        set: async (data, options) => { writes.push({ path, data }); store.set(path, { ...(options?.merge ? store.get(path) : {}), ...data }); },
+        update: async data => { writes.push({ path, data }); store.set(path, { ...store.get(path), ...data }); } });
+      const firestore = { doc: ref,
+        collection: path => ({ path, get: async () => ({ empty: false, size: 1, docs: [{ id: 'synthetic-legacy', data: () => ({ email: 'private-localpart@example.test' }) }] }) }),
+        batch: () => { const ops = []; return { set: (r, data, options) => ops.push(() => r.set(data, options)), update: (r, data) => ops.push(() => r.update(data)), commit: async () => { for (const op of ops) await op(); } }; } };
+      await migrateLegacyUsers({ firestore, callerUid: 'synthetic-admin', sourcePath: 'Legacy/Users/Users', targetRoot: root, overwrite: mode === 'overwrite', force: false });
+      assert.equal(writes.filter(write => write.path === targetPath).some(write => Object.hasOwn(write.data, 'email')), false, 'Legacy email must not enter canonical writes');
+      assert.notEqual(store.get(targetPath).displayName, 'private-localpart');
+      if (mode === 'overwrite') assert.equal(store.get(targetPath).email, 'old@example.test', 'Producer hardening must not perform historical cleanup');
+      if (mode !== 'create') assert.equal(store.get(targetPath).displayName, 'Existing explicit name');
+    });
+  }
+}

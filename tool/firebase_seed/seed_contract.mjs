@@ -1,3 +1,48 @@
+// Administrative station writers must reject unknown/private keys, not silently
+// drop them. Keep this boundary dependency-free for standalone maintenance tools.
+const publicStationFields = new Set(`
+  name nameEn tagline description frequency streamUrl backupStreamUrl logoUrl
+  thumbnailUrl websiteUrl facebookUrl instagramUrl youtubeUrl twitterUrl whatsapp
+  countryCode countryNameAr cityCode cityNameAr locationType isNational priority
+  isLive isActive isVerified isFeatured stats tags healthStatus consecutiveFailures
+  createdAt updatedAt
+`.trim().split(/\s+/));
+const streamUpdateFields = new Set([
+  'streamUrl', 'isLive', 'healthStatus', 'consecutiveFailures', 'updatedAt',
+]);
+const stationFlags = new Set(['isNational', 'isLive', 'isActive', 'isVerified', 'isFeatured']);
+const stationCounters = ['programsCount', 'subscribersCount', 'totalPlays'];
+const nonnegativeInteger = value => Number.isSafeInteger(value) && value >= 0;
+const plainRecord = value => value !== null && typeof value === 'object' &&
+  (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
+export function validatePublicStationWrite(data, {
+  streamUpdate = false, isTimestamp = () => false,
+} = {}) {
+  const fields = streamUpdate ? streamUpdateFields : publicStationFields;
+  const invalid = () => { throw new Error('Invalid public station payload.'); };
+  if (!plainRecord(data) || Object.keys(data).some(key => !fields.has(key))) invalid();
+  for (const [key, value] of Object.entries(data)) {
+    if (stationFlags.has(key)) {
+      if (typeof value !== 'boolean') invalid();
+    } else if (key === 'priority') {
+      if (!Number.isSafeInteger(value)) invalid();
+    } else if (key === 'consecutiveFailures') {
+      if (!nonnegativeInteger(value)) invalid();
+    } else if (key === 'tags') {
+      if (!Array.isArray(value) || value.some(item => typeof item !== 'string')) invalid();
+    } else if (key === 'stats') {
+      if (!plainRecord(value) || Object.keys(value).length !== stationCounters.length ||
+          !stationCounters.every(counter => Object.hasOwn(value, counter) && nonnegativeInteger(value[counter]))) invalid();
+    } else if (key === 'createdAt' || key === 'updatedAt') {
+      // The SDK-owning adapter authenticates SDK values; never trust a plain
+      // object or a constructor-name imitation of a timestamp in seed input.
+      if (!(value instanceof Date && Number.isFinite(value.getTime())) &&
+          (plainRecord(value) || !isTimestamp(value))) invalid();
+    } else if (typeof value !== 'string') invalid();
+  }
+  return data;
+}
+
 const collectionNames = [
   'locations',
   'stations',
@@ -57,6 +102,7 @@ export function validateSeed(seed, expectedProjectId = 'sanadev-fm') {
     }
   }
   for (const station of stations.values()) {
+    validatePublicStationWrite(station.data);
     if (!locationCityCodes.has(station.data.cityCode)) {
       errors.push(
         `Station ${station.id} references missing city ${station.data.cityCode}.`,
@@ -269,6 +315,7 @@ export function buildSeedPlan(
   seed,
   { contentOnly = false, engagementOnly = false } = {},
 ) {
+  for (const station of seed.stations) validatePublicStationWrite(station.data);
   const discoveryEntries = [
     ...seed.locations.map((entry) => documentEntry(
       `${seed.root}/locations/locations/${entry.id}`,
