@@ -167,7 +167,7 @@ export const requestEmailVerificationCode = onCall(
       }
       transaction.set(challengeReference, {
         email,
-        displayName: safeDisplayName(user.displayName, email),
+        displayName: safeDisplayName(user.displayName, ''),
         codeHash,
         status: 'active',
         attemptsRemaining: verificationMaxAttempts,
@@ -556,19 +556,11 @@ async function ensureListenerProfile(firestore, user, root) {
     const profile = await transaction.get(reference);
     const jobs = await Promise.all(roots.map((r) => transaction.get(firestore.doc(deletionJobPath(user.uid, r)))));
     if (jobs.some((job) => job.exists)) throw new HttpsError('failed-precondition', 'Account deletion is in progress.');
-    const email = normalizeEmail(user.email);
     if (profile.exists) {
-      if (!profile.get('email') && email) {
-        transaction.update(reference, {
-          email,
-          updatedAt: FieldValue.serverTimestamp(),
-        });
-      }
       return;
     }
     transaction.create(reference, {
-      displayName: safeDisplayName(user.displayName, email),
-      email: email || '',
+      displayName: safeDisplayName(user.displayName, ''),
       username: '',
       avatarUrl: '',
       isActive: true,

@@ -3,6 +3,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import type { ResourceKey } from './admin-resources';
 import type { FirestoreRoot } from './firestore-environment';
 import { isContentKind, contentPayload } from './content-form.ts';
+import { publicStationData, stationPrivacyRequestOptions, type StationPrivacyOptions } from './station-private.ts';
 
 type Reference = { path: string; id?: string };
 type Previous = { reference: Reference; data: Record<string, unknown> } | null;
@@ -14,6 +15,8 @@ export type AdminSaveRequest = {
   expected: Record<string, unknown> | null;
   locationId?: string;
   source: 'editor' | 'import';
+  expectedPrivateRevision?: number | null;
+  deletePrivateFields?: readonly string[];
 };
 type AdminSaveResult = {
   success: boolean;
@@ -55,6 +58,7 @@ export function buildAdminSaveRequest(
   previous: Previous,
   location?: Reference,
   source: 'editor' | 'import' = 'editor',
+  privacy?: StationPrivacyOptions,
 ): AdminSaveRequest {
   if (
     !['HudHudDev', 'HudHudOfficial'].includes(root) ||
@@ -76,19 +80,23 @@ export function buildAdminSaveRequest(
       !location.path.startsWith(`${root}/locations/locations/`))
   )
     throw contentError('مرجع المدينة خارج بيئة الإدارة المحددة.');
+  const content = portable(contentPayload(kind, data)) as Record<string, unknown>;
+  const privacyOptions = stationPrivacyRequestOptions(kind, content, privacy);
+  const previousData = previous && kind === 'stations' ? publicStationData(previous.data) : previous?.data;
   return {
     root,
     kind,
     id,
-    content: portable(contentPayload(kind, data)) as Record<string, unknown>,
+    content,
     expected: previous
-      ? (portable(contentPayload(kind, previous.data)) as Record<
+      ? (portable(contentPayload(kind, previousData!)) as Record<
           string,
           unknown
         >)
       : null,
     ...(location ? { locationId: location.path.split('/')[3] } : {}),
     source,
+    ...privacyOptions,
   };
 }
 
@@ -103,6 +111,7 @@ export async function saveWithRelations(
   previous: Previous,
   location?: Reference,
   source: 'editor' | 'import' = 'editor',
+  privacy?: StationPrivacyOptions,
 ): Promise<AdminSaveResult> {
   const request = buildAdminSaveRequest(
     root,
@@ -113,6 +122,7 @@ export async function saveWithRelations(
     previous,
     location,
     source,
+    privacy,
   );
   const result = await invokeAdminContent<AdminSaveResult>(firestore, 'adminSaveContent', request);
   if (result.id !== id || !['create', 'update', 'unchanged'].includes(result.action)) throw contentError('لم يتم تأكيد حفظ المحتوى. أعد تحميل السجل قبل المحاولة.');

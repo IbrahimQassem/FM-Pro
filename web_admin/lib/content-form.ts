@@ -1,3 +1,5 @@
+import { publicStationData, type StationPrivateState } from './station-private.ts';
+
 export type ContentKind =
   | 'stations'
   | 'programs'
@@ -374,4 +376,13 @@ export function editableFingerprint(value: unknown): string {
     return item;
   };
   return JSON.stringify(normalize(editableValue(value)));
+}
+
+/** Mount station editors only after the authorized private read has succeeded. */
+export function stationEditorData(
+  publicData: Record<string, unknown>,
+  privateState: StationPrivateState | null | undefined,
+): Record<string, unknown> {
+  if (!privateState) throw new Error('Load station metadata before editing.');
+  return { ...publicStationData(publicData), ...privateState.data };
 }

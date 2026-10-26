@@ -1,211 +1,153 @@
 #!/usr/bin/env node
 import { createRequire } from 'node:module';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-import fs from 'node:fs';
+const defaultSourcePath = 'HudHudFmGooglePlay/Users/Users';
+const knownRoots = ['HudHudDev', 'HudHudOfficial'];
 
-const require = createRequire(new URL('../functions/package.json', import.meta.url));
-const { initializeApp, cert } = require('firebase-admin/app');
-const { getFirestore, FieldValue } = require('firebase-admin/firestore');
-
-const isEmulator = Boolean(process.env.FIRESTORE_EMULATOR_HOST);
-const projectId = process.env.GCLOUD_PROJECT || 'sanadev-fm';
-const credArg = process.argv.find((a) => a.startsWith('--credentials='));
-
-console.log('------------------------------------------------------------');
-console.log(' HudHud FM — One-Time Legacy Users Migration Script');
-console.log('------------------------------------------------------------');
-console.log(`Project: ${projectId}`);
-console.log(`Emulator Mode: ${isEmulator ? process.env.FIRESTORE_EMULATOR_HOST : 'No (Direct Firebase/GCP)'}`);
-if (credArg) console.log(`Credentials:   ${credArg.split('=')[1]}`);
-
-process.on('unhandledRejection', (err) => {
-  if (err && String(err.message || err).includes('Could not load the default credentials')) {
-    console.error('\n❌ خطأ مصادقة: لم يتم العثور على بيانات اعتماد Google Cloud / Firebase.');
-    console.error('يرجى استخدام أحد الخيارات التالية للمصادقة:');
-    console.error('1) تشغيل أمر تسجيل الدخول:');
-    console.error('   gcloud auth application-default login');
-    console.error('2) أو تمرير مفتاح Service Account JSON:');
-    console.error('   node tool/migrate-legacy-users.mjs --credentials=/path/to/serviceAccountKey.json');
-    console.error('3) أو للتشغيل على المحاكي المحلي (Local Emulator):');
-    console.error('   FIRESTORE_EMULATOR_HOST=127.0.0.1:8180 node tool/migrate-legacy-users.mjs\n');
-  } else {
-    console.error('\n❌ Unhandled error:', err);
+function validateScope({ projectId, targetRoot, sourcePath, shouldApply }) {
+  if (typeof projectId !== 'string' || !/^[a-z][a-z0-9-]{4,62}$/.test(projectId) ||
+      !knownRoots.includes(targetRoot) || typeof shouldApply !== 'boolean') {
+    throw new Error('An explicit project, known target root and valid execution mode are required.');
   }
-  process.exit(1);
-});
-
-try {
-  if (credArg) {
-    const credPath = credArg.split('=')[1];
-    const serviceAccount = JSON.parse(fs.readFileSync(credPath, 'utf8'));
-    initializeApp({
-      credential: cert(serviceAccount),
-      projectId: serviceAccount.project_id || projectId,
-    });
-  } else {
-    initializeApp({ projectId });
+  const parts = typeof sourcePath === 'string' ? sourcePath.split('/') : [];
+  if (!parts.length || parts.length % 2 !== 1 || parts.some(part => !part || part === '.' || part === '..' || /[\x00-\x1f]/.test(part)) ||
+      sourcePath === `${targetRoot}/users/users`) {
+    throw new Error('A valid distinct legacy source collection is required.');
   }
-} catch {
-  // App already initialized
 }
 
-const firestore = getFirestore();
-const sourcePath = process.env.SOURCE_PATH || 'HudHudFmGooglePlay/Users/Users';
-const targetRoot = process.env.TARGET_ROOT || 'HudHudOfficial';
-const force = process.argv.includes('--force');
-const dryRun = process.argv.includes('--dry-run');
-
-console.log(`Source Collection: /${sourcePath}`);
-console.log(`Target Collection: /${targetRoot}/users/users`);
-console.log(`Execution Mode:    ${dryRun ? 'DRY RUN (No writes)' : 'LIVE MIGRATION'}`);
-console.log('------------------------------------------------------------');
-
-async function run() {
+// Importing this module never initializes Firebase or starts a migration.
+// This producer is not the station/profile cleanup tool and does not remove any
+// existing email. It must remain quiesced during that separately approved cleanup.
+export async function runLegacyUsersMigration({
+  firestore, projectId, targetRoot, sourcePath = defaultSourcePath,
+  shouldApply = false, force = false, timestamp, log = () => {},
+}) {
+  validateScope({ projectId, targetRoot, sourcePath, shouldApply });
+  if (typeof timestamp !== 'function') throw new Error('A timestamp provider is required.');
   const migrationRef = firestore.doc(`${targetRoot}/system/migrations/migration_legacy_users`);
   const migrationDoc = await migrationRef.get();
-
   if (migrationDoc.exists && migrationDoc.data()?.status === 'completed' && !force) {
-    const info = migrationDoc.data();
-    console.log('⚠️ Migration has ALREADY BEEN EXECUTED previously:');
-    console.log(`   - Completed At:   ${info.completedAt?.toDate?.() || info.completedAt}`);
-    console.log(`   - Completed By:   ${info.completedBy}`);
-    console.log(`   - Migrated Count: ${info.migratedCount}`);
-    console.log(`   - Skipped Count:  ${info.skippedCount}`);
-    console.log('\nTo force re-run, pass the --force flag.');
-    process.exit(0);
+    log('Legacy user migration skipped: completed barrier exists.');
+    return { status: 'already-completed', migratedCount: 0, skippedCount: 0 };
   }
 
   let sourceRef = firestore.collection(sourcePath);
   let snapshot = await sourceRef.get();
-
-  // If initial path returned 0, test lowercase variation
-  if (snapshot.empty && sourcePath === 'HudHudFmGooglePlay/Users/Users') {
-    const altRef = firestore.collection('HudHudFmGooglePlay/users/users');
-    const altSnap = await altRef.get();
-    if (!altSnap.empty) {
-      console.log('Found documents in lowercase path: HudHudFmGooglePlay/users/users');
-      sourceRef = altRef;
-      snapshot = altSnap;
+  if (snapshot.empty && sourcePath === defaultSourcePath) {
+    const alternative = firestore.collection('HudHudFmGooglePlay/users/users');
+    const alternateSnapshot = await alternative.get();
+    if (!alternateSnapshot.empty) {
+      sourceRef = alternative;
+      snapshot = alternateSnapshot;
     }
   }
-
   if (snapshot.empty) {
-    console.log(`❌ No legacy users found in /${sourcePath}.`);
-    process.exit(0);
+    log('Legacy user migration: no source records.');
+    return { status: 'empty', migratedCount: 0, skippedCount: 0 };
   }
-
-  console.log(`Found ${snapshot.size} legacy user records in source.`);
 
   let migratedCount = 0;
   let skippedCount = 0;
   const batches = [];
-  let currentBatch = firestore.batch();
+  let currentBatch = shouldApply ? firestore.batch() : null;
   let opCount = 0;
-
-  for (const doc of snapshot.docs) {
-    const uid = doc.id;
-    const legacy = doc.data() || {};
-    const targetRef = firestore.doc(`${targetRoot}/users/users/${uid}`);
-
-    const targetSnap = await targetRef.get();
-    const targetExists = targetSnap.exists;
-
-    if (targetExists) {
-      const targetData = targetSnap.data() || {};
+  for (const document of snapshot.docs) {
+    const legacy = document.data() || {};
+    const targetRef = firestore.doc(`${targetRoot}/users/users/${document.id}`);
+    const targetSnapshot = await targetRef.get();
+    if (targetSnapshot.exists) {
+      const target = targetSnapshot.data() || {};
       const backfill = {};
-
-      if (!targetData.email && legacy.email) {
-        backfill.email = String(legacy.email).trim().toLowerCase();
-      }
-      if (!targetData.displayName && (legacy.displayName || legacy.name || legacy.username)) {
+      if (!target.displayName && (legacy.displayName || legacy.name || legacy.username)) {
         backfill.displayName = legacy.displayName || legacy.name || legacy.username;
       }
-
-      if (Object.keys(backfill).length > 0) {
-        console.log(`  [UPDATE] Backfilling existing user ${uid}: ${JSON.stringify(backfill)}`);
-        if (!dryRun) {
-          backfill.updatedAt = FieldValue.serverTimestamp();
-          currentBatch.update(targetRef, backfill);
+      if (Object.keys(backfill).length) {
+        if (shouldApply) {
+          currentBatch.update(targetRef, { ...backfill, updatedAt: timestamp() });
           opCount++;
         }
         migratedCount++;
       } else {
-        console.log(`  [SKIP] User ${uid} already fully exists in canonical root.`);
         skippedCount++;
       }
     } else {
-      const email = legacy.email ? String(legacy.email).trim().toLowerCase() : '';
-      const displayName = legacy.displayName ||
-        legacy.name ||
-        legacy.username ||
-        legacy.userName ||
-        (email ? email.split('@')[0] : 'Listener');
-
-      const canonicalData = {
-        displayName,
-        email,
+      const canonical = {
+        displayName: legacy.displayName || legacy.name || legacy.username || legacy.userName || 'Listener',
         username: legacy.username || legacy.userName || '',
         avatarUrl: legacy.avatarUrl || legacy.photoUrl || legacy.photoURL || legacy.image || '',
         isActive: legacy.isActive !== false && legacy.disabled !== true,
         role: legacy.role || 'listener',
-        createdAt: legacy.createdAt || legacy.timestamp || FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp(),
+        createdAt: legacy.createdAt || legacy.timestamp || timestamp(),
+        updatedAt: timestamp(),
         migratedFrom: sourceRef.path || sourcePath,
-        migratedAt: FieldValue.serverTimestamp(),
+        migratedAt: timestamp(),
       };
-
-      console.log(`  [INSERT] Migrating new user ${uid}: "${displayName}" <${email || 'no-email'}> (role: ${canonicalData.role})`);
-      if (!dryRun) {
-        currentBatch.set(targetRef, canonicalData);
+      if (shouldApply) {
+        currentBatch.set(targetRef, canonical);
         opCount++;
       }
       migratedCount++;
     }
-
-    if (opCount >= 400 && !dryRun) {
+    if (shouldApply && opCount >= 400) {
       batches.push(currentBatch.commit());
       currentBatch = firestore.batch();
       opCount = 0;
     }
   }
-
-  if (!dryRun) {
-    if (opCount > 0) batches.push(currentBatch.commit());
+  if (shouldApply) {
+    if (opCount) batches.push(currentBatch.commit());
     await Promise.all(batches);
-
-    // Save one-time execution barrier
     await migrationRef.set({
-      completedAt: FieldValue.serverTimestamp(),
-      completedBy: 'cli-script',
-      sourcePath: sourceRef.path || sourcePath,
-      targetRoot,
-      totalSource: snapshot.size,
-      migratedCount,
-      skippedCount,
-      status: 'completed',
+      completedAt: timestamp(), completedBy: 'cli-script', sourcePath: sourceRef.path || sourcePath,
+      targetRoot, totalSource: snapshot.size, migratedCount, skippedCount, status: 'completed',
     });
   }
-
-  console.log('------------------------------------------------------------');
-  console.log(`🎉 Migration finished ${dryRun ? '(SIMULATED)' : 'SUCCESSFULLY'}!`);
-  console.log(`   - Total Source Records: ${snapshot.size}`);
-  console.log(`   - Migrated / Updated:   ${migratedCount}`);
-  console.log(`   - Skipped (Unchanged):  ${skippedCount}`);
-  console.log('------------------------------------------------------------');
+  log(`Legacy user migration ${shouldApply ? 'applied' : 'dry-run'}: source=${snapshot.size}, changed=${migratedCount}, skipped=${skippedCount}.`);
+  return { status: shouldApply ? 'completed' : 'dry-run', migratedCount, skippedCount };
 }
 
-run().catch((err) => {
-  if (err.message && err.message.includes('Could not load the default credentials')) {
-    console.error('\n❌ خطأ مصادقة: لم يتم العثور على بيانات اعتماد Google Cloud / Firebase.');
-    console.error('يرجى تشغيل أحد الخيارات التالية للمصادقة:');
-    console.error('1) تشغيل أمر تسجيل الدخول:');
-    console.error('   gcloud auth application-default login');
-    console.error('2) أو تمرير مفتاح Service Account JSON:');
-    console.error('   node tool/migrate-legacy-users.mjs --credentials=/path/to/serviceAccountKey.json');
-    console.error('3) أو للتشغيل على المحاكي المحلي (Local Emulator):');
-    console.error('   FIRESTORE_EMULATOR_HOST=127.0.0.1:8180 node tool/migrate-legacy-users.mjs\n');
-  } else {
-    console.error('Fatal error during migration:', err);
+export function parseLegacyUserOptions(argv, env = {}) {
+  const options = { projectId: env.GCLOUD_PROJECT, targetRoot: env.TARGET_ROOT,
+    sourcePath: env.SOURCE_PATH || defaultSourcePath, shouldApply: false, force: false };
+  for (const argument of argv) {
+    if (argument === '--apply') options.shouldApply = true;
+    else if (argument === '--dry-run') continue;
+    else if (argument === '--force') options.force = true;
+    else if (argument.startsWith('--project=')) options.projectId = argument.slice(10);
+    else if (argument.startsWith('--root=')) options.targetRoot = argument.slice(7);
+    else if (argument.startsWith('--source=')) options.sourcePath = argument.slice(9);
+    else if (argument.startsWith('--credentials=')) options.credentials = argument.slice(14);
+    else throw new Error('Unknown legacy migration option.');
   }
-  process.exit(1);
-});
+  if (argv.includes('--apply') && argv.includes('--dry-run')) throw new Error('Choose one execution mode.');
+  validateScope(options);
+  return options;
+}
+
+async function main() {
+  // Scope validation happens before SDK loading, credential reads or network IO.
+  const options = parseLegacyUserOptions(process.argv.slice(2), process.env);
+  const require = createRequire(new URL('../functions/package.json', import.meta.url));
+  const { initializeApp, cert } = require('firebase-admin/app');
+  const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+  let credential;
+  if (options.credentials) {
+    const serviceAccount = JSON.parse(await readFile(options.credentials, 'utf8'));
+    if (serviceAccount.project_id !== options.projectId) throw new Error('Credential project does not match explicit project.');
+    credential = cert(serviceAccount);
+  }
+  const app = initializeApp({ projectId: options.projectId, ...(credential ? { credential } : {}) });
+  await runLegacyUsersMigration({ ...options, firestore: getFirestore(app), timestamp: () => FieldValue.serverTimestamp(), log: console.log });
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch(() => {
+    // Raw SDK errors can contain account values, identifiers or credential paths.
+    console.error('Legacy user migration stopped. Check explicit scope, authorization and SDK availability.');
+    process.exitCode = 1;
+  });
+}

@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx';
 export type StationExportRow = {
   id: string;
   data: Record<string, unknown>;
+  privateData?: Readonly<Record<string, unknown>>;
 };
 
 function text(value: unknown): string {
@@ -36,6 +37,7 @@ export function parseUrlDetails(urlStr: unknown): { protocol: string; host: stri
 export function buildStationExcelData(records: StationExportRow[]): Record<string, unknown>[] {
   return records.map((record) => {
     const d = record.data || {};
+    const privateData = record.privateData || {};
     const stats = (typeof d.stats === 'object' && d.stats !== null ? d.stats : {}) as Record<string, unknown>;
     const streamDetails = parseUrlDetails(d.streamUrl);
     const backupStreamDetails = parseUrlDetails(d.backupStreamUrl);
@@ -57,21 +59,21 @@ export function buildStationExcelData(records: StationExportRow[]): Record<strin
       'منفذ البث الأساسي': streamDetails.port,
       'رابط البث الاحتياطي': text(d.backupStreamUrl),
       'بروتوكول البث الاحتياطي': backupStreamDetails.protocol,
-      'نوع خادم البث': text(d.streamType),
-      'ترميز الصوت': text(d.audioCodec),
-      'معدل البت (kbps)': text(d.bitrateKbps),
-      'معدل العينة (Hz)': text(d.sampleRateHz),
+      'نوع خادم البث': text(privateData.streamType),
+      'ترميز الصوت': text(privateData.audioCodec),
+      'معدل البت (kbps)': text(privateData.bitrateKbps),
+      'معدل العينة (Hz)': text(privateData.sampleRateHz),
       // بيانات البث الإذاعي وأجهزة الإرسال (FM Transmission Specs)
-      'قدرة جهاز الإرسال': text(d.transmitterPower),
-      'موقع برج الإرسال': text(d.transmitterLocation),
-      'نطاق التغطية الجغرافية': text(d.coverageArea),
-      'نظام بيانات الراديو (RDS)': text(d.rds),
+      'قدرة جهاز الإرسال': text(privateData.transmitterPower),
+      'موقع برج الإرسال': text(privateData.transmitterLocation),
+      'نطاق التغطية الجغرافية': text(privateData.coverageArea),
+      'نظام بيانات الراديو (RDS)': text(privateData.rds),
       // بيانات الإدارة وجهات الاتصال المرجعية
-      'الجهة المالكة / المالك': text(d.owner),
-      'المقر / العنوان': text(d.address),
-      'مسؤول التواصل': text(d.contactPerson),
-      'هاتف التواصل': text(d.contactPhone),
-      'البريد الإلكتروني': text(d.contactEmail),
+      'الجهة المالكة / المالك': text(privateData.owner),
+      'المقر / العنوان': text(privateData.address),
+      'مسؤول التواصل': text(privateData.contactPerson),
+      'هاتف التواصل': text(privateData.contactPhone),
+      'البريد الإلكتروني': text(privateData.contactEmail),
       // الروابط العامة للمستمعين
       'الموقع الإلكتروني': text(d.websiteUrl),
       'رابط فيسبوك': text(d.facebookUrl),

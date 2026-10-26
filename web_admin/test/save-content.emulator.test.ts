@@ -7,6 +7,8 @@ import {
   getDocFromServer,
 } from 'firebase/firestore';
 import { saveWithRelations } from '../lib/save-content.ts';
+import { deleteContentWithAudit } from '../lib/delete-episode.ts';
+import { loadStationPrivatePage, publicStationData } from '../lib/station-private.ts';
 void test(
   'actual save transaction preserves retry counters, rejects stale edits and moves atomically in both roots',
   { skip: !process.env.FIRESTORE_EMULATOR_HOST },
@@ -127,6 +129,93 @@ void test(
           [program, old, next].forEach((ref) => batch.delete(adminDb.doc(ref.path)));
           await batch.commit();
         }
+      }
+    } finally {
+      await close();
+    }
+  },
+);
+
+void test(
+  'R01 admin helpers read canonical private state, enforce stale revisions and delete both projections',
+  { skip: !process.env.FIRESTORE_EMULATOR_HOST },
+  async () => {
+    const { db, adminDb, seed, close } = await callableEmulator();
+    const fixtures = JSON.parse(readFileSync(new URL('../../test/fixtures/admin-content-contract.json', import.meta.url), 'utf8'));
+    try {
+      for (const root of ['HudHudDev', 'HudHudOfficial'] as const) {
+        const id = crypto.randomUUID();
+        const path = `${root}/stations/stations`;
+        const station = doc(db, path, id);
+        const privateRef = doc(db, `${root}/stationPrivate/stations`, id);
+        const malformed = doc(db, `${root}/stationPrivate/stations`, `${id}-malformed`);
+        const location = doc(db, `${root}/locations/locations`, `${id}-city`);
+        const fields = { ...fixtures.stations, cityCode: location.id, locationType: 'governorate', isNational: false, owner: 'Synthetic private owner' };
+        try {
+          const missing = await loadStationPrivatePage(db, root, [id]);
+          assert.deepEqual(missing[id], { revision: null, data: {} });
+          await seed(location, { ...fixtures.locations, cityCode: location.id, locationType: 'governorate' });
+          await saveWithRelations(db, root, 'stations', path, id, fields, null, location, 'editor',
+            { expectedPrivateRevision: missing[id].revision });
+          const original = (await getDocFromServer(station)).data()!;
+          assert.equal(Object.hasOwn(original, 'owner'), false);
+          const first = (await loadStationPrivatePage(db, root, [id]))[id];
+          assert.equal(first.revision, 1);
+          assert.equal(first.data.owner, fields.owner);
+          const changed = { ...fields, owner: 'Changed synthetic owner' };
+          await saveWithRelations(db, root, 'stations', path, id, changed,
+            { reference: station, data: original }, location, 'editor', { expectedPrivateRevision: first.revision });
+          const second = (await loadStationPrivatePage(db, root, [id]))[id];
+          assert.equal(second.revision, 2);
+          const current = (await getDocFromServer(station)).data()!;
+          await assert.rejects(saveWithRelations(db, root, 'stations', path, id,
+            { ...changed, name: 'Stale edit', owner: 'Stale synthetic owner' },
+            { reference: station, data: current }, location, 'editor', { expectedPrivateRevision: first.revision }),
+          { name: 'ContentError' });
+          assert.equal((await getDocFromServer(station)).get('name'), fields.name);
+          assert.equal((await getDocFromServer(privateRef)).get('owner'), changed.owner);
+          const withoutOwner = Object.fromEntries(Object.entries(changed).filter(([key]) => key !== 'owner'));
+          await saveWithRelations(db, root, 'stations', path, id, withoutOwner,
+            { reference: station, data: current }, location, 'editor',
+            { expectedPrivateRevision: second.revision, deletePrivateFields: ['owner'] });
+          const third = (await loadStationPrivatePage(db, root, [id]))[id];
+          assert.equal(third.revision, 3);
+          assert.equal(Object.hasOwn(third.data, 'owner'), false);
+          assert.equal(third.data.contactPhone, '');
+          const publicData = (await getDocFromServer(station)).data()!;
+          await saveWithRelations(db, root, 'stations', path, id,
+            { ...publicStationData(withoutOwner), name: 'Public-only edit' },
+            { reference: station, data: publicData }, location);
+          assert.equal((await getDocFromServer(privateRef)).get('revision'), 3);
+          const deletionSnapshot = (await getDocFromServer(station)).data()!;
+          await assert.rejects(deleteContentWithAudit(db, root, 'stations', station, deletionSnapshot,
+            { expectedPrivateRevision: second.revision }), { name: 'ContentError' });
+          assert.equal((await getDocFromServer(privateRef)).exists(), true);
+          await deleteContentWithAudit(db, root, 'stations', station, deletionSnapshot);
+          assert.equal((await getDocFromServer(station)).exists(), false);
+          assert.equal((await getDocFromServer(privateRef)).exists(), false);
+          await seed(malformed, { schemaVersion: 2, revision: 1 });
+          await assert.rejects(loadStationPrivatePage(db, root, [malformed.id]), { name: 'ContentError' });
+        } finally {
+          const cleanup = adminDb.batch();
+          [station, privateRef, malformed, location].forEach(ref => cleanup.delete(adminDb.doc(ref.path)));
+          await cleanup.commit();
+        }
+      }
+    } finally {
+      await close();
+    }
+  },
+);
+
+void test(
+  'R01 scoped admin cannot load station private metadata through the SDK helper',
+  { skip: !process.env.FIRESTORE_EMULATOR_HOST },
+  async () => {
+    const { db, close } = await callableEmulator({ admin: true, role: 'station_admin', assignedStations: ['synthetic-station'] });
+    try {
+      for (const root of ['HudHudDev', 'HudHudOfficial'] as const) {
+        await assert.rejects(loadStationPrivatePage(db, root, ['synthetic-station']), { name: 'ContentError' });
       }
     } finally {
       await close();

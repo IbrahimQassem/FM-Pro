@@ -1,0 +1,21 @@
+{
+  "task": "01-T09a",
+  "baselineCommit": "f3c9485",
+  "baselineSourceSha256": "4a852ccff487cd4a4a9142fd31f52ca8cded72ea3bcd6b7cad9ace583b164e5d",
+  "redTestInitial12Sha256": "659b4f41045417b7f70eb98f81cf380c3cf5893b95e851d074c780774188ef9e",
+  "red": "B05-legacy-red.log:12 tests,2 passed,10 intended business assertion failures,0 skipped. Captured before source refactor. Original script evaluated in VM with mocked SDK/Firestore/process/logs; no SDK import or live main executed.",
+  "green": "B05-legacy-green.log:23 passed,0 failed/skipped. Additional11 guard/compatibility tests are not claimed as RED.",
+  "command": "/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node --test tool/test/migrate-legacy-users.test.mjs",
+  "cwd": "hudhud_fm",
+  "candidateSourceSha256": "23419fb8a3e52e704d3ff5d2da3ae67e3ba79ef6f7c3ae26fa36f0e1a3e5d656",
+  "candidateTestSha256": "bb49a428f079958849a54c75ee8d48c368cfc17ba006e01aca58e99f9cfbd105",
+  "otherChecks": [
+    "node --check tool/migrate-legacy-users.mjs:passed",
+    "git diff --check -- tool/migrate-legacy-users.mjs tool/test/migrate-legacy-users.test.mjs:passed"
+  ],
+  "limitations": [
+    "Mocked Firestore tests only; no live main or emulator run.",
+    "Existing full collection read,400-write batching and get-then-set creation are unchanged; no production operational acceptance is claimed.",
+    "Cleanup bounded manifests/backups/restore remain B06; no cleanup or production run authorized."
+  ]
+}

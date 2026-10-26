@@ -1,4 +1,34 @@
 {
   "feature": "technical-review",
-  "records": []
+  "records": [
+    {
+      "influence": "preference",
+      "tags": [
+        "boss-frontend"
+      ],
+      "id": "agent-33",
+      "scope": "feature",
+      "kind": "execution",
+      "category": "agent_failure_pattern",
+      "feature": "technical-review",
+      "stage": 3,
+      "agent": "boss-frontend",
+      "summary": "boss-frontend failed in stage 3",
+      "source": {
+        "type": "events",
+        "window": "latest"
+      },
+      "evidence": [
+        {
+          "type": "event",
+          "ref": "33"
+        }
+      ],
+      "confidence": 0.8,
+      "createdAt": "2026-10-26T14:45:21.872Z",
+      "lastSeenAt": "2026-10-26T14:45:21.872Z",
+      "expiresAt": null,
+      "decayScore": 9
+    }
+  ]
 }

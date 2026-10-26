@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   contentPayload,
+  stationEditorData,
   scheduleClock,
   scheduleMinutes,
   editableSchedule,
@@ -252,4 +253,17 @@ void test('the Arabic regional reference is distinct from national/governorate l
       validateContent('locations', { ...regional, ...patch }).countryCode,
     );
   }
+});
+
+void test('R01 station editor requires loaded metadata and never uses a public private fallback', () => {
+  const publicData = { name: 'Public station', contactEmail: 'legacy@example.test', owner: 'Legacy owner', streamUrl: 'https://example.test/live' };
+  assert.throws(() => stationEditorData(publicData, null), /Load station metadata/);
+  const missing = stationEditorData(publicData, { revision: null, data: {} });
+  assert.equal(Object.hasOwn(missing, 'contactEmail'), false);
+  assert.equal(Object.hasOwn(missing, 'owner'), false);
+  assert.equal(missing.streamUrl, publicData.streamUrl);
+  const loaded = stationEditorData(publicData, { revision: 2, data: { contactEmail: 'canonical@example.test', owner: '' } });
+  assert.equal(loaded.contactEmail, 'canonical@example.test');
+  assert.equal(loaded.owner, '');
+  assert.equal(publicData.contactEmail, 'legacy@example.test');
 });

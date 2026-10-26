@@ -2,7 +2,7 @@
   "schemaVersion": "0.2.0",
   "feature": "technical-review",
   "createdAt": "2026-10-25T18:24:59.037Z",
-  "updatedAt": "2026-10-25T19:31:38.965Z",
+  "updatedAt": "2026-10-26T14:45:23.014Z",
   "status": "initialized",
   "parameters": {
     "pipelinePack": "api-only",
@@ -142,6 +142,16 @@
           "failureReason": null,
           "promptFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "inputDigest": "b780f9cf4ff4565a233e9420abc8f754a28b302086b256954b36e80fc3c9997b"
+        },
+        "boss-frontend": {
+          "status": "failed",
+          "startTime": null,
+          "endTime": "2026-10-26T14:45:21.872Z",
+          "retryCount": 0,
+          "maxRetries": 2,
+          "failureReason": "WO-01 B03 mandatory admin lint failed: synchronous setPrivateError inside station-loading effect at admin-app.tsx3351. User stop-on-gate-failure honored; T10/T11/B06 unexecuted; R01/R10 OPEN. See WO-01-validation.md.",
+          "promptFingerprint": null,
+          "inputDigest": null
         }
       }
     },
@@ -183,7 +193,7 @@
     "gatePassRate": null,
     "retryTotal": 0,
     "agentSuccessCount": 2,
-    "agentFailureCount": 0,
+    "agentFailureCount": 1,
     "meanRetriesPerStage": 0,
     "revisionLoopCount": 0,
     "pluginFailureCount": 0
@@ -384,9 +394,9 @@
           "boss-backend"
         ],
         "parallelGroup": "stage-3-code",
-        "status": "running",
-        "reason": "agent-started",
-        "updatedAt": "2026-10-25T19:31:38.965Z"
+        "status": "failed",
+        "reason": "WO-01 B03 mandatory admin lint failed: synchronous setPrivateError inside station-loading effect at admin-app.tsx3351. User stop-on-gate-failure honored; T10/T11/B06 unexecuted; R01/R10 OPEN. See WO-01-validation.md.",
+        "updatedAt": "2026-10-26T14:45:21.872Z"
       },
       "artifact:qa-report.md": {
         "id": "artifact:qa-report.md",
@@ -517,7 +527,7 @@
     "nextNodeIds": [
       "artifact:prd.md"
     ],
-    "updatedAt": "2026-10-25T19:31:38.965Z"
+    "updatedAt": "2026-10-26T14:45:23.014Z"
   },
   "pause": null
 }

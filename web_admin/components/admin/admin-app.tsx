@@ -16,12 +16,15 @@ import {
   editableFingerprint,
   scheduleClock,
   editableSchedule,
+  stationEditorData,
 } from '@/lib/content-form';
 import { loadRelationLabels, reportCommentPath } from '@/lib/admin-relations';
 import { deleteContentWithAudit } from '@/lib/delete-episode';
 import { reviewReport } from '@/lib/review-report';
 import { saveWithRelations } from '@/lib/save-content';
 import { exportStationsToExcel } from '@/lib/export-excel';
+import { loadStationPrivatePage, type StationPrivateState } from '@/lib/station-private';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 import { resourceQuery } from '@/lib/admin-query';
 import { belongsToRoot } from '@/lib/firestore-environment';
@@ -1588,6 +1591,7 @@ function ResourceView({
   const [batchImportOpen, setBatchImportOpen] = useState(false);
   const [actionUser, setActionUser] = useState<AdminRecord | null>(null);
   const [busyId, setBusyId] = useState('');
+  const [exporting, setExporting] = useState(false);
   const [feedback, setFeedback] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -1827,7 +1831,7 @@ function ResourceView({
       (definition.key !== 'stations' && definition.key !== 'banners'));
 
   const canEdit =
-    definition.editable && (isSuperAdmin || definition.key !== 'banners');
+    definition.editable && (isSuperAdmin || !['stations', 'banners'].includes(definition.key));
 
   const canDelete =
     definition.deletable &&
@@ -1868,16 +1872,27 @@ function ResourceView({
           {isSuperAdmin && definition.key === 'stations' && (
             <Button
               variant="outline"
-              disabled={loading || records.length === 0}
-              onClick={() => {
-                const outcome = exportStationsToExcel(
-                  filteredAndSorted.map((r) => ({ id: r.id, data: r.data })),
-                  firestoreRoot,
-                );
-                setFeedback({
-                  type: 'success',
-                  message: `تم تصدير ${outcome.count} محطة إلى ملف Excel (${outcome.filename}) بنجاح.`,
-                });
+              disabled={loading || exporting || records.length === 0}
+              onClick={async () => {
+                setExporting(true);
+                setFeedback(null);
+                try {
+                  // Enrich only the already loaded, bounded export selection.
+                  // Archive pagination remains the separate WO-03 obligation.
+                  if (filteredAndSorted.length > 2000) throw new Error('Export selection exceeds the loaded-page limit.');
+                  const rows = [];
+                  for (let offset = 0; offset < filteredAndSorted.length; offset += 50) {
+                    const page = filteredAndSorted.slice(offset, offset + 50);
+                    const states = await loadStationPrivatePage(firestore, firestoreRoot, page.map(record => record.id));
+                    rows.push(...page.map(record => ({ id: record.id, data: record.data, privateData: states[record.id].data })));
+                  }
+                  const outcome = exportStationsToExcel(rows, firestoreRoot);
+                  setFeedback({ type: 'success', message: `تم تصدير ${outcome.count} محطة إلى ملف Excel (${outcome.filename}) بنجاح.` });
+                } catch (caught) {
+                  setFeedback({ type: 'error', message: caught instanceof Error ? caught.message : 'Station export could not be completed.' });
+                } finally {
+                  setExporting(false);
+                }
               }}
               className="min-h-11 shadow-xs border-emerald-600/30 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
               aria-label="تصدير المحطات إلى ملف Excel"
@@ -3228,8 +3243,10 @@ function ResourceView({
       )}
       {editor !== null && (
         <ResourceEditor
+          key={`${definition.key}:${editor === 'new' ? 'new' : editor.id}`}
           firestore={firestore}
           definition={definition}
+          isSuperAdmin={isSuperAdmin}
           record={editor === 'new' ? null : editor}
           onClose={() => setEditor(null)}
           onSaved={() => {
@@ -3297,6 +3314,7 @@ function ResourceView({
 function ResourceEditor({
   firestore,
   definition,
+  isSuperAdmin,
   record,
   onClose,
   onSaved,
@@ -3304,6 +3322,7 @@ function ResourceEditor({
 }: {
   firestore: Firestore;
   definition: ResourceDefinition;
+  isSuperAdmin: boolean;
   record: AdminRecord | null;
   onClose: () => void;
   onSaved: () => void;
@@ -3323,13 +3342,41 @@ function ResourceEditor({
           : {}),
       },
   );
+  const [privateState, setPrivateState] = useState<StationPrivateState | null>(null);
+  const [privateError, setPrivateError] = useState('');
+  useEffect(() => {
+    if (definition.key !== 'stations') return;
+    let active = true;
+    if (!isSuperAdmin) {
+      setPrivateError('Super admin privileges are required to edit stations.');
+      return;
+    }
+    void loadStationPrivatePage(firestore, firestoreRoot, [id]).then(states => {
+      if (active) setPrivateState(states[id]);
+    }).catch(caught => {
+      if (active) setPrivateError(caught instanceof Error ? caught.message : 'Station metadata could not be loaded.');
+    });
+    return () => { active = false; };
+  }, [firestore, definition.key, id, isSuperAdmin]);
   if (!isContentKind(definition.key)) return null;
+  if (definition.key === 'stations' && (!isSuperAdmin || !privateState || privateError)) {
+    return <Dialog open onOpenChange={open => { if (!open) onClose(); }}>
+      <DialogContent dir="rtl">
+        <DialogHeader>
+          <DialogTitle>Station metadata</DialogTitle>
+          <DialogDescription>{privateError || 'Loading station metadata…'}</DialogDescription>
+        </DialogHeader>
+        {privateError && <p role="alert">Editing is blocked. Close and reload before trying again.</p>}
+        <Button variant="outline" onClick={onClose}>Close</Button>
+      </DialogContent>
+    </Dialog>;
+  }
   return (
     <ContentEditor
       firestore={firestore}
       kind={definition.key}
       label={definition.singular}
-      initial={initial}
+      initial={definition.key === 'stations' ? stationEditorData(initial, privateState) : initial}
       recordId={record?.id}
       isNew={!record}
       onClose={onClose}
@@ -3349,13 +3396,19 @@ function ResourceEditor({
           fromEditable(data) as Record<string, unknown>,
           record,
           location,
+          'editor',
+          definition.key === 'stations' ? { expectedPrivateRevision: privateState!.revision } : undefined,
         );
         onSaved();
       }}
       onDelete={
         record && (definition.key === 'stations' || definition.deletable)
           ? async () => {
-              await deleteWithRelations(firestore, definition.key, record);
+              if (definition.key === 'stations') {
+                await deleteContentWithAudit(firestore, firestoreRoot, 'stations', record.reference, record.data, { expectedPrivateRevision: privateState!.revision });
+              } else {
+                await deleteWithRelations(firestore, definition.key, record);
+              }
               onDeleted?.();
             }
           : undefined

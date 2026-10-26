@@ -7,6 +7,21 @@ import {
   type StationExportRow,
 } from '../lib/export-excel.ts';
 
+void test('R01 export never falls back to legacy public private fields', () => {
+  const legacy = Object.fromEntries('owner address contactPerson contactPhone contactEmail streamType audioCodec bitrateKbps sampleRateHz transmitterPower transmitterLocation coverageArea rds'.split(' ').map(key => [key, 'legacy-private']));
+  const [row] = buildStationExcelData([{ id: 'synthetic-station', data: { name: 'Public station', ...legacy } }]);
+  assert.equal(Object.values(row).includes('legacy-private'), false);
+  assert.equal(Object.values(row).includes('Public station'), true);
+});
+
+void test('R01 export obtains private columns only from the authorized private projection', () => {
+  const record = { id: 'synthetic-station', data: { name: 'Public station', contactEmail: 'legacy@example.test' }, privateData: { contactEmail: 'canonical@example.test', owner: 'Canonical owner' } };
+  const [row] = buildStationExcelData([record]);
+  assert.equal(Object.values(row).includes('canonical@example.test'), true);
+  assert.equal(Object.values(row).includes('Canonical owner'), true);
+  assert.equal(Object.values(row).includes('legacy@example.test'), false);
+});
+
 void test('buildStationExcelData formats all station fields and Arabic column headers correctly', () => {
   const sampleRecords: StationExportRow[] = [
     {
@@ -57,6 +72,10 @@ void test('buildStationExcelData formats all station fields and Arabic column he
     },
   ];
 
+  // Simulate the independently authorized private projection, never public fallback.
+  const privateKeys = 'owner address contactPerson contactPhone contactEmail streamType audioCodec bitrateKbps sampleRateHz transmitterPower transmitterLocation coverageArea rds'.split(' ');
+  sampleRecords[0].privateData = Object.fromEntries(privateKeys.map(key => [key, sampleRecords[0].data[key]]));
+  for (const key of privateKeys) delete sampleRecords[0].data[key];
   const rows = buildStationExcelData(sampleRecords);
   assert.equal(rows.length, 1);
   const row = rows[0];
