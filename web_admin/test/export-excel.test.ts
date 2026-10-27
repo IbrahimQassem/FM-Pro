@@ -145,3 +145,31 @@ void test('exportStationsToExcel generates filename with root and date', () => {
   assert.equal(result.count, 0);
   assert.match(result.filename, /^hudhud-stations-HudHudOfficial-\d{4}-\d{2}-\d{2}\.xlsx$/);
 });
+
+void test('exportStationsToExcel handles all-pages station export (106 stations)', () => {
+  const allStations: StationExportRow[] = Array.from({ length: 106 }, (_, i) => ({
+    id: `station-${i + 1}`,
+    data: {
+      name: `محطة رقم ${i + 1}`,
+      frequency: `${90 + (i % 18)}.0`,
+      cityNameAr: i % 2 === 0 ? 'صنعاء' : 'عدن',
+      streamUrl: `https://stream${i + 1}.hudhud.ye/live`,
+    },
+    privateData: {
+      streamType: 'icecast',
+      contactEmail: `admin${i + 1}@example.com`,
+    },
+  }));
+
+  const result = exportStationsToExcel(allStations, 'HudHudOfficial', 'hudhud-stations-HudHudOfficial-all-test.xlsx');
+  assert.equal(result.success, true);
+  assert.equal(result.count, 106);
+  assert.equal(result.filename, 'hudhud-stations-HudHudOfficial-all-test.xlsx');
+
+  const rows = buildStationExcelData(allStations);
+  assert.equal(rows.length, 106);
+  assert.equal(rows[0]['اسم المحطة'], 'محطة رقم 1');
+  assert.equal(rows[105]['اسم المحطة'], 'محطة رقم 106');
+  assert.equal(rows[0]['نوع خادم البث'], 'icecast');
+  assert.equal(rows[105]['البريد الإلكتروني'], 'admin106@example.com');
+});

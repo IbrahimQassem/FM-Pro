@@ -1222,7 +1222,7 @@ function ResourcePage({
             {cached
               ? 'نسخة مخزنة — قد لا تعكس أحدث البيانات'
               : 'بيانات البيئة المحددة'}{' '}
-            · الصفحة {displayedPage.toLocaleString('ar-YE')}
+            {resource !== 'stations' && `· الصفحة ${displayedPage.toLocaleString('ar-YE')}`}
           </span>
           <Button
             variant="outline"
@@ -1283,7 +1283,7 @@ function ResourcePage({
           pageEvaluationTime={pageEvaluationTime}
         />
       )}
-      {(
+      {resource !== 'stations' && (
         <div className="flex items-center justify-between gap-3">
           <Button
             variant="outline"
@@ -1717,6 +1717,66 @@ function ResourceView({
   >('all');
   const [sortBy, setSortBy] = useState('newest');
 
+  const [allStations, setAllStations] = useState<AdminRecord[] | null>(null);
+  const [loadingAllStations, setLoadingAllStations] = useState(false);
+
+  const queryStatusField = queryOptions.statusField;
+  const queryStatusMatch = queryOptions.statusMatch;
+  const queryParent = queryOptions.parent;
+  const queryReportType = queryOptions.reportType;
+
+  useEffect(() => {
+    if (definition.key !== 'stations') {
+      setAllStations(null);
+      return;
+    }
+    let active = true;
+    setLoadingAllStations(true);
+    (async () => {
+      try {
+        let cursor: string | undefined = undefined;
+        const all: AdminRecord[] = [];
+        let exhausted = false;
+        while (!exhausted && active) {
+          const batch = await readResourceBatch(firestore, 'stations', {
+            statusField: queryStatusField,
+            statusMatch: queryStatusMatch,
+            parent: queryParent,
+            reportType: queryReportType,
+            cursor,
+          });
+          if (!active) return;
+          all.push(...batch.records);
+          cursor = batch.cursor;
+          exhausted = batch.exhausted || !cursor;
+        }
+        if (!active) return;
+        const labels = await loadRelationLabels(firestore, firestoreRoot, 'stations', all);
+        if (!active) return;
+        const hydrated = all.map((record) => ({
+          ...record,
+          relationLabel: labels.get(record.path),
+        }));
+        setAllStations(hydrated);
+      } catch (err) {
+        console.error('Failed to load all stations:', err);
+      } finally {
+        if (active) setLoadingAllStations(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [
+    firestore,
+    definition.key,
+    queryRevision,
+    queryStatusField,
+    queryStatusMatch,
+    queryParent,
+    queryReportType,
+  ]);
+
   const featureCounts = useMemo(() => {
     if (definition.key !== 'stations') {
       return { healthy: 0, live: 0, featured: 0, verified: 0, stopped: 0 };
@@ -1726,7 +1786,8 @@ function ResourceView({
     let featured = 0;
     let verified = 0;
     let stopped = 0;
-    for (const r of records) {
+    const target = allStations ?? records;
+    for (const r of target) {
       if (isHealthyStream(r.data, pageEvaluationTime)) healthy++;
       if (r.data.isLive === true) live++;
       if (r.data.isFeatured === true) featured++;
@@ -1741,7 +1802,7 @@ function ResourceView({
       }
     }
     return { healthy, live, featured, verified, stopped };
-  }, [definition.key, records, pageEvaluationTime]);
+  }, [definition.key, records, allStations, pageEvaluationTime]);
 
   const userRoleCounts = useMemo(() => {
     if (definition.key !== 'users') {
@@ -1866,10 +1927,30 @@ function ResourceView({
   const pageSize = 50;
 
   const filteredAndSorted = useMemo(() => {
-    const list = scan ? scan.rows : records.filter(record => matchesResourcePredicate(record, definition.key,
-      { term: search, feature: featureFilter, role: userRoleFilter, sort: sortBy, evaluationTime: pageEvaluationTime }));
+    const target = definition.key === 'stations' ? (allStations ?? records) : (scan ? scan.rows : records);
+    const list = scan && definition.key !== 'stations'
+      ? scan.rows
+      : target.filter((record) =>
+          matchesResourcePredicate(record, definition.key, {
+            term: search,
+            feature: featureFilter,
+            role: userRoleFilter,
+            sort: sortBy,
+            evaluationTime: pageEvaluationTime,
+          }),
+        );
     return sortRecords(list, sortBy, definition.key);
-  }, [scan, records, search, definition.key, featureFilter, userRoleFilter, sortBy, pageEvaluationTime]);
+  }, [
+    scan,
+    records,
+    allStations,
+    search,
+    definition.key,
+    featureFilter,
+    userRoleFilter,
+    sortBy,
+    pageEvaluationTime,
+  ]);
 
   const totalPages = Math.max(1, Math.ceil(filteredAndSorted.length / pageSize));
   const paginatedRecords = useMemo(() => {
@@ -1877,28 +1958,56 @@ function ResourceView({
     return filteredAndSorted.slice(start, start + pageSize);
   }, [filteredAndSorted, currentPage, pageSize]);
 
-  async function exportCurrentPage() {
+  async function exportAllPages() {
     const generation = ++exportGeneration.current;
     const scope = scanScope.current;
     setExporting(true);
     setFeedback(null);
     try {
-      if (paginatedRecords.length > 50) throw new Error('Current page exceeds its export budget.');
-      const privateStates = await loadStationPrivatePage(firestore, firestoreRoot, paginatedRecords.map(record => record.id));
+      const targetRecords = filteredAndSorted;
+      if (targetRecords.length === 0) {
+        setFeedback({ type: 'error', message: 'لا توجد محطات لتصديرها.' });
+        return;
+      }
+      const rows: StationExportRow[] = [];
+      for (let offset = 0; offset < targetRecords.length; offset += 50) {
+        if (generation !== exportGeneration.current || scope.cancelled) return;
+        const slice = targetRecords.slice(offset, offset + 50);
+        const privateStates = await loadStationPrivatePage(
+          firestore,
+          firestoreRoot,
+          slice.map((r) => r.id),
+        );
+        rows.push(
+          ...slice.map((record) => ({
+            id: record.id,
+            data: record.data,
+            privateData: privateStates[record.id]?.data,
+          })),
+        );
+      }
       if (generation !== exportGeneration.current || scope.cancelled) return;
-      const rows = paginatedRecords.map(record => ({ id: record.id, data: record.data, privateData: privateStates[record.id].data }));
-      const filename = `hudhud-stations-${firestoreRoot}-page-${pageEvaluationTime}-${currentPage}.xlsx`;
-      const manifest = await pageExportManifest({ scope: scan ? 'visible-scan-page' : 'current-page', root: firestoreRoot,
-        identity: scanIdentity, count: rows.length, filename,
-        asOf: new Date().toISOString() });
-      if (scope.cancelled || generation !== exportGeneration.current) return;
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const filename = `hudhud-stations-${firestoreRoot}-all-${dateStr}.xlsx`;
       const outcome = exportStationsToExcel(rows, firestoreRoot, filename);
-      downloadJsonManifest(manifest, filename + '.manifest.json');
-      setFeedback({ type: 'success', message: `تم تصدير الصفحة الحالية فقط: ${outcome.count.toLocaleString('ar-YE')} محطة.` });
-    } catch {
-      if (generation === exportGeneration.current && !scope.cancelled) setFeedback({ type: 'error', message: 'تعذر تصدير الصفحة الحالية. تحقق من الصلاحيات وأعد المحاولة.' });
+      setFeedback({
+        type: 'success',
+        message: `تم تصدير كل الصفحات بنجاح: ${outcome.count.toLocaleString('ar-YE')} محطة في ملف Excel واحد (${outcome.filename}).`,
+      });
+    } catch (caught) {
+      if (generation === exportGeneration.current && !scope.cancelled) {
+        setFeedback({
+          type: 'error',
+          message:
+            caught instanceof Error
+              ? caught.message
+              : 'تعذر تصدير كل الصفحات. أعد المحاولة.',
+        });
+      }
     } finally {
-      if (generation === exportGeneration.current && !scope.cancelled) setExporting(false);
+      if (generation === exportGeneration.current && !scope.cancelled) {
+        setExporting(false);
+      }
     }
   }
 
@@ -1929,6 +2038,9 @@ function ResourceView({
     setFeedback(null);
     try {
       await deleteWithRelations(firestore, definition.key, record);
+      if (definition.key === 'stations') {
+        setAllStations((prev) => (prev ? prev.filter((r) => r.id !== record.id) : null));
+      }
       setFeedback({
         type: 'success',
         message: 'تم الحذف وتحديث العلاقات بنجاح.',
@@ -1958,19 +2070,21 @@ function ResourceView({
 
   return (
     <div className="space-y-6">
-      {exportJob && <output className="block rounded-xl border p-3 text-sm">تصدير كل النتائج: فُحص {exportJob.examined.toLocaleString('ar-YE')} · طابق {exportJob.matched.toLocaleString('ar-YE')} حتى الآن · ملفات {exportJob.parts.length.toLocaleString('ar-YE')} · {exportJob.complete ? 'مكتمل' : 'غير مكتمل / قابل للاستئناف'}. ترتيب الملفات حسب المعرّف؛ قد تتغير البيانات أثناء الفحص. الاستئناف متاح ما دامت هذه الصفحة مفتوحة.</output>}
-      <section className="space-y-3 rounded-xl border p-4" aria-label="نطاق البحث والتصفية">
-        <p className="text-sm">البحث والميزات والأدوار والترتيب البديل تخص الصفحة الحالية. ترتيب الخادم تصاعدي حسب المعرّف.</p>
-        {aggregate && <p className="text-xs text-muted-foreground">إجمالي تصفية الخادم: {aggregate.total.toLocaleString('ar-YE')} · وقت العد: {new Date(aggregate.asOf).toLocaleString('ar-YE')} · لا يشمل البحث أو ميزات الصفحة.</p>}
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" disabled={scanBusy} onClick={() => void continueScan()}>
-            {scan && !scan.exhausted ? 'متابعة فحص ٢٠٠ سجل كحد أقصى' : 'بدء بحث كامل قابل للمتابعة'}
-          </Button>
-          {(scan || scanBusy) && <Button variant="outline" onClick={() => { scanGeneration.current++; setScanBusy(false); }}>إلغاء العملية الجارية</Button>}
-          {scan && <Button variant="outline" onClick={() => { scanGeneration.current++; setScanBusy(false); setScanState(undefined); }}>العودة إلى الصفحة الحالية</Button>}
-        </div>
-        {scan && <output>فُحص {scan.examined.toLocaleString('ar-YE')} · طابق {scan.matched.toLocaleString('ar-YE')} حتى الآن · {scan.exhausted ? 'اكتمل الفحص' : 'النتائج غير مكتملة'} · آخر ١٠٠ نتيجة مرئية كحد أقصى. التغييرات المتزامنة قد تتطلب بدء فحص جديد.</output>}
-      </section>
+      {definition.key !== 'stations' && exportJob && <output className="block rounded-xl border p-3 text-sm">تصدير كل النتائج: فُحص {exportJob.examined.toLocaleString('ar-YE')} · طابق {exportJob.matched.toLocaleString('ar-YE')} حتى الآن · ملفات {exportJob.parts.length.toLocaleString('ar-YE')} · {exportJob.complete ? 'مكتمل' : 'غير مكتمل / قابل للاستئناف'}. ترتيب الملفات حسب المعرّف؛ قد تتغير البيانات أثناء الفحص. الاستئناف متاح ما دامت هذه الصفحة مفتوحة.</output>}
+      {definition.key !== 'stations' && (
+        <section className="space-y-3 rounded-xl border p-4" aria-label="نطاق البحث والتصفية">
+          <p className="text-sm">البحث والميزات والأدوار والترتيب البديل تخص الصفحة الحالية. ترتيب الخادم تصاعدي حسب المعرّف.</p>
+          {aggregate && <p className="text-xs text-muted-foreground">إجمالي تصفية الخادم: {aggregate.total.toLocaleString('ar-YE')} · وقت العد: {new Date(aggregate.asOf).toLocaleString('ar-YE')} · لا يشمل البحث أو ميزات الصفحة.</p>}
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" disabled={scanBusy} onClick={() => void continueScan()}>
+              {scan && !scan.exhausted ? 'متابعة فحص ٢٠٠ سجل كحد أقصى' : 'بدء بحث كامل قابل للمتابعة'}
+            </Button>
+            {(scan || scanBusy) && <Button variant="outline" onClick={() => { scanGeneration.current++; setScanBusy(false); }}>إلغاء العملية الجارية</Button>}
+            {scan && <Button variant="outline" onClick={() => { scanGeneration.current++; setScanBusy(false); setScanState(undefined); }}>العودة إلى الصفحة الحالية</Button>}
+          </div>
+          {scan && <output>فُحص {scan.examined.toLocaleString('ar-YE')} · طابق {scan.matched.toLocaleString('ar-YE')} حتى الآن · {scan.exhausted ? 'اكتمل الفحص' : 'النتائج غير مكتملة'} · آخر ١٠٠ نتيجة مرئية كحد أقصى. التغييرات المتزامنة قد تتطلب بدء فحص جديد.</output>}
+        </section>
+      )}
       <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
@@ -1984,7 +2098,15 @@ function ResourceView({
           </h2>
           <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
             <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1 text-xs font-bold text-primary border border-primary/20 shadow-2xs">
-              سجلات صفحة الخادم — {definition.label}: {resourceCountLabel(definition.key, records.length)}
+              {definition.key === 'stations'
+                ? 'إجمالي المحطات'
+                : `سجلات صفحة الخادم — ${definition.label}`}:{' '}
+              {resourceCountLabel(
+                definition.key,
+                definition.key === 'stations' && allStations
+                  ? allStations.length
+                  : records.length,
+              )}
             </span>
             {hasActiveFilters && (
               <span className="inline-flex items-center gap-1.5 rounded-xl bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
@@ -2001,13 +2123,16 @@ function ResourceView({
         </div>
         <div className="flex items-center gap-2.5">
           {isSuperAdmin && definition.key === 'stations' && (
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" disabled={loading || exporting || paginatedRecords.length === 0}
-                onClick={() => void exportCurrentPage()}><FileSpreadsheet className="size-4" /> تصدير الصفحة الحالية إلى Excel</Button>
-              <Button variant="outline" disabled={exporting} onClick={() => void runFullExport()}>
-                {exportJob && !exportJob.complete ? 'استئناف تصدير كل النتائج المطابقة' : 'تصدير كل النتائج المطابقة'}</Button>
-              {exporting && <Button variant="outline" onClick={() => { exportGeneration.current++; setExporting(false); }}>إيقاف مؤقت للتصدير</Button>}
-              {exportJob && <Button variant="outline" onClick={() => { void downloadExportManifest(exportJob, `hudhud-stations-${firestoreRoot}-${Date.parse(exportJob.startedAt)}-manifest.json`).catch(() => setFeedback({ type: 'error', message: 'تعذر إعداد بيان التصدير الآمن. أعد المحاولة.' })); }}>تنزيل بيان التصدير</Button>}
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="outline"
+                disabled={loading || exporting || filteredAndSorted.length === 0}
+                onClick={() => void exportAllPages()}
+                className="min-h-11 shadow-xs border-emerald-600/30 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
+              >
+                <FileSpreadsheet className="size-4 text-emerald-600 dark:text-emerald-400" />
+                {exporting ? 'جارٍ تصدير كل الصفحات…' : 'تصدير كل الصفحات إلى Excel'}
+              </Button>
             </div>
           )}
           {(definition.key === 'programs' || definition.key === 'episodes') && (
@@ -2193,7 +2318,23 @@ function ResourceView({
                     <strong className="font-semibold text-foreground">
                       {filteredAndSorted.length.toLocaleString('ar-YE')}
                     </strong>{' '}
-                    من أصل {resourceCountLabel(definition.key, records.length)}
+                    من أصل{' '}
+                    {resourceCountLabel(
+                      definition.key,
+                      definition.key === 'stations' && allStations
+                        ? allStations.length
+                        : records.length,
+                    )}
+                  </>
+                ) : definition.key === 'stations' ? (
+                  <>
+                    إجمالي المحطات:{' '}
+                    <strong className="font-semibold text-foreground">
+                      {resourceCountLabel(
+                        definition.key,
+                        (allStations ?? records).length,
+                      )}
+                    </strong>
                   </>
                 ) : (
                   <>
@@ -3352,6 +3493,7 @@ function ResourceView({
           onClose={() => setEditor(null)}
           onSaved={() => {
             setEditor(null);
+            if (onRefresh) onRefresh();
             setFeedback({
               type: 'success',
               message: 'تم حفظ البيانات والتحقق من العلاقات.',
@@ -3370,6 +3512,7 @@ function ResourceView({
               setPlayingStation(null);
             }
             setEditor(null);
+            if (onRefresh) onRefresh();
             setFeedback({
               type: 'success',
               message: 'تم الحذف وتحديث العلاقات بنجاح.',
