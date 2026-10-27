@@ -949,7 +949,7 @@ function contentAdminArguments(request) {
 }
 
 export const adminUploadImage = onCall(
-  { timeoutSeconds: 60, memory: '512MiB', concurrency: 2, maxInstances: 5 },
+  { timeoutSeconds: 60, memory: '512MiB', cpu: 1, concurrency: 2, maxInstances: 5 },
   request => uploadAdminImage({ ...contentAdminArguments(request), bucket: () => getStorage().bucket() }),
 );
 
