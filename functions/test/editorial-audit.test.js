@@ -240,6 +240,25 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
       assert.equal(write.options?.merge, true, 'An omission update must not replace the private document');
     }
   });
+  test(`${root}: legacy station missing locationType and isNational heals and saves successfully`, async () => {
+    const existing = { ...stationContent(), name: 'Legacy Station' };
+    delete existing.locationType;
+    delete existing.isNational;
+    const f = fixture(root, 'stations', existing, parents);
+    const content = { ...existing, name: 'Updated Legacy Station' };
+    const result = await f.save({}, {
+      ...superActor,
+      data: {
+        root,
+        kind: 'stations',
+        id: 'target',
+        locationId,
+        content,
+        expected: existing,
+      },
+    });
+    assert.equal(result.action, 'update');
+  });
 }
 
 function transactionalStation(root, initialPublic, initialPrivate, rejectCommit = false) {

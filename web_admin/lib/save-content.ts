@@ -167,6 +167,20 @@ export async function invokeAdminContent<T extends { success: boolean }>(
         'يتجاوز البرنامج 450 حلقة. انقل بعض الحلقات قبل تغيير المحطة.',
       'identity-backfill':
         'يلزم تحديث سجل هويات المحتوى القديم بإجراء إداري مُراجع قبل حفظ هذا الارتباط الكبير.',
+      'location-type-invalid':
+        'بيانات الموقع المرجعي أو نوع المحطة (محلية / وطنية / إقليمية) غير متطابقة.',
+      'url-invalid':
+        'أحد روابط البث أو الوسائط غير صالح. تأكد من إدخال رابط يبدأ بـ http أو https.',
+      'schedule-invalid':
+        'بيانات جدول بث البرنامج غير صالحة. تأكد من تحديد الأيام والفترة وفرق التوقيت.',
+      'field-required':
+        'بعض الحقول الإلزامية فارغة أو غير مكتملة.',
+      'invalid-id':
+        'معرّف السجل غير صالح.',
+      'missing-parent-id':
+        'معرّف البرنامج أو المحطة الأصلية غير صالح.',
+      'missing-payload':
+        'بيانات المحتوى غير مكتملة أو تحتوي على حقول غير مصرح بها.',
     };
     const messages: Record<string, string> = {
       'functions/failed-precondition':

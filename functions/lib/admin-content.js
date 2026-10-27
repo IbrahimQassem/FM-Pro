@@ -63,8 +63,8 @@ export const contentIdentityScope = (kind, parentId) =>
         .update(JSON.stringify([kind, parentId]))
         .digest('hex')
     : null;
-const invalid = () => {
-  throw new HttpsError('invalid-argument', 'Invalid editable content.');
+const invalid = (reason) => {
+  throw new HttpsError('invalid-argument', reason || 'Invalid editable content.', reason ? { reason } : undefined);
 };
 
 export function editableContent(kind, value) {
@@ -149,7 +149,7 @@ export function validateAdminContent(kind, value) {
         item.utcOffsetMinutes < -720 ||
         item.utcOffsetMinutes > 840
       )
-        invalid();
+        invalid('schedule-invalid');
     } else if (typeof item !== 'string') invalid();
   }
   const requiredText =
@@ -163,7 +163,7 @@ export function validateAdminContent(kind, value) {
       (key) => typeof content[key] !== 'string' || !content[key],
     )
   )
-    invalid();
+    invalid('field-required');
   const flags =
     kind === 'stations'
       ? ['isActive', 'isFeatured', 'isVerified', 'isLive']
@@ -186,12 +186,12 @@ export function validateAdminContent(kind, value) {
           content.locationType === 'regional')
       )
     )
-      invalid();
+      invalid('location-type-invalid');
     if (
       kind === 'stations' &&
       Boolean(content.isNational) !== (content.locationType === 'national')
     )
-      invalid();
+      invalid('location-type-invalid');
   }
   if (kind === 'stations' && typeof content.streamUrl !== 'string') invalid();
   if (
@@ -229,7 +229,7 @@ export function validateAdminContent(kind, value) {
     try {
       url = new URL(item);
     } catch {
-      invalid();
+      invalid('url-invalid');
     }
     // Existing station mappers/editor permit legacy public HTTP network URLs.
     const allowHttp = kind === 'stations';
@@ -239,7 +239,7 @@ export function validateAdminContent(kind, value) {
       url.password ||
       (url.protocol !== 'https:' && !(allowHttp && url.protocol === 'http:'))
     )
-      invalid();
+      invalid('url-invalid');
   }
   if (kind === 'banners') {
     if (

@@ -72,6 +72,8 @@ export const resourceDefinitions: Record<ResourceKey, ResourceDefinition> = {
       countryNameAr: 'اليمن',
       cityCode: 'sanaa',
       cityNameAr: 'صنعاء',
+      locationType: 'governorate',
+      isNational: false,
       priority: 0,
       isLive: true,
       isActive: true,

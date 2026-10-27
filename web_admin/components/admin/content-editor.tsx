@@ -315,6 +315,16 @@ export function ContentEditor({
       if (!val.cityNameAr) val.cityNameAr = 'صنعاء';
       if (!val.countryCode) val.countryCode = 'YE';
       if (!val.countryNameAr) val.countryNameAr = 'اليمن';
+      if (val.isNational === undefined) {
+        val.isNational = val.cityCode === 'yemen' || val.locationType === 'national';
+      }
+      if (!val.locationType) {
+        val.locationType = val.isNational
+          ? 'national'
+          : (val.countryCode === 'ARAB' || val.cityCode === 'global-ar'
+            ? 'regional'
+            : 'governorate');
+      }
     }
     if (kind === 'locations' && !val.locationType) {
       val.locationType = val.cityCode === 'yemen' ? 'national' : 'governorate';
@@ -628,6 +638,7 @@ export function ContentEditor({
                           countryCode: '',
                           countryNameAr: '',
                           locationType: undefined,
+                          isNational: false,
                         }));
                         return;
                       }
@@ -635,15 +646,20 @@ export function ContentEditor({
                         o.data.locationType === 'national' ||
                         o.data.cityCode === 'yemen' ||
                         o.id === 'yemen';
+                      const isReg =
+                        o.data.locationType === 'regional' ||
+                        o.data.cityCode === 'global-ar' ||
+                        o.data.countryCode === 'ARAB';
                       setForm((f) => ({
                         ...f,
                         cityCode: o.data.cityCode ?? o.id,
                         cityNameAr: o.data.cityNameAr ?? '',
-                        countryCode: o.data.countryCode ?? 'YE',
-                        countryNameAr: o.data.countryNameAr ?? 'اليمن',
+                        countryCode: o.data.countryCode ?? (isReg ? 'ARAB' : 'YE'),
+                        countryNameAr: o.data.countryNameAr ?? (isReg ? 'العالم العربي' : 'اليمن'),
                         locationType:
                           o.data.locationType ??
-                          (isNat ? 'national' : 'governorate'),
+                          (isNat ? 'national' : isReg ? 'regional' : 'governorate'),
+                        isNational: isNat,
                       }));
                     }}
                   />
@@ -822,7 +838,35 @@ export function ContentEditor({
                       <input
                         type="checkbox"
                         checked={form[key] === true}
-                        onChange={(e) => update(key, e.target.checked)}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          if (key === 'isNational' && kind === 'stations') {
+                            setDirty(true);
+                            setForm((f) => ({
+                              ...f,
+                              isNational: checked,
+                              ...(checked
+                                ? {
+                                    cityCode: 'yemen',
+                                    cityNameAr: 'الجمهورية اليمنية (إذاعات وطنية)',
+                                    countryCode: 'YE',
+                                    countryNameAr: 'اليمن',
+                                    locationType: 'national',
+                                  }
+                                : f.locationType === 'national'
+                                  ? {
+                                      cityCode: 'sanaa',
+                                      cityNameAr: 'صنعاء',
+                                      countryCode: 'YE',
+                                      countryNameAr: 'اليمن',
+                                      locationType: 'governorate',
+                                    }
+                                  : {}),
+                            }));
+                          } else {
+                            update(key, checked);
+                          }
+                        }}
                         className="size-5 accent-primary"
                       />
                       {label}

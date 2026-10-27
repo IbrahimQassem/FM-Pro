@@ -83,6 +83,16 @@ export async function saveAdminContent({
     throw new HttpsError('invalid-argument', 'An explicit edit precondition is required.');
   }
   validateStationPrivacyOptions(kind, data);
+  if (kind === 'stations') {
+    if (content.isNational === undefined) {
+      content.isNational = content.locationType === 'national' || content.cityCode === 'yemen';
+    }
+    if (!content.locationType) {
+      content.locationType = content.isNational
+        ? 'national'
+        : (content.countryCode === 'ARAB' || content.cityCode === 'global-ar' ? 'regional' : 'governorate');
+    }
+  }
   content = validateAdminContent(kind, content);
   const actorName = actor.name;
   const docRef = firestore.doc(`${root}/${kind}/${kind}/${id}`);
@@ -101,7 +111,20 @@ export async function saveAdminContent({
     const privateRef = kind === 'stations' ? firestore.doc(`${root}/stationPrivate/stations/${id}`) : null;
     const privateSnapshot = privateRef ? await tx.get(privateRef) : null;
     const privacy = privateRef ? prepareStationPrivacy(existing, privateSnapshot.exists ? privateSnapshot.data() : null, data) : null;
-    const projection = value => editableContent(kind, kind === 'stations' ? publicStation(value) : value);
+    const projection = value => {
+      const cloned = value ? { ...value } : value;
+      if (cloned && kind === 'stations') {
+        if (cloned.isNational === undefined) {
+          cloned.isNational = cloned.cityCode === 'yemen' || cloned.locationType === 'national';
+        }
+        if (!cloned.locationType) {
+          cloned.locationType = cloned.isNational
+            ? 'national'
+            : (cloned.countryCode === 'ARAB' || cloned.cityCode === 'global-ar' ? 'regional' : 'governorate');
+        }
+      }
+      return editableContent(kind, kind === 'stations' ? publicStation(cloned) : cloned);
+    };
     const same = (first, second) => JSON.stringify(projection(first)) === JSON.stringify(projection(second));
     if (existing && same(existing, content) && (!privacy || (!privacy.changed && !privacy.scrub))) { action = 'unchanged'; return; }
     privacy?.checkPrecondition();
