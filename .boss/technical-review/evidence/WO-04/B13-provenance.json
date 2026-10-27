@@ -1,0 +1,195 @@
+{
+  "batch": "B13",
+  "tasks": [
+    "04-T02",
+    "04-T03"
+  ],
+  "finding": "R09",
+  "status": "DONE_WITH_CONCERNS",
+  "location": "isolated /tmp/hudhud-b13-candidate; parent I applies patch",
+  "baselineHead": "c304e85",
+  "node": "v22.23.3",
+  "nodeExecutable": "/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node",
+  "patch": {
+    "files": [
+      {
+        "path": "functions/lib/rss-ingestion.js",
+        "baselineSha256": "e30127acf05891afff7cedf30782a3a2a2da82f1dd5f276947bf5cf3264642d3",
+        "candidateSha256": "2872cd619aa20beae29e1ea223468f7a96a315f5e652d272a1e469f9c6a806af"
+      },
+      {
+        "path": "functions/lib/admin-content-relations.js",
+        "baselineSha256": "23922a87c635b22c6e88affcb6f23f3361fc73574a50199ccf857451a8353a2d",
+        "candidateSha256": "a7fb618a56426db353c08ea9a238311a0aed01c4331fb18548a2081726d38b58"
+      },
+      {
+        "path": "functions/test/rss-ingestion.test.js",
+        "baselineSha256": "9e779881af1e52f5de3787c1fe4a5a343bbd397ce608ae61ee9792df8952d76a",
+        "candidateSha256": "6ee5e0a5e67acf593de2bbc673825f51f9609b618125a42d584ac44f04a08f58"
+      },
+      {
+        "path": "functions/test/admin-content.test.js",
+        "baselineSha256": "910dda9ee85e2c558328695aeafd180d33ae1a761afbcc07f3b5b92ea6d74f44",
+        "candidateSha256": "19a4602fba970f421ef0b703f87caf572e89a427db853f01886bff4a7c2bb211"
+      },
+      {
+        "path": "tool/repair_rss_urls.mjs",
+        "baselineSha256": null,
+        "candidateSha256": "9de8ce79a2a0827c33810b0f4db16009f6cd76503927211af5f8a6bcb6c2fe49"
+      },
+      {
+        "path": "tool/test/repair_rss_urls.test.mjs",
+        "baselineSha256": null,
+        "candidateSha256": "a2bdcf13d2705463eb2eebf895dc4dfad0112fe90647cc697d95e13dec9cbb50"
+      },
+      {
+        "path": "firebase_tests/firebase-emulators/editorial-rss.test.js",
+        "baselineSha256": null,
+        "candidateSha256": "baef11ffb9b2a85a048db2cf376ed1c8f9339e3f0d5940f2400003639499ffa2"
+      },
+      {
+        "path": "docs/operations/background-consistency-migrations.md",
+        "baselineSha256": null,
+        "candidateSha256": "1bba67d24a9da7339505e0bcf360ab783d9605a0884ff28301249d91c47a3d8f"
+      }
+    ],
+    "patchSha256": "0171a7d2b333ae1950e1129cccb4a6e181481c90bb74bcc201e16c78f4ac0e2c"
+  },
+  "verification": [
+    {
+      "name": "baseline RSS behavior RED",
+      "command": "node --test functions/test/rss-ingestion.test.js functions/test/admin-content.test.js",
+      "result": {
+        "tests": 34,
+        "pass": 20,
+        "fail": 14,
+        "skipped": 0
+      },
+      "log": "B13-clean-red.log",
+      "validRed": true
+    },
+    {
+      "name": "SDK snapshot modeling RED",
+      "result": {
+        "tests": 35,
+        "pass": 34,
+        "fail": 1,
+        "skipped": 0
+      },
+      "log": "B13-sdk-shape-red.log",
+      "validRed": true
+    },
+    {
+      "name": "generic alias ownership RED",
+      "result": {
+        "tests": 41,
+        "pass": 35,
+        "fail": 6,
+        "skipped": 0
+      },
+      "log": "B13-admin-alias-red.log",
+      "validRed": true
+    },
+    {
+      "name": "foreign station owner RED",
+      "result": {
+        "tests": 31,
+        "pass": 30,
+        "fail": 1,
+        "skipped": 0
+      },
+      "log": "B13-station-scope-red.log",
+      "validRed": true
+    },
+    {
+      "name": "complete URL scope rotated GUID RED",
+      "result": {
+        "tests": 32,
+        "pass": 31,
+        "fail": 1,
+        "skipped": 0
+      },
+      "log": "B13-complete-scope-red.log",
+      "validRed": true
+    },
+    {
+      "name": "focused GREEN",
+      "command": "node --test functions/test/rss-ingestion.test.js functions/test/admin-content.test.js",
+      "result": {
+        "tests": 52,
+        "pass": 52,
+        "fail": 0,
+        "skipped": 0
+      },
+      "log": "B13-focused-green.log"
+    },
+    {
+      "name": "complete Functions GREEN",
+      "command": "node --test functions/test/*.test.js",
+      "result": {
+        "tests": 238,
+        "pass": 238,
+        "fail": 0,
+        "skipped": 0
+      },
+      "log": "B13-functions-green.log"
+    },
+    {
+      "name": "existing Functions lint",
+      "command": "npm --prefix functions run lint",
+      "result": "PASS",
+      "log": "B13-functions-lint.log"
+    },
+    {
+      "name": "RSS repair and existing backfill GREEN guards",
+      "command": "node --test tool/test/repair_rss_urls.test.mjs tool/test/backfill_content_identities.test.mjs",
+      "result": {
+        "tests": 20,
+        "pass": 20,
+        "fail": 0,
+        "skipped": 0
+      },
+      "log": "B13-repair-green.log",
+      "validRed": false
+    },
+    {
+      "name": "real Firestore fixture syntax",
+      "command": "node --check firebase_tests/firebase-emulators/editorial-rss.test.js",
+      "result": "PASS; no execution"
+    },
+    {
+      "name": "patch applicability",
+      "command": "git apply --check /tmp/hudhud-b13.patch",
+      "result": "PASS; no application"
+    }
+  ],
+  "failuresNotCountedAsRed": [
+    {
+      "log": "B13-red.log",
+      "reason": "first run omitted synthetic fixture in candidate, mixed environment failure; superseded by clean RED"
+    },
+    {
+      "log": "B13-proof-green-attempt.log",
+      "reason": "fixture modernization changed station shape/prototype identity; corrected fixture realism, then GREEN"
+    },
+    {
+      "log": "B13-invalid-eslint-command.log",
+      "reason": "mistaken ESLint invocation; project uses Node syntax-check lint, corrected npm script PASS"
+    },
+    {
+      "log": "B13-new-tool-guard-failures.log",
+      "reason": "new repair-tool guard development:18 pass/2fail; fixed postimage/schema guards then20/20 GREEN; not original-vulnerability RED"
+    }
+  ],
+  "limitations": [
+    "Independent source/security review pending.",
+    "Parent real Firestore editorial emulator execution of10 fixtures pending.",
+    "B15 transaction fence integration pending.",
+    "17 previously skipped emulator obligations, full Flutter tests and physical-device acceptance remain project obligations.",
+    "No production migration/deploy/merge/main CLI execution/emulator launch or real notification was run.",
+    "Historical alias orphan cleanup and scope-moving edits require reviewed lifecycle integration; malformed/foreign/missing owner proofs fail closed.",
+    "No immutable source hashes were captured for intermediate pre-fix candidates; original baseline hash and final candidate file hashes are retained.",
+    "An intermediate old commit-failure predicate fixture mismatch was observed but its log was overwritten; not claimed as retained RED evidence."
+  ],
+  "findingStatus": "OPEN; no CLOSED claim"
+}

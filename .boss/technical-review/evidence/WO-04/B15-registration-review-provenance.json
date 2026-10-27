@@ -1,0 +1,84 @@
+{
+  "recordedAtUtc": "2026-10-26T20:36:00.386504+00:00",
+  "reviewer": "independent b10_review agent",
+  "decision": "APPROVED_PARTIAL_04_T08_RUNTIME_HANDOFF_ONLY",
+  "findingStatus": "R12 OPEN; full 04-T08, 04-T09 and B15 not complete",
+  "baseline": {
+    "tests": 43,
+    "pass": 41,
+    "businessAssertionFailures": 2,
+    "skip": 0,
+    "failure": "Both roots: a successful direct hidden status update leaves the canonical counter at 1 instead of 0; creation and moderation already succeeded.",
+    "classification": "Staged registration integration RED, not a new claim of original source-defect RED; no disable flag, missing module or setup failure credited."
+  },
+  "green": {
+    "admin": {
+      "tests": 43,
+      "pass": 43,
+      "fail": 0,
+      "skip": 0
+    },
+    "accountDeletion": {
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "skip": 0
+    },
+    "editorial": {
+      "tests": 82,
+      "pass": 82,
+      "fail": 0,
+      "skip": 0
+    }
+  },
+  "comparison": {
+    "changedBaselineInputPaths": [
+      "tool/run-count-emulator-tests.mjs"
+    ],
+    "sameExecutedTopLevelIdentities": 25,
+    "allAssertionsAndOtherBaselineInputsUnchanged": true,
+    "bindingPatchSha256": "2e32893da5b7f01c163def23b3c4d834884204228eb75ef72ace58d7f39f0187"
+  },
+  "excludedEvidence": {
+    "B15-account-deletion-integrated.log": "Sandbox EPERM while opening emulator ports, before test execution. Not valid RED, GREEN or skip acceptance."
+  },
+  "sourceSha256": {
+    "functions/index.js": "e25125f6e8d1c27c8984b0a6e40adea06e1d9c44c969a1cda124540accf32a08",
+    "functions/lib/comment-counts.js": "8d39c9191ac3acd00adcfbd2d0d9bd6e3dcdd149a7e16c9c5a440b58179c2349",
+    "functions/lib/comment-count-maintenance.js": "1a4f6ab12f8a7bc2dadb8f2ff4966829f8d37df08a028472c20076dcfd0f2d70",
+    "functions/lib/comment-moderation.js": "f2a3e61d94faef6e5d26ed910159832389a1809876052dbda79551821af8225c",
+    "functions/lib/admin-report-review.js": "684c26a317b0aefb5375679fffd9e6a4933cfb703afe7026be7cb5cfaf783dc8",
+    "functions/lib/account-deletion.js": "2d1bd423af798745fc28bf9034a55170889e266ba4aa9edc396187ae0e26fba0",
+    "tool/reconcile_comment_counts.mjs": "44c5b9de68d2ed92846569fc0dacbd10696ca156a7ccc861e7947ce626d9d0b9",
+    "tool/run-count-emulator-tests.mjs": "c98836dc4616745415ec49f67b91da8229a76bd617a8de8f9478c504263bbc6d",
+    "tool/run-admin-emulator-tests.mjs": "c26edf6f6350c7569d30d460ea334a6c3f329fd6f9f2d53be4b7892cece6c3b3",
+    "firebase_tests/support/comment-count-fixtures.mjs": "f9ad477a63a8711288971b23635de7f0469b50a2e8cbd7a19290ad89a3767cbf",
+    "web_admin/test/pl03-moderation.emulator.test.ts": "dee9f4ebda334dec70ec5e75b0fc137980240c88c65ef1df658467c996ed6d3c",
+    "web_admin/test/support/callable-emulator.ts": "a90b7d3763ddf847898505bd0a96953b40bd6c8283040ab53cf18768cd5c9c46",
+    "firebase_tests/firebase-emulators/account-deletion.test.js": "3fa4909366c4ef399665b65a73102de8d70beff7528c601ba56750f85e3ef408",
+    "firebase_tests/firebase-emulators/editorial-comment-counts.test.js": "be48b52b9b3a6b150ddb9cfd19feb2850960e6840a6a1494ff16835350031d73",
+    "firestore.rules": "29feef1c8026085a21bc24aa129ecbead46425cf1876d627e4a992ada692a562",
+    "package.json": "398bec06985069f9072fd7711d7228dc5572c4ae31566b22d0e8ccb4f17ab225"
+  },
+  "logSha256": {
+    "B15-registration-baseline.log": "53167a68d5e11a44e7203e282b737f01610192e0fb2edf0107c4104bbb686ab9",
+    "B15-registration-green.log": "5683150849334cd9663b474997deba949e3ec85e07b33e8aa44469df763f1dff",
+    "B15-account-deletion-integrated.log": "85bfe2ef78b208f986ec6a997b43d9d9b80df5cc94b32bc81d3e46ecc3a7783a",
+    "B15-account-deletion-integrated-retry.log": "0f3dab1de3acd0b6750c192686d9886d6b30c48e1eb32d279052fc7589201b6e",
+    "B15-editorial-integrated.log": "56d63a59fe53fbe0be3e93550b7201c643bf3c8fdc9dae04f15db50ad436c493"
+  },
+  "manifestSnapshot": {
+    "tasks": 65,
+    "batches": 16,
+    "waves": 17,
+    "sharedOwnerPaths": 72
+  },
+  "limitations": [
+    "No emulator or operation was launched by this reviewer. Actual coordinator logs were inspected.",
+    "Full nonempty reconciliation and rollback schema approval precede implementation.",
+    "Remaining producer guards, complete 04-T08 acceptance and full B15 integration remain pending.",
+    "Original 17 test identities retain final acceptance obligations; zero skips in these runs do not waive later gates.",
+    "Browser controls remain unavailable because Chrome reports Debugger unattached; no visual acceptance. Physical-device gate remains pending.",
+    "No production action, root migration, deployment, merge or finding closure is approved."
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "scope": "02-T11 docs-only proposal; parent I sole live integrator; no live docs/source modified",
+  "files": {
+    "docs/contracts/playback-contract.md": {
+      "before": "6eef812d5d4af6e84e4b41a8ab17f67c1bbbf9a8121cc51f66e48b5d49ebd448",
+      "after": "d39d915bc4cb9338ed42502dfb82de7b322ae2be6e047e6f19bce9ce46fecc91"
+    },
+    "docs/contracts/account-comments-notifications-contract.md": {
+      "before": "50cc468419c58272bf9fd59bfeb1350b90ccbec31c927efc274c6bd54593502a",
+      "after": "e1157b136b67213b4556b5f414e282d6281414da30ef28b2ce97da4ea41a4ba8"
+    }
+  },
+  "patchSha256": "d44af596f3afb78d0ac0ee6f5cca6eb2071e58b6229c8728d7f1f0b2d310f0cc",
+  "helperExportVerification": {
+    "current": "7a272a7917dea732d6fa6b3170ed2305f9fe8fa861dc87e51d328c973a094d85",
+    "reverseOnlyFourExportKeywords": "ffa9aa84141156111fe4a76897464d1d70e7366b01e5b860bf35c70ae1f2fbf6",
+    "byteIdenticalToFrozenT10": true
+  },
+  "evidence": {
+    "B07B08FullFlutter": 355,
+    "laterB09FullFlutter": 397,
+    "AndroidDebug": "recorded PASS",
+    "iOSSimulatorDebug": "recorded PASS",
+    "physicalAcceptance": "NOT RUN",
+    "browserAcceptance": "not claimed",
+    "freshTestsByThisTask": "none (documentation only; E/F prohibited)"
+  },
+  "limits": "Independent parent review before integration; source findings stay OPEN; no production authorization."
+}

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B13 independent technical and security review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b13-independent-technical-and-security-review">B13 independent technical and security review</a></li><li class="toc-level-2"><a href="#verdict">Verdict</a></li><li class="toc-level-2"><a href="#blocking-findings">Blocking findings</a></li><li class="toc-level-2"><a href="#reproduction-and-evidence">Reproduction and evidence</a></li><li class="toc-level-2"><a href="#other-reviewed-behavior-and-obligations">Other reviewed behavior and obligations</a></li><li class="toc-level-2"><a href="#reviewed-fingerprints">Reviewed fingerprints</a></li></ul>
+    </aside>
+    <main>
+      <h1>B13 independent technical and security review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B13-review.md</div>
+        <div>Generated: 2026-10-26T17:52:47.042Z</div>
+      </div>
+      <h1 id="b13-independent-technical-and-security-review">B13 independent technical and security review</h1>
+<p>Date: 2026-10-26. Reviewer: independent <code>b10_review</code> agent; no implementation authorship.</p>
+<h2 id="verdict">Verdict</h2>
+<p><strong>REVISION_NEEDED. B13 handoff is BLOCKED.</strong> RSS behavior and ordinary tests pass, but repair-tool security and rollback safeguards have reproducible gaps. R09 remains OPEN. No production access, migration, deployment or source modification was performed by this reviewer.</p>
+<h2 id="blocking-findings">Blocking findings</h2>
+<ol><li><strong>High — transport and durable-backup claims are caller assertions.</strong> <code>tool/repair_rss_urls.mjs:159</code> accepts any database object whose public projectId matches a demo name and any caller-provided loopback emulatorHost. It does not bind execution to an owned frozen SDK client. At line163 any truthy store with put/get methods is accepted. An in-memory object returning the manifest passes the claimed encrypted durable backup gate. A synthetic untrusted transport plus memory store completed URL and job mutations. Require actual owned SDK loopback binding and an unforgeable, privately configured backup-store capability, with rejection before transactions. Preserve unit injection through a controlled test seam rather than production trust in arbitrary objects.</li></ol>
+<ol><li><strong>High — backup validity is not checked at mutation checkpoints.</strong> Backup persistence/readback happens only at line166, outside the lease transaction. Lease creation and subsequent item transactions never revalidate expiry, integrity, custody or directory identity. The second item still commits after the backup expires immediately following the first commit. Require verified immutable backup readback and recovery-window checks inside the initial transaction and each mutation/checkpoint boundary; bind directory identity and reject permission/replacement drift. Add empty-manifest initial-lease, lost/corrupt/expired backup and apply/restore drift tests.</li></ol>
+<ol><li><strong>High — rollback ignores applied document version.</strong> At line200 version comparison is conditional on apply; restore checks content fingerprint only. A synthetic same-content write giving the source a newer updateTime still permits rollback to replace its URL. Delete/recreate with identical data has the same gap. Persist atomic per-item applied/restored receipts tied to source commit versions, and compare updateTime as well as complete postimage/parent identity before rollback or replay verification. Require behavioral ABA and delete/recreate tests before correction.</li></ol>
+<h2 id="reproduction-and-evidence">Reproduction and evidence</h2>
+<p>Temporary reviewer-only probe file <code>/tmp/hudhud-b13-independent-probes.mjs</code> copies the existing synthetic fixture with absolute imports and adds three rejection assertions. Command: Node22 <code>--test --test-name-pattern='REVIEW:' /tmp/hudhud-b13-independent-probes.mjs</code>. Result: <strong>3 tests, 0 passed, 3 failed, 0 skipped</strong>, each with <code>Missing expected rejection.</code> These are real guard assertion failures after execution, not compilation, missing-module or environment failures. Log: <code>/tmp/hudhud-b13-independent-probes.log</code>. The implementation owner must add permanent regression tests, retain their pre-fix failures and rerun GREEN after correction.</p>
+<p>Independent ordinary command: Node22 <code>--test functions/test/rss-ingestion.test.js functions/test/admin-content.test.js tool/test/repair_rss_urls.test.mjs tool/test/backfill_content_identities.test.mjs</code>: <strong>72 passed, 0 failed, 0 skipped</strong>. Log: <code>/tmp/hudhud-b13-independent-ordinary.log</code>. These passing cases do not cover the blocking probes above.</p>
+<h2 id="other-reviewed-behavior-and-obligations">Other reviewed behavior and obligations</h2>
+<p>Historical aliases have bounded private proof fields tied to immutable stored external identity and exact root/program/station/target ownership. Raw/decoded collisions, foreign or missing owners and invalid proof fail closed; completed URL backfills still perform bounded GUID lookup. Admin URL edits retain historical reservations. Deletion/transfer can conservatively leave aliases unusable pending reviewed lifecycle integration; the contract correctly states this operational limitation. It must not be presented as automatic cleanup.</p>
+<p>The coordinator's first editorial run recorded <strong>60/61 passing</strong> with a transfer failure whose underlying rejection was hidden. The diagnostic-only assertion amendment retains the same success expectation, and its rerun recorded <strong>61/61 passing</strong> without a source fix. No deterministic cause or fix is established. Retain this unexplained instability and diagnostic evidence; do not claim it resolved or introduce speculative locking changes.</p>
+<p>Actual both-root, all-client-role Rules denial for private <code>importKeys</code> and <code>rssUrlRepairs</code> job/receipt paths remains required; Admin SDK fixtures do not prove client permissions. The coordinator owns emulator execution. B15 count-fence integration, final Work Order review, all original skipped-test identities, global Flutter and physical-device obligations remain mandatory. No source acceptance or finding closure follows from this report.</p>
+<h2 id="reviewed-fingerprints">Reviewed fingerprints</h2>
+<table><thead><tr><th>File</th><th>SHA-256</th></tr></thead><tbody><tr><td><code>functions/lib/rss-ingestion.js</code></td><td><code>2872cd619aa20beae29e1ea223468f7a96a315f5e652d272a1e469f9c6a806af</code></td></tr><tr><td><code>functions/lib/admin-content-relations.js</code></td><td><code>a7fb618a56426db353c08ea9a238311a0aed01c4331fb18548a2081726d38b58</code></td></tr><tr><td><code>functions/test/rss-ingestion.test.js</code></td><td><code>6ee5e0a5e67acf593de2bbc673825f51f9609b618125a42d584ac44f04a08f58</code></td></tr><tr><td><code>functions/test/admin-content.test.js</code></td><td><code>19a4602fba970f421ef0b703f87caf572e89a427db853f01886bff4a7c2bb211</code></td></tr><tr><td><code>tool/repair_rss_urls.mjs</code></td><td><code>9de8ce79a2a0827c33810b0f4db16009f6cd76503927211af5f8a6bcb6c2fe49</code></td></tr><tr><td><code>tool/test/repair_rss_urls.test.mjs</code></td><td><code>a2bdcf13d2705463eb2eebf895dc4dfad0112fe90647cc697d95e13dec9cbb50</code></td></tr><tr><td><code>firebase_tests/firebase-emulators/editorial-rss.test.js</code></td><td><code>baef11ffb9b2a85a048db2cf376ed1c8f9339e3f0d5940f2400003639499ffa2</code></td></tr><tr><td><code>firebase_tests/firebase-emulators/editorial-audit.test.js</code></td><td><code>cb4c6d0130631ab81ecf52ad8fc23ecb4018da6d1df6a29175e246ab856c6c4e</code></td></tr><tr><td><code>docs/contracts/firebase-data-contract.md</code></td><td><code>12ff791d95ba5a5469cbb974973d717172249e73b2c2304fb9a96c5eca168679</code></td></tr><tr><td><code>docs/operations/background-consistency-migrations.md</code></td><td><code>1bba67d24a9da7339505e0bcf360ab783d9605a0884ff28301249d91c47a3d8f</code></td></tr></tbody></table>
+    </main>
+  </div>
+</body>
+</html>

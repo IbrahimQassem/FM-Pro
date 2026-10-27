@@ -1,0 +1,184 @@
+--- a/tool/reconcile_comment_counts.mjs
++++ b/tool/reconcile_comment_counts.mjs
+@@ -1266,7 +1266,7 @@
+     return { state: work, output: fullResult(ctx, state.plan, work.phase === 'complete' ? 'active' : 'in-progress') };
+   });
+   const current = await readActive(ctx); if (!same(acceptedFull(current, ctx), binding)) fail('count-replay-publication-binding');
+-  return result;
++  return { ...result, readEquivalents: ctx.budget.reads };
+ }
+ 
+ export async function applyCommentCountReconciliation(options) {
+--- a/tool/test/reconcile_comment_counts.test.mjs
++++ b/tool/test/reconcile_comment_counts.test.mjs
+@@ -925,5 +925,57 @@
+   assert.equal(f.raw.snapshot(state.row).exists, false); assert.equal(f.raw.snapshot(state.parent).get('stats.commentsCount'), 9);
+   assert.equal(f.raw.snapshot(`${state.root}/commentCountContributions`).get('state'), 'paused');
+ }, 'HudHudDev', true));
+-
+-}
++// Ordinary reporting coverage observes actual model SDK method calls. It does
++// not replace tool budgeting, claim internal transport/billing reads or add a seam.
++function observeCountModelReads(raw) {
++  const events = [], originalDoc = raw.doc.bind(raw), originalQuery = raw.query.bind(raw), originalTransaction = raw.runTransaction.bind(raw);
++  raw.doc = path => {
++    const reference = originalDoc(path), get = reference.get;
++    reference.get = async () => { events.push({ kind: 'document', path, equivalents: 1 }); return get(); };
++    return reference;
++  };
++  raw.query = options => {
++    const query = originalQuery(options), get = query.get;
++    query.get = async () => { const snapshot = await get(); events.push({ kind: 'query', path: options.path ?? options.group, equivalents: Math.max(1, snapshot.size) }); return snapshot; };
++    return query;
++  };
++  raw.runTransaction = (operation, options) => originalTransaction(tx => operation(new Proxy(tx, {
++    get(target, property) {
++      if (property === 'get') return async reference => {
++        // The model dispatches query gets through query.get; count them there
++        // once. Point transaction gets call snapshot directly, so observe here.
++        if (!reference._query) events.push({ kind: 'transaction-document', path: reference.path, equivalents: 1 });
++        return target.get(reference);
++      };
++      const value = target[property]; return typeof value === 'function' ? value.bind(target) : value;
++    },
++  })), options);
++  return { events, reset: () => { events.length = 0; }, total: () => events.reduce((sum, event) => sum + event.equivalents, 0) };
++}
++for (const root of ['HudHudDev', 'HudHudOfficial']) for (const completion of ['in-progress', 'active']) test(`replay reporting regression: ${root} ${completion} includes final post-publication SDK reads`, async () => fixture(async f => {
++  f.raw.seed(`${root}/episodes/episodes/reporting-episode`, { stats: { commentsCount: 0 } });
++  const observed = observeCountModelReads(f.raw), input = { ...f.input, firestore: transport(f.raw) };
++  await runFull(input);
++  const writes = f.raw.writes.length, maximum = completion === 'active' ? 25 : 1; let result;
++  for (let attempt = 0; attempt < 3000; attempt++) {
++    observed.reset(); result = await fullTool.applyCommentCountReconciliation({ ...input, maxItems: maximum });
++    if (completion === 'in-progress' || result.status === 'active') break;
++    if (attempt === 2999) assert.fail('Accepted historical replay did not exhaust its bounded proof.');
++  }
++  assert.equal(result.status, completion); assert.ok(result.processed <= maximum);
++  assert.equal(f.raw.writes.length, writes, 'Accepted historical replay remains Firestore read-only.');
++  assert.deepEqual(observed.events.slice(-2).map(event => event.path), [
++    `${root}/commentCountContributions`, `${root}/commentCountContributions/maintenance/${input.manifest.hash}`,
++  ], 'The actual SDK observer includes the final post-publication root/plan binding check.');
++  assert.ok(observed.total() <= 1536, 'This case does not establish a budget-cap breach.');
++  assert.equal(result.readEquivalents, observed.total(), 'Returned application-issued read equivalents must include all reads actually performed before return.');
++}, root, true));
++for (const root of ['HudHudDev', 'HudHudOfficial']) test(`replay reporting control: ${root} ordinary initial apply agrees with observed SDK reads`, async () => fixture(async f => {
++  f.raw.seed(`${root}/episodes/episodes/reporting-control`, { stats: { commentsCount: 0 } });
++  const observed = observeCountModelReads(f.raw), input = { ...f.input, firestore: transport(f.raw) };
++  observed.reset(); const result = await fullTool.applyCommentCountReconciliation({ ...input, maxItems: 1 });
++  assert.equal(result.status, 'in-progress'); assert.equal(result.processed, 1);
++  assert.ok(observed.total() > 0); assert.equal(result.readEquivalents, observed.total(), 'The observer does not add phantom reads to ordinary apply.');
++}, root, true));
++
++}
+--- a/firebase_tests/firebase-emulators/editorial-audit.test.js
++++ b/firebase_tests/firebase-emulators/editorial-audit.test.js
+@@ -4,6 +4,7 @@
+ import { readFile } from 'node:fs/promises';
+ import { saveAdminContent } from '../../functions/lib/editorial-audit.js';
+ import { editableContent } from '../../functions/lib/admin-content.js';
++import { seedCountedEpisodes } from '../support/comment-count-fixtures.mjs';
+ 
+ const require = createRequire(new URL('../../functions/package.json', import.meta.url));
+ const { initializeApp, deleteApp } = require('firebase-admin/app');
+@@ -99,10 +100,11 @@
+     await old.set({ stats: { programsCount: 0 } }); await next.set({ stats: { programsCount: 0 } });
+     const program = db.doc(`${root}/programs/programs/bulk-program`);
+     await save(root, 'programs', program.id, content('programs', { stationId: old.id, title: 'Bulk transfer fixture' }));
+-    const seed = db.batch();
+-    for (let index = 0; index < 55; index++) seed.set(db.doc(`${root}/episodes/episodes/bulk-${index}`),
+-      content('episodes', { programId: program.id, stationId: old.id, audioUrl: `https://radio.example/${index}.mp3` }));
+-    seed.update(program, { 'stats.episodesCount': 55 }); await seed.commit();
++    await seedCountedEpisodes(db, root, Array.from({ length: 55 }, (_, index) => ({
++      id: `bulk-${index}`,
++      data: content('episodes', { programId: program.id, stationId: old.id, audioUrl: `https://radio.example/${index}.mp3` }),
++    })));
++    await program.update({ 'stats.episodesCount': 55 });
+     const before = (await program.get()).data();
+     const results = await Promise.allSettled([
+       save(root, 'programs', program.id, { ...editableContent('programs', before), stationId: next.id }, before),
+--- a/firebase_tests/firebase-emulators/editorial-comment-counts.test.js
++++ b/firebase_tests/firebase-emulators/editorial-comment-counts.test.js
+@@ -717,9 +717,10 @@
+   await fullSdkSession(async f => {
+     const { input } = await simpleNativeFull(f); await finishFull(f, input);
+     const before = await immutableFullSnapshot(f, input), initial = await genuineLocalReplay(f);
++    const publicationPath = await fsPromises.realpath(initial.path);
+     const original = fsPromises.rename; let injected = false;
+     fsPromises.rename = async (...args) => { const result = await original(...args);
+-      if (!injected && args[1] === initial.path) { injected = true; throw new Error('Synthetic native local publication ACK lost AFTER rename'); }
++      if (!injected && args[1] === publicationPath) { injected = true; throw new Error('Synthetic native local publication ACK lost AFTER rename'); }
+       return result; }; syncBuiltinESMExports();
+     try { await assert.rejects(f.tool.applyCommentCountReconciliation({ ...input, maxItems: 1 }), /publication ACK lost/); }
+     finally { fsPromises.rename = original; syncBuiltinESMExports(); }
+@@ -980,3 +981,70 @@
+     });
+   });
+ }
++
++// Serialized final primary-project checkpoint: only real registered callbacks
++// establish the application counts before and after genuine full reconciliation.
++test('both primary roots: registered callbacks converge after a normal full nonempty reconciliation', { concurrency: false }, async () => {
++  const roots = ['HudHudDev', 'HudHudOfficial'];
++  // Fixture compatibility is observed before any maintenance pause. Do not repair
++  // unrelated legacy inputs or leave a root held merely to exercise this case.
++  for (const root of roots) {
++    const inventory = await boundedNativeDocuments(db.collection(`${root}/episodes/episodes`));
++    const incompatible = inventory.find(value => !Number.isSafeInteger(value.get('stats.commentsCount')) || value.get('stats.commentsCount') < 0 || value.get('adminDeletionToken'));
++    assert.equal(incompatible === undefined, true,
++      `Primary fixture requires canonical count-ready inventory before maintenance: ${root}/${incompatible?.id ?? 'none'}`);
++  }
++  const tool = await import('../../tool/reconcile_comment_counts.mjs');
++  const projectId = process.env.GCLOUD_PROJECT;
++  assert.equal(projectId, 'demo-hudhud-editorial');
++  const firestore = createCommentCountDemoFirestore({ projectId, emulatorHost: process.env.FIRESTORE_EMULATOR_HOST });
++  try {
++    for (const root of roots) {
++      const f = await episode(root), baselineRef = db.doc(`${root}/commentCountContributions/episodes/${f.id}`);
++      const birth = await f.ref.get(), creation = await baselineRef.get();
++      const commentA = f.ref.collection('comments').doc('before-full-reconciliation');
++      const createdA = await commentA.create(published());
++      await waitForEpisodeCount(db, root, f.id, 1, { requireModeratedComment: commentA.id });
++      const moderatedA = await commentA.get();
++      assert.equal(moderatedA.get('status'), 'published'); assert.ok(moderatedA.get('moderatedAt'));
++      assert.equal(moderatedA.updateTime.isEqual(createdA.writeTime), false, 'Registered moderation writes a new native version after comment creation');
++      const directory = await mkdtemp(join(tmpdir(), 'hudhud-primary-reconciliation-'));
++      const key = randomBytes(32), expiresAt = Date.now() + 7 * 86400000;
++      try {
++        const backupStore = await CommentCountBackupStore.open({ directory, key, expiresAt });
++        const manifest = await previewCommentCountReconciliation({ firestore, projectId, root });
++        await backupStore.writeVerified(manifest);
++        const input = { firestore, projectId, root, manifest, expectedManifestHash: manifest.hash,
++          backupStore, owner: `primary-positive-${randomUUID()}`, maxItems: 25 };
++        const result = await finishFull({ tool }, input);
++        assert.equal(result.status, 'active');
++        const accepted = await baselineRef.get(), activeRoot = await db.doc(`${root}/commentCountContributions`).get();
++        assert.equal(accepted.get('origin'), 'baseline');
++        assert.equal(accepted.get('episodeCreateTime').isEqual(birth.createTime), true, 'Reconciliation preserves exact canonical birth identity');
++        assert.notEqual(accepted.get('generation'), creation.get('generation'), 'The full plan establishes its own opaque episode data generation');
++        assert.equal(accepted.get('baselineManifestHash'), manifest.hash);
++        assert.equal(activeRoot.get('state'), 'active'); assert.equal(activeRoot.get('baselineManifestHash'), manifest.hash);
++        await waitForEpisodeCount(db, root, f.id, 1, { requireModeratedComment: commentA.id });
++        const commentB = f.ref.collection('comments').doc('after-full-reconciliation');
++        const createdB = await commentB.create(published());
++        await waitForEpisodeCount(db, root, f.id, 2, { requireModeratedComment: commentB.id });
++        const moderatedB = await commentB.get(); assert.ok(moderatedB.get('moderatedAt'));
++        assert.equal(moderatedB.updateTime.isEqual(createdB.writeTime), false, 'Registered moderation also processes the post-reconciliation comment');
++        const rowB = await db.doc(`${root}/commentCountContributions/episodes/${f.id}/contributions/${commentB.id}`).get();
++        assert.equal(rowB.get('generation'), accepted.get('generation'));
++        assert.equal(rowB.get('baselineManifestHash'), manifest.hash);
++        assert.equal(rowB.get('episodeCreateTime').isEqual(birth.createTime), true);
++        await commentB.update({ status: 'hidden' });
++        await waitForEpisodeCount(db, root, f.id, 1);
++        await commentA.delete();
++        await waitForEpisodeCount(db, root, f.id, 0);
++        assert.equal((await commentB.get()).get('status'), 'hidden'); assert.equal((await commentA.get()).exists, false);
++        const finalBaseline = await baselineRef.get(), finalRoot = await db.doc(`${root}/commentCountContributions`).get();
++        assert.equal(finalBaseline.get('generation'), accepted.get('generation'));
++        assert.equal(finalBaseline.get('episodeCreateTime').isEqual(birth.createTime), true);
++        assert.equal(finalRoot.get('state'), 'active'); assert.equal(finalRoot.get('baselineManifestHash'), manifest.hash);
++        assert.equal((await firestore.doc(`${root}/commentCountContributions/maintenance/${manifest.hash}`).get()).get('phase'), 'active');
++      } finally { key.fill(0); await rm(directory, { recursive: true, force: true }); }
++    }
++  } finally { await firestore.terminate(); }
++});

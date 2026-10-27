@@ -16,8 +16,9 @@ for (const role of ['station_admin', 'moderator']) {
           const comment = (suffix: string) => `${root}/episodes/episodes/${id}-${suffix}/comments/comment`;
           await harness.adminDb.doc(`${root}/users/users/${authorId}`).set({ isActive: true });
           for (const suffix of ['own', 'other', 'disable']) {
-            await harness.adminDb.doc(`${root}/episodes/episodes/${id}-${suffix}`).set({ stationId: suffix === 'other' ? 'review-other' : 'review-own', stats: { commentsCount: 1 } });
+            await harness.seedEpisode(root, `${id}-${suffix}`, { stationId: suffix === 'other' ? 'review-other' : 'review-own', stats: {} });
             await harness.adminDb.doc(comment(suffix)).set({ authorId, status: 'published' });
+            await harness.syncComment(root, `${id}-${suffix}`, 'comment');
             await harness.adminDb.doc(target(suffix)).set({ episodeId: `${id}-${suffix}`, commentId: 'comment', reportedAuthorId: authorId, status: 'open' });
           }
           await reviewReport(harness.db, root, doc(harness.db, target('own')), 'commentHidden');

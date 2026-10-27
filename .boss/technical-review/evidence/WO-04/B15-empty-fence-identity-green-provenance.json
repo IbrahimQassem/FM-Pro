@@ -1,0 +1,14 @@
+{
+  "status": "AUTHOR_GREEN_PENDING_INTEGRATION_REVIEW",
+  "tests": 23,
+  "pass": 23,
+  "fail": 0,
+  "skip": 0,
+  "patchSha256": "470ed00aa01063c9eac6709b53f640e3c5879ed5a5c44bc1b98564a2b78285ec",
+  "sourceAfterSha256": "c46238aef4fdb072349e45c2e6f7a14ff2b50b24d15e7984448b89f5ae15709e",
+  "sourceBeforeSha256": "44c5b9de68d2ed92846569fc0dacbd10696ca156a7ccc861e7947ce626d9d0b9",
+  "testsUnchangedFromIntegratedRed": true,
+  "logSha256": "4445e671ac0aba1c3ba89e02bffe6ebfa9b1a824143c76fbe928602f8fdf79d0",
+  "change": "Early accepted-empty proof now requires valid native root createTime <= historical native barrier, retaining all existing guards.",
+  "limits": "Does not prove absence of pre-barrier privileged rewrites or unowned SDK writers; no production authority/count-loss claim."
+}

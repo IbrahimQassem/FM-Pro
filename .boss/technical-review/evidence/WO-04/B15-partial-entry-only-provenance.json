@@ -1,0 +1,24 @@
+{
+  "status": "ENTRY_ONLY_GREEN_WITH_TWO_FRESH_PARENT_CAS_REDS",
+  "sourceSha256": "02a59807ff1784405ea4e90f2d172d137242005a6b38a57726387717f9a227d3",
+  "sourceSnapshot": "/tmp/hudhud-b15-partial-entry-only-source.mjs",
+  "patch": "/tmp/hudhud-b15-partial-entry-only.patch",
+  "patchSha256": "96f5fe538a3554d5b9c368dc086d9954ff27a92d8675a143e159df400f018028",
+  "testsSha256": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc",
+  "result": "23 executed;21PASS2intendedMissingExpectedRejectionFAIL0skip",
+  "classification": {
+    "business10": "Previously failing genuine preactivation prefixes allPASS now, including both roots and mixed finalized/partial episodes",
+    "admission7": "Actual source/version/missing/ABA refusals nowPASS after real admission; no inverse target mutation",
+    "late5": "Parent same-createTime edit and two-writeABA execute real eligible inverse then fail expected rejection:2freshCAS RED. Missing/recreated parent and comment edit remain3PASS",
+    "recovery1": "Actual committed inverse lostACK followed by fresh lease keeps frozen original prefix and completesheld:PASS"
+  },
+  "log": "B15-partial-entry-late-baseline.log",
+  "logSha256": "11982039d7e3c3c73cf93fd544f458475c406e4d7387fb1027ad0706956689fa",
+  "changes": [
+    "Allow accepted committed-prefix restore before activation",
+    "Retain null verifyStage and absent release aggregates only for truly never-activated restore/held lineage",
+    "Freeze restoreMaxApplyUnit before new recovery/checkpoint; preserve existingrestorecontinuation"
+  ],
+  "notYetApplied": "No new no-counter-head parent episodeVersion CAS has been added; permanent late tests exist and fail before that correction.",
+  "noClosure": "No task/finding closed; previousfrozen/rootimmutable; no fullgate/nativeE/production executed."
+}

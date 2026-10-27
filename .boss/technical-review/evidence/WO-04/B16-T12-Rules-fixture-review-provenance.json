@@ -1,0 +1,23 @@
+{
+  "status": "APPROVED_T12_RULES_FIXTURE_READINESS_RUNTIME_NOT_RUN",
+  "reviewer": "/root/b10_review",
+  "reviewSha256": "5ac83b6d818bc7da3f40770cdf674c301203b264a631dc0aa305b406568f86c5",
+  "patchSha256": "2ee671e7df752b9917e5a404e2c8f2ee0c1144e577588b16f9810b7456db48cc",
+  "authorProvenanceSha256": "96683ef890a0b5746d0521daa1e9c1ac3421d04701b72bc4fbd5f88e8cc64d0c",
+  "beforeSha256": "17b3cd26fad8d8865912884091401bdd0252433956758bd12df9024a90311904",
+  "candidateSha256": "ac1b23e11730f75a8a9b1c9384652ba914c81411cb26fa86012bfa00b99a7aa5",
+  "entireExistingPrefixPreserved": true,
+  "checks": {
+    "Node22Syntax": 0,
+    "gitApplyCheck": 0,
+    "runtime": "NOT RUN",
+    "privateDenialAssertionsAuthored": 2340,
+    "countDenialAssertionsAuthored": 36,
+    "assertFailsRejectsNonPermissionFailures": true
+  },
+  "liveFileWrites": false,
+  "E": false,
+  "F": false,
+  "RulesOrIndexSourceChange": false,
+  "scope": "Fixture readiness only; guards expected baselineGREEN, no RED/finding/native acceptance."
+}

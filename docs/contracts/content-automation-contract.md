@@ -279,3 +279,154 @@ when platform permission allows, unsubscribes both topics on opt-out, and reject
 payloads explicitly marked for another root. Denied-permission initialization
 never requests a token/topic operation or permission prompt. Existing clients
 need the compatible topic update before testing Development announcements.
+
+## B01 automation amendment — C04, 2026-10-26
+
+This amendment and ADR 0006 supersede fixed-Yemen program eligibility/receipt-key
+semantics and the initial-pending comment description above. Scheduler trigger
+cadence/timezone, public network controls, episode audience rules and delivery
+states remain unchanged. It is an implementation target, not deployment evidence.
+
+### RSS and historical identity
+
+Decode the five predefined XML entities and valid decimal/hex numeric character
+references exactly once in ordinary XML attributes/text before validation and
+identity calculation; preserve CDATA literal semantics. Reject malformed/unknown
+references and XML-invalid scalar values in the affected item. Reject feeds with
+DTD/entity declarations without expansion, external resolution or new requests.
+Retain existing document IDs. Resolve raw and decoded identity aliases, including
+GUID-less enclosure fallback, against known episode IDs/import reservations before
+creation; both aliases may bind only to the same existing episode. An alias
+collision is a conflict, never an automatic merge. URL-only repairs preserve
+publication, counters and audit identity and must not emit a real notification.
+
+### Fair health progress
+
+Preserve sequential station probes and the shared four-outbound-fetch cap. Each
+root receives a 100,000ms budget inside the existing 300,000ms scheduler timeout;
+reserve at least 40,000ms invocation-wide for cleanup/flush. Before starting each
+primary+backup pair, require 16,000ms worst-case probe allowance plus 10,000ms
+flush margin. Lease expiry is 120,000ms from acquisition. An injected clock and
+probe make budget tests deterministic; no guessed performance claim.
+
+Read stable document-ID pages of at most 50 stations. Advance the private cursor
+only after a completed unit, not to the end of a prefetched page. Verify lease
+owner/generation, current station existence and unchanged probed stream identity
+before committing results and progress. A changed/deleted station is safely
+skipped, never recreated or overwritten with stale health. End-of-catalog wraps
+for the next invocation, not an unbounded loop in the current one. Expired leases
+may be reclaimed with a new generation; a stale worker may not write or advance.
+Give both roots budget even if one root has an active lease or slow sources.
+Stable station documents retain zero-write/heartbeat rules; bounded lease/cursor
+writes are an explicit operational exception and are counted separately.
+
+### Comment counts and moderation
+
+Client comment creation remains `published` as implemented by current Rules;
+existing moderation can reject/flag/hide/remove it. Retain existing AI/error and
+manual-decision precedence, with deterministic injected moderation in tests.
+Use the single contribution authority and private state from the data contract
+for automatic moderation, on-write/delete events, manual review and account
+deletion. Remove competing decrement/recount-overwrite paths. Parent deletion,
+replay, duplicate/out-of-order delivery and generation replacement must converge
+without resurrecting content or producing negative counts. Legacy baseline uses
+explicit enforced scoped write quiescence, verified complete staging and atomic
+activation; no partial ledger or plain aggregate overwrite counts as a baseline.
+
+Count-authority activation is a rollout precondition, as specified in the data
+contract's operational cutover section. An absent fence keeps OLD deployed legacy
+normal flow; it is not permission to enable NEW count-aware normal traffic without
+an accepted baseline. Misordered new events retry, and count-affecting manual/
+status/delete transactions fail before mutation; no legacy recount/clamp fallback
+is introduced. Correct sequencing uses the already-approved maintenance isolation
+and pause, complete baseline activation, then compatible traffic release. Rollback
+keeps pause/isolation until compatible authority or reviewed rebaseline is ready;
+it cannot resume old unsafe count writers over active ledgers. Native episode
+creation identity and accepted data generation remain distinct from the root
+lease epoch. These are deployment-safety clarifications, not new product flows.
+
+### Program eligibility and durable occurrence identity
+
+Use each accepted schedule's fixed UTC offset for weekday/minute/local date;
+Yemen remains offset 180. Eligibility retains the inclusive upcoming 0..10-minute
+window and active-program/valid-schedule checks. V2 operation key is SHA-256 of
+JSON `['program-start-v2', programId, localDate]`, scoped by root path. One
+program/local-date occurrence is not multiplied by changing the schedule.
+
+Pass a canonical fingerprint of station identity, active state and complete
+normalized schedule to existing `claimDelivery`. Its existing payload-conflict
+behavior binds that occurrence intent. Revalidate current program/station,
+visibility, fingerprint and current eligibility in the same read-before-write
+transaction that changes the leased receipt to `pending/sending`; a separate
+pre-read leaves an unacceptable schedule-edit race. Extend existing
+`startDelivery` with an optional transaction validation callback, default absent
+for unchanged callers; return false without starting a send if validation fails.
+Do not duplicate or bypass the shared delivery protocol. This source must be
+registered in B16's owned write set before implementation.
+
+`pending/claimed`, `pending/sending`, `sent`, `failed`, `unknown`, leases, retry
+backoff and provider acknowledgement semantics remain intact. A changed bound
+schedule is not rebound or retried as a different payload for the same occurrence.
+Unknown/sent never auto-retry. `lastNotifiedDate` is only an acknowledged-send
+compatibility stamp: v2 writes local date with `lastNotifiedPolicyVersion: 2`,
+conditionally against the still-matching schedule; the receipt owns deduplication.
+
+Cutover pauses old/new workers. For each new local-day interval compute all
+intersecting Yemen dates and check their legacy receipt keys and unversioned
+compatibility stamp. Legacy sent/unknown or ambiguous sending evidence suppresses
+the corresponding v2 occurrence conservatively. Ambiguous historical mapping is
+suppressed for operator review, never deleted/reset to force delivery. Existing
+expiry/retention does not grant permission to replay an acknowledged occurrence.
+Rollback keeps both receipt namespaces and pauses/reconciles workers; it does not
+blindly restore old keys. Live cutover timing and manifests remain a later scoped
+operational approval, not an implementation default.
+
+### C04-COUNTS maintenance enforcement follow-up — 2026-10-26
+
+Count-baseline quiescence now uses the existing private root activation document
+as an explicit paused/active transaction fence; see the data contract's
+C04-COUNTS enforcement amendment. Episode identity-changing writes, comment
+creation/status/deletion, RSS ingestion, editorial saves/deletes, automatic/manual
+moderation and account-deletion comment cleanup all participate. Normal writer
+pre-reads followed by unchecked batch writes are forbidden. Expired maintenance
+leases leave the root paused, not automatically open.
+
+Frozen inventory is a complete ordered list of episode document IDs and exact
+Firestore create times captured after pause, then independently re-enumerated
+and compared before activation. A replaced episode with the same ID conflicts.
+Both new count and existing moderation event handlers retry paused work instead
+of silently acknowledging it. Deferred RSS items cannot be marked accepted.
+No real message/send is part of the maintenance proof.
+
+Current apply/rehearsal is demo/emulator-only. Production mutation is refused
+until supported platform enforcement verifies old/unowned Admin SDK writers are
+quiescent as well as the cooperative source/Rules fence. Final inventory drift
+detection cannot turn a non-enforced production freeze into a safe one. This
+external G-O4-READY requirement does not block independently released C03,
+C04-RSS, C04-HEALTH or C04-TIMEZONE source work.
+
+### C04-TIMEZONE wire refinement — proposed B16 handoff
+
+The data contract's B16 wire refinement defines the exact canonical schedule
+fingerprint, offset-derived same-local-day minute predicate, V1/V2 key tuples,
+private suppression/job/receipt shapes and start-transaction compatibility checks.
+This retains the user-approved offset policy and existing topic/payload contracts. The exact legacy state matrix preserves safe
+expired prepared-work reclaim and known retryable backoff, while terminal/
+ambiguous sending remains suppressed. A V2 key never resets original attempts,
+retryAt, expiry or nonretryable outcome; missing V1 fingerprint alone is valid.
+Changing a schedule cannot issue a second intent for one program/local date.
+
+The shared delivery addition is optional read-only validate(tx) at the existing
+start boundary, default absent for episode/broadcast senders. Validate the fresh
+program/station, fingerprint, eligibility and overlapping legacy receipts before
+sending; build payload from those same transaction snapshots. Existing sent/
+unknown/lease/backoff semantics remain. A compatibility suppression is unknown,
+nonretryable, explicitly reasoned and never a fabricated provider acknowledgement.
+
+Migration never deletes/rebinds sent/unknown, resets stamps, sends messages or
+opens unsafe rollback. Hold raw64-hex program receipts regardless of cleanupAt;
+preserve broadcast retention with a bounded prefix-specific query and review any
+actual required index. Private delivery evidence is not TTL'd merely because a
+backup expires. Cutover timing is an explicit future operator input, not a code
+constant or product-policy reconsideration. Production mutation remains refused
+without independently established old/new notifier/collector quiescence and drain.

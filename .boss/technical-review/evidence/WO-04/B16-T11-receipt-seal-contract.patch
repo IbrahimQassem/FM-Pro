@@ -1,0 +1,193 @@
+--- a/docs/contracts/firebase-data-contract.md
++++ b/docs/contracts/firebase-data-contract.md
+@@ -2031,3 +2031,109 @@
+ charges remain unobserved. Typed malformed checkpoints, inconsistent boundaries,
+ missing receipts, changed native identity, failed comparisons or ambiguous commits
+ stop safely. No implicit restart/ready/activation guess is permitted.
++
++
++### B16 T11 immutable no-op receipt seal — proposed independent review
++
++The new-tool permanent regression records invalid historical-proof acceptance:
++a genuine no-op item receipt can be deleted/recreated with identical data and a
++new native create/update time while its unchanged target correctly retains the
++literal observed version. Equality of receipt createTime/updateTime alone does
++not establish the original receipt's identity. No target/count loss or production
++execution is claimed. This amendment strengthens the existing private program
++migration job; it introduces no collection, service, dependency or sender state.
++
++Extend the exact version1 `program-date-migration` job field list with only:
++
++| Field | Exact type and meaning |
++|---|---|
++| `receiptVersions` | Array of at most25 literal native Firestore Timestamps; element i is the independently sealed original createTime AND updateTime of immutable item receipt `{threeDigitIndex000Through024}` at index i. Its length is the authoritative contiguous sealed count. No nullable elements, transforms, epoch-ms identities, caller assertions or independently sorted versions. |
++| `pendingReceiptIndex` | Null, or a safe integer0..24 identifying the sole committed item not yet sealed. It is exactly `nextIndex-1` when non-null. |
++
++The original item receipt fields/actions/native target rules remain unchanged.
++All other job fields retain their accepted meaning. Unknown/missing fields or old
++unreleased demo jobs without the two new fields fail closed; no implicit empty
++array, inferred seal, automatic backfill or historical receipt adoption is allowed.
++
++#### Closed prefix states and transitions
++
++1. New jobs initialize `receiptVersions:[]`, `pendingReceiptIndex:null`,
++   `nextIndex:0`. An empty reviewed manifest may be `completed` only with that
++   exact empty prefix, after the existing source/backup checks.
++2. With no pending item, `receiptVersions.length==nextIndex`. An `applying` job
++   normally has `nextIndex<entryCount`; `completed` requires
++   `nextIndex==entryCount`, `receiptVersions.length==entryCount` and pending null.
++   `rollback-held` always has pending null and preserves its entire sealed prefix;
++   its nextIndex may describe a partial committed prefix.
++3. An occurrence transaction requires pending null and a fully verified sealed
++   prefix. It atomically writes the authorized V2 target if changed, creates the
++   original immutable item receipt, advances nextIndex once and sets
++   `pendingReceiptIndex` to that item's index. It does NOT append an assumed
++   native version. The job remains `applying` even for the final occurrence.
++4. The only legal pending shape is `receiptVersions.length==pendingReceiptIndex`
++   and `nextIndex==pendingReceiptIndex+1<=entryCount`. In particular,
++   `applying` with `nextIndex==entryCount` is legal ONLY while the last index is
++   pending and the sealed array length is entryCount-1. No new status is added.
++5. Before any next occurrence, independent lease/owner/generation rewrite,
++   completion, rollback-held transition or verified result, a mandatory seal
++   transaction must resolve that pending native commit. It reads the current job
++   snapshot and the pending item receipt and requires the original receipt's
++   native createTime AND updateTime to equal the job snapshot's native updateTime
++   exactly in seconds/nanoseconds. The original occurrence transaction changed
++   nextIndex/pending and created the receipt in the SAME atomic commit. Neither
++   snapshot metadata may be replaced by serverTimestamp/REQUEST_TIME or a clock.
++6. That seal transaction verifies the exact closed job/index/manifest body,
++   current program/station/native identities, all applicable V1 before-images,
++   target postimage/native proof, existing sealed receipt identities, immutable
++   receipt body and the same reviewed private encrypted backup/custody/expiry.
++   All reads precede writes. It CAS-checks the job native create/update identity,
++   owner/generation and state it read. It then appends exactly the proven pending
++   receipt native Timestamp once, clears pending and, for the final item only,
++   changes `applying` to `completed` in that same successful seal commit.
++7. A live lease permits sealing only by its current owner/epoch. A different live
++   owner is refused. If the pending lease has expired, proof must STILL be resolved
++   against the untouched original job/receipt commit before ownership changes.
++   Only the same successful seal transaction may combine that append/clear with
++   expired-lease acquisition: set the caller's validated owner, increment the
++   current generation exactly once (reject overflow) and renew the120000ms lease.
++   A same live owner may renew its lease as part of sealing without changing epoch.
++   There is no preliminary renewal, clock override, operator isolation flag or
++   ownership bypass. Recheck internal Date.now ownership/expiry immediately before
++   mutation; retry/conflict never converts an unproven pending receipt to sealed.
++8. Post-seal readback verifies the exact appended literal prefix/pending/state and
++   unchanged target/source proof before reporting progress. Subsequent lease,
++   completion and held rollback writes preserve every sealed literal byte-for-byte.
++   Every prefix verification compares each immutable receipt's native createTime
++   AND updateTime with its stored receiptVersions[i], in addition to the existing
++   exact receipt body and target proof. No current receipt can supply its own new
++   replacement identity. Missing, recreated or ABA-ed receipts stop without writes.
++
++A crash/unknown ACK before seal leaves exactly one pending item. Cold resume first
++validates the same atomic job/receipt native anchor and seals, or stops held; it
++never repeats the occurrence or overwrites the anchor with a lease checkpoint.
++An unknown seal ACK resumes from either the still-pending proven anchor or the
++already-appended literal prefix. It never appends twice, shrinks/rewrites the
++array, guesses an original version or replays a target mutation. Restore first
++resolves any pending seal, then separately verifies the complete committed prefix
++and records non-erasing `rollback-held`. It never changes V2 targets, program/
++station/V1 sources or stamps, deletes suppression or fabricates source versions.
++
++Each manifest still contains at most25 occurrences. Each call performs at most
++maxItems (1..25) NEW occurrence transactions, each followed by at most one mandatory
++seal; it may first resolve the single pending occurrence from an earlier call.
++Prefix/proof enumeration remains bounded by the fixed manifest's at most25 entries
++with at most2 V1 and1 V2 point reads per entry plus job/item/program/station reads.
++Serial execution and maxAttempts3 apply to each application transaction; transport
++retries/provider billing are not claimed bounded by these application checks.
++Readback, custody and completion checks cannot be skipped to save the budget.
++The array is bounded private checkpoint state, not a new receipt framework.
++
++This proof detects a recreated single receipt even for an absent/unchanged no-op
++target. It does not claim authenticity against an unisolated privileged actor
++rewriting every job/source/proof in a coordinated transaction. Actual old/new
++worker and collector isolation remains a production prerequisite; production
++apply/restore stays unsupported and refuses before SDK initialization/writes.
++Independent contract/source review and actual SDK native/unknown-ACK/expiry/ABA
++rehearsal remain required. Existing T10 R13 RED, new-tool guard classifications,
++17 original skipped-test identities, full Flutter/device and later approvals are
++unchanged; no task/finding is closed.
+--- a/docs/decisions/0006-background-consistency-and-schedule-timezones.md
++++ b/docs/decisions/0006-background-consistency-and-schedule-timezones.md
+@@ -305,3 +305,32 @@
+ one-receipt pending native digest tail makes adjacent barrier/release membership
+ finite and avoids self-chasing verification. No public count schema, service,
+ collection or dependency changes; exact fields/transitions are in the data contract.
++
++
++## B16 T11 no-op immutable receipt identity — proposed independent review
++
++A current-API synthetic regression demonstrates that receipt createTime==updateTime
++alone cannot establish an original no-op receipt after identical-data delete/recreate.
++The unchanged target's literal native observation must remain authoritative; it
++must not borrow the recreated receipt's metadata. This is invalid historical-proof
++acceptance, not demonstrated target/count loss or a production operation.
++
++Adopt the data contract's narrowly bounded `receiptVersions` native Timestamp array
++(max25 contiguous original receipt identities) and `pendingReceiptIndex` on the
++existing private migration job. The occurrence commit changes the job pending/index
++and creates the item receipt atomically. Before any independent lease/status rewrite
++or next item, a guarded seal verifies their exact same-commit native update/create
++identity, source/target/prefix/backup proof and current ownership, then freezes that
++literal identity. The last item remains applying+pending until sealed; empty jobs
++use []/null. Expired pending ownership can transfer only in the same proof-preserving
++seal transaction, never by overwriting the anchor first. Unknown ACK resumes/seals
++once; later apply/replay/held rollback verifies every original literal identity.
++
++No item receipt field, target identity rule, collection, dependency, generic service,
++public sender behavior or count contract changes. Missing/malformed new checkpoint
++fields fail closed. Rollback remains non-erasing and cannot resume old unaware
++workers. Production isolation is still unsupported; no caller clock/boolean grants
++it. The exact normative states/bounds are in `firebase-data-contract.md` under
++“B16 T11 immutable no-op receipt seal”. Independent approval and real SDK verification
++are required before source integration/acceptance; this proposal authorizes no
++production execution or finding closure.
+--- a/docs/operations/background-consistency-migrations.md
++++ b/docs/operations/background-consistency-migrations.md
+@@ -481,3 +481,43 @@
+ and all prior failure logs remain preserved. The 17 original skipped emulator
+ test identities, complete Flutter tests, physical-device acceptance and separate
+ production approval remain obligations; no finding is closed by this handoff.
++
++
++## B16 T11 pending native receipt seal — proposed independent review
++
++Before any later authorized demo execution, use the data contract's exact bounded
++receipt seal. A pending original item receipt and the job's native updateTime must
++still prove the SAME occurrence commit before a lease/owner/epoch/status checkpoint
++can overwrite that anchor. Verify exact source/target/body, every already-sealed
++literal receipt identity and the authenticated durable backup inside the seal
++transaction. Append only that proven native Timestamp to receiptVersions (max25),
++clear pendingReceiptIndex and read back. No transforms, caller clocks, current
++replacement receipt versions, implicit empty arrays or operator isolation flags
++may supply historical identity.
++
++Normal live ownership rules remain. A foreign live owner cannot seal. Expired
++pending ownership can be acquired only atomically WITH a successful proof-preserving
++seal and generation increment; it cannot renew first and inspect the receipt later.
++The final item is applying+pending until seal; completed requires the full sealed
++prefix/null pending. Empty jobs are []/null. A failed/unknown seal ACK resumes from
++the exact pending anchor or the already-published literal prefix, never repeating
++an uncertain occurrence. Cold resume and non-erasing rollback verify all literals;
++rollback resolves pending first, then records rollback-held without any target,
++source or stamp write. Missing/corrupt/recreated proof stays held with evidence.
++
++Each invocation may perform at most maxItems (1..25) new occurrence commits and
++one required seal per such commit, plus resolution of at most one earlier pending
++commit and bounded acquire/readback/final proof. Each prefix scan is at most the
++manifest's25 entries with at most2 V1 and1 V2 point reads per entry plus job/item/
++program/station reads; no broad receipt scan/new index or dependency is introduced.
++Application transaction callbacks use maxAttempts3. SDK transport retries and
++provider billing remain outside this stated application bound.
++
++The permanent synthetic no-op receipt recreation failure is retained separately
++from the historical R13 behavioral RED and setup/new-tool GREEN. Rehearse native
++last-item pending, partial progress, live/expired owner, pre/post-seal ACK loss,
++receipt ABA/recreate and genuine no-op version preservation through the actual
++owned demo SDK before acceptance. No real migration or provider send is authorized.
++Production mutation/isolation remains unsupported; retain both namespaces, every
++suppression and backup evidence. All count appendices, original17 identities,
++Flutter/device gates, independent reviews and production approvals remain intact.

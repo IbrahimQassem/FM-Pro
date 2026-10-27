@@ -1300,4 +1300,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get stationWhatsapp => 'واتساب';
+
+  @override
+  String get contentLoadMore => 'تحميل المزيد';
+
+  @override
+  String get contentPageScope => 'تعرض نافذة محدودة. حدّث للعودة إلى البداية.';
+
+  @override
+  String get contentPageError => 'تعذّر تحميل هذه الصفحة. حاول مرة أخرى.';
+
+  @override
+  String get contentLoading => 'جارٍ تحميل المحتوى…';
 }

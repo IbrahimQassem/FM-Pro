@@ -1,0 +1,183 @@
+{
+  "status": "READ_ONLY_READY_AFTER_B15_NATIVE_AND_DOC_INTEGRATION_NOT_STARTED",
+  "proposal": {
+    "path": ".boss/technical-review/evidence/WO-04/B16-native-receipts-contract-proposal.patch",
+    "sha256": "9ff895a5271c6c52a04ef158d38c55f9e7dd6e0a670c691e506a1a57e5929e3f",
+    "gitApplyCheck": "PASS, no application",
+    "review": ".boss/technical-review/B16-native-receipts-contract-review.md",
+    "reviewSha256": "b76d30587c0ff07085536e5d64288483ae55cefe732ed4431685b9d676f44c9c",
+    "liveIntegrated": false
+  },
+  "reviewedSourceInputs": [
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B16-readiness.md",
+      "reviewedSha256": "c1aed317b6a40ac7a09e9d1da8986821cbecf80732b8f011c4368c8d15fca74c",
+      "currentSha256": "c1aed317b6a40ac7a09e9d1da8986821cbecf80732b8f011c4368c8d15fca74c",
+      "match": true
+    },
+    {
+      "path": "functions/lib/program-notifications.js",
+      "reviewedSha256": "26f4485e5cbca1a8577c6e4d5799da2ad8475393e249e6a45e4c76a41de954b9",
+      "currentSha256": "26f4485e5cbca1a8577c6e4d5799da2ad8475393e249e6a45e4c76a41de954b9",
+      "match": true
+    },
+    {
+      "path": "functions/lib/notification-delivery.js",
+      "reviewedSha256": "3d44097a19484335bc0f2145c0c334ed95d3a1dcacd23aece3909de2555f881f",
+      "currentSha256": "3d44097a19484335bc0f2145c0c334ed95d3a1dcacd23aece3909de2555f881f",
+      "match": true
+    },
+    {
+      "path": "functions/lib/episode-alerts.js",
+      "reviewedSha256": "d33233b6578e38a3d49aea01a8279f4404181f78c70328a8ad0352088f91a729",
+      "currentSha256": "d33233b6578e38a3d49aea01a8279f4404181f78c70328a8ad0352088f91a729",
+      "match": true
+    },
+    {
+      "path": "functions/lib/user-management.js",
+      "reviewedSha256": "d60d814861ff2b095b03ba82e110da2517bc8bce2aa6e5032f30d2fbd604ed59",
+      "currentSha256": "d60d814861ff2b095b03ba82e110da2517bc8bce2aa6e5032f30d2fbd604ed59",
+      "match": true
+    }
+  ],
+  "documents": [
+    {
+      "path": "docs/contracts/firebase-data-contract.md",
+      "currentSha256": "4e67f7d3fcc690c21285e9992eddea9b346e64059dcd03914c1536962106e097",
+      "inMemoryProjectedSha256": "c64d950ffd46eb1f0a5a9d270fa499c83c1b3c99889de4583a1d110e33d1e8cb",
+      "countAppendixAnchor": "### B15 full nonempty reconciliation persistence",
+      "countAppendicesUnchanged": true,
+      "countAppendixSha256": "eee92b2aa9c54a851396b3d526a104d8a8dc79a447a50872a24fd1e0fef80c4f"
+    },
+    {
+      "path": "docs/operations/background-consistency-migrations.md",
+      "currentSha256": "d9dfc0f2b0662c0de5e36a0b9de2ca3dea35923b18e30063e19bf4cccddd3f19",
+      "inMemoryProjectedSha256": "fe7a31b345b8537d32ea5451951b00fbb40c0e37181263d09b92dec917e51258",
+      "countAppendixAnchor": "## Count native metadata receipts",
+      "countAppendicesUnchanged": true,
+      "countAppendixSha256": "0a7019ed2cec1bec9a8b19b9f4146bcf009a11a37739adbdb3cbada37b5d6abf"
+    },
+    {
+      "path": "docs/decisions/0006-background-consistency-and-schedule-timezones.md",
+      "currentSha256": "ef0db668fc0ebf3357a9df2e042d75964abb6187da7bd2fc23e9dff087e4d2ed",
+      "inMemoryProjectedSha256": "045e9f870630e209a8d8cb7ff8d37adb4b555f927e5419fc67557087e6fe645f",
+      "countAppendixAnchor": "## Native timestamp receipt clarification",
+      "countAppendicesUnchanged": true,
+      "countAppendixSha256": "1def1de44a4242bea309ed24dc2e0747fcd65b349689004ab05e223ae0035aa4"
+    }
+  ],
+  "b16": {
+    "tasks": [
+      "04-T10",
+      "04-T11",
+      "04-T12",
+      "02-T11"
+    ],
+    "prerequisites": [
+      "B07",
+      "B08",
+      "B15"
+    ],
+    "contracts": [
+      "C04-TIMEZONE"
+    ],
+    "writeSetPresence": {
+      "docs/contracts/account-comments-notifications-contract.md": true,
+      "docs/contracts/playback-contract.md": true,
+      "docs/operations/background-consistency-migrations.md": true,
+      "firebase_tests/firebase-emulators/editorial-comment-counts.test.js": true,
+      "firebase_tests/firebase-rules/firestore.rules.test.js": true,
+      "firestore.indexes.json": true,
+      "firestore.rules": true,
+      "functions/lib/notification-delivery.js": true,
+      "functions/lib/program-notifications.js": true,
+      "functions/test/notification-delivery.test.js": true,
+      "functions/test/program-notifications.test.js": true,
+      "tool/migrate_program_notification_dates.mjs": false,
+      "tool/test/migrate_program_notification_dates.test.mjs": false
+    },
+    "taskStates": {
+      "02-T11": {
+        "state": "pending",
+        "implementationState": "not_started"
+      },
+      "04-T10": {
+        "state": "pending",
+        "implementationState": "not_started"
+      },
+      "04-T11": {
+        "state": "pending",
+        "implementationState": "not_started"
+      },
+      "04-T12": {
+        "state": "pending",
+        "implementationState": "not_started"
+      }
+    },
+    "counts": {
+      "tasks": 65,
+      "batches": 16,
+      "waves": 17,
+      "sharedOwners": 75
+    }
+  },
+  "commandsReadOnlyValidated": {
+    "node": "/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node",
+    "functionsEngine": {
+      "node": "22"
+    },
+    "rootEngine": {
+      "node": ">=20 <25"
+    },
+    "functionsFocused": "node --test test/program-notifications.test.js test/notification-delivery.test.js",
+    "functionsFull": "node --test test/*.test.js",
+    "functionsLint": "node --check index.js && node --check lib/account-deletion.js && node --check lib/email-verification.js && node --check lib/profile-images.js && node --check lib/station-subscriptions.js && node --check lib/episode-alerts.js && node --check lib/user-management.js && node --check lib/advertising.js && node --check lib/advertising-handlers.js && node --check lib/public-web.js && node --check lib/stream-health.js && node --check lib/program-notifications.js && node --check lib/comment-moderation.js && node --check lib/rss-ingestion.js && node --check lib/editorial-audit.js && node --check lib/public-fetch.js && node --check lib/admin-content.js && node --check lib/admin-content-relations.js && node --check lib/admin-content-authorization.js && node --check lib/admin-content-delete.js && node --check lib/admin-report-review.js && node --check lib/notification-delivery.js && node --check lib/admin-images.js",
+    "futureTool": "node --test tool/test/migrate_program_notification_dates.test.mjs (absent; do not run before authoring/import preflight)",
+    "emulators": {
+      "emulators:test": "firebase emulators:exec --only firestore --project demo-hudhud-fm-rules-test \"node --test firebase_tests/firebase-rules/firestore.rules.test.js\"",
+      "emulators:editorial": "node tool/run-count-emulator-tests.mjs --suite editorial",
+      "emulators:account-deletion": "node tool/run-count-emulator-tests.mjs --suite account-deletion",
+      "emulators:subscriptions": "firebase emulators:exec --only firestore --project demo-hudhud-subscriptions \"node --test firebase_tests/firebase-emulators/station-subscriptions.test.js\"",
+      "emulators:admin": "node tool/run-admin-emulator-tests.mjs"
+    }
+  },
+  "firstRED": "Existing exported notifyUpcomingProgramsForRoot with complete valid offset0 Monday10:00-11:00 schedule and active matching station; mocksend must not run at07:00Z, current fixedAden code wrongly sends. Fresh case at10:00Z mustsend, current code wronglyskips. Author named tests before execution; no new/absent API imports.",
+  "otherExistingSeams": [
+    "Program/station edit after pre-read but before existing startDelivery transaction; require no provider send.",
+    "Existing collector deletes expired raw program receipt evidence due no broadcast_ restriction; preserve default broadcast retention without held-record starvation."
+  ],
+  "locks": {
+    "I": [
+      "functions/lib/notification-delivery.js",
+      "docs/operations/background-consistency-migrations.md",
+      "firestore.rules",
+      "firestore.indexes.json (only if actualquery needsindex)",
+      "firebase_tests/firebase-rules/firestore.rules.test.js",
+      "firebase_tests/firebase-emulators/editorial-comment-counts.test.js"
+    ],
+    "BEAfterRelease": [
+      "functions/lib/program-notifications.js",
+      "functions/test/program-notifications.test.js",
+      "functions/test/notification-delivery.test.js",
+      "tool/migrate_program_notification_dates.mjs (registered/absent)",
+      "tool/test/migrate_program_notification_dates.test.mjs (registered/absent)"
+    ],
+    "runtime": "Parent E/F only; activeE12569693 must not be disturbed"
+  },
+  "limitations": [
+    "B15native125 acceptance remains explicitblocker; local156doesnot closeB15.",
+    "9ff approved docs amendment stillawaits parentIintegration/status-reference-only refinement before affected code.",
+    "Ops archivedbefore85/aftere957 arehistorical; currentd9 projectsfe7while preserving newB15 appendix. Apply patch, never overwritefromoldfullcandidate.",
+    "Existing notification fixtures omit utcOffsetMinutes and some station eligibility; future compatibilityupdates must be explicit, never credited as businessRED.",
+    "No speculative index/dependency/service/newcollection needed. Sharedsenders episode-alerts/user-management behaviorandtests must remain.",
+    "No source/test creation or source/doc/contractpatchapplication, tests/E/F/provider/network/production operations. Only read-onlyinspections/gitapply--check and in-memorytextprojection were performed.",
+    "One package.json inspection used defaultnode to readJSON only; no app/test/runtime command executed. All future executablegates require exactNode22 PATH.",
+    "B16states remainpending/not_started; no RED/GREEN/acceptance/findingclosure credit."
+  ],
+  "dependencyCheck": {
+    "nodes": 87,
+    "acyclic": true,
+    "unknown": [],
+    "B16BatchDependenciesExist": true
+  }
+}

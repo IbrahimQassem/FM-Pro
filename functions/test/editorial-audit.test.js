@@ -321,3 +321,26 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
     });
   }
 }
+
+test('active episode creation installs its real empty count baseline in the same native commit', async () => {
+  const { MemoryFirestore, FieldValue } = await import('./support/comment-count-fixture.js');
+  const db = new MemoryFirestore(), root = 'HudHudDev';
+  db.seed(`${root}/commentCountContributions`, { version: 1, writerProtocol: 1, state: 'active', generation: 4, owner: 'unit',
+    planHash: 'a'.repeat(64), leaseUntil: 0, activeFrom: FieldValue.serverTimestamp(), baselineManifestHash: 'b'.repeat(64) });
+  db.seed(`${root}/stations/stations/station-a`, { isActive: true });
+  db.seed(`${root}/programs/programs/program-a`, { stationId: 'station-a', stats: { episodesCount: 0 } });
+  await saveAdminContent({ firestore: db, callerUid: 'super', callerRole: 'super_admin', callerClaims: { role: 'super_admin' },
+    data: { root, kind: 'episodes', id: 'native-episode', expected: null, content: validContent('episodes') } });
+  const episode = db.snapshot(`${root}/episodes/episodes/native-episode`), baseline = db.snapshot(`${root}/commentCountContributions/episodes/native-episode`);
+  assert.equal(episode.get('stats.commentsCount'), 0); assert.equal(episode.createTime.isEqual(baseline.updateTime), true);
+});
+for (const kind of ['episodes', 'programs']) test(`paused root blocks authorized ${kind} mutation before any public or private write`, async () => {
+  const { MemoryFirestore } = await import('./support/comment-count-fixture.js'); const db = new MemoryFirestore(), root = 'HudHudDev';
+  db.seed(`${root}/commentCountContributions`, { version: 1, writerProtocol: 1, state: 'paused', generation: 4, owner: 'unit', planHash: 'a'.repeat(64), leaseUntil: 0 });
+  const before = { ...validContent(kind), title: 'Before', stats: kind === 'programs' ? { episodesCount: 0 } : { commentsCount: 0 } };
+  db.seed(`${root}/${kind}/${kind}/target`, before);
+  await assert.rejects(saveAdminContent({ firestore: db, callerUid: 'super', callerRole: 'super_admin', callerClaims: { role: 'super_admin' },
+    data: { root, kind, id: 'target', expected: editableContent(kind, before), content: { ...editableContent(kind, before),
+      ...(kind === 'programs' ? { stationId: 'station-b' } : { title: 'After' }) } } }), error => error.retryable && error.details.reason === 'comment-count-maintenance');
+  assert.equal(db.writes.length, 0);
+});

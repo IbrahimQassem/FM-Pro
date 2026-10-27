@@ -1,0 +1,164 @@
+# HudHud FM execution progress
+
+## Current baseline and scope
+
+Implementation resumed from clean commit `c304e85`. The user authorized all four Work Orders: 65 traceable tasks, 16 implementation batches and 17 verification waves. Reports and handoffs are English. Production data changes, live migrations, deployment and protected-branch merging remain unauthorized.
+
+## Batch ledger
+
+| Batch | Current disposition |
+|---|---|
+| B01 | C01 historical handoff; C03, C04-RSS, C04-HEALTH and C04-TIMEZONE independently approved. The revised C04-COUNTS fence/inventory contract is independently approved; B15 prerequisites remain. |
+| B02, B04, B05 | Recorded verified interim handoffs. Source/input hashes must be checked before final integration acceptance. |
+| B03 | LOCAL_GREEN/interim handoff: actual admin emulator suite 20/20 and independent focused tests 48/48 pass. Browser canonical form and actual export verified. Negative browser interactions remain pending final QA because Chrome lost debugger attachment. |
+| B06 | LOCAL_GREEN/interim handoff: independently approved demo-only tooling; 46 synthetic guards and 10 actual emulator tests pass. Production adapter and operational approval remain separate. |
+| B07 | LOCAL_GREEN/interim handoff: final player60/60, independent real-stack11/11 and analysis/format pass after reviewer-found replay race correction. |
+| B08 | LOCAL_GREEN/interim handoff: 132 integrated tests, 98 account tests and 51 independent focused tests pass; all 16 candidate hashes approved. |
+| B09 | LOCAL_GREEN/interim handoff after two independent review corrections:17 malformed-sort and2 refresh-race pre-fix failures,397 full Flutter,89 independent focused and2 reviewer probes pass. All25 source/7 evidence hashes approved. Builds/device/final QA pending. |
+| B11 | LOCAL_GREEN/interim handoff after privacy/cache/SDK corrections: independent20focused/actual41E tests pass,16 hashes approved. Node22 admin115pass23ordinary-run skips uncredited; Functions259 proof reused. Browser/fullworker/final QA pending. |
+| B12 | Corrected LOCAL_GREEN/interim handoff: permanent2 business RED regressions; independent83/83 full tests and native SDK17-type query equivalence pass, four revised hashes approved. Browser/device/final QA pending. |
+| B10 | LOCAL_GREEN/interim handoff approved independently: guard40/40 and actual demo47/47 pass, zero skips; seven additive indexes integrated locally. No production index deployment. |
+| B13 | LOCAL_GREEN/interim handoff after independent security correction approval: four permanent pre-fix guard failures,40/40 guards and73/73 actual emulator tests pass. Existing reservation-read policy preserved; all new job/receipt access denied. Original unexplained transfer instability retained, B15 fence/final QA pending. |
+| B14 | LOCAL_GREEN/interim handoff: independent53 focused tests and1 lost-ACK probe pass; five source/nine evidence hashes approved. Functions285 and lint pass; SDK cancellation limitation documented. |
+| B15 | In progress. Four producer fixes and RSS/pagination maintenance guards are independently source-approved: 141/141 focused tests, 240/240 integrated tooling, 328/328 Functions and lint pass. Native producer QA and full nonempty tool remain pending. I alone integrates shared paths. |
+| B16 | Wire contract independently approved; source not started and remains dependent on B15. |
+
+## Ownership and execution controls
+
+I exclusively integrates shared files and schedules emulator/Flutter runtime access. All original 33 ownership assignments are retained. Two additive I-owned compatibility locks cover the location regression and existing notification-delivery source, The reviewed count-maintenance candidate adds explicitly owned producer paths before any source dispatch; the current registry has 75 unique entries (including the real RSS emulator fixture). Count-maintenance source scope is independently approved, but implementation gates and batch prerequisites remain.
+
+The updated task, milestone and checkpoint graph has 87 acyclic nodes, including the partial Rules milestone and no unknown dependency reference. No original task, batch or wave was removed. Manifest implementationState distinguishes local handoffs from final pending acceptance; it is not a finding-closure claim.
+
+The approved failure policy repairs routine in-scope failures and reruns affected gates inside the active batch. Downstream work remains blocked until its required local handoff is GREEN. Unresolved security issues, unowned scope expansion and production operations stop progression.
+
+## Approved product policies
+
+- Alerts honor each accepted schedule's UTC offset, with conservative sent/unknown receipt preservation during a later authorized cutover.
+- Admin search offers clearly labeled current-page search plus an explicit resumable full-dataset scan, at most 200 documents per continuation.
+- Preserve the existing architecture and dependencies. No new abstraction or dependency is authorized merely to simplify orchestration.
+
+## Remaining acceptance obligations
+
+All R01–R13 findings remain OPEN. Full Flutter tests, physical Android/iPhone acceptance, exact-candidate integration, independent Work Order reviews and demo migration rehearsals remain mandatory. All 17 original admin emulator identities passed in the corrected B03 run, together with three privacy cases; B15 must still prove the actual worker/harness integration and final G-INTEGRATION must rerun affected gates. Ordinary unit-run skips are not passing evidence.
+
+Production mutation paths are not exercised. Privacy tooling must fail closed without verified encrypted backup, integrity, retention and scope safeguards; operational approval and any production adapter remain separate checkpoints. Count reconciliation cannot be called production-ready while enforced freeze proof is unavailable.
+
+## Added shortcut request — S01
+
+The user clarified that the links are for the HudHud FM platform itself, not individual stations. S01 adds the official platform website beside its Facebook and Instagram links on public web and admin. A small shared public brand-URL JSON asset keeps both clients consistent. No station ID, private data, Firestore field, authorization change or dependency is introduced. S01 is an explicit user supplement; none of the original65task IDs is replaced or renumbered. I owns its source integration and the public-home handoff with B12. Regression, component and owning-web gates plus independent review are required.
+
+## B07/B08 integrated Flutter cutpoint
+
+After both local independent reviews, coordinator ran `flutter analyze --no-pub` (no issues) and `flutter test --no-pub` (355 passed, zero failures). Logs are under `evidence/integration/B07-B08-*`. This verifies the current playback/account candidate; later Flutter changes require affected checks again. Physical-device and build acceptance remain pending.
+
+B09 adds eight explicit I integration locks for composition, ProgramDetails, StationDetails and localization outputs before dispatch. FL supplies patches; no original ownership assignment changes. Other B09-only paths retain FL as physical writer.
+
+## S01 verification checkpoint
+
+Official platform shortcuts are integrated in public footer, initial HTML, and admin login/dashboard. Public55/55 tests and lint pass; both HudHudDev builds pass (public build includes typecheck). Admin ordinary tests pass95 with20 emulator-only skips explicitly excluded from acceptance. New admin lint promise handling was corrected and rerun. The final independent review is pending. Browser acceptance could not run: selecting the local Chrome tab timed out and reset the automation kernel; no browser success is claimed. No production service was started.
+
+S01 independent source review is approved in `S01-review.md` with public11/11 and admin1/1 focused tests. Corrected admin lint passes. Browser/manual acceptance remains pending due automation timeout. M03 baseline extraction has one import regression detected by typed lint; this is INVALID RED and must be repaired before the business baseline run.
+
+## M03 baseline behavioral RED accepted
+
+After correcting the extraction import, typed lint and build pass. Actual demo admin run executes30 tests:20 preexisting cases pass, eight intended child business assertions fail, and two parent subtest summaries fail; zero skipped. R06 demonstrates2000 raw documents and a repeated first page in both roots. R07 demonstrates actual permission-denied from the exact routed count adapter for verified active station administrators/moderators in both roots, while profile listing remains denied. No missing module/callable or environment failure is counted. `M03-T16-RED-READY` is verified; B11 may begin once worker capacity is available. Evidence: `evidence/WO-03/M03-baseline-provenance.json`. These are expected baseline failures, not completion.
+
+## B13 independent correction acceptance
+
+The independent reviewer approved the frozen demo-only repair correction after checking owned SDK binding, private encrypted backup capabilities, repeated custody/expiry validation and commit-version-bound receipts. Four permanent pre-fix rejection regressions and the corrected73/73 actual emulator result are retained. The prior overbroad reservation-read expectation was corrected to the unchanged existing Rules policy; it is not presented as a permission vulnerability fix. All client writes to reservations and all client access to new repair jobs/receipts remain denied. The original transfer test instability is unexplained and remains a final-QA concern; no cause or fix is claimed. R09 remains OPEN.
+
+The eligible early `M04-T12-FENCE-READY` Rules-only phase is assigned to BE for test-first preparation. Its sole prerequisites are approved C04-COUNTS; it does not start B15 or complete B16. Parent I applies source patches and owns E. Exact fence field types must be reconciled before fix integration.
+
+## M04 early Rules baseline and contract approval
+
+Actual Rules baseline executes75 tests:43 pass,28 otherwise-authorized paused/malformed fence creations fail their expected-denial assertions, and four assertions expose the planned private `/comments` ledger overlap. There are no skips or setup failures. Independent `M04-contract-review.md` approves native commit Timestamp activation metadata and the new unreleased `/contributions` private leaf. Existing canonical administrator comment audits and reservation reads are preserved. The old namespace audit is a bounded maintenance/reconciliation/apply/restore/activation preflight, never a full scan per normal event. No existing ledger data is renamed. Minimal Rules implementation and actual GREEN/source review remain pending.
+
+M04-T12-FENCE-READY is independently approved after75/75 actual Rules tests and preserved existing policies. Full04-T12 remains pending in B16. B09/B12 local prerequisites for M03-T16-FIXTURE are now approved. Parent owns F for local APK then iOS simulator builds; builds do not launch/deploy applications.
+
+## Flutter local build checkpoint
+
+The exact reviewed Flutter candidate builds successfully as debug Android APK (assembleDebug50.5s) and iOS simulator debug Runner.app (Xcode141.3s). Logs: `evidence/integration/flutter-apk-debug.log` and `flutter-ios-simulator-debug.log`. No application was launched or deployed. Existing Kotlin/Swift-package plugin deprecation notices are retained; dependency upgrades were not introduced. Physical Android/iPhone acceptance remains unverified.
+
+B11 independent correction review approved all16 source hashes, SHA-256 manifest serialization, cached-page cursor controls and actual SDK ID/path values. Actual E41/41 passes with zero skips. B14 is released in dependency order. Physical inventory finds zero connected mobile devices; the mandatory physical gate remains blocked externally.
+
+The B15 cutover clarification is independently approved in `B15-cutover-contract-review.md` and integrated, including explicit staging-ownership/root-lease versus episode-data-generation wording. New count-aware traffic is not enabled over absent/partial baselines; retry/precondition safeguards do not introduce a new UI flow. Production isolation remains unavailable and production apply/restore/activation remain refused.
+
+## B15 necessary test-support scope refinement
+
+The native count-baseline protocol makes prior direct episode seeds invalid. QA may adapt the explicitly registered existing fixtures through a shared demo-only helper using the real reconciliation/atomic-creation authority, before any comment journey. Dedicated concurrent business cases remain; Node test files serialize because their root-global maintenance state is shared. An isolated runner replaces unsafe full-Functions test loading for editorial/account deletion. Only the two existing package.json emulator script targets may change, preserving public command names and all dependencies/lockfiles. The added fixture/harness paths are explicit04-T08 compatibility attachments; the original65 task IDs,16 batches,17 waves and original33 owners remain. Existing recovery expectations remain; corrupt legacy counters must fail closed or use guarded reconciliation rather than be silently aggregate-overwritten.
+
+The genuine empty-root reconciliation bootstrap exposed a potential04-T08→04-T09→04-T08 handoff cycle. The registered early partial `M04-T09-BOOTSTRAP-READY` code/guard milestone breaks it without changing full task acceptance order. No bootstrap tool patch or event run is accepted before its core/source/Rules prerequisites. Graph validation:87 nodes, no cycle/unknown dependency;65 canonical tasks remain.
+
+## Native precision blocker before first count-bootstrap use
+
+Two permanent tests now distinguish REQUEST_TIME millisecond transforms from finer native create/update metadata. Both fail against the early implementation: creation-baseline identity and activation readback. The corrected model invalidates the previous55-test narrow bootstrap proof as native-identity evidence. No bootstrap or event emulator run has consumed this phase. `M04-T09-BOOTSTRAP-READY` is BLOCKED pending an explicit native receipt/barrier schema clarification, source correction and independent re-review. Comment-mutation receipt versions are included in that correction; exact nanoseconds will not be weakened. Source: official Firestore RPC ServerValue REQUEST_TIME documentation.
+
+
+## B15 native correction and actual partial registration handoff
+
+The native precision correction is independently approved for the early empty-root checkpoint. The retained two precision RED cases preceded the fix; the exact combined candidate has 328 Functions unit passes and the independent focused review has 175 passes, with zero skips. Immutable native birth and contribution receipts, safe literal conversion and the paused native barrier replace the invalid REQUEST_TIME equality assumption. The earlier blocker remains above as historical evidence.
+
+The actual staged registration baseline ran 43 tests: 41 passed and two intended hidden-status count assertions failed across both roots. Adding only the missing real count-handler export produces 43/43 passing with no skips. Source/fixture identity checks show no relaxed assertions, manufactured disable or seeded expected counters. Additional actual account-deletion and editorial runs pass 6/6 and 82/82 respectively, with clean shutdown. The first account run failed with sandbox EPERM before tests and receives no RED or acceptance credit.
+
+Independent partial approval and exact source/log hashes are in M04-bootstrap-review.md and evidence/WO-04/B15-registration-review-provenance.json. This permits full 04-T09 work only after its separate nonempty schema review; full 04-T08, 04-T09, B15 and R12 remain incomplete. Remaining producer guards and final integration are not waived. B16's wire contract is approved, but its source remains unstarted pending B15.
+
+The latest platform-shortcut clarification matches existing S01 source: the HudHud FM website itself plus Facebook and Instagram. Fresh focused public/admin checks pass 12/12. No URL contract change is needed. Browser inventory works, but Chrome returns Debugger unattached; visual and physical-device acceptance remain blocked. No official server was launched, no production operation occurred and no finding is CLOSED.
+
+
+## B15 registration review and nonempty schema release
+
+Independent review approves the partial actual runtime handoff: registration 43/43 after the retained 41/43 baseline, account deletion 6/6 and editorial integration 82/82, all with zero skips. Only the isolated count-handler export changed between registration RED and GREEN; test identities/assertions and other recorded source inputs are unchanged. Native precision correction retains 328 unit and 175 independent focused passes as separate evidence. Full 04-T08 and B15 acceptance remain incomplete.
+
+B15-nonempty-contract-review.md now approves the revised full reconciliation wire contract after two explicit version-chain/inventory-digest corrections. The producer test attachments are approved and integrated: 75 unique shared/control ownership paths, all original 72 entries preserved, with 65 tasks, 16 batches, 17 waves and an unchanged 87-node acyclic dependency graph. Full 04-T09 source may begin under its existing owners and approved contract; no implementation or finding completion is inferred from this release. B16 source remains dependent on B15. Browser and physical-device gates remain outstanding, and S01 platform links remain unchanged.
+
+
+## B15 producer source checkpoint and retained RED evidence
+
+Independent B15-producer-review.md approves the current four producer fixes and RSS/pagination maintenance guards at the source checkpoint only. The exact Node22 independent rerun passes 141/141 with zero skips. Parent combined tooling passes 240/240, Functions passes 328/328 and lint exits 0. Frozen source, test, patch and log hashes are recorded in evidence/WO-04/B15-producer-review-provenance.json.
+
+The original four-producer business RED remains 30 executed tests, 10 pass and 20 intended assertion failures, zero skips. RSS retains eight behavioral failures before its fix. Pagination records six initial failures, then eight in the expanded restore-pause baseline before the fix; additive program-only controls produce its final 54-case suite. Initial environment/setup failures receive no behavioral RED credit.
+
+Native producer SDK rehearsal has not yet run at this checkpoint. The full nonempty reconciliation/apply/restore tool is unfinished. Its accepted replay and per-invocation budget wording are undergoing a narrow technical clarification before those pieces may be implemented. Full 04-T08, 04-T09 and B15 remain incomplete, B16 source remains pending B15, and all R01–R13 findings remain OPEN. Browser, physical-device and final exact-candidate acceptance remain mandatory. No production operation was authorized or executed.
+
+
+## B15 actual producer SDK checkpoint and accepted replay clarification
+
+The subsequent parent actual producer/editorial gate passes 91/91 with zero failures or skips, exit 0 and clean emulator shutdown: evidence/WO-04/B15-producer-editorial-integrated.log. Independent fixture/evidence review is appended to B15-producer-review.md, with current fixture/harness/log hashes in its provenance. Primary-project cases use real registered workers for both-root importer/preview native births, count preservation and later status/delete convergence, plus validated full/content seed plans. Secondary disposable projects prove actual SDK pause refusal, 107-row migration pagination, fresh terminal race and authority replay without claiming automatic trigger delivery. The earlier native-pending checkpoint remains above as history.
+
+This scoped rehearsal does not prove an adversarial mid-flight native pause/conflict scenario or complete full 04-T08, 04-T09 or B15. The full nonempty tool is now being implemented in isolation; the integrated root tool remains unchanged. B15-replay-budget-contract-review.md approves the precise historical replay/local checkpoint and bounded read-accounting amendment, integrated with accepted-status wording. Before-activation frozen source verification and conditional restore fresh CAS remain unchanged. B16, final integration, browser and physical-device acceptance remain pending; all R01–R13 findings remain OPEN. No production operation was authorized or executed.
+
+
+## B15 narrow empty-root replay identity correction
+
+A separate permanent both-root recreation regression executes 23 tests, 21 pass and two intended assertion failures before the fix: copied active fence data was accepted after post-barrier deletion/recreation. The source-only correction adds valid native createTime <= historical barrier to the existing accepted-empty predicate. Parent integrated and independent exact Node22 gates both pass 23/23, zero skips. Reverse-fix fingerprint matches the recorded baseline and RED assertions are unchanged; independent approval and hashes are appended to M04-bootstrap-review.md and its new evidence provenance.
+
+This is model/source evidence of invalid historical proof rejection, not demonstrated counter loss or actual SDK recreation coverage. Full nonempty tooling remains isolated implementation in progress, with recovery/replay/negative/source/SDK acceptance unfinished; provisional development passes are not a handoff. The consolidated private checkpoint contract is accepted separately, including frozen recovery bounds, immutable source-proof scratch and adjacent native barrier/release receipt coverage. Full 04-T09/B15 and all findings remain OPEN. No production operation occurred.
+
+
+## B15 full nonempty candidate rejected by independent review
+
+The frozen isolated candidate remains immutable and unintegrated. Independent ordinary Node22 verification executes all 63 existing cases, including the large inventory/union cases: 63/63 pass, zero failures or skips, exit 0. That GREEN result is insufficient for handoff: two separate executed reviewer probes fail their intended rejection assertions with zero skips. One demonstrates late canonical comment version drift proceeding into a created-contribution inverse after recovery/later restore units; the other demonstrates acceptance of a same-body target-head ABA with a changed native version. These are business assertion failures against the actual candidate exports/native model, not missing tests, compilation or environment failures, and not a claim of actual SDK coverage or demonstrated counter loss.
+
+Independent QA also reports closed-purpose-schema/privacy and public clock-override blockers. The new full-tool API must not accept the clock exception approved only for the private QA process boundary. All blockers require permanent regression assertions executed before their fixes, a separate frozen revision, applicable GREEN gates and independent source/security re-review. Existing GREEN tests do not waive them. Review and durable evidence are recorded in B15-nonempty-source-review.md and evidence/WO-04/B15-nonempty-source-review-provenance.json.
+
+The integrated root count tool remains early-bootstrap-only; no full nonempty candidate source was applied. B15 and full 04-T09 remain incomplete, B16 is NOT STARTED, and all R01–R13 findings remain OPEN. Actual SDK recovery/restore/replay, legal mid-flight writer ordering, exact-candidate worker/privacy/Rules integration, the original 17 emulator identities and mandatory full Flutter/browser/physical-device gates remain explicit acceptance obligations. No production operation, migration, deployment, source change, emulator or Flutter run occurred as part of this rejection checkpoint. Historical evidence above is preserved.
+
+
+## B15 final2 conditional source checkpoint — full gate pending
+
+The original source/security rejection remains historical evidence above. Corrections followed permanent parent-verified behavioral RED: 15 initial source/privacy/public-clock assertion failures, two authenticated replay cursor type failures, 10 valid partial rollback assertion failures, and two genuine late parent-CAS failures after the entry-only stage made that boundary reachable. The 43 additional typed matrix guards already passed through downstream safety checks and receive no new RED credit. Masked admission guards and missing/setup/environment failures are not reclassified as late-CAS RED. Intermediate full runs stopped with 40, 26 and 24 passes were superseded; none is a full PASS.
+
+Final2 is frozen in isolation at tool SHA-256 `2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e`. Its recorded focused gate passes 87/87, Functions passes 328/328, and lint/syntax pass. Independent protocol verification passes 31/31 and independent security verification passes 15/15, with conditional approvals on that same frozen source. Source/protocol checks cover fresh per-inverse source/native CAS, receipt-sealed effective/frozen/resumed heads, typed private payload/replay state, runtime-clock boundaries, partial phase/null compatibility, frozen reverse prefixes, lease/ACK recovery and paused held rollback.
+
+These approvals remain conditional on the single exact 150-case full gate completing GREEN. Root integration, refreshed exact-candidate checks and actual native SDK rehearsal remain separate prerequisites. The integrated root tool is still early-bootstrap-only at SHA-256 `c46238aef4fdb072349e45c2e6f7a14ff2b50b24d15e7984448b89f5ae15709e`; the full nonempty APIs have not been integrated. The latest actual producer/editorial runtime gate is 91/91 in B15-producer-editorial-integrated.log, scoped to that earlier candidate and not the new full tool. The current root fixture contains 92 cases because an additional empty-root native recreation case is queued but unrun. The prepared combined 103-case fixture includes those queued 92 cases plus 11 additions; it is also unrun and receives no execution credit.
+
+Full 04-T09/B15 remain incomplete, B16 is NOT STARTED and all R01–R13 findings remain OPEN. The original 17 emulator identities, exact-candidate integration, mandatory full Flutter tests, physical-device acceptance and browser acceptance remain obligations. No production data operation, live migration, deployment or protected merge was authorized or executed. This append-only ledger checkpoint changes no source, contract, manifest, runtime or acceptance status beyond the precise conditional review record.
+
+
+## B15 final2 exact full gate and local source integration GREEN
+
+The previous conditional source checkpoint is now satisfied at the source level. The exact frozen final2 suite passes 150/150, zero failures/skips/cancellations, exit 0. Parent serially integrated the reviewed main patch and pure existing status projection export; independent readback verifies all four root files byte-identical to the approved candidate. The root count tool now contains the full nonempty apply/restore APIs at SHA-256 `2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e`; the earlier c462 early-bootstrap-only record remains historical.
+
+Root exact Node22 focused tests pass 87/87 and Functions tests pass 328/328, both with zero skips/failures/cancellations; lint, scoped diff check and governance pass. Independent protocol/security approvals cover the same final2 source. Full/root/source/contract/patch/log fingerprints are recorded in evidence/WO-04/B15-final2-integration-provenance.json; B15-nonempty-source-review.md records the scoped approval and retains all original rejection/RED history. Superseded intermediate full runs are not reclassified as PASS.
+
+This checkpoint approves local source integration only. Earlier actual producer/editorial runtime evidence is 91/91. The queued root 92-case fixture and prepared combined 103-case SDK fixture remain UNRUN at this cutpoint, and earn no full-tool native credit. Actual SDK recovery/restore/replay/custody/budget/writer-ordering, final Rules/worker/exact-candidate integration, original 17 emulator identities and mandatory full Flutter/browser/physical-device acceptance remain pending. Full 04-T09/B15 remain incomplete, B16 is NOT STARTED and all R01–R13 findings remain OPEN. No production data operation, live migration, deployment or protected merge occurred or is authorized.

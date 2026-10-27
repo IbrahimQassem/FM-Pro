@@ -1,0 +1,27 @@
+{
+  "status": "APPROVED_TECHNICAL_CHECKPOINT_CONTRACT_WITH_EXPLICIT_EMPTY_SENTINEL",
+  "patch": "/tmp/hudhud-b15-checkpoint-audit-contracts.patch",
+  "sha256": "ef2b4a8a5b60c2d3cd9f043c79d09222627228a5bee2aa7920d8aee5c3915ad2",
+  "inputHashes": {
+    "docs/contracts/firebase-data-contract.md": "425eae08b1c0e1a9a80d144180616fafd9982ac9a5529276cb833a583254a949",
+    "docs/operations/background-consistency-migrations.md": "675d795dbbd4f274e9c17308bc595817ae7653df721e17a7885f55089ff70b2c",
+    "docs/decisions/0006-background-consistency-and-schedule-timezones.md": "ccfb95de9bd890e9c7b267118760dbac6295525b902d1143175e85aa9d717fa4"
+  },
+  "permittedIntegrationCorrections": [
+    "State foldedUnit=null when lastUnit is null or 0; otherwise foldedUnit=lastUnit-1. Stop before sequence allocation overflow.",
+    "Replace pending proposal status with accepted technical contract and this review reference.",
+    "Normal English word/number spacing only."
+  ],
+  "sourceAccepted": false,
+  "emulatorOrOperationsAuthorized": false,
+  "integratedAcceptedContract": {
+    "patch": "/tmp/hudhud-b15-checkpoint-audit-contracts-accepted.patch",
+    "sha256": "546f42f8f4ff6db2195ec613a573342e42fe0a03116000dc1f3985fd7a2ef089",
+    "comparison": "Only permitted accepted-status/review reference and explicit foldedUnit sentinel/sequence-overflow wording changes.",
+    "currentDocumentHashes": {
+      "docs/contracts/firebase-data-contract.md": "4e67f7d3fcc690c21285e9992eddea9b346e64059dcd03914c1536962106e097",
+      "docs/operations/background-consistency-migrations.md": "85c47271154a332ed2591b9cb74bf55f72069d5de8938f306842b36b63092fd8",
+      "docs/decisions/0006-background-consistency-and-schedule-timezones.md": "ef0db668fc0ebf3357a9df2e042d75964abb6187da7bd2fc23e9dff087e4d2ed"
+    }
+  }
+}

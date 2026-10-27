@@ -1,0 +1,20 @@
+{
+  "tool/migrate_program_notification_dates.mjs": {
+    "before": null,
+    "after": "93dfb3d372bba711efb1612f91114c9545cb10c95185b553d54252a4e9de2597"
+  },
+  "tool/test/migrate_program_notification_dates.test.mjs": {
+    "before": null,
+    "after": "877c8983d6d4f7f14645a83716b4dc589f528aa40f2a1dd1e287b01389e02d1b"
+  },
+  "docs/operations/background-consistency-migrations.md": {
+    "before": "4d7d87033e26f088a83d0622042388afec884fdb003a79d65d2dc8c477af73e3",
+    "after": "87b34a7ad6d75cff449f29acc36c72da6c30033b08933dc85182dd9198402ffd"
+  },
+  "patch": {
+    "path": "/tmp/hudhud-b16-t11-implementation.patch",
+    "sha256": "1ead63a631609068afa32cce26d87f7f6610d62d28fff594742bc1e85f8ac96d"
+  },
+  "helperInput": "7a272a7917dea732d6fa6b3170ed2305f9fe8fa861dc87e51d328c973a094d85",
+  "opsOriginalPrefixByteIdentical": true
+}

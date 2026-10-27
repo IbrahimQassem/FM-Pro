@@ -1,0 +1,210 @@
+{
+  "milestone": "M04-T09-BOOTSTRAP-READY",
+  "producerTask": "04-T09",
+  "status": "BLOCKED_NATIVE_PRECISION_BEFORE_FIRST_USE",
+  "scope": "Early EMPTY demo bootstrap preparation only; full reconciliation/restore/04T09 and B15 acceptance not complete.",
+  "currentGate": {
+    "nativePrecisionRegression": "2 tests,0 pass,2 intended business failures,0 skipped (birth identity and empty activation readback)",
+    "latestCompleteCandidateFunctions": "323 tests,322 pass,1 intended native-birth business failure,0 skipped; never claimed fullGREEN",
+    "olderProof": "Before the finer-metadata regression, candidateFunctions314/314 and lintPASS; producer original tests were unchanged at that point. Later explicitproducer guard tests were authored separately."
+  },
+  "reason": "Official Firestore REQUEST_TIME transforms have millisecond precision, while native snapshot create/update metadata may be finer. Current code equates them; original unitstorage model masked it. This must be corrected and independently reviewed before actual bootstrap consumption.",
+  "primarySource": {
+    "title": "Firestore RPC ServerValue.REQUEST_TIME",
+    "url": "https://firebase.google.com/docs/firestore/reference/rpc/google.firestore.v1",
+    "scope": "Documents millisecond precision and consistent transform value across transaction writes; does not guarantee equality to commit metadata."
+  },
+  "proposedCorrectionPendingApproval": [
+    "Use existing creation-baseline snapshot nativeupdateTime as exact same-transaction birth receipt; laterreconcile stores observednativecreateTime. No REQUEST_TIME equality assumption.",
+    "Guarded paused activationbarrier commits native metadata; final guarded release binds its exact literalTimestamp as activeFrom with no legal normalwrites inbetween. Requires reviewedcontract semanticclarification, no clientclock/rounding."
+  ],
+  "alreadyImplementedButNotAccepted": [
+    "Dependency-free fence+authority, fresh-state arithmetic, tombstones, acceptedlineage/opaquegeneration, nativeidentitychecks (currentlywrongtransformsourceforbirth).",
+    "Actualmoderation/manualreview/accountcleanup usecountauthority; obsoleteindependent decrement/clamp/recount removed. Authbarriers retained, missingparent authorizedcommentcleanup supported.",
+    "Canonicaleditorial/RSScreation helper and normalproducerfences, all threeepisode deletionphases plus safe boundedprivatecleanup. Maintenance/seed/repair producerintegration remains unfinished.",
+    "OwnedfrozenactualSDKfactory configuration, privatepurpose-boundencryptedbackupcapability, readback/custody/recovery-windowchecks peremptybootstrap mutation; emptyinventorytwice, productionrefusal, no generalapply/restoreexportyet.",
+    "Initialoldnamespacequery refusesallmutations ifanyoldprivatecommentsrowsappear; noautomaticrename. Negativeemptyrange isexhausted; positivepagerefusesratherthanclaimingcompleteaudit."
+  ],
+  "genuineRedEvidence": [
+    "Initialpublishedmoderationcount0vs1:15tests13pass2fail0skip, beforecorefix; snapshots/hashes retained.",
+    "Authorizedorphancommentdelete:1test0pass1fail0skip, beforecorrectingnewcoreearlyreturn.",
+    "Sensitiveprovidererrorlogging:1test0pass1fail0skip, syntheticcapturedwarningleakedcredential/user-content marker; fixedsafe warningpreservespolicy.",
+    "Nativeprecision:2tests0pass2fail0skip, permanentregressionsbeforeanyprecisioncorrection."
+  ],
+  "setupFailuresNotRed": [
+    "First candidate launch used not-yet-created cwd and did not execute.",
+    "Initial allowlistcopy referenced a nonexistent precedenttool test filename; correctedcopy before testexecution.",
+    "One existing deletionpermissionunit initially hit newfencereadfirst; source authorizationorderingwas correctedbeforetokenwrite, preserving originalassertions."
+  ],
+  "files": [
+    {
+      "path": "functions/lib/comment-count-maintenance.js",
+      "candidateSha256": "1a4f6ab12f8a7bc2dadb8f2ff4966829f8d37df08a028472c20076dcfd0f2d70",
+      "liveSha256": "1a4f6ab12f8a7bc2dadb8f2ff4966829f8d37df08a028472c20076dcfd0f2d70"
+    },
+    {
+      "path": "functions/lib/comment-counts.js",
+      "candidateSha256": "a1777fb2d1a77296c5489052785ecddaeaf6e03081232342991af28ff54983d5",
+      "liveSha256": "a1777fb2d1a77296c5489052785ecddaeaf6e03081232342991af28ff54983d5"
+    },
+    {
+      "path": "functions/lib/comment-moderation.js",
+      "candidateSha256": "f2a3e61d94faef6e5d26ed910159832389a1809876052dbda79551821af8225c",
+      "liveSha256": "f2a3e61d94faef6e5d26ed910159832389a1809876052dbda79551821af8225c"
+    },
+    {
+      "path": "functions/index.js",
+      "candidateSha256": "e25125f6e8d1c27c8984b0a6e40adea06e1d9c44c969a1cda124540accf32a08",
+      "liveSha256": "e25125f6e8d1c27c8984b0a6e40adea06e1d9c44c969a1cda124540accf32a08"
+    },
+    {
+      "path": "functions/lib/admin-report-review.js",
+      "candidateSha256": "684c26a317b0aefb5375679fffd9e6a4933cfb703afe7026be7cb5cfaf783dc8",
+      "liveSha256": "684c26a317b0aefb5375679fffd9e6a4933cfb703afe7026be7cb5cfaf783dc8"
+    },
+    {
+      "path": "functions/lib/admin-content-delete.js",
+      "candidateSha256": "2f9e8b003717eeecb4d7c141caa431064a120990466f435b0a9f841bac427a58",
+      "liveSha256": "2f9e8b003717eeecb4d7c141caa431064a120990466f435b0a9f841bac427a58"
+    },
+    {
+      "path": "functions/lib/editorial-audit.js",
+      "candidateSha256": "4950f4088b7fdb6f97abf1e6b38246580cc6b155c34ce8878b8aa7cc78e47016",
+      "liveSha256": "4950f4088b7fdb6f97abf1e6b38246580cc6b155c34ce8878b8aa7cc78e47016"
+    },
+    {
+      "path": "functions/lib/rss-ingestion.js",
+      "candidateSha256": "809c0b17f2c9bfcb5e39a26ef9969c905cda0a655937d7ce740c914493fe195c",
+      "liveSha256": "809c0b17f2c9bfcb5e39a26ef9969c905cda0a655937d7ce740c914493fe195c"
+    },
+    {
+      "path": "functions/test/comment-counts.test.js",
+      "candidateSha256": "24537b7ec69c506817cb4a667e797c9f13c7f8505927a1b90819dab26e2635e3",
+      "liveSha256": "24537b7ec69c506817cb4a667e797c9f13c7f8505927a1b90819dab26e2635e3"
+    },
+    {
+      "path": "functions/test/comment-moderation.test.js",
+      "candidateSha256": "158fee440b4cc34990c614f98c366ac34a74aa757cb0ec7bbf176594314dfec0",
+      "liveSha256": "158fee440b4cc34990c614f98c366ac34a74aa757cb0ec7bbf176594314dfec0"
+    },
+    {
+      "path": "functions/test/support/comment-count-fixture.js",
+      "candidateSha256": "7b869d6740b95d08c5c073118e2f40aa6f4d1b18512652be60e9c03303b3a57d",
+      "liveSha256": "7b869d6740b95d08c5c073118e2f40aa6f4d1b18512652be60e9c03303b3a57d"
+    },
+    {
+      "path": "functions/test/editorial-audit.test.js",
+      "candidateSha256": "4b1ace42e2852d1ed8c0f84464769223655d3cff8e471721af9f25e4add3d2c0",
+      "liveSha256": "4b1ace42e2852d1ed8c0f84464769223655d3cff8e471721af9f25e4add3d2c0"
+    },
+    {
+      "path": "functions/test/admin-report-review.test.js",
+      "candidateSha256": "068c18439fbedcaf47624c1d317f90632b70ac3429e37771c8c1a13a6bf042d1",
+      "liveSha256": "068c18439fbedcaf47624c1d317f90632b70ac3429e37771c8c1a13a6bf042d1"
+    },
+    {
+      "path": "functions/test/admin-content-delete.test.js",
+      "candidateSha256": "065ac6869788204e131574f5698d4ff7189790c9211442e610888a3c37978715",
+      "liveSha256": "065ac6869788204e131574f5698d4ff7189790c9211442e610888a3c37978715"
+    },
+    {
+      "path": "functions/test/rss-ingestion.test.js",
+      "candidateSha256": "d059524841338474f623f3e0c139b72fb208612724ec274cc258a6e3d54fc6d0",
+      "liveSha256": "d059524841338474f623f3e0c139b72fb208612724ec274cc258a6e3d54fc6d0"
+    },
+    {
+      "path": "tool/reconcile_comment_counts.mjs",
+      "candidateSha256": "4f199c259826e62c12ba0359dfa58a8bd7d2957766780d422e2f9d24bcfcb1a8",
+      "liveSha256": "4f199c259826e62c12ba0359dfa58a8bd7d2957766780d422e2f9d24bcfcb1a8"
+    },
+    {
+      "path": "tool/test/reconcile_comment_counts.test.mjs",
+      "candidateSha256": "47a9dc8f1b64330831af6b54ab555c2f2ba56177c740d24a64923a464994ff14",
+      "liveSha256": "47a9dc8f1b64330831af6b54ab555c2f2ba56177c740d24a64923a464994ff14"
+    }
+  ],
+  "evidence": [
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-r12-red.log",
+      "sha256": "a358d5c32e40ee5db7325f849272dd6ea32d4e9c900726bef09848c62c04c35f"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-orphan-red.log",
+      "sha256": "d7d39f8523428eb326f9365957ec965b33cdef456e5015e17dd0fe585ba91adb"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-sensitive-log-red.log",
+      "sha256": "99cc574f275da5a878f2b4ed929b1bbbe9fce3e1fdd64b575ebdea0a77932be6"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-t06-green.log",
+      "sha256": "6bdf27372712ad416a1c0eb8ac090236c22b48a9723eda14500cc3296ea39888"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-bootstrap-green-attempt.log",
+      "sha256": "9b2699392ffe9b658fd6d95a387b50439f7a232bf6ae164bb93a4a0c523a8e3b"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-bootstrap-core-green.log",
+      "sha256": "3e399bde381334bdd066b23636893428c7cab597f0163c51a76d0d2e9ad25c6a"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-producers-first-green.log",
+      "sha256": "1007f81b2eb0e2fc05db4fa51a78a47b27758433edc8829dfa391f2da6551a79"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-producers-green.log",
+      "sha256": "ca6fee0a41fe9c26f3eda4ae8b028089acc8ca263d02f5b5d18bcc20d1096c68"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-producers-functions.log",
+      "sha256": "3b5f82b63e05e42d7a6b9f7bea350f872eba14ca470fb84596eea73104ab7269"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-producers-lint.log",
+      "sha256": "9cb86fb875f0a2ccbac02e6d7f904bd806d6c85c4b8453c4fd9e7366d182e45b"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-producer-guards-green.log",
+      "sha256": "7ba808d33d5b04692d0495009dbcb43c2831facff06f176b1af92a71fe04d961"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-rss-guards-green.log",
+      "sha256": "7438f6ca5d32504243df0cc10026aad502ffc5e99d3d230fafc56a05f5786f31"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-native-precision-red.log",
+      "sha256": "e9d426866aa1523f7cf2ac54213d4ef51ad38d452612824037a254d3a1df1025"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-full-native-red.log",
+      "sha256": "480b73588ca4c637e08b41896af64dbc2bb4e2f62ba65823faa8af36af608639"
+    }
+  ],
+  "patches": [
+    {
+      "path": "/tmp/hudhud-b15-core.patch",
+      "sha256": "a109b0f2fb91ad947d80f9e5b363419646b199eec13fe3e2f7ae33ec4709ad04"
+    },
+    {
+      "path": "/tmp/hudhud-b15-producers.patch",
+      "sha256": "049cf498aae75f995fe2c9fe0b7eb3db78e46f790be165afa02feee6f7da40d1"
+    },
+    {
+      "path": "/tmp/hudhud-b15-bootstrap-integration.patch",
+      "sha256": "975e037f4177fed6fd684736515bbe00077d1391c31d98f8c5fd82a16b926cc9"
+    },
+    {
+      "path": "/tmp/hudhud-b15-tests-native-red.patch",
+      "sha256": "1f8e152c7f618904f2ab453bed4038af516230cbf1cb11558c6a4d230204f2ad"
+    }
+  ],
+  "safety": "No E/F/runtime/mainmaintenanceCLI/production/networkservice/migration/deployment or realmessage run by this worker. All sourceprepared in/tmp and I-applied. QApaths untouched. No dependencies/config/.meta edits.",
+  "requiredNext": [
+    "Parent approves/independentlyreviews minimalnative-metadata binding correction before sourcefix.",
+    "Fixbirth/bootstrap withoutweakerprecision, rerun bothREDassertions and exactcombinedFunctions/toolgates.",
+    "Independent earlybootstrap review before firstactualSDKconsumption and initial04T08workerrehearsal.",
+    "Then complete remainingproducer guards and fullnonemptyreconcile/restore protocol with versionreceipts, oldrow/tombstone normalization and originalall-episode inventoryverification."
+  ],
+  "findingStatus": "R12 OPEN. Earlybootstrap milestone NOT READY. No fulltask/batch/wave or production acceptance claimed."
+}

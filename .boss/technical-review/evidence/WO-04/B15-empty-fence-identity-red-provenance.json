@@ -1,0 +1,15 @@
+{
+  "status": "BEHAVIORAL_RED_TEST_ONLY_BEFORE_FIX",
+  "tests": 23,
+  "pass": 21,
+  "fail": 2,
+  "skip": 0,
+  "classification": "Both supported roots accept historical empty activation replay after the fence was deleted/recreated with identical active data; expected fail-closed but no rejection. This is invalid historical proof acceptance, not demonstrated counter loss.",
+  "sourceSha256": "44c5b9de68d2ed92846569fc0dacbd10696ca156a7ccc861e7947ce626d9d0b9",
+  "sourceMatchesRootUnchanged": true,
+  "testSha256": "a5a575d211d2c59f5b5e8767ab9feb2bb44c535e776ef8def777258b728227e3",
+  "patchSha256": "8de3c9dac6722e9cc3313388f597f9090f6aef51e75593d8d25a65a04740d89d",
+  "logSha256": "792e1719ab8ab9dc23344274a204941fd5e5cb9d9cbcb071b198f6a1828b6d41",
+  "guards": "Genuine fine-metadata createTime after old barrier asserted before replay; original21 tests unchanged/pass; capture no-tool-write obligation after adversarial setup writes.",
+  "limitations": "No E, no source fix, no production. Future createTime<=barrier guard cannot prove absence of every pre-barrier privileged rewrite/unowned SDK writer."
+}

@@ -1,3 +1,4 @@
+import '../../domain/models/content_page.dart';
 import '../../domain/models/episode.dart';
 import '../../domain/models/station_program.dart';
 
@@ -13,6 +14,14 @@ class StationContentState {
     this.failure = StationContentFailure.none,
     this.rejectedRecords = 0,
     this.selectedWeekday = 0,
+    this.programCursor,
+    this.episodeCursor,
+    this.selectedProgramId,
+    this.isLoadingPrograms = false,
+    this.isLoadingEpisodes = false,
+    this.programPageFailed = false,
+    this.episodePageFailed = false,
+    this.hasLoadedEpisodePage = false,
   });
 
   final List<StationProgram> programs;
@@ -23,6 +32,14 @@ class StationContentState {
   final StationContentFailure failure;
   final int rejectedRecords;
   final int selectedWeekday;
+  final ContentCursor? programCursor;
+  final ContentCursor? episodeCursor;
+  final String? selectedProgramId;
+  final bool isLoadingPrograms;
+  final bool isLoadingEpisodes;
+  final bool programPageFailed;
+  final bool episodePageFailed;
+  final bool hasLoadedEpisodePage;
 
   bool get hasContent => programs.isNotEmpty || episodes.isNotEmpty;
 
@@ -64,6 +81,17 @@ class StationContentState {
     StationContentFailure? failure,
     int? rejectedRecords,
     int? selectedWeekday,
+    ContentCursor? programCursor,
+    ContentCursor? episodeCursor,
+    String? selectedProgramId,
+    bool clearSelectedProgram = false,
+    bool clearProgramCursor = false,
+    bool clearEpisodeCursor = false,
+    bool? isLoadingPrograms,
+    bool? isLoadingEpisodes,
+    bool? programPageFailed,
+    bool? episodePageFailed,
+    bool? hasLoadedEpisodePage,
   }) {
     return StationContentState(
       programs: programs ?? this.programs,
@@ -74,6 +102,18 @@ class StationContentState {
       failure: failure ?? this.failure,
       rejectedRecords: rejectedRecords ?? this.rejectedRecords,
       selectedWeekday: selectedWeekday ?? this.selectedWeekday,
+      programCursor:
+          clearProgramCursor ? null : programCursor ?? this.programCursor,
+      episodeCursor:
+          clearEpisodeCursor ? null : episodeCursor ?? this.episodeCursor,
+      selectedProgramId: clearSelectedProgram
+          ? null
+          : selectedProgramId ?? this.selectedProgramId,
+      isLoadingPrograms: isLoadingPrograms ?? this.isLoadingPrograms,
+      isLoadingEpisodes: isLoadingEpisodes ?? this.isLoadingEpisodes,
+      programPageFailed: programPageFailed ?? this.programPageFailed,
+      episodePageFailed: episodePageFailed ?? this.episodePageFailed,
+      hasLoadedEpisodePage: hasLoadedEpisodePage ?? this.hasLoadedEpisodePage,
     );
   }
 }

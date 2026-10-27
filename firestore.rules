@@ -156,12 +156,39 @@ service cloud.firestore {
         && data.reviewedBy == request.auth.uid;
     }
 
+    // The root fence is private server state. A lease expiry never releases pause.
+    function validActiveCommentCountFence(fence) {
+      return fence.keys().hasAll([
+          'version', 'state', 'generation', 'owner', 'planHash', 'leaseUntil',
+          'writerProtocol', 'activeFrom', 'baselineManifestHash'
+        ])
+        && fence.version is int && fence.version == 1
+        && fence.state == 'active'
+        && fence.generation is int
+        && fence.generation > 0 && fence.generation <= 9007199254740991
+        && fence.owner is string
+        && fence.owner.matches('^[^/]{1,128}$') && fence.owner == fence.owner.trim()
+        && fence.planHash is string && fence.planHash.matches('^[a-f0-9]{64}$')
+        && fence.leaseUntil is int
+        && fence.leaseUntil >= 0 && fence.leaseUntil <= 9007199254740991
+        && fence.writerProtocol is int && fence.writerProtocol == 1
+        && fence.activeFrom is timestamp
+        && fence.baselineManifestHash is string
+        && fence.baselineManifestHash.matches('^[a-f0-9]{64}$');
+    }
+
+    function commentCountWritesEnabled(root) {
+      let fence = /databases/$(database)/documents/$(root)/commentCountContributions;
+      return !exists(fence) || validActiveCommentCountFence(get(fence).data);
+    }
+
     function validCommentCreate(root, episodeId) {
       let episodePath = /databases/$(database)/documents/$(root)/episodes/episodes/$(episodeId);
       let data = request.resource.data;
       let userDocPath = /databases/$(database)/documents/$(root)/users/users/$(request.auth.uid);
       return isSignedIn()
         && isVerifiedUser()
+        && commentCountWritesEnabled(root)
         && data.keys().hasOnly([
           'episodeId', 'authorId', 'authorName', 'content', 'createdAt',
           'isEdited', 'status'

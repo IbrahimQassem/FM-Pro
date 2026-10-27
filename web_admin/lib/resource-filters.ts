@@ -213,23 +213,23 @@ export type SortChoice = {
 };
 
 export const stationSortChoices: SortChoice[] = [
-  { value: 'newest', label: 'الترتيب: الأحدث أولاً' },
-  { value: 'oldest', label: 'الترتيب: الأقدم أولاً' },
-  { value: 'name_asc', label: 'الاسم: أ إلى ي' },
-  { value: 'name_desc', label: 'الاسم: ي إلى أ' },
-  { value: 'priority_desc', label: 'الأولوية: الأعلى أولاً' },
-  { value: 'priority_asc', label: 'الأولوية: الأقل أولاً' },
-  { value: 'plays_desc', label: 'الأكثر استماعاً' },
-  { value: 'subscribers_desc', label: 'الأكثر متابعة' },
-  { value: 'programs_desc', label: 'الأكثر برامج' },
-  { value: 'city_asc', label: 'المدينة: أ إلى ي' },
+  { value: 'newest', label: 'معرّف السجل: تصاعدي (الخادم)' },
+  { value: 'oldest', label: 'عكس ترتيب الصفحة الحالية' },
+  { value: 'name_asc', label: 'داخل الصفحة — الاسم: أ إلى ي' },
+  { value: 'name_desc', label: 'داخل الصفحة — الاسم: ي إلى أ' },
+  { value: 'priority_desc', label: 'داخل الصفحة — الأولوية: الأعلى أولاً' },
+  { value: 'priority_asc', label: 'داخل الصفحة — الأولوية: الأقل أولاً' },
+  { value: 'plays_desc', label: 'داخل الصفحة — الأكثر استماعاً' },
+  { value: 'subscribers_desc', label: 'داخل الصفحة — الأكثر متابعة' },
+  { value: 'programs_desc', label: 'داخل الصفحة — الأكثر برامج' },
+  { value: 'city_asc', label: 'داخل الصفحة — المدينة: أ إلى ي' },
 ];
 
 export const genericSortChoices: SortChoice[] = [
-  { value: 'newest', label: 'الترتيب: الأحدث أولاً' },
-  { value: 'oldest', label: 'الترتيب: الأقدم أولاً' },
-  { value: 'name_asc', label: 'الاسم: أ إلى ي' },
-  { value: 'name_desc', label: 'الاسم: ي إلى أ' },
+  { value: 'newest', label: 'معرّف السجل: تصاعدي (الخادم)' },
+  { value: 'oldest', label: 'عكس ترتيب الصفحة الحالية' },
+  { value: 'name_asc', label: 'داخل الصفحة — الاسم: أ إلى ي' },
+  { value: 'name_desc', label: 'داخل الصفحة — الاسم: ي إلى أ' },
 ];
 
 function asString(value: unknown): string {

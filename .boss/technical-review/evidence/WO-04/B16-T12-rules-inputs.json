@@ -1,0 +1,12 @@
+{
+  "capturedAt": "2026-10-27T02:17:02.992Z",
+  "capturePhase": "after launch; independent fixture review recorded expected test hash before launch",
+  "node": "v22.23.3",
+  "hashes": {
+    "firestore.rules": "29feef1c8026085a21bc24aa129ecbead46425cf1876d627e4a992ada692a562",
+    "firebase_tests/firebase-rules/firestore.rules.test.js": "ac1b23e11730f75a8a9b1c9384652ba914c81411cb26fa86012bfa00b99a7aa5",
+    "package.json": "398bec06985069f9072fd7711d7228dc5572c4ae31566b22d0e8ccb4f17ab225",
+    "package-lock.json": "e0d3cd119fce6712e72dbe9c7ced02579380aad9ff8d681a7c4f364f0646a349",
+    "firebase.json": "7e1c3ba2bafc5b8676706b816a4770aad4bfeabb8f0b0e603b31d51399dcb96d"
+  }
+}

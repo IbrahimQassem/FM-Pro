@@ -1,0 +1,18 @@
+{
+  "status": "BEHAVIORAL_RED_BEFORE_SOURCE_FIX",
+  "command": "Exact Node22 node --test tool/test/content_pagination_migration.test.mjs",
+  "tests": 50,
+  "pass": 44,
+  "fail": 6,
+  "skip": 0,
+  "intendedFailures": "Both roots: initial-paused apply/restore, pause after lease before apply item; all Missing expected rejection.",
+  "controls": "All40 original cases and4 absent/valid-active controls pass.",
+  "testStorageAdaptation": "Existing synthetic Timestamp gains native structural toMillis/isEqual methods so active controls remain legitimate once production guard uses exact native validation. No authority arithmetic added.",
+  "sourceSha256": "417e52c29b3da9f47fc9c37c5cfa9aa578b0f66ccaeb32687bd1f10858676a69",
+  "sourceMatchesLive": true,
+  "testSha256": "abd8c9f4139f4f6de02bdd076ebe823d5d1e562db19908cda8a301aa83430161",
+  "testPatchSha256": "aa0f17c3f12f9038dfaeeb4a0fb38c8730b3ed37a8e5aad5a32d504da9a2859b",
+  "logSha256": "fe6783c99e255a2eacb5bba4906adfbb370cd4d4894fb10f79932da1c4d8d632",
+  "sourceFixed": false,
+  "productionOrEmulator": false
+}

@@ -10,6 +10,48 @@ import 'package:hudhud_fm/features/station_content/presentation/program_details_
 import 'package:hudhud_fm/l10n/generated/app_localizations.dart';
 
 void main() {
+  for (final lang in ['ar', 'en']) {
+    testWidgets('paged retry and refresh stay accessible at200percent $lang',
+        (tester) async {
+      tester.view.physicalSize = const Size(640, 1136);
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      var retries = 0;
+      var refreshes = 0;
+      await tester.pumpWidget(_TestApp(
+          language: lang,
+          textScaler: const TextScaler.linear(2),
+          child: ProgramDetailsView(
+              station: _station,
+              program: _program,
+              episodes: const [],
+              pageFailed: true,
+              hasMore: true,
+              onLoadMore: () async {
+                retries++;
+              },
+              onRefresh: () async {
+                refreshes++;
+              },
+              playerState: const StationPlayerState(),
+              onEpisodePlayPressed: (_) {})));
+      await tester.pumpAndSettle();
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -1500));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('load-more-episodes')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('load-more-episodes')));
+      expect(retries, 1);
+      await tester.tap(find.text(lang == 'en' ? 'Refresh' : 'تحديث'));
+      expect(refreshes, 1);
+      expect(tester.takeException(), null);
+      expect(
+          Directionality.of(
+              tester.element(find.byKey(const Key('load-more-episodes')))),
+          lang == 'ar' ? TextDirection.rtl : TextDirection.ltr);
+    });
+  }
   testWidgets('shows program details and forwards episode playback', (
     tester,
   ) async {
@@ -32,8 +74,12 @@ void main() {
 
     expect(find.text('صباح اليمن'), findsWidgets);
     expect(find.text('حلقة التعليم'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('episode-play-episode-1')));
     await tester.tap(find.byKey(const Key('episode-play-episode-1')));
     expect(selectedEpisode?.id, 'episode-1');
+    await tester
+        .ensureVisible(find.byKey(const Key('episode-comments-episode-1')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('episode-comments-episode-1')));
     expect(selectedCommentsEpisode?.id, 'episode-1');
     expect(find.byKey(const Key('episode-share-episode-1')), findsOneWidget);
@@ -72,15 +118,16 @@ void main() {
 }
 
 class _TestApp extends StatelessWidget {
-  const _TestApp({required this.child, this.textScaler});
+  const _TestApp({required this.child, this.textScaler, this.language = 'ar'});
 
   final Widget child;
   final TextScaler? textScaler;
+  final String language;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      locale: const Locale('ar'),
+      locale: Locale(language),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
         AppLocalizations.delegate,

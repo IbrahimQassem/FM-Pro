@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B10 independent technical and security review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b10-independent-technical-and-security-review">B10 independent technical and security review</a></li><li class="toc-level-2"><a href="#verdict">Verdict</a></li><li class="toc-level-2"><a href="#reviewed-scope">Reviewed scope</a></li><li class="toc-level-2"><a href="#verification">Verification</a></li><li class="toc-level-2"><a href="#evidence-fingerprints">Evidence fingerprints</a></li><li class="toc-level-2"><a href="#remaining-checkpoints">Remaining checkpoints</a></li></ul>
+    </aside>
+    <main>
+      <h1>B10 independent technical and security review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B10-review.md</div>
+        <div>Generated: 2026-10-26T17:52:45.820Z</div>
+      </div>
+      <h1 id="b10-independent-technical-and-security-review">B10 independent technical and security review</h1>
+<p>Date: 2026-10-26. Reviewer: independent <code>b10_review</code> agent; no implementation authorship.</p>
+<h2 id="verdict">Verdict</h2>
+<p><strong>APPROVED for the demo-only verified interim handoff.</strong> No blocking source, security or index compatibility issue was identified. This approval does not close R04, R06, R07 or R08, authorize production operations, or establish deployed index readiness.</p>
+<h2 id="reviewed-scope">Reviewed scope</h2>
+<p>Reviewed the B10 audit, repair, backup, verification and rollback implementations and their tests against C03, WO-03, the execution plan and manifest. Checked the exact finite admin query inventory and seven additive index definitions.</p>
+<p>The implementation refuses production mutation before SDK initialization. Mutation requires its owned, frozen loopback SDK transport. Backups are encrypted, purpose-bound, immutable, access-restricted and checked for expiry and directory replacement before transaction checkpoints. Source and parent preimages include exact document versions. Atomic receipts support interruption recovery and reject ABA edits; rollback conditionally removes only inserted defaults and does not restore whole snapshots or private fields. Missing chronology, visibility and parent data remain unresolved rather than invented.</p>
+<h2 id="verification">Verification</h2>
+<ul><li>Independently executed Node 22.23.3: <code>node --test tool/test/content_pagination_migration.test.mjs</code>: <strong>40 passed, 0 failed, 0 skipped</strong>.</li><li>Independently compared <code>firestore.indexes.json</code> with HEAD and exported required definitions: exactly seven additions; every existing index and all field overrides preserved; all seven required definitions match; admin inventory contains 26 shapes.</li><li>Inspected the coordinator's actual demo emulator log, <code>evidence/WO-03/B10-emulator.log</code>: <strong>47 passed, 0 failed, 0 skipped</strong>, successful process exit and emulator shutdown. The six real integration subtests cover both roots and both resources for SDK CAS/recovery, plus both-root private job/receipt denial across unauthenticated and authenticated role variants. Expected permission-denied diagnostics belong to successful negative assertions.</li><li>No application source was modified and no emulator or production operation was launched by this reviewer.</li></ul>
+<h2 id="evidence-fingerprints">Evidence fingerprints</h2>
+<table><thead><tr><th>File</th><th>SHA-256</th></tr></thead><tbody><tr><td><code>tool/audit_content_pagination.mjs</code></td><td><code>ebfadf9150b82f36c717b04f6b02f73ac17aa34cfbb7133825ac6adb0a4832af</code></td></tr><tr><td><code>tool/backfill_content_pagination.mjs</code></td><td><code>417e52c29b3da9f47fc9c37c5cfa9aa578b0f66ccaeb32687bd1f10858676a69</code></td></tr><tr><td><code>tool/test/content_pagination_migration.test.mjs</code></td><td><code>9a4cf1dfe543bf943dad5e8ceb76d5ed419cda799c6509299935b2afd48ae5b5</code></td></tr><tr><td><code>firestore.indexes.json</code></td><td><code>e8779d4922579df9364e8c6d33c94d146f22c7fc898f2ab7795717097a2b343d</code></td></tr><tr><td><code>firestore.rules</code></td><td><code>b792a71572cf2822aa8e74278dea82043fe40a60a67bad29fbc299ba347d58e9</code></td></tr><tr><td><code>evidence/WO-03/B10-emulator.log</code></td><td><code>8da8abcecd61c8647ca83ca739e54e2a45304e3675adc45cc0e3bbe761f6557a</code></td></tr></tbody></table>
+<h2 id="remaining-checkpoints">Remaining checkpoints</h2>
+<p>W03-A is guard evidence, not behavioral RED credit for later pagination fixes. B09/B11/B12 must retain their own behavioral RED, GREEN, independent review and integration gates. The original 17 skipped emulator identities, full Flutter verification and physical-device obligations remain governed by final acceptance. Later B15 count-fence integration may change these tools and requires affected verification again. Production full audits, unresolved-data decisions, backup custody/retention deletion, index deployment/readiness and rollout require their separately authorized checkpoints.</p>
+    </main>
+  </div>
+</body>
+</html>

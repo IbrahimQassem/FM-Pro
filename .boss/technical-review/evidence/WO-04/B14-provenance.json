@@ -1,0 +1,181 @@
+{
+  "batch": "B14",
+  "tasks": [
+    "04-T04",
+    "04-T05"
+  ],
+  "finding": "R11",
+  "status": "DONE_WITH_CONCERNS_PENDING_INDEPENDENT_REVIEW",
+  "contract": "Independently approved C04-HEALTH; B11 reviewed entry-point handoff released before implementation.",
+  "ownership": "BE authored four health/progress source/test paths continuously across tasks; I applied exact full5path patch including I-owned scheduler. No other source/config/package/Rules writes.",
+  "node": "v22.23.3",
+  "nodePathPrefix": "/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin",
+  "patch": "1cd835f08dfefa101ad54f2960c255ab878b6b2e191aa2ec6fc9da559ddcc839",
+  "files": [
+    {
+      "path": "functions/lib/stream-health.js",
+      "baselineSha256": "cbb1bb4dd5c08c653bdf53dfa1302f9c7ac114e027e9b5a91562f05e62a7dd01",
+      "candidateSha256": "801a0ae7ac5b451db9dfcfe8f1f60213f56990abdcc43fcd01cc95ce6e25feeb",
+      "integratedSha256": "801a0ae7ac5b451db9dfcfe8f1f60213f56990abdcc43fcd01cc95ce6e25feeb",
+      "matchesFrozenCandidate": true
+    },
+    {
+      "path": "functions/test/stream-health.test.js",
+      "baselineSha256": "cb6f6fc81b97d760873a0a3d2401a3859583e2d0b58670450a38350bbbd3fe3c",
+      "candidateSha256": "517827fbda8ba33033983bbf1ed4937397137a71d512864a926e3304c5738b49",
+      "integratedSha256": "517827fbda8ba33033983bbf1ed4937397137a71d512864a926e3304c5738b49",
+      "matchesFrozenCandidate": true
+    },
+    {
+      "path": "functions/lib/stream-health-progress.js",
+      "baselineSha256": null,
+      "candidateSha256": "8a72080287fb202e71b70fb539f27c23028f09d099c4a28083fddd874fe3c6f2",
+      "integratedSha256": "8a72080287fb202e71b70fb539f27c23028f09d099c4a28083fddd874fe3c6f2",
+      "matchesFrozenCandidate": true
+    },
+    {
+      "path": "functions/test/stream-health-progress.test.js",
+      "baselineSha256": null,
+      "candidateSha256": "13b36dbd1d10c251bea2802a791002b0f16f422d61a614c1d4586b21445b588c",
+      "integratedSha256": "13b36dbd1d10c251bea2802a791002b0f16f422d61a614c1d4586b21445b588c",
+      "matchesFrozenCandidate": true
+    },
+    {
+      "path": "functions/index.js",
+      "baselineSha256": "9fc086e98fd1e0c12265dfa36f96418536f8ecacd7c93995b165cc26e0d72714",
+      "candidateSha256": "2b98ad5bab789d687327b585eb6d1142e8a25a8ea37b8336cbfa12244a802316",
+      "integratedSha256": "2b98ad5bab789d687327b585eb6d1142e8a25a8ea37b8336cbfa12244a802316",
+      "matchesFrozenCandidate": true
+    }
+  ],
+  "red": {
+    "command": "PATH=<exactNode22-bin>:$PATH node --test functions/test/stream-health.test.js",
+    "cwd": "/tmp/hudhud-b14-candidate",
+    "tests": 20,
+    "passed": 16,
+    "failed": 4,
+    "skipped": 0,
+    "assertions": [
+      "Both roots:19dual8s synthetic probes consume304s, violating100s per-root allowance.",
+      "Both roots: inventory read lacks document-ID limit\u226450."
+    ],
+    "classification": "Genuine business assertion failures after valid discovery/setup, before source fix. No missing progress-module imports, environment failures or skipped cases counted.",
+    "sourceAndPermanentTestHashes": {
+      "functions/lib/stream-health.js": "cbb1bb4dd5c08c653bdf53dfa1302f9c7ac114e027e9b5a91562f05e62a7dd01",
+      "functions/test/stream-health.test.js": "15344b8e38a1e1c1cbaef5a369850bcd0f9b19cd39347ccaf4ff551a130fe4c1"
+    },
+    "snapshots": [
+      "/tmp/hudhud-b14-red-source.js",
+      "/tmp/hudhud-b14-red-test.js"
+    ]
+  },
+  "additionalDevelopmentRegression": {
+    "log": "B14-timer-race-red.log",
+    "tests": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0,
+    "behavior": "Intermediate outer8s timer raced compliant8s transport result; permanent caught-result business assertion failed. Removed duplicate probe timer; existing public-fetch owns8s transport deadline while worker retains separate root deadline.",
+    "limitation": "Intermediate source hash was not captured; initial baseline and final integrated hashes are retained."
+  },
+  "green": [
+    {
+      "name": "focused candidate",
+      "command": "PATH=<exactNode22-bin>:$PATH node --test functions/test/stream-health.test.js functions/test/stream-health-progress.test.js functions/test/public-fetch.test.js",
+      "tests": 53,
+      "passed": 53,
+      "failed": 0,
+      "skipped": 0,
+      "log": "B14-focused-green.log"
+    },
+    {
+      "name": "full candidate Functions",
+      "command": "PATH=<exactNode22-bin>:$PATH npm --prefix functions test",
+      "tests": 285,
+      "passed": 285,
+      "failed": 0,
+      "skipped": 0,
+      "log": "B14-functions-green.log"
+    },
+    {
+      "name": "existing Functions lint",
+      "command": "PATH=<exactNode22-bin>:$PATH npm --prefix functions run lint",
+      "result": "PASS",
+      "log": "B14-lint.log"
+    },
+    {
+      "name": "actual integrated focused parent gate",
+      "command": "Node22 health/progress/public-fetch focused suite",
+      "tests": 53,
+      "passed": 53,
+      "failed": 0,
+      "skipped": 0,
+      "log": "B14-integrated-focused-green.log",
+      "executor": "Parent I"
+    }
+  ],
+  "coveredBehavior": [
+    "Root100s/invocation300s with40s reserve; pair admission16s probes+10s flush. Both19dual-timeout roots progress80s each under deterministic clock.",
+    "Stable document-ID pages\u226450;105stations visited exactly once across11budgeted invocations, EOF wrap only next invocation, deleted cursor value supported.",
+    "Private120s owned lease, safe generation recovery, concurrent exclusion, stale owner/generation/cursor rejection, no checkpoint advance before unit commit.",
+    "Station existence/current primary/backup/active/deletion identity revalidated in transaction; stale/deleted unit skipped without resurrection. Station mutation and cursor commit atomically.",
+    "Stable stationzero-write/30minuteheartbeat retained; private checkpoint writes explicitly counted as scanned+2 on completed sweep.",
+    "Stalled metadata root wait cannot starve second root; late callback checks deadline before staging writes. Unknown outcomes recover from durable cursor rather than page-end guess.",
+    "Telegram delivery bounded8s with abort/sanitized errors; overall flush retains2s after optional bounded alert. No real message sent. Alerts remain existing threshold-based best effort, no exactly-once claim.",
+    "Existing public-fetch file/SSRF/DNS/redirect/body/deadline/shared4cap protections untouched and regression tests pass.",
+    "Scheduler preserves existing15minute/AsiaAden/300s/maxInstances1 configuration and B11 adminGetUserCount export."
+  ],
+  "sdkLimits": [
+    "A local timeout cannot cancel an already-dispatched Firestore RPC or commit. It bounds waiting, not server commit completion.",
+    "Private acquire/unit/release callbacks check deadline before staging writes; a commit dispatched before timeout may still complete or be acknowledged later. Station/cursor atomicity preserves an unknown committed unit; lease generation/recovery prevents blindly skipping uncommitted work.",
+    "No hard SDK cancellation or hard server-side wallclock guarantee is claimed. Lease-protected recovery and independent review remain necessary."
+  ],
+  "remaining": [
+    "Independent exact-candidate B14 review now in progress; return failures to BE owner.",
+    "Parent may run full combined Functions gate after review as appropriate.",
+    "Client private-progress Rules obligations remain part of existing04T12/final integration; no unownedRules changes made here.",
+    "B15 remains blocked until reviewed B14 release; no count implementation in this batch.",
+    "Full WO/global17skipped-test, Flutter and physical-device obligations are preserved.",
+    "Separate production deployment/rollback readiness; pause/drain workers for operational rollback, never blindly erase durable cursor/lease."
+  ],
+  "evidence": [
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B14-red.log",
+      "sha256": "97f3e898099d5bcfd1344c3b4e9a127efa458d19b52596f333636f809178cad2"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B14-timer-race-red.log",
+      "sha256": "2aba372ed63e33855d8220bf815682411126ffc086d060692669f25cbe915f00"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B14-first-green.log",
+      "sha256": "dec21f751d04b435ea3d0f155854484147e6eb921eee51115ae794428d3d5a46"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B14-expanded-green.log",
+      "sha256": "97952657efe3ed09aec3fe7d61061a58e0050319c8c6044c9eaf7f7ef1046a7e"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B14-deadline-green.log",
+      "sha256": "6c2d3f52a0458b53bf89e09ef584db6a0e51218ca05ebaa3cf37e9b45b34793a"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B14-focused-green.log",
+      "sha256": "8580dcb6e34adafc0f3cd6fa354ac1a861917b9bdbf0001f25d3d3d418c42192"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B14-lint.log",
+      "sha256": "9cb86fb875f0a2ccbac02e6d7f904bd806d6c85c4b8453c4fd9e7366d182e45b"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B14-functions-green.log",
+      "sha256": "4471d6bce292fa1d9128a9c3851f0ad74f738e2786d43fbdf24c484f20c42902"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B14-integrated-focused-green.log",
+      "sha256": "8c5c2b6e4142bc6c8096ff67e7dc1008b38e8a405599ca6971fb008f1e4a6ecb"
+    }
+  ],
+  "safety": "All authored source/test changes were prepared only in isolated /tmp candidate and applied by parent I. No main tool/emulator/F/native app, network/production fetch, real notifications, migration, dependency addition, deployment or protected merge. No .meta updates.",
+  "findingStatus": "R11 OPEN; no finding or full Work Order acceptance claimed"
+}

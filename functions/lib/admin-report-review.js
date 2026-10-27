@@ -1,3 +1,4 @@
+import { prepareCommentCountMutation } from './comment-counts.js';
 import { FieldValue, FieldPath } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
 import { administrativeActor } from './admin-content-authorization.js';
@@ -47,18 +48,18 @@ export async function reviewAdminReport(args) {
       candidates = result.docs.filter(item => validReportPath(root, item.ref.path) &&
         (disabling || (item.data().episodeId === episodeId && item.data().commentId === commentId)));
     }
+    const countMutation = changing && episode.exists ? await prepareCommentCountMutation(tx, db, {
+      root, episodeId, commentId, action: 'update', serverTimestamp: () => FieldValue.serverTimestamp(),
+      changes: fresh => {
+        if (fresh.authorId !== authorId) throw new HttpsError('failed-precondition', 'The reported author changed.');
+        return { status: resolution === 'commentHidden' ? 'hidden' : 'removed', moderatedAt: FieldValue.serverTimestamp(), moderatedBy: actor.uid };
+      },
+    }) : null;
     const review = { status: resolution === 'noAction' ? 'dismissed' : 'resolved', resolution,
       reviewedAt: FieldValue.serverTimestamp(), reviewedBy: actor.uid };
     const targets = new Map([[selected.ref.path, selected], ...candidates.map(item => [item.ref.path, item])]);
     for (const item of targets.values()) if (item.exists && item.data().status === 'open') tx.update(item.ref, review);
-    if (comment?.exists) {
-      tx.update(comment.ref, { status: resolution === 'commentHidden' ? 'hidden' : 'removed',
-        moderatedAt: FieldValue.serverTimestamp(), moderatedBy: actor.uid });
-      if (comment.data().status === 'published') {
-        const count = episode.get('stats.commentsCount');
-        tx.update(episode.ref, { 'stats.commentsCount': Number.isSafeInteger(count) && count > 0 ? count - 1 : 0 });
-      }
-    }
+    if (countMutation) for (const write of countMutation.writes) write();
     if (user?.exists) tx.update(user.ref, { isActive: false, updatedAt: FieldValue.serverTimestamp() });
   });
   return { success: true };

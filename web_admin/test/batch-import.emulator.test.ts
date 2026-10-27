@@ -88,6 +88,14 @@ void test(
       assert.equal(commitRes1.success, true);
       assert.equal(commitRes1.committedCount, 2);
       assert.equal(commitRes1.failedCount, 0);
+      const acceptedEpisode = await adminDb.doc(episodeRef.path).get();
+      const acceptedBaseline = await adminDb.doc(`${root}/commentCountContributions/episodes/${episodeId}`).get();
+      assert.equal(acceptedBaseline.get('state'), 'active');
+      assert.equal(acceptedBaseline.get('origin'), 'creation');
+      assert.equal(acceptedBaseline.get('episodeCreateTime'), undefined, 'Creation identity must not use a REQUEST_TIME transform');
+      assert.equal(acceptedBaseline.updateTime.isEqual(acceptedEpisode.createTime), true, 'Native baseline birth receipt equals the actual episode creation commit');
+      assert.equal(acceptedEpisode.get('stats.commentsCount'), 0);
+
 
       // Check Firestore: Station programsCount incremented to 1
       const stSnap = await getDocFromServer(stationRef);

@@ -3,12 +3,13 @@ import { test } from 'node:test';
 import { readFile } from 'node:fs/promises';
 import { doc, getDocFromServer } from 'firebase/firestore';
 import { saveWithRelations } from '../lib/save-content.ts';
+import { publicStationData } from '../lib/station-private.ts';
 import { callableEmulator } from './support/callable-emulator.ts';
 
 void test('trusted location saves update off-page stations, serialize identity and reject stale reference selection',
   { skip: !process.env.FIRESTORE_EMULATOR_HOST }, async () => {
     const harness = await callableEmulator();
-    const fixture = JSON.parse(await readFile(new URL('../../test/fixtures/admin-content-contract.json', import.meta.url), 'utf8')).stations;
+    const fixture = publicStationData(JSON.parse(await readFile(new URL('../../test/fixtures/admin-content-contract.json', import.meta.url), 'utf8')).stations);
     try {
       for (const root of ['HudHudDev', 'HudHudOfficial'] as const) {
         const id = crypto.randomUUID();
@@ -26,6 +27,10 @@ void test('trusted location saves update off-page stations, serialize identity a
           saveWithRelations(harness.db, root, 'stations', `${root}/stations/stations`, `${id}-concurrent`, { ...fixture, ...original, name: 'Concurrent fixture' }, null, location),
         ]);
         assert.equal(results[0].status, 'fulfilled');
+        if (results[1].status === 'rejected') {
+          assert.equal(results[1].reason?.code, 'functions/failed-precondition',
+            'The concurrent request must reach the server location precondition.');
+        }
         const stations = await harness.adminDb.collection(`${root}/stations/stations`).where('cityCode', '==', id).get();
         assert.equal(stations.size, results[1].status === 'fulfilled' ? 56 : 55);
         assert.equal(stations.docs.every((item: { get(key: string): unknown }) => item.get('cityNameAr') === next.cityNameAr), true);

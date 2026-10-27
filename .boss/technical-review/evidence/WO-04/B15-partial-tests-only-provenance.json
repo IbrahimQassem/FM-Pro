@@ -1,0 +1,36 @@
+{
+  "status": "TESTS_ONLY_PARTIAL_ROLLBACK_BASELINE_PARENT_ACCEPTANCE_PENDING",
+  "directory": "/tmp/hudhud-b15-final-revision2",
+  "sourceSha256": "aa3b3c6c5be5546d4d8264b3ca4c3f783b576704eb2813f18eab1c2d3a6feb72",
+  "testsSha256": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc",
+  "patchSha256": "8048fb753e20820d1e8de475ac2d84f9397a9918985a818e859746c5a3217f2f",
+  "patch": "/tmp/hudhud-b15-partial-rollback-tests-only.patch",
+  "original127BodiesUnchanged": true,
+  "baseline": {
+    "command": "node --test --test-name-pattern='partial rollback business:|partial rollback admission guard:' tool/test/reconcile_comment_counts.test.mjs",
+    "result": "17 executed;10 intended ERR_ASSERTION/Got unwanted rejection positive rollback failures;7 guardPASS;0skip",
+    "log": "B15-partial-permanent-baseline.log",
+    "sha256": "81f1d0b2db833bac55f10354bf141a7c2541729365d2753758a7eee35d7327ca",
+    "classification": "Accepted-contract committed-prefix rollback is refused by acquireFull prior to inverses. Existing original activated-only restriction, not introduced solely by new typed guard. GuardPASS is masked refusal evidence only, not proof fresh source CAS exists."
+  },
+  "precreatedNotExecutedUntilEntryCorrection": [
+    "5 late inverse cases: parent same-identity edit/ABA, parent missing/recreated, comment same-status edit",
+    "1 partial lost inverseACK/fresh-lease/frozen-prefix control"
+  ],
+  "sourceCorrectionStages": [
+    "After parent accepts positiveRED, minimally allow preactivation committed-prefix restore and correct existing null verifyStage/absent release-field branches; preserve fixed restoreMaxApplyUnit.",
+    "Run precreated late source cases before any fresh parentCAS correction. Classify only intended after-admission assertion failures as sourceCAS RED.",
+    "Then add exact original.source.episodeVersion check only when no owned counter head exists, preserving effectiveHead CAS where owned counter head exists.",
+    "Freeze complete correction and rerun applicable focused/full/Functions/lint/independent/native gates."
+  ],
+  "supersededAa3Full": {
+    "result": "Interrupted by parent instruction after24passes/no failed assertion; not full127PASS",
+    "log": "B15-aa3-full127-superseded-partial.log",
+    "sha256": "0a5d1be467242e22eaf576dee2cd1d7bd2e8b2fb262ee052530fd5882f8e4fe7"
+  },
+  "notes": [
+    "No source change/fix applied. Prior aa3/3619/original29 candidates and root unchanged.",
+    "Existing security approval remains bound to aa3; protocol/native/full gates remain open.",
+    "No new wire/API/dependency/namespace/production operation/emulator. No finding CLOSED."
+  ]
+}

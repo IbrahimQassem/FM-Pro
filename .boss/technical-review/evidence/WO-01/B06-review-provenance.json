@@ -1,0 +1,50 @@
+{
+  "classification": "Independent review regression guards; not original R01/R10 defect RED",
+  "priorCandidate": "821d3dd2351aab06a10e1e970d92d1d1a71e2008a6121bff64f6ca1135e6dc91",
+  "red": {
+    "log": "B06-review-guards-red.log",
+    "tests": 42,
+    "pass": 37,
+    "fail": 5,
+    "skipped": 0,
+    "failures": [
+      "Unknown transport reached transaction",
+      "Expired backup created initial job",
+      "Empty expired manifest accepted",
+      "World-writable directory accepted",
+      "Replaced directory accepted"
+    ]
+  },
+  "checkpointRed": {
+    "log": "B06-review-checkpoint-red.log",
+    "tests": 46,
+    "pass": 45,
+    "fail": 1,
+    "skipped": 0,
+    "failure": "Directory permission drift immediately before checkpoint accepted"
+  },
+  "green": {
+    "command": "node --test tool/test/migrate_station_privacy.test.mjs",
+    "log": "B06-review-guards-green.log",
+    "tests": 46,
+    "pass": 46,
+    "fail": 0,
+    "skipped": 0
+  },
+  "otherChecks": [
+    "Node22 syntax checks for source, guard tests and transport fixture candidate passed",
+    "Scoped oxlint passed (B06-review-lint.log)",
+    "git apply --check /tmp/hudhud-b06-transport-fixture.patch passed before parent application"
+  ],
+  "sha256": {
+    "tool/migrate_station_privacy.mjs": "e64628daff2dd753e800df3f09740efcafa43953c471e30f9ccbf8253d0c1d36",
+    "tool/test/migrate_station_privacy.test.mjs": "0952701ca7edd9b3e400f3021bbb2869ff5996612d2e83e9362cd1a21935a806"
+  },
+  "integrationPatch": "/tmp/hudhud-b06-transport-fixture.patch",
+  "limitations": [
+    "Actual emulator retry and independent reviewer remain parent-owned pending gates",
+    "No live migration, production operation, deploy, merge or emulator command run by worker",
+    "Production mutation disabled; production adapter/key custody/expiry deletion remain G-O1-READY/O-1",
+    "Privacy recovery remains conditional zero-write verification; never reinstates email/public private fields"
+  ]
+}

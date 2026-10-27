@@ -108,3 +108,20 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
     assert.equal(result.action, 'unchanged');
   });
 }
+
+test('pause between episode deletion phases retains token and parent instead of bypassing the fence in cleanup', async () => {
+  const { MemoryFirestore, FieldValue } = await import('./support/comment-count-fixture.js');
+  const db = new MemoryFirestore(), root = 'HudHudDev', path = `${root}/episodes/episodes/e`, fencePath = `${root}/commentCountContributions`;
+  db.seed(fencePath, { version: 1, writerProtocol: 1, state: 'active', generation: 1, owner: 'unit', planHash: 'a'.repeat(64), leaseUntil: 0,
+    activeFrom: FieldValue.serverTimestamp(), baselineManifestHash: 'b'.repeat(64) });
+  db.seed(`${root}/programs/programs/p`, { stationId: 'station', stats: { episodesCount: 1 } });
+  db.seed(path, { stationId: 'station', programId: 'p', title: 'Synthetic', stats: { commentsCount: 0 } });
+  const expected = db.snapshot(path).data();
+  db.afterCommit = writes => { if (writes.some(write => write.path === path && write.data?.adminDeletionToken)) {
+    db.afterCommit = null; db.seed(fencePath, { ...db.snapshot(fencePath).data(), state: 'paused', generation: 2 });
+  } };
+  await assert.rejects(deleteAdminContent({ firestore: db, callerUid: 'super', callerRole: 'super_admin', callerClaims: { role: 'super_admin' },
+    data: { root, kind: 'episodes', id: 'e', expected } }), error => error.retryable && error.details.reason === 'comment-count-maintenance');
+  assert.equal(db.snapshot(path).exists, true); assert.equal(typeof db.snapshot(path).get('adminDeletionToken'), 'string');
+  assert.equal(db.snapshot(`${root}/programs/programs/p`).get('stats.episodesCount'), 1); assert.equal(db.writes.length, 1);
+});

@@ -1,3 +1,4 @@
+import { seedCountedEpisodes } from '../../firebase_tests/support/comment-count-fixtures.mjs';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { readFile } from 'node:fs/promises';
@@ -21,9 +22,8 @@ void test('trusted program transfer includes off-page children, races safely wit
         const data = { ...programFields, stationId: old.id, title: `Transfer ${id}` };
         await saveWithRelations(harness.db, root, 'programs', path, id, data, null);
         assert.equal((await getDocFromServer(program)).get('stats.episodesCount'), programStats.episodesCount);
-        const seed = harness.adminDb.batch();
-        for (let index = 0; index < 55; index++) seed.set(harness.adminDb.doc(`${root}/episodes/episodes/${id}-${index}`), { programId: id, stationId: old.id, createdBy: 'fixture-creator' });
-        seed.update(harness.adminDb.doc(program.path), { 'stats.episodesCount': 55 }); await seed.commit();
+        await seedCountedEpisodes(harness.adminDb, root, Array.from({ length: 55 }, (_, index) => ({ id: `${id}-${index}`, data: { programId: id, stationId: old.id, createdBy: 'fixture-creator' } })));
+        await harness.adminDb.doc(program.path).update({ 'stats.episodesCount': 55 });
         const previous = (await getDocFromServer(program)).data()!;
         const { stats: episodeStats, ...episodeFields } = fixtures.episodes;
         const results = await Promise.allSettled([
@@ -41,9 +41,8 @@ void test('trusted program transfer includes off-page children, races safely wit
           assert.equal((await harness.adminDb.doc(`${root}/episodes/episodes/${id}-concurrent`).get()).get('stats.playsCount'), episodeStats.playsCount);
         }
         assert.equal((await old.get()).get('stats.programsCount'), 0); assert.equal((await next.get()).get('stats.programsCount'), 1);
-        const overflow = harness.adminDb.batch();
-        for (let index = children.size; index < 451; index++) overflow.set(harness.adminDb.doc(`${root}/episodes/episodes/${id}-overflow-${index}`), { programId: id, stationId: next.id });
-        overflow.update(harness.adminDb.doc(program.path), { 'stats.episodesCount': 451 }); await overflow.commit();
+        await seedCountedEpisodes(harness.adminDb, root, Array.from({ length: 451 - children.size }, (_, offset) => ({ id: `${id}-overflow-${children.size + offset}`, data: { programId: id, stationId: next.id } })));
+        await harness.adminDb.doc(program.path).update({ 'stats.episodesCount': 451 });
         const before = (await getDocFromServer(program)).data()!;
         await assert.rejects(saveWithRelations(harness.db, root, 'programs', path, id, { ...data, stationId: old.id }, { reference: program, data: before }),
           error => error instanceof Error && error.message.includes('450'));

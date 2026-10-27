@@ -1,0 +1,20 @@
+{
+  "baseline": "c304e85",
+  "command": "firebase emulators:exec --only firestore --project demo-hudhud-station-privacy node --test firebase_tests/firebase-emulators/station-privacy.test.js",
+  "cwd": "/Users/ibrahimqassem/VisualCodeProjects/acceleration/hudhud_fm",
+  "runtime": "Node22.23.3",
+  "result": {
+    "tests": 10,
+    "pass": 10,
+    "fail": 0,
+    "skip": 0
+  },
+  "sha256": {
+    "tool/migrate_station_privacy.mjs": "e64628daff2dd753e800df3f09740efcafa43953c471e30f9ccbf8253d0c1d36",
+    "tool/test/migrate_station_privacy.test.mjs": "0952701ca7edd9b3e400f3021bbb2869ff5996612d2e83e9362cd1a21935a806",
+    "firebase_tests/firebase-emulators/station-privacy.test.js": "069c456ec6ddb6763e37136704c7137ae8038a49fdb1409c6fd1f2a90e157fe8",
+    "firestore.rules": "b792a71572cf2822aa8e74278dea82043fe40a60a67bad29fbc299ba347d58e9",
+    ".boss/technical-review/evidence/WO-01/B06-emulator-green.log": "2ae1354df1ec7591c906eb2e0ddaa54d45f7b2b41951b971631548f456462915"
+  },
+  "note": "Final emulator proof after security-review corrections; old37guard/source evidence retained as history. Current independent guards46/46. Production mutation not authorized or enabled."
+}

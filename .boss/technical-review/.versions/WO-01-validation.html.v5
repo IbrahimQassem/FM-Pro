@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WO-01 implementation evidence - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#wo-01-implementation-evidence">WO-01 implementation evidence</a></li><li class="toc-level-2"><a href="#summary">Summary</a></li><li class="toc-level-2"><a href="#execution-and-locks">Execution and locks</a></li><li class="toc-level-2"><a href="#actual-evidence">Actual evidence</a></li><li class="toc-level-2"><a href="#independent-b02-reviewed-source-hashes">Independent B02 reviewed source hashes</a></li><li class="toc-level-2"><a href="#remaining-checkpoints">Remaining checkpoints</a></li><li class="toc-level-2"><a href="#b02-disposition">B02 disposition</a></li><li class="toc-level-2"><a href="#b04-disposition-and-evidence-correction">B04 disposition and evidence correction</a></li><li class="toc-level-2"><a href="#resumed-baseline-and-b05-status">Resumed baseline and B05 status</a></li><li class="toc-level-2"><a href="#b05-t09-callable-verification">B05 T09 callable verification</a></li><li class="toc-level-2"><a href="#b05-disposition">B05 disposition</a></li><li class="toc-level-2"><a href="#b03-stopped-at-mandatory-lint-gate">B03 stopped at mandatory lint gate</a></li><li class="toc-level-3"><a href="#files-changed-since-resumed-baseline-f3c9485">Files changed since resumed baseline f3c9485</a></li><li class="toc-level-3"><a href="#outstanding-acceptance-and-approvals">Outstanding acceptance and approvals</a></li><li class="toc-level-2"><a href="#authorized-continuation-2026-10-26">Authorized continuation — 2026-10-26</a></li><li class="toc-level-3"><a href="#actual-continued-evidence">Actual continued evidence</a></li><li class="toc-level-3"><a href="#new-mandatory-stop">New mandatory stop</a></li><li class="toc-level-3"><a href="#independent-b03-review-disposition">Independent B03 review disposition</a></li><li class="toc-level-2"><a href="#b03-corrected-local-handoff-complete-plan-implementation">B03 corrected local handoff — complete-plan implementation</a></li><li class="toc-level-2"><a href="#b06-verified-demo-only-handoff">B06 verified demo-only handoff</a></li><li class="toc-level-2"><a href="#b15-full-nonempty-candidate-rejected-by-independent-review">B15 full nonempty candidate rejected by independent review</a></li><li class="toc-level-2"><a href="#b15-final2-conditional-source-checkpoint-full-gate-pending">B15 final2 conditional source checkpoint — full gate pending</a></li></ul>
+    </aside>
+    <main>
+      <h1>WO-01 implementation evidence</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: WO-01-validation.md</div>
+        <div>Generated: 2026-10-26T23:24:04.219Z</div>
+      </div>
+      <h1 id="wo-01-implementation-evidence">WO-01 implementation evidence</h1>
+<h2 id="summary">Summary</h2>
+<ul><li>Authorized scope: WO-01/R01/R10 code and tests only. No production access, deployment, live migration or protected-branch merge.</li><li>Baseline: <code>9fae3248aadecaa53198a5fb9f06576fdcc182cf</code>, branch <code>hudhud_fm</code>; initial tracked tree clean.</li><li>Node gates use installed Node <code>22.23.3</code>; PATH default Node26 is not used for application acceptance.</li><li>C01 contract independently reviewed; deletion-precondition and legacy-conflict clarifications incorporated before fixes.</li><li>R01 and R10 remain <strong>OPEN</strong>. Code and local proof do not establish live-data cleanup.</li></ul>
+<h2 id="execution-and-locks">Execution and locks</h2>
+<p>I owns the shared contracts, Rules/tests and delete source. BE owns the unique partition/save/helper tests and real editorial emulator test. Runtime E is exclusive to I. All other work orders remain unexecuted. B01 executes C01 only; its WO-03/04 milestones are outside this authorization.</p>
+<h2 id="actual-evidence">Actual evidence</h2>
+<table><thead><tr><th>Check</th><th>Result</th><th>Evidence</th></tr></thead><tbody><tr><td>B02 original existing-boundary RED</td><td>44 cases:34 pass,10 intended assertion failures,0 skips</td><td><code>evidence/WO-01/B02-privacy-baseline-red.log</code></td></tr><tr><td>B02 C01-aligned RED</td><td>44 cases:32 pass,12 intended behavior failures; no setup failure counted</td><td><code>evidence/WO-01/B02-C01-baseline-red.log</code></td></tr><tr><td>Functions owning-package GREEN</td><td>192 passed,0 failed/skipped</td><td><code>evidence/WO-01/B02-functions-full-test.log</code></td></tr><tr><td>Functions lint and explicit new-helper syntax</td><td>Passed</td><td><code>B02-functions-lint.log</code>, <code>B02-helper-syntax.log</code> in evidence directory</td></tr><tr><td>Rules baseline RED</td><td>35 cases:33 pass,2 intended super-admin private-read denials,0 skips</td><td><code>evidence/WO-01/B02-rules-red.log</code></td></tr><tr><td>Rules GREEN</td><td>35 passed,0 failed/skipped</td><td><code>evidence/WO-01/B02-rules-green.log</code></td></tr><tr><td>Independent source review</td><td>No concrete B02 bypass/regression; independent70/70 focused tests pass</td><td>Reviewer <code>wo01_b02_independent_review</code>, source hashes retained below</td></tr><tr><td>Real editorial transaction/rollback/concurrency GREEN</td><td>51 passed,0 failed/skipped</td><td><code>evidence/WO-01/B02-editorial-green.log</code>, including10 new both-root cases</td></tr></tbody></table>
+<p>The initial sandbox-localhost startup failure was environmental, was not counted as RED, and was rerun with approved emulator permissions. No pending/failed integration check is treated as PASS.</p>
+<h2 id="independent-b02-reviewed-source-hashes">Independent B02 reviewed source hashes</h2>
+<pre><code class="language-text">firestore.rules 88257caf2c8728d89139c79df4b34d79dad099fa2fd5bf5c6055e50af9e5fb68
+firebase_tests/firebase-rules/firestore.rules.test.js 3c3958499e93b924fd7700bf9463bd54b04336e65a42857ab2a8d0d78a2873f9
+functions/lib/editorial-audit.js 23b3b34953ad59f82a19a2ccdb64699e4d223468eeb786bff7a89f037080fd55
+functions/lib/admin-content-delete.js edc6ef13b7785a81635301c0a9974275bd08183fd3cb862d7ffdf055bf1d3cc2
+functions/lib/station-privacy.js d5ba30dead1e65a34d3cb253e8e91a730a3b4a5e66adf88e849b069d3df85305</code></pre>
+<h2 id="remaining-checkpoints">Remaining checkpoints</h2>
+<p>B02 and B04 are locally verified with independent review. B05 is in progress; B03/B06 have not started. Full B15 privacy integration includes out-of-scope dependencies and cannot be completed by this authorization alone. The17 skipped-test registry remains mandatory. Live cleanup, backup location/retention approval, production verification and any rollout remain pending and prohibited in this run.</p>
+<h2 id="b02-disposition">B02 disposition</h2>
+<p>01-T02/03/04 have local implementation, behavioral RED, relevant owning-package GREEN, independent source review, and real demo Firestore transaction/Rules evidence. This permits the B04 code dependency handoff. It is not WO-01 completion, live-data acceptance or finding closure. The approved C01 private deletion/legacy conflict protocol supersedes the earlier planning ambiguity. <code>admin-content.js</code> required no change because its existing validator already accepts and validates the mixed editable input; the storage partition is enforced at the shared save boundary.</p>
+<h2 id="b04-disposition-and-evidence-correction">B04 disposition and evidence correction</h2>
+<p>01-T07/08 have independent source approval and a separate independent Node22 run of 82 focused tests. The current validator rejects nested malformed field values and unknown roots before IO, while preserving Date and trusted SDK timestamp support without a new dependency. No seed or sync main entry point was executed against Firebase.</p>
+<ul><li>Original writer RED: 52 tests, 10 pass, 42 intended missing-rejection failures (<code>B04-writers-red.log</code>).</li><li>Residual RED: <code>B04-types-red.log</code> contains 12 valid intended failures and 3 invalid fixture counter mismatches. The latter do not count as RED evidence.</li><li>Corrected stats tests: 3 intended missing-exception failures against an isolated reconstruction of the prior top-level validator (<code>B04-stats-controlled-red.log</code>). This is a controlled pre-fix reproduction, not a contemporaneous baseline run. Exact source, hashes and provenance: <code>B04-stats-red-provenance.json</code>. The working source was never reverted.</li><li>Corrected focused GREEN: 82 passed, zero skips (<code>B04-types-green.log</code>). Seed package: 33 passed (<code>B04-seed-package-green.log</code>). Functions: 192 passed, zero skips; lint passed (<code>B04-functions-green.log</code>, <code>B04-functions-lint.log</code>).</li><li>Source-projection import/restore guards are not represented as real Firestore integration tests.</li></ul>
+<p>This permits the B05 dependency handoff; R01/R10 remain OPEN.</p>
+<h2 id="resumed-baseline-and-b05-status">Resumed baseline and B05 status</h2>
+<p>On 2026-10-26 the refreshed checkout is clean at <code>f3c9485</code>, which contains the existing WO-01 work and B05 producer changes. This run did not create that commit. The B05 producer logs show 33 tests with 16 intended assertion failures before fixes, focused GREEN, 206 full Functions tests passed and lint passed. The shared <code>index.js</code> bootstrap is still unchanged and its actual emulator RED check is pending. B05 is not complete or independently accepted. The interrupted earlier emulator launch produced no result and is not evidence.</p>
+<h2 id="b05-t09-callable-verification">B05 T09 callable verification</h2>
+<ul><li>Actual demo/Auth/Functions/Firestore RED: 14 tests, 9 passed, 5 failed on profile email creation, backfill or automatic email-derived names (<code>B05-email-red.log</code>). No setup or environment failure counted.</li><li>After the minimal I-owned <code>functions/index.js</code> change, all 14 emulator tests passed, zero skips (<code>B05-email-green.log</code>). Auth email/verification, proof recovery, rate limits and conflict controls remain exercised by the existing suite.</li><li>Exact integrated Functions candidate: 206 passed, zero skips, lint passed (<code>B05-functions-integrated-green.log</code>, <code>B05-functions-integrated-lint.log</code>).</li><li>Independent T09 preliminary review: no concrete introduced bypass/regression; independent focused33/33 passed. Final B05 acceptance still waits for T09a standalone-tool completion and independent review.</li><li>T09a is being tested only with injected synthetic SDK/storage/logs. No migration main entry point has been invoked against Firebase.</li></ul>
+<h2 id="b05-disposition">B05 disposition</h2>
+<p>B05 passed independent read-only review of T09 and T09a. The reviewer independently ran 33 producer tests and 23 standalone-tool tests, all passing with zero skips; reviewed actual integrated Functions206 and email-emulator14 GREEN logs; and confirmed the intended RED assertions. No introduced bypass or regression was found.</p>
+<p>T09a evidence: <code>B05-legacy-red.log</code> (12 tests: 2 pass, 10 intended privacy/default-write failures); <code>B05-legacy-green.log</code> (23 passed, zero skips; 11 additional guards are not RED evidence); <code>B05-legacy-provenance.json</code> records source/test hashes and commands. Syntax and whitespace checks passed.</p>
+<p>The standalone tool is import-safe, requires an explicit project/root, defaults to dry-run and requires <code>--apply</code> to write. Its main entry point was not invoked. Existing unbounded source reads, batching and creation races are preserved and do not receive production acceptance. It must remain quiesced during separately approved privacy cleanup. Example preparation-only syntax: <code>node tool/migrate-legacy-users.mjs --project=&lt;explicit-project&gt; --root=HudHudDev</code>; live invocation is not authorized here.</p>
+<p>This permits B03 implementation. R01 and R10 remain OPEN, and no production operation is authorized.</p>
+<h2 id="b03-stopped-at-mandatory-lint-gate">B03 stopped at mandatory lint gate</h2>
+<p>Status: <strong>INCOMPLETE — STOPPED</strong>, as required by the user's instruction to stop on a failed mandatory gate.</p>
+<ul><li>T05 baseline RED: 8 intended assertion failures, zero skips (<code>B03-reader-red.log</code>). Focused GREEN: 17 passed, zero skips (<code>B03-reader-green.log</code>). Targeted lint/type checks and emulator-test syntax passed (<code>B03-reader-lint.log</code>). An intermediate test type-inference error was corrected and does not count as RED.</li><li>T06 export baseline RED: 14 tests, 12 passed and 2 intended privacy failures, zero skips (<code>B03-export-red.log</code>). Form/export GREEN: 15 passed, zero skips (<code>B03-export-green.log</code>). New helper guard cases are not claimed as baseline RED.</li><li>Mandatory whole-admin lint <strong>FAILED</strong> (<code>B03-T06-lint.log</code>): <code>web_admin/components/admin/admin-app.tsx:3351</code> calls <code>setPrivateError</code> synchronously inside the new loading effect; the existing React compiler lint rule rejects it.</li><li>No further source fixes or dependent tasks were executed after this failure. B03 has not passed independent batch review or exact-candidate integration gates.</li><li>Next corrective step: derive the unauthorized station-editor error from current authorization instead of setting state synchronously in the effect; retain asynchronous read error handling. Then rerun lint, complete T10/T11 in order, execute the actual admin/Rules emulator gates and owning test/build gates, and obtain independent B03 review. This is proposed work, not a verified fix.</li><li>The new T05 actual emulator cases were authored but <strong>not executed</strong>. Ordinary unit execution or syntax checking does not satisfy them.</li><li>T10/T11 and B06 remain unexecuted. No privacy cleanup apply/restore script, live migration, deployment or protected-branch merge was performed.</li></ul>
+<h3 id="files-changed-since-resumed-baseline-f3c9485">Files changed since resumed baseline f3c9485</h3>
+<ul><li><code>functions/index.js</code></li><li><code>tool/migrate-legacy-users.mjs</code></li><li><code>tool/test/migrate-legacy-users.test.mjs</code> (new)</li><li><code>web_admin/components/admin/admin-app.tsx</code></li><li><code>web_admin/lib/station-private.ts</code> (new)</li><li><code>web_admin/lib/save-content.ts</code></li><li><code>web_admin/lib/delete-episode.ts</code></li><li><code>web_admin/lib/content-form.ts</code></li><li><code>web_admin/lib/export-excel.ts</code></li><li><code>web_admin/test/station-private.test.ts</code> (new)</li><li><code>web_admin/test/save-content.emulator.test.ts</code></li><li><code>web_admin/test/content-form.test.ts</code></li><li><code>web_admin/test/export-excel.test.ts</code></li><li>This execution report and Boss-rendered/runtime evidence artifacts.</li></ul>
+<h3 id="outstanding-acceptance-and-approvals">Outstanding acceptance and approvals</h3>
+<p>R01 and R10 remain <strong>OPEN</strong>. The 17 registered skipped emulator identities remain explicit acceptance obligations; no skip has been converted into passing evidence. Full Flutter tests, physical-device acceptance, B15 cross-component integration, and remaining independent/integration gates remain pending. Production backup location/retention, migration and rollout approvals remain separate and ungranted. No production checkpoint has been executed. The B03 lint failure is the immediate local blocker.</p>
+<h2 id="authorized-continuation-2026-10-26">Authorized continuation — 2026-10-26</h2>
+<p>The user authorized correcting the B03 lint blocker and continuing WO-01. The synchronous authorization-error state update was replaced with a derived authorization error. Asynchronous read errors still block the editor; no security rule was disabled. Initial resumed HEAD was <code>f3c9485</code>; a later read-only refresh found externally created commit <code>487402b</code> containing prior work. This agent did not create either commit or rewrite history.</p>
+<h3 id="actual-continued-evidence">Actual continued evidence</h3>
+<table><thead><tr><th>Check</th><th>Actual result</th><th>Evidence under <code>evidence/WO-01/</code></th></tr></thead><tbody><tr><td>T06 original lint blocker retry</td><td>PASS</td><td><code>B03-T06-lint-retry.log</code></td></tr><tr><td>T10 profile-email search RED</td><td>19 tests:18 passed,1 intended assertion failure,0 skipped</td><td><code>B03-email-ui-red.log</code></td></tr><tr><td>T10 focused GREEN</td><td>19 passed,0 failed/skipped</td><td><code>B03-email-ui-green.log</code></td></tr><tr><td>T11 actual Rules RED</td><td>39 tests:35 passed,4 intended assertions that forbidden writes succeeded,0 skipped</td><td><code>B03-rules-email-red.log</code></td></tr><tr><td>T11 actual Rules GREEN</td><td>39 passed,0 failed/skipped</td><td><code>B03-rules-email-green.log</code></td></tr><tr><td>Whole admin lint</td><td>PASS</td><td><code>B03-admin-lint.log</code></td></tr><tr><td>Ordinary admin tests</td><td>113 discovered:94 passed,19 skipped,0 failed; skips are not acceptance evidence</td><td><code>B03-admin-unit.log</code></td></tr><tr><td>Development-root admin build</td><td>PASS; bundle-size warning retained, no dependency/build rewrite</td><td><code>B03-admin-build.log</code></td></tr><tr><td>Actual admin emulator gate</td><td><strong>FAIL</strong>:19 discovered,18 passed,1 failed,0 skipped</td><td><code>B03-admin-emulator.log</code></td></tr></tbody></table>
+<p>T10 removes profile-email search, display and name fallback from the admin user projections; the signed-in administrator's own Auth email is preserved. T11 rejects email creation/change including super-admin SDK clients, permits historical email removal and unchanged-email unrelated updates, and preserves existing root/role boundaries. These changes remain part of incomplete B03.</p>
+<h3 id="new-mandatory-stop">New mandatory stop</h3>
+<p>The mandatory actual admin gate failed in <code>web_admin/test/location-relations.emulator.test.ts:34</code>. Its shared station fixture contains private fields and both new-station request calls omit the explicit private state. The new helper correctly fails closed with <code>ContentError: Reload station metadata before continuing.</code> before the stale-location RPC. The test expects <code>functions/failed-precondition</code>, so its intended stale-location assertion is no longer reached. Its concurrent station-creation branch can also accept this early failure without proving the original race behavior.</p>
+<p>No source/test fix was made after this mandatory gate failed. Do not weaken the private-revision guard or change the expected rejection to a client error to make the gate pass. The proposed next change is a narrowly scoped test-compatibility amendment: preserve the public-only location fixture or supply explicitly loaded private revision state to both station requests, and retain the actual server stale-location assertion/concurrency coverage. Before touching that currently WO-03-registered test file, I must record the WO-01/R01 write-set and ownership amendment. The existing 33 shared-file owners remain unchanged until an explicit amendment is recorded.</p>
+<p>All 17 previously skipped registered cases ran in the actual command:16 passed and the location case failed; the2 new T05 privacy cases passed. This does not waive B15 integration, full Flutter or physical-device obligations, nor close any other finding. Ordinary test19-skips were not counted as passes. Independent B03 review is being collected read-only; B03 is not accepted or complete, and B06 has not started. R01/R10 remain OPEN. No migration, production access, deployment or protected merge was performed.</p>
+<p>Continued source/test modifications: <code>web_admin/components/admin/admin-app.tsx</code>, <code>web_admin/components/admin/user-actions-modal.tsx</code>, <code>web_admin/lib/resource-filters.ts</code>, <code>web_admin/test/resource-filters.test.ts</code>, <code>firestore.rules</code>, <code>firebase_tests/firebase-rules/firestore.rules.test.js</code>; execution report and Boss runtime/rendered artifacts also updated.</p>
+<h3 id="independent-b03-review-disposition">Independent B03 review disposition</h3>
+<p>Independent reviewer <code>wo01_b03_independent_review</code> found no concrete privacy bypass in the current source and independently ran48 focused Node22 cases, all passing with zero skips. The reviewer confirmed the location-test compatibility failure and concealed early rejection in its concurrent branch. <strong>Completion approval is withheld</strong> until the mandatory emulator gate passes on the corrected candidate. The reviewer did not edit files or run emulators/production operations. Browser interaction was not performed; network-error fail-closed handling was source-reviewed but still lacks an explicit SDK failure regression. These remain verification limitations, not passes.</p>
+<h2 id="b03-corrected-local-handoff-complete-plan-implementation">B03 corrected local handoff — complete-plan implementation</h2>
+<p>The user approved repair-and-rerun within active batches and implementation of all four Work Orders. Baselinec304e85 was clean. I registered the location compatibility test as an additive owned path without changing any original33ownership assignment. The test now strips private fields for its public-only location journey, retains the actual server stale-location assertion, and rejects hidden client-guard failures in its concurrent branch. The isolated offline SDK guard primes cached metadata, disables only its client network, requires a ContentError with no cached/empty state, verifies unchanged persisted projections, and restores network in finally.</p>
+<ul><li>Actual admin emulator GREEN:20/20, zero skips (<code>B03-completion-admin-emulator.log</code>), including all17original identities plus3privacy cases.</li><li>Whole admin lint and ordinary tests passed (<code>B03-completion-full-lint.log</code>, <code>B03-completion-full-unit.log</code>). Ordinary skipped emulator cases are not claimed as acceptance; the actual emulator run supplies that evidence.</li><li>Independent reviewerb03_acceptance_review:48/48focused cases passed, no concrete introduced bypass/regression, source/test hashes recorded in reviewer handoff. Local code handoff approved; no finding closure.</li><li>Synthetic browser: logged in to the demo super-admin, station list loaded, editor displayed Canonical synthetic owner from the private document. Actual downloaded workbook has1synthetic row and the canonical private owner, verified through XLSX parsing. The export wait timed out in automation despite successful download; no false product failure or RED is claimed.</li><li>Negative browser role/error checks remain final-QA obligations: Chrome lost debugger attachment after the automation timeout and could not be reattached. Their underlying SDK/Rules permission and offline failure regressions passed. Do not claim the missing browser interactions occurred.</li><li>The first temporary UI fixture exited with an unresolved top-level await before rehearsal; the local runner keep-alive was corrected. This was environment/runner evidence only, not RED. All rehearsal accounts/data/config were synthetic under demo-hudhud-admin-test. Temporary UI server and emulators were stopped afterward; no production access.</li></ul>
+<p>B03 is LOCAL_GREEN/INTERIM_HANDOFF for dependent code, with finalbrowserQA explicitly pending. B06 can prepare/test tools; B07 is independently eligible. R01/R10 remain OPEN until all final matrix/operational criteria are proven. FullB15worker integration and physicaldevice/fullFlutter obligations remain unchanged.</p>
+<h2 id="b06-verified-demo-only-handoff">B06 verified demo-only handoff</h2>
+<p>B06 prepared bounded preview/apply/resume/verification/privacy-safe recovery tooling. The initial37synthetic guards and first10emulator passes did not earn final approval: independent review found unbound claimed transport, expiry before initial lease write, and mutable backup-directory protection. Five permanent review guard assertions reproduced those failures (42tests:37pass/5fail). A further pre-checkpoint directory-drift guard failed (46tests:45pass/1fail). The author corrected the same owned source and retained all failed logs.</p>
+<p>Current source uses a factory-owned frozen local demo Firestore transport, rechecks backup/recovery coverage inside initial lease acquisition including empty manifests, and revalidates directory realpath/device/inode/owner/mode for each operation and checkpoint. Revised synthetic46/46 passed independently. Final actual emulator10/10 passed with no skips; B06-final-emulator-provenance.json ties command, input/source/test/Rules/log hashes to that revised candidate. Independent reviewerb06_security_review approved this demo-only code scope. Historical B06-provenance.json is not treated as current acceptance; revised B06-review-provenance.json and final emulator provenance are authoritative.</p>
+<p>The first real timestamp assertion compared an unsaved nanosecond value with Firestore's microsecond-precision stored value. It was corrected to establish the persisted preimage/updateTime before migration, then verify exact preservation. The failed guard log is retained as fixture evidence, not vulnerability RED.</p>
+<p>Recovery deliberately verifies exact postimages and performs zero data writes: privacy migration changes no safe public field to undo. Moved values remain private and removed profile email remains absent. No claim of whole-snapshot rollback is made. Production mutation is explicitly unavailable; operator backup custody/retention/deletion, supported production execution integration and G-O1-READY/O-1 remain separate unresolved checkpoints. R01/R10 remain OPEN; B15/final QA/device criteria are not waived.</p>
+<h2 id="b15-full-nonempty-candidate-rejected-by-independent-review">B15 full nonempty candidate rejected by independent review</h2>
+<p>The frozen isolated candidate remains immutable and unintegrated. Independent ordinary Node22 verification executes all 63 existing cases, including the large inventory/union cases: 63/63 pass, zero failures or skips, exit 0. That GREEN result is insufficient for handoff: two separate executed reviewer probes fail their intended rejection assertions with zero skips. One demonstrates late canonical comment version drift proceeding into a created-contribution inverse after recovery/later restore units; the other demonstrates acceptance of a same-body target-head ABA with a changed native version. These are business assertion failures against the actual candidate exports/native model, not missing tests, compilation or environment failures, and not a claim of actual SDK coverage or demonstrated counter loss.</p>
+<p>Independent QA also reports closed-purpose-schema/privacy and public clock-override blockers. The new full-tool API must not accept the clock exception approved only for the private QA process boundary. All blockers require permanent regression assertions executed before their fixes, a separate frozen revision, applicable GREEN gates and independent source/security re-review. Existing GREEN tests do not waive them. Review and durable evidence are recorded in B15-nonempty-source-review.md and evidence/WO-04/B15-nonempty-source-review-provenance.json.</p>
+<p>The integrated root count tool remains early-bootstrap-only; no full nonempty candidate source was applied. B15 and full 04-T09 remain incomplete, B16 is NOT STARTED, and all R01–R13 findings remain OPEN. Actual SDK recovery/restore/replay, legal mid-flight writer ordering, exact-candidate worker/privacy/Rules integration, the original 17 emulator identities and mandatory full Flutter/browser/physical-device gates remain explicit acceptance obligations. No production operation, migration, deployment, source change, emulator or Flutter run occurred as part of this rejection checkpoint. Historical evidence above is preserved.</p>
+<h2 id="b15-final2-conditional-source-checkpoint-full-gate-pending">B15 final2 conditional source checkpoint — full gate pending</h2>
+<p>The original source/security rejection remains historical evidence above. Corrections followed permanent parent-verified behavioral RED: 15 initial source/privacy/public-clock assertion failures, two authenticated replay cursor type failures, 10 valid partial rollback assertion failures, and two genuine late parent-CAS failures after the entry-only stage made that boundary reachable. The 43 additional typed matrix guards already passed through downstream safety checks and receive no new RED credit. Masked admission guards and missing/setup/environment failures are not reclassified as late-CAS RED. Intermediate full runs stopped with 40, 26 and 24 passes were superseded; none is a full PASS.</p>
+<p>Final2 is frozen in isolation at tool SHA-256 <code>2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e</code>. Its recorded focused gate passes 87/87, Functions passes 328/328, and lint/syntax pass. Independent protocol verification passes 31/31 and independent security verification passes 15/15, with conditional approvals on that same frozen source. Source/protocol checks cover fresh per-inverse source/native CAS, receipt-sealed effective/frozen/resumed heads, typed private payload/replay state, runtime-clock boundaries, partial phase/null compatibility, frozen reverse prefixes, lease/ACK recovery and paused held rollback.</p>
+<p>These approvals remain conditional on the single exact 150-case full gate completing GREEN. Root integration, refreshed exact-candidate checks and actual native SDK rehearsal remain separate prerequisites. The integrated root tool is still early-bootstrap-only at SHA-256 <code>c46238aef4fdb072349e45c2e6f7a14ff2b50b24d15e7984448b89f5ae15709e</code>; the full nonempty APIs have not been integrated. The latest actual producer/editorial runtime gate is 91/91 in B15-producer-editorial-integrated.log, scoped to that earlier candidate and not the new full tool. The current root fixture contains 92 cases because an additional empty-root native recreation case is queued but unrun. The prepared combined 103-case fixture includes those queued 92 cases plus 11 additions; it is also unrun and receives no execution credit.</p>
+<p>Full 04-T09/B15 remain incomplete, B16 is NOT STARTED and all R01–R13 findings remain OPEN. The original 17 emulator identities, exact-candidate integration, mandatory full Flutter tests, physical-device acceptance and browser acceptance remain obligations. No production data operation, live migration, deployment or protected merge was authorized or executed. This append-only ledger checkpoint changes no source, contract, manifest, runtime or acceptance status beyond the precise conditional review record.</p>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,13 +1,14 @@
 import 'dart:typed_data';
 import '../models/account_user.dart';
 import '../models/account_sign_in_provider.dart';
+import '../models/account_registration_result.dart';
 
 abstract interface class AccountRepository {
   Stream<AccountUser?> watchAccount();
 
   Future<void> signIn({required String email, required String password});
 
-  Future<void> register({
+  Future<AccountRegistrationResult> register({
     required String displayName,
     required String email,
     required String password,

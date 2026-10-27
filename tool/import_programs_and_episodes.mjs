@@ -2,7 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { readCommentCountFence, CommentCountMaintenanceError } from '../functions/lib/comment-count-maintenance.js';
+import { prepareNewEpisodeCountBaseline } from '../functions/lib/comment-counts.js';
 
+async function main() {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
@@ -233,65 +236,61 @@ if (!shouldApply) {
 
 console.log('\nApplying changes to Firestore in atomic batches...');
 
-// Write in batches (Firestore max 500 operations per batch)
-let batch = db.batch();
-let opCount = 0;
+await applyProgramEpisodeImportPlan({ firestore: db, root, stationsToCreate, stationProgramsCount, resolvedPrograms, resolvedEpisodes, stationsOnly, FieldValue });
+if (stationsOnly) process.exit(0);
+}
 
-async function commitBatchIfNeeded(force = false) {
-  if (opCount >= 450 || (force && opCount > 0)) {
-    await batch.commit();
-    console.log(`  Committed batch of ${opCount} operations.`);
-    batch = db.batch();
-    opCount = 0;
+export async function applyProgramEpisodeImportPlan({ firestore: db, root, stationsToCreate, stationProgramsCount, resolvedPrograms, resolvedEpisodes, stationsOnly = false, FieldValue, log = console.log }) {
+  const operations = [];
+  const push = (kind, resource, id, data) => operations.push({ kind, resource, id, data });
+  for (const [id, data] of stationsToCreate) push('set', 'stations', id, { ...data,
+    stats: { ...data.stats, programsCount: stationsOnly ? 0 : (stationProgramsCount.get(id) || 0) } });
+  if (!stationsOnly) {
+    for (const [id, count] of stationProgramsCount) if (!stationsToCreate.has(id)) push('update', 'stations', id, { 'stats.programsCount': FieldValue.increment(count) });
+    for (const entry of resolvedPrograms) push('set', 'programs', entry.id, entry.data);
+    for (const entry of resolvedEpisodes) push('set', 'episodes', entry.id, entry.data);
   }
-}
-
-// 1. Create missing stations
-for (const [stId, stData] of stationsToCreate.entries()) {
-  const initialProgramsCount = stationsOnly ? 0 : (stationProgramsCount.get(stId) || 0);
-  batch.set(stationDocRef(stId), {
-    ...stData,
-    stats: { ...stData.stats, programsCount: initialProgramsCount },
-  }, { merge: true });
-  opCount++;
-  await commitBatchIfNeeded();
-}
-
-if (stationsOnly) {
-  await commitBatchIfNeeded(true);
-  console.log('\n🎉 Stations provisioned successfully!');
-  console.log(`- ${stationsToCreate.size} stations created in "${root}".`);
-  console.log('You can now upload hudhud_programs_and_episodes.xlsx via the Web Admin batch import modal with zero errors!');
-  process.exit(0);
-}
-
-// 2. Update existing stations' programsCount
-for (const [stId, addCount] of stationProgramsCount.entries()) {
-  if (!stationsToCreate.has(stId)) {
-    batch.update(stationDocRef(stId), {
-      'stats.programsCount': FieldValue.increment(addCount),
+  // Reserve an extra write for each possible native episode birth, within450.
+  for (let cursor = 0; cursor < operations.length;) {
+    const chunk = []; let budget = 0;
+    while (cursor < operations.length && budget + (operations[cursor].resource === 'episodes' ? 2 : 1) <= 450) {
+      const entry = operations[cursor++]; chunk.push(entry); budget += entry.resource === 'episodes' ? 2 : 1;
+    }
+    const committed = await db.runTransaction(async tx => {
+      if (!stationsOnly && resolvedEpisodes.length) await readCommentCountFence(tx, db, root);
+      const writes = [];
+      for (const entry of chunk) {
+        const ref = db.doc(`${root}/${entry.resource}/${entry.resource}/${entry.id}`);
+        let data = entry.data;
+        if (entry.resource === 'episodes') {
+          const current = await tx.get(ref);
+          if (current.exists) {
+            if (current.get('adminDeletionToken')) throw new CommentCountMaintenanceError();
+            const { commentsCount: ignored, ...stats } = data.stats ?? {}; void ignored;
+            if (Object.hasOwn(current.data().stats ?? {}, 'commentsCount')) stats.commentsCount = current.get('stats.commentsCount');
+            data = { ...data, stats };
+          } else {
+            const birth = await prepareNewEpisodeCountBaseline(tx, db, { root, episodeId: entry.id });
+            if (birth.mode === 'active') data = { ...data, stats: { ...data.stats, commentsCount: 0 } };
+            writes.push(...birth.writes);
+          }
+        }
+        writes.push(() => entry.kind === 'update' ? tx.update(ref, data) : tx.set(ref, data, { merge: true }));
+      }
+      for (const write of writes) write();
+      return writes.length;
     });
-    opCount++;
-    await commitBatchIfNeeded();
+    log(`  Committed batch of ${committed} operations.`);
   }
+  if (stationsOnly) {
+    log('\n🎉 Stations provisioned successfully!');
+    log(`- ${stationsToCreate.size} stations created in "${root}".`);
+    log('You can now upload hudhud_programs_and_episodes.xlsx via the Web Admin batch import modal with zero errors!');
+    return;
+  }
+  log('\n🎉 Import completed successfully!');
+  log(`- ${resolvedPrograms.length} programs created/updated.`);
+  log(`- ${resolvedEpisodes.length} episodes created/updated.`);
 }
 
-// 3. Write Programs
-for (const p of resolvedPrograms) {
-  batch.set(programDocRef(p.id), p.data, { merge: true });
-  opCount++;
-  await commitBatchIfNeeded();
-}
-
-// 4. Write Episodes
-for (const ep of resolvedEpisodes) {
-  batch.set(episodeDocRef(ep.id), ep.data, { merge: true });
-  opCount++;
-  await commitBatchIfNeeded();
-}
-
-await commitBatchIfNeeded(true);
-
-console.log('\n🎉 Import completed successfully!');
-console.log(`- ${resolvedPrograms.length} programs created/updated.`);
-console.log(`- ${resolvedEpisodes.length} episodes created/updated.`);
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main();

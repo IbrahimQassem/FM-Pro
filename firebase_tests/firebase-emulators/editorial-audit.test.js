@@ -4,6 +4,7 @@ import { createRequire } from 'node:module';
 import { readFile } from 'node:fs/promises';
 import { saveAdminContent } from '../../functions/lib/editorial-audit.js';
 import { editableContent } from '../../functions/lib/admin-content.js';
+import { seedCountedEpisodes } from '../support/comment-count-fixtures.mjs';
 
 const require = createRequire(new URL('../../functions/package.json', import.meta.url));
 const { initializeApp, deleteApp } = require('firebase-admin/app');
@@ -99,16 +100,18 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
     await old.set({ stats: { programsCount: 0 } }); await next.set({ stats: { programsCount: 0 } });
     const program = db.doc(`${root}/programs/programs/bulk-program`);
     await save(root, 'programs', program.id, content('programs', { stationId: old.id, title: 'Bulk transfer fixture' }));
-    const seed = db.batch();
-    for (let index = 0; index < 55; index++) seed.set(db.doc(`${root}/episodes/episodes/bulk-${index}`),
-      content('episodes', { programId: program.id, stationId: old.id, audioUrl: `https://radio.example/${index}.mp3` }));
-    seed.update(program, { 'stats.episodesCount': 55 }); await seed.commit();
+    await seedCountedEpisodes(db, root, Array.from({ length: 55 }, (_, index) => ({
+      id: `bulk-${index}`,
+      data: content('episodes', { programId: program.id, stationId: old.id, audioUrl: `https://radio.example/${index}.mp3` }),
+    })));
+    await program.update({ 'stats.episodesCount': 55 });
     const before = (await program.get()).data();
     const results = await Promise.allSettled([
       save(root, 'programs', program.id, { ...editableContent('programs', before), stationId: next.id }, before),
       save(root, 'episodes', 'bulk-concurrent', content('episodes', { programId: program.id, stationId: old.id, audioUrl: 'https://radio.example/concurrent.mp3' })),
     ]);
-    assert.equal(results[0].status, 'fulfilled');
+    assert.equal(results[0].status, 'fulfilled',
+      `Transfer rejected: code=${results[0].reason?.code ?? 'none'} reason=${results[0].reason?.details?.reason ?? 'none'} message=${results[0].reason?.message ?? 'none'}`);
     const episodes = await db.collection(`${root}/episodes/episodes`).where('programId', '==', program.id).get();
     assert.equal(episodes.docs.every(entry => entry.get('stationId') === next.id), true);
     assert.equal((await program.get()).get('stats.episodesCount'), episodes.size);

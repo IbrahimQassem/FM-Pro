@@ -1,0 +1,43 @@
+{
+  "status": "REVISED_PROPOSAL_ONLY_PENDING_INDEPENDENT_REREVIEW",
+  "revision": "B16-W01-W02",
+  "supersededPatchSha256": "16d744953c9c42ca1da9688d0a5fc8245c4821257eed83d483f61ddc95067d52",
+  "patch": "/tmp/hudhud-b16-wire-contracts.patch",
+  "patchSha256": "4116d080ac8773e743c620ce99f4a68e8ab7c38549099a53214bd796e873900d",
+  "files": [
+    {
+      "path": "docs/contracts/firebase-data-contract.md",
+      "baselineSha256": "dcaa2744284a68deb53c79f22a977f5040df554c783e08c7cef8c0f00477a800",
+      "candidateSha256": "3cbb77f9ba91f8d0e555dc501be822c0b23aa214df7ec4c86dee48a7e731159c"
+    },
+    {
+      "path": "docs/contracts/content-automation-contract.md",
+      "baselineSha256": "bbc5878abac0e308fe7f1185d3953ae20b686bd9d7a1e92bf652ad0959025997",
+      "candidateSha256": "dd2c1eddf0e8b838000828cc81a5e1a6f27d0c97c4c9abf03be30404209b3f8f"
+    },
+    {
+      "path": "docs/decisions/0006-background-consistency-and-schedule-timezones.md",
+      "baselineSha256": "305be032603556ac7280c5ebdc43bb5912ac91f9e18e7d09fcf846ad8ec931e9",
+      "candidateSha256": "44fa0349162d1e464e69b238463a7b878eb901db41971b5ae57eabaa0622eee2"
+    },
+    {
+      "path": "docs/operations/background-consistency-migrations.md",
+      "baselineSha256": "2fb8f74b85fe0f42aae584e9f0745cfe82bd2629d30bb1884c97bb283ab4213d",
+      "candidateSha256": "9366bd652c7c665c92b98704e747fd7e5b26a0e992f5697b4b509716f8e93ca4"
+    }
+  ],
+  "sourceOrTestsChanged": false,
+  "emulatorFlutterOrProductionRun": false,
+  "sourceFacts": "claimDelivery active lease waits; expired claimed reclaims only unexpired receipt; expired sending unknown; failed retryable respects original retryAt/expiry/attempts; V1 program caller omits fingerprint",
+  "requiredFutureRegressions": [
+    "unexpired claimed deferred not permanently unknown",
+    "expired valid prepared safely reclaims with original attempts and clocks",
+    "retryable before and after retryAt, no fresh-v2 bypass of expiry/nonretryable",
+    "sending ambiguity never safe-reclaimed",
+    "legacy no-fingerprint accepted without rebind",
+    "lineage survives shared reclaim while other callers unchanged",
+    "wire-review-4 ascending dates retain descending corresponding hashes"
+  ],
+  "architecture": "Same notificationOperations and shared claim/start/finish; no new collection/service/dependency/claim argument",
+  "policy": "Accepted offsets unchanged; existing same-local-day inclusive0..10 retained"
+}

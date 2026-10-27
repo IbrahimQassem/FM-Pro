@@ -1,0 +1,48 @@
+{
+  "status": "PARENT_CONFIRMED_PRE_FIX_CURSOR_SCHEMA_BASELINE",
+  "scope": "Tests-only actual authenticated local custody regression; existing wire correction, not forged active proof",
+  "matrix": {
+    "path": ".boss/technical-review/evidence/WO-04/B15-final-schema-matrix.md",
+    "sha256": "7560990c0469993978c836511cdd1609b638617992bbc107861567a8fc2528c5"
+  },
+  "patch": {
+    "path": ".boss/technical-review/evidence/WO-04/B15-replay-cursor-tests.patch",
+    "sha256": "209fee8bfddb7fee9760655f4823ac6a3028f5bc515dee7389b8667a9038a1a5"
+  },
+  "sourceFrozen": {
+    "path": "/tmp/hudhud-b15-cursor-regression/tool/reconcile_comment_counts.mjs",
+    "sha256": "3619ab8dfe977c4f1ea7b8dc016f17353fd7f09a2c11b4c35a7077af8e1c54f0"
+  },
+  "testsBefore": {
+    "path": "/tmp/hudhud-b15-nonempty-revision/tool/test/reconcile_comment_counts.test.mjs",
+    "sha256": "487e3d8531c8f2d5a98b3f785bb570b2599e8f476d87644f62d170517194b95c"
+  },
+  "testsAfter": {
+    "path": "/tmp/hudhud-b15-cursor-regression/tool/test/reconcile_comment_counts.test.mjs",
+    "sha256": "6e2981b27228c1636b57673dbcad1ea076dc642e9a223980995d6353ef57f985"
+  },
+  "command": "/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node --test --test-name-pattern='review replay cursor' tool/test/reconcile_comment_counts.test.mjs",
+  "cwd": "/tmp/hudhud-b15-cursor-regression",
+  "parentBaseline": {
+    "path": ".boss/technical-review/evidence/WO-04/B15-replay-cursor-parent-red.log",
+    "sha256": "fa767b61be37d8b1e0528e79d006eb5440297c600ea76e16f0a4d7493eb00584",
+    "tests": 3,
+    "pass": 1,
+    "intendedFailure": 2,
+    "skips": 0,
+    "reason": "ERR_ASSERTION Missing expected rejection for malformed lastEpisode object and lastHead array; genuine null/string control PASS"
+  },
+  "probe": {
+    "path": ".boss/technical-review/evidence/WO-04/B15-replay-cursor-probe.mjs",
+    "sha256": "d558508093d23870b11449f192c5ff419315f1650dedba257756bc4de4e9a166",
+    "data": "synthetic only; key/custody temporary, no raw key logged",
+    "actualBehavior": "actual exported replay returns in-progress and republishes malformed authenticated cursor fields; zero Firestore writes"
+  },
+  "invalidEvidence": {
+    "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-security-cursor-invalid-zero-tests.log",
+    "classification": "wrong-path zero selected tests; excluded from RED/GREEN acceptance"
+  },
+  "staticMatrixPolicy": "Static early-type omissions do not claim bypasses; tests already rejected downstream are guards, not new RED. Permanent typed/null/phase guards and valid controls precede source validation changes.",
+  "review": "CHANGES REQUIRED until S01 cursor fields and consolidated closed schema matrix are corrected and independently reviewed; S02 public clock is corrected in frozen3619 source.",
+  "operations": "No source/contract edits, E/F, native SDK or production operation."
+}

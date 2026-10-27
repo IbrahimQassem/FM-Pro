@@ -1,0 +1,89 @@
+{
+  "status": "TESTS_ONLY_FINAL_BOUNDARY_BASELINE",
+  "candidate": "/tmp/hudhud-b16-t10-final-tests-only",
+  "preservedBaseline": "/tmp/hudhud-b16-t10-red-consolidated",
+  "command": "PATH=/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin:$PATH node --test functions/test/program-notifications.test.js functions/test/notification-delivery.test.js",
+  "exitCode": 1,
+  "results": {
+    "tests": 81,
+    "pass": 37,
+    "fail": 44,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "sources": {
+    "functions/lib/program-notifications.js": {
+      "root": "26f4485e5cbca1a8577c6e4d5799da2ad8475393e249e6a45e4c76a41de954b9",
+      "candidate": "26f4485e5cbca1a8577c6e4d5799da2ad8475393e249e6a45e4c76a41de954b9"
+    },
+    "functions/lib/notification-delivery.js": {
+      "root": "3d44097a19484335bc0f2145c0c334ed95d3a1dcacd23aece3909de2555f881f",
+      "candidate": "3d44097a19484335bc0f2145c0c334ed95d3a1dcacd23aece3909de2555f881f"
+    }
+  },
+  "testFiles": {
+    "functions/test/program-notifications.test.js": {
+      "root": "02277c7b09ebfbd2cfb54ccf9ecda9b6a8369763c827633df64eb0e1c4d5fb33",
+      "immutable52Baseline": "404aed89ebde7e60b2f4e1e7efd5474cbb9c7c9f0f2919d019784bb8abacd095",
+      "final": "af5fcff82490a77705aa1adbcd538e1a577a4d76dde208c2f14045922031e9fe"
+    },
+    "functions/test/notification-delivery.test.js": {
+      "root": "3b45e54a07a46d1ddb627ddb09c81b8250a550d8c5ad605fc5b085fce250b420",
+      "immutable52Baseline": "b03747091e4177af4a1f4e8b545d3e163ab142eca2cb744e09b6f1ff01433342",
+      "final": "f4f3612bb4f78c43dd40181a76d5cbfeeb72297dc9cebbdad83a7c02794a0e40"
+    }
+  },
+  "patch": {
+    "path": "/tmp/hudhud-b16-t10-final-tests-only.patch",
+    "sha256": "c069afc64ebddb8c77cfb88c03d67a9f4f214ade0e97470c123c2d9203392f91"
+  },
+  "log": {
+    "path": "/tmp/hudhud-b16-t10-final-tests-only-red.log",
+    "sha256": "fd2e6ff4c589d414b04a3ac84f370116b2b4477c7e968802be42d628e9f6427b"
+  },
+  "prior52": {
+    "pass": 32,
+    "intendedBusinessFailures": 20,
+    "preservedAssertions": true
+  },
+  "added29": {
+    "passControls": 5,
+    "intendedBusinessFailures": 24,
+    "classifications": {
+      "offsetCalendar": {
+        "fail": 3,
+        "pass": 2
+      },
+      "invalidSchedules": {
+        "fail": 11,
+        "pass": 3
+      },
+      "normalizedFingerprint": {
+        "fail": 1
+      },
+      "actualTransactionReadBoundary": {
+        "fail": 1
+      },
+      "missingDeletingAtStart": {
+        "fail": 4
+      },
+      "approvedOptionalValidator": {
+        "fail": 4
+      }
+    }
+  },
+  "contractReferences": [
+    "docs/contracts/firebase-data-contract.md:1190 Canonical occurrence and fingerprint",
+    "docs/contracts/content-automation-contract.md:350 Per-schedule offsets and same-local-day window",
+    "docs/contracts/content-automation-contract.md:358 Actual read-before-write send-start validation",
+    "docs/contracts/content-automation-contract.md:419 Optional read-only validate(tx)"
+  ],
+  "scope": [
+    "Existing exports only; optional validator is approved contract extension passed to actual existing startDelivery, not an absent helper.",
+    "Storage-only transaction trace records actual tx.get paths and asserts reads-before-writes; no source policy is mirrored into fixtures.",
+    "Original52 assertions unchanged; fixture-only observation additions do not change storage business results.",
+    "No source/root changes, dependencies, emulators, migrations or provider calls.",
+    "All new failures are ERR_ASSERTION business results, not missing module/API/storage/environment failures.",
+    "Actual SDK checks remain later04-T12 obligations; these unit fixtures do not prove native transactions or query indexes."
+  ]
+}

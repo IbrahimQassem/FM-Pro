@@ -1,0 +1,23 @@
+{
+  "design": "/tmp/hudhud-b15-nonempty-sdk-design.md",
+  "sha256": "238a4585afa00079d1f84c8ea2ac451ed663d6e16b0aced07bd16a1630cbcde6",
+  "inputs": [
+    {
+      "path": "docs/contracts/firebase-data-contract.md",
+      "sha256": "425eae08b1c0e1a9a80d144180616fafd9982ac9a5529276cb833a583254a949"
+    },
+    {
+      "path": ".boss/technical-review/B15-nonempty-contract-review.md",
+      "sha256": "71ed33962d56e32534dd15196670d32ce18586059be6d10f9bb4e6d87deecb51"
+    },
+    {
+      "path": ".boss/technical-review/B15-replay-budget-contract-review.md",
+      "sha256": "7a6b5b838df5cf5d5d909e926ecc980a2977536f87da0aa09a5e72f4227d275c"
+    },
+    {
+      "path": "tool/reconcile_comment_counts.mjs",
+      "sha256": "44c5b9de68d2ed92846569fc0dacbd10696ca156a7ccc861e7947ce626d9d0b9"
+    }
+  ],
+  "status": "read-only design; no runnable missing-export imports; no E; full API implementation isolated and not consumed"
+}

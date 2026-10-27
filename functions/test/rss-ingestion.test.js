@@ -1,5 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
+import { createHash } from 'node:crypto';
+import { contentIdentity, contentIdentityScope } from '../lib/admin-content.js';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import {
   parseDurationToSeconds,
@@ -101,7 +103,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
       failUpdate = false,
     } = {}) {
       const existingDocs = initialDocs.map(d =>
-        typeof d.data === 'function' ? d : { id: d.id || d.externalId || 'doc-id', data: () => d }
+        typeof d.data === 'function' ? d : { id: d.id || d.externalId || 'doc-id', data: () => ({ stationId: 'st-sanaa', ...d }) }
       );
       const setCalls = [];
       const programUpdates = [];
@@ -141,7 +143,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
               set: (ref, data) => stage('set', ref, data), create: (ref, data) => stage('create', ref, data),
               update: (ref, data) => stage('update', ref, data), delete: ref => stage('delete', ref),
             });
-            if (writes.length && ((typeof shouldFailPredicate === 'function' && shouldFailPredicate()) || shouldFailCommit || shouldFailUpdate)) throw new Error('Simulated network failure on content transaction commit');
+            if (writes.length && ((typeof shouldFailPredicate === 'function' && shouldFailPredicate(writes)) || shouldFailCommit || shouldFailUpdate)) throw new Error('Simulated network failure on content transaction commit');
             for (const { ref, data, type } of writes) {
               if (ref.path.includes('/episodes/episodes/')) {
                 if (type === 'create' && existingDocs.some(item => item.id === ref.id)) throw new Error('Unexpected duplicate create');
@@ -158,6 +160,7 @@ describe('RSS Podcast & Episode Ingestion', () => {
 
       return {
         firestore,
+        documents,
         existingDocs,
         setCalls,
         programUpdates,
@@ -178,6 +181,98 @@ describe('RSS Podcast & Episode Ingestion', () => {
     </item>
   </channel>
 </rss>`;
+
+    for (const root of ['HudHudDev', 'HudHudOfficial']) {
+      it(`${root}: R09 preserves a legacy GUID-less episode and binds decoded/raw aliases without recounting`, async () => {
+        const raw = 'https://cdn.example.com/legacy.mp3?token=one&amp;part=two';
+        const decoded = 'https://cdn.example.com/legacy.mp3?token=one&part=two';
+        const legacy = { stationId: 'st-sanaa', id: 'legacy-static-id', programId: 'prog-podcast', audioUrl: raw,
+          externalId: createHash('sha256').update(raw).digest('hex').slice(0,32), isPublished: false,
+          stats: { commentsCount: 7, playsCount: 9 } };
+        const { firestore, documents, existingDocs, setCalls, programUpdates } = createMockFirestore({ initialDocs: [legacy] });
+        const xml = `<rss><item><title>Legacy</title><enclosure url="${raw}"/></item></rss>`;
+        const result = await ingestEpisodesFromFeed({ firestore, root, programId: 'prog-podcast', stationId: 'st-sanaa', feedUrl: 'https://example.com/feed', lookupFn,
+          fetchFn: async () => new Response(xml) });
+        assert.equal(result.ingested, 0);
+        assert.equal(setCalls.length, 0);
+        assert.equal(programUpdates.length, 0);
+        assert.deepEqual(existingDocs[0].data(), legacy);
+        for (const audioUrl of [raw, decoded]) {
+          const key = contentIdentity('episodes', { programId: 'prog-podcast', audioUrl });
+          assert.equal(documents.get(`${root}/importKeys/importKeys/${key}`)?.targetId, legacy.id,
+            'Both raw and decoded identities must bind to the unchanged legacy ID.');
+        }
+      });
+      it(`${root}: R09 refuses raw/decoded aliases owned by distinct existing episodes`, async () => {
+        const raw='https://cdn.example.com/collision.mp3?a=1&amp;b=2';
+        const decoded='https://cdn.example.com/collision.mp3?a=1&b=2';
+        const {firestore,setCalls,programUpdates}=createMockFirestore({initialDocs:[
+          {id:'raw-owner', programId:'prog-podcast', audioUrl:raw},
+          {id:'decoded-owner', programId:'prog-podcast', audioUrl:decoded},
+        ]});
+        await assert.rejects(ingestEpisodesFromFeed({firestore,root,programId:'prog-podcast',stationId:'st-sanaa',feedUrl:'https://example.com/feed',lookupFn,
+          fetchFn:async()=>new Response(`<rss><item><enclosure url="${raw}"/></item></rss>`)}), /identity|alias/i);
+        assert.equal(setCalls.length,0);
+        assert.equal(programUpdates.length,0);
+      });
+    }
+
+    it('R09 completed URL backfill does not hide a legacy GUID owner after a feed URL rotation', async () => {
+      const { firestore, documents, setCalls } = createMockFirestore({ initialDocs: [{ id: 'arbitrary-legacy-guid-owner', programId: 'prog-podcast',
+        stationId: 'st-sanaa', externalId: 'stable-rotated-guid', audioUrl: 'https://cdn.example.com/old-url.mp3' }] });
+      documents.set(`HudHudDev/identityScopes/scopes/${contentIdentityScope('episodes', 'prog-podcast')}`,
+        { version: 1, state: 'complete', targetKind: 'episodes', parentId: 'prog-podcast', runId: 'a'.repeat(64) });
+      const result = await ingestEpisodesFromFeed({ firestore, root: 'HudHudDev', programId: 'prog-podcast', stationId: 'st-sanaa',
+        feedUrl: 'https://example.com/feed', lookupFn,
+        fetchFn: async () => new Response('<rss><item><guid>stable-rotated-guid</guid><enclosure url="https://cdn.example.com/new-url.mp3"/></item></rss>') });
+      assert.equal(result.skipped, 1); assert.equal(result.ingested, 0); assert.equal(setCalls.length, 0);
+    });
+
+    it('R09 a matching episode with a foreign station fails closed instead of being duplicated', async () => {
+      const { firestore, setCalls } = createMockFirestore({ initialDocs: [{ id: 'foreign-station-owner', programId: 'prog-podcast',
+        stationId: 'foreign-station', externalId: 'foreign-guid', audioUrl: 'https://cdn.example.com/foreign.mp3' }] });
+      await assert.rejects(ingestEpisodesFromFeed({ firestore, root: 'HudHudDev', programId: 'prog-podcast', stationId: 'st-sanaa',
+        feedUrl: 'https://example.com/feed', lookupFn,
+        fetchFn: async () => new Response('<rss><item><guid>foreign-guid</guid><enclosure url="https://cdn.example.com/foreign.mp3"/></item></rss>') }),
+        error => error.code === 'failed-precondition');
+      assert.equal(setCalls.length, 0);
+    });
+
+    it('R09 alias ownership survives five GUID-preserving rotations and a later admin URL edit', async () => {
+      const legacy = { id: 'rotating-owner', stationId: 'st-sanaa', programId: 'prog-podcast',
+        externalId: 'rotation-guid', audioUrl: 'https://cdn.example.com/original.mp3', isPublished: false };
+      const { firestore, documents, setCalls, programUpdates } = createMockFirestore({ initialDocs: [legacy] });
+      const rawUrls = Array.from({ length: 5 }, (_, index) => `https://cdn.example.com/rotate-${index}.mp3?a=1&amp;b=2`);
+      const ingest = raw => ingestEpisodesFromFeed({ firestore, root: 'HudHudDev', programId: 'prog-podcast', stationId: 'st-sanaa',
+        feedUrl: 'https://example.com/feed', lookupFn, fetchFn: async () => new Response(`<rss><item><guid>rotation-guid</guid><enclosure url="${raw}"/></item></rss>`) });
+      for (const raw of rawUrls) assert.equal((await ingest(raw)).skipped, 1);
+      legacy.audioUrl = 'https://cdn.example.com/admin-edited.mp3';
+      assert.equal((await ingest(rawUrls[0])).skipped, 1);
+      for (const raw of rawUrls) for (const audioUrl of [raw, raw.replace('&amp;', '&')]) {
+        const key = contentIdentity('episodes', { programId: legacy.programId, audioUrl });
+        const proof = documents.get(`HudHudDev/importKeys/importKeys/${key}`);
+        assert.equal(proof.targetId, legacy.id); assert.equal(proof.rssOwnerExternalIdHash, createHash('sha256').update(legacy.externalId).digest('hex'));
+        assert.equal(Object.values(proof).some(value => typeof value === 'string' && value.includes('https://')), false);
+        assert.equal(Object.values(proof).some(Array.isArray), false);
+      }
+      assert.equal(setCalls.length, 0); assert.equal(programUpdates.length, 0);
+    });
+
+    it('R09 legacy alias lookup accepts real SDK-style prototype snapshot methods', async () => {
+      class LegacySnapshot {
+        get id() { return 'prototype-legacy'; }
+        data() { return { stationId:'st-sanaa', programId:'prog-podcast', audioUrl:'https://cdn.example.com/prototype.mp3', externalId:'prototype-guid' }; }
+      }
+      const {firestore,setCalls,programUpdates}=createMockFirestore({initialDocs:[new LegacySnapshot()]});
+      let outcome;
+      try {
+        outcome=await ingestEpisodesFromFeed({firestore,root:'HudHudDev',programId:'prog-podcast',stationId:'st-sanaa',feedUrl:'https://example.com/feed',lookupFn,
+          fetchFn:async()=>new Response('<rss><item><guid>prototype-guid</guid><enclosure url="https://cdn.example.com/prototype.mp3"/></item></rss>')});
+      } catch { outcome=null; }
+      assert.equal(outcome?.skipped,1,'An existing SDK query snapshot must resolve without a duplicate or rejection.');
+      assert.equal(setCalls.length,0);
+      assert.equal(programUpdates.length,0);
+    });
 
     it('ingests episode with nested stats map, omits legacy root counters, preserves timestamps, and updates program stats.episodesCount', async () => {
       const { firestore, setCalls, programUpdates } = createMockFirestore();
@@ -472,7 +567,8 @@ describe('RSS Podcast & Episode Ingestion', () => {
         setFailPredicate,
       } = createMockFirestore({
         initialDocs,
-        failCommitPredicate: () => {
+        failCommitPredicate: writes => {
+          if (!writes.some(write => write.type === 'create' && write.ref.path.includes('/episodes/episodes/'))) return false;
           commitIndex++;
           // Allow first commit unit (item-1) to succeed, fail on second unit (item-2)
           return commitIndex > 1;
@@ -582,3 +678,52 @@ describe('RSS Podcast & Episode Ingestion', () => {
     });
   });
 });
+
+
+describe('R09 XML entity semantics', () => {
+  const feed = (url, title = 'Episode') => `<rss><item><title>${title}</title><enclosure url="${url}"/></item></rss>`;
+  it('decodes predefined and numeric references exactly once before URL and fallback identity', () => {
+    const [item] = parseRssFeed(feed('https://cdn.example.com/a.mp3?one=1&amp;two=&#50;&#x33;', 'Fish &amp; &lt;chips&gt; &quot;yes&quot; &apos;ok&apos;'));
+    assert.equal(item.audioUrl, 'https://cdn.example.com/a.mp3?one=1&two=23');
+    assert.equal(item.title, 'Fish & <chips> "yes" \'ok\'');
+    assert.equal(item.externalId, createHash('sha256').update(item.audioUrl).digest('hex').slice(0,32));
+  });
+  it('decodes ordinary GUIDs but preserves CDATA literal entity text', () => {
+    const [ordinary] = parseRssFeed('<rss><item><guid>id&amp;one</guid><enclosure url="https://cdn.example.com/a.mp3"/></item></rss>');
+    assert.equal(ordinary.externalId,'id&one');
+    const [cdata] = parseRssFeed(feed('https://cdn.example.com/a.mp3', '<![CDATA[literal &amp; text]]>'));
+    assert.equal(cdata.title,'literal &amp; text');
+  });
+  for (const entity of ['&unknown;', '&amp', '&#0;', '&#xD800;', '&#1114112;', '&#xFFFE;']) {
+    it(`rejects malformed or XML-invalid reference ${entity} in the affected item`, () => {
+      assert.equal(parseRssFeed(feed(`https://cdn.example.com/a.mp3?x=${entity}`)).length,0);
+    });
+  }
+  it('rejects DTD declarations without external resolution', () => {
+    assert.throws(()=>parseRssFeed('<!DOCTYPE rss [<!ENTITY leak SYSTEM "https://example.test/private">]>'+feed('https://cdn.example.com/a.mp3')), /DTD|declaration/i);
+  });
+  it('validates the decoded enclosure protocol and public address', () => {
+    assert.equal(parseRssFeed(feed('https://127.0.0.1/audio.mp3')).length,0);
+    assert.equal(parseRssFeed(feed('https://user:password@cdn.example.com/audio.mp3')).length,0);
+  });
+});
+
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  it(`${root}: active RSS creation atomically establishes native empty baseline; paused retry commits nothing`, async () => {
+    const { MemoryFirestore, FieldValue } = await import('./support/comment-count-fixture.js');
+    const db = new MemoryFirestore(), fence = `${root}/commentCountContributions`;
+    db.seed(fence, { version: 1, writerProtocol: 1, state: 'active', generation: 9, owner: 'unit', planHash: 'a'.repeat(64),
+      leaseUntil: 0, activeFrom: FieldValue.serverTimestamp(), baselineManifestHash: 'b'.repeat(64) });
+    db.seed(`${root}/stations/stations/station`, { isActive: true });
+    db.seed(`${root}/programs/programs/program`, { stationId: 'station', isActive: true, stats: { episodesCount: 0 } });
+    const options = { firestore: db, root, programId: 'program', stationId: 'station', feedUrl: 'https://example.com/feed', lookupFn,
+      fetchFn: async () => new Response('<rss><item><guid>native-guid</guid><enclosure url="https://cdn.example.com/native.mp3"/></item></rss>') };
+    assert.equal((await ingestEpisodesFromFeed(options)).ingested, 1);
+    const episodes = await db.collection(`${root}/episodes/episodes`).get(); assert.equal(episodes.size, 1);
+    const episode = episodes.docs[0], baseline = db.snapshot(`${root}/commentCountContributions/episodes/${episode.id}`);
+    assert.equal(episode.get('stats.commentsCount'), 0); assert.equal(episode.createTime.isEqual(baseline.updateTime), true);
+    db.seed(fence, { ...db.snapshot(fence).data(), state: 'paused', generation: 10 }); const before = db.writes.length;
+    await assert.rejects(ingestEpisodesFromFeed(options), error => error.retryable && error.details.reason === 'comment-count-maintenance');
+    assert.equal(db.writes.length, before);
+  });
+}

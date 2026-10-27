@@ -1,0 +1,50 @@
+[
+  {
+    "gate": "admin-tests",
+    "command": [
+      "npm",
+      "test"
+    ],
+    "runtime": "v22.23.3",
+    "exitCode": 0,
+    "log": "/tmp/hudhud-b11-review-green-evidence/admin-tests.log",
+    "sha256": "518a257c4e7e344b50e6e60d51c02d6a681feec37119f248a296497031e700ca"
+  },
+  {
+    "gate": "admin-lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "runtime": "v22.23.3",
+    "exitCode": 0,
+    "log": "/tmp/hudhud-b11-review-green-evidence/admin-lint.log",
+    "sha256": "9167d3e32f0d58e9d013805478882f8c38dbe20fdd6844d6df366fd7d66c09ac"
+  },
+  {
+    "gate": "admin-typecheck",
+    "command": [
+      "./node_modules/.bin/tsc",
+      "--noEmit",
+      "--incremental",
+      "false"
+    ],
+    "runtime": "v22.23.3",
+    "exitCode": 0,
+    "log": "/tmp/hudhud-b11-review-green-evidence/admin-typecheck.log",
+    "sha256": "3c54c568f7df0f0391f71f65cb003591ecaa69fe34d71b85372d8bfed22a51f1"
+  },
+  {
+    "gate": "admin-build",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "runtime": "v22.23.3",
+    "exitCode": 0,
+    "log": "/tmp/hudhud-b11-review-green-evidence/admin-build.log",
+    "sha256": "adce6c9aab8cd66fe20d946707bfbac017a50ced30203c646cc9e3e1d82f1bef"
+  }
+]

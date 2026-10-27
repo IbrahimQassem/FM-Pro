@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B16 T11 receipt-seal technical contract acceptance - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b16-t11-receipt-seal-technical-contract-acceptance">B16 T11 receipt-seal technical contract acceptance</a></li></ul>
+    </aside>
+    <main>
+      <h1>B16 T11 receipt-seal technical contract acceptance</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B16-T11-contract-review.md</div>
+        <div>Generated: 2026-10-27T01:57:00.672Z</div>
+      </div>
+      <h1 id="b16-t11-receipt-seal-technical-contract-acceptance">B16 T11 receipt-seal technical contract acceptance</h1>
+<p>Current status: <strong>APPROVED exact technical contract amendment</strong> <code>cc824f1f6e3f446c0ef4c027c13c7061abc0f7a7f24b6a3f5cbe3f5f4e119541</code>. This review is authoritative acceptance of that amendment. The integrated appendices retain their historical “proposed independent review” headings unchanged; those labels describe the reviewed proposal's origin and do not override this accepted decision. No wording or semantic alteration was applied during integration.</p>
+<p>Independent reviewer <code>/root/b10_review</code> verified the three integrated document hashes against the exact approved after-images:</p>
+<table><thead><tr><th>Document</th><th>SHA-256</th></tr></thead><tbody><tr><td><code>docs/contracts/firebase-data-contract.md</code></td><td><code>c2613a34c6159715e66f98f0a543388ff151e62893e219d934140825d5f27692</code></td></tr><tr><td><code>docs/decisions/0006-background-consistency-and-schedule-timezones.md</code></td><td><code>972551c5567d4903f91b7424c578a1332dfc30d2f4d1062b2780811cce194803</code></td></tr><tr><td><code>docs/operations/background-consistency-migrations.md</code></td><td><code>4d7d87033e26f088a83d0622042388afec884fdb003a79d65d2dc8c477af73e3</code></td></tr></tbody></table>
+<p>All prior document content is an unchanged byte prefix. The patch appends only at each original EOF; existing B15 count appendices and prior runtime/native/custody/production safeguards remain intact. Original before-images and accepted after-images are recorded in the proposal provenance. Independent apply check passed before integration; current readback matches every approved after-image.</p>
+<p>The parent accepted one permanent current-API behavioral RED before authorizing correction: a genuine no-op receipt deleted/recreated with identical data and a new native identity was incorrectly accepted. That assertion executes and fails with MissingExpectedRejection / ERR_ASSERTION, zero skips; it is neither absent API/environment failure nor proof of target/count loss. Author baseline47 comprises46 passing model guards and this one failure; the parent independently accepted the targeted one-test business failure. No runtime SDK result is inferred from those model tests.</p>
+<p>The amendment adds only receiptVersions (max25 exact native Timestamp prefix) and pendingReceiptIndex (null or the one nextIndex-1 pending slot) to the existing private job. Native receipt create/update must match the untouched same-occurrence job updateTime before the identity is sealed. No next item, independent lease rewrite, completed result or held rollback may overwrite that anchor first. Final-item applying+pending is legal until seal; completed and rollback-held require pending null. Cold expired-lease recovery may transfer ownership only atomically with successful source/target/body/backup/prefix verification and sealing, generation+1 without overflow. Unknown item/seal acknowledgements cannot double append or reapply an uncertain mutation. Later prefix checks retain literal original native receipt identities; no transform, clock or replacement receipt can invent them.</p>
+<p>This bounded technical correction adds no collection, service, dependency, product policy or task/graph change. Existing job creation chronology/CAS, read-before-write, custody/expiry, serialized bounds and maxAttempts3 remain. Rollback remains conditional and non-erasing, retains suppression and both namespaces, and does not restart old workers. Actual old/new worker/collector production isolation is still unsupported; no caller flag or public clock grants it.</p>
+<p>Source correction is authorized separately by the parent following the accepted RED. It is not accepted by this contract review. Require a frozen corrected source, unchanged regression, complete model/native identity/lease/final-item/pending/unknown-ACK/rollback controls, applicable GREEN/tool/Functions/lint checks and independent source review before integration acceptance. T12 owned demo SDK/native no-op/recreation/custody/ACK and both-root permission/query/index acceptance remain mandatory. Initial setup/guard GREEN is not additional RED evidence.</p>
+<p>All R01–R13 remain OPEN. Original17 identity registry, final exact-candidate integration, full Flutter/build, browser and physical-device gates remain separate obligations. No live data migration, production apply/restore, real notification, deployment or protected merge is approved. This follow-up reads live documents and writes only this <code>/tmp</code> report; no source, contract, emulator, Flutter or runtime operation was performed.</p>
+    </main>
+  </div>
+</body>
+</html>

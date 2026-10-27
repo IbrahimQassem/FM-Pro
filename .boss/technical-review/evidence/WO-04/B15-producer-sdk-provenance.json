@@ -1,0 +1,140 @@
+{
+  "scope": "Closed B15 actual SDK producer editorial integration gate; not full B15/04-T09/R12 acceptance",
+  "command": "PATH=/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin:$PATH npm run emulators:editorial",
+  "executor": "parent /root with exclusive E lock; this QA agent inspected closed durable output only",
+  "runtime": {
+    "counts": {
+      "tests": 91,
+      "pass": 91,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "todo": 0
+    },
+    "durationMs": 106718.796856,
+    "exitCode": 0,
+    "cleanEmulatorShutdown": true
+  },
+  "evidence": {
+    "path": ".boss/technical-review/evidence/WO-04/B15-producer-editorial-integrated.log",
+    "sha256": "461ed57099cbec70ab63e389716c091e20cc7df012644e3e97db5e9f73a778e2"
+  },
+  "sourceInputs": [
+    {
+      "path": "firebase_tests/firebase-emulators/editorial-comment-counts.test.js",
+      "sha256": "8e034e422c5ad8e8f242e4939cef889bd4e9da4716cc5af1be6ae77339181ca8",
+      "matchesIntegratedCandidate": true
+    },
+    {
+      "path": "firebase_tests/support/comment-count-fixtures.mjs",
+      "sha256": "f9ad477a63a8711288971b23635de7f0469b50a2e8cbd7a19290ad89a3767cbf",
+      "matchesIntegratedCandidate": true
+    },
+    {
+      "path": "tool/run-count-emulator-tests.mjs",
+      "sha256": "c98836dc4616745415ec49f67b91da8229a76bd617a8de8f9478c504263bbc6d",
+      "matchesIntegratedCandidate": true
+    },
+    {
+      "path": "tool/import_programs_and_episodes.mjs",
+      "sha256": "366be6fe95c7d7e757de78d8312e58cf580e4bb0e210fc33171ddb234e8aef7d",
+      "matchesIntegratedCandidate": true
+    },
+    {
+      "path": "tool/seed-admin-preview.mjs",
+      "sha256": "cd088ad62eb54233040a563c9660946636f9cc29f073ee246470bb78d4880dd4",
+      "matchesIntegratedCandidate": true
+    },
+    {
+      "path": "tool/firebase_seed/seed.mjs",
+      "sha256": "c536a9dd2f6fc344c3484f597a07294d3a5b9a125292cdf2b28e3f9129233e2c",
+      "matchesIntegratedCandidate": true
+    },
+    {
+      "path": "tool/firebase_seed/seed_contract.mjs",
+      "sha256": "a365011a863069491bc7fcc5370b7279ab6ea49c1921772e8f9181ed1b113815",
+      "matchesIntegratedCandidate": true
+    },
+    {
+      "path": "tool/firebase_seed/migrate_comment_status.mjs",
+      "sha256": "01042b9d17be3c483c18eb2935338a4f6db9cd5274090526f2c63714bbfd836a",
+      "matchesIntegratedCandidate": true
+    },
+    {
+      "path": "tool/reconcile_comment_counts.mjs",
+      "sha256": "44c5b9de68d2ed92846569fc0dacbd10696ca156a7ccc861e7947ce626d9d0b9",
+      "matchesIntegratedCandidate": true
+    },
+    {
+      "path": "functions/lib/comment-counts.js",
+      "sha256": "77fc7b9d0e97aabe92acf6b551c4ec021c72ae1defe7333e8983b736de49547a",
+      "matchesIntegratedCandidate": true
+    },
+    {
+      "path": "functions/lib/comment-moderation.js",
+      "sha256": "f2a3e61d94faef6e5d26ed910159832389a1809876052dbda79551821af8225c",
+      "matchesIntegratedCandidate": true
+    },
+    {
+      "path": "functions/lib/comment-count-maintenance.js",
+      "sha256": "1a4f6ab12f8a7bc2dadb8f2ff4966829f8d37df08a028472c20076dcfd0f2d70",
+      "matchesIntegratedCandidate": true
+    },
+    {
+      "path": "functions/index.js",
+      "sha256": "e25125f6e8d1c27c8984b0a6e40adea06e1d9c44c969a1cda124540accf32a08",
+      "matchesIntegratedCandidate": true
+    },
+    {
+      "path": "firestore.rules",
+      "sha256": "29feef1c8026085a21bc24aa129ecbead46425cf1876d627e4a992ada692a562",
+      "matchesIntegratedCandidate": true
+    }
+  ],
+  "preparation": {
+    "v2Patch": "/tmp/hudhud-b15-producer-qa.patch",
+    "sha256": "9a8381f7a8f022dd96b173a7d53c1e80e774015b695a8bcaad63b1f1b0f92bfb",
+    "metadata": "/tmp/hudhud-b15-producer-qa-inputs.json",
+    "metadataSha256": "845c6cfdaf46c8ff68f2dd5f37149a47e0cd71ed3f566b142a20edd9365768ba",
+    "v1History": {
+      "patch": "/tmp/hudhud-b15-producer-qa-v1.patch",
+      "patchSha256": "c046fd3a86a853a30bec9fcd2f3c434931e332f0ae922399d1d3da52d28ac0b3",
+      "metadata": "/tmp/hudhud-b15-producer-qa-v1-inputs.json",
+      "metadataSha256": "6cbc6813e4b9b60b27a97ba542ddd230b3840d376a7cfe1e81474586ce0fcb92",
+      "status": "superseded before source integration; no RED credit"
+    },
+    "v1Executed": false,
+    "redCredit": false
+  },
+  "positiveProofs": {
+    "primaryAutomaticWorkers": [
+      "Both roots real importer and preview force native birth to zero despite adversarial metadata, then canonical published comment plus moderatedAt converges to one through registered real workers.",
+      "Metadata refresh preserves worker-owned count and immutable baseline native receipt; status-only hidden write converges to zero without onCreated moderation.",
+      "Full/content actual buildSeedPlan inputs pass actual validateSeed; create-only duplicate refusal preserves episode native version; same-commit baseline updateTime equals canonical native createTime; real workers converge once.",
+      "Internal comment-only writer accepts an existing native baseline, real workers count once, missing baseline rejects entire multi-entry transaction; real engagement-only plan remains favorites/subscriptions only.",
+      "Fresh birth baselines deny guest and forged operational admin reads/updates; existing full role matrix remains intact."
+    ],
+    "secondarySDKOnly": [
+      "Unique disposable demo projects genuinely bootstrap accepted empty roots. Existing/new importer/preview and Dev seed refuse pre-paused roots with no partial canonical/private writes. No arbitrary active restoration.",
+      "Actual native collection-group name range and five 25-row pages traverse107 Dev comments, exclude Official, preserve concurrent hidden/manual terminal status, publish104 missing-status comments and atomically count104.",
+      "Duplicate real count authority replay is idempotent, literal contribution episodeCreateTime matches native parent createTime, migration replay is skipped without episode write; new pending candidate refuses paused root."
+    ],
+    "coverageLimits": [
+      "Secondary projects earn no automatic worker propagation credit.",
+      "Pre-paused refusal is not mid-flight conflict/retry evidence.",
+      "The source fixes already existed before these new fixtures; this91-test gate is GREEN regression evidence only."
+    ]
+  },
+  "independentReview": {
+    "path": ".boss/technical-review/B15-producer-review.md",
+    "sha256": "7d08b8c86dc05eae09e827862c483761a22d62a5551b7c0c3714b4d23986b488",
+    "decision": "Actual SDK producer supplement approved; full task/finding gates remain open"
+  },
+  "remaining": [
+    "Actual full nonempty apply/restore exports and their unit/native SDK acceptance.",
+    "Mid-flight guarded writer versus pause native ordering/retry/refusal.",
+    "Final affected-candidate admin gate retaining all17 original identities; all existing fixture assertions preserved.",
+    "Independent full tool/integration review; mandatory full Flutter and physical-device/browser acceptance.",
+    "All findings remain OPEN; no production/data/deployment approval."
+  ]
+}

@@ -1,0 +1,61 @@
+# HudHud FM execution progress
+
+## Current baseline and scope
+
+Implementation resumed from clean commit `c304e85`. The user authorized all four Work Orders: 65 traceable tasks, 16 implementation batches and 17 verification waves. Reports and handoffs are English. Production data changes, live migrations, deployment and protected-branch merging remain unauthorized.
+
+## Batch ledger
+
+| Batch | Current disposition |
+|---|---|
+| B01 | C01 historical handoff; C03, C04-RSS, C04-HEALTH and C04-TIMEZONE independently approved. The revised C04-COUNTS fence/inventory contract is independently approved; B15 prerequisites remain. |
+| B02, B04, B05 | Recorded verified interim handoffs. Source/input hashes must be checked before final integration acceptance. |
+| B03 | LOCAL_GREEN/interim handoff: actual admin emulator suite 20/20 and independent focused tests 48/48 pass. Browser canonical form and actual export verified. Negative browser interactions remain pending final QA because Chrome lost debugger attachment. |
+| B06 | LOCAL_GREEN/interim handoff: independently approved demo-only tooling; 46 synthetic guards and 10 actual emulator tests pass. Production adapter and operational approval remain separate. |
+| B07 | LOCAL_GREEN/interim handoff: final player60/60, independent real-stack11/11 and analysis/format pass after reviewer-found replay race correction. |
+| B08 | LOCAL_GREEN/interim handoff: 132 integrated tests, 98 account tests and 51 independent focused tests pass; all 16 candidate hashes approved. |
+| B09 | Released to FL after independently approved B10; real behavioral RED required before fixes. |
+| B11, B12 | Not started. B11 baseline RED seams in preparation; B12 awaits worker capacity. |
+| B10 | LOCAL_GREEN/interim handoff approved independently: guard40/40 and actual demo47/47 pass, zero skips; seven additive indexes integrated locally. No production index deployment. |
+| B13 | BLOCKED at independent review: repair transport/backup revalidation/rollback safeguards require correction. Editorial first60/61 failed an existing concurrency case; diagnostic rerun61/61 passes with no source fix, instability retained. No B13 dependent release. |
+| B14–B16 | Not started; exact prerequisites remain. |
+
+## Ownership and execution controls
+
+I exclusively integrates shared files and schedules emulator/Flutter runtime access. All original 33 ownership assignments are retained. Two additive I-owned compatibility locks cover the location regression and existing notification-delivery source, The reviewed count-maintenance candidate adds explicitly owned producer paths before any source dispatch; the current registry has 58 unique entries (including the real RSS emulator fixture). Count-maintenance source scope is independently approved, but implementation gates and batch prerequisites remain.
+
+The updated task, milestone and checkpoint graph has 86 acyclic nodes, including the partial Rules milestone and no unknown dependency reference. No original task, batch or wave was removed. Manifest implementationState distinguishes local handoffs from final pending acceptance; it is not a finding-closure claim.
+
+The approved failure policy repairs routine in-scope failures and reruns affected gates inside the active batch. Downstream work remains blocked until its required local handoff is GREEN. Unresolved security issues, unowned scope expansion and production operations stop progression.
+
+## Approved product policies
+
+- Alerts honor each accepted schedule's UTC offset, with conservative sent/unknown receipt preservation during a later authorized cutover.
+- Admin search offers clearly labeled current-page search plus an explicit resumable full-dataset scan, at most 200 documents per continuation.
+- Preserve the existing architecture and dependencies. No new abstraction or dependency is authorized merely to simplify orchestration.
+
+## Remaining acceptance obligations
+
+All R01–R13 findings remain OPEN. Full Flutter tests, physical Android/iPhone acceptance, exact-candidate integration, independent Work Order reviews and demo migration rehearsals remain mandatory. All 17 original admin emulator identities passed in the corrected B03 run, together with three privacy cases; B15 must still prove the actual worker/harness integration and final G-INTEGRATION must rerun affected gates. Ordinary unit-run skips are not passing evidence.
+
+Production mutation paths are not exercised. Privacy tooling must fail closed without verified encrypted backup, integrity, retention and scope safeguards; operational approval and any production adapter remain separate checkpoints. Count reconciliation cannot be called production-ready while enforced freeze proof is unavailable.
+
+## Added shortcut request — S01
+
+The user clarified that the links are for the HudHud FM platform itself, not individual stations. S01 adds the official platform website beside its Facebook and Instagram links on public web and admin. A small shared public brand-URL JSON asset keeps both clients consistent. No station ID, private data, Firestore field, authorization change or dependency is introduced. S01 is an explicit user supplement; none of the original65task IDs is replaced or renumbered. I owns its source integration and the public-home handoff with B12. Regression, component and owning-web gates plus independent review are required.
+
+## B07/B08 integrated Flutter cutpoint
+
+After both local independent reviews, coordinator ran `flutter analyze --no-pub` (no issues) and `flutter test --no-pub` (355 passed, zero failures). Logs are under `evidence/integration/B07-B08-*`. This verifies the current playback/account candidate; later Flutter changes require affected checks again. Physical-device and build acceptance remain pending.
+
+B09 adds eight explicit I integration locks for composition, ProgramDetails, StationDetails and localization outputs before dispatch. FL supplies patches; no original ownership assignment changes. Other B09-only paths retain FL as physical writer.
+
+## S01 verification checkpoint
+
+Official platform shortcuts are integrated in public footer, initial HTML, and admin login/dashboard. Public55/55 tests and lint pass; both HudHudDev builds pass (public build includes typecheck). Admin ordinary tests pass95 with20 emulator-only skips explicitly excluded from acceptance. New admin lint promise handling was corrected and rerun. The final independent review is pending. Browser acceptance could not run: selecting the local Chrome tab timed out and reset the automation kernel; no browser success is claimed. No production service was started.
+
+S01 independent source review is approved in `S01-review.md` with public11/11 and admin1/1 focused tests. Corrected admin lint passes. Browser/manual acceptance remains pending due automation timeout. M03 baseline extraction has one import regression detected by typed lint; this is INVALID RED and must be repaired before the business baseline run.
+
+## M03 baseline behavioral RED accepted
+
+After correcting the extraction import, typed lint and build pass. Actual demo admin run executes30 tests:20 preexisting cases pass, eight intended child business assertions fail, and two parent subtest summaries fail; zero skipped. R06 demonstrates2000 raw documents and a repeated first page in both roots. R07 demonstrates actual permission-denied from the exact routed count adapter for verified active station administrators/moderators in both roots, while profile listing remains denied. No missing module/callable or environment failure is counted. `M03-T16-RED-READY` is verified; B11 may begin once worker capacity is available. Evidence: `evidence/WO-03/M03-baseline-provenance.json`. These are expected baseline failures, not completion.

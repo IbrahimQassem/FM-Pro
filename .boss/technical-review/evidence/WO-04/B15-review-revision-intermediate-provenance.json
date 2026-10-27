@@ -1,0 +1,62 @@
+{
+  "status": "REVISION_NEEDED_CONSOLIDATED_CURSOR_SCHEMA_AUDIT_PENDING",
+  "source": {
+    "path": "/tmp/hudhud-b15-nonempty-revision/tool/reconcile_comment_counts.mjs",
+    "sha256": "3619ab8dfe977c4f1ea7b8dc016f17353fd7f09a2c11b4c35a7077af8e1c54f0"
+  },
+  "testsSha256": "487e3d8531c8f2d5a98b3f785bb570b2599e8f476d87644f62d170517194b95c",
+  "opsSha256": "d9dfc0f2b0662c0de5e36a0b9de2ca3dea35923b18e30063e19bf4cccddd3f19",
+  "originalFrozenSourceSha256": "29d0b5f5e8b683c9157cb600efabeb5d7c9bd0353e3ffc14befe1482a98e5c05",
+  "originalFrozenTestsSha256": "f0d4d04bd346ccc15fc3ffbdf79c48a82d6d3861aaef384c3dcd9282ef2ff4e1",
+  "parentAcceptedRED": {
+    "log": "B15-review-regressions-parent-red.log",
+    "sha256": "40827cfbc9482b34b3abe81c3c5a0b55ae2ac28ee8d858e66fef47a9a5c89000",
+    "result": "18 executed,3pass15 intended assertion failures0skip; actual APIs/storage, no missing APIs/setup failures"
+  },
+  "implementedButNotAccepted": [
+    "Closed count-local backup manifests/wrappers/encodings/discriminated proof/head/progress schemas",
+    "Public full API now argument refused; early/store interfaces preserved; fixture/private IPC process runtime clock adaptation",
+    "Canonical source validation precedes every applicable inverse including absent/no-op/remove cases",
+    "Native head commit seal verified in current/frozen/resumed paths"
+  ],
+  "knownRemainingBlocker": "Independent QA reproduced authenticated local replay lastEpisode/lastHead object/array acceptance. Source3619 stays frozen; consolidated structural audit/permanent test-only RED and parent acceptance required before further edits.",
+  "clockFixtureAdaptation": "Original63 assertion bodies remain unchanged. Fixture scopes Date.now and restores it in finally; unit-only facade strips prior now option. New public-clock business regression invokes actual export directly. Actor finite nowMs maps only within private process runtime; full API input no longer contains now.",
+  "logs": {
+    "B15-review-revision-first-18-green.log": {
+      "sha256": "86e6681eb9aacea342b50f72d51c9cd95a09079fe938432cf451ea566737e93a",
+      "status": "18/18 PASS; source b0da",
+      "originalFile": "/tmp/hudhud-b15-review-revision-first-green.log"
+    },
+    "B15-review-revision-custody-4-green.log": {
+      "sha256": "9550bfa6f546196be13ab2a147b26ae01cbc6561f98fb64785bac17d8eb749cc",
+      "status": "4/4 PASS; source b0da",
+      "originalFile": "/tmp/hudhud-b15-review-revision-custody-green.log"
+    },
+    "B15-review-revision-b0da-full-superseded.log": {
+      "sha256": "62fb045ad0b02ead450756772bc1f5ce5577b4d82e1e50bf68bfc9fda0600b43",
+      "status": "INTERRUPTED/SUPERSEDED after40 passes; no fullPASS",
+      "originalFile": "/tmp/hudhud-b15-review-revision-full-green.log"
+    },
+    "B15-review-revision-3619-full-superseded.log": {
+      "sha256": "098b349c52b5db284f279776f2ce66ee65a433627beb1229381c30831ef1bbae",
+      "status": "INTERRUPTED/SUPERSEDED after26 passes; no fullPASS",
+      "originalFile": "/tmp/hudhud-b15-review-revision-exact-full-green.log"
+    },
+    "B15-review-revision-functions-green.log": {
+      "sha256": "d48fc8731067ec2a090257480589eb2f9a96d83b6c812d74f42410a9d41acbba",
+      "status": "328/328 PASS; unchanged core export",
+      "originalFile": "/tmp/hudhud-b15-review-revision-functions-green.log"
+    },
+    "B15-review-revision-lint-green.log": {
+      "sha256": "9cb86fb875f0a2ccbac02e6d7f904bd806d6c85c4b8453c4fd9e7366d182e45b",
+      "status": "exit0",
+      "originalFile": "/tmp/hudhud-b15-review-revision-lint-green.log"
+    }
+  },
+  "rules": [
+    "No complete full81 GREEN exists for either revision source. Both partial full runs were explicitly terminated by parent direction as superseded, without a failure summary.",
+    "No new full run until consolidated RED matrix and structural audit complete.",
+    "No emulator/native SDK/production/deploy/merge/real messages executed.",
+    "All tasks/findings remain OPEN; root tool remains c462; no source patch integrated."
+  ]
+}

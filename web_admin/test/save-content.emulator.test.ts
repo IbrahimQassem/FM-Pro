@@ -4,6 +4,8 @@ import { test } from 'node:test';
 import { callableEmulator } from './support/callable-emulator.ts';
 import {
   doc,
+  disableNetwork,
+  enableNetwork,
   getDocFromServer,
 } from 'firebase/firestore';
 import { saveWithRelations } from '../lib/save-content.ts';
@@ -216,6 +218,48 @@ void test(
     try {
       for (const root of ['HudHudDev', 'HudHudOfficial'] as const) {
         await assert.rejects(loadStationPrivatePage(db, root, ['synthetic-station']), { name: 'ContentError' });
+      }
+    } finally {
+      await close();
+    }
+  },
+);
+
+void test(
+  'R01 offline private reads reject without returning cached metadata or changing either projection',
+  { skip: !process.env.FIRESTORE_EMULATOR_HOST },
+  async () => {
+    const { db, adminDb, seed, close } = await callableEmulator();
+    try {
+      for (const root of ['HudHudDev', 'HudHudOfficial'] as const) {
+        const id = crypto.randomUUID();
+        const station = doc(db, `${root}/stations/stations`, id);
+        const privateRef = doc(db, `${root}/stationPrivate/stations`, id);
+        const publicBefore = { name: 'Synthetic public station', stats: { programsCount: 0 } };
+        const privateBefore = { schemaVersion: 1, revision: 1, owner: 'Synthetic private owner' };
+        try {
+          await seed(station, publicBefore);
+          await seed(privateRef, privateBefore);
+          const initial = await loadStationPrivatePage(db, root, [id]);
+          assert.equal(initial[id].data.owner, privateBefore.owner);
+          await disableNetwork(db);
+          try {
+            let returnedState = false;
+            await assert.rejects(async () => {
+              await loadStationPrivatePage(db, root, [id]);
+              returnedState = true;
+            }, { name: 'ContentError' });
+            assert.equal(returnedState, false, 'An offline read must not return cached or empty metadata.');
+            assert.deepEqual((await adminDb.doc(station.path).get()).data(), publicBefore);
+            assert.deepEqual((await adminDb.doc(privateRef.path).get()).data(), privateBefore);
+          } finally {
+            await enableNetwork(db);
+          }
+        } finally {
+          const cleanup = adminDb.batch();
+          [station, privateRef].forEach(ref => cleanup.delete(adminDb.doc(ref.path)));
+          await cleanup.commit();
+        }
       }
     } finally {
       await close();

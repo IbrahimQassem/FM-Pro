@@ -1,0 +1,88 @@
+{
+  "status": "APPROVED_SCOPED_SOURCE_AND_NATIVE125_LOCAL_GREEN_HANDOFF_B16",
+  "reviewer": "Independent Tech Lead /root/b10_review",
+  "freeze": {
+    "path": "/tmp/hudhud-b15-post-native-freeze.json",
+    "sha256": "93e1b369232f4f119d5f71af06f7521f1cf2cccd8e9c4372f2adee760108c145"
+  },
+  "rootBeforeInputs": {
+    "tool/reconcile_comment_counts.mjs": "2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e",
+    "tool/test/reconcile_comment_counts.test.mjs": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc",
+    "firebase_tests/firebase-emulators/editorial-audit.test.js": "cb4c6d0130631ab81ecf52ad8fc23ecb4018da6d1df6a29175e246ab856c6c4e",
+    "firebase_tests/firebase-emulators/editorial-comment-counts.test.js": "547c0d46984ebc4918dd9bdc608546e94879b921a0528403c514ac005dddc609"
+  },
+  "candidateOutputs": {
+    "tool/reconcile_comment_counts.mjs": "a6a10122ec7bb3596f842c1705ca53c15dcd3fb9fca5255c7ea7389588f5e04e",
+    "tool/test/reconcile_comment_counts.test.mjs": "fb751d6c977707f8366ae8098ce4db484090f575d73e15603c62e9020c295e0d",
+    "firebase_tests/firebase-emulators/editorial-audit.test.js": "6d1ef73fd3c76f7364aadf39b5b0cec85ddb4d5426a5e167d135a785fab9b3c4",
+    "firebase_tests/firebase-emulators/editorial-comment-counts.test.js": "dd2e8ae2aeb6140124421b4e97fcf4404986764982e5b086baf64a4a5d7f5a46"
+  },
+  "combinedPatch": {
+    "path": "/tmp/hudhud-b15-post-native-combined.patch",
+    "sha256": "a5ba9a774491bfc828f4e870ce22758ccb3d21d2c810378bd58a969f908f2e96"
+  },
+  "componentHashes": {
+    "/tmp/hudhud-b15-replay-reporting-source-only.patch": "731db3428e2bf9ccb33a35d88aac79791a56392bc22b541cb5afd4df5d9c5deb",
+    "/tmp/hudhud-b15-replay-reporting-tests-only.patch": "5336e764de85536efd9123950161013d226ef73e18341d3c2519aea77f593217",
+    "/tmp/hudhud-b15-ordinary-integration-combined.patch": "48d326a0ff86772a5ae305c38fcc8adf26cda154dce31a2313018d16d8e227e4",
+    "/tmp/hudhud-b15-n13-canonical-destination-only.patch": "7d5604d6723bfca032ecfff454bb34b77eb14abeb62cad9f73b70a7b7edaeb38"
+  },
+  "sourceDiffProof": "Replacing only return {...result,readEquivalents:ctx.budget.reads} with old return result reconstructs complete root source2c7e byte-for-byte; all prior security/protocol/budget logic unchanged.",
+  "independentFocused": {
+    "command": "Exact Node22 --test --test-name-pattern='replay reporting regression:|replay reporting control:' tool/test/reconcile_comment_counts.test.mjs",
+    "cwd": "/tmp/hudhud-b15-post-native-candidate",
+    "tests": 6,
+    "pass": 6,
+    "fail": 0,
+    "skip": 0,
+    "cancelled": 0,
+    "exitCode": 0,
+    "durationMs": 16078.352807,
+    "log": "/tmp/hudhud-b15-post-native-independent-reporting.log",
+    "sha256": "358bd4f698428c55cb47948e1a985bed6561c0a3f651b2d18aea0ed69264f107"
+  },
+  "preservedRed": {
+    "parentTests": 6,
+    "numericReportingFailures": 4,
+    "ordinaryControlsPassed": 2,
+    "logSha256": "e93b77029882c8e6ffac959dac1cb71ecfd040cff27cd8c2f00db8de952fe45b",
+    "priorNative124LogSha256": "058358b2a024c8bdbcdc7e6c44c4984daa878a82228c9a82131d8f825e0e75e3",
+    "classification": "Native metrics defect is genuine reporting RED; old N13 hook miss remains fixture error, not product RED."
+  },
+  "fixtureScope": "Exact preapproved bulk55 counted births + serialized primary both-root callback positive + canonical-only N13 hook; all original assertions preserved, future125 unrun.",
+  "checks": {
+    "allFreezeHashesMatch": true,
+    "sourceWholeFileOneLineOnly": true,
+    "combinedPatchApplyCheckExit": 0,
+    "Node22SourceSyntaxExit": 0,
+    "original150AssertionsPreserved": true
+  },
+  "gateOrder": [
+    "Exact full156 must close GREEN before parent integrates correction.",
+    "Parent exact root integration checks follow integration.",
+    "Fresh125 native gate follows integration and must close before native handoff; it is not a prerequisite to its own integration."
+  ],
+  "remaining": "No full156/native125 result claimed here; full B15/findings/device/browser/production boundaries unchanged; no source/E/F/runner/contract edit by reviewer.",
+  "sourceConditionSatisfied": {
+    "exactFull156": true,
+    "rootByteIdentical": true,
+    "rootReporting6": true,
+    "governanceAndDiff": true,
+    "integrationProvenanceSha256": "d4ab08b2d26d05112f338622fef16d6119b96f1a5bca7d0c6eb39afc7af84b5d"
+  },
+  "native125Status": "PASS_INDEPENDENTLY_ACCEPTED_SCOPED_HANDOFF",
+  "native125Acceptance": {
+    "reviewSha256": "f1e945673d77034829b889e182158c32f3fc5fc36ac9d844d65ea14687285801",
+    "provenanceSha256": "5bda6af8a879af3dab563acb842b7a5cb919e2cd0ababeec81f841a312e154c8",
+    "logSha256": "c642e562b6367b4d981c5c13a276110becbd647f31ced06c2d974227f5a74f39",
+    "tests": 125,
+    "pass": 125,
+    "fail": 0,
+    "skipped": 0,
+    "exitCode": 0,
+    "inputFiles": 50,
+    "changedInputs": [],
+    "scope": "Interim artifact/native handoff only; no full WO/finding/final gates closure"
+  },
+  "historicalNative125Status": "Running, no acceptance credit; primary worker journey pending."
+}

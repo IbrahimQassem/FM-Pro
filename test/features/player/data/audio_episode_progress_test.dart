@@ -1,6 +1,11 @@
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:hudhud_fm/features/home/domain/models/station.dart';
+import 'package:hudhud_fm/features/station_content/domain/models/episode.dart';
+import 'package:hudhud_fm/features/player/data/repositories/default_audio_playback_repository.dart';
+import 'package:hudhud_fm/features/player/presentation/controllers/station_player_controller.dart';
+import 'package:hudhud_fm/features/player/presentation/controllers/station_player_state.dart';
 import 'package:hudhud_fm/features/player/domain/models/audio_playback_progress.dart';
 import 'package:hudhud_fm/features/player/data/datasources/just_audio_player_data_source.dart';
 import 'package:hudhud_fm/features/player/domain/models/audio_playback_item.dart';
@@ -116,6 +121,135 @@ void main() {
     expect(player.errors.hasListener, false);
     await player.close();
   });
+  for (final mode in [
+    'rewind',
+    'manual seek',
+    'unknown duration',
+    'reentrant resume'
+  ]) {
+    test('replay real controller repository and native source: $mode',
+        () async {
+      final manualSeek = mode == 'manual seek';
+      final unknownDuration = mode == 'unknown duration';
+      final reentrantResume = mode == 'reentrant resume';
+      final player = _ProgressPlayer();
+      if (unknownDuration) player.nativeDuration = null;
+      final data = source(player);
+      final controller =
+          StationPlayerController(DefaultAudioPlaybackRepository(data));
+      const station = Station(
+          id: 's',
+          name: 'Synthetic station',
+          streamUrl: 'https://radio.example/live',
+          countryCode: 'YE',
+          countryNameAr: 'Synthetic country',
+          cityCode: 'synthetic',
+          cityNameAr: 'Synthetic city',
+          priority: 0,
+          isLive: true,
+          isActive: true,
+          isVerified: false,
+          isFeatured: false,
+          programsCount: 1,
+          subscribersCount: 0,
+          totalPlays: 0);
+      final recording = Episode(
+          id: 'e',
+          programId: 'p',
+          stationId: 's',
+          title: 'Synthetic episode',
+          audioUrl: 'https://radio.example/episode.mp3',
+          durationSeconds: 60,
+          priority: 0,
+          isPublished: true,
+          isFeatured: false,
+          broadcastAt: DateTime.utc(2026, 10, 26),
+          utcOffsetMinutes: 180,
+          playsCount: 0,
+          likesCount: 0,
+          commentsCount: 0);
+      try {
+        await controller.playEpisode(recording, station);
+        await pumpEventQueue();
+        player.position = const Duration(seconds: 60);
+        player.event = PlaybackEvent(
+            processingState: ProcessingState.completed,
+            duration: player.nativeDuration,
+            updatePosition: player.position);
+        player.states.add(player.playerState);
+        player.events.add(player.event);
+        await pumpEventQueue();
+        expect(player.playing, true,
+            reason: 'Native completed may retain its play flag.');
+        expect(controller.state.status, StationPlaybackStatus.paused);
+        if (manualSeek) {
+          expect(
+              await controller.seek(const Duration(seconds: 20),
+                  episodeId: recording.id),
+              true);
+          await pumpEventQueue();
+          expect(player.playing, false);
+          expect(player.playCalls, 1);
+        }
+        if (reentrantResume) {
+          player.seekBarrier = Completer<void>();
+          final firstResume = controller.resume();
+          await pumpEventQueue();
+          expect(player.seeks, [Duration.zero]);
+          expect(player.playing, false);
+          expect(controller.state.status, StationPlaybackStatus.paused,
+              reason: 'Native pause emits completed while rewind is pending.');
+          final secondResume = controller.resume();
+          await pumpEventQueue();
+          player.seekBarrier!.complete();
+          await Future.wait([firstResume, secondResume]);
+        } else {
+          await controller.toggleCurrent();
+        }
+        await pumpEventQueue();
+        expect(
+            player.seeks,
+            unknownDuration
+                ? <Duration>[]
+                : [manualSeek ? const Duration(seconds: 20) : Duration.zero]);
+        expect(player.loadCalls, unknownDuration ? 2 : 1);
+        expect(player.position,
+            manualSeek ? const Duration(seconds: 20) : Duration.zero);
+        expect(player.playCalls, 2);
+        expect(controller.state.status, StationPlaybackStatus.playing);
+      } finally {
+        controller.dispose();
+        await data.dispose();
+        await player.close();
+      }
+    });
+  }
+
+  test('replay native completed seek rewinds without implicitly resuming audio',
+      () async {
+    final player = _ProgressPlayer();
+    final data = source(player);
+    await data.load(episode);
+    player.playing = true;
+    player.position = const Duration(seconds: 60);
+    player.event = PlaybackEvent(
+        processingState: ProcessingState.completed,
+        duration: player.nativeDuration,
+        updatePosition: player.position);
+    player.states.add(player.playerState);
+    player.events.add(player.event);
+    await pumpEventQueue();
+    try {
+      expect(await data.seek(Duration.zero, itemId: episode.id), true);
+      expect(player.position, Duration.zero);
+      expect(player.playing, false,
+          reason: 'Seeking a completed episode is not a play request.');
+      expect(player.playCalls, 0);
+    } finally {
+      await data.dispose();
+      await player.close();
+    }
+  });
   test(
       'one position clock runs only for a playing episode and cancels on pause or stop',
       () async {
@@ -165,6 +299,7 @@ class _ProgressPlayer implements AudioPlayer {
   bool rejectSeek = false;
   Completer<void>? seekBarrier;
   int playCalls = 0;
+  int loadCalls = 0;
   final seeks = <Duration>[];
   PlaybackEvent event = PlaybackEvent(processingState: ProcessingState.idle);
   @override
@@ -177,6 +312,8 @@ class _ProgressPlayer implements AudioPlayer {
   Stream<PlaybackEvent> get playbackEventStream => events.stream;
   @override
   Stream<PlayerException> get errorStream => errors.stream;
+  @override
+  Stream<IcyMetadata?> get icyMetadataStream => const Stream.empty();
   void update(Duration value) {
     position = value;
     event = PlaybackEvent(
@@ -191,6 +328,7 @@ class _ProgressPlayer implements AudioPlayer {
       {bool preload = true,
       int? initialIndex,
       Duration? initialPosition}) async {
+    loadCalls++;
     position = initialPosition ?? Duration.zero;
     event = PlaybackEvent(
         processingState: ProcessingState.ready,
@@ -206,6 +344,11 @@ class _ProgressPlayer implements AudioPlayer {
     if (rejectSeek) throw StateError('Synthetic unsupported seek');
     seeks.add(value!);
     await seekBarrier?.future;
+    if (event.processingState == ProcessingState.completed) {
+      event = PlaybackEvent(
+          processingState: ProcessingState.ready, duration: nativeDuration);
+      states.add(playerState);
+    }
     update(value);
   }
 

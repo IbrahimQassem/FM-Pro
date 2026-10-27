@@ -1,0 +1,198 @@
+{
+  "status": "CANDIDATE_GREEN_REVIEW_AND_NATIVE_SDK_PENDING",
+  "createdAt": "2026-10-26T22:40:07.193534+00:00",
+  "head": "c304e85963546220ccbdac51390fe0c03de02419",
+  "node": "v22.23.3",
+  "nodeExecutable": "/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node",
+  "sourceInputs": {
+    "tool/reconcile_comment_counts.mjs": "c46238aef4fdb072349e45c2e6f7a14ff2b50b24d15e7984448b89f5ae15709e",
+    "tool/test/reconcile_comment_counts.test.mjs": "a5a575d211d2c59f5b5e8767ab9feb2bb44c535e776ef8def777258b728227e3",
+    "functions/lib/comment-counts.js": "77fc7b9d0e97aabe92acf6b551c4ec021c72ae1defe7333e8983b736de49547a",
+    "docs/operations/background-consistency-migrations.md": "85c47271154a332ed2591b9cb74bf55f72069d5de8938f306842b36b63092fd8"
+  },
+  "candidateOutputs": {
+    "tool/reconcile_comment_counts.mjs": "29d0b5f5e8b683c9157cb600efabeb5d7c9bd0353e3ffc14befe1482a98e5c05",
+    "tool/test/reconcile_comment_counts.test.mjs": "f0d4d04bd346ccc15fc3ffbdf79c48a82d6d3861aaef384c3dcd9282ef2ff4e1",
+    "functions/lib/comment-counts.js": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04",
+    "docs/operations/background-consistency-migrations.md": "a770c9c644a33d1b38c7707a721b6028ed273f9a7cff096d842a99c5c5edac36"
+  },
+  "contracts": {
+    "docs/contracts/firebase-data-contract.md": "4e67f7d3fcc690c21285e9992eddea9b346e64059dcd03914c1536962106e097",
+    "docs/contracts/content-automation-contract.md": "dd2c1eddf0e8b838000828cc81a5e1a6f27d0c97c4c9abf03be30404209b3f8f",
+    "docs/decisions/0006-background-consistency-and-schedule-timezones.md": "ef0db668fc0ebf3357a9df2e042d75964abb6187da7bd2fc23e9dff087e4d2ed"
+  },
+  "patches": {
+    "/tmp/hudhud-b15-nonempty-implementation.patch": {
+      "sha256": "2960e666981542f81d321dd59f428e4cdd59f8070661b55a3eb44bd55a056e6c"
+    },
+    "/tmp/hudhud-b15-status-projection-export.patch": {
+      "sha256": "80844b884f0c851dadafa5aa2dc1c7e8823bf01fb62122dda1bfc783eb8dd540"
+    }
+  },
+  "root23BodiesUnchanged": true,
+  "verification": [
+    {
+      "command": "node --test --test-name-pattern='^(?!.*more than 100)' tool/test/reconcile_comment_counts.test.mjs",
+      "cwd": "/tmp/hudhud-b15-nonempty",
+      "result": "63 tests, 63 pass, 0 fail, 0 skip; all three large inventory/union stress cases actually executed; despite the filter attempt no test was excluded",
+      "log": "B15-nonempty-small-green.log",
+      "durationMs": 344662.517055
+    },
+    {
+      "command": "npm test",
+      "cwd": "/tmp/hudhud-b15-nonempty/functions",
+      "result": "328 tests, 328 pass, 0 fail, 0 skip",
+      "log": "B15-nonempty-functions-combined-green.log"
+    },
+    {
+      "command": "npm run lint",
+      "cwd": "/tmp/hudhud-b15-nonempty/functions",
+      "result": "exit 0",
+      "log": "B15-nonempty-functions-lint.log"
+    },
+    {
+      "command": "node --check tool/reconcile_comment_counts.mjs; node --check tool/test/reconcile_comment_counts.test.mjs; node --check functions/lib/comment-counts.js",
+      "result": "each exit 0"
+    },
+    {
+      "command": "git apply --check /tmp/hudhud-b15-nonempty-implementation.patch; git apply --check /tmp/hudhud-b15-status-projection-export.patch",
+      "cwd": "/Users/ibrahimqassem/VisualCodeProjects/acceleration/hudhud_fm",
+      "result": "each exit 0; no patch applied"
+    }
+  ],
+  "nonRedFailureClassifications": {
+    "B15-nonempty-release-pin-candidate-failure.log": "Candidate acceptance guard exposed coordinated native release ABA rebinding; fixed by deterministic plan-scoped durable release pin; subsequent targeted/full suites GREEN. Not credited as historical R12 RED.",
+    "B15-nonempty-last-targeted.log": "Test setup reused intentionally caller-mutated manifest in later separate calls; correct scope-hash rejection. Test repaired to mutate during one invocation then resume with original reviewed manifest; targeted/full GREEN. No source relaxation.",
+    "B15-nonempty-functions-green.log": "Isolated snapshot omitted the existing synthetic admin-content-contract.json fixture, causing 2 ENOENT test setup failures. Copied only that fixture; exact rerun328/328. Not behavioral RED."
+  },
+  "functionsSnapshot": {
+    "functions/index.js": "e25125f6e8d1c27c8984b0a6e40adea06e1d9c44c969a1cda124540accf32a08",
+    "functions/lib/account-deletion.js": "2d1bd423af798745fc28bf9034a55170889e266ba4aa9edc396187ae0e26fba0",
+    "functions/lib/admin-content-authorization.js": "42e2327092b52b1fc2703f13330d05f4f144d7cd417baedf77dde7b81b2a1382",
+    "functions/lib/admin-content-delete.js": "2f9e8b003717eeecb4d7c141caa431064a120990466f435b0a9f841bac427a58",
+    "functions/lib/admin-content-relations.js": "a7fb618a56426db353c08ea9a238311a0aed01c4331fb18548a2081726d38b58",
+    "functions/lib/admin-content.js": "6de10c3de670cc079a710a46e798f41b54eadfc3656e61b15517cb149c529940",
+    "functions/lib/admin-images.js": "5ad89e3ab537cb8f47520f4bcd2c8aca1c753256b47318bb289376d2de37cfb9",
+    "functions/lib/admin-report-review.js": "684c26a317b0aefb5375679fffd9e6a4933cfb703afe7026be7cb5cfaf783dc8",
+    "functions/lib/admin-user-count.js": "1b30bbb90e37ed83cf0622304eb11dbca966e46f8fea7ac2d1d90e289a9eb086",
+    "functions/lib/advertising-handlers.js": "d00590432e3a4cf966fb1beee48b04998084202655746687510382c832c706ea",
+    "functions/lib/advertising.js": "971e4b467bcc163e4d0d3a303f3af3055ff4e4d4e4037e74d54bb97a224f3d71",
+    "functions/lib/comment-count-maintenance.js": "1a4f6ab12f8a7bc2dadb8f2ff4966829f8d37df08a028472c20076dcfd0f2d70",
+    "functions/lib/comment-counts.js": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04",
+    "functions/lib/comment-moderation.js": "f2a3e61d94faef6e5d26ed910159832389a1809876052dbda79551821af8225c",
+    "functions/lib/editorial-audit.js": "4950f4088b7fdb6f97abf1e6b38246580cc6b155c34ce8878b8aa7cc78e47016",
+    "functions/lib/email-verification.js": "4239227381b3ed6e2c53585d11b1774b2da82865af572476b766d316daa07e52",
+    "functions/lib/episode-alerts.js": "d33233b6578e38a3d49aea01a8279f4404181f78c70328a8ad0352088f91a729",
+    "functions/lib/notification-delivery.js": "3d44097a19484335bc0f2145c0c334ed95d3a1dcacd23aece3909de2555f881f",
+    "functions/lib/profile-images.js": "ba249a879054df712eb432c808bf32a279056d9aafdca6cbd35ddb74f5bcc38c",
+    "functions/lib/program-notifications.js": "26f4485e5cbca1a8577c6e4d5799da2ad8475393e249e6a45e4c76a41de954b9",
+    "functions/lib/public-fetch.js": "158669c0ac900b1b91f196ff1df1c474e6420a4b942def6044b9cf88eebd7912",
+    "functions/lib/public-web.js": "a4c2736df2e4067a4b0f014379333f5e9dfe2dab00750ab1543c4d9cd0443e5d",
+    "functions/lib/rss-ingestion.js": "809c0b17f2c9bfcb5e39a26ef9969c905cda0a655937d7ce740c914493fe195c",
+    "functions/lib/station-privacy.js": "d5ba30dead1e65a34d3cb253e8e91a730a3b4a5e66adf88e849b069d3df85305",
+    "functions/lib/station-subscriptions.js": "78fbe5443784770852fc23cfa2cbcd6c2abadf8c21b7f4cc9c773c18e98f39cb",
+    "functions/lib/stream-health-progress.js": "8a72080287fb202e71b70fb539f27c23028f09d099c4a28083fddd874fe3c6f2",
+    "functions/lib/stream-health.js": "801a0ae7ac5b451db9dfcfe8f1f60213f56990abdcc43fcd01cc95ce6e25feeb",
+    "functions/lib/user-management.js": "d60d814861ff2b095b03ba82e110da2517bc8bce2aa6e5032f30d2fbd604ed59",
+    "functions/test/account-deletion.test.js": "8616c4d328487a04ba58ab0b7c5b4aeeec5a38f5a8c0822150276211bb63c7c2",
+    "functions/test/admin-content-delete.test.js": "065ac6869788204e131574f5698d4ff7189790c9211442e610888a3c37978715",
+    "functions/test/admin-content.test.js": "19a4602fba970f421ef0b703f87caf572e89a427db853f01886bff4a7c2bb211",
+    "functions/test/admin-images.test.js": "92160bb0f14428341a60ad3f4268fd8af579f0b3fe82e79f369078d7642a7b51",
+    "functions/test/admin-report-review.test.js": "068c18439fbedcaf47624c1d317f90632b70ac3429e37771c8c1a13a6bf042d1",
+    "functions/test/admin-user-count.test.js": "0c0325f13f16d21d6593d297bc2d7ee298a90bb47fa035880de1723bf91bfab8",
+    "functions/test/advertising.test.js": "1dba889d968ebabbc61ee6123b36706fb8f2da02370299071f6bc3884772ea25",
+    "functions/test/comment-counts.test.js": "271a4e7063a55b1bae63053dd998687bf88189389d5a314a1e67d37c38a03fd9",
+    "functions/test/comment-moderation.test.js": "158fee440b4cc34990c614f98c366ac34a74aa757cb0ec7bbf176594314dfec0",
+    "functions/test/editorial-audit.test.js": "e67c6473baca18b0197c26c7903650ee46e98919ce90b69a8fc92867605e52fc",
+    "functions/test/email-verification.test.js": "9641b61f858493904bc61800a01243e7e37965ae7445b82bfe7ec3988fd08a1c",
+    "functions/test/notification-delivery.test.js": "3b45e54a07a46d1ddb627ddb09c81b8250a550d8c5ad605fc5b085fce250b420",
+    "functions/test/profile-images.test.js": "f9bc7e6bcfa376694a21b18022bd04a2a48c612719f6884b16fa9ac938056432",
+    "functions/test/program-notifications.test.js": "02277c7b09ebfbd2cfb54ccf9ecda9b6a8369763c827633df64eb0e1c4d5fb33",
+    "functions/test/public-fetch.test.js": "0700d90aef1d5e88e01d8dd3a0ebf20d2dbcc253eaeb8296717cc71bc45d498b",
+    "functions/test/public-web.test.js": "7d0cf034f128f685186ba4fa0a93b3fbdfde65c822db23d87db0c5aebc63a435",
+    "functions/test/regional-location.test.js": "ade85b0f603ce3b7bdf018d91fc54622eac4ee72dd2f145f0adb72af77dad8fe",
+    "functions/test/rss-ingestion.test.js": "183cc4ac37199547f3877522e52339972a4a7b9d4ba08f522942466a1ad1963b",
+    "functions/test/station-privacy.test.js": "7c654b80ee9977e6101ac347e85037902a696e077cc5a5151a09b2fd94019737",
+    "functions/test/station-subscriptions.test.js": "8cb247a6fda6ddf838c91b167824edda2f25002bab475f1f249f21ee1cf90ec6",
+    "functions/test/stream-health-progress.test.js": "13b36dbd1d10c251bea2802a791002b0f16f422d61a614c1d4586b21445b588c",
+    "functions/test/stream-health.test.js": "517827fbda8ba33033983bbf1ed4937397137a71d512864a926e3304c5738b49",
+    "functions/test/support/comment-count-fixture.js": "8cfc54bc8779c152a8331b97161eca30bd1cbea9998f143bdce92c533a96244f",
+    "functions/test/user-management.test.js": "7b21ef45c335e23363838b042829603c7f53a619684f7f5b87582f433bc8d6c6"
+  },
+  "logs": {
+    "B15-nonempty-actor-green.log": {
+      "sha256": "215b4d414adca1f5df50522e0b66836766ea81f91766239d270db54cee3feaa6",
+      "bytes": 1253
+    },
+    "B15-nonempty-actor-security-green.log": {
+      "sha256": "6cb2b0731d72880e36be5d2706e01a40dcb36f14c6cdbb87b2092b8909ac258f",
+      "bytes": 1534
+    },
+    "B15-nonempty-final-controls.log": {
+      "sha256": "8a90c363f27bc7fec145adb94279cfe501da2f76cf272fee5a00039cf4c82606",
+      "bytes": 1516
+    },
+    "B15-nonempty-first-guards.log": {
+      "sha256": "32b890056409bf1cff6c49de8e3696107235ec5033ce3ce8726031d5cc1df05e",
+      "bytes": 6775
+    },
+    "B15-nonempty-functions-combined-green.log": {
+      "sha256": "956350daa5f8be10fcfa20deaace08bb2c57e73262d8b302d322d048f3367e19",
+      "bytes": 81081
+    },
+    "B15-nonempty-functions-green.log": {
+      "sha256": "068898584fae8bcf3d870b6a4a8339d2ee9a4cec5937a794421307cb7c7cf39a",
+      "bytes": 66195
+    },
+    "B15-nonempty-functions-lint.log": {
+      "sha256": "9cb86fb875f0a2ccbac02e6d7f904bd806d6c85c4b8453c4fd9e7366d182e45b",
+      "bytes": 953
+    },
+    "B15-nonempty-last-targeted-green.log": {
+      "sha256": "38e0fb6c1f96c9854377f6b1856fbcc276722d3beb6574d87fdfdec5771c2213",
+      "bytes": 1804
+    },
+    "B15-nonempty-last-targeted.log": {
+      "sha256": "63695bf051492f3228eef02e3fce6605a3339114d60ece28bc76219ec5e06688",
+      "bytes": 2649
+    },
+    "B15-nonempty-native-targeted.log": {
+      "sha256": "98ac3a4300f1f1e0ccc7dd887eaba68d2f2b52899979bd85942ba9c621a5c253",
+      "bytes": 1823
+    },
+    "B15-nonempty-negative-first.log": {
+      "sha256": "bf7f7585e9ab48c9ad52c9abab13df3c1632228337292605be45f698de55da6f",
+      "bytes": 4008
+    },
+    "B15-nonempty-negative-green.log": {
+      "sha256": "0c298c683067ca196b1b7ab28504ea5333b72abcf193745ee66b95108aba9cff",
+      "bytes": 5158
+    },
+    "B15-nonempty-purpose-driver-green.log": {
+      "sha256": "30a098eed066b05ea932a13549dde7b3f50cfcd60fc2d9ead2811f1888c3cfde",
+      "bytes": 969
+    },
+    "B15-nonempty-release-pin-candidate-failure.log": {
+      "sha256": "118bbfb784c673a9a5cc89aeefdf8bc2101cc0de9cae743659e6c5817a64d3c3",
+      "bytes": 1113
+    },
+    "B15-nonempty-release-pin-green.log": {
+      "sha256": "dc557e86fb8212a6dc6ab2ca62c528733c1404e6ad87427cdbe4e02850b1558d",
+      "bytes": 1263
+    },
+    "B15-nonempty-small-green.log": {
+      "sha256": "586557c9e7de66ceba57c6eabd63f97d63c0a4928c55a83d9043001a79c91c54",
+      "bytes": 16304
+    }
+  },
+  "limitations": [
+    "Independent source/security review and parent integration are pending.",
+    "No actual Firebase SDK/emulator/native rehearsal was launched by this author. N01-N14 remain parent/QA acceptance obligations.",
+    "63 tests include the original23 assertions unchanged; new full-tool acceptance guards are not missing-export RED evidence.",
+    "Application-visible read equivalents and visible callback attempts do not prove transport retries, provider billing, index-entry charges or latency bounds.",
+    "Production apply/restore/activation and direct CLI mutation are refused. No production data operation, deployment, merge or message delivery executed.",
+    "Restored-held does not release old workers or automatically reactivate. Unverifiable native conversion/source drift/custody/lock failure remains held.",
+    "The17 original skipped emulator test identities and mandatory full Flutter/physical-device acceptance remain explicit obligations.",
+    "No task or finding is CLOSED."
+  ]
+}

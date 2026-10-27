@@ -14,7 +14,8 @@ void test(
   async () => {
     const projectId = process.env.GCLOUD_PROJECT;
     assert.ok(projectId?.startsWith('demo-'));
-    const { db, close } = await callableEmulator();
+    const harness = await callableEmulator();
+    const { db, close } = harness;
     const [host, port] = process.env.FIRESTORE_EMULATOR_HOST!.split(':');
     const environment = await initializeTestEnvironment({
       projectId,
@@ -37,11 +38,9 @@ void test(
           status: 'open',
           createdAt: new Date(),
         };
+        await harness.seedEpisode(root, id, { stats: {} });
         await environment.withSecurityRulesDisabled(async (context) => {
           const seed = context.firestore().batch();
-          seed.set(context.firestore().doc(episodePath), {
-            stats: { commentsCount: 1 },
-          });
           seed.set(context.firestore().doc(commentPath), {
             episodeId: id,
             authorId: id,
@@ -58,6 +57,7 @@ void test(
             });
           await seed.commit();
         });
+        await harness.syncComment(root, id, 'comment');
         const results = await Promise.allSettled([
           reviewReport(
             db,

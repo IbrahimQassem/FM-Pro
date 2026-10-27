@@ -1,0 +1,176 @@
+{
+  "status": "LOCAL_GREEN_INDEPENDENT_SOURCE_REVIEW_CONDITIONS_SATISFIED_NATIVE_AND_INTEGRATION_PENDING",
+  "createdAt": "2026-10-26T23:29:21.048716+00:00",
+  "head": "c304e85963546220ccbdac51390fe0c03de02419",
+  "candidate": "/tmp/hudhud-b15-final-revision2",
+  "freezeSha256": "3c569daf0a0aa030e95bfda4ccab6a16a9b7e30ce5cb7b2564b7e62247232e6e",
+  "rootChecks": {
+    "tool/reconcile_comment_counts.mjs": {
+      "expected": "c46238aef4fdb072349e45c2e6f7a14ff2b50b24d15e7984448b89f5ae15709e",
+      "actual": "c46238aef4fdb072349e45c2e6f7a14ff2b50b24d15e7984448b89f5ae15709e",
+      "match": true
+    },
+    "tool/test/reconcile_comment_counts.test.mjs": {
+      "expected": "a5a575d211d2c59f5b5e8767ab9feb2bb44c535e776ef8def777258b728227e3",
+      "actual": "a5a575d211d2c59f5b5e8767ab9feb2bb44c535e776ef8def777258b728227e3",
+      "match": true
+    },
+    "docs/operations/background-consistency-migrations.md": {
+      "expected": "85c47271154a332ed2591b9cb74bf55f72069d5de8938f306842b36b63092fd8",
+      "actual": "85c47271154a332ed2591b9cb74bf55f72069d5de8938f306842b36b63092fd8",
+      "match": true
+    },
+    "functions/lib/comment-counts.js": {
+      "expected": "77fc7b9d0e97aabe92acf6b551c4ec021c72ae1defe7333e8983b736de49547a",
+      "actual": "77fc7b9d0e97aabe92acf6b551c4ec021c72ae1defe7333e8983b736de49547a",
+      "match": true
+    }
+  },
+  "candidateChecks": {
+    "tool/reconcile_comment_counts.mjs": {
+      "expected": "2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e",
+      "actual": "2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e",
+      "match": true
+    },
+    "tool/test/reconcile_comment_counts.test.mjs": {
+      "expected": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc",
+      "actual": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc",
+      "match": true
+    },
+    "docs/operations/background-consistency-migrations.md": {
+      "expected": "d9dfc0f2b0662c0de5e36a0b9de2ca3dea35923b18e30063e19bf4cccddd3f19",
+      "actual": "d9dfc0f2b0662c0de5e36a0b9de2ca3dea35923b18e30063e19bf4cccddd3f19",
+      "match": true
+    },
+    "functions/lib/comment-counts.js": {
+      "expected": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04",
+      "actual": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04",
+      "match": true
+    }
+  },
+  "patches": {
+    "/tmp/hudhud-b15-final2-implementation.patch": "1dad0e8542316e42b20c8caf3a99f857ea95a21f14954aa4a5f7f4d6310816ee",
+    "/tmp/hudhud-b15-final2-partial-corrections.patch": "76357ef213851438f4208f1f1ebcd1450e6c283902c803e9dd032435cd27f2c1",
+    "/tmp/hudhud-b15-final2-review-corrections.patch": "453d11e0809074ebcc638a627f2a93834c6c088201eae40b55f933522a6ab679",
+    "/tmp/hudhud-b15-status-projection-export.patch": "80844b884f0c851dadafa5aa2dc1c7e8823bf01fb62122dda1bfc783eb8dd540"
+  },
+  "contracts": {
+    "docs/contracts/firebase-data-contract.md": "4e67f7d3fcc690c21285e9992eddea9b346e64059dcd03914c1536962106e097",
+    "docs/contracts/content-automation-contract.md": "dd2c1eddf0e8b838000828cc81a5e1a6f27d0c97c4c9abf03be30404209b3f8f",
+    "docs/decisions/0006-background-consistency-and-schedule-timezones.md": "ef0db668fc0ebf3357a9df2e042d75964abb6187da7bd2fc23e9dff087e4d2ed"
+  },
+  "fullGate": {
+    "nodeExecutable": "/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node",
+    "nodeVersion": "v22.23.3",
+    "command": "PATH=/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin:$PATH node --test tool/test/reconcile_comment_counts.test.mjs",
+    "cwd": "/tmp/hudhud-b15-final-revision2",
+    "tests": 150,
+    "pass": 150,
+    "fail": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "exitCode": 0,
+    "durationMs": 507982.151104,
+    "log": "B15-final2-full-green.log",
+    "sha256": "fe521e4f834c5a83584400422076de20954451263c1725f47cb9de0de4fe376f"
+  },
+  "otherGates": {
+    "focused87": "87PASS0skip",
+    "Functions": "328PASS0skip",
+    "lint": "exit0",
+    "syntax": "tool/test exit0",
+    "patchCheck": "root main+core export each git apply --check exit0, not applied"
+  },
+  "otherLogHashes": {
+    "B15-final2-focused-green.log": "03bb6e9980455848815279e4a11e9972e5c88c3d5bd38df8189050b444e58ccd",
+    "B15-final2-lint-green.log": "9cb86fb875f0a2ccbac02e6d7f904bd806d6c85c4b8453c4fd9e7366d182e45b",
+    "B15-final2-functions-green.log": "a477b6553c68f5ee3833d0acbdf2636b8763dd962f9df4b48187914336f7cefe",
+    "B15-final2-full-green.log": "fe521e4f834c5a83584400422076de20954451263c1725f47cb9de0de4fe376f"
+  },
+  "reviews": {
+    ".boss/technical-review/B15-nonempty-source-review.md": {
+      "sha256": "5923d3d9d8ac0cfa31582bb655381bb95406bdb78780bcc8ababbfeb72e17d59",
+      "decision": "Exact final2 source conditionally independently approved; author full150 condition now satisfied, native/integration conditions remain"
+    },
+    ".boss/technical-review/B15-nonempty-security-review.md": {
+      "sha256": "b0ea7c3e0a479a307ae909ff37f97a943eb571e23ca306052628f7078608b8ba",
+      "decision": "Exact final2 source conditionally independently approved; author full150 condition now satisfied, native/integration conditions remain"
+    }
+  },
+  "functionsSnapshot": {
+    "functions/index.js": "e25125f6e8d1c27c8984b0a6e40adea06e1d9c44c969a1cda124540accf32a08",
+    "functions/lib/account-deletion.js": "2d1bd423af798745fc28bf9034a55170889e266ba4aa9edc396187ae0e26fba0",
+    "functions/lib/admin-content-authorization.js": "42e2327092b52b1fc2703f13330d05f4f144d7cd417baedf77dde7b81b2a1382",
+    "functions/lib/admin-content-delete.js": "2f9e8b003717eeecb4d7c141caa431064a120990466f435b0a9f841bac427a58",
+    "functions/lib/admin-content-relations.js": "a7fb618a56426db353c08ea9a238311a0aed01c4331fb18548a2081726d38b58",
+    "functions/lib/admin-content.js": "6de10c3de670cc079a710a46e798f41b54eadfc3656e61b15517cb149c529940",
+    "functions/lib/admin-images.js": "5ad89e3ab537cb8f47520f4bcd2c8aca1c753256b47318bb289376d2de37cfb9",
+    "functions/lib/admin-report-review.js": "684c26a317b0aefb5375679fffd9e6a4933cfb703afe7026be7cb5cfaf783dc8",
+    "functions/lib/admin-user-count.js": "1b30bbb90e37ed83cf0622304eb11dbca966e46f8fea7ac2d1d90e289a9eb086",
+    "functions/lib/advertising-handlers.js": "d00590432e3a4cf966fb1beee48b04998084202655746687510382c832c706ea",
+    "functions/lib/advertising.js": "971e4b467bcc163e4d0d3a303f3af3055ff4e4d4e4037e74d54bb97a224f3d71",
+    "functions/lib/comment-count-maintenance.js": "1a4f6ab12f8a7bc2dadb8f2ff4966829f8d37df08a028472c20076dcfd0f2d70",
+    "functions/lib/comment-counts.js": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04",
+    "functions/lib/comment-moderation.js": "f2a3e61d94faef6e5d26ed910159832389a1809876052dbda79551821af8225c",
+    "functions/lib/editorial-audit.js": "4950f4088b7fdb6f97abf1e6b38246580cc6b155c34ce8878b8aa7cc78e47016",
+    "functions/lib/email-verification.js": "4239227381b3ed6e2c53585d11b1774b2da82865af572476b766d316daa07e52",
+    "functions/lib/episode-alerts.js": "d33233b6578e38a3d49aea01a8279f4404181f78c70328a8ad0352088f91a729",
+    "functions/lib/notification-delivery.js": "3d44097a19484335bc0f2145c0c334ed95d3a1dcacd23aece3909de2555f881f",
+    "functions/lib/profile-images.js": "ba249a879054df712eb432c808bf32a279056d9aafdca6cbd35ddb74f5bcc38c",
+    "functions/lib/program-notifications.js": "26f4485e5cbca1a8577c6e4d5799da2ad8475393e249e6a45e4c76a41de954b9",
+    "functions/lib/public-fetch.js": "158669c0ac900b1b91f196ff1df1c474e6420a4b942def6044b9cf88eebd7912",
+    "functions/lib/public-web.js": "a4c2736df2e4067a4b0f014379333f5e9dfe2dab00750ab1543c4d9cd0443e5d",
+    "functions/lib/rss-ingestion.js": "809c0b17f2c9bfcb5e39a26ef9969c905cda0a655937d7ce740c914493fe195c",
+    "functions/lib/station-privacy.js": "d5ba30dead1e65a34d3cb253e8e91a730a3b4a5e66adf88e849b069d3df85305",
+    "functions/lib/station-subscriptions.js": "78fbe5443784770852fc23cfa2cbcd6c2abadf8c21b7f4cc9c773c18e98f39cb",
+    "functions/lib/stream-health-progress.js": "8a72080287fb202e71b70fb539f27c23028f09d099c4a28083fddd874fe3c6f2",
+    "functions/lib/stream-health.js": "801a0ae7ac5b451db9dfcfe8f1f60213f56990abdcc43fcd01cc95ce6e25feeb",
+    "functions/lib/user-management.js": "d60d814861ff2b095b03ba82e110da2517bc8bce2aa6e5032f30d2fbd604ed59",
+    "functions/test/account-deletion.test.js": "8616c4d328487a04ba58ab0b7c5b4aeeec5a38f5a8c0822150276211bb63c7c2",
+    "functions/test/admin-content-delete.test.js": "065ac6869788204e131574f5698d4ff7189790c9211442e610888a3c37978715",
+    "functions/test/admin-content.test.js": "19a4602fba970f421ef0b703f87caf572e89a427db853f01886bff4a7c2bb211",
+    "functions/test/admin-images.test.js": "92160bb0f14428341a60ad3f4268fd8af579f0b3fe82e79f369078d7642a7b51",
+    "functions/test/admin-report-review.test.js": "068c18439fbedcaf47624c1d317f90632b70ac3429e37771c8c1a13a6bf042d1",
+    "functions/test/admin-user-count.test.js": "0c0325f13f16d21d6593d297bc2d7ee298a90bb47fa035880de1723bf91bfab8",
+    "functions/test/advertising.test.js": "1dba889d968ebabbc61ee6123b36706fb8f2da02370299071f6bc3884772ea25",
+    "functions/test/comment-counts.test.js": "271a4e7063a55b1bae63053dd998687bf88189389d5a314a1e67d37c38a03fd9",
+    "functions/test/comment-moderation.test.js": "158fee440b4cc34990c614f98c366ac34a74aa757cb0ec7bbf176594314dfec0",
+    "functions/test/editorial-audit.test.js": "e67c6473baca18b0197c26c7903650ee46e98919ce90b69a8fc92867605e52fc",
+    "functions/test/email-verification.test.js": "9641b61f858493904bc61800a01243e7e37965ae7445b82bfe7ec3988fd08a1c",
+    "functions/test/notification-delivery.test.js": "3b45e54a07a46d1ddb627ddb09c81b8250a550d8c5ad605fc5b085fce250b420",
+    "functions/test/profile-images.test.js": "f9bc7e6bcfa376694a21b18022bd04a2a48c612719f6884b16fa9ac938056432",
+    "functions/test/program-notifications.test.js": "02277c7b09ebfbd2cfb54ccf9ecda9b6a8369763c827633df64eb0e1c4d5fb33",
+    "functions/test/public-fetch.test.js": "0700d90aef1d5e88e01d8dd3a0ebf20d2dbcc253eaeb8296717cc71bc45d498b",
+    "functions/test/public-web.test.js": "7d0cf034f128f685186ba4fa0a93b3fbdfde65c822db23d87db0c5aebc63a435",
+    "functions/test/regional-location.test.js": "ade85b0f603ce3b7bdf018d91fc54622eac4ee72dd2f145f0adb72af77dad8fe",
+    "functions/test/rss-ingestion.test.js": "183cc4ac37199547f3877522e52339972a4a7b9d4ba08f522942466a1ad1963b",
+    "functions/test/station-privacy.test.js": "7c654b80ee9977e6101ac347e85037902a696e077cc5a5151a09b2fd94019737",
+    "functions/test/station-subscriptions.test.js": "8cb247a6fda6ddf838c91b167824edda2f25002bab475f1f249f21ee1cf90ec6",
+    "functions/test/stream-health-progress.test.js": "13b36dbd1d10c251bea2802a791002b0f16f422d61a614c1d4586b21445b588c",
+    "functions/test/stream-health.test.js": "517827fbda8ba33033983bbf1ed4937397137a71d512864a926e3304c5738b49",
+    "functions/test/support/comment-count-fixture.js": "8cfc54bc8779c152a8331b97161eca30bd1cbea9998f143bdce92c533a96244f",
+    "functions/test/user-management.test.js": "7b21ef45c335e23363838b042829603c7f53a619684f7f5b87582f433bc8d6c6"
+  },
+  "functionsRootDifferences": {
+    "functions/lib/comment-counts.js": {
+      "candidate": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04",
+      "root": "77fc7b9d0e97aabe92acf6b551c4ec021c72ae1defe7333e8983b736de49547a"
+    }
+  },
+  "historicalEvidence": [
+    "B15-review-regressions-tests-only-provenance.json:15 intendedreviewRED+3controls",
+    "B15-consolidated-schema-tests-only-provenance.json:cursor2RED+1control;43safealready-deniedguards notRED",
+    "B15-partial-tests-only-provenance.json:10positivepartialbusinessRED+7maskedguards;alloriginal127unchanged",
+    "B15-partial-entry-only-provenance.json:legitimateentryhealthythen2actual lateparentedit/ABA MissingExpectedRejection before CASfix",
+    "B15-review-revision-intermediate-provenance.json:interruptedpartialfulls not fullPASS",
+    "B15-aa3-full127-superseded-partial.log:24passes before deliberate parentstop, notfullPASS"
+  ],
+  "remaining": [
+    "Parent integration of four approved paths and exact combined source Functions/lint/focused checks.",
+    "Parent/QA actual SDK/emulator N01-N14 and approved103-case fixture, Rules/privatepermission/worker/account/editorial gates including supplemental partial/native recovery obligations.",
+    "Full04-T09/B15 and R12 acceptance remainOPEN; no finding CLOSED.",
+    "17original skipped emulator identities, fullFlutter/browser/physical-device acceptance remain tracked.",
+    "Production support/isolated old-writer proof/apply/restore/activation/deployment/merge require separate supported authorization and remain refused here."
+  ],
+  "safety": "No source modifications to root or earlier frozen candidates, no nativeSDK/emulator/F/production/data migration/deployment/merge/real messaging by this author."
+}

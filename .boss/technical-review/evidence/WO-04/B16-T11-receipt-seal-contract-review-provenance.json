@@ -1,0 +1,40 @@
+{
+  "status": "APPROVED_TECHNICAL_RECEIPT_SEAL_CONTRACT_SOURCE_REVIEW_PENDING",
+  "reviewer": "/root/b10_review",
+  "patchSha256": "cc824f1f6e3f446c0ef4c027c13c7061abc0f7a7f24b6a3f5cbe3f5f4e119541",
+  "proposalProvenanceSha256": "d60c3bf4e490dadaea859006ba17bdff9858f468bc6b41866790f54394c4bc43",
+  "reviewSha256": "1d400538de9c24ffea24c071d8642c3cd0bf90e5064912a13b31fb1e30e58eef",
+  "baselinesAndProposals": {
+    "docs/contracts/firebase-data-contract.md": {
+      "before": "c64d950ffd46eb1f0a5a9d270fa499c83c1b3c99889de4583a1d110e33d1e8cb",
+      "after": "c2613a34c6159715e66f98f0a543388ff151e62893e219d934140825d5f27692",
+      "originalPrefixByteIdentical": true
+    },
+    "docs/decisions/0006-background-consistency-and-schedule-timezones.md": {
+      "before": "524929cd3e14c8c079497821f7f73823225a4e7475d5c80400a268f857b62a5c",
+      "after": "972551c5567d4903f91b7424c578a1332dfc30d2f4d1062b2780811cce194803",
+      "originalPrefixByteIdentical": true
+    },
+    "docs/operations/background-consistency-migrations.md": {
+      "before": "fe7a31b345b8537d32ea5451951b00fbb40c0e37181263d09b92dec917e51258",
+      "after": "4d7d87033e26f088a83d0622042388afec884fdb003a79d65d2dc8c477af73e3",
+      "originalPrefixByteIdentical": true
+    },
+    "patchSha256": "cc824f1f6e3f446c0ef4c027c13c7061abc0f7a7f24b6a3f5cbe3f5f4e119541"
+  },
+  "checks": {
+    "gitApplyCheck": 0,
+    "appendOnlyAllThree": true,
+    "B15CountAppendicesPreserved": true,
+    "boundedTwoFields": true,
+    "pendingAtomicOwnershipRecovery": true,
+    "newDependencyEdges": 0
+  },
+  "notApproved": [
+    "mutable source",
+    "SDK acceptance",
+    "production",
+    "finding closure"
+  ],
+  "sourceAndContractWrites": false
+}

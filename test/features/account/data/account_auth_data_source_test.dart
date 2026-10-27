@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,6 +9,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hudhud_fm/core/config/firestore_paths.dart';
 import 'package:hudhud_fm/core/config/profile_avatar.dart';
 import 'package:hudhud_fm/features/account/data/datasources/account_auth_data_source.dart';
+import 'package:hudhud_fm/features/account/data/repositories/firebase_account_repository.dart';
+import 'package:hudhud_fm/features/account/domain/repositories/account_repository.dart';
+import 'package:hudhud_fm/features/account/presentation/controllers/account_controller.dart';
 
 void main() {
   late _User user;
@@ -28,6 +32,77 @@ void main() {
       _Google(),
       _Facebook(),
     );
+  });
+
+  for (final outcome in ['sent:false', 'unavailable', 'resource-exhausted']) {
+    test('registration delivery $outcome retains account and permits resend',
+        () async {
+      final messages = <String>[];
+      final previousDebugPrint = debugPrint;
+      debugPrint = (message, {wrapWidth}) {
+        if (message != null) messages.add(message);
+      };
+      addTearDown(() => debugPrint = previousDebugPrint);
+      user.emailVerified = false;
+      user.provider = 'password';
+      auth.registrationFlow = true;
+      addTearDown(auth.registrationEvents.close);
+      if (outcome == 'sent:false') {
+        functions.responses['requestEmailVerificationCode'] = {'sent': false};
+      } else {
+        functions.errors['requestEmailVerificationCode'] =
+            FirebaseFunctionsException(
+                code: outcome, message: 'Synthetic sensitive delivery details');
+      }
+      final controller = AccountController(FirebaseAccountRepository(source));
+      addTearDown(controller.dispose);
+      await pumpEventQueue();
+      await controller.register(
+          displayName: 'Synthetic listener',
+          email: 'listener@example.test',
+          password: 'test-only');
+      await pumpEventQueue();
+      expect(auth.creationCalls, 1);
+      expect(auth.currentUser, same(user));
+      expect(user.deletionCalls, 0);
+      expect(messages, isEmpty);
+      expect(controller.state.user?.emailVerified, false);
+      expect(controller.state.verificationCodeSent, false);
+      expect(
+          controller.state.failure,
+          outcome == 'resource-exhausted'
+              ? AccountFailure.verificationRateLimited
+              : AccountFailure.verificationDeliveryFailed);
+      expect(functions.calls.length, 1);
+      functions.errors.clear();
+      functions.responses['requestEmailVerificationCode'] = {'sent': true};
+      await controller.requestEmailVerificationCode();
+      expect(controller.state.verificationCodeSent, true);
+      expect(controller.state.failure, isNull);
+      expect(controller.state.user?.emailVerified, false);
+      expect(auth.creationCalls, 1);
+      expect(functions.calls.length, 2);
+    });
+  }
+
+  test('registration creation failure never dispatches or marks code sent',
+      () async {
+    auth.registrationFlow = true;
+    auth.creationError = FirebaseAuthException(code: 'weak-password');
+    addTearDown(auth.registrationEvents.close);
+    final controller = AccountController(FirebaseAccountRepository(source));
+    addTearDown(controller.dispose);
+    await pumpEventQueue();
+    await controller.register(
+        displayName: 'Synthetic',
+        email: 'new@example.test',
+        password: 'test-only');
+    expect(controller.state.failure, AccountFailure.weakPassword);
+    expect(controller.state.verificationCodeSent, false);
+    expect(controller.state.user, isNull);
+    expect(functions.calls, isEmpty);
+    expect(auth.creationCalls, 1);
+    expect(user.deletionCalls, 0);
   });
 
   for (final code in <String?>[null, '']) {
@@ -246,6 +321,19 @@ void main() {
 
 class _Auth implements FirebaseAuth {
   _Auth(this.currentUser);
+  int creationCalls = 0;
+  FirebaseAuthException? creationError;
+  bool registrationFlow = false;
+  final registrationEvents = StreamController<User?>.broadcast();
+  @override
+  Future<UserCredential> createUserWithEmailAndPassword(
+      {required String email, required String password}) async {
+    creationCalls++;
+    if (creationError case final error?) throw error;
+    registrationEvents.add(currentUser);
+    return _Credential(currentUser);
+  }
+
   final revokedCodes = <String>[];
   @override
   Future<void> revokeTokenWithAuthorizationCode(String code) async {
@@ -257,7 +345,11 @@ class _Auth implements FirebaseAuth {
   @override
   final _User currentUser;
   @override
-  Stream<User?> userChanges() => Stream.value(currentUser);
+  Stream<User?> userChanges() async* {
+    yield registrationFlow ? null : currentUser;
+    if (registrationFlow) yield* registrationEvents.stream;
+  }
+
   @override
   Future<UserCredential> signInWithEmailAndPassword(
           {required String email, required String password}) async =>
@@ -267,6 +359,14 @@ class _Auth implements FirebaseAuth {
 }
 
 class _User implements User {
+  int deletionCalls = 0;
+  @override
+  Future<void> delete() async {
+    deletionCalls++;
+  }
+
+  @override
+  Future<void> updateDisplayName(String? displayName) async {}
   @override
   bool emailVerified = true;
   @override

@@ -110,3 +110,57 @@ the earlier topic-only/no-payload-navigation boundary for version-1 episode aler
 only. General announcements remain independent; arbitrary URLs remain rejected.
 Private device/job paths are denied by the default Rules, including admin clients.
 No production deployment or app release is included.
+
+
+## WO-02 registration outcome and notification handoff reconciliation
+
+Email/password account creation and verification-code delivery are separate
+outcomes. Once Auth creation succeeds, a rejected or unavailable delivery request
+or rate limit leaves that account signed in and unverified. Registration returns
+AccountRegistrationResult with sent, failed or rateLimited verificationDelivery;
+only an explicit callable response with sent == true sets verificationCodeSent.
+That response acknowledges dispatch, not inbox receipt or email verification. A
+creation failure does not report delivery success or dispatch a verification code.
+No raw delivery exception, password or account data is logged.
+
+The controller prevents a second create request while registration is pending or
+a user/account has already been created; recovery uses the existing resend flow.
+Each resend clears prior sent feedback before requesting delivery, so a later
+failure cannot coexist with stale success. Delayed Auth events retain the pending
+registration outcome for its identity, while identity changes/disposal invalidate
+stale asynchronous delivery results. Existing localized sent/failure/rate-limit
+feedback and verification/resend UI remain in use. Delivery never grants verified
+status, listener-profile creation, personal writes or UGC privileges: trusted
+Firebase Auth verification and the existing server/Rules gates remain authoritative.
+
+Source: [registration result](../../lib/features/account/domain/models/account_registration_result.dart),
+[Auth datasource](../../lib/features/account/data/datasources/account_auth_data_source.dart),
+[repository](../../lib/features/account/data/repositories/firebase_account_repository.dart)
+and [controller](../../lib/features/account/presentation/controllers/account_controller.dart).
+Permanent regressions cover [dispatch outcomes](../../test/features/account/data/account_auth_data_source_test.dart),
+[controller lifecycle/resend](../../test/features/account/presentation/account_controller_test.dart)
+and [registration UI](../../test/features/account/presentation/register_screen_test.dart).
+[B08 evidence](../../.boss/technical-review/evidence/WO-02/B08-provenance.json)
+retains the real pre-fix delivery failures and subsequent focused/integrated checks.
+
+Version-1 episode alerts retain the allowlisted ADR 0003 handoff.
+[openEpisodeAlert](../../lib/features/notifications/presentation/episode_alert_navigation.dart)
+validates the selected root and root:episode event identity, then resolves the
+canonical station/program/episode target directly through the existing repository.
+It does not depend on a station's first content page or fetch the whole catalog.
+A valid result opens ProgramDetailsScreen highlighting that episode; it does not
+start audio. Duplicate taps share one in-flight lookup, and an unmounted view
+receives no late navigation. Missing content returns to the first route with
+localized unavailable feedback; lookup errors use localized load failure.
+Arbitrary URLs, cross-root targets and notification-carried media URLs gain no
+navigation or playback authority. General announcements, consent and private
+device/job permissions remain unchanged.
+
+[Permanent navigation tests](../../test/features/notifications/presentation/episode_alert_navigation_test.dart)
+cover available/missing/offline targets, direct resolution outside the first
+page, duplicate taps/disposal and zero audio starts. Recorded full Flutter/build
+evidence is linked in the [playback reconciliation](playback-contract.md#wo-02-timer-and-completed-replay-reconciliation).
+It does not establish actual APNs/FCM delivery, browser acceptance or physical
+Android/iPhone behavior. Final merged-candidate tests, device notification/audio
+acceptance and independent WO-02 review/QA remain mandatory. No security gate or
+finding status changes through this documentation-only reconciliation.

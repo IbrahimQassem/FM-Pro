@@ -1,0 +1,4 @@
+{
+  "functions/lib/comment-moderation.js": "5b686880611ddb023ca18b511b2357a15a6a4d999fcd44f720d9c1e4b074617a",
+  "functions/test/comment-moderation.test.js": "2b7b4abc15b2f50a44bc06c545d6e582f0a3116afeb82ab2fddc91c72b8ec62d"
+}

@@ -1,3 +1,4 @@
+import 'package:hudhud_fm/features/account/domain/models/account_registration_result.dart';
 import 'dart:typed_data';
 import 'dart:async';
 
@@ -51,17 +52,16 @@ void main() {
     addTearDown(controller.dispose);
     addTearDown(repository.dispose);
 
-    repository.emit(_user);
-    await Future<void>.delayed(Duration.zero);
-    expect(controller.state.user?.uid, 'user-1');
-    expect(controller.state.isInitializing, isFalse);
-
     await controller.register(
       displayName: 'Listener',
       email: 'listener@example.com',
       password: 'password123',
     );
     expect(repository.didRegister, isTrue);
+    repository.emit(_user);
+    await Future<void>.delayed(Duration.zero);
+    expect(controller.state.user?.uid, 'user-1');
+    expect(controller.state.isInitializing, isFalse);
 
     await controller.signOut();
     expect(repository.didSignOut, isTrue);
@@ -120,6 +120,169 @@ void main() {
     expect(repository.provider, AccountSignInProvider.google);
     expect(controller.state.providerLinked, isTrue);
   });
+
+  for (final delivery in AccountVerificationDelivery.values) {
+    test('registration exposes normalized $delivery without verifying user',
+        () async {
+      final repository = _FakeAccountRepository()..delivery = delivery;
+      final controller = AccountController(repository);
+      addTearDown(controller.dispose);
+      addTearDown(repository.dispose);
+      await controller.register(
+          displayName: 'Synthetic',
+          email: 'new@example.test',
+          password: 'test-only');
+      repository.emit(_unverifiedUser);
+      await pumpEventQueue();
+      expect(controller.state.verificationCodeSent,
+          delivery == AccountVerificationDelivery.sent);
+      expect(
+          controller.state.failure,
+          switch (delivery) {
+            AccountVerificationDelivery.sent => null,
+            AccountVerificationDelivery.failed =>
+              AccountFailure.verificationDeliveryFailed,
+            AccountVerificationDelivery.rateLimited =>
+              AccountFailure.verificationRateLimited,
+          });
+      expect(controller.state.user?.emailVerified, false);
+      await controller.register(
+          displayName: 'Synthetic',
+          email: 'new@example.test',
+          password: 'test-only');
+      expect(repository.registerCalls, 1);
+    });
+  }
+
+  test(
+      'registration Auth event keeps submission owned and prevents duplicate creation',
+      () async {
+    final repository = _FakeAccountRepository()
+      ..registrationBarrier = Completer<void>()
+      ..delivery = AccountVerificationDelivery.failed;
+    final controller = AccountController(repository);
+    addTearDown(controller.dispose);
+    addTearDown(repository.dispose);
+    final registering = controller.register(
+        displayName: 'Synthetic',
+        email: 'new@example.test',
+        password: 'test-only');
+    repository.emit(_unverifiedUser);
+    await pumpEventQueue();
+    expect(controller.state.isSubmitting, true);
+    await controller.register(
+        displayName: 'Duplicate',
+        email: 'new@example.test',
+        password: 'test-only');
+    await controller.requestEmailVerificationCode();
+    expect(repository.registerCalls, 1);
+    expect(repository.requestCalls, 0);
+    repository.registrationBarrier!.complete();
+    await registering;
+    repository.emit(_unverifiedUser);
+    await pumpEventQueue();
+    expect(controller.state.failure, AccountFailure.verificationDeliveryFailed);
+    expect(controller.state.verificationCodeSent, false);
+    expect(controller.state.isSubmitting, false);
+    await controller.requestEmailVerificationCode();
+    expect(repository.requestCalls, 1);
+    expect(controller.state.verificationCodeSent, true);
+    expect(controller.state.failure, isNull);
+  });
+
+  test('registration creation failure stays failed and permits a later attempt',
+      () async {
+    final repository =
+        _FakeAccountRepository(actionFailure: AccountFailure.emailAlreadyInUse);
+    final controller = AccountController(repository);
+    addTearDown(controller.dispose);
+    addTearDown(repository.dispose);
+    await controller.register(
+        displayName: 'Synthetic',
+        email: 'new@example.test',
+        password: 'test-only');
+    expect(controller.state.failure, AccountFailure.emailAlreadyInUse);
+    expect(controller.state.verificationCodeSent, false);
+    expect(controller.state.user, isNull);
+    repository.actionFailure = null;
+    await controller.register(
+        displayName: 'Synthetic',
+        email: 'new@example.test',
+        password: 'test-only');
+    expect(controller.state.verificationCodeSent, true);
+  });
+
+  test('resend clears stale sent on start and failure and can recover',
+      () async {
+    final repository = _FakeAccountRepository();
+    final controller = AccountController(repository);
+    addTearDown(controller.dispose);
+    addTearDown(repository.dispose);
+    repository.emit(_unverifiedUser);
+    await pumpEventQueue();
+    await controller.requestEmailVerificationCode();
+    expect(controller.state.verificationCodeSent, true);
+    repository.requestBarrier = Completer<void>();
+    repository.actionFailure = AccountFailure.verificationRateLimited;
+    final resending = controller.requestEmailVerificationCode();
+    expect(controller.state.verificationCodeSent, false);
+    repository.emit(_unverifiedUser);
+    await pumpEventQueue();
+    expect(controller.state.isSubmitting, true);
+    await controller.requestEmailVerificationCode();
+    expect(repository.requestCalls, 2);
+    repository.requestBarrier!.complete();
+    await resending;
+    expect(controller.state.failure, AccountFailure.verificationRateLimited);
+    expect(controller.state.verificationCodeSent, false);
+    repository.actionFailure = null;
+    await controller.requestEmailVerificationCode();
+    expect(controller.state.failure, isNull);
+    expect(controller.state.verificationCodeSent, true);
+  });
+
+  for (final operation in ['register', 'resend']) {
+    for (final interrupt in ['identity', 'dispose']) {
+      test('$operation ignores late delivery after $interrupt', () async {
+        final repository = _FakeAccountRepository();
+        final barrier = Completer<void>();
+        final controller = AccountController(repository);
+        addTearDown(repository.dispose);
+        if (operation == 'resend') {
+          repository.emit(_unverifiedUser);
+          await pumpEventQueue();
+          repository.requestBarrier = barrier;
+        } else {
+          repository.registrationBarrier = barrier;
+        }
+        final pending = operation == 'register'
+            ? controller.register(
+                displayName: 'Synthetic',
+                email: 'new@example.test',
+                password: 'test-only')
+            : controller.requestEmailVerificationCode();
+        if (interrupt == 'dispose') {
+          controller.dispose();
+        } else {
+          if (operation == 'register') {
+            repository.emit(_unverifiedUser);
+            await pumpEventQueue();
+          }
+          repository.emit(_user);
+          await pumpEventQueue();
+          addTearDown(controller.dispose);
+        }
+        barrier.complete();
+        await pending;
+        if (interrupt == 'identity') {
+          expect(controller.state.user, _user);
+          expect(controller.state.verificationCodeSent, false);
+          expect(controller.state.failure, isNull);
+          expect(controller.state.isSubmitting, false);
+        }
+      });
+    }
+  }
 }
 
 const _user = AccountUser(
@@ -142,6 +305,11 @@ class _FakeAccountRepository implements AccountRepository {
   AccountFailure? actionFailure;
   final _controller = StreamController<AccountUser?>.broadcast();
   bool didRegister = false;
+  int registerCalls = 0;
+  int requestCalls = 0;
+  AccountVerificationDelivery delivery = AccountVerificationDelivery.sent;
+  Completer<void>? registrationBarrier;
+  Completer<void>? requestBarrier;
   bool didSignOut = false;
   String? deletionPassword;
   String? verificationCode;
@@ -155,13 +323,17 @@ class _FakeAccountRepository implements AccountRepository {
   Stream<AccountUser?> watchAccount() => _controller.stream;
 
   @override
-  Future<void> register({
+  Future<AccountRegistrationResult> register({
     required String displayName,
     required String email,
     required String password,
   }) async {
     _throwIfNeeded();
     didRegister = true;
+    registerCalls++;
+    await registrationBarrier?.future;
+
+    return AccountRegistrationResult(verificationDelivery: delivery);
   }
 
   @override
@@ -175,6 +347,8 @@ class _FakeAccountRepository implements AccountRepository {
 
   @override
   Future<void> requestEmailVerificationCode({String? email}) async {
+    requestCalls++;
+    await requestBarrier?.future;
     _throwIfNeeded();
   }
 

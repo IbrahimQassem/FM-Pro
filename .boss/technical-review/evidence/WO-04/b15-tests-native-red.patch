@@ -1,0 +1,173 @@
+--- a/functions/test/editorial-audit.test.js
++++ b/functions/test/editorial-audit.test.js
+@@ -321,3 +321,26 @@
+     });
+   }
+ }
++
++test('active episode creation installs its real empty count baseline in the same native commit', async () => {
++  const { MemoryFirestore, FieldValue } = await import('./support/comment-count-fixture.js');
++  const db = new MemoryFirestore(), root = 'HudHudDev';
++  db.seed(`${root}/commentCountContributions`, { version: 1, writerProtocol: 1, state: 'active', generation: 4, owner: 'unit',
++    planHash: 'a'.repeat(64), leaseUntil: 0, activeFrom: FieldValue.serverTimestamp(), baselineManifestHash: 'b'.repeat(64) });
++  db.seed(`${root}/stations/stations/station-a`, { isActive: true });
++  db.seed(`${root}/programs/programs/program-a`, { stationId: 'station-a', stats: { episodesCount: 0 } });
++  await saveAdminContent({ firestore: db, callerUid: 'super', callerRole: 'super_admin', callerClaims: { role: 'super_admin' },
++    data: { root, kind: 'episodes', id: 'native-episode', expected: null, content: validContent('episodes') } });
++  const episode = db.snapshot(`${root}/episodes/episodes/native-episode`), baseline = db.snapshot(`${root}/commentCountContributions/episodes/native-episode`);
++  assert.equal(episode.get('stats.commentsCount'), 0); assert.equal(episode.createTime.isEqual(baseline.get('episodeCreateTime')), true);
++});
++for (const kind of ['episodes', 'programs']) test(`paused root blocks authorized ${kind} mutation before any public or private write`, async () => {
++  const { MemoryFirestore } = await import('./support/comment-count-fixture.js'); const db = new MemoryFirestore(), root = 'HudHudDev';
++  db.seed(`${root}/commentCountContributions`, { version: 1, writerProtocol: 1, state: 'paused', generation: 4, owner: 'unit', planHash: 'a'.repeat(64), leaseUntil: 0 });
++  const before = { ...validContent(kind), title: 'Before', stats: kind === 'programs' ? { episodesCount: 0 } : { commentsCount: 0 } };
++  db.seed(`${root}/${kind}/${kind}/target`, before);
++  await assert.rejects(saveAdminContent({ firestore: db, callerUid: 'super', callerRole: 'super_admin', callerClaims: { role: 'super_admin' },
++    data: { root, kind, id: 'target', expected: editableContent(kind, before), content: { ...editableContent(kind, before),
++      ...(kind === 'programs' ? { stationId: 'station-b' } : { title: 'After' }) } } }), error => error.retryable && error.details.reason === 'comment-count-maintenance');
++  assert.equal(db.writes.length, 0);
++});
+--- a/functions/test/admin-report-review.test.js
++++ b/functions/test/admin-report-review.test.js
+@@ -16,3 +16,15 @@
+   await assert.rejects(reviewAdminReport(base), { code: 'permission-denied' });
+   await assert.rejects(reviewAdminReport({ ...base, callerRole: 'listener', callerClaims: { allStations: true }, data: { ...base.data, resolution: 'noAction' } }), { code: 'permission-denied' });
+ });
++
++test('paused root manual review cannot commit a report decision or comment mutation', async () => {
++  const { MemoryFirestore } = await import('./support/comment-count-fixture.js'), db = new MemoryFirestore(), root = 'HudHudDev';
++  const path = `${root}/users/users/reporter/commentReportEpisodes/e/moderationReports/c`;
++  db.seed(`${root}/commentCountContributions`, { version: 1, writerProtocol: 1, state: 'paused', generation: 1, owner: 'unit', planHash: 'a'.repeat(64), leaseUntil: 0 });
++  db.seed(path, { status: 'open', reportedAuthorId: 'author', episodeId: 'e', commentId: 'c' });
++  db.seed(`${root}/episodes/episodes/e`, { stationId: 'station', stats: { commentsCount: 1 } });
++  db.seed(`${root}/episodes/episodes/e/comments/c`, { authorId: 'author', status: 'published' });
++  await assert.rejects(reviewAdminReport({ firestore: db, callerUid: 'super', callerRole: 'super_admin', callerClaims: { role: 'super_admin' },
++    data: { root, path, resolution: 'commentHidden' } }), error => error.retryable && error.details.reason === 'comment-count-maintenance');
++  assert.equal(db.writes.length, 0); assert.equal(db.snapshot(path).get('status'), 'open');
++});
+--- a/functions/test/admin-content-delete.test.js
++++ b/functions/test/admin-content-delete.test.js
+@@ -108,3 +108,20 @@
+     assert.equal(result.action, 'unchanged');
+   });
+ }
++
++test('pause between episode deletion phases retains token and parent instead of bypassing the fence in cleanup', async () => {
++  const { MemoryFirestore, FieldValue } = await import('./support/comment-count-fixture.js');
++  const db = new MemoryFirestore(), root = 'HudHudDev', path = `${root}/episodes/episodes/e`, fencePath = `${root}/commentCountContributions`;
++  db.seed(fencePath, { version: 1, writerProtocol: 1, state: 'active', generation: 1, owner: 'unit', planHash: 'a'.repeat(64), leaseUntil: 0,
++    activeFrom: FieldValue.serverTimestamp(), baselineManifestHash: 'b'.repeat(64) });
++  db.seed(`${root}/programs/programs/p`, { stationId: 'station', stats: { episodesCount: 1 } });
++  db.seed(path, { stationId: 'station', programId: 'p', title: 'Synthetic', stats: { commentsCount: 0 } });
++  const expected = db.snapshot(path).data();
++  db.afterCommit = writes => { if (writes.some(write => write.path === path && write.data?.adminDeletionToken)) {
++    db.afterCommit = null; db.seed(fencePath, { ...db.snapshot(fencePath).data(), state: 'paused', generation: 2 });
++  } };
++  await assert.rejects(deleteAdminContent({ firestore: db, callerUid: 'super', callerRole: 'super_admin', callerClaims: { role: 'super_admin' },
++    data: { root, kind: 'episodes', id: 'e', expected } }), error => error.retryable && error.details.reason === 'comment-count-maintenance');
++  assert.equal(db.snapshot(path).exists, true); assert.equal(typeof db.snapshot(path).get('adminDeletionToken'), 'string');
++  assert.equal(db.snapshot(`${root}/programs/programs/p`).get('stats.episodesCount'), 1); assert.equal(db.writes.length, 1);
++});
+--- a/functions/test/rss-ingestion.test.js
++++ b/functions/test/rss-ingestion.test.js
+@@ -707,3 +707,23 @@
+     assert.equal(parseRssFeed(feed('https://user:password@cdn.example.com/audio.mp3')).length,0);
+   });
+ });
++
++for (const root of ['HudHudDev', 'HudHudOfficial']) {
++  it(`${root}: active RSS creation atomically establishes native empty baseline; paused retry commits nothing`, async () => {
++    const { MemoryFirestore, FieldValue } = await import('./support/comment-count-fixture.js');
++    const db = new MemoryFirestore(), fence = `${root}/commentCountContributions`;
++    db.seed(fence, { version: 1, writerProtocol: 1, state: 'active', generation: 9, owner: 'unit', planHash: 'a'.repeat(64),
++      leaseUntil: 0, activeFrom: FieldValue.serverTimestamp(), baselineManifestHash: 'b'.repeat(64) });
++    db.seed(`${root}/stations/stations/station`, { isActive: true });
++    db.seed(`${root}/programs/programs/program`, { stationId: 'station', isActive: true, stats: { episodesCount: 0 } });
++    const options = { firestore: db, root, programId: 'program', stationId: 'station', feedUrl: 'https://example.com/feed', lookupFn,
++      fetchFn: async () => new Response('<rss><item><guid>native-guid</guid><enclosure url="https://cdn.example.com/native.mp3"/></item></rss>') };
++    assert.equal((await ingestEpisodesFromFeed(options)).ingested, 1);
++    const episodes = await db.collection(`${root}/episodes/episodes`).get(); assert.equal(episodes.size, 1);
++    const episode = episodes.docs[0], baseline = db.snapshot(`${root}/commentCountContributions/episodes/${episode.id}`);
++    assert.equal(episode.get('stats.commentsCount'), 0); assert.equal(episode.createTime.isEqual(baseline.get('episodeCreateTime')), true);
++    db.seed(fence, { ...db.snapshot(fence).data(), state: 'paused', generation: 10 }); const before = db.writes.length;
++    await assert.rejects(ingestEpisodesFromFeed(options), error => error.retryable && error.details.reason === 'comment-count-maintenance');
++    assert.equal(db.writes.length, before);
++  });
++}
+--- a/functions/test/comment-counts.test.js
++++ b/functions/test/comment-counts.test.js
+@@ -107,3 +107,23 @@
+   assert.equal(f.db.snapshot(f.episode).exists, false);
+   assert.equal(f.db.writes.slice(before).some(write => write.path === f.episode), false);
+ });
++test('count event entry ignores unknown roots without reaching storage', async () => {
++  const { handleCommentCountWritten } = await import('../lib/comment-counts.js');
++  const result = await handleCommentCountWritten({ root: 'UnrelatedRoot', episodeId: 'e', commentId: 'c',
++    firestore: { runTransaction: () => assert.fail('Unknown root reached storage') } });
++  assert.equal(result, null);
++});
++
++test('native episode birth identity accepts finer metadata than millisecond server transform', async () => {
++  const db = new MemoryFirestore('demo-hudhud-fine-identity', { fineMetadata: true }), root = 'HudHudDev';
++  db.seed(`${root}/commentCountContributions`, { version: 1, writerProtocol: 1, state: 'active', generation: 1, owner: 'unit', planHash: 'a'.repeat(64),
++    leaseUntil: 0, activeFrom: FieldValue.serverTimestamp(), baselineManifestHash: 'b'.repeat(64) });
++  await db.runTransaction(async tx => {
++    const prepared = await prepareNewEpisodeCountBaseline(tx, db, { root, episodeId: 'e', serverTimestamp: () => FieldValue.serverTimestamp() });
++    tx.create(db.doc(`${root}/episodes/episodes/e`), { stats: { commentsCount: 0 } }); for (const write of prepared.writes) write();
++  });
++  db.seed(`${root}/episodes/episodes/e/comments/c`, { status: 'published' });
++  const result = await reconcileCommentCount({ firestore: db, root, episodeId: 'e', commentId: 'c' }).then(value => ({ value }), error => ({ error }));
++  assert.equal(result.error, undefined, 'A genuine same-transaction birth must bind exact native metadata, not assume REQUEST_TIME precision.');
++  assert.equal(db.snapshot(`${root}/episodes/episodes/e`).get('stats.commentsCount'), 1);
++});
+--- a/functions/test/support/comment-count-fixture.js
++++ b/functions/test/support/comment-count-fixture.js
+@@ -6,7 +6,7 @@
+     value && typeof value === 'object' && !value.firestore ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, clone(item)])) : value;
+ const get = (value, key) => key.split('.').reduce((item, field) => item?.[field], value);
+ const transform = (value, current, stamp) => {
+-  if (value?.constructor?.name === 'ServerTimestampTransform') return stamp;
++  if (value?.constructor?.name === 'ServerTimestampTransform') return new Timestamp(stamp.seconds, Math.floor(stamp.nanoseconds / 1000000) * 1000000);
+   if (value?.constructor?.name === 'NumericIncrementTransform') return (Number(current) || 0) + value.operand;
+   if (Array.isArray(value)) return value.map(item => transform(item, undefined, stamp));
+   if (value && typeof value === 'object' && !(value instanceof Timestamp) && !(value instanceof Date) && !value.firestore)
+@@ -32,13 +32,14 @@
+ }
+ /** Unit-only storage/metadata model. No count/fence arithmetic is implemented here. */
+ export class MemoryFirestore {
+-  constructor(projectId = 'demo-hudhud-count-unit') {
++  constructor(projectId = 'demo-hudhud-count-unit', { fineMetadata = false } = {}) {
++    this.fineMetadata = fineMetadata;
+     this.projectId = projectId; this.records = new Map(); this.writes = []; this.reads = []; this.serial = 0;
+     this.queue = Promise.resolve(); this.failNextCommit = false;
+   }
+   settings(options) { this.projectId = options.projectId; this.settingsValue = { ...options }; }
+   terminate() {}
+-  stamp() { return Timestamp.fromMillis(1800000000000 + this.serial++); }
++  stamp() { const serial = this.serial++; return this.fineMetadata ? new Timestamp(1800000000 + Math.floor(serial / 1000000), (123 + serial % 1000000) * 1000) : Timestamp.fromMillis(1800000000000 + serial); }
+   seed(path, data) {
+     const time = this.stamp(), previous = this.records.get(path);
+     this.records.set(path, { data: transform(data, previous?.data, time), createTime: previous?.createTime ?? time, updateTime: time });
+--- a/tool/test/reconcile_comment_counts.test.mjs
++++ b/tool/test/reconcile_comment_counts.test.mjs
+@@ -14,8 +14,8 @@
+     return createCommentCountDemoFirestore({ projectId: db.projectId, emulatorHost: '127.0.0.1:8180' });
+   } finally { require.cache[sdkPath].exports = saved; }
+ }
+-async function fixture(callback, root = 'HudHudDev') {
+-  const raw = new MemoryFirestore(), firestore = transport(raw), directory = await mkdtemp(join(tmpdir(), 'count-bootstrap-'));
++async function fixture(callback, root = 'HudHudDev', fineMetadata = false) {
++  const raw = new MemoryFirestore('demo-hudhud-count-unit', { fineMetadata }), firestore = transport(raw), directory = await mkdtemp(join(tmpdir(), 'count-bootstrap-'));
+   let time = Date.now(); const config = { directory, key: Buffer.alloc(32, 7), expiresAt: time + 86400000, now: () => time };
+   const backupStore = await CommentCountBackupStore.open(config);
+   const input = { firestore, projectId: raw.projectId, root, backupStore, owner: 'unit-bootstrap', now: () => time };
+@@ -77,3 +77,9 @@
+   await assert.rejects(bootstrapEmptyCommentCountRoot(f.input)); assert.equal(f.raw.writes.length, 1);
+   assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('state'), 'paused');
+ }));
++
++test('empty bootstrap binds exact native activation metadata independently of REQUEST_TIME rounding', async () => fixture(async f => {
++  const result = await bootstrapEmptyCommentCountRoot(f.input).then(value => ({ value }), error => ({ error }));
++  assert.equal(result.error, undefined, 'A native activation must not depend on transform and metadata precision being identical.');
++  assert.equal(result.value.status, 'active');
++}, 'HudHudDev', true));

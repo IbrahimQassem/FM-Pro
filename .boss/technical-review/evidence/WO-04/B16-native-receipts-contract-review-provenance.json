@@ -1,0 +1,58 @@
+{
+  "status": "APPROVED_DOCS_ONLY_TECHNICAL_AMENDMENT_INTEGRATION_HELD",
+  "reviewer": "Independent Tech Lead /root/b10_review; proposal author QA b09",
+  "proposalPatch": "/tmp/hudhud-b16-native-receipts-contract.patch",
+  "proposalSha256": "9ff895a5271c6c52a04ef158d38c55f9e7dd6e0a670c691e506a1a57e5929e3f",
+  "metadataInputsSha256": "1dd2ec9dcf7b1ac4c42efa00a5cf6e40a3db37c723b63ea3c8e3dc3db9f55350",
+  "documents": [
+    {
+      "path": "docs/contracts/firebase-data-contract.md",
+      "beforeSha256": "4e67f7d3fcc690c21285e9992eddea9b346e64059dcd03914c1536962106e097",
+      "afterSha256": "c64d950ffd46eb1f0a5a9d270fa499c83c1b3c99889de4583a1d110e33d1e8cb"
+    },
+    {
+      "path": "docs/operations/background-consistency-migrations.md",
+      "beforeSha256": "85c47271154a332ed2591b9cb74bf55f72069d5de8938f306842b36b63092fd8",
+      "afterSha256": "e95703fe3b653df4788d6da476552aa3f99c08ed3c6a998b4794621cce6c0a58"
+    },
+    {
+      "path": "docs/decisions/0006-background-consistency-and-schedule-timezones.md",
+      "beforeSha256": "ef0db668fc0ebf3357a9df2e042d75964abb6187da7bd2fc23e9dff087e4d2ed",
+      "afterSha256": "045e9f870630e209a8d8cb7ff8d37adb4b555f927e5419fc67557087e6fe645f"
+    }
+  ],
+  "readOnlySourceInputs": [
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B16-readiness.md",
+      "sha256": "c1aed317b6a40ac7a09e9d1da8986821cbecf80732b8f011c4368c8d15fca74c"
+    },
+    {
+      "path": "functions/lib/program-notifications.js",
+      "sha256": "26f4485e5cbca1a8577c6e4d5799da2ad8475393e249e6a45e4c76a41de954b9"
+    },
+    {
+      "path": "functions/lib/notification-delivery.js",
+      "sha256": "3d44097a19484335bc0f2145c0c334ed95d3a1dcacd23aece3909de2555f881f"
+    },
+    {
+      "path": "functions/lib/episode-alerts.js",
+      "sha256": "d33233b6578e38a3d49aea01a8279f4404181f78c70328a8ad0352088f91a729"
+    },
+    {
+      "path": "functions/lib/user-management.js",
+      "sha256": "d60d814861ff2b095b03ba82e110da2517bc8bce2aa6e5032f30d2fbd604ed59"
+    }
+  ],
+  "verification": {
+    "patchMatches": true,
+    "currentInputHashesMatch": true,
+    "candidateDocumentHashesMatch": true,
+    "gitApplyCheckExit": 0,
+    "laterB15AppendicesByteIdenticalInAllThreeDocuments": true,
+    "testsExecuted": false,
+    "sourceImplementationAccepted": false,
+    "emulatorOrProductionOperation": false
+  },
+  "integrationCondition": "Parent I serial integration only after current count source/contract freeze. Pending-review status may become accepted with this review reference; all semantics and hashes retained.",
+  "remaining": "B16 NOT STARTED pending B15 and separate implementation/test/review gates; findings OPEN."
+}

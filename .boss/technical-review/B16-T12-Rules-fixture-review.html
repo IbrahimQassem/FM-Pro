@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B16 T12 Rules fixture independent readiness review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b16-t12-rules-fixture-independent-readiness-review">B16 T12 Rules fixture independent readiness review</a></li></ul>
+    </aside>
+    <main>
+      <h1>B16 T12 Rules fixture independent readiness review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B16-T12-Rules-fixture-review.md</div>
+        <div>Generated: 2026-10-27T02:23:00.709Z</div>
+      </div>
+      <h1 id="b16-t12-rules-fixture-independent-readiness-review">B16 T12 Rules fixture independent readiness review</h1>
+<p>Decision: <strong>APPROVED fixture readiness for parent-owned demo Rules execution.</strong> Runtime result is NOT RUN by this reviewer. This is existing default-deny guard coverage, not new business RED, Rules hardening or finding closure.</p>
+<p>Reviewed exact patch 2ee671e7df752b9917e5a404e2c8f2ee0c1144e577588b16f9810b7456db48cc. The current root before-image 17b3cd26fad8d8865912884091401bdd0252433956758bd12df9024a90311904 remains an entire byte prefix of candidate ac1b23e11730f75a8a9b1c9384652ba914c81411cb26fa86012bfa00b99a7aa5. Node22 syntax and git apply --check both pass. No Rules source/index change is proposed.</p>
+<p>The three appended root cases enumerate 12 distinct client contexts, 13 private paths and five operations: 2340 private permission-denial assertions, plus 36 direct count-write denials. These counts describe authored assertions, not executed runtime passes. Actual path checks match stream-health checkpoint, root/episode/contribution/count-plan/numeric receipt, RSS run/items/restores, V1/V2 operation keys, migration job and three-digit item receipt. Synthetic record bodies are representative permission fixtures; actual tool-produced native state remains a separate SDK gate.</p>
+<p>userDb defaults email_verified true and deliberately overrides it false in the unverified case. Guest, owner/other user, scoped station admin, moderator, legacy admin, explicit super-admin, role-only variants and forged maintenance/project/owner claims all use real client contexts. Private get/list/create/update/delete operations target existing documents or absent sibling creates. List queries use the containing collection, an exact documentId equality against a DocumentReference in that collection, and limit 1; all paths have correct document/collection parity. This uses the existing client SDK query API and introduces no missing index filter. Installed assertFails checks for permission-denied/unauthorized errors and rejects invalid-argument or setup failures, so local query failure cannot silently count as a permission denial.</p>
+<p>Every client first successfully reads a known-root public station with its expected name, preventing blanket broken connectivity/Rules setup from satisfying only denial assertions. Known-root owner agreement and published comment creation/public read use the actual valid helpers, protected active listener profile, existing canonical episode, current terms and a valid active fence. These retain canonical workflows while rejecting unverified/foreign agreement writes. Unknown-root canonical station/agreement/comment operations are separately denied, even when backed by seeded synthetic records and admin claims. The unknown-root case intentionally uses a known-root public read as its healthy client control; it does not accidentally require unknown-root public access.</p>
+<p>No existing assertion bytes are removed or changed. No authentication, permission, fence or schema validator is disabled. The reviewed appendage does not introduce imported APIs or mutate Rules/production data. Parent must execute the guard in its isolated demo Rules environment and inspect actual failures/clean shutdown before claiming GREEN. T12 native migration/seal/source/lease/ACK/custody, actual private-state construction and collector query/index checks remain separate. All original 17 identities, final integration/full Flutter/browser/device and production approvals remain; all findings stay OPEN.</p>
+<p>Reviewer /root/b10_review ran syntax/applicability and static source/helper checks only. No emulator, Flutter, provider, production or live-file operation was performed.</p>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "result": {
+    "tests": 43,
+    "pass": 41,
+    "businessAssertionFailures": 2,
+    "skip": 0
+  },
+  "failure": "Both roots: successful published creation/moderation count1; successful direct hidden update remains1 vs expected0 before adding actual write handler",
+  "classification": "Genuine staged registration integration RED; no disable flag or missing module/endpoint",
+  "sha256": "53167a68d5e11a44e7203e282b737f01610192e0fb2edf0107c4104bbb686ab9",
+  "baselineInputs": "B15-registration-baseline-inputs.json"
+}

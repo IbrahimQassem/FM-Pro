@@ -1,0 +1,858 @@
+import { compareNativeTime, readCommentCountFence, countRoot, countId, countHash } from '/private/tmp/hudhud-b15-final-revision/functions/lib/comment-count-maintenance.js';
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import { createRequire } from 'node:module';
+import { mkdtemp, rm, readFile, writeFile, chmod, rename, mkdir } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, isAbsolute } from 'node:path';
+import { MemoryFirestore } from '/private/tmp/hudhud-b15-final-revision/functions/test/support/comment-count-fixture.js';
+import { prepareNewEpisodeCountBaseline, prepareCommentCountMutation, reconcileCommentCount } from '/private/tmp/hudhud-b15-final-revision/functions/lib/comment-counts.js';
+import fsPromises from 'node:fs/promises';
+import { syncBuiltinESMExports } from 'node:module';
+import { createHash, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
+import { encodeCleanupValue } from '/private/tmp/hudhud-b15-final-revision/tool/remove_old_locations.mjs';
+import { CommentCountBackupStore, createCommentCountDemoFirestore, previewCommentCountReconciliation, bootstrapEmptyCommentCountRoot } from '/private/tmp/hudhud-b15-final-revision/tool/reconcile_comment_counts.mjs';
+const require = createRequire(new URL('/private/tmp/hudhud-b15-final-revision/functions/package.json', import.meta.url));
+function transport(db) {
+  const sdkPath = require.resolve('firebase-admin/firestore'), actual = require(sdkPath), saved = require.cache[sdkPath].exports;
+  try {
+    require.cache[sdkPath].exports = { ...actual, Firestore: class { constructor() { return db; } } };
+    return createCommentCountDemoFirestore({ projectId: db.projectId, emulatorHost: '127.0.0.1:8180' });
+  } finally { require.cache[sdkPath].exports = saved; }
+}
+async function fixture(callback, root = 'HudHudDev', fineMetadata = false) {
+  const raw = new MemoryFirestore('demo-hudhud-count-unit', { fineMetadata }), firestore = transport(raw), directory = await mkdtemp(join(tmpdir(), 'count-bootstrap-'));
+  let time = Date.now(); const config = { directory, key: Buffer.alloc(32, 7), expiresAt: time + 86400000, now: () => time };
+  const backupStore = await CommentCountBackupStore.open(config);
+  const input = { firestore, projectId: raw.projectId, root, backupStore, owner: 'unit-bootstrap', now: () => time };
+  const manifest = await previewCommentCountReconciliation(input); await backupStore.writeVerified(manifest);
+  const savedRuntimeNow = Date.now; Date.now = () => time;
+  try { await callback({ raw, input: { ...input, manifest, expectedManifestHash: manifest.hash }, config, setTime: value => { time = value; } }); }
+  finally { Date.now = savedRuntimeNow; await rm(directory, { recursive: true, force: true }); }
+}
+function validateSDKActorRequest(request, mode) {
+  const rejected = () => { throw new Error('Invalid private SDK request.'); };
+  if (!request || request.version !== 1 || request.kind !== (mode === 'replay' ? 'count-sdk-replay' : 'count-sdk-maintenance') ||
+      !/^demo-[a-z0-9-]{1,58}$/.test(request.projectId ?? '') || !countId(request.owner) || !countHash(request.expectedManifestHash) ||
+      request.manifest?.version !== 1 || request.manifest?.kind !== 'comment-count-plan' || request.manifest.projectId !== request.projectId || request.manifest.root !== request.root || request.manifest.hash !== request.expectedManifestHash ||
+      typeof request.directory !== 'string' || !isAbsolute(request.directory) || !Number.isSafeInteger(request.expiresAt) ||
+      !Number.isInteger(request.maxItems) || request.maxItems < 1 || request.maxItems > 25 ||
+      !Array.isArray(request.keyBytes) || request.keyBytes.length !== 32 || request.keyBytes.some(byte => !Number.isInteger(byte) || byte < 0 || byte > 255) ||
+      (request.nowMs !== undefined && (!Number.isSafeInteger(request.nowMs) || request.nowMs <= 0)) ||
+      (mode === 'maintenance' && !['apply', 'restore'].includes(request.operation))) rejected();
+  countRoot(request.root);
+  const host = /^(127\.0\.0\.1|localhost|\[::1\]):(\d+)$/.exec(request.emulatorHost ?? '');
+  if (!host || Number(host[2]) < 1 || Number(host[2]) > 65535 || (process.env.FIRESTORE_EMULATOR_HOST && process.env.FIRESTORE_EMULATOR_HOST !== request.emulatorHost)) rejected();
+  const now = request.nowMs === undefined ? Date.now : () => request.nowMs;
+  if (request.expiresAt - now() < 3600000 || request.expiresAt > now() + 30 * 86400000) rejected();
+  return { operation: mode === 'replay' ? 'apply' : request.operation, now };
+}
+const sdkReplayChild = process.argv.includes('--count-sdk-replay-child'), sdkMaintenanceChild = process.argv.includes('--count-sdk-maintenance-child');
+if (sdkReplayChild || sdkMaintenanceChild) {
+  if (typeof process.send !== 'function' || sdkReplayChild && sdkMaintenanceChild) {
+    console.error(JSON.stringify({ status: 'stopped', reason: 'count-sdk-child-private-ipc-required' })); process.exitCode = 1;
+  } else {
+    process.once('message', async request => {
+      let client, key; const savedRuntimeNow = Date.now;
+      try {
+        const mode = sdkReplayChild ? 'replay' : 'maintenance', { operation, now } = validateSDKActorRequest(request, mode);
+        key = Buffer.from(request.keyBytes); request.keyBytes.fill(0);
+        const backupStore = await CommentCountBackupStore.open({ directory: request.directory, key, expiresAt: request.expiresAt, now }); key.fill(0);
+        const verified = await backupStore.readVerified(request.expectedManifestHash);
+        if (JSON.stringify(encodeCleanupValue(verified)) !== JSON.stringify(encodeCleanupValue(request.manifest))) throw new Error('SDK request requires authenticated custody.');
+        client = createCommentCountDemoFirestore({ projectId: request.projectId, emulatorHost: request.emulatorHost });
+        if (mode === 'replay') {
+          const current = await client.doc(`${request.root}/commentCountContributions`).get();
+          if (!current.exists || current.get('state') !== 'active' || current.get('planHash') !== request.expectedManifestHash || current.get('countMaintenance')?.kind !== 'reconciliation' || current.get('countMaintenance')?.phase !== 'active') throw new Error('SDK replay requires the actual accepted full result.');
+          const acceptedPlan = await client.doc(`${request.root}/commentCountContributions/maintenance/${request.expectedManifestHash}`).get();
+          if (!acceptedPlan.exists || acceptedPlan.get('phase') !== 'active' || acceptedPlan.get('planHash') !== request.expectedManifestHash) throw new Error('SDK replay requires the accepted plan.');
+        }
+        if (request.nowMs !== undefined) Date.now = () => request.nowMs;
+        const tool = await import('/private/tmp/hudhud-b15-final-revision/tool/reconcile_comment_counts.mjs'), input = { firestore: client, projectId: request.projectId, root: request.root,
+          manifest: request.manifest, expectedManifestHash: request.expectedManifestHash, backupStore, owner: request.owner, maxItems: request.maxItems };
+        const result = await (operation === 'apply' ? tool.applyCommentCountReconciliation(input) : tool.restoreCommentCountReconciliation(input));
+        process.send({ version: 1, kind: 'count-sdk-result', preflightReadCount: mode === 'replay' ? 2 : 0, result });
+      } catch (error) {
+        process.send({ version: 1, kind: 'count-sdk-result', error: { code: error.code ?? 'test-driver-refused', reason: error.details?.reason ?? 'test-driver-refused' } }); process.exitCode = 1;
+      } finally { Date.now = savedRuntimeNow; key?.fill(0); if (Array.isArray(request?.keyBytes)) request.keyBytes.fill(0); await client?.terminate(); process.disconnect(); }
+    });
+  }
+} else {
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  test(`${root}: real bootstrap protocol pauses, exhausts empty inventory twice and natively activates`, async () => fixture(async f => {
+    const result = await bootstrapEmptyCommentCountRoot(f.input), snapshot = f.raw.snapshot(`${root}/commentCountContributions`);
+    assert.equal(result.status, 'active'); assert.equal(snapshot.get('activeFrom').isEqual(snapshot.get('countMaintenance').barrierVersion), true);
+    assert.equal(compareNativeTime(snapshot.updateTime, snapshot.get('activeFrom')) > 0, true);
+    assert.equal(snapshot.get('baselineManifestHash'), f.input.manifest.hash);
+    assert.equal(snapshot.get('generation'), 2); assert.equal(snapshot.data().countMaintenance.inventoryCount, 0);
+    assert.equal(f.raw.writes.length, 4);
+    const replay = await bootstrapEmptyCommentCountRoot(f.input); assert.equal(replay.alreadyActive, true); assert.equal(f.raw.writes.length, 4);
+    assert.equal(f.raw.reads.filter(read => read.path?.includes('/episodes/episodes')).every(read => read.size === 1), true);
+  }, root));
+  test(`${root}: nonempty root refuses before pause rather than faking an empty baseline`, async () => fixture(async f => {
+    f.raw.seed(`${root}/episodes/episodes/existing`, { stats: { commentsCount: 9 } });
+    await assert.rejects(bootstrapEmptyCommentCountRoot(f.input)); assert.equal(f.raw.writes.length, 0);
+    assert.equal(f.raw.snapshot(`${root}/commentCountContributions`).exists, false);
+  }, root));
+}
+test('untrusted transport, forged stores and production names cannot authorize bootstrap writes', async () => fixture(async f => {
+  for (const firestore of [f.raw, { ...f.input.firestore }]) await assert.rejects(bootstrapEmptyCommentCountRoot({ ...f.input, firestore }));
+  await assert.rejects(bootstrapEmptyCommentCountRoot({ ...f.input, backupStore: { readVerified: async () => f.input.manifest } }));
+  assert.throws(() => createCommentCountDemoFirestore({ projectId: 'real-count-project', emulatorHost: '127.0.0.1:8180' }));
+  assert.equal(f.raw.writes.length, 0); assert.equal(Object.isFrozen(f.input.firestore), true); assert.equal(Object.isFrozen(f.input.backupStore), true);
+}));
+test('old planned namespace discovery refuses mutation and never auto-renames or deletes', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/commentCountContributions/episodes/old/comments/c', { contribution: 1 });
+  await assert.rejects(bootstrapEmptyCommentCountRoot(f.input), error => error.details.reason === 'old-count-ledger-present');
+  assert.equal(f.raw.writes.length, 0); assert.equal(f.raw.records.size, 1);
+}));
+test('lost acknowledgement after pause resumes same plan under fresh root epoch without guessing active state', async () => fixture(async f => {
+  f.raw.afterCommit = () => { f.raw.afterCommit = null; throw new Error('Synthetic lost ACK'); };
+  await assert.rejects(bootstrapEmptyCommentCountRoot(f.input), /lost ACK/);
+  assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('state'), 'paused');
+  assert.equal((await bootstrapEmptyCommentCountRoot(f.input)).status, 'active');
+}));
+for (const drift of ['missing', 'corrupt', 'expired', 'permissions', 'directory-replacement']) test(`backup ${drift} after pause blocks every later mutation`, async () => fixture(async f => {
+  const file = join(f.config.directory, `${f.input.manifest.hash}.counts-backup`), moved = `${f.config.directory}-moved`;
+  f.raw.afterCommit = async () => {
+    f.raw.afterCommit = null;
+    if (drift === 'missing') await rm(file);
+    if (drift === 'corrupt') await writeFile(file, '{}');
+    if (drift === 'expired') f.setTime(f.config.expiresAt + 1);
+    if (drift === 'permissions') await chmod(file, 0o644);
+    if (drift === 'directory-replacement') { await rename(f.config.directory, moved); await mkdir(f.config.directory, { mode: 0o700 });
+      await writeFile(file, await readFile(join(moved, `${f.input.manifest.hash}.counts-backup`)), { mode: 0o600 }); }
+  };
+  try {
+    await assert.rejects(bootstrapEmptyCommentCountRoot(f.input)); assert.equal(f.raw.writes.length, 1);
+    assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('state'), 'paused');
+  } finally { await rm(moved, { recursive: true, force: true }); }
+}));
+test('an episode appearing under pause invalidates inventory and cannot be activated', async () => fixture(async f => {
+  f.raw.afterCommit = () => { f.raw.afterCommit = null; f.raw.seed('HudHudDev/episodes/episodes/drift', { stats: { commentsCount: 0 } }); };
+  await assert.rejects(bootstrapEmptyCommentCountRoot(f.input)); assert.equal(f.raw.writes.length, 1);
+  assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('state'), 'paused');
+}));
+
+test('empty bootstrap binds exact native activation metadata independently of REQUEST_TIME rounding', async () => fixture(async f => {
+  const result = await bootstrapEmptyCommentCountRoot(f.input).then(value => ({ value }), error => ({ error }));
+  assert.equal(result.error, undefined, 'A native activation must not depend on transform and metadata precision being identical.');
+  assert.equal(result.value.status, 'active');
+}, 'HudHudDev', true));
+
+test('native paused barrier is exact, remains fenced and is earlier than literal active release metadata', async () => fixture(async f => {
+  let barrier;
+  f.raw.afterCommit = async () => {
+    const snapshot = f.raw.snapshot('HudHudDev/commentCountContributions');
+    if (snapshot.get('countMaintenance').phase !== 'activation-barrier') return;
+    barrier = snapshot.updateTime;
+    await assert.rejects(readCommentCountFence({ get: async ref => f.raw.snapshot(ref.path) }, f.raw, 'HudHudDev'));
+  };
+  await bootstrapEmptyCommentCountRoot(f.input);
+  const active = f.raw.snapshot('HudHudDev/commentCountContributions');
+  assert.equal(active.get('activeFrom').isEqual(barrier), true); assert.equal(barrier.nanoseconds % 1000000 !== 0, true);
+  assert.equal(compareNativeTime(active.updateTime, barrier) > 0, true);
+  assert.equal(active.get('countMaintenance').barrierGeneration + 1, active.get('generation'));
+}, 'HudHudDev', true));
+test('lost acknowledgement at paused barrier resumes under fresh epoch without opening an unverified gap', async () => fixture(async f => {
+  f.raw.afterCommit = () => {
+    if (f.raw.snapshot('HudHudDev/commentCountContributions').get('countMaintenance').phase === 'activation-barrier') {
+      f.raw.afterCommit = null; throw new Error('Synthetic barrier lost ACK');
+    }
+  };
+  await assert.rejects(bootstrapEmptyCommentCountRoot(f.input), /barrier lost ACK/);
+  assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('state'), 'paused');
+  const oldEpoch = f.raw.snapshot('HudHudDev/commentCountContributions').get('generation');
+  await bootstrapEmptyCommentCountRoot(f.input);
+  assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('generation'), oldEpoch + 2);
+}, 'HudHudDev', true));
+test('backup corruption after paused barrier blocks release and preserves previous accepted lineage', async () => fixture(async f => {
+  f.raw.afterCommit = async () => {
+    if (f.raw.snapshot('HudHudDev/commentCountContributions').get('countMaintenance').phase === 'activation-barrier') {
+      f.raw.afterCommit = null; await writeFile(join(f.config.directory, `${f.input.manifest.hash}.counts-backup`), '{}');
+    }
+  };
+  await assert.rejects(bootstrapEmptyCommentCountRoot(f.input));
+  const paused = f.raw.snapshot('HudHudDev/commentCountContributions');
+  assert.equal(paused.get('state'), 'paused'); assert.equal(paused.get('activeFrom'), undefined);
+}, 'HudHudDev', true));
+for (const field of ['barrierPlanHash', 'barrierOwner', 'barrierGeneration', 'inventoryDigest']) {
+  test(`active replay rejects changed ${field} proof without writing or adopting it`, async () => fixture(async f => {
+    await bootstrapEmptyCommentCountRoot(f.input);
+    const ref = 'HudHudDev/commentCountContributions', value = f.raw.snapshot(ref).data();
+    f.raw.seed(ref, { ...value, countMaintenance: { ...value.countMaintenance, [field]: field === 'barrierGeneration' ? 999 : 'changed' } });
+    const writes = f.raw.writes.length; await assert.rejects(bootstrapEmptyCommentCountRoot(f.input)); assert.equal(f.raw.writes.length, writes);
+  }, 'HudHudDev', true));
+}
+
+
+for (const root of ['HudHudDev', 'HudHudOfficial']) test(`${root}: empty accepted replay refuses same-body fence deletion/recreation after the native barrier`, async () => fixture(async f => {
+  await bootstrapEmptyCommentCountRoot(f.input);
+  const path = `${root}/commentCountContributions`, original = f.raw.snapshot(path), body = original.data();
+  await f.raw.doc(path).delete(); f.raw.seed(path, body);
+  const recreated = f.raw.snapshot(path), writes = f.raw.writes.length;
+  assert.equal(compareNativeTime(recreated.createTime, body.countMaintenance.barrierVersion) > 0, true, 'Adversarial setup genuinely recreated the fence after its historical barrier.');
+  await assert.rejects(bootstrapEmptyCommentCountRoot(f.input), error => error?.code === 'failed-precondition',
+    'Historical activation proof cannot be accepted for a new fence with copied active data.');
+  assert.equal(f.raw.writes.length, writes, 'Invalid replay must perform no tool mutation.');
+  assert.equal(f.raw.snapshot(path).createTime.isEqual(recreated.createTime), true);
+}, root, true));
+
+// Full04-T09 acceptance guards: authored before exercising the new exports.
+// Their absence is never RED evidence; historical producer/authority RED remains separate.
+const actualFullTool = await import('/private/tmp/hudhud-b15-final-revision/tool/reconcile_comment_counts.mjs');
+// Unit-only legacy fixture adapter: runtime Date.now is scoped by fixture; never a public clock option.
+const fullTool = Object.fromEntries(['applyCommentCountReconciliation', 'restoreCommentCountReconciliation'].map(name => [name, options => {
+  const { now: ignored, ...input } = options; void ignored; return actualFullTool[name](input);
+}]));
+async function runFull(input, operation = 'apply', maxItems = 25, limit = 3000) {
+  const calls = [];
+  for (let n = 0; n < limit; n++) {
+    const result = await fullTool[operation === 'apply' ? 'applyCommentCountReconciliation' : 'restoreCommentCountReconciliation']({ ...input, maxItems });
+    assert.ok(Number.isSafeInteger(result.processed) && result.processed >= 0 && result.processed <= maxItems);
+    calls.push(result);
+    if (result.status === 'active' || result.status === 'restored-held') return { result, calls };
+  }
+  assert.fail('Bounded maintenance did not converge across persisted calls.');
+}
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  test(`full ${root}: frozen nonempty baseline includes current comments, old-generation rows and deleted tombstones`, async () => fixture(async f => {
+    const parent = `${root}/episodes/episodes/e`, baseline = `${root}/commentCountContributions/episodes/e`;
+    f.raw.seed(parent, { title: 'Synthetic preserved', stats: { commentsCount: 9, likesCount: 7 }, isPublished: true });
+    f.raw.seed(`${parent}/comments/p`, { status: 'published', text: 'Synthetic private text' });
+    f.raw.seed(`${parent}/comments/h`, { status: 'hidden' });
+    const identity = f.raw.snapshot(parent).createTime;
+    for (const id of ['p', 'deleted']) f.raw.seed(`${baseline}/contributions/${id}`, { version: 1, generation: 'old-generation',
+      baselineManifestHash: 'a'.repeat(64), episodeCreateTime: identity, commentVersion: null, commentMutation: false, contribution: 1 });
+    const commentBefore = f.raw.snapshot(`${parent}/comments/p`), result = await runFull(f.input);
+    assert.equal(result.result.status, 'active'); assert.equal(f.raw.snapshot(parent).get('stats.commentsCount'), 1);
+    assert.equal(f.raw.snapshot(parent).get('stats.likesCount'), 7); assert.equal(f.raw.snapshot(parent).get('title'), 'Synthetic preserved');
+    assert.equal(f.raw.snapshot(`${parent}/comments/p`).updateTime.isEqual(commentBefore.updateTime), true);
+    const accepted = f.raw.snapshot(baseline).data(); assert.equal(accepted.origin, 'baseline');
+    assert.equal(accepted.episodeCreateTime.isEqual(identity), true);
+    for (const [id, count] of [['p', 1], ['h', 0], ['deleted', 0]]) {
+      const row = f.raw.snapshot(`${baseline}/contributions/${id}`).data();
+      assert.equal(row.generation, accepted.generation); assert.equal(row.baselineManifestHash, f.input.manifest.hash);
+      assert.equal(row.contribution, count); assert.equal(row.commentMutation, false);
+    }
+    const active = f.raw.snapshot(`${root}/commentCountContributions`);
+    assert.equal(active.get('activeFrom').isEqual(active.get('countMaintenance').barrierVersion), true);
+    assert.equal(compareNativeTime(active.updateTime, active.get('activeFrom')) > 0, true);
+  }, root, true));
+  test(`full ${root}: more than 100 empty episodes retain complete bounded ID/native identity inventory`, async () => fixture(async f => {
+    for (let i = 0; i < 103; i++) f.raw.seed(`${root}/episodes/episodes/e${String(i).padStart(3, '0')}`, { stats: { commentsCount: 2 } });
+    const result = await runFull(f.input); assert.ok(result.calls.length > 4);
+    assert.equal(f.raw.snapshot(`${root}/commentCountContributions`).get('countMaintenance').inventoryCount, 103);
+    assert.ok(f.raw.reads.every(read => read.size <= 25));
+    assert.equal(f.raw.snapshot(`${root}/episodes/episodes/e102`).get('stats.commentsCount'), 0);
+  }, root, true));
+}
+test('full accepts no forged transport, store, production project or caller isolation attestation', async () => fixture(async f => {
+  for (const firestore of [f.raw, { ...f.input.firestore }]) await assert.rejects(fullTool.applyCommentCountReconciliation({ ...f.input, firestore }));
+  await assert.rejects(fullTool.applyCommentCountReconciliation({ ...f.input, backupStore: { readVerified: async () => f.input.manifest } }));
+  await assert.rejects(fullTool.applyCommentCountReconciliation({ ...f.input, projectId: 'real-count-project', isolated: true }));
+  assert.equal(f.raw.writes.length, 0);
+}));
+test('full conditional restore never mutates canonical comments, publication, unrelated fields or resurrects parents', async () => fixture(async f => {
+  const parent = 'HudHudDev/episodes/episodes/e'; f.raw.seed(parent, { isPublished: true, stats: { commentsCount: 9, likesCount: 7 } });
+  const original = f.raw.snapshot(parent); await runFull(f.input); assert.equal(f.raw.snapshot(parent).get('stats.commentsCount'), 0);
+  const restored = await runFull(f.input, 'restore'); assert.equal(restored.result.status, 'restored-held');
+  assert.equal(f.raw.snapshot(parent).get('stats.commentsCount'), 9); assert.equal(f.raw.snapshot(parent).get('stats.likesCount'), 7);
+  assert.equal(f.raw.snapshot(parent).get('isPublished'), true); assert.equal(f.raw.snapshot(parent).createTime.isEqual(original.createTime), true);
+  assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('state'), 'paused');
+  assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions/episodes/e').exists, false);
+}, 'HudHudDev', true));
+
+async function advanceUntil(input, predicate, maxItems = 1, limit = 3000) {
+  for (let i = 0; i < limit; i++) {
+    const result = await fullTool.applyCommentCountReconciliation({ ...input, maxItems });
+    assert.ok(result.processed <= maxItems && result.readEquivalents <= 1536);
+    if (predicate(result)) return result;
+  }
+  assert.fail('Expected bounded phase was not reached.');
+}
+test('full guard: maxItems: 1 persists progress through interrupted lease recovery without chasing its own receipts', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 9 } });
+  f.raw.seed('HudHudDev/episodes/episodes/e/comments/c', { status: 'published' });
+  await advanceUntil(f.input, result => result.phase === 'staging');
+  const root = f.raw.snapshot('HudHudDev/commentCountContributions'), oldEpoch = root.get('generation');
+  f.setTime(root.get('leaseUntil') + 1);
+  const recovered = { ...f.input, owner: 'recovered-owner' }, result = await runFull(recovered, 'apply', 1);
+  assert.equal(result.result.status, 'active'); assert.ok(result.calls.every(call => call.processed === 1));
+  assert.equal(f.raw.snapshot('HudHudDev/episodes/episodes/e').get('stats.commentsCount'), 1);
+  assert.ok(f.raw.snapshot('HudHudDev/commentCountContributions').get('generation') > oldEpoch);
+}, 'HudHudDev', true));
+test('full guard: an unknown item acknowledgement resumes its exact receipt and cannot count twice', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 9 } });
+  f.raw.seed('HudHudDev/episodes/episodes/e/comments/c', { status: 'published' });
+  f.raw.afterCommit = writes => {
+    if (!writes.some(write => /\/contributions\/c$/.test(write.path))) return;
+    f.raw.afterCommit = null; throw new Error('Synthetic count item lost ACK');
+  };
+  await assert.rejects(runFull(f.input), /lost ACK/);
+  assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('state'), 'paused');
+  await runFull(f.input);
+  await reconcileCommentCount({ firestore: f.input.firestore, root: 'HudHudDev', episodeId: 'e', commentId: 'c' });
+  assert.equal(f.raw.snapshot('HudHudDev/episodes/episodes/e').get('stats.commentsCount'), 1);
+}, 'HudHudDev', true));
+for (const drift of ['new-episode', 'recreated-episode', 'changed-comment']) test(`full guard: ${drift} under pause invalidates frozen second verification`, async () => fixture(async f => {
+  const path = 'HudHudDev/episodes/episodes/e'; f.raw.seed(path, { stats: { commentsCount: 9 } });
+  f.raw.seed(`${path}/comments/c`, { status: 'published' });
+  await advanceUntil(f.input, result => result.phase === 'verifying');
+  if (drift === 'new-episode') f.raw.seed('HudHudDev/episodes/episodes/zz', { stats: { commentsCount: 0 } });
+  if (drift === 'recreated-episode') { const data = f.raw.snapshot(path).data(); await f.raw.doc(path).delete(); f.raw.seed(path, data); }
+  if (drift === 'changed-comment') f.raw.seed(`${path}/comments/c`, { status: 'hidden' });
+  await assert.rejects(runFull(f.input));
+  assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('state'), 'paused');
+}, 'HudHudDev', true));
+test('full guard: lost lease after immutable episode proof rechecks sources without duplicate proof emission', async () => fixture(async f => {
+  const path = 'HudHudDev/episodes/episodes/e'; f.raw.seed(path, { stats: { commentsCount: 0 } });
+  const planPath = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}`;
+  await advanceUntil(f.input, () => f.raw.snapshot(planPath).data()?.episodeProofCount === 1);
+  const root = f.raw.snapshot('HudHudDev/commentCountContributions'); f.setTime(root.get('leaseUntil') + 1);
+  await runFull({ ...f.input, owner: 'after-proof-recovery' }, 'apply', 1);
+  const proofs = [...f.raw.records].filter(([key, value]) => key.startsWith(`${planPath}/units/`) && value.data.proofKind === 'episode');
+  assert.equal(proofs.length, 1); assert.equal(f.raw.snapshot(path).get('stats.commentsCount'), 0);
+}, 'HudHudDev', true));
+test('full guard: corrupted encrypted manifest after pause blocks further control and owned writes', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 9 } });
+  await fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 });
+  const writes = f.raw.writes.length; await writeFile(join(f.config.directory, `${f.input.manifest.hash}.counts-backup`), '{}');
+  await assert.rejects(fullTool.applyCommentCountReconciliation(f.input));
+  assert.equal(f.raw.writes.length, writes); assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('state'), 'paused');
+}, 'HudHudDev', true));
+for (const recreate of [false, true]) test(`full guard: ${recreate ? 'delete/recreate' : 'ABA'} target cannot be conditionally restored`, async () => fixture(async f => {
+  const path = 'HudHudDev/episodes/episodes/e'; f.raw.seed(path, { stats: { commentsCount: 9 } }); await runFull(f.input);
+  const data = f.raw.snapshot(path).data();
+  if (recreate) await f.raw.doc(path).delete(); else f.raw.seed(path, { ...data, temporary: true });
+  f.raw.seed(path, data); const changed = f.raw.snapshot(path);
+  await assert.rejects(runFull(f.input, 'restore'));
+  assert.equal(f.raw.snapshot(path).get('stats.commentsCount'), 0); assert.equal(f.raw.snapshot(path).updateTime.isEqual(changed.updateTime), true);
+  assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('state'), 'paused');
+}, 'HudHudDev', true));
+test('full guard: genuine no-op counter uses its observed version and read-only durable replay survives normal worker writes', async () => fixture(async f => {
+  const path = 'HudHudDev/episodes/episodes/e'; f.raw.seed(path, { stats: { commentsCount: 0 } }); const before = f.raw.snapshot(path);
+  await runFull(f.input); assert.equal(f.raw.snapshot(path).updateTime.isEqual(before.updateTime), true);
+  f.raw.seed(`${path}/comments/c`, { status: 'published' }); await reconcileCommentCount({ firestore: f.input.firestore, root: 'HudHudDev', episodeId: 'e', commentId: 'c' });
+  assert.equal(f.raw.snapshot(path).get('stats.commentsCount'), 1); const writes = f.raw.writes.length;
+  const first = await fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 }); assert.equal(first.status, 'in-progress');
+  const store = await CommentCountBackupStore.open(f.config), result = await runFull({ ...f.input, backupStore: store, firestore: transport(f.raw) }, 'apply', 1);
+  assert.equal(result.result.status, 'active'); assert.equal(f.raw.writes.length, writes);
+  const files = await fsPromises.readdir(f.config.directory); assert.ok(files.some(file => file.endsWith('.counts-replay')));
+}, 'HudHudDev', true));
+test('full guard: historical receipt corruption and forged caller cursor cannot bypass accepted replay', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await runFull(f.input);
+  const path = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}/units/000000000002`, original = f.raw.snapshot(path).data();
+  f.raw.seed(path, { ...original, beforeHash: 'f'.repeat(64) }); const writes = f.raw.writes.length;
+  const first = await fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1, cursor: { complete: true, next: 999999 } }); assert.equal(first.status, 'in-progress');
+  await assert.rejects(runFull(f.input)); assert.equal(f.raw.writes.length, writes);
+}, 'HudHudDev', true));
+test('full guard: exclusive durable replay lock is never stolen by caller clock or age claims', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await runFull(f.input);
+  await fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 });
+  const replay = (await fsPromises.readdir(f.config.directory)).find(file => file.endsWith('.counts-replay')), lock = join(f.config.directory, `${replay}.lock`);
+  await writeFile(lock, 'Synthetic held lock', { mode: 0o600 }); const writes = f.raw.writes.length;
+  await assert.rejects(fullTool.applyCommentCountReconciliation({ ...f.input, force: true }), error => error.details?.reason === 'count-replay-lock-busy');
+  assert.equal(await readFile(lock, 'utf8'), 'Synthetic held lock'); assert.equal(f.raw.writes.length, writes);
+}, 'HudHudDev', true));
+test('full guard: lost local publication acknowledgement reloads the exact published encrypted replay head', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await runFull(f.input);
+  const renameOriginal = fsPromises.rename; let injected = false; const writes = f.raw.writes.length;
+  fsPromises.rename = async (...args) => {
+    await renameOriginal(...args);
+    if (!injected && String(args[1]).endsWith('.counts-replay')) { injected = true; throw new Error('Synthetic replay publication lost ACK'); }
+  }; syncBuiltinESMExports();
+  try { await assert.rejects(fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 }), /publication lost ACK/); }
+  finally { fsPromises.rename = renameOriginal; syncBuiltinESMExports(); }
+  assert.equal(injected, true);
+  const result = await runFull({ ...f.input, backupStore: await CommentCountBackupStore.open(f.config) }, 'apply', 1);
+  assert.equal(result.result.status, 'active'); assert.equal(f.raw.writes.length, writes);
+}, 'HudHudDev', true));
+for (const root of ['HudHudDev', 'HudHudOfficial']) test(`full ${root}: restore materializes original creation/mutation native receipts without copying receipt-form metadata`, async () => fixture(async f => {
+  await bootstrapEmptyCommentCountRoot(f.input); const path = `${root}/episodes/episodes/e`;
+  await f.input.firestore.runTransaction(async tx => {
+    const birth = await prepareNewEpisodeCountBaseline(tx, f.input.firestore, { root, episodeId: 'e' });
+    tx.create(f.input.firestore.doc(path), { stats: { commentsCount: 0 } }); for (const write of birth.writes) write();
+  });
+  f.raw.seed(`${path}/comments/c`, {});
+  await f.input.firestore.runTransaction(async tx => {
+    const result = await prepareCommentCountMutation(tx, f.input.firestore, { root, episodeId: 'e', commentId: 'c', action: 'update', changes: { status: 'published' } });
+    for (const write of result.writes) write();
+  });
+  const birth = f.raw.snapshot(`${root}/commentCountContributions/episodes/e`), current = f.raw.snapshot(`${path}/comments/c`);
+  assert.equal(birth.get('origin'), 'creation'); assert.equal(f.raw.snapshot(`${root}/commentCountContributions/episodes/e/contributions/c`).get('commentMutation'), true);
+  const manifest = await previewCommentCountReconciliation(f.input); await f.input.backupStore.writeVerified(manifest); const input = { ...f.input, manifest, expectedManifestHash: manifest.hash };
+  await runFull(input); await runFull(input, 'restore');
+  const baseline = f.raw.snapshot(`${root}/commentCountContributions/episodes/e`), row = f.raw.snapshot(`${root}/commentCountContributions/episodes/e/contributions/c`);
+  assert.equal(baseline.get('origin'), 'baseline'); assert.equal(baseline.get('episodeCreateTime').isEqual(f.raw.snapshot(path).createTime), true);
+  assert.equal(baseline.updateTime.isEqual(birth.updateTime), false); assert.equal(row.get('commentMutation'), false);
+  assert.equal(row.get('commentVersion').isEqual(current.updateTime), true); assert.equal(f.raw.snapshot(`${path}/comments/c`).updateTime.isEqual(current.updateTime), true);
+  assert.equal(f.raw.snapshot(path).get('stats.commentsCount'), 1); assert.equal(f.raw.snapshot(`${root}/commentCountContributions`).get('state'), 'paused');
+}, root, true));
+
+test('full guard: visible SDK callback retries and all enumeration/CAS reads remain within invocation caps', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } });
+  const original = f.raw.runTransaction.bind(f.raw), attemptCounts = [];
+  f.raw.runTransaction = async (callback, options) => {
+    assert.equal(options.maxAttempts, 3); let count = 0;
+    while (true) {
+      try {
+        const result = await original(async tx => { count++; const value = await callback(tx); if (count < 3) throw Object.assign(new Error('Synthetic precommit retry'), { syntheticAbort: true }); return value; });
+        attemptCounts.push(count); return result;
+      } catch (error) { if (!error.syntheticAbort) throw error; }
+    }
+  };
+  const input = { ...f.input, firestore: transport(f.raw), maxItems: 3 }, result = await fullTool.applyCommentCountReconciliation(input);
+  assert.equal(result.processed, 3); assert.equal(result.transactionAttempts, 12); assert.ok(result.readEquivalents <= 1536);
+  assert.deepEqual(attemptCounts, [3, 3, 3, 3]);
+  const plan = f.raw.snapshot(`HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}`).data();
+  assert.equal(plan.nextUnit, 4, 'Aborted callbacks cannot allocate extra committed units.');
+}, 'HudHudDev', true));
+for (const maxItems of [0, 26, '25']) test(`full guard: invalid logical budget ${maxItems} refuses before any mutation`, async () => fixture(async f => {
+  await assert.rejects(fullTool.applyCommentCountReconciliation({ ...f.input, maxItems })); assert.equal(f.raw.writes.length, 0);
+}));
+test('full guard: copied full root deletion/recreation cannot adopt its old exact birth/release identity', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await runFull(f.input);
+  const path = 'HudHudDev/commentCountContributions', data = f.raw.snapshot(path).data(); await f.raw.doc(path).delete(); f.raw.seed(path, data);
+  const writes = f.raw.writes.length; await assert.rejects(fullTool.applyCommentCountReconciliation(f.input)); assert.equal(f.raw.writes.length, writes);
+}, 'HudHudDev', true));
+
+test('full guard: reported release identity stays pinned when coordinated same-body controller/receipt metadata is rewritten', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await runFull(f.input);
+  const root = 'HudHudDev/commentCountContributions', plan = `${root}/maintenance/${f.input.manifest.hash}`;
+  const release = `${plan}/units/${String(f.raw.snapshot(root).get('countMaintenance').releaseUnit).padStart(12, '0')}`;
+  const images = [root, plan, release].map(path => [path, f.raw.snapshot(path).data()]);
+  await f.raw.runTransaction(async tx => { for (const [path, data] of images) tx.set(f.raw.doc(path), { ...data, syntheticTransient: true }); });
+  await f.raw.runTransaction(async tx => { for (const [path, data] of images) tx.set(f.raw.doc(path), data); });
+  const writes = f.raw.writes.length;
+  await assert.rejects(runFull(f.input), error => error.details?.reason === 'count-replay-binding',
+    'A completed original release cannot be silently rebound to a newer copied controller/receipt version.');
+  assert.equal(f.raw.writes.length, writes);
+}, 'HudHudDev', true));
+
+test('full guard: current canonical comment edit blocks restore before any owned inverse even before worker acknowledgement', async () => fixture(async f => {
+  const path = 'HudHudDev/episodes/episodes/e'; f.raw.seed(path, { stats: { commentsCount: 9 } }); f.raw.seed(`${path}/comments/c`, { status: 'published' });
+  await runFull(f.input); f.raw.seed(`${path}/comments/c`, { status: 'published', edited: true });
+  await assert.rejects(runFull(f.input, 'restore'));
+  assert.equal(f.raw.snapshot(path).get('stats.commentsCount'), 1); assert.equal(f.raw.snapshot(`${path}/comments/c`).get('edited'), true);
+  assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('state'), 'paused');
+}, 'HudHudDev', true));
+test('full guard: inverse commit lost ACK resumes the frozen descending range using newer restore versions', async () => fixture(async f => {
+  const path = 'HudHudDev/episodes/episodes/e'; f.raw.seed(path, { stats: { commentsCount: 9 } }); await runFull(f.input);
+  f.raw.afterCommit = writes => {
+    if (!writes.some(write => write.path === path && write.data?.['stats.commentsCount'] === 9)) return;
+    f.raw.afterCommit = null; throw new Error('Synthetic inverse lost ACK');
+  };
+  await assert.rejects(runFull(f.input, 'restore'), /inverse lost ACK/);
+  const inverseVersion = f.raw.snapshot(path).updateTime;
+  assert.equal((await runFull(f.input, 'restore', 1)).result.status, 'restored-held');
+  assert.equal(f.raw.snapshot(path).get('stats.commentsCount'), 9); assert.equal(f.raw.snapshot(path).updateTime.isEqual(inverseVersion), true);
+  const plan = f.raw.snapshot(`HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}`).data();
+  assert.equal(plan.restoreUnit, null); assert.ok(plan.nextUnit > plan.restoreMaxApplyUnit + 1);
+}, 'HudHudDev', true));
+test('full guard: expired native barrier recovers/rechecks and releases only a fresh epoch/barrier', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } });
+  await advanceUntil(f.input, result => result.phase === 'activation-barrier');
+  const barrier = f.raw.snapshot('HudHudDev/commentCountContributions'); f.setTime(barrier.get('leaseUntil') + 1);
+  await runFull({ ...f.input, owner: 'new-barrier-owner' }, 'apply', 1);
+  const active = f.raw.snapshot('HudHudDev/commentCountContributions');
+  assert.equal(active.get('countMaintenance').barrierOwner, 'new-barrier-owner');
+  assert.ok(compareNativeTime(active.get('activeFrom'), barrier.updateTime) > 0);
+  assert.ok(active.get('generation') > barrier.get('generation'));
+}, 'HudHudDev', true));
+test('full guard: per-unit encrypted backup loss refuses the next checkpoint without reconstructing evidence', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 9 } }); await fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 });
+  const planPath = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}`, plan = f.raw.snapshot(planPath).data();
+  const receipt = f.raw.snapshot(`${planPath}/units/${String(plan.lastUnit).padStart(12, '0')}`).data(), writes = f.raw.writes.length;
+  await rm(join(f.config.directory, `${receipt.backupHash}.counts-backup`));
+  await assert.rejects(fullTool.applyCommentCountReconciliation(f.input)); assert.equal(f.raw.writes.length, writes);
+  assert.equal(f.raw.snapshot('HudHudDev/episodes/episodes/e').get('stats.commentsCount'), 9);
+}, 'HudHudDev', true));
+test('full guard: truly empty general inventory makes bounded maxItems: 1 progress without fabricating episodes', async () => fixture(async f => {
+  const result = await runFull(f.input, 'apply', 1); assert.equal(result.result.status, 'active');
+  assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('countMaintenance').inventoryCount, 0);
+  assert.equal([...f.raw.records.keys()].some(path => path.startsWith('HudHudDev/episodes/episodes/')), false);
+}, 'HudHudDev', true));
+
+test('full guard: purpose-bound unit backups reject arbitrary payloads and canonical episode/comment content', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await runFull(f.input);
+  const path = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}/units/000000000000`;
+  const receipt = f.raw.snapshot(path).data(), unit = await f.input.backupStore.readVerified(receipt.backupHash);
+  const seal = body => ({ ...body, hash: createHash('sha256').update(JSON.stringify(encodeCleanupValue(body))).digest('hex') });
+  const { hash: ignored, ...body } = unit; void ignored;
+  const before = (await fsPromises.readdir(f.config.directory)).length;
+  await assert.rejects(f.input.backupStore.writeVerified(seal({ ...body, arbitraryText: 'Synthetic disallowed content' })));
+  await assert.rejects(f.input.backupStore.writeVerified(seal({ ...body, targets: [{ targetPath: 'HudHudDev/episodes/episodes/e', ownedField: null,
+    before: { exists: false, data: null }, after: { exists: true, data: encodeCleanupValue({ title: 'Synthetic disallowed content' }) } }] })));
+  assert.equal((await fsPromises.readdir(f.config.directory)).length, before);
+}, 'HudHudDev', true));
+test('full guard: direct CLI mutation and non-IPC test driver refuse without key or operator loading', () => {
+  const tool = spawnSync(process.execPath, [new URL('/private/tmp/hudhud-b15-final-revision/tool/reconcile_comment_counts.mjs', import.meta.url).pathname, '--apply', '--project', 'real-count-project'], { encoding: 'utf8' });
+  assert.equal(tool.status, 1); assert.equal(JSON.parse(tool.stderr).reason, 'count-direct-cli-mutation-unavailable'); assert.equal(tool.stdout, '');
+  for (const mode of ['--count-sdk-replay-child', '--count-sdk-maintenance-child']) {
+    const child = spawnSync(process.execPath, [new URL('./reconcile_comment_counts.test.mjs', import.meta.url).pathname, mode], { encoding: 'utf8' });
+    assert.equal(child.status, 1); assert.equal(JSON.parse(child.stderr).reason, 'count-sdk-child-private-ipc-required'); assert.equal(child.stdout, '');
+  }
+});
+
+test('SDK actor guard: valid private-IPC maintenance/replay shapes use only demo scope and approved finite clock', async () => fixture(async f => {
+  const request = { version: 1, kind: 'count-sdk-maintenance', operation: 'apply', projectId: f.input.projectId, root: f.input.root,
+    emulatorHost: '127.0.0.1:8180', directory: f.config.directory, expiresAt: f.config.expiresAt, keyBytes: Array(32).fill(7),
+    manifest: f.input.manifest, expectedManifestHash: f.input.expectedManifestHash, owner: 'sdk-test-owner', maxItems: 1, nowMs: f.config.now() };
+  assert.equal(validateSDKActorRequest(request, 'maintenance').operation, 'apply'); assert.equal(validateSDKActorRequest(request, 'maintenance').now(), request.nowMs);
+  assert.equal(validateSDKActorRequest({ ...request, kind: 'count-sdk-replay' }, 'replay').operation, 'apply');
+  for (const change of [{ projectId: 'real-project' }, { root: 'Other' }, { emulatorHost: 'example.invalid:443' }, { keyBytes: Array(31).fill(7) },
+    { operation: 'eval' }, { nowMs: Infinity }, { nowMs: '123' }, { maxItems: 26 }, { owner: ' padded ' }, { kind: 'other' }, { expectedManifestHash: 'f'.repeat(64) }]) {
+    assert.throws(() => validateSDKActorRequest({ ...request, ...change }, 'maintenance'));
+  }
+  assert.equal(f.raw.writes.length, 0);
+}));
+
+test('full guard: replay lock token substitution after publication stops without unlinking another owner lock', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await runFull(f.input);
+  const original = fsPromises.rename; let changed = false, lockPath;
+  fsPromises.rename = async (...args) => {
+    await original(...args);
+    if (!changed && String(args[1]).endsWith('.counts-replay')) { changed = true; lockPath = `${args[1]}.lock`; await writeFile(lockPath, Buffer.alloc(32, 99)); }
+  }; syncBuiltinESMExports();
+  try { await assert.rejects(fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 }), error => error.details?.reason === 'count-replay-lock-identity'); }
+  finally { fsPromises.rename = original; syncBuiltinESMExports(); }
+  assert.equal(changed, true); assert.deepEqual(await readFile(lockPath), Buffer.alloc(32, 99));
+}, 'HudHudDev', true));
+
+test('full guard: reviewed scope is snapshotted instead of following caller manifest mutation across awaits', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } });
+  const manifest = JSON.parse(JSON.stringify(f.input.manifest)), original = manifest.hash;
+  f.raw.afterCommit = () => { f.raw.afterCommit = null; manifest.hash = 'f'.repeat(64); manifest.root = 'Other'; };
+  await fullTool.applyCommentCountReconciliation({ ...f.input, manifest, maxItems: 25 });
+  // A later invocation must present its own intact reviewed input again.
+  await runFull(f.input);
+  assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('baselineManifestHash'), original);
+  assert.equal([...f.raw.records.keys()].some(path => path.startsWith('Other/')), false);
+}, 'HudHudDev', true));
+
+test('full guard: more than 100 interleaved canonical/old/deleted contribution IDs exhaust both union traversals', async () => fixture(async f => {
+  const parent = 'HudHudOfficial/episodes/episodes/e', baseline = 'HudHudOfficial/commentCountContributions/episodes/e';
+  f.raw.seed(parent, { stats: { commentsCount: 99, likesCount: 7 } }); const identity = f.raw.snapshot(parent).createTime;
+  for (let i = 0; i < 107; i++) {
+    const id = `c${String(i * 2).padStart(3, '0')}`, path = `${parent}/comments/${id}`;
+    f.raw.seed(path, { status: i % 2 === 0 ? 'published' : 'hidden' });
+    if (i % 3 === 0) f.raw.seed(`${baseline}/contributions/${id}`, { version: 1, generation: 'older-generation', baselineManifestHash: 'a'.repeat(64),
+      episodeCreateTime: identity, commentVersion: f.raw.snapshot(path).updateTime, commentMutation: false, contribution: 1 });
+  }
+  for (let i = 0; i < 35; i++) f.raw.seed(`${baseline}/contributions/c${String(i * 2 + 1).padStart(3, '0')}`, { version: 1,
+    generation: 'older-generation', baselineManifestHash: 'a'.repeat(64), episodeCreateTime: identity, commentVersion: null, commentMutation: false, contribution: 1 });
+  const result = await runFull(f.input); assert.ok(result.calls.length > 4); assert.ok(result.calls.every(call => call.readEquivalents <= 1536));
+  assert.equal(f.raw.snapshot(parent).get('stats.commentsCount'), 54); assert.equal(f.raw.snapshot(parent).get('stats.likesCount'), 7);
+  const generation = f.raw.snapshot(baseline).get('generation');
+  const rows = [...f.raw.records].filter(([path]) => path.startsWith(`${baseline}/contributions/`)); assert.equal(rows.length, 142);
+  for (const [path, record] of rows) {
+    assert.equal(record.data.generation, generation); assert.equal(record.data.baselineManifestHash, f.input.manifest.hash);
+    if (Number(path.split('/').at(-1).slice(1)) % 2) { assert.equal(record.data.contribution, 0); assert.equal(record.data.commentVersion, null); }
+  }
+  assert.ok(f.raw.reads.every(read => read.size <= 25));
+}, 'HudHudOfficial', true));
+test('full guard: stale lease owner cannot append after fresh recovery claims the paused epoch', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 });
+  f.setTime(f.raw.snapshot('HudHudDev/commentCountContributions').get('leaseUntil') + 1);
+  await fullTool.applyCommentCountReconciliation({ ...f.input, owner: 'new-owner', maxItems: 1 }); const writes = f.raw.writes.length;
+  await assert.rejects(fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 }), error => error.details?.reason === 'count-lease-busy');
+  assert.equal(f.raw.writes.length, writes); assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('owner'), 'new-owner');
+}, 'HudHudDev', true));
+test('full guard: unknown committed checkpoint without its immutable receipt is never reconstructed from backup', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 9 } });
+  f.raw.afterCommit = () => { f.raw.afterCommit = null; throw new Error('Synthetic initial unknown ACK'); };
+  await assert.rejects(fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 }), /unknown ACK/);
+  const path = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}/units/000000000000`;
+  await f.raw.doc(path).delete(); const writes = f.raw.writes.length;
+  await assert.rejects(fullTool.applyCommentCountReconciliation(f.input)); assert.equal(f.raw.writes.length, writes);
+  assert.equal(f.raw.snapshot('HudHudDev/episodes/episodes/e').get('stats.commentsCount'), 9);
+  assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('state'), 'paused');
+}, 'HudHudDev', true));
+
+test('review regression: canonical version drift after later restore units must block created-row inverse', async () => fixture(async f => {
+  const parent = 'HudHudDev/episodes/episodes/e', comment = `${parent}/comments/c`;
+  f.raw.seed(parent, { stats: { commentsCount: 9 } }); f.raw.seed(comment, { status: 'published' });
+  await runFull(f.input);
+  const planPath = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}`;
+  let targetIndex = null;
+  for (const [path, entry] of f.raw.records) {
+    if (!path.startsWith(`${planPath}/units/`)) continue;
+    const row = f.raw.snapshot(path).data();
+    if (row.kind === 'comment' && row.targets?.some(t => t.created && t.targetPath.endsWith('/contributions/c'))) targetIndex = row.index;
+  }
+  assert.ok(Number.isSafeInteger(targetIndex));
+  for (let n = 0; n < 2000; n++) {
+    const plan = f.raw.snapshot(planPath).data();
+    if (plan.phase === 'restoring' && plan.resumePhase === 'ready' && plan.restoreUnit === targetIndex) break;
+    await fullTool.restoreCommentCountReconciliation({ ...f.input, maxItems: 1 });
+    if (n === 1999) assert.fail('Did not reach created contribution inverse.');
+  }
+  f.raw.seed(comment, { status: 'published', edited: true });
+  const writes = f.raw.writes.length;
+  await assert.rejects(fullTool.restoreCommentCountReconciliation({ ...f.input, maxItems: 1 }),
+    'An inverse must recheck the current canonical version even when its owned before-image was absent.');
+  assert.equal(f.raw.writes.length, writes);
+}, 'HudHudDev', true));
+
+test('review regression: same-body target-head ABA must not become a native owned checkpoint', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 9 } });
+  const planPath = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}`;
+  await advanceUntil(f.input, result => result.phase === 'verifying');
+  let headPath = null;
+  for (const [path] of f.raw.records) if (path.startsWith(`${planPath}/units/head-`)) { headPath = path; break; }
+  assert.ok(headPath);
+  const before = f.raw.snapshot(headPath), body = before.data();
+  await f.raw.runTransaction(async tx => tx.set(f.raw.doc(headPath), { ...body, transient: true }));
+  await f.raw.runTransaction(async tx => tx.set(f.raw.doc(headPath), body));
+  assert.equal(f.raw.snapshot(headPath).updateTime.isEqual(before.updateTime), false);
+  await assert.rejects(runFull(f.input), 'Unowned same-body head versions must not be adopted as receipt-owned state.');
+}, 'HudHudDev', true));
+
+// Candidate-review regressions, authored against frozen source before correction.
+// They are separate from the historical R12 behavioral RED evidence.
+for (const proofKind of ['episode', 'target-head', 'release']) test(`review regression: closed ${proofKind} proof rejects nested canonical payload before encrypted publication`, async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await runFull(f.input);
+  const pathPrefix = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}/units/`;
+  const receipt = [...f.raw.records.keys()].filter(path => path.startsWith(pathPrefix)).map(path => f.raw.snapshot(path).data()).find(value => value.proofKind === proofKind);
+  assert.ok(receipt, 'A genuine successfully generated proof is the control.');
+  const genuine = await f.input.backupStore.readVerified(receipt.backupHash); await f.input.backupStore.writeVerified(genuine);
+  const { hash: ignored, ...body } = genuine; void ignored;
+  const altered = { ...body, proofImage: { ...body.proofImage, content: 'Synthetic private content', authorId: 'synthetic-author' } };
+  const forged = { ...altered, hash: createHash('sha256').update(JSON.stringify(encodeCleanupValue(altered))).digest('hex') };
+  const files = (await fsPromises.readdir(f.config.directory)).length;
+  await assert.rejects(f.input.backupStore.writeVerified(forged), 'Purpose validation must reject unknown nested proof fields before custody publication.');
+  assert.equal((await fsPromises.readdir(f.config.directory)).length, files);
+}, 'HudHudDev', true));
+
+test('review regression: unknown private head fields cannot be copied into generated proofs or backups', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } });
+  const prefix = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}/units/head-`;
+  await advanceUntil(f.input, result => result.phase === 'verifying');
+  const path = [...f.raw.records.keys()].find(path => path.startsWith(prefix)); assert.ok(path);
+  f.raw.seed(path, { ...f.raw.snapshot(path).data(), content: 'Synthetic private content', authorId: 'synthetic-author' });
+  await assert.rejects(runFull(f.input), 'An unrecognized head field must never become a generated proof image.');
+  assert.equal(f.raw.snapshot('HudHudDev/commentCountContributions').get('state'), 'paused');
+}, 'HudHudDev', true));
+
+for (const operation of ['apply', 'restore']) test(`review regression: exported full ${operation} cannot advance a real live lease through a caller clock`, async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } });
+  if (operation === 'restore') { await runFull(f.input); await fullTool.restoreCommentCountReconciliation({ ...f.input, maxItems: 1 }); }
+  else await fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 });
+  const path = 'HudHudDev/commentCountContributions', before = f.raw.snapshot(path), leaseUntil = before.get('leaseUntil');
+  assert.ok(Date.now() < leaseUntil, 'The actual runtime lease is still live.');
+  const writes = f.raw.writes.length;
+  await assert.rejects(actualFullTool[operation === 'apply' ? 'applyCommentCountReconciliation' : 'restoreCommentCountReconciliation']({
+    ...f.input, owner: 'forged-clock-owner', now: () => leaseUntil + 1, maxItems: 1 }), 'Caller time must not authorize a live-owner takeover.');
+  assert.equal(f.raw.writes.length, writes); assert.equal(f.raw.snapshot(path).get('owner'), before.get('owner'));
+}, 'HudHudDev', true));
+
+test('review regression: same-body target-head delete/recreate cannot be accepted as an owned native checkpoint', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } });
+  await advanceUntil(f.input, result => result.phase === 'verifying');
+  const prefix = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}/units/head-`;
+  const path = [...f.raw.records.keys()].find(path => path.startsWith(prefix)), before = f.raw.snapshot(path); assert.ok(path);
+  await f.raw.doc(path).delete(); f.raw.seed(path, before.data());
+  assert.equal(f.raw.snapshot(path).createTime.isEqual(before.createTime), false, 'The head was genuinely recreated.');
+  await assert.rejects(runFull(f.input), 'Copied head content cannot authorize new native metadata.');
+}, 'HudHudDev', true));
+
+for (const drift of ['missing', 'hidden']) test(`review regression: late ${drift} canonical source blocks an absent-preimage inverse`, async () => fixture(async f => {
+  const parent = 'HudHudDev/episodes/episodes/e', comment = `${parent}/comments/c`;
+  f.raw.seed(parent, { stats: { commentsCount: 9 } }); f.raw.seed(comment, { status: 'published' }); await runFull(f.input);
+  const planPath = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}`;
+  const target = [...f.raw.records.keys()].filter(path => path.startsWith(`${planPath}/units/`)).map(path => f.raw.snapshot(path).data())
+    .find(row => row.kind === 'comment' && row.targets?.some(item => item.created && item.targetPath.endsWith('/contributions/c'))); assert.ok(target);
+  for (let n = 0; n < 2000; n++) {
+    const plan = f.raw.snapshot(planPath).data();
+    if (plan.phase === 'restoring' && plan.resumePhase === 'ready' && plan.restoreUnit === target.index) break;
+    await fullTool.restoreCommentCountReconciliation({ ...f.input, maxItems: 1 }); if (n === 1999) assert.fail('Original inverse was not reached.');
+  }
+  if (drift === 'missing') await f.raw.doc(comment).delete(); else f.raw.seed(comment, { status: 'hidden' });
+  const writes = f.raw.writes.length;
+  await assert.rejects(fullTool.restoreCommentCountReconciliation({ ...f.input, maxItems: 1 }), 'Every inverse must freshly validate its canonical source.');
+  assert.equal(f.raw.writes.length, writes);
+}, 'HudHudDev', true));
+
+for (const route of ['plan-extra', 'plan-before-root', 'source-before-image', 'encoded-native-extra']) test(`review regression: closed backup schema refuses hidden payload via ${route}`, async () => fixture(async f => {
+  const seal = body => ({ ...body, hash: createHash('sha256').update(JSON.stringify(encodeCleanupValue(body))).digest('hex') });
+  let body;
+  if (route.startsWith('plan-')) {
+    const { hash: ignored, ...original } = f.input.manifest; void ignored;
+    body = route === 'plan-extra' ? { ...original, content: 'Synthetic private content' } : { ...original,
+      beforeRoot: { ...original.beforeRoot, authorId: 'synthetic-author' } };
+  } else {
+    const parent = 'HudHudDev/episodes/episodes/e'; f.raw.seed(parent, { stats: { commentsCount: 0 } }); f.raw.seed(`${parent}/comments/c`, { status: 'published' }); await runFull(f.input);
+    const prefix = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}/units/`;
+    const receipt = [...f.raw.records.keys()].filter(path => path.startsWith(prefix)).map(path => f.raw.snapshot(path).data()).find(row => row.kind === 'comment');
+    const { hash: ignored, ...original } = await f.input.backupStore.readVerified(receipt.backupHash); void ignored;
+    body = { ...original, source: { ...original.source } };
+    if (route === 'source-before-image') body.source.originalBaseline = { ...body.source.originalBaseline, authorId: 'synthetic-author' };
+    else body.source.episodeCreateTime = { ...body.source.episodeCreateTime, content: 'Synthetic ignored encoded content' };
+  }
+  const files = (await fsPromises.readdir(f.config.directory)).length;
+  await assert.rejects(f.input.backupStore.writeVerified(seal(body)), 'All nested purpose fields and typed encodings must remain closed.');
+  assert.equal((await fsPromises.readdir(f.config.directory)).length, files);
+}, 'HudHudDev', true));
+
+test('review control: genuine generated proof kinds remain accepted by private purpose custody', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await runFull(f.input);
+  const prefix = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}/units/`, seen = new Set();
+  for (const path of [...f.raw.records.keys()].filter(path => path.startsWith(prefix))) {
+    const receipt = f.raw.snapshot(path).data(); if (!receipt.proofKind) continue;
+    await f.input.backupStore.writeVerified(await f.input.backupStore.readVerified(receipt.backupHash)); seen.add(receipt.proofKind);
+  }
+  assert.deepEqual([...seen].sort(), ['episode', 'release', 'target-head']);
+}, 'HudHudDev', true));
+test('review control: unchanged canonical sources and genuine no-op heads allow conditional restore', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } });
+  f.raw.seed('HudHudDev/episodes/episodes/e/comments/c', { status: 'hidden' });
+  await runFull(f.input); const result = await runFull(f.input, 'restore', 1);
+  assert.equal(result.result.status, 'restored-held'); assert.equal(f.raw.snapshot('HudHudDev/episodes/episodes/e/comments/c').get('status'), 'hidden');
+  assert.equal(f.raw.snapshot('HudHudDev/episodes/episodes/e').get('stats.commentsCount'), 0);
+}, 'HudHudDev', true));
+test('review control: actual live runtime lease refuses another owner without a supplied clock', async () => fixture(async f => {
+  const { now: ignored, ...input } = f.input; void ignored;
+  await fullTool.applyCommentCountReconciliation({ ...input, maxItems: 1 }); const writes = f.raw.writes.length;
+  await assert.rejects(fullTool.applyCommentCountReconciliation({ ...input, owner: 'other-real-owner', maxItems: 1 }), error => error.details?.reason === 'count-lease-busy');
+  assert.equal(f.raw.writes.length, writes);
+}, 'HudHudDev', true));
+
+
+async function authenticatedReviewReplay(f) {
+  const name = (await fsPromises.readdir(f.config.directory)).find(value => value.endsWith('.counts-replay'));
+  assert.ok(name, 'The actual successful apply must have published its genuine private replay head.');
+  const path = join(f.config.directory, name), envelope = JSON.parse(await readFile(path, 'utf8'));
+  const identity = await fsPromises.lstat(f.config.directory);
+  const aad = Buffer.from(`comment-count-replay:1:${envelope.bindingHash}:${identity.dev}:${identity.ino}:${envelope.expiresAt}`);
+  const decipher = createDecipheriv('aes-256-gcm', f.config.key, Buffer.from(envelope.nonce, 'base64'));
+  decipher.setAAD(aad); decipher.setAuthTag(Buffer.from(envelope.tag, 'base64'));
+  const value = JSON.parse(Buffer.concat([decipher.update(Buffer.from(envelope.ciphertext, 'base64')), decipher.final()]).toString('utf8'));
+  return { path, envelope, aad, value };
+}
+async function publishReviewReplayType(f, original, field, value) {
+  const body = { ...original.value, [field]: value }, nonce = randomBytes(12);
+  const cipher = createCipheriv('aes-256-gcm', f.config.key, nonce); cipher.setAAD(original.aad);
+  const ciphertext = Buffer.concat([cipher.update(JSON.stringify(body)), cipher.final()]);
+  await writeFile(original.path, JSON.stringify({ ...original.envelope,
+    hash: createHash('sha256').update(JSON.stringify(encodeCleanupValue(body))).digest('hex'),
+    nonce: nonce.toString('base64'), tag: cipher.getAuthTag().toString('base64'), ciphertext: ciphertext.toString('base64') }));
+}
+for (const [field, invalid] of [['lastEpisode', { content: 'Synthetic invalid cursor content', authorId: 'synthetic-only-author' }],
+  ['lastHead', ['Synthetic invalid head cursor']]]) {
+  test(`review replay cursor regression: authenticated ${field} rejects malformed type before local publication`, async () => fixture(async f => {
+    f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await runFull(f.input);
+    const original = await authenticatedReviewReplay(f);
+    assert.equal(original.value.lastEpisode, null); assert.equal(original.value.lastHead, null);
+    await publishReviewReplayType(f, original, field, invalid);
+    const before = await readFile(original.path), writes = f.raw.writes.length;
+    await assert.rejects(fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 }),
+      'Authenticated state must still satisfy existing nullable opaque-ID/hash types; malformed progress cannot be republished.');
+    assert.deepEqual(await readFile(original.path), before, 'Rejected malformed state cannot publish a new local revision.');
+    assert.equal(f.raw.writes.length, writes, 'Accepted historical replay remains Firestore read-only.');
+  }, 'HudHudDev', true));
+}
+test('review replay cursor control: genuine null and string cursors survive accepted bounded replay', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await runFull(f.input);
+  const initial = await authenticatedReviewReplay(f); assert.equal(initial.value.lastEpisode, null); assert.equal(initial.value.lastHead, null);
+  const writes = f.raw.writes.length; let strings = false;
+  for (let n = 0; n < 2000; n++) {
+    const result = await fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 });
+    const current = await authenticatedReviewReplay(f);
+    if (typeof current.value.lastEpisode === 'string' && typeof current.value.lastHead === 'string') {
+      assert.equal(countId(current.value.lastEpisode), true); assert.equal(countHash(current.value.lastHead), true);
+      await fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 }); strings = true; break;
+    }
+    assert.notEqual(result.status, 'active', 'A genuine historical string cursor must be observed before proof exhaustion.');
+  }
+  assert.equal(strings, true); assert.equal(f.raw.writes.length, writes);
+}, 'HudHudDev', true));
+// Existing-wire static guards: downstream seal rejection is GREEN guard evidence,
+// not a reproduced bypass or historical business RED.
+const planTypedGuards = [
+  ['beforeRootHash', {}], ['previousAcceptedManifestHash', []], ['foldedUnit', 'invalid'],
+  ['proofTargetSlotCount', 'invalid'], ['headChainTargetSlotCount', {}], ['episodeProofCount', 'invalid'],
+  ['headProofCount', []], ['episodeProofDigest', 7], ['headProofDigest', false],
+  ['resumeExpectedHash', {}], ['resumeExpectedReceiptDigest', false], ['resumeChainUnit', null, { resumeChainSlot: 1 }],
+  ['headVerification', 0], ['receiptVerification', false], ['resumeSource', []],
+  ['proofMaxUnit', 0], ['proofReceiptCount', {}], ['proofReceiptDigest', 'invalid'], ['releaseUnit', null], ['barrierVersion', {}],
+  ['verifyStage', 'complete']
+];
+for (const [field, value, extra = {}] of planTypedGuards) test(`schema matrix guard: plan ${field} rejects malformed type/null/early-phase state`, async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } });
+  await fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 });
+  const path = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}`, current = f.raw.snapshot(path).data();
+  f.raw.seed(path, { ...current, [field]: value, ...extra }); const writes = f.raw.writes.length;
+  await assert.rejects(fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 }));
+  assert.equal(f.raw.writes.length, writes); assert.equal(f.raw.snapshot('HudHudDev/episodes/episodes/e').get('stats.commentsCount'), 0);
+}, 'HudHudDev', true));
+const episodeTypedGuards = [
+  ['expectedSourceHead', {}], ['previousBaselineHash', false], ['commentCursor', []], ['contributionCursor', 7],
+  ['commentsComplete', 'invalid'], ['contributionsComplete', 0], ['publishedCount', 'invalid'],
+  ['commentCount', -1], ['contributionCount', {}], ['commentDigest', false], ['contributionDigest', []],
+  ['proofUnit', 'invalid'], ['verification', {}]
+];
+for (const [field, value] of episodeTypedGuards) test(`schema matrix guard: episode ${field} rejects malformed existing-wire state`, async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } });
+  await advanceUntil(f.input, result => result.phase === 'staging');
+  const path = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}/episodes/e`;
+  f.raw.seed(path, { ...f.raw.snapshot(path).data(), [field]: value }); const writes = f.raw.writes.length;
+  await assert.rejects(fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 })); assert.equal(f.raw.writes.length, writes);
+}, 'HudHudDev', true));
+for (const [field, value] of [['episodeId', {}], ['commentId', []], ['rootHash', false], ['planImageHash', 7], ['episodeCheckpointHash', {}], ['undoneApplyUnit', {}]]) test(`schema matrix guard: receipt ${field} rejects malformed scalar or wrong-kind payload`, async () => fixture(async f => {
+  await fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 });
+  const path = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}/units/000000000000`;
+  f.raw.seed(path, { ...f.raw.snapshot(path).data(), [field]: value }); const writes = f.raw.writes.length;
+  await assert.rejects(fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 })); assert.equal(f.raw.writes.length, writes);
+}, 'HudHudDev', true));
+test('schema matrix guard: frozen head progress requires the existing head document ID shape', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await advanceUntil(f.input, result => result.phase === 'verifying');
+  const planPath = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}`, headPath = [...f.raw.records.keys()].find(path => path.startsWith(`${planPath}/units/head-`));
+  const head = f.raw.snapshot(headPath).data(), plan = f.raw.snapshot(planPath).data();
+  f.raw.seed(planPath, { ...plan, headVerification: { headId: `other${head.targetKey}`, image: head, unit: head.currentReceiptUnit,
+    slot: head.currentReceiptSlot, expectedHash: head.currentImageHash, chainTargetCount: 0 } }); const writes = f.raw.writes.length;
+  await assert.rejects(fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 })); assert.equal(f.raw.writes.length, writes);
+}, 'HudHudDev', true));
+test('schema matrix guard: restore physical predecessor null requires a null slot', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await runFull(f.input);
+  const planPath = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}`; let receipt;
+  for (let n = 0; n < 2000; n++) {
+    await fullTool.restoreCommentCountReconciliation({ ...f.input, maxItems: 1 });
+    const plan = f.raw.snapshot(planPath).data(), current = f.raw.snapshot(`${planPath}/units/${String(plan.lastUnit).padStart(12, '0')}`);
+    if (current.get('kind') === 'restore' && current.get('targets').length) { receipt = current; break; }
+  }
+  assert.ok(receipt); const body = receipt.data();
+  f.raw.seed(receipt.ref.path, { ...body, targets: body.targets.map((target, index) => index ? target : { ...target, physicalPredecessorUnit: null, physicalPredecessorSlot: 1 }) });
+  const writes = f.raw.writes.length;
+  await assert.rejects(fullTool.restoreCommentCountReconciliation({ ...f.input, maxItems: 1 })); assert.equal(f.raw.writes.length, writes);
+}, 'HudHudDev', true));
+test('schema matrix control: genuine inventory/staging nulls and active release fields remain compatible', async () => fixture(async f => {
+  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } });
+  const first = await fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 }), planPath = `HudHudDev/commentCountContributions/maintenance/${f.input.manifest.hash}`;
+  assert.equal(first.status, 'in-progress'); const initial = f.raw.snapshot(planPath).data();
+  assert.equal(initial.previousAcceptedManifestHash, null); assert.equal(initial.headVerification, null); assert.equal(initial.receiptVerification, null); assert.equal(initial.resumeSource, null);
+  assert.equal(Object.hasOwn(initial, 'releaseUnit'), false);
+  await runFull(f.input); const accepted = f.raw.snapshot(planPath).data(); assert.ok(Number.isSafeInteger(accepted.releaseUnit));
+  assert.equal(countHash(accepted.proofReceiptDigest), true); assert.ok(accepted.barrierVersion.toMillis());
+  const restored = await runFull(f.input, 'restore'); assert.equal(restored.result.status, 'restored-held');
+}, 'HudHudDev', true));
+
+test('review partial restore probe: unchanged partially staged contribution can conditionally restore without activation', async () => fixture(async f => {
+  const root = 'HudHudDev', parent = `${root}/episodes/episodes/e`, row = `${root}/commentCountContributions/episodes/e/contributions/c`;
+  f.raw.seed(parent, { title: 'Synthetic', stats: { commentsCount: 9 } });
+  f.raw.seed(`${parent}/comments/c`, { status: 'published' });
+  await advanceUntil(f.input, result => result.phase === 'staging' && f.raw.snapshot(row).exists);
+  const current = f.raw.snapshot(`${root}/commentCountContributions`);
+  assert.equal(current.get('state'), 'paused');
+  assert.equal(f.raw.snapshot(`${root}/commentCountContributions/episodes/e`).exists, false, 'Staging is genuinely partial before baseline/counter finalization.');
+  let result;
+  await assert.doesNotReject(async () => { result = await runFull(f.input, 'restore', 1); },
+    'An unchanged partially committed prefix must support conditional restore without activation.');
+  assert.equal(result.result.status, 'restored-held', 'Conditional rollback of an unchanged committed prefix must not require completing activation.');
+  assert.equal(f.raw.snapshot(row).exists, false);
+  assert.equal(f.raw.snapshot(parent).get('stats.commentsCount'), 9);
+  assert.equal(f.raw.snapshot(`${root}/commentCountContributions`).get('state'), 'paused');
+}, 'HudHudDev', true));
+
+}

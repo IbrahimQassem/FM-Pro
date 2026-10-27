@@ -1,0 +1,22 @@
+{
+  "status": "AUTHOR_GREEN_PENDING_INTEGRATION_AND_INDEPENDENT_REVIEW",
+  "tests": 47,
+  "pass": 47,
+  "fail": 0,
+  "skip": 0,
+  "command": "Exact Node22 node --test tool/test/repair_rss_urls.test.mjs",
+  "syntaxCheckExit": 0,
+  "sourceBeforeSha256": "593600397eaa52e9bc197b5de8efabf465ecc0a41be976800da71c63e971f7b0",
+  "sourceAfterSha256": "2c538bd6d3a14b959495ca0558a9945e78f884a2c98a102b21153bf9ffffb022",
+  "testSha256": "849ed70633d3e8264ff60b94f77148465c5fa6054d9dad8eb0166c0726dac011",
+  "testsIdenticalToIntegratedRed": true,
+  "patchSha256": "3b26037815294b8eb6771b5c61a6c00c49c1ca397086a90d559f90ff46439f9b",
+  "logSha256": "7edc79c21aecacb6963175232d04dce1c43415b104082ee7a570d909a3790d50",
+  "changes": "Reuse dependency-free count fence in initial lease, actual apply/restore item, and final checkpoint transaction before every write; no other behavior changed.",
+  "redEvidence": "B15-rss-fence-integrated-red.log:47/39pass/8 intended business failures0skip",
+  "limitations": [
+    "No E or production execution.",
+    "Independent source review and exact integrated GREEN remain required.",
+    "Pagination and other producer guards/full nonempty tool remain unfinished; R12 OPEN."
+  ]
+}

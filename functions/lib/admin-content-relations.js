@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { FieldValue } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
 import { contentIdentity, contentIdentityScope, validContentId } from './admin-content.js';
@@ -36,6 +37,22 @@ export function assertCounterAdjustment(value, delta) {
     );
   }
 }
+
+// Private reservations bind aliases to immutable RSS ownership, never a current URL.
+const externalHash = value => typeof value === 'string' && value.length > 0
+  ? createHash('sha256').update(value).digest('hex') : null;
+const hasRssProof = value => Object.hasOwn(value, 'rssAliasVersion');
+function validRssProof(value, { root, programId, stationId, id, owner, key }) {
+  return value.rssAliasVersion === 1 && value.targetKind === 'episodes' &&
+    value.targetId === id && value.keyHash === key && value.rssOwnerRoot === root &&
+    value.rssOwnerProgramId === programId && value.rssOwnerStationId === stationId &&
+    validContentId(programId) && validContentId(stationId) && owner?.programId === programId &&
+    owner.stationId === stationId && !owner.adminDeletionToken &&
+    externalHash(owner.externalId) !== null && value.rssOwnerExternalIdHash === externalHash(owner.externalId);
+}
+const rssProof = (root, programId, stationId, owner) => ({ rssAliasVersion: 1,
+  rssOwnerRoot: root, rssOwnerProgramId: programId, rssOwnerStationId: stationId,
+  rssOwnerExternalIdHash: externalHash(owner.externalId) });
 
 /** Collect reads first and defer every write until validation has completed. */
 export async function prepareContentRelations(
@@ -194,22 +211,24 @@ export async function prepareContentIdentity(
   const keyRef = db.doc(`${root}/importKeys/importKeys/${key}`);
   const reserved = await tx.get(keyRef);
   let trustedReservation = false;
-  if (
-    reserved.exists &&
-    reserved.data().targetId === id &&
-    existing &&
+  if (reserved.exists && hasRssProof(reserved.data())) {
+    const value = reserved.data();
+    const owner = validContentId(value.targetId)
+      ? await tx.get(db.doc(`${root}/episodes/episodes/${value.targetId}`)) : null;
+    if (kind !== 'episodes' || !owner?.exists || !validRssProof(value, { root,
+      programId: content.programId, stationId: content.stationId, id: value.targetId,
+      owner: owner.data(), key })) fail('RSS alias ownership requires reviewed repair.', 'rss-identity-conflict');
+    if (value.targetId !== id) throw new HttpsError('already-exists', 'The content identity is reserved by another record.');
+    trustedReservation = true;
+  } else if (
+    reserved.exists && reserved.data().targetId === id && existing &&
     contentIdentity(kind, existing) === key
   ) {
     trustedReservation = true;
   } else if (reserved.exists && validContentId(reserved.data().targetId)) {
-    const owner = await tx.get(
-      db.doc(`${root}/${kind}/${kind}/${reserved.data().targetId}`),
-    );
+    const owner = await tx.get(db.doc(`${root}/${kind}/${kind}/${reserved.data().targetId}`));
     if (owner.exists && contentIdentity(kind, owner.data()) === key) {
-      throw new HttpsError(
-        'already-exists',
-        'The content identity is reserved by another record.',
-      );
+      throw new HttpsError('already-exists', 'The content identity is reserved by another record.');
     }
   }
   if (!trustedReservation) {
@@ -248,10 +267,12 @@ export async function prepareContentIdentity(
   if (previousKey && previousKey !== key) {
     const oldRef = db.doc(`${root}/importKeys/importKeys/${previousKey}`);
     const old = await tx.get(oldRef);
-    if (old.exists && old.data().targetId === id)
-      writes.push(() => tx.delete(oldRef));
+    if (old.exists && hasRssProof(old.data())) {
+      if (!validRssProof(old.data(), { root, programId: existing.programId, stationId: existing.stationId,
+        id, owner: existing, key: previousKey })) fail('RSS alias ownership requires reviewed repair.', 'rss-identity-conflict');
+    } else if (old.exists && old.data().targetId === id) writes.push(() => tx.delete(oldRef));
   }
-  writes.push(() =>
+  if (!(reserved.exists && hasRssProof(reserved.data()))) writes.push(() =>
     tx.set(keyRef, {
       targetKind: kind,
       targetId: id,
@@ -260,4 +281,69 @@ export async function prepareContentIdentity(
     }),
   );
   return writes;
+}
+
+
+/** Resolve raw/decoded RSS aliases before any item write. Never change a legacy episode. */
+export async function prepareRssIdentities(tx, db, { root, programId, stationId, id, audioUrls, externalIds, candidateIds }) {
+  const conflict = () => { throw new HttpsError('failed-precondition', 'RSS identity aliases conflict; reviewed repair is required.', { reason: 'rss-identity-conflict' }); };
+  if (![audioUrls, externalIds, candidateIds].every(values => Array.isArray(values) && values.length >= 1 && values.length <= 2)) conflict();
+  const keys = [...new Set(audioUrls.map(audioUrl => contentIdentity('episodes', { programId, audioUrl })))];
+  if (!['HudHudDev', 'HudHudOfficial'].includes(root) || !validContentId(stationId) || !validContentId(programId) || !validContentId(id) || keys.some(key => !key)) conflict();
+  const ids = [...new Set(candidateIds)];
+  const reference = target => db.doc(`${root}/episodes/episodes/${target}`);
+  const reservationRefs = keys.map(key => db.doc(`${root}/importKeys/importKeys/${key}`));
+  const [scope, ...reservations] = await Promise.all([
+    tx.get(db.doc(`${root}/identityScopes/scopes/${contentIdentityScope('episodes', programId)}`)),
+    ...reservationRefs.map(ref => tx.get(ref)),
+  ]);
+  const trustedScope = scope.exists && scope.get('version') === 1 && scope.get('state') === 'complete' &&
+    scope.get('targetKind') === 'episodes' && scope.get('parentId') === programId && /^[a-f0-9]{64}$/.test(scope.get('runId') ?? '');
+  const owners = new Map();
+  const matches = value => value?.programId === programId &&
+    (keys.includes(contentIdentity('episodes', value)) || (value.externalId && externalIds.includes(String(value.externalId))));
+  const consider = (snapshot, exists = snapshot.exists) => {
+    if (!exists) return;
+    const value = snapshot.data();
+    if (!matches(value) || value.stationId !== stationId || value.adminDeletionToken) conflict();
+    owners.set(snapshot.id ?? snapshot.ref.id, snapshot);
+  };
+  const ownerIds = [...new Set([...ids, ...reservations.filter(item => item.exists).map(item => item.get('targetId'))])];
+  if (ownerIds.some(target => !validContentId(target))) conflict();
+  const snapshots = await Promise.all(ownerIds.map(target => tx.get(reference(target))));
+  for (const snapshot of snapshots) consider(snapshot);
+  // A completed URL-key backfill does not index immutable GUIDs. Resolve those
+  // separately with bounded equality queries even when the URL scope is trusted.
+  for (const externalId of [...new Set(externalIds)].filter(value => typeof value === 'string' && value)) {
+    const identities = await tx.get(db.collection(`${root}/episodes/episodes`)
+      .where('programId', '==', programId).where('externalId', '==', externalId).limit(2));
+    for (const snapshot of identities.docs) consider(snapshot, true);
+  }
+  if (!trustedScope) {
+    const siblings = await tx.get(db.collection(`${root}/episodes/episodes`).where('programId', '==', programId).limit(451));
+    if (siblings.size > 450) fail('Legacy RSS identity requires a reviewed backfill.', 'identity-backfill');
+    for (const snapshot of siblings.docs) {
+      if (matches(snapshot.data())) consider(snapshot, true);
+    }
+  }
+  if (owners.size > 1) conflict();
+  const ownerId = owners.size ? owners.keys().next().value : id;
+  for (let index = 0; index < reservations.length; index++) {
+    const reserved = reservations[index];
+    if (reserved.exists && (reserved.get('targetKind') !== 'episodes' || reserved.get('keyHash') !== keys[index] ||
+        reserved.get('targetId') !== ownerId || !owners.has(ownerId))) conflict();
+  }
+  const owner = owners.size ? owners.get(ownerId).data() : { programId, stationId, externalId: externalIds[0] };
+  const proof = externalHash(owner.externalId) ? rssProof(root, programId, stationId, owner) : null;
+  if (!proof && keys.some(key => key !== contentIdentity('episodes', owner))) conflict();
+  const writes = [];
+  for (let index = 0; index < keys.length; index++) {
+    const reserved = reservations[index];
+    if (reserved.exists && hasRssProof(reserved.data()) && !validRssProof(reserved.data(),
+      { root, programId, stationId, id: ownerId, owner, key: keys[index] })) conflict();
+    if (!reserved.exists || (proof && !hasRssProof(reserved.data())))
+      writes.push(() => tx.set(reservationRefs[index], { targetKind: 'episodes', targetId: ownerId,
+        keyHash: keys[index], reservedAt: FieldValue.serverTimestamp(), ...(proof ?? {}) }));
+  }
+  return { id: ownerId, existing: owners.size > 0, writes };
 }

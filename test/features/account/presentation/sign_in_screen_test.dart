@@ -1,3 +1,4 @@
+import 'package:hudhud_fm/features/account/domain/models/account_registration_result.dart';
 import 'dart:typed_data';
 import "package:flutter/material.dart";
 import "package:flutter_localizations/flutter_localizations.dart";
@@ -138,11 +139,15 @@ class _FakeAccountRepository implements AccountRepository {
   @override
   Future<void> verifyEmailCode(String code) async {}
   @override
-  Future<void> register({
+  Future<AccountRegistrationResult> register({
     required String displayName,
     required String email,
     required String password,
-  }) async {}
+  }) async {
+    return const AccountRegistrationResult(
+        verificationDelivery: AccountVerificationDelivery.sent);
+  }
+
   @override
   Future<void> sendPasswordReset(String email) async {
     resetEmail = email;

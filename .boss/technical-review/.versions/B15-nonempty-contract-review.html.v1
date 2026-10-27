@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B15 nonempty reconciliation contract review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b15-nonempty-reconciliation-contract-review">B15 nonempty reconciliation contract review</a></li><li class="toc-level-2"><a href="#original-proposal-identity">Original proposal identity</a></li><li class="toc-level-2"><a href="#producer-test-attachment-review">Producer-test attachment review</a></li><li class="toc-level-2"><a href="#continuing-acceptance-limits">Continuing acceptance limits</a></li><li class="toc-level-2"><a href="#revised-v2-decision-approved-technical-contract">Revised v2 decision — approved technical contract</a></li></ul>
+    </aside>
+    <main>
+      <h1>B15 nonempty reconciliation contract review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B15-nonempty-contract-review.md</div>
+        <div>Generated: 2026-10-26T20:42:02.981Z</div>
+      </div>
+      <h1 id="b15-nonempty-reconciliation-contract-review">B15 nonempty reconciliation contract review</h1>
+<p>Status: <strong>REVISION_NEEDED for version-chain and inventory-digest clarification.</strong> The partial actual runtime handoff is independently approved, but full tool source remains held until this schema review converges. No source, emulator, production operation or migration was performed by this reviewer.</p>
+<h2 id="original-proposal-identity">Original proposal identity</h2>
+<p><code>/tmp/hudhud-b15-nonempty-contracts.patch</code>, SHA-256 <code>bc7ba6e6cb1f24d04f2009ab6950a42fd1c0e0385a8a5c4e78d339bc8e6968ea</code>.</p>
+<p>The proposed private plan, inventory/completion and unit receipt approach is compatible with the existing root fence, count authority and native precision correction. Bounded union staging must include both canonical comments and all old contribution/tombstone IDs. The source/count privacy limits, production refusal, conditional recovery conversion and restored-held endpoint are appropriate. Two exact wire gaps must be resolved before implementation:</p>
+<ol><li><strong>Historical target versions and restore supersession.</strong> A historical receipt cannot require its target's current native version to equal that old receipt after a legitimate later plan-owned write. Persist a concrete bounded per-target head and immutable predecessor chain. Changed targets derive expected native versions from the latest authorized physical receipt; no-ops retain observed versions. Reverse restore names each reverted apply unit, freezes the apply range, and moves the physical head to the new restore commit while the logical head returns to its predecessor. Earlier restores must accept that newer proven restore version rather than comparing with obsolete metadata. Literal native recovery conversion needs its own restored projection hash. Unknown external versions, ABA or recreated identity must stop paused. Receipt issuance epochs are historical; current ownership/epoch gates new writes without invalidating older legitimate receipt history.</li><li><strong>Inventory identity versus mutable source versions.</strong> Define inventory equality over ordered episode ID/exact native createTime only. Store original source versions separately and permit expected current versions to advance exclusively through verified owned target receipts/heads. Otherwise a legitimate counter-finalization write changes its episode's version and can invalidate the tool's own second inventory digest. Keep rolling bounded identity digests rather than arrays of all IDs.</li></ol>
+<p>Exact constraints were sent directly to the implementation author for a documentation-only revision. A prefixed mutable head record inside the existing units collection is a minimal option, provided its target hash includes document path plus owned field, it cannot collide with numeric immutable receipt IDs, query selectors distinguish heads/receipts, native identity is never inferred from REQUEST_TIME, and verification/traversal remains within invocation bounds. This is not approval of an unreviewed revised schema or implementation.</p>
+<h2 id="producer-test-attachment-review">Producer-test attachment review</h2>
+<p><strong>APPROVED for the scoped manifest patch only.</strong> <code>/tmp/hudhud-b15-producer-test-attachments-scoped.patch</code>, SHA-256 <code>942c8ab09c678f08e1f796cd45b0d650014b7126888cfbd38883fe1fccce4d46</code>, passes applicability check. Independently reconstructed the proposed JSON: all original 72 ownership entries are unchanged; the resulting 75 paths are unique. The original 65 tasks, 16 batches and 17 waves remain.</p>
+<p>The two existing RSS/pagination regression paths become explicitly shared under I integration ownership. One cohesive BE-authored producer regression file covers the four already-registered import/seed/status/preview writers; its policy requires isolated author patches and I integration. QA emulator fixtures and prior assertions remain protected. The two unrelated Unicode serialization hunks from the original proposal are absent. Test files must exist, import and discover genuine behavioral assertions before execution; missing APIs, compilation failures and skips cannot establish RED. This attachment approval does not release source until the nonempty schema is approved.</p>
+<h2 id="continuing-acceptance-limits">Continuing acceptance limits</h2>
+<p>Partial registration GREEN (43/43), account deletion (6/6) and editorial integration (82/82) do not complete full 04-T08, 04-T09, B15 or R12. Full nonempty source, producer RED/fixes, native/ABA/restore guards, actual rehearsal and independent source review remain required. Preserve B16/native contracts, original test identities, final Flutter/device and production checkpoints. No finding is CLOSED.</p>
+<h2 id="revised-v2-decision-approved-technical-contract">Revised v2 decision — approved technical contract</h2>
+<p><strong>APPROVED for integration and full 04-T09 implementation.</strong> The v2 proposal resolves both preceding wire gaps. This is a contract approval, not completed tool/source verification, live activation, full B15 acceptance or finding closure.</p>
+<p>Revised proposal: <code>/tmp/hudhud-b15-nonempty-contracts-v2.patch</code>, SHA-256 <code>4e9674f0ba04c83bcb23b9e569ce3895e5eb8a0445cd0d4caa85182a1dea6a68</code>. Applicability passed before integration. The original v1 identity and review blockers remain historical evidence.</p>
+<ul><li>Target keys bind canonical document path plus exact owned field or null. Disjoint prefixed mutable heads share the existing private units collection with numeric immutable receipts. Bounded selectors separate those record types; no new collection, dependency or generic mapping service is introduced.</li><li>Explicit target slots, predecessor links and current physical receipt distinguish historical apply identity from the current target version. Only the verified latest head supplies current native version/postimage. Historical receipt issuance epochs remain valid history while current lease ownership gates new mutations.</li><li>Reverse restore freezes its apply boundary, records each reverted unit/slot and physical predecessor, and moves logical heads backward while physical heads advance to immutable restore commits. Genuine no-ops retain observed versions. Literal identity conversion has explicit original/restored projection hashes and cannot reinterpret restore metadata as historical birth/mutation identity. All traversal and resume verification remain bounded across calls.</li><li>The rolling inventory digest contains ordered episode ID and exact native createTime only. Initial source versions remain immutable CAS inputs; expected source versions advance solely through verified owned counter heads/receipts. Honest counter finalization does not invalidate identity equality; unowned versions, ABA and recreated identity still fail closed.</li><li>Full current-comment/contribution union, tombstones, exhausted verification, paused native barrier/release, encrypted per-unit backups, conditional recovery, oldnamespace refusal and production isolation limits remain mandatory. Completed restore remains paused/restored-held, never automatic legacy traffic release.</li></ul>
+<p>The scoped test-attachment approval above is confirmed for the applied 75 unique ownership paths. All original 72 entries and the original 65 tasks, 16 batches and 17 waves remain preserved. Root dependency validation reports 87 acyclic combined nodes with no unknown dependency; attachment changes add no DAG edge. Existing shared regression assertions and QA ownership remain protected.</p>
+<p>During integration, I is explicitly approved to replace only proposal-status wording with “accepted technical contract” and this review reference. Preserve all source verification, operational approval, production refusal and finding-status caveats. Do not leave a normative accepted appendix labeled unapproved. Future implementation must still prove the exact wire protocol through permanent producer RED, new-tool guards, affected GREEN, actual SDK rehearsal and independent review. No finding is CLOSED.</p>
+<table><thead><tr><th>Proposed document</th><th>Baseline SHA-256</th><th>v2 candidate SHA-256</th></tr></thead><tbody><tr><td><code>docs/contracts/firebase-data-contract.md</code></td><td><code>b8ee533155f50018b3b18ad158d95e426c533f648b27f25ba5fbddd92fdd3340</code></td><td><code>cda7fee7f7fcd1531e6a47827674e23f77d717328d51b8eff15b74eac3e915e1</code></td></tr><tr><td><code>docs/operations/background-consistency-migrations.md</code></td><td><code>3f4a607fab2528c78da69b935e66c31798e72cf1f4fee7d80dac42f84ebf98ea</code></td><td><code>548fadb413a349d2a8f12a26464859fe4343a9b3947685a65cc665372400ad27</code></td></tr><tr><td><code>docs/decisions/0006-background-consistency-and-schedule-timezones.md</code></td><td><code>6e0f649906118111fcd01d0605e6d9dcaeb1ec4a9b30da089dc94c64674c2f4e</code></td><td><code>0e108e902ff9ae842f0d9fd65e310577fdcc254c26ca8a29d32d743ebecd1884</code></td></tr></tbody></table>
+    </main>
+  </div>
+</body>
+</html>

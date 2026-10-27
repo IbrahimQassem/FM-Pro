@@ -189,6 +189,14 @@ final stationContentControllerProvider = StateNotifierProvider.autoDispose
   );
 });
 
+final programContentControllerProvider = StateNotifierProvider.autoDispose
+    .family<StationContentController, StationContentState,
+        (String, String, bool)>((ref, scope) {
+  return StationContentController(
+      scope.$1, ref.watch(stationContentRepositoryProvider),
+      programId: scope.$2, deferInitialLoad: scope.$3);
+});
+
 final audioPlayerDataSourceProvider = Provider<AudioPlayerDataSource>((ref) {
   final dataSource = JustAudioPlayerDataSource();
   ref.onDispose(dataSource.dispose);

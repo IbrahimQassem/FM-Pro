@@ -1,0 +1,44 @@
+{
+  "batch": "B13",
+  "followup": "editorial emulator gate investigation",
+  "status": "REVISION_NEEDED",
+  "actualGate": {
+    "log": "B13-editorial-emulator.log",
+    "tests": 61,
+    "passed": 60,
+    "failed": 1,
+    "failedTest": "HudHudDev: transfer includes off-page children and cannot orphan a concurrent episode",
+    "durationMs": 18988.266214
+  },
+  "confirmed": [
+    "Existing assertion reports only fulfilled/rejected and hides the underlying exception.",
+    "New RSS fixture uses unique root/program/station/episode identities, program-scoped queries, and no database clearing.",
+    "Parent transfer compares editable fields, so a counter-only concurrent update does not independently prove a stale-edit rejection.",
+    "The package launches editorial test files concurrently."
+  ],
+  "unconfirmedHypotheses": [
+    "Pessimistic lock contention/attempt exhaustion; parent program and episode save paths read program/station in opposite order. No source fix is justified until rejection code/reason is observed."
+  ],
+  "incrementalPatch": {
+    "path": "/tmp/hudhud-b13-incremental.patch",
+    "sha256": "7333e2a239daf208c7981d045530b7850939a1b8bb78458a4b0f01738dfca7bb",
+    "paths": [
+      "firebase_tests/firebase-emulators/editorial-audit.test.js",
+      "docs/contracts/firebase-data-contract.md"
+    ],
+    "changes": [
+      "Expose existing rejected transfer error code/details.reason/message in unchanged fulfilled assertion.",
+      "Add explicit private RSS alias proof and repair job data contract."
+    ]
+  },
+  "verification": [
+    "node --check diagnostic fixture PASS",
+    "git apply --check incremental patch PASS"
+  ],
+  "pending": [
+    "Parent integration owner applies diagnostic and reruns editorial emulator gate.",
+    "Independent review of explicit schema amendment and implementation.",
+    "No emulator was launched by this child; no live shared source/docs were changed."
+  ],
+  "findingStatus": "R09 OPEN; emulator gate is not passed"
+}

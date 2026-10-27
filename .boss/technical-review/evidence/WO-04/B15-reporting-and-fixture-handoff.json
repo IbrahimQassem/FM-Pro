@@ -1,0 +1,48 @@
+{
+  "status": "TESTS_ONLY_REPORTING_RED_AND_FIXTURE_CANDIDATES_PENDING_PARENT_ACCEPTANCE",
+  "reporting": {
+    "directory": "/tmp/hudhud-b15-replay-read-reporting-red",
+    "sourceSha256": "2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e",
+    "rootSourceSha256": "2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e",
+    "testsSha256": "fb751d6c977707f8366ae8098ce4db484090f575d73e15603c62e9020c295e0d",
+    "original150BodiesUnchanged": true,
+    "patch": "/tmp/hudhud-b15-replay-reporting-tests-only.patch",
+    "patchSha256": "5336e764de85536efd9123950161013d226ef73e18341d3c2519aea77f593217",
+    "result": "6executed:4ERR_ASSERTION numeric-reporting failures2ordinary-apply controlsPASS0skip; unchanged source2c",
+    "values": {
+      "bothRootsInProgress": "returned11 vs observed13",
+      "bothRootsCompletedActive": "returned31 vs observed33"
+    },
+    "command": "node --test --test-name-pattern='replay reporting regression:|replay reporting control:' tool/test/reconcile_comment_counts.test.mjs",
+    "log": "/tmp/hudhud-b15-replay-reporting-baseline-with-controls.log",
+    "logSha256": "02ceb4c9ed76e782498275f4d13784104feb7b48490571084f317b2499146a14",
+    "classification": "Underreported returned application-issued read equivalents; final root/plan pair is actually performed/charged. No1536cap exceedance, proof/status defect or Firestore write is claimed. Ordinary initial apply controls validate observer."
+  },
+  "fixture": {
+    "directory": "/tmp/hudhud-b15-ordinary-integration-final",
+    "combinedPatch": "/tmp/hudhud-b15-ordinary-integration-combined.patch",
+    "combinedPatchSha256": "48d326a0ff86772a5ae305c38fcc8adf26cda154dce31a2313018d16d8e227e4",
+    "n13OnlyPatch": "/tmp/hudhud-b15-n13-canonical-destination-only.patch",
+    "n13OnlyPatchSha256": "7d5604d6723bfca032ecfff454bb34b77eb14abeb62cad9f73b70a7b7edaeb38",
+    "inputs": {
+      "firebase_tests/firebase-emulators/editorial-audit.test.js": "cb4c6d0130631ab81ecf52ad8fc23ecb4018da6d1df6a29175e246ab856c6c4e",
+      "firebase_tests/firebase-emulators/editorial-comment-counts.test.js": "547c0d46984ebc4918dd9bdc608546e94879b921a0528403c514ac005dddc609"
+    },
+    "outputs": {
+      "firebase_tests/firebase-emulators/editorial-audit.test.js": "6d1ef73fd3c76f7364aadf39b5b0cec85ddb4d5426a5e167d135a785fab9b3c4",
+      "firebase_tests/firebase-emulators/editorial-comment-counts.test.js": "dd2e8ae2aeb6140124421b4e97fcf4404986764982e5b086baf64a4a5d7f5a46"
+    },
+    "originalSdkAssertionLinesUnchanged": true,
+    "classification": "N13 prior equality compared raw /var alias against canonical /private/var destination; hook never injected. Fix only matches realpath destination, preserves all existing refusal/injection/durable-revision/cold-resume/read-only assertions. No product ACK recovery behavior changed.",
+    "alsoIncludes": "Previously approved genuine55-birth setup + one ordinary both-primary-root callback journey after full nonempty reconciliation; future total125native cases, unrun."
+  },
+  "verification": [
+    "Node22 syntax checks PASS for both candidate fixture files",
+    "git apply --check reportingtests-only andcombinedfixture patchesPASS; not applied"
+  ],
+  "boundaries": [
+    "No sourcefix orroot/E/F/nativeSDKexecution. Roottool2c/test882 unchanged.",
+    "No newAPI/export/seam/dependency/runner/contract; test instrumentation observes only actual model SDK calls, no count arithmetic.",
+    "No claimfullB15/task/findingresolved. Parent owns acceptance, integration andfresh nativegate."
+  ]
+}

@@ -1,3 +1,4 @@
+import 'package:hudhud_fm/features/station_content/domain/models/content_page.dart';
 import 'package:hudhud_fm/features/player/domain/models/audio_playback_progress.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -93,15 +94,58 @@ class ReviewStations implements StationsRepository {
 }
 
 class ReviewContent implements StationContentRepository {
+  ReviewContent(this.stations);
+  final ReviewStations stations;
+  int targetReads = 0;
+  int episodePageReads = 0;
+  @override
+  Future<ContentPage<StationProgram>> readProgramsPage(String stationId,
+          {ContentCursor? cursor, bool fromCache = false}) async =>
+      ContentPage(
+          items: (await refresh(stationId)).programs, isFromCache: fromCache);
+  @override
+  Future<ContentPage<Episode>> readEpisodesPage(
+      String stationId, String programId,
+      {ContentCursor? cursor, bool fromCache = false}) async {
+    episodePageReads++;
+    return ContentPage(
+        items: (await refresh(stationId))
+            .episodes
+            .where((e) => e.programId == programId)
+            .toList(),
+        isFromCache: fromCache);
+  }
+
+  @override
+  Future<ResolvedEpisode?> resolveEpisode(
+      String stationId, String programId, String episodeId) async {
+    targetReads++;
+    await stations.pending?.future;
+    if (stations.fail) throw Exception('synthetic offline');
+    final station =
+        stations.items.where((s) => s.id == stationId && s.isActive);
+    final program = programs.where(
+        (p) => p.id == programId && p.stationId == stationId && p.isActive);
+    final episode = episodes.where((e) =>
+        e.id == episodeId &&
+        e.stationId == stationId &&
+        e.programId == programId &&
+        e.isPublished);
+    if (station.isEmpty || program.isEmpty || episode.isEmpty) return null;
+    return ResolvedEpisode(
+        station: station.first, program: program.first, episode: episode.first);
+  }
+
   List<StationProgram> programs = [reviewProgram];
   List<Episode> episodes = [reviewEpisode];
+  List<Episode>? firstPageEpisodes;
   @override
   Future<StationContentBatch> readCache(String stationId) => refresh(stationId);
   @override
   Future<StationContentBatch> refresh(String stationId) async =>
       StationContentBatch(
           programs: programs,
-          episodes: episodes,
+          episodes: firstPageEpisodes ?? episodes,
           rejectedRecords: 0,
           isFromCache: false);
 }
@@ -172,7 +216,7 @@ class ReviewHarness {
   final accounts = FakeAccountRepository();
   final subscriptions = FakeSubscriptions();
   final stations = ReviewStations();
-  final content = ReviewContent();
+  late final content = ReviewContent(stations);
   final audio = ReviewAudio();
   late final settings = FakeSettingsRepository();
   late final home =

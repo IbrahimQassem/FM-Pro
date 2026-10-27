@@ -1,0 +1,82 @@
+{
+  "status": "APPROVED_SCOPED_T11_SOURCE_HANDOFF_T12_NATIVE_REQUIRED",
+  "reviewer": "/root/b10_review",
+  "reportSha256": "ac28a20cabea42e1420dcc4b11dde0625e6e6ea13a564c28f9e02f11afe6b375",
+  "candidate": "/tmp/hudhud-b16-t11-final",
+  "freeze": {
+    "tool/migrate_program_notification_dates.mjs": {
+      "before": null,
+      "after": "93dfb3d372bba711efb1612f91114c9545cb10c95185b553d54252a4e9de2597"
+    },
+    "tool/test/migrate_program_notification_dates.test.mjs": {
+      "before": null,
+      "after": "877c8983d6d4f7f14645a83716b4dc589f528aa40f2a1dd1e287b01389e02d1b"
+    },
+    "docs/operations/background-consistency-migrations.md": {
+      "before": "4d7d87033e26f088a83d0622042388afec884fdb003a79d65d2dc8c477af73e3",
+      "after": "87b34a7ad6d75cff449f29acc36c72da6c30033b08933dc85182dd9198402ffd"
+    },
+    "patch": {
+      "path": "/tmp/hudhud-b16-t11-implementation.patch",
+      "sha256": "1ead63a631609068afa32cce26d87f7f6610d62d28fff594742bc1e85f8ac96d"
+    },
+    "helperInput": "7a272a7917dea732d6fa6b3170ed2305f9fe8fa861dc87e51d328c973a094d85",
+    "opsOriginalPrefixByteIdentical": true
+  },
+  "freezeSha256": "083ba9118c4f11aff7db81139a506a0c0ed746160a5f1b28a4730487a7400307",
+  "verifiedOutputs": {
+    "tool/migrate_program_notification_dates.mjs": "93dfb3d372bba711efb1612f91114c9545cb10c95185b553d54252a4e9de2597",
+    "tool/test/migrate_program_notification_dates.test.mjs": "877c8983d6d4f7f14645a83716b4dc589f528aa40f2a1dd1e287b01389e02d1b",
+    "docs/operations/background-consistency-migrations.md": "87b34a7ad6d75cff449f29acc36c72da6c30033b08933dc85182dd9198402ffd"
+  },
+  "opsOriginalPrefixByteIdentical": true,
+  "independent": {
+    "tests": 64,
+    "pass": 64,
+    "fail": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "exitCode": 0,
+    "durationMs": 3770.234995
+  },
+  "authorGates": {
+    "tool": 64,
+    "Functions": 413,
+    "lintExitCode": 0,
+    "zeroSkips": true
+  },
+  "logs": {
+    "tool-green": {
+      "path": "/tmp/hudhud-b16-t11-tool-green.log",
+      "sha256": "2efa74da86549d82902f5bdd9cbd7954d30ab72cde5f35c151e862225ca1ecc6"
+    },
+    "functions-green": {
+      "path": "/tmp/hudhud-b16-t11-functions-green.log",
+      "sha256": "d38390841d884ab230fbc1129e199406700d37859abf91cd46f84b7d07c19e71"
+    },
+    "lint-green": {
+      "path": "/tmp/hudhud-b16-t11-lint-green.log",
+      "sha256": "9cb86fb875f0a2ccbac02e6d7f904bd806d6c85c4b8453c4fd9e7366d182e45b"
+    },
+    "independent-final64": {
+      "path": "/tmp/hudhud-b16-t11-independent-final64.log",
+      "sha256": "2f6d08ec9dcd87f3dd85ddef5a351e6264212b8d89a4ff93bf14f2ea40af797e"
+    }
+  },
+  "FunctionsInventorySha256": "41b467dff8c78c7809fe0b11fbba49a161c832dc2e07abcf0950fb34f5cfe6f0",
+  "regressions": {
+    "noOpReceiptAssertionUnchanged": true,
+    "sameItemPrefixREDBeforeFixParentAccepted": true,
+    "lostACKOnlyApprovedChange": "No extra target write; exactly one job-only seal update"
+  },
+  "limits": [
+    "Parent exact integration/verification",
+    "T12 actual native SDK and private ACL/query/index gates",
+    "Original17 registry",
+    "Final merged candidate/full Flutter/browser/device",
+    "All findings OPEN",
+    "Production unsupported"
+  ],
+  "reviewerApplicationSourceWrites": false,
+  "reviewerEmulatorOrFlutterOrProviderOperations": false
+}

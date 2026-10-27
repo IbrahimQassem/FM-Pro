@@ -1,0 +1,25 @@
+{
+  "status": "AUTHOR_GREEN_PENDING_INTEGRATION_AND_INDEPENDENT_REVIEW",
+  "tests": 54,
+  "pass": 54,
+  "fail": 0,
+  "skip": 0,
+  "command": "Exact Node22 node --test tool/test/content_pagination_migration.test.mjs",
+  "syntaxCheckExit": 0,
+  "sourceBeforeSha256": "417e52c29b3da9f47fc9c37c5cfa9aa578b0f66ccaeb32687bd1f10858676a69",
+  "sourceAfterSha256": "66b14f1c4b17ddd452cff560170360ed9b2fe420065aa2562f247f459822da03",
+  "testSha256": "46d5ac7dc119b32707183f52018810aea0af30b4e2e33116a9aed135cf66bcf1",
+  "acceptedRedAssertionsUnchanged": true,
+  "additiveControls": "Two both-root paused-program-only repair/restore controls; original52 tests retained byte-for-byte as prefix.",
+  "patches": {
+    "/tmp/hudhud-b15-pagination-fence-fix.patch": "aeb2e85cd7366052ff32ecbff2b7a04974a6944aed758d07015b90beaff13dd9",
+    "/tmp/hudhud-b15-pagination-fence-program-control.patch": "52d160ea34fc141ab9a8d64d171167b586e7b08aef5234b592538cc0063a9a54"
+  },
+  "logSha256": "817374e06a437db37f773ed5e2bc54219fce16c8d38bf3940aa2b6443daa14c3",
+  "scope": "Four existing mutation transactions guarded only for resource episodes: lease, apply item, restore item, final completion. Program-only metadata remains unaffected.",
+  "limitations": [
+    "Parent integrated GREEN and independent source review remain.",
+    "No emulator or production operation.",
+    "Remaining four producer guards and full nonempty tool unfinished; R12 OPEN."
+  ]
+}

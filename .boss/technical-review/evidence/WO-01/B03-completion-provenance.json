@@ -1,0 +1,64 @@
+{
+  "kind": "B03 compatibility and offline-read guard preparation",
+  "scope": "R01 only; no application source changed; I applies location patch",
+  "hashes": {
+    "web_admin/test/save-content.emulator.test.ts": "20711bf5997d501c055f5d09a70652941b2a38698371837e243da64fe7e7286a",
+    "web_admin/test/location-relations.emulator.test.ts": "b281267befd76808b5ea9662ae0e952f4e3e7ce5cfe852804a83b7dc84d862c5",
+    "/tmp/hudhud-b03-location.patch": "0b5758df4aa0da7480ad04fc95b09772357289b44ca160e115891aebcdefe36d"
+  },
+  "checks": [
+    {
+      "cwd": "/Users/ibrahimqassem/VisualCodeProjects/acceleration/hudhud_fm",
+      "argv": [
+        "/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node",
+        "--experimental-strip-types",
+        "--check",
+        "web_admin/test/save-content.emulator.test.ts"
+      ],
+      "exitCode": 0,
+      "evidence": "B03-completion-syntax.log"
+    },
+    {
+      "cwd": "/Users/ibrahimqassem/VisualCodeProjects/acceleration/hudhud_fm/web_admin",
+      "argv": [
+        "./node_modules/.bin/oxlint",
+        "test/save-content.emulator.test.ts"
+      ],
+      "runtime": "Node22.23.3 PATH",
+      "exitCode": 0,
+      "evidence": "B03-completion-lint.log"
+    },
+    {
+      "cwd": "/Users/ibrahimqassem/VisualCodeProjects/acceleration/hudhud_fm/web_admin",
+      "argv": [
+        "/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node",
+        "--experimental-strip-types",
+        "--test",
+        "test/station-private.test.ts"
+      ],
+      "exitCode": 0,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0,
+      "evidence": "B03-completion-focused.log"
+    },
+    {
+      "cwd": "/Users/ibrahimqassem/VisualCodeProjects/acceleration/hudhud_fm",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "/tmp/hudhud-b03-location.patch"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "redEvidence": "Existing B03 baseline privacy business RED retained; these additions are compatibility and fail-closed GREEN guards, not new manufactured RED.",
+  "pending": [
+    "Actual isolated offline SDK emulator guard execution",
+    "Location patch application by I and real server stale/concurrent location gate",
+    "Full batch integration and independent review"
+  ],
+  "productionAccess": false,
+  "emulatorsStarted": false
+}

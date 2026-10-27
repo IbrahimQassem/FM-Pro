@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HudHud FM execution progress - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#hudhud-fm-execution-progress">HudHud FM execution progress</a></li><li class="toc-level-2"><a href="#current-baseline-and-scope">Current baseline and scope</a></li><li class="toc-level-2"><a href="#batch-ledger">Batch ledger</a></li><li class="toc-level-2"><a href="#ownership-and-execution-controls">Ownership and execution controls</a></li><li class="toc-level-2"><a href="#approved-product-policies">Approved product policies</a></li><li class="toc-level-2"><a href="#remaining-acceptance-obligations">Remaining acceptance obligations</a></li><li class="toc-level-2"><a href="#added-shortcut-request-s01">Added shortcut request — S01</a></li><li class="toc-level-2"><a href="#b07-b08-integrated-flutter-cutpoint">B07/B08 integrated Flutter cutpoint</a></li></ul>
+    </aside>
+    <main>
+      <h1>HudHud FM execution progress</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: execution-progress.md</div>
+        <div>Generated: 2026-10-26T17:47:43.058Z</div>
+      </div>
+      <h1 id="hudhud-fm-execution-progress">HudHud FM execution progress</h1>
+<h2 id="current-baseline-and-scope">Current baseline and scope</h2>
+<p>Implementation resumed from clean commit <code>c304e85</code>. The user authorized all four Work Orders: 65 traceable tasks, 16 implementation batches and 17 verification waves. Reports and handoffs are English. Production data changes, live migrations, deployment and protected-branch merging remain unauthorized.</p>
+<h2 id="batch-ledger">Batch ledger</h2>
+<table><thead><tr><th>Batch</th><th>Current disposition</th></tr></thead><tbody><tr><td>B01</td><td>C01 historical handoff; C03, C04-RSS, C04-HEALTH and C04-TIMEZONE independently approved. The revised C04-COUNTS fence/inventory contract is independently approved; B15 prerequisites remain.</td></tr><tr><td>B02, B04, B05</td><td>Recorded verified interim handoffs. Source/input hashes must be checked before final integration acceptance.</td></tr><tr><td>B03</td><td>LOCAL_GREEN/interim handoff: actual admin emulator suite 20/20 and independent focused tests 48/48 pass. Browser canonical form and actual export verified. Negative browser interactions remain pending final QA because Chrome lost debugger attachment.</td></tr><tr><td>B06</td><td>LOCAL_GREEN/interim handoff: independently approved demo-only tooling; 46 synthetic guards and 10 actual emulator tests pass. Production adapter and operational approval remain separate.</td></tr><tr><td>B07</td><td>LOCAL_GREEN/interim handoff: final player60/60, independent real-stack11/11 and analysis/format pass after reviewer-found replay race correction.</td></tr><tr><td>B08</td><td>LOCAL_GREEN/interim handoff: 132 integrated tests, 98 account tests and 51 independent focused tests pass; all 16 candidate hashes approved.</td></tr><tr><td>B09</td><td>Released to FL after independently approved B10; real behavioral RED required before fixes.</td></tr><tr><td>B11, B12</td><td>Not started. B11 baseline RED seams in preparation; B12 awaits worker capacity.</td></tr><tr><td>B10</td><td>LOCAL_GREEN/interim handoff approved independently: guard40/40 and actual demo47/47 pass, zero skips; seven additive indexes integrated locally. No production index deployment.</td></tr><tr><td>B13</td><td>Candidate integrated. Actual editorial emulator gate: 60/61 pass, one existing concurrency assertion failed; investigation and correction required before handoff.</td></tr><tr><td>B14–B16</td><td>Not started; exact prerequisites remain.</td></tr></tbody></table>
+<h2 id="ownership-and-execution-controls">Ownership and execution controls</h2>
+<p>I exclusively integrates shared files and schedules emulator/Flutter runtime access. All original 33 ownership assignments are retained. Two additive I-owned compatibility locks cover the location regression and existing notification-delivery source, The reviewed count-maintenance candidate adds explicitly owned producer paths before any source dispatch; the current registry has 58 unique entries (including the real RSS emulator fixture). Count-maintenance source scope is independently approved, but implementation gates and batch prerequisites remain.</p>
+<p>The updated task, milestone and checkpoint graph has 86 acyclic nodes, including the partial Rules milestone and no unknown dependency reference. No original task, batch or wave was removed. Manifest implementationState distinguishes local handoffs from final pending acceptance; it is not a finding-closure claim.</p>
+<p>The approved failure policy repairs routine in-scope failures and reruns affected gates inside the active batch. Downstream work remains blocked until its required local handoff is GREEN. Unresolved security issues, unowned scope expansion and production operations stop progression.</p>
+<h2 id="approved-product-policies">Approved product policies</h2>
+<ul><li>Alerts honor each accepted schedule's UTC offset, with conservative sent/unknown receipt preservation during a later authorized cutover.</li><li>Admin search offers clearly labeled current-page search plus an explicit resumable full-dataset scan, at most 200 documents per continuation.</li><li>Preserve the existing architecture and dependencies. No new abstraction or dependency is authorized merely to simplify orchestration.</li></ul>
+<h2 id="remaining-acceptance-obligations">Remaining acceptance obligations</h2>
+<p>All R01–R13 findings remain OPEN. Full Flutter tests, physical Android/iPhone acceptance, exact-candidate integration, independent Work Order reviews and demo migration rehearsals remain mandatory. All 17 original admin emulator identities passed in the corrected B03 run, together with three privacy cases; B15 must still prove the actual worker/harness integration and final G-INTEGRATION must rerun affected gates. Ordinary unit-run skips are not passing evidence.</p>
+<p>Production mutation paths are not exercised. Privacy tooling must fail closed without verified encrypted backup, integrity, retention and scope safeguards; operational approval and any production adapter remain separate checkpoints. Count reconciliation cannot be called production-ready while enforced freeze proof is unavailable.</p>
+<h2 id="added-shortcut-request-s01">Added shortcut request — S01</h2>
+<p>The user clarified that the links are for the HudHud FM platform itself, not individual stations. S01 adds the official platform website beside its Facebook and Instagram links on public web and admin. A small shared public brand-URL JSON asset keeps both clients consistent. No station ID, private data, Firestore field, authorization change or dependency is introduced. S01 is an explicit user supplement; none of the original65task IDs is replaced or renumbered. I owns its source integration and the public-home handoff with B12. Regression, component and owning-web gates plus independent review are required.</p>
+<h2 id="b07-b08-integrated-flutter-cutpoint">B07/B08 integrated Flutter cutpoint</h2>
+<p>After both local independent reviews, coordinator ran <code>flutter analyze --no-pub</code> (no issues) and <code>flutter test --no-pub</code> (355 passed, zero failures). Logs are under <code>evidence/integration/B07-B08-*</code>. This verifies the current playback/account candidate; later Flutter changes require affected checks again. Physical-device and build acceptance remain pending.</p>
+<p>B09 adds eight explicit I integration locks for composition, ProgramDetails, StationDetails and localization outputs before dispatch. FL supplies patches; no original ownership assignment changes. Other B09-only paths retain FL as physical writer.</p>
+    </main>
+  </div>
+</body>
+</html>

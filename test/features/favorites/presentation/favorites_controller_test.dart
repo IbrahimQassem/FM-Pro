@@ -1,3 +1,4 @@
+import 'package:hudhud_fm/features/account/domain/models/account_registration_result.dart';
 import 'dart:typed_data';
 import 'dart:async';
 
@@ -87,10 +88,13 @@ class FakeAccountRepository implements AccountRepository {
   Future<void> deleteAccount({String? currentPassword}) async {}
 
   @override
-  Future<void> register(
+  Future<AccountRegistrationResult> register(
       {required String displayName,
       required String email,
-      required String password}) async {}
+      required String password}) async {
+    return const AccountRegistrationResult(
+        verificationDelivery: AccountVerificationDelivery.sent);
+  }
 
   @override
   Future<void> requestEmailVerificationCode({String? email}) async {}

@@ -1,0 +1,36 @@
+{
+  "privacyRedLog": {
+    "path": "/tmp/hudhud-b11-privacy-evidence/privacy-red.log",
+    "sha256": "745aab04f7cf9dcd323802ffc7e5936b781f9b997ff5483dd9d4bd48bd44ecf9",
+    "tests": 2,
+    "intendedAssertionFailures": 2,
+    "skipped": 0
+  },
+  "boundaryRedLog": {
+    "path": "/tmp/hudhud-b11-boundary-evidence/boundary-red.log",
+    "sha256": "5091f806e4ba7afffa9bb34e3107f6a3c906df52972eb995a37b477ec54dbc2e",
+    "tests": 7,
+    "positiveControlsPassed": 1,
+    "intendedChildAssertionFailures": 5,
+    "parentFailures": 1,
+    "skipped": 0
+  },
+  "runtime": "v22.23.3",
+  "brokenVersionReproduction": [
+    "Parent B11 candidate freeze before review",
+    "/tmp/hudhud-b11-privacy-red.patch",
+    "/tmp/hudhud-b11-boundary-red.patch"
+  ],
+  "repairPatch": {
+    "path": "/tmp/hudhud-b11-review-fix.patch",
+    "sha256": "ed9ef6ae608e8d2964bdae555f2aa9693afeb404d3d113ca439e05ac0ba39005"
+  },
+  "currentSourceStateObservation": {
+    "web_admin/lib/export-pages.ts": "ffcaf63947e7b56024332e1e5bcea30c1393b94619109d320c2de7b17d83121e",
+    "web_admin/lib/resource-pagination.ts": "fb312dd621bd06a531bd92faebf1d0f0e9078965c66ffa2e3e13f02ecd69f2bb",
+    "web_admin/components/admin/admin-app.tsx": "b601278629f05c81a5dbfd956241793ddece53516fb897a05fd6f43a13a3fc97",
+    "web_admin/test/export-pages.test.ts": "8c958d8220276fad62b7c2e9e681c803600d173c060993b9d37b309f6f98ed97",
+    "web_admin/test/resource-pagination.test.ts": "8013fc9dad7f80f3b23f067d00ee3860c329210c53f3dd9f6f006daa2e3d2fd3"
+  },
+  "currentObservationIsNotClaimedToBeRedRunTimestamp": true
+}

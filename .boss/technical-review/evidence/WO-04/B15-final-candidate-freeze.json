@@ -1,0 +1,62 @@
+{
+  "status": "FROZEN_FULL127_AND_INDEPENDENT_REVIEWS_PENDING",
+  "createdAt": "2026-10-26T23:10:00.366926+00:00",
+  "candidate": "/tmp/hudhud-b15-final-revision",
+  "outputs": {
+    "tool/reconcile_comment_counts.mjs": "aa3b3c6c5be5546d4d8264b3ca4c3f783b576704eb2813f18eab1c2d3a6feb72",
+    "tool/test/reconcile_comment_counts.test.mjs": "c6e1c7e8dfc4ee226e6d112578727a63aa6dc7ce7602774ca5ef0b316aca2844",
+    "docs/operations/background-consistency-migrations.md": "d9dfc0f2b0662c0de5e36a0b9de2ca3dea35923b18e30063e19bf4cccddd3f19",
+    "functions/lib/comment-counts.js": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04"
+  },
+  "rootInputs": {
+    "tool/reconcile_comment_counts.mjs": "c46238aef4fdb072349e45c2e6f7a14ff2b50b24d15e7984448b89f5ae15709e",
+    "tool/test/reconcile_comment_counts.test.mjs": "a5a575d211d2c59f5b5e8767ab9feb2bb44c535e776ef8def777258b728227e3",
+    "docs/operations/background-consistency-migrations.md": "85c47271154a332ed2591b9cb74bf55f72069d5de8938f306842b36b63092fd8",
+    "functions/lib/comment-counts.js": "77fc7b9d0e97aabe92acf6b551c4ec021c72ae1defe7333e8983b736de49547a"
+  },
+  "contracts": {
+    "docs/contracts/firebase-data-contract.md": "4e67f7d3fcc690c21285e9992eddea9b346e64059dcd03914c1536962106e097",
+    "docs/contracts/content-automation-contract.md": "dd2c1eddf0e8b838000828cc81a5e1a6f27d0c97c4c9abf03be30404209b3f8f",
+    "docs/decisions/0006-background-consistency-and-schedule-timezones.md": "ef0db668fc0ebf3357a9df2e042d75964abb6187da7bd2fc23e9dff087e4d2ed"
+  },
+  "patches": {
+    "/tmp/hudhud-b15-final-implementation.patch": "7fbc074749e39778368c57bec1c55921becf973f9ae575ea4aa0f7d18754b19f",
+    "/tmp/hudhud-b15-final-review-corrections.patch": "a65dace67c3753b0ef92dc97ebb73a11716171c613114de57a6631c67a9eac8d",
+    "/tmp/hudhud-b15-final-schema-corrections.patch": "19f195d460d42e6750be228ea1747943933059cbbdca4055e210940d8c08a944",
+    "/tmp/hudhud-b15-status-projection-export.patch": "80844b884f0c851dadafa5aa2dc1c7e8823bf01fb62122dda1bfc783eb8dd540"
+  },
+  "matrixSha256": "7560990c0469993978c836511cdd1609b638617992bbc107861567a8fc2528c5",
+  "original81BodiesUnchanged": true,
+  "qa3BodiesUnchanged": true,
+  "testsOnlyFinalSha256": "c6e1c7e8dfc4ee226e6d112578727a63aa6dc7ce7602774ca5ef0b316aca2844",
+  "acceptedBaselines": {
+    "review18": "15 intended actual MissingExpectedRejection failures+3 controls; no setup/skip",
+    "cursor3": "2 intended authenticated cursor MissingExpectedRejection failures+1 genuine control; no setup/skip",
+    "staticMatrix43": "43 already-safe guards/control PASS; no newRED claim"
+  },
+  "completedGates": {
+    "focused": "46/46 PASS0skip, exact frozen aa3b source",
+    "functions": "328/328 PASS0skip",
+    "lint": "exit0",
+    "syntax": "tool and registered test exit0",
+    "patchApplicability": "root-relative fullpatch git apply --check exit0, no integration"
+  },
+  "logs": {
+    "B15-final-focused-green.log": "3fbc79a8d7d2b352594a91ccc7e6281ccb4db0fb920a12272b9d2a12d0506ba0",
+    "B15-final-functions-green.log": "e6922c8bebaad1db0ce7954d787eb6249ee7751bf3f95ae180eba89ec1f315b5",
+    "B15-final-lint-green.log": "9cb86fb875f0a2ccbac02e6d7f904bd806d6c85c4b8453c4fd9e7366d182e45b"
+  },
+  "fullGate": {
+    "command": "node --test tool/test/reconcile_comment_counts.test.mjs",
+    "expected": 127,
+    "status": "RUNNING; no completion claim",
+    "temporaryLog": "/tmp/hudhud-b15-final-full-green.log"
+  },
+  "priorRuns": "b0da partial40 and3619 partial26 were explicitly interrupted as superseded, not fullPASS; provenance B15-review-revision-intermediate-provenance.json",
+  "limitations": [
+    "Both independent final re-reviews and full127 pending.",
+    "No emulator/native SDK acceptance or production operation executed by author.",
+    "Read equivalent/attempt caps cover application-visible operations, not internal transport or billing/latency.",
+    "No finding/task CLOSED; original17 skipped identities/fullFlutter/device/browser/production gates remain tracked."
+  ]
+}

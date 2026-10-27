@@ -8,36 +8,40 @@ dependencies: [tech-review, existing-contracts]
 
 ## Summary
 
-- **Planning optimization only. R01–R13 remain OPEN.** No application source edits, application test runs, data migrations or deployment occurred in this task.
+- **Authorized implementation in progress. R01–R13 remain OPEN.** The original planning baseline is retained below for audit. Current implementation, actual results and unresolved gates are tracked in [execution-progress.md](execution-progress.md); source/test changes are authorized, while production operations remain separate.
 - Preserve all **65 atomic task IDs**: **54 source/test/contract tasks in 16 implementation batches**, plus **11 independent review, QA, device, rehearsal and operational tasks**. Original task acceptance criteria remain mandatory.
 - Preserve all **17 registered verification waves** in [waves.json](waves.json), separate from work-assignment batches. Consolidation does not reduce testing or bypass gates.
 - B15 colocates comment-count authority, harness integration, privacy QA and pagination QA. This removes the cycle where WO-03 acceptance waits for a worker that itself waits for WO-03 acceptance.
 - Integration owner **I** owns cross-batch/control paths; designated component owners retain intrabatch content writes. Stable component workers reuse context; parallel execution requires disjoint writes and runtime resources, not merely different WO labels.
+
+## Current execution snapshot
+
+STOP: mandatory subscriptions gate FAILED (18 tests, 15 pass, 3 ERR_ASSERTION, zero skips, exit 1, clean shutdown). Email verification passed 14/14. Read-only classification: legacy profile-email expectation conflicts R10 and both program fixtures omit required R13 schedule fields; these do not authorize a source/security change. No correction/rerun/new native T12 or account-deletion gate performed. Prior scoped gates remain historical; all findings OPEN, browser/device/native/final gates incomplete and production unauthorized. Parent must record this blocked checkpoint and end the current run. The three failures require reviewed fixture compatibility work and a successful rerun after deliberate resumption; no fix or new runtime occurs in this stopped run. Any later subscriptions fixture correction first requires a reviewed compatibility attachment and I path lock; the unintegrated T12 draft has no acceptance credit. See B16-mandatory-gate-stop-review.md and preserved chronological evidence.
 
 ## Document information
 
 | Field | Value |
 |---|---|
 | Project | `hudhud_fm` only; excludes `FM-Pro` |
-| Date / freshly checked baseline | 2026-10-25 / `9fae3248aadecaa53198a5fb9f06576fdcc182cf` |
+| Original planning date / baseline | 2026-10-25 / `9fae3248aadecaa53198a5fb9f06576fdcc182cf`; authorized continuation resumed at `c304e85` |
 | Current branch / local default | `hudhud_fm` / `origin/main` |
 | Inputs | [Review](tech-review.md), [WO-01](WO-01.md), [WO-02](WO-02.md), [WO-03](WO-03.md), [WO-04](WO-04.md), previous master and [waves.json](waves.json) |
 | Scheduling authority | This master and consolidated batches govern coordination; WOs retain exact task write sets and acceptance criteria |
-| Execution authority | Implementation has not started; planning does not authorize it. Production operations require their separately scoped authorization |
+| Execution authority | User authorized all four Work Orders and the S01 platform-link supplement. Execute dependency-ordered batches with RED/GREEN and independent review; production data, migrations, deployment and protected merges remain unauthorized |
 | Language | English throughout, including artifacts, instructions, progress and final summaries |
 
-## 0. Repository preflight
+## 0. Original planning preflight — historical
 
 | Check | Observation / action |
 |---|---|
-| Git | HEAD and branches rechecked; `git diff --stat` has no tracked source change; `.boss/` holds review/planning artifacts |
-| Node | Current PATH is `v26.6.0`; select installed Node 22 or a validated portable Node 22 environment before Node gates. No implicit installation |
+| Git at planning baseline | The original planning preflight recorded no tracked source change. Authorized implementation later modified source/tests; refresh HEAD and worktree before each dispatch |
+| Node at planning baseline | PATH was `v26.6.0`; execution uses the validated Node22.23.3 path. Refresh the toolchain before Node gates; no implicit installation |
 | Dependencies | npm lockfiles exist; no dependency upgrade, lockfile edit or package installation planned |
 | CI | No configuration found in inspected `.github/workflows`, `.gitlab-ci.yml`, `.circleci`, Vercel/Netlify locations. Hosted CI commands remain **UNKNOWN** |
 | Verification authority | Actual package scripts and quality contract; do not invent an admin typecheck script or CI pass |
 | Architecture | Riverpod, `presentation -> domain <- data`, one player; retain React/Firebase component boundaries |
 | Historical evidence | 368 passed, 17 skipped, three expected failing temporary reproductions; historical review evidence, not results of this plan |
-| R13 | **CONTRACT_DECISION_REQUIRED while OPEN**: Yemen-date semantics conflict with accepted offsets; resolve the policy without blocking unrelated work |
+| R13 planning decision gap | The original fixed-Yemen/accepted-offset disagreement was resolved by the approved per-schedule-offset policy and ADR. R13 remains OPEN; B16 source implementation and its receipt/cutover gates have not started |
 | Devices | [Existing worksheet](../../docs/release/november-2026-device-acceptance.md) is NOT RUN; simulator/builds do not substitute |
 
 Before every dispatch, check HEAD, exact write set, owner, contracts, worker availability and locks. Unknown paths/owners or unlisted writes block dispatch until the plan is updated. Preflight does not require reading secrets or private Firebase configuration.
@@ -74,7 +78,7 @@ Default capacity is one coordinator and at most three implementation workers, wi
 
 ### 2.1 Single integration-owner registry
 
-Every repeated source/test/contract/artifact path has exactly one content writer: **I owns 22 cross-batch/control paths; component owners retain 11 intrabatch paths (FL7, DT3, BE1)**. For paths used entirely inside B04/B06/B07/B08/B14 without a preparatory milestone, the stable component owner continues across atomic subtasks without an intermediate I handoff. I merges the independently reviewed batch commit without separate content edits; merge conflicts return to that file owner. Source reviewers are read-only. For shared review/QA artifacts, I serializes collection of independent reviewers' results without changing their verdicts.
+Every repeated source/test/contract/artifact path has exactly one content writer. The original table below records **33 base assignments: 22 I + 11 component (FL7, DT3, BE1)**. The current authoritative registry retains those assignments and includes 76 unique paths (I: 62, BE: 4, FL: 7, DT: 3), including approved additive locks. For paths used entirely inside B04/B06/B07/B08/B14 without a preparatory milestone, the stable component owner continues across atomic subtasks without an intermediate I handoff. I merges the independently reviewed batch commit without separate content edits; merge conflicts return to that file owner. Source reviewers are read-only. For shared review/QA artifacts, I serializes collection of independent reviewers' results without changing their verdicts.
 
 | Exact shared path | Sole physical writer | Ordered patch/task users |
 |---|---|---|
@@ -112,7 +116,15 @@ Every repeated source/test/contract/artifact path has exactly one content writer
 | `web_admin/test/resource-filters.test.ts` | I | 01-T10 -> 03-T11 |
 | `web_admin/test/save-content.emulator.test.ts` | I | 01-T05 -> 01-T14 |
 
-All **33 exact shared paths** above match `sharedFileOwners` in `waves.json`. Task users describe patch handoffs, not an assertion that an entire upstream task has completed: 03-T16 contributes M03-T16-FIXTURE before 04-T08, while final 03-T16 acceptance follows 04-T08. Acquire the path lock before each write and reconcile against the latest approved artifact. The listed owner retains exclusive content-write authority; workers supply patches to I for cross-batch/control paths. New overlaps are classified and assigned one owner before dispatch; cross-batch/control overlaps belong to I. WO-02 currently does not write providers/station-content/screens/ARB; any expansion must be reconciled before B09.
+All **33 original shared paths** above remain in `sharedFileOwners` in `waves.json`; approved additive entries make the current registry total 76 unique paths. Task users describe patch handoffs, not an assertion that an entire upstream task has completed: 03-T16 contributes M03-T16-FIXTURE before 04-T08, while final 03-T16 acceptance follows 04-T08. Acquire the path lock before each write and reconcile against the latest approved artifact. The listed owner retains exclusive content-write authority; workers supply patches to I for cross-batch/control paths. New overlaps are classified and assigned one owner before dispatch; cross-batch/control overlaps belong to I. WO-02 currently does not write providers/station-content/screens/ARB; any expansion must be reconciled before B09.
+
+### T11 canonical helper compatibility attachment
+
+| Existing shared path | Sole integration owner | Serialized task users / allowed change |
+|---|---|---|
+| `functions/lib/program-notifications.js` | I | 04-T10 -> 04-T11 in B16; T11 adds only export keywords to existing pure `normalizedSchedule`, `localTime`, `legacyDates` and `fingerprint` |
+
+This 76th ownership row preserves all 75 previous entries and all 33 original assignments. T11's explicit write set now includes this existing path so the timezone tool uses the canonical runtime normalization/date/key-fingerprint logic rather than copying it. I alone applies the reviewed source attachment under the path lock. No helper body, default, scheduler, index, task, batch, wave or dependency changes are authorized by this attachment; existing T10 -> T11 ordering remains. The batch B16 and wave W04-W5 unions already contain the path. Refresh current source before patching and rerun applicable Functions/tool gates with independent review; no finding closure follows.
 
 ## 3. Sixteen batches — one assignment per implementation task
 
@@ -323,12 +335,69 @@ Upgrade/quiesce every old writer before cleanup and repeat inventory, including 
 
 ## 9. Plan validation and delivery
 
-Implementation assignment union=54; atomic manual checkpoint union=11; intersection is empty; total=65. The manifest additionally contains supplemental G-INTEGRATION without another atomic task. Its static validation snapshot records **16 batches, 17 waves, 33 exact single-owner shared paths (22 I +11 component), 73 acyclic task/output nodes (65 tasks +8 outputs) and all39 prior test-file targets retained**. Final reconciliation remains required if any artifact changes. These are static planning checks only; no application commands ran. The coordinator enforces dependency, write-set, capacity and runtime-lock preflight; custom scheduling metadata is not automatically supported/enforced by installed Boss CLI.
+Implementation assignment union=54; atomic manual checkpoint union=11; intersection is empty; total=65. The manifest additionally contains supplemental G-INTEGRATION without another atomic task. Its **historical planning validation snapshot** records 16 batches, 17 waves, 33 single-owner paths (22 I +11 component), 73 acyclic task/output nodes (65 tasks +8 outputs) and all39 prior test-file targets retained. The current metadata snapshot has 76 unique owner paths and 87 acyclic task/milestone/checkpoint nodes, with no unknown dependencies; canonical task/batch/wave counts remain 65/16/17. Final reconciliation remains required if any artifact changes. The original snapshot describes static planning checks only; application commands had not run at that point. Actual implementation evidence is recorded separately. The coordinator enforces dependency, write-set, capacity and runtime-lock preflight; custom scheduling metadata is not automatically supported/enforced by installed Boss CLI.
 
-Delivery pressure does not remove independent review, RED/GREEN, security or devices. Preserve all original WO acceptance criteria; record each LOCAL_GREEN/INTERIM HANDOFF, its commit and **unfinished evidence**. All source findings remain OPEN. This task delivers a more coherent plan with fewer context switches, not implemented fixes.
+Delivery pressure does not remove independent review, RED/GREEN, security or devices. Preserve all original WO acceptance criteria; record each LOCAL_GREEN/INTERIM HANDOFF, its commit and **unfinished evidence**. All source findings remain OPEN. The original planning task delivered a more coherent plan without implementing fixes; the authorized implementation continuation below supersedes that delivery-state description.
 
 ## Change log
 
 | Version | Date | Change |
 |---|---|---|
 | 2.0 | 2026-10-25 | English optimization:16 batches/54 tasks plus11 checkpoints;65 IDs and17 waves preserved; B15 cycle removed; no application execution |
+
+
+## Authorized implementation continuation — 2026-10-26
+
+The user approved all four Work Orders and the existing65-task/16-batch/17-wave completion plan. The initial resumed dispatch recorded clean baseline `c304e85`; that historical observation is not a claim that the current implementation worktree is clean. No deployment, live migration, production data change or protected merge is authorized. Routine in-scope failures are repaired and affected gates rerun within the active batch; downstream work remains blocked until GREEN. Unresolved security, unowned scope expansion and production operations stop progression.
+
+Approved policy: alerts honor accepted per-schedule UTC offsets with conservative sent/unknown receipt preservation; admin offers clearly labeled current-page search plus resumable full-dataset scans at most200 documents per continuation. C03/C04 detailed contracts require independent review before dependent code.
+
+At the initial resumed dispatch, B03 resumed first. Its location integration regression is an additive I-owned01-T05 compatibility path: `web_admin/test/location-relations.emulator.test.ts`. The original33ownership assignments are unchanged; this34thlock preserves the existing WO03 test identity and server stale-location assertion. No new atomic task/batch/wave is introduced. The private revision guard must not be weakened. Add an isolated SDK network-error guard before accepting B03. Existing17emulator obligations remain explicit.
+
+The initial resumed manifest distinguished verified interim C01/B02/B04/B05 handoffs from the then-active B03 and unstarted downstream work. That is a historical dispatch snapshot. Current final-acceptance state remains pending; current implementation metadata and execution-progress.md record subsequent handoffs without finding closure. Historical reports are chronological evidence, not current candidate completion. See execution-progress.md for current dispatch and remaining gates. All findings remain OPEN.
+
+
+### Additive ownership reconciliation
+
+Current registry: 76 unique shared/control paths, retaining all original 33 assignments. The first two additive I locks were location-relations emulator compatibility (B03/01-T05) and notification-delivery source (B16/04-T10); later approved attachments are enumerated in waves.json. No canonical task, batch or wave was added or removed. The current task/milestone/checkpoint graph has 87 acyclic nodes with no unknown dependency reference. The revised count-maintenance contract has independent approval; all registered source changes still require implementation and regression evidence.
+
+
+### C04-COUNTS review amendment and dependency repair
+
+The ADR0006 maintenance-fence amendment enumerates necessary R12 producer changes within existing04-T06/07/09, preserving65tasks/16batches/17waves. Cross-batch additions are explicitly I-owned before dispatch; the new dependency-free maintenance helper stays with B15 BE. Original33assignments are unchanged. The revised C04-COUNTS contract received independent approval; count source work still requires all batch prerequisites and regression evidence.
+
+M04-T12-FENCE-READY is a partial, independently verified output of existing04-T12, owned by I, requiring only approvedC04-COUNTS. Its Rules/test guards deny private maintenance access and paused-root comment creation while preserving authorized active/absent-fence behavior. Both04-T08 and04-T09 require this milestone before rehearsal. Neither depends on whole04-T12 completion, so no B15→B16→B15 cycle is introduced. Full04-T12 and W04-W6-CODE acceptance retain their original final B16 gates. No new wave is fabricated for this partial handoff.
+
+Production reconciliation remains unavailable until a separately reviewed supported platform integration proves old/unowned AdminSDK writer isolation. Demo fencing/drift tests and inventory re-enumeration do not claim that capability. No generic verifier placeholder, boolean authorization bypass or invented cloud service is introduced.
+
+
+### C03 B11 finite admin query refinement
+
+Approved execution refinement: global admin order is only `id_asc`. The legacy
+`newest` choice receives an accurate ID-order label; `oldest` reverses only the
+current page, while existing name/city/priority/statistics sorts are explicitly
+current-page. Feature/role/health controls are also explicitly current-page;
+user-started resumable scans preserve their exact predicates over the dataset.
+Scans and exports traverse canonical ID ASC, independently of presentation,
+with frozen health evaluation time. The exhaustive server-filter/index query
+whitelist and cursor semantics are in the C03 B11 subsection of
+`docs/contracts/firebase-data-contract.md`; no speculative sort indexes or
+missing-field exclusions are authorized. This refines existing 03-T11/T12/T13,
+without adding a task, batch, wave, dependency, abstraction or package.
+
+B11 originally required B10 and approved `M03-T16-RED-READY`; those prerequisites were satisfied before its implementation. B11 now has a verified interim handoff, while final spanning acceptance remains pending. The preparation
+adapter/view/fixture are I-only writes; QA runs the real existing-flow R07
+business assertion under E-RUNTIME. New helper imports failing to resolve,
+absent callable endpoints, compilation/environment failures and skipped tests
+are not RED evidence. Actual implementation still requires behavioral RED,
+GREEN, independent review and integration acceptance. Preparation is not a
+finding closure or production authorization; all 17 prior emulator obligations,
+full Flutter tests and physical-device acceptance remain mandatory.
+
+### B15 count-baseline fixture and isolated-runner refinement
+
+Accepted count activation requires legitimate native baselines before existing emulator journeys. Task04-T08 therefore includes the exact additional fixture/support paths registered in `waves.json`, as explicit compatibility attachments to the original task. QA supplies patches and I is the sole writer. New support is `firebase_tests/support/comment-count-fixtures.mjs` and `tool/run-count-emulator-tests.mjs`; existing fixture seeds are adapted only where required. Two package.json emulator script targets may route to the isolated runner while retaining command names; no dependency, lockfile, build or deployment configuration changes are authorized. Standalone and admin harnesses use real production authority/handler helpers, controlled demo bootstrap, no developer secrets/external senders, and serialized test files; dedicated concurrent transaction cases remain. No assertion is weakened and new-comment expected counts are never seeded after creation. Root-global bootstrap/maintenance is isolated, all original17 identities execute, and final acceptance remains pending. This necessary test-support expansion supersedes the original per-task five-file planning estimate without adding or renumbering the65 canonical task IDs or17 waves.
+
+### B15 empty-demo-root bootstrap phase without a dependency cycle
+
+Real04-T08 worker tests require an accepted baseline before creating comments. The genuine bootstrap implementation belongs to04-T09, whose full reconciliation/restore acceptance follows04-T08. `M04-T09-BOOTSTRAP-READY` therefore records only the early guarded empty-demo-root tool/code preparation from04-T09 after04-T06,04-T07 and the approved early Rules guard.04-T08 consumes that partial artifact; full04-T09 still waits for04-T08. The partial phase never fabricates an active fence, seeds an expected post-comment count, authorizes production, or completes the producer task. The combined graph has87 acyclic task/milestone/checkpoint nodes with no unknown references; the65 task IDs,16 batches and17 waves are unchanged.

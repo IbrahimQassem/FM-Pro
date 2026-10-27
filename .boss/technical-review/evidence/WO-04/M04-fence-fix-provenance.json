@@ -1,0 +1,83 @@
+{
+  "milestone": "M04-T12-FENCE-READY",
+  "producerTask": "04-T12",
+  "status": "FIX_PATCH_READY_PENDING_PARENT_GREEN_AND_REVIEW",
+  "contractApproval": {
+    "path": ".boss/technical-review/M04-contract-review.md",
+    "sha256": "947a0130285bc4b734f201b2097304b43b1d836e53c694eddeeac80e28ee7cca",
+    "decision": "APPROVED for narrow partial Rules implementation; no whole-task/production acceptance"
+  },
+  "baselineEvidence": {
+    "path": ".boss/technical-review/evidence/WO-04/M04-fence-baseline-red.log",
+    "sha256": "990473455c24dad5d0c6ef86906f03c43a6ad49ca8e0621fc0f203305aaa4a96",
+    "command": "PATH=/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin:$PATH npm run emulators:test",
+    "tests": 75,
+    "passed": 43,
+    "failed": 32,
+    "skipped": 0,
+    "classification": {
+      "pausedMalformedBusinessRed": 28,
+      "oldPlannedNamespaceDesignMismatch": 4,
+      "setupCompilationEnvironmentFailuresCountedAsRed": 0
+    },
+    "initialPermanentTestPatchSha256": "36d5f3a842065571011ace05c56464c41e9777d7bdb4d0a38a181e6597d84cd5"
+  },
+  "fix": {
+    "path": "/tmp/hudhud-m04-fence-fix.patch",
+    "sha256": "95614cf74940d48290e5a37d5c3cbc588aa28e4fd0972e7311f2edc699545403",
+    "writeSet": [
+      "firestore.rules",
+      "firebase_tests/firebase-rules/firestore.rules.test.js"
+    ],
+    "semantics": [
+      "Read private root fence within existing Rules comment-create evaluation. Missing root fence retains legacy flow.",
+      "Present supported complete active shape with approved exact integer/string/hash/nativeTimestamp fields permits only otherwise-authorized published comment creation.",
+      "Paused, malformed/unknown schema/state/generation/protocol never opens due to lease expiry.",
+      "All original verification/profile/author/UGC/deletion checks remain conjunctive. No other allow/CG/importKeys policy changed.",
+      "Only3private fixture paths change from oldplanned comments leaf to approved contributions leaf. Oldplannedpath probe/log retained historically. Newnamespace private guards are GREEN obligations, not baseline vulnerability RED."
+    ],
+    "candidateFiles": [
+      {
+        "path": "firestore.rules",
+        "sha256": "29feef1c8026085a21bc24aa129ecbead46425cf1876d627e4a992ada692a562"
+      },
+      {
+        "path": "firebase_tests/firebase-rules/firestore.rules.test.js",
+        "sha256": "17b3cd26fad8d8865912884091401bdd0252433956758bd12df9024a90311904"
+      }
+    ],
+    "pausedMalformedAssertionBlockSha256": "562ed45098b8aa67d75967724c86e77e56d4ab6f81fe3b6ee12cf5851012f389",
+    "pausedMalformedAssertionsComparedToOriginalTestOnlyPatchUnchanged": true
+  },
+  "baselineFiles": [
+    {
+      "path": "firestore.rules",
+      "liveSha256": "b792a71572cf2822aa8e74278dea82043fe40a60a67bad29fbc299ba347d58e9",
+      "candidateSha256": "b792a71572cf2822aa8e74278dea82043fe40a60a67bad29fbc299ba347d58e9"
+    },
+    {
+      "path": "firebase_tests/firebase-rules/firestore.rules.test.js",
+      "liveSha256": "3e48ec62d984903ea988dcf2d8b561613f298f2ecefa1c35a86ae90b0a30fb36",
+      "candidateSha256": "3e48ec62d984903ea988dcf2d8b561613f298f2ecefa1c35a86ae90b0a30fb36"
+    }
+  ],
+  "verification": [
+    "Node22 --check isolated test candidate PASS",
+    "git apply --check fix patch PASS",
+    "Actual updated Rules parsing/runtime/permissions GREEN pending parent E run."
+  ],
+  "safety": [
+    "No source applied or live document changed by child.",
+    "No emulator launch, production data, migration, dependency, deployment or protected merge.",
+    "No B14/B15 source implementation.",
+    "No new task/batch/wave: preserve65/16/17."
+  ],
+  "pending": [
+    "Parent applies fix and executes complete existing Rules suite with zero relevant failures/skips.",
+    "Independent exact-candidate Rules/code review.",
+    "Future helper mirrors approved schema and maintenance-only bounded read-only oldnamespace preflight refusal.",
+    "B15 server fence/count/rehearsal plus full04T12/B16 later prerequisites and gates.",
+    "Original skipped-test, Flutter/device and production approval obligations remain."
+  ],
+  "findingStatus": "No finding CLOSED; partial milestone not yet verified complete"
+}

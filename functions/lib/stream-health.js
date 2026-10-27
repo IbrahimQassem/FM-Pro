@@ -1,12 +1,14 @@
-import { FieldValue } from 'firebase-admin/firestore';
+import { FieldPath, FieldValue } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 import { isSafePublicUrl, withPublicResponse, readResponseBytes } from './public-fetch.js';
+import { healthLimits, acquireHealthLease, commitHealthUnit, releaseHealthLease, streamIdentity } from './stream-health-progress.js';
+export { healthLimits } from './stream-health-progress.js';
 export { isSafePublicUrl } from './public-fetch.js';
 
 export const healthRoots = ['HudHudDev', 'HudHudOfficial'];
 
 /** Validate destinations and bound DNS, redirects and body consumption. */
-export async function probeStream(url, { timeoutMs = 8000, fetchFn, lookupFn } = {}) {
+export async function probeStream(url, { timeoutMs = healthLimits.probeTimeoutMs, fetchFn, lookupFn } = {}) {
   if (!isSafePublicUrl(url)) return { isHealthy: false, error: 'Invalid or unsafe stream URL' };
   try {
     return await withPublicResponse(url.trim(), { timeoutMs, fetchFn, lookupFn,
@@ -38,7 +40,7 @@ export async function probeStream(url, { timeoutMs = 8000, fetchFn, lookupFn } =
  * - Offline mode for consecutive failures >= 3 (alert triggered on crossing threshold).
  * - Freshness: Heartbeat emitted if stable online for >= 30 minutes.
  */
-export function evaluateHealthMutation(currentData, primaryResult, backupResult = null) {
+export function evaluateHealthMutation(currentData, primaryResult, backupResult = null, now = Date.now()) {
   const primaryHealthy = Boolean(primaryResult?.isHealthy);
   const backupHealthy = Boolean(backupResult?.isHealthy);
   const currentStatus = currentData?.healthStatus || (currentData?.isLive ? 'online' : 'offline');
@@ -53,7 +55,7 @@ export function evaluateHealthMutation(currentData, primaryResult, backupResult 
         : currentData?.lastCheckedAt
           ? new Date(currentData.lastCheckedAt).getTime()
           : 0;
-    const isStale = lastChecked > 0 && Date.now() - lastChecked >= 30 * 60 * 1000;
+    const isStale = lastChecked > 0 && now - lastChecked >= 30 * 60 * 1000;
 
     if (
       currentStatus === 'online' &&
@@ -81,7 +83,7 @@ export function evaluateHealthMutation(currentData, primaryResult, backupResult 
         : currentData?.lastCheckedAt
           ? new Date(currentData.lastCheckedAt).getTime()
           : 0;
-    const isStale = lastChecked > 0 && Date.now() - lastChecked >= 30 * 60 * 1000;
+    const isStale = lastChecked > 0 && now - lastChecked >= 30 * 60 * 1000;
 
     if (
       currentStatus === 'degraded' &&
@@ -134,7 +136,10 @@ export async function sendTelegramAlert({
   consecutiveFailures,
   error,
   fetchFn = globalThis.fetch,
+  timeoutMs = healthLimits.alertTimeoutMs,
+  signal,
 }) {
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0 || timeoutMs > healthLimits.alertTimeoutMs) return false;
   if (!botToken || !chatId) {
     logger.info('Telegram alert skipped (TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not configured).');
     return false;
@@ -146,94 +151,105 @@ export async function sendTelegramAlert({
     `❌ *عدد الإخفاقات المتتالية:* ${consecutiveFailures}\n` +
     `🔍 *تفاصيل الخطأ:* ${error || 'غير محدد'}`;
 
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetchFn(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    const res = await Promise.race([fetchFn(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
+      signal: signal ? AbortSignal.any([signal, controller.signal]) : controller.signal,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: chatId,
         text,
         parse_mode: 'Markdown',
       }),
-    });
+    }), new Promise((_, reject) => controller.signal.addEventListener('abort', () => reject(new Error('Health alert deadline.')), { once: true }))]);
     return res.ok;
-  } catch (err) {
-    logger.warn(`Failed to send Telegram alert for station ${stationId}: ${err?.message}`);
+  } catch {
+    logger.warn('Health alert delivery did not complete safely.');
     return false;
-  }
+  } finally { clearTimeout(timer); controller.abort(); }
 }
 
-/**
- * Scans stations in the given root collection and checks stream health.
- */
+/** Bounded, sequential station work with private transactional progress. */
 export async function checkStationsStreamHealthForRoot({
-  firestore,
-  root,
-  probeFn = probeStream,
-  sendAlertFn = sendTelegramAlert,
-  env = process.env,
+  firestore, root, probeFn = probeStream, sendAlertFn = sendTelegramAlert,
+  env = process.env, now = Date.now, invocationDeadline = Infinity,
 }) {
-  if (!healthRoots.includes(root)) {
-    throw new Error(`Unknown root environment: ${root}`);
+  if (!healthRoots.includes(root)) throw new Error('Unknown health root.');
+  const started = now(), deadline = Math.min(started + healthLimits.rootBudgetMs, invocationDeadline);
+  const summary = { root, total: 0, scanned: 0, probed: 0, updated: 0, unchanged: 0, alerted: 0,
+    skipped: 0, checkpointWrites: 0, busy: false, completeCycle: false, deferred: false };
+  const remaining = () => { const time = now(); if (!Number.isSafeInteger(started) || !Number.isSafeInteger(time) || time < started) throw new Error('Health clock moved backwards.'); return deadline - time; };
+  const bounded = async (work, maximumMs = Infinity) => {
+    const allowance = Math.min(remaining(), maximumMs);
+    const expired = () => { const error = new Error('Health root deadline expired.'); error.code = 'health-budget-exhausted'; return error; };
+    if (allowance <= 0) throw expired();
+    let timer;
+    try { return await Promise.race([Promise.resolve().then(work), new Promise((_, reject) => { timer = setTimeout(() => reject(expired()), allowance); })]); }
+    finally { clearTimeout(timer); }
+  };
+  if (remaining() < 2 * healthLimits.probeTimeoutMs + healthLimits.flushMarginMs) { summary.deferred = true; return summary; }
+  const lease = await bounded(() => acquireHealthLease(firestore, root, { now, deadline }));
+  if (!lease) { summary.busy = true; return summary; }
+  summary.checkpointWrites++;
+  const stations = firestore.collection(`${root}/stations/stations`);
+  let complete = false, stopped = false;
+  while (!stopped) {
+    if (remaining() < 2 * healthLimits.probeTimeoutMs + healthLimits.flushMarginMs) break;
+    let query = stations.orderBy(FieldPath.documentId()).limit(healthLimits.pageSize);
+    if (lease.cursor !== null) query = query.startAfter(lease.cursor);
+    const page = await bounded(() => query.get());
+    for (const snapshot of page.docs) {
+      const identity = streamIdentity(snapshot.data());
+      const allowance = identity.active && !identity.deleting && identity.streamUrl
+        ? 2 * healthLimits.probeTimeoutMs + healthLimits.flushMarginMs : healthLimits.flushMarginMs;
+      if (remaining() < allowance) { stopped = true; break; }
+      summary.scanned++; summary.total++;
+      let primary = null, backup = null;
+      if (identity.active && !identity.deleting && identity.streamUrl) {
+        summary.probed++;
+        primary = await bounded(() => probeFn(identity.streamUrl, { timeoutMs: healthLimits.probeTimeoutMs }));
+        if (!primary.isHealthy && identity.backupStreamUrl)
+          backup = await bounded(() => probeFn(identity.backupStreamUrl, { timeoutMs: healthLimits.probeTimeoutMs }));
+      }
+      const unit = await bounded(() => commitHealthUnit(firestore, root, lease, { id: snapshot.id, identity, now, deadline,
+        evaluate: current => {
+          const mutation = evaluateHealthMutation(current, primary, backup, now());
+          if (!mutation) return null;
+          const { shouldAlert, ...fields } = mutation;
+          return { shouldAlert, payload: { ...fields, lastCheckedAt: FieldValue.serverTimestamp() } };
+        } }));
+      lease.cursor = unit.cursor; summary.checkpointWrites++;
+      if (unit.skipped) summary.skipped++;
+      else if (unit.mutation) summary.updated++;
+      else summary.unchanged++;
+      if (unit.mutation?.shouldAlert && remaining() > healthLimits.flushMarginMs - healthLimits.alertTimeoutMs) {
+        summary.alerted++;
+        const controller = new AbortController();
+        const timeoutMs = Math.min(healthLimits.alertTimeoutMs, remaining() - (healthLimits.flushMarginMs - healthLimits.alertTimeoutMs));
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+          await Promise.race([sendAlertFn({ botToken: env.TELEGRAM_BOT_TOKEN, chatId: env.TELEGRAM_CHAT_ID,
+            stationId: snapshot.id, stationName: snapshot.data().name,
+            consecutiveFailures: unit.mutation.payload.consecutiveFailures, error: primary?.error,
+            timeoutMs, signal: controller.signal }), new Promise(resolve => controller.signal.addEventListener('abort', () => resolve(false), { once: true }))]);
+        } catch { /* The committed threshold alert remains best effort, never replayed blindly. */ }
+        finally { clearTimeout(timer); controller.abort(); }
+      }
+    }
+    if (!stopped && page.size < healthLimits.pageSize) { complete = true; break; }
   }
+  await bounded(() => releaseHealthLease(firestore, root, lease, { complete, now, deadline })); summary.checkpointWrites++;
+  summary.completeCycle = complete; summary.deferred = !complete; return summary;
+}
 
-  const stationsRef = firestore.collection(root).doc('stations').collection('stations');
-  const snapshot = await stationsRef.get();
-
-  let probed = 0;
-  let updated = 0;
-  let unchanged = 0;
-  let alerted = 0;
-
-  for (const doc of snapshot.docs) {
-    const data = doc.data();
-    const streamUrl = data.streamUrl?.trim() || '';
-
-    // Terrestrial only or explicitly inactive stations are skipped
-    if (!streamUrl || data.isActive === false) {
-      continue;
-    }
-
-    probed++;
-    const primaryResult = await probeFn(streamUrl);
-    let backupResult = null;
-    const backupUrl = data.backupStreamUrl?.trim() || '';
-
-    // Probe backup source if primary failed and backup URL is present (Section 7.3)
-    if (!primaryResult.isHealthy && backupUrl) {
-      backupResult = await probeFn(backupUrl);
-    }
-
-    const mutation = evaluateHealthMutation(data, primaryResult, backupResult);
-
-    if (!mutation) {
-      unchanged++;
-      continue;
-    }
-
-    updated++;
-    const updatePayload = {
-      isLive: mutation.isLive,
-      healthStatus: mutation.healthStatus,
-      consecutiveFailures: mutation.consecutiveFailures,
-      streamHealthSource: mutation.streamHealthSource,
-      lastCheckedAt: FieldValue.serverTimestamp(),
-    };
-
-    await doc.ref.update(updatePayload);
-
-    if (mutation.shouldAlert) {
-      alerted++;
-      await sendAlertFn({
-        botToken: env.TELEGRAM_BOT_TOKEN,
-        chatId: env.TELEGRAM_CHAT_ID,
-        stationId: doc.id,
-        stationName: data.name,
-        consecutiveFailures: mutation.consecutiveFailures,
-        error: primaryResult.error,
-      });
-    }
+/** Give each root its own allocation while retaining invocation cleanup reserve. */
+export async function checkAllStationHealth({ firestore, now = Date.now, runRoot = checkStationsStreamHealthForRoot, ...options }) {
+  const deadline = now() + healthLimits.invocationMs - healthLimits.invocationReserveMs, results = [];
+  for (const root of healthRoots) {
+    try { results.push(await runRoot({ ...options, firestore, root, now, invocationDeadline: deadline })); }
+    catch { results.push({ root, failed: true }); }
   }
-
-  return { root, total: snapshot.size, probed, updated, unchanged, alerted };
+  return results;
 }

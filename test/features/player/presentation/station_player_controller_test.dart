@@ -389,6 +389,298 @@ void main() {
     controller.dispose();
     await repository.dispose();
   });
+  testWidgets(
+      'sleep deadline stays visible and unchanged across episode switches',
+      (tester) async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = StationPlayerController(repository);
+    addTearDown(() async {
+      controller.dispose();
+      await repository.dispose();
+    });
+    await controller.play(_station());
+    controller.setSleepTimer(const Duration(minutes: 15));
+    final deadline = controller.state.sleepTimerEnd;
+    await controller.playEpisode(_episode(), _station());
+    expect(controller.state.sleepTimerEnd, deadline);
+    expect(controller.state.hasSleepTimer, true);
+    await controller.playEpisode(_episode(id: 'episode-2'), _station());
+    expect(controller.state.sleepTimerEnd, deadline);
+    await controller.play(_station());
+    expect(controller.state.sleepTimerEnd, deadline);
+    await controller.stop();
+  });
+
+  testWidgets('sleep remote stop cancels the old deadline before a new session',
+      (tester) async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = StationPlayerController(repository);
+    addTearDown(() async {
+      controller.dispose();
+      await repository.dispose();
+    });
+    await controller.play(_station());
+    controller.setSleepTimer(const Duration(seconds: 10));
+    repository.emit(AudioPlaybackPhase.idle);
+    await tester.pump();
+    expect(controller.state.sleepTimerEnd, isNull);
+    await controller.playEpisode(_episode(), _station());
+    await tester.pump(const Duration(seconds: 11));
+    expect(repository.stopCalls, 0);
+    expect(controller.state.isEpisodeSelected(_episode().id), true);
+  });
+
+  testWidgets(
+      'sleep pause and episode retry preserve the deadline until expiry',
+      (tester) async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = StationPlayerController(repository);
+    addTearDown(() async {
+      controller.dispose();
+      await repository.dispose();
+    });
+    await controller.playEpisode(_episode(), _station());
+    controller.setSleepTimer(const Duration(seconds: 10));
+    final deadline = controller.state.sleepTimerEnd;
+    await controller.pause();
+    expect(controller.state.sleepTimerEnd, deadline);
+    await controller.retry();
+    expect(controller.state.sleepTimerEnd, deadline);
+    await tester.pump(const Duration(seconds: 11));
+    expect(repository.stopCalls, 1);
+    expect(controller.state.hasSelection, false);
+  });
+
+  testWidgets(
+      'sleep cancellation local stop and disposal prevent late callbacks',
+      (tester) async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = StationPlayerController(repository);
+    await controller.play(_station());
+    controller.setSleepTimer(const Duration(seconds: 10));
+    controller.cancelSleepTimer();
+    await tester.pump(const Duration(seconds: 11));
+    expect(repository.stopCalls, 0);
+    controller.setSleepTimer(const Duration(seconds: 10));
+    await controller.stop();
+    await tester.pump(const Duration(seconds: 11));
+    expect(repository.stopCalls, 1);
+    await controller.play(_station());
+    controller.setSleepTimer(const Duration(seconds: 10));
+    controller.dispose();
+    await tester.pump(const Duration(seconds: 11));
+    expect(repository.stopCalls, 1);
+    await repository.dispose();
+  });
+  test(
+      'sleep pending local stop cannot lend its visible deadline to a new session',
+      () async {
+    final repository = _FakeAudioPlaybackRepository()
+      ..delayedStop = Completer<void>();
+    final controller = StationPlayerController(repository);
+    addTearDown(() async {
+      if (!repository.delayedStop!.isCompleted) {
+        repository.delayedStop!.complete();
+      }
+      controller.dispose();
+      await repository.dispose();
+    });
+    await controller.play(_station());
+    controller.setSleepTimer(const Duration(minutes: 15));
+    final stopping = controller.stop();
+    await pumpEventQueue();
+    await controller.playEpisode(_episode(), _station());
+    expect(controller.state.sleepTimerEnd, isNull);
+    repository.delayedStop!.complete();
+    await stopping;
+    expect(controller.state.isEpisodeSelected(_episode().id), true);
+  });
+
+  test(
+      'replay completed episode rewinds before play without replacing the source',
+      () async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = await _completedEpisode(repository);
+    addTearDown(() async {
+      controller.dispose();
+      await repository.dispose();
+    });
+    await controller.toggleCurrent();
+    await pumpEventQueue();
+    expect(repository.seekPositions, [Duration.zero]);
+    expect(repository.position, Duration.zero);
+    expect(repository.loadCalls, 1);
+    expect(repository.playCalls, 2);
+    expect(controller.state.status, StationPlaybackStatus.playing);
+  });
+
+  for (final replaceWithEpisode in [false, true]) {
+    test(
+        'replay waits for rewind and cancels play after ${replaceWithEpisode ? "episode" : "live"} replacement',
+        () async {
+      final repository = _FakeAudioPlaybackRepository();
+      final controller = await _completedEpisode(repository);
+      repository.delayedSeek = Completer<void>();
+      addTearDown(() async {
+        if (!repository.delayedSeek!.isCompleted) {
+          repository.delayedSeek!.complete();
+        }
+        controller.dispose();
+        await repository.dispose();
+      });
+      final replaying = controller.toggleCurrent();
+      await pumpEventQueue();
+      expect(repository.seekPositions, [Duration.zero]);
+      final replacement = replaceWithEpisode
+          ? controller.playEpisode(_episode(id: 'replacement'), _station())
+          : controller.play(_station());
+      await pumpEventQueue();
+      expect(repository.loadCalls, 1);
+      repository.delayedSeek!.complete();
+      await Future.wait([replaying, replacement]);
+      await pumpEventQueue();
+      expect(repository.loadedItem!.id,
+          replaceWithEpisode ? 'episode:replacement' : _station().id);
+      expect(repository.playCalls, 2);
+      expect(repository.loadCalls, 2);
+    });
+  }
+
+  for (final action in ['pause', 'stop', 'dispose']) {
+    test('replay never starts playback after $action during rewind', () async {
+      final repository = _FakeAudioPlaybackRepository();
+      final controller = await _completedEpisode(repository);
+      repository.delayedSeek = Completer<void>();
+      var disposed = false;
+      addTearDown(() async {
+        if (!repository.delayedSeek!.isCompleted) {
+          repository.delayedSeek!.complete();
+        }
+        if (!disposed) controller.dispose();
+        await repository.dispose();
+      });
+      final replaying = controller.toggleCurrent();
+      await pumpEventQueue();
+      expect(repository.seekPositions, [Duration.zero]);
+      if (action == 'pause') await controller.pause();
+      if (action == 'stop') await controller.stop();
+      if (action == 'dispose') {
+        controller.dispose();
+        disposed = true;
+      }
+      repository.delayedSeek!.complete();
+      await replaying;
+      await pumpEventQueue();
+      expect(repository.playCalls, 1);
+      if (!disposed) {
+        expect(
+            controller.state.status,
+            action == 'stop'
+                ? StationPlaybackStatus.idle
+                : StationPlaybackStatus.paused);
+      }
+    });
+  }
+
+  test('replay repeated play requests share one rewind and one playback start',
+      () async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = await _completedEpisode(repository);
+    repository.delayedSeek = Completer<void>();
+    addTearDown(() async {
+      if (!repository.delayedSeek!.isCompleted) {
+        repository.delayedSeek!.complete();
+      }
+      controller.dispose();
+      await repository.dispose();
+    });
+    final first = controller.resume();
+    await pumpEventQueue();
+    final second = controller.resume();
+    repository.delayedSeek!.complete();
+    await Future.wait([first, second]);
+    await pumpEventQueue();
+    expect(repository.seekPositions, [Duration.zero]);
+    expect(repository.playCalls, 2);
+  });
+
+  for (final throwsSeek in [false, true]) {
+    test(
+        'replay ${throwsSeek ? "throwing" : "unavailable"} seek reloads only the selected episode',
+        () async {
+      final repository = _FakeAudioPlaybackRepository();
+      final controller = await _completedEpisode(repository);
+      repository.rejectSeek = !throwsSeek;
+      repository.throwsSeek = throwsSeek;
+      addTearDown(() async {
+        controller.dispose();
+        await repository.dispose();
+      });
+      await controller.toggleCurrent();
+      await pumpEventQueue();
+      expect(repository.loadCalls, 2);
+      expect(repository.loadedItem!.id, 'episode:episode-1');
+      expect(repository.position, Duration.zero);
+      expect(repository.playCalls, 2);
+      expect(controller.state.status, StationPlaybackStatus.playing);
+    });
+  }
+
+  test(
+      'replay reload failure keeps a retryable selection without remaining loading',
+      () async {
+    final repository = _FakeAudioPlaybackRepository();
+    final controller = await _completedEpisode(repository);
+    repository.rejectSeek = true;
+    repository.shouldFailLoad = true;
+    addTearDown(() async {
+      controller.dispose();
+      await repository.dispose();
+    });
+    await controller.toggleCurrent();
+    await pumpEventQueue();
+    expect(repository.loadCalls, 2);
+    expect(repository.playCalls, 1);
+    expect(controller.state.status, StationPlaybackStatus.failure);
+    expect(controller.state.isEpisodeSelected(_episode().id), true);
+  });
+
+  test('replay checks foreground eligibility again after awaiting rewind',
+      () async {
+    var foreground = true;
+    final repository = _FakeAudioPlaybackRepository();
+    final controller =
+        await _completedEpisode(repository, canStartPlayback: () => foreground);
+    repository.delayedSeek = Completer<void>();
+    addTearDown(() async {
+      if (!repository.delayedSeek!.isCompleted) {
+        repository.delayedSeek!.complete();
+      }
+      controller.dispose();
+      await repository.dispose();
+    });
+    final replaying = controller.toggleCurrent();
+    await pumpEventQueue();
+    expect(repository.seekPositions, [Duration.zero]);
+    foreground = false;
+    repository.delayedSeek!.complete();
+    await replaying;
+    expect(repository.playCalls, 1);
+    expect(controller.state.status, StationPlaybackStatus.failure);
+  });
+}
+
+Future<StationPlayerController> _completedEpisode(
+    _FakeAudioPlaybackRepository repository,
+    {bool Function()? canStartPlayback}) async {
+  repository.emitPlayPhase = true;
+  final controller =
+      StationPlayerController(repository, canStartPlayback: canStartPlayback);
+  await controller.playEpisode(_episode(), _station());
+  repository.position = const Duration(seconds: 60);
+  repository.emit(AudioPlaybackPhase.completed);
+  await pumpEventQueue();
+  return controller;
 }
 
 Station _station() {
@@ -413,9 +705,9 @@ Station _station() {
   );
 }
 
-Episode _episode() {
+Episode _episode({String id = 'episode-1'}) {
   return Episode(
-    id: 'episode-1',
+    id: id,
     programId: 'morning',
     stationId: 'sanaa-radio',
     title: 'حلقة التعليم',
@@ -435,13 +727,21 @@ Episode _episode() {
 class _FakeAudioPlaybackRepository implements AudioPlaybackRepository {
   Completer<void>? delayedLoad;
   Completer<void>? delayedSeek;
+  Completer<void>? delayedStop;
   final seekItems = <String>[];
   final _phases = StreamController<AudioPlaybackPhase>.broadcast();
   final _icy = StreamController<String?>.broadcast();
 
   AudioPlaybackItem? loadedItem;
   int playCalls = 0;
+  int loadCalls = 0;
+  Duration position = Duration.zero;
+  final seekPositions = <Duration>[];
+  bool rejectSeek = false;
+  bool throwsSeek = false;
+  bool emitPlayPhase = false;
   int pauseCalls = 0;
+  int stopCalls = 0;
   bool shouldFailLoad = false;
 
   @override
@@ -456,7 +756,11 @@ class _FakeAudioPlaybackRepository implements AudioPlaybackRepository {
   @override
   Future<bool> seek(Duration position, {required String itemId}) async {
     seekItems.add(itemId);
+    seekPositions.add(position);
+    if (throwsSeek) throw StateError('Synthetic rejected rewind');
+    if (rejectSeek) return false;
     await delayedSeek?.future;
+    this.position = position;
     return true;
   }
 
@@ -467,7 +771,9 @@ class _FakeAudioPlaybackRepository implements AudioPlaybackRepository {
 
   @override
   Future<void> load(AudioPlaybackItem item) async {
+    loadCalls++;
     loadedItem = item;
+    position = Duration.zero;
     await delayedLoad?.future;
     if (shouldFailLoad) throw const FormatException('Invalid test stream');
   }
@@ -480,10 +786,14 @@ class _FakeAudioPlaybackRepository implements AudioPlaybackRepository {
   @override
   Future<void> play() async {
     playCalls++;
+    if (emitPlayPhase) emit(AudioPlaybackPhase.playing);
   }
 
   @override
-  Future<void> stop() async {}
+  Future<void> stop() async {
+    stopCalls++;
+    await delayedStop?.future;
+  }
 
   Future<void> dispose() => _phases.close();
 }

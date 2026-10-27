@@ -1,0 +1,62 @@
+{
+  "status": "PROPOSED_CONTRACT_CLARIFICATION_PENDING_INDEPENDENT_REVIEW",
+  "scope": "Read-only source preflight; only isolated contract/ADR proposal artifacts. No B15 implementation dispatched or started.",
+  "patch": {
+    "path": "/tmp/hudhud-b15-cutover-contracts.patch",
+    "sha256": "67e4f73fbee1d2fc017daaeed52219606fa9c8a5dea926bbf920ece6a2f3bc16"
+  },
+  "files": [
+    {
+      "path": "docs/contracts/firebase-data-contract.md",
+      "baselineSha256": "c0ad347610b449f8d1e371007c66c87cd8f8f74e83959da59bcec3bc233499e5",
+      "candidateSha256": "1994f318f40af18063f8bb972c7d17cbe92ab4840f028d33cdcbf5bc583d2988"
+    },
+    {
+      "path": "docs/contracts/content-automation-contract.md",
+      "baselineSha256": "32473fcaa15469430bf95c935ee2f87c4afddd90ea307be869056b74aea68ad5",
+      "candidateSha256": "bbc5878abac0e308fe7f1185d3953ae20b686bd9d7a1e92bf652ad0959025997"
+    },
+    {
+      "path": "docs/decisions/0006-background-consistency-and-schedule-timezones.md",
+      "baselineSha256": "9a053d1c77d129a91d487866bd71eb7723b5b9cf6f1266eea7e2508a56435a85",
+      "candidateSha256": "305be032603556ac7280c5ebdc43bb5912ac91f9e18e7d09fcf846ad8ec931e9"
+    }
+  ],
+  "currentSourceEvidence": [
+    {
+      "path": "functions/lib/comment-moderation.js:143",
+      "finding": "Creation handler mutates moderation status with no contribution authority; it has an existing transaction plus direct-update fallback."
+    },
+    {
+      "path": "functions/lib/admin-report-review.js:55",
+      "finding": "Manual review separately changes comment status then decrements/clamps published count."
+    },
+    {
+      "path": "functions/index.js:610",
+      "finding": "Account deletion BulkWriter-deletes comments then aggregate-overwrites episode counts; Auth removal occurs after cleanup."
+    }
+  ],
+  "governingSections": [
+    "Firebase-data C04 private operational state: single contribution authority; no legacy baseline guessing.",
+    "C04-COUNTS One root fence: absent fence legacy normal permission is not active baseline.",
+    "C04-COUNTS No lost work during pause: retryable events and retained account-deletion barriers.",
+    "C04-COUNTS Frozen identity inventory and activation: exact createTime inventory, completed staging and atomic native activation.",
+    "ADR0006: enforced isolation/quiescence; production refused without platform writer isolation."
+  ],
+  "clarification": "Enable new count-aware normal traffic only after the already-approved isolated/fenced complete baseline cutover. Misordered new handlers fail closed, without changing absent-root client creation or adding alternate product flow. Root lease epoch is distinct from accepted episode data generation. Atomic postactivation episode creation installs empty baseline/native identity; no lazy zero. Rollback retains pause/isolation and never reopens old unsafe count workers over active ledgers.",
+  "verification": [
+    "git apply --check contract patch PASS"
+  ],
+  "notPerformed": [
+    "Application/test source changes",
+    "Emulator/Flutter execution",
+    "Network/production fetch",
+    "Deployment or migration",
+    "B14/B15 task execution"
+  ],
+  "remaining": [
+    "Independent contract review before B15 eligibility/code.",
+    "B11/B12/B14 source/gate prerequisites remain separately controlled by parent.",
+    "No whole task, batch, finding or production checkpoint marked complete."
+  ]
+}

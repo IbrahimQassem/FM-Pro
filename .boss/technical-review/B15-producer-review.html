@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B15 producer and maintenance source review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b15-producer-and-maintenance-source-review">B15 producer and maintenance source review</a></li><li class="toc-level-2"><a href="#scope-and-decisions">Scope and decisions</a></li><li class="toc-level-2"><a href="#evidence">Evidence</a></li><li class="toc-level-2"><a href="#frozen-source-and-test-fingerprints">Frozen source and test fingerprints</a></li><li class="toc-level-2"><a href="#remaining-checkpoints">Remaining checkpoints</a></li><li class="toc-level-2"><a href="#actual-sdk-producer-supplement">Actual SDK producer supplement</a></li></ul>
+    </aside>
+    <main>
+      <h1>B15 producer and maintenance source review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B15-producer-review.md</div>
+        <div>Generated: 2026-10-26T21:21:14.403Z</div>
+      </div>
+      <h1 id="b15-producer-and-maintenance-source-review">B15 producer and maintenance source review</h1>
+<p>Status: <strong>APPROVED for this source checkpoint only.</strong> No blocking issue found in the frozen producer and maintenance changes. This permits the separately approved full nonempty tool implementation to begin under its registered write sets and RED/GREEN/review gates; it does not approve operating that tool, activate production, complete full B15 or close R12.</p>
+<p>Reviewer: independent Tech Lead <code>/root/b10_review</code>, not the implementation author. Review applied the Boss Tech Lead code review workflow and current project contracts. Baseline HEAD: <code>c304e85963546220ccbdac51390fe0c03de02419</code>.</p>
+<h2 id="scope-and-decisions">Scope and decisions</h2>
+<ul><li>RSS repair reads the root count fence inside the actual lease, apply/restore item and completion transactions. Pagination repair does the same for episode resources; program-only metadata repair remains compatible. An expired paused lease never authorizes mutation. The narrow changes preserve owned SDK binding, private encrypted backup/custody checks, source CAS, native receipt identities, resume and conditional rollback controls already reviewed.</li><li>Spreadsheet import and preview preserve the existing authority-owned comment count rather than resetting it during metadata writes. New active episode creation uses the existing immutable native birth baseline and count zero in the same transaction. All reads precede deferred writes; deletion tokens refuse writes. Import chunks reserve the possible additional baseline write within 450 operations, and preview refuses expanded atomic plans over 500 instead of splitting them.</li><li>Development seed retains development scope, input validators, dry-run default and create-only atomicity. Private birth writes count toward the 500-write limit. Active full seed writes canonical comments with zero-count native births; the actual event worker must converge after commit. Comment-only helper plans require an accepted existing episode baseline in the same transaction and preserve its counter. The actual CLI <code>--engagement-only</code> still creates favorites/subscriptions, without a new product mode. Unit convergence invokes the real count authority and is not represented as real worker delivery.</li><li>Status migration exhausts a first validation pass to EOF using raw document-ID pages of 25 before any apply. Its second pass revalidates pages and delegates each transaction to the existing count authority. Fresh terminal status or deletion is respected; stale validation cannot resurrect a comment or overwrite a newer terminal decision. A concurrent invalid value stops further units without claiming rollback of already committed units. Missing or malformed count readiness fails closed.</li><li>The native API cleanup removes only unused <code>serverTimestamp</code> callback parameters and callback-presence checks. Native receipt, immutable creation identity, literal conversion, lineage, baseline, fence and safe arithmetic checks remain. No dummy timestamp, independent counter arithmetic, new dependency or architecture layer was introduced.</li></ul>
+<h2 id="evidence">Evidence</h2>
+<table><thead><tr><th>Gate</th><th>Result and interpretation</th></tr></thead><tbody><tr><td>RSS retained behavioral RED</td><td>47 executed: 39 pass, 8 intended assertion failures, 0 skips; paused apply/restore and in-flight item mutation were not refused before the fix.</td></tr><tr><td>Pagination initial RED</td><td>50 executed: 44 pass, 6 intended assertion failures, 0 skips.</td></tr><tr><td>Pagination expanded RED</td><td>52 executed: 44 pass, 8 intended assertion failures, 0 skips; adds both-root pause during inverse restore. Two later program-only positive controls produce 54 final cases.</td></tr><tr><td>Four-producer retained RED</td><td>30 executed: 10 pass, 20 intended business assertion failures, 0 skips; count preservation, missing birth, paused mutation, count-aware status and baseline readiness behavior. Setup failures from intermediate runs are excluded.</td></tr><tr><td>Independent exact Node22 rerun</td><td><strong>141/141 pass, 0 failures, 0 skips</strong>, exit 0: 40 producer, 47 RSS, 54 pagination cases. Log: <code>evidence/WO-04/B15-producer-independent-tools.log</code>.</td></tr><tr><td>Parent integrated tooling</td><td>240/240 pass, 0 skips, recorded in <code>B15-producer-integrated-tools.log</code>.</td></tr><tr><td>Parent integrated Functions</td><td>328/328 pass, 0 skips, recorded in <code>B15-producer-integrated-functions.log</code>; Functions lint exits0.</td></tr></tbody></table>
+<p>The accepted behavioral assertions were retained. The two producer test description corrections clarify comment-only helper plans without changing the real engagement-only CLI contract. Storage adapters stage atomic operations and native metadata; decisions and arithmetic use the existing production authority. Expanded guards cover more than 100 statuses, late invalid values, fresh terminal races, paused transaction entry, private-write capacity and actual validated seed plans. Ordinary model evidence does not substitute for the separate actual SDK conflict/retry and worker-convergence rehearsal.</p>
+<h2 id="frozen-source-and-test-fingerprints">Frozen source and test fingerprints</h2>
+<table><thead><tr><th>Path</th><th>SHA-256</th></tr></thead><tbody><tr><td><code>tool/repair_rss_urls.mjs</code></td><td><code>2c538bd6d3a14b959495ca0558a9945e78f884a2c98a102b21153bf9ffffb022</code></td></tr><tr><td><code>tool/backfill_content_pagination.mjs</code></td><td><code>66b14f1c4b17ddd452cff560170360ed9b2fe420065aa2562f247f459822da03</code></td></tr><tr><td><code>tool/import_programs_and_episodes.mjs</code></td><td><code>366be6fe95c7d7e757de78d8312e58cf580e4bb0e210fc33171ddb234e8aef7d</code></td></tr><tr><td><code>tool/firebase_seed/seed.mjs</code></td><td><code>c536a9dd2f6fc344c3484f597a07294d3a5b9a125292cdf2b28e3f9129233e2c</code></td></tr><tr><td><code>tool/firebase_seed/migrate_comment_status.mjs</code></td><td><code>01042b9d17be3c483c18eb2935338a4f6db9cd5274090526f2c63714bbfd836a</code></td></tr><tr><td><code>tool/seed-admin-preview.mjs</code></td><td><code>cd088ad62eb54233040a563c9660946636f9cc29f073ee246470bb78d4880dd4</code></td></tr><tr><td><code>functions/lib/comment-counts.js</code></td><td><code>77fc7b9d0e97aabe92acf6b551c4ec021c72ae1defe7333e8983b736de49547a</code></td></tr><tr><td><code>functions/lib/comment-count-maintenance.js</code></td><td><code>1a4f6ab12f8a7bc2dadb8f2ff4966829f8d37df08a028472c20076dcfd0f2d70</code></td></tr><tr><td><code>tool/test/repair_rss_urls.test.mjs</code></td><td><code>849ed70633d3e8264ff60b94f77148465c5fa6054d9dad8eb0166c0726dac011</code></td></tr><tr><td><code>tool/test/content_pagination_migration.test.mjs</code></td><td><code>46d5ac7dc119b32707183f52018810aea0af30b4e2e33116a9aed135cf66bcf1</code></td></tr><tr><td><code>tool/test/comment-count-producers.test.mjs</code></td><td><code>493dc36175c7e0ff52e542ac74afb459366328ab18510cdc8800c1bbc70c11f2</code></td></tr></tbody></table>
+<p>All listed source/test hashes match the reviewed GREEN candidates. Exact patch, contract and evidence-log hashes are recorded in <code>evidence/WO-04/B15-producer-review-provenance.json</code>.</p>
+<h2 id="remaining-checkpoints">Remaining checkpoints</h2>
+<p>Actual SDK producer rehearsal remains required, including native same-commit birth identity, transaction conflict/retry under pause, worker convergence and terminal races. Full nonempty reconciliation, resumable apply and conditional reverse restore must follow the accepted contract and receive their own behavioral tests, integration checks and independent review. Production apply/restore/deployment remains unauthorized. The17 original skipped emulator obligations, full Flutter tests, physical-device and browser visual acceptance remain tracked separately. Full 04-T08,04-T09, B15 and R12 remain OPEN; B16 source remains pending its B15 dependency.</p>
+<p>This review modifies review evidence only and executes no emulator, migration, live seed, production operation or deployment.</p>
+<h2 id="actual-sdk-producer-supplement">Actual SDK producer supplement</h2>
+<p>Parent gate <code>evidence/WO-04/B15-producer-editorial-integrated.log</code> executes <strong>91/91 tests, zero failures or skips</strong>, exits 0 and shuts the emulators down cleanly. Independent read-only inspection confirms that its source/test inputs retain the approved producer hashes. The added fixture uses the real importer and preview in both roots: a deliberately nonzero input count becomes zero only at native birth, real registered workers count a canonical comment, metadata refresh preserves count and immutable birth version, and later status/delete events converge. Validated full/content seed plans prove create-only refusal on repetition, native birth and real worker convergence. No expected resulting counter is manually seeded.</p>
+<p>Secondary disposable emulator projects obtain their active roots through the genuine verified empty bootstrap. Their cases prove SDK transaction refusal under pause without partial writes, native collection-group document-name bounds, 107-row status traversal with a fresh terminal race, exact count authority replay and late paused refusal. They deliberately earn no automatic worker-delivery credit. Initial paused refusal is proven; these additive cases do not claim an adversarial mid-flight pause/conflict replay that they do not execute.</p>
+<p>This closes the scoped producer SDK rehearsal obligation represented by those cases. It does not complete full 04-T08, full 04-T09, B15, R12 or the unfinished nonempty tool, and it does not authorize operations. Exact gate/fixture/harness hashes are appended to the existing review provenance.</p>
+    </main>
+  </div>
+</body>
+</html>

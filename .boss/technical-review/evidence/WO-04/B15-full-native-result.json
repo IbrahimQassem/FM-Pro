@@ -1,0 +1,20 @@
+{
+  "result": "FAILED_MANDATORY_NATIVE_GATE",
+  "tests": 124,
+  "pass": 122,
+  "fail": 2,
+  "skipped": 0,
+  "cancelled": 0,
+  "durationMs": 1325133.377428,
+  "exitCode": 1,
+  "emulatorShutdown": "clean",
+  "inputFiles": 50,
+  "changedInputs": [],
+  "inputCapture": "Captured during active gate after initial cases; approved source/fixture before-run hashes are in accepted SDK metadata and source handoff.",
+  "logSha256": "058358b2a024c8bdbcdc7e6c44c4984daa878a82228c9a82131d8f825e0e75e3",
+  "failedCases": [
+    61,
+    67
+  ],
+  "failureClassification": "Pending independent source versus fixture classification; no source RED or acceptance inferred."
+}

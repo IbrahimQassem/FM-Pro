@@ -1,6 +1,6 @@
 {
   "feature": "technical-review",
-  "generatedAt": "2026-10-26T16:11:29.943Z",
+  "generatedAt": "2026-10-27T02:36:14.044Z",
   "startupSummary": [
     {
       "category": "agent_failure_pattern",
@@ -14,14 +14,19 @@
     },
     {
       "category": "agent_failure_pattern",
-      "scope": "global",
-      "summary": "boss-frontend failed in stage 3"
+      "scope": "feature",
+      "summary": "boss-backend failed in stage 3"
     }
   ],
   "agentSections": {
     "boss-tech-lead": [],
     "boss-scrum-master": [],
-    "boss-backend": [],
+    "boss-backend": [
+      {
+        "category": "agent_failure_pattern",
+        "summary": "boss-backend failed in stage 3"
+      }
+    ],
     "boss-frontend": [
       {
         "category": "agent_failure_pattern",

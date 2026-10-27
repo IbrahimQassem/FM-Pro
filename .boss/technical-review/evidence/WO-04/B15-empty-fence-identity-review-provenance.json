@@ -1,0 +1,35 @@
+{
+  "status": "APPROVED_NARROW_SOURCE_AND_MODEL_CHECKPOINT_ONLY",
+  "source": {
+    "tool/reconcile_comment_counts.mjs": "c46238aef4fdb072349e45c2e6f7a14ff2b50b24d15e7984448b89f5ae15709e"
+  },
+  "test": {
+    "tool/test/reconcile_comment_counts.test.mjs": "a5a575d211d2c59f5b5e8767ab9feb2bb44c535e776ef8def777258b728227e3"
+  },
+  "patches": {
+    "/tmp/hudhud-b15-empty-fence-identity-fix.patch": "470ed00aa01063c9eac6709b53f640e3c5879ed5a5c44bc1b98564a2b78285ec",
+    "/tmp/hudhud-b15-empty-fence-identity-tests-red.patch": "8de3c9dac6722e9cc3313388f597f9090f6aef51e75593d8d25a65a04740d89d"
+  },
+  "logs": {
+    "B15-empty-fence-identity-integrated-red.log": "98a84facb2c537143bc5ef239969a8c65791d7ab216c2fadcf0828764a7f36f3",
+    "B15-empty-fence-identity-integrated-green.log": "2bb66cb948a8ad2b0ff01e5c3209165f3d25f29634e5ad6339def4a7abacf1b8",
+    "B15-empty-fence-identity-independent-green.log": "8960f3063e7dbe57ae6ec8eee60217de28850eed4a8e28663616895c2e62ad61"
+  },
+  "behavioralRed": {
+    "tests": 23,
+    "pass": 21,
+    "fail": 2,
+    "skip": 0,
+    "classification": "Existing accepted-empty replay incorrectly accepts same-body root fence recreated after historical native barrier, both roots. Assertion failures; no setup failure or demonstrated count loss."
+  },
+  "independentGreen": {
+    "tests": 23,
+    "pass": 23,
+    "fail": 0,
+    "skip": 0,
+    "exitCode": 0,
+    "command": "/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node --test tool/test/reconcile_comment_counts.test.mjs"
+  },
+  "reverseFixReproducesPreFixSourceSha256": "44c5b9de68d2ed92846569fc0dacbd10696ca156a7ccc861e7947ce626d9d0b9",
+  "scopeLimit": "Native-model proof only; no actual SDK root recreation evidence; no general privileged rewrite isolation proof; full nonempty source, B15 and R12 not accepted."
+}

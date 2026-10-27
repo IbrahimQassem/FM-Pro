@@ -1,0 +1,109 @@
+--- a/docs/contracts/playback-contract.md
++++ b/docs/contracts/playback-contract.md
+@@ -126,3 +126,46 @@
+ Automated checks and simulator/debug builds do not prove device audio behavior.
+ Physical Android/iOS background, interruption, headset and long-listening gates
+ remain in the November acceptance matrix until exercised on actual devices.
++
++
++## WO-02 timer and completed-replay reconciliation
++
++The existing shared StationPlayerController owns one session sleep deadline. A
++station/episode replacement, pause/resume, explicit retry or automatic live retry
++preserves that deadline instead of restarting or cancelling it. Choosing a new
++positive duration replaces the old deadline. Cancel, a null/non-positive duration,
++local stop, remote/native idle or controller disposal cancels it. Expiry calls
++stop for the then-current selection; a delayed earlier stop cannot clear a newer
++generation or lend its old timer to the new session. Timer state and the existing
++Now Playing indicator/cancel action describe the same deadline.
++
++A completed recorded episode remains selected and paused; it does not become a
++live-stream reconnect. An explicit play/toggle rewinds that same episode to zero
++before play. If rewind is unavailable or throws, reload only that episode, using
++the same repository/source and canonical episode: ID. Reload failure keeps a
++retryable selection. Replay shares the existing serialized load/seek queue and
++checks mount, selection, generation and play intent around asynchronous work.
++Duplicate play requests consume completion once. Pause, stop, replacement or
++disposal during rewind prevents a stale playback start; foreground eligibility
++is checked again after rewind/reload. Ordinary episode seeking preserves its
++chosen position and never implies autoplay. No second player, new persisted
++playback state or navigation-driven autoplay is introduced.
++
++Source: [controller](../../lib/features/player/presentation/controllers/station_player_controller.dart),
++[datasource](../../lib/features/player/data/datasources/just_audio_player_data_source.dart).
++Permanent regressions: [controller tests](../../test/features/player/presentation/station_player_controller_test.dart),
++[native-source progress/reentrancy tests](../../test/features/player/data/audio_episode_progress_test.dart)
++and [timer UI tests](../../test/features/player/presentation/now_playing_sheet_test.dart).
++The [B07 revision evidence](../../.boss/technical-review/evidence/WO-02/B07-review-revision-provenance.json)
++records the completed-replay reentrancy correction and focused GREEN checks.
++
++Recorded integration evidence includes the earlier
++[B07/B08 full Flutter suite](../../.boss/technical-review/evidence/integration/B07-B08-flutter-full-test.log)
++(355 passes) and later [B09 full Flutter suite](../../.boss/technical-review/evidence/WO-03/B09-review-flutter-full-green.log)
++(397 passes). [Build provenance](../../.boss/technical-review/evidence/integration/flutter-build-provenance.json)
++records Android debug and iOS simulator debug builds, with physical acceptance NOT
++RUN. These are historical candidate checks, not a fresh final merged-candidate
++run or device proof. Full final Flutter checks and actual Android/iPhone
++background/lock, interruption, headset/Bluetooth, timer and replay acceptance
++remain mandatory; browser acceptance is also separate. No finding is closed by
++this contract reconciliation.
+--- a/docs/contracts/account-comments-notifications-contract.md
++++ b/docs/contracts/account-comments-notifications-contract.md
+@@ -110,3 +110,57 @@
+ only. General announcements remain independent; arbitrary URLs remain rejected.
+ Private device/job paths are denied by the default Rules, including admin clients.
+ No production deployment or app release is included.
++
++
++## WO-02 registration outcome and notification handoff reconciliation
++
++Email/password account creation and verification-code delivery are separate
++outcomes. Once Auth creation succeeds, a rejected or unavailable delivery request
++or rate limit leaves that account signed in and unverified. Registration returns
++AccountRegistrationResult with sent, failed or rateLimited verificationDelivery;
++only an explicit callable response with sent == true sets verificationCodeSent.
++That response acknowledges dispatch, not inbox receipt or email verification. A
++creation failure does not report delivery success or dispatch a verification code.
++No raw delivery exception, password or account data is logged.
++
++The controller prevents a second create request while registration is pending or
++a user/account has already been created; recovery uses the existing resend flow.
++Each resend clears prior sent feedback before requesting delivery, so a later
++failure cannot coexist with stale success. Delayed Auth events retain the pending
++registration outcome for its identity, while identity changes/disposal invalidate
++stale asynchronous delivery results. Existing localized sent/failure/rate-limit
++feedback and verification/resend UI remain in use. Delivery never grants verified
++status, listener-profile creation, personal writes or UGC privileges: trusted
++Firebase Auth verification and the existing server/Rules gates remain authoritative.
++
++Source: [registration result](../../lib/features/account/domain/models/account_registration_result.dart),
++[Auth datasource](../../lib/features/account/data/datasources/account_auth_data_source.dart),
++[repository](../../lib/features/account/data/repositories/firebase_account_repository.dart)
++and [controller](../../lib/features/account/presentation/controllers/account_controller.dart).
++Permanent regressions cover [dispatch outcomes](../../test/features/account/data/account_auth_data_source_test.dart),
++[controller lifecycle/resend](../../test/features/account/presentation/account_controller_test.dart)
++and [registration UI](../../test/features/account/presentation/register_screen_test.dart).
++[B08 evidence](../../.boss/technical-review/evidence/WO-02/B08-provenance.json)
++retains the real pre-fix delivery failures and subsequent focused/integrated checks.
++
++Version-1 episode alerts retain the allowlisted ADR 0003 handoff.
++[openEpisodeAlert](../../lib/features/notifications/presentation/episode_alert_navigation.dart)
++validates the selected root and root:episode event identity, then resolves the
++canonical station/program/episode target directly through the existing repository.
++It does not depend on a station's first content page or fetch the whole catalog.
++A valid result opens ProgramDetailsScreen highlighting that episode; it does not
++start audio. Duplicate taps share one in-flight lookup, and an unmounted view
++receives no late navigation. Missing content returns to the first route with
++localized unavailable feedback; lookup errors use localized load failure.
++Arbitrary URLs, cross-root targets and notification-carried media URLs gain no
++navigation or playback authority. General announcements, consent and private
++device/job permissions remain unchanged.
++
++[Permanent navigation tests](../../test/features/notifications/presentation/episode_alert_navigation_test.dart)
++cover available/missing/offline targets, direct resolution outside the first
++page, duplicate taps/disposal and zero audio starts. Recorded full Flutter/build
++evidence is linked in the [playback reconciliation](playback-contract.md#wo-02-timer-and-completed-replay-reconciliation).
++It does not establish actual APNs/FCM delivery, browser acceptance or physical
++Android/iPhone behavior. Final merged-candidate tests, device notification/audio
++acceptance and independent WO-02 review/QA remain mandatory. No security gate or
++finding status changes through this documentation-only reconciliation.

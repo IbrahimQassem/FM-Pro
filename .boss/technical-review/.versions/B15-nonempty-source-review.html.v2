@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B15 full nonempty source and protocol review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b15-full-nonempty-source-and-protocol-review">B15 full nonempty source and protocol review</a></li><li class="toc-level-2"><a href="#blocking-issues">Blocking issues</a></li><li class="toc-level-3"><a href="#p01-late-canonical-source-drift-is-skipped-for-an-originally-absent-restore-target">P01 — Late canonical source drift is skipped for an originally absent restore target</a></li><li class="toc-level-3"><a href="#p02-same-body-native-target-head-aba-is-adopted-as-owned-proof">P02 — Same-body native target-head ABA is adopted as owned proof</a></li><li class="toc-level-3"><a href="#p03-new-exported-apply-restore-apis-accept-an-unapproved-clock-override">P03 — New exported apply/restore APIs accept an unapproved clock override</a></li><li class="toc-level-2"><a href="#evidence-and-protocol-assessment">Evidence and protocol assessment</a></li><li class="toc-level-2"><a href="#required-next-gate">Required next gate</a></li><li class="toc-level-2"><a href="#closed-independent-evidence">Closed independent evidence</a></li><li class="toc-level-2"><a href="#permanent-tests-only-red-classification-supplement">Permanent tests-only RED classification supplement</a></li></ul>
+    </aside>
+    <main>
+      <h1>B15 full nonempty source and protocol review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B15-nonempty-source-review.md</div>
+        <div>Generated: 2026-10-26T22:53:32.339Z</div>
+      </div>
+      <h1 id="b15-full-nonempty-source-and-protocol-review">B15 full nonempty source and protocol review</h1>
+<p>Status: <strong>REVISION_NEEDED — do not integrate or execute the candidate.</strong> Two additional protocol failures were reproduced independently. The new full-tool clock override is also outside the approved API boundary; the independent security review owns its additional scope/custody/purpose findings. No finding or task is complete.</p>
+<p>Candidate: <code>/tmp/hudhud-b15-nonempty</code>; implementation patch SHA-256 <code>2960e666981542f81d321dd59f428e4cdd59f8070661b55a3eb44bd55a056e6c</code>. Separate unchanged status projection export patch SHA-256 <code>80844b884f0c851dadafa5aa2dc1c7e8823bf01fb62122dda1bfc783eb8dd540</code>. Root tool remains <code>c46238aef4fdb072349e45c2e6f7a14ff2b50b24d15e7984448b89f5ae15709e</code>; candidate tool is <code>29d0b5f5e8b683c9157cb600efabeb5d7c9bd0353e3ffc14befe1482a98e5c05</code>.</p>
+<p>Independent reviewer <code>/root/b10_review</code> reviewed source and accepted native receipt, union, head/ancestry, frozen recovery, local historical replay, invocation budget and checkpoint contracts. Root/candidate/contract/patch input hashes match the frozen author provenance. No source modifications, emulator, Flutter, migration, message send or production operation were performed. Reviewer probes are synthetic ordinary Node22 tests in /tmp, using the candidate's actual exports and existing native model.</p>
+<h2 id="blocking-issues">Blocking issues</h2>
+<h3 id="p01-late-canonical-source-drift-is-skipped-for-an-originally-absent-restore-target">P01 — Late canonical source drift is skipped for an originally absent restore target</h3>
+<p><code>tool/reconcile_comment_counts.mjs:1023</code> returns <code>{remove:true}</code> for <code>!item.before.exists</code> before checking the canonical comment's current version. Restore admission checks current source heads once, but same-owner bounded continuation does not repeat that entire recovery proof. A later comment edit after recovery/later inverses can therefore pass immediately before a created contribution is deleted.</p>
+<p>Reproduction: apply a baseline for an episode with one published comment; restore with maxItems 1 until the original created-contribution apply unit is next, after the later union inverse; change the canonical comment version while preserving published status; invoke the next restore step. Expected: reject without an owned inverse or checkpoint advance. Actual: the call succeeds and removes the created contribution. The probe fails <code>assert.rejects</code> with ERR_ASSERTION/Missing expected rejection, with one test executed and zero skips. It does not claim canonical content deletion, counter loss or an active unsafe release: the demonstrated violation is conditional restore proceeding despite fresh source drift while held.</p>
+<p>Required correction: validate every applicable canonical source identity/version/contribution before performing an inverse, including removal where the owned preimage was absent. An absence of owned preimage is not an exemption from source CAS. Retain native conversion and no-resurrection behavior. Add the permanent regression before the fix; include present/missing/edited canonical comment variants and unchanged-source positive controls.</p>
+<h3 id="p02-same-body-native-target-head-aba-is-adopted-as-owned-proof">P02 — Same-body native target-head ABA is adopted as owned proof</h3>
+<p><code>effectiveHead</code> at lines 483–492 validates the current target against its referenced receipt, but never checks that the mutable head snapshot's native updateTime equals that receipt's commit version. <code>verifyHeadsStep</code> at lines 908–915 compares only the frozen head body during ancestry. Rewriting a genuine head through another value and back to its exact original body changes its native version without being rejected; full apply can then reach active.</p>
+<p>Reproduction: stage an episode and enter verifying; rewrite one actual target head with a transient field, then its exact original body; assert native updateTime changed; complete apply. Expected: reject unowned native head version. Actual: active completes. The separate probe executes one business assertion and fails Missing expected rejection, zero skips. All normal owned head writes occur atomically with the head's currentReceipt, providing the exact native seal without a new schema/service.</p>
+<p>Required correction: bind effective/frozen/resumed current head metadata to the immutable receipt that owns its current physical image, checking schema and native identity before trusting it. Body equality alone cannot authorize an ABA. Preserve no-op target observed versions: the HEAD itself still has the new receipt commit version even when its TARGET is unchanged. Add permanent same-body overwrite/delete-recreate and no-op/restore-head positive controls before the fix. This is separate from the security review's unknown-field/purpose-schema issue.</p>
+<h3 id="p03-new-exported-apply-restore-apis-accept-an-unapproved-clock-override">P03 — New exported apply/restore APIs accept an unapproved clock override</h3>
+<p><code>fullContext</code> at lines 498–503 destructures optional <code>now=Date.now</code> from caller options and propagates it into lease ownership/recovery. The approved injected clock exception belongs only to the private QA child process seam; it does not authorize a new tool/application API parameter. Existing early bootstrap/store clock compatibility is distinct and must be preserved. The security reviewer separately reproduced owner takeover before real lease expiry using this parameter; see that independent report/probe.</p>
+<p>Required correction: remove/reject the clock override from the new APIs and keep normal runtime lease time authoritative. Any deterministic QA clock mechanism must remain confined to the approved private process boundary, without a production flag or public API bypass. Regression tests must prove another owner cannot advance time through exported arguments, while existing bootstrap callers/default sender contracts remain unchanged.</p>
+<h2 id="evidence-and-protocol-assessment">Evidence and protocol assessment</h2>
+<p>The reviewer probe file is <code>/tmp/hudhud-b15-review-probes.test.mjs</code>. Independent commands use the exact Node22 binary and existing candidate source. Logs <code>/tmp/hudhud-b15-restore-source-probe.log</code> and <code>/tmp/hudhud-b15-head-native-probe.log</code> each show one executed assertion failure, zero setup failures/skips. These are candidate-review regressions; they are not relabelled historical R12 RED. All permanent corrections must retain real before-fix failing assertions.</p>
+<p>Source inspection otherwise finds the intended serial finite work structure: one-row enumeration/empty transition per unit, frozen resume boundary before recovery appends its own checkpoints, independent canonical and contribution union traversal, immutable staged digests, current source CAS advanced through owned counter receipts, disjoint numeric/head queries, native no-op target versions, literal receipt conversion, a one-pending-receipt barrier followed by adjacent release, and historical replay bound to an authenticated private release pin rather than current worker-mutated targets. These observations are not approval: the reproduced fresh-source/head identity gaps and independent security blockers prevent handoff.</p>
+<p>Author evidence reports 63/63 model cases, 328/328 Functions and syntax/lint success. The original Root23 bodies are retained, and the helper patch only exports the unchanged statusContribution function. Development missing-fixture/setup failures and new absent-export guards are correctly excluded from historical RED. Independent full-suite rerun closed at <strong>63/63 pass, zero failures/skips, exit 0</strong>, including all large cases (365550 ms). Durable log: <code>evidence/WO-04/B15-nonempty-review-full-green.log</code>. Passing existing suites cannot cancel the reproduced blockers.</p>
+<h2 id="required-next-gate">Required next gate</h2>
+<p>Keep root source unchanged. Author permanent regressions, apply minimal corrections in a separate frozen candidate, then run affected GREEN/full model/Functions/lint/import gates and independent source/security re-review. Actual SDK N01–N14, mid-flight legal writer orderings, recovery/restore/local publication/custody/budget proof and final exact-candidate integration remain mandatory. The original 17 emulator identities, full Flutter/browser/physical-device acceptance and Work Order reviews remain tracked. Full 04-T09/B15 and all findings remain OPEN; B16 remains pending and production operations remain unsupported.</p>
+<h2 id="closed-independent-evidence">Closed independent evidence</h2>
+<p>The full existing candidate suite passes 63/63 with zero skips and exit 0. Two separate reviewer probes each execute one new business assertion and fail with Missing expected rejection; passing existing tests does not resolve either blocker. Durable copies are <code>evidence/WO-04/B15-nonempty-review-restore-source-red.log</code>, <code>B15-nonempty-review-head-native-red.log</code> and <code>B15-nonempty-review-probes.txt</code>. The last file is an evidence text artifact, not a registered application test. All frozen input/candidate fingerprints were rechecked and remain unchanged.</p>
+<h2 id="permanent-tests-only-red-classification-supplement">Permanent tests-only RED classification supplement</h2>
+<p>Independent inspection accepts the tests-only patch <code>/tmp/hudhud-b15-review-regressions-tests-only.patch</code>, SHA-256 <code>59b4251f79420722eab62f4cc27be916bb0d22c3ffe6c72aa3bd7aa5b641a1d3</code>, as candidate-review regression evidence only. Applying its single tail hunk in memory confirms the original 63-case source prefix is byte-identical; additions are inserted before the existing closing registration block, without altering original assertions or helpers. Recorded tests-only source remains the rejected candidate <code>29d0b5f5e8b683c9157cb600efabeb5d7c9bd0353e3ffc14befe1482a98e5c05</code>; this does not accept a correction.</p>
+<p>Parent log <code>evidence/WO-04/B15-review-regressions-parent-red.log</code>, SHA-256 <code>40827cfbc9482b34b3abe81c3c5a0b55ae2ac28ee8d858e66fef47a9a5c89000</code>, executes 18 cases: <strong>15 intended ERR_ASSERTION/Missing expected rejection failures, 3 positive controls passed, zero skips</strong>. There are no missing-API, compilation, environment or setup failures counted as RED. The three controls validate genuine generated proof custody, unchanged-source/no-op conditional restore, and real live-lease exclusion without a supplied clock.</p>
+<p>The late-source cases first complete apply and bounded restore recovery/later inverses, prove the original created-row inverse is next, then introduce same-status version drift, deletion or hidden status. Their failing assertions therefore exercise the reviewed absent-preimage boundary rather than only admission. Native head cases assert genuinely changed metadata after same-body ABA or delete/recreate before requiring rejection. Other failures cover nested proof/head/plan/source/typed-encoding closure and public apply/restore clock takeover. These additions reproduce reviewed business behavior on healthy existing exports and are distinct from historical R12 RED.</p>
+<p>Status remains <strong>REVISION_NEEDED</strong>. Permanent RED discovery/classification authorizes no integration or acceptance by itself. Await a separately frozen corrected candidate, unchanged regression intent, GREEN checks and independent protocol/security re-review. No source, contracts, ledgers, emulator or runtime artifact was changed in this supplemental review.</p>
+    </main>
+  </div>
+</body>
+</html>

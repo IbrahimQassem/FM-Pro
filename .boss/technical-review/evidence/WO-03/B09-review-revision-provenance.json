@@ -1,0 +1,125 @@
+{
+  "batch": "B09",
+  "finding": "R04",
+  "status": "REVISED_CANDIDATE_FROZEN_READY_FOR_INDEPENDENT_RE_REVIEW; no finding CLOSED",
+  "baselineHead": "c304e85963546220ccbdac51390fe0c03de02419",
+  "reviewArtifact": ".boss/technical-review/B09-review.md: two independently reproduced P2 blockers, REVISION_NEEDED before this correction",
+  "historicalCandidateProvenance": "B09-provenance.json retains original25inputhashes and375-test result; superseded for current acceptance by this revision",
+  "revisionWriteSet": [
+    "lib/features/station_content/domain/models/content_page.dart",
+    "lib/features/station_content/data/datasources/station_content_firestore_data_source.dart",
+    "lib/features/station_content/data/repositories/firebase_station_content_repository.dart",
+    "lib/features/station_content/presentation/controllers/station_content_controller.dart",
+    "test/features/station_content/data/content_pagination_test.dart",
+    "test/features/station_content/domain/content_page_test.dart",
+    "test/features/station_content/presentation/station_content_controller_test.dart"
+  ],
+  "parentOwnedSourceChanged": false,
+  "mappersChanged": false,
+  "newDependencies": false,
+  "baselineApplicationSha256": {
+    "lib/features/station_content/domain/models/content_page.dart": "fd2501defc9f8d997431a950a5ec7ff182e0ba5efc02f5d3c9b74703f11da100",
+    "lib/features/station_content/data/datasources/station_content_firestore_data_source.dart": "05aa6c6f4a093e91b50d2c67c5b753f54fb9faec6a9e6ab291a4161bd3c6d597",
+    "lib/features/station_content/data/repositories/firebase_station_content_repository.dart": "f0bd7e8e89d3b47caaaac61e5437fd63b4ba57827fc97957577209279f1c5040",
+    "lib/features/station_content/presentation/controllers/station_content_controller.dart": "8acb4334f62e99ae4d62f2c0256ac83553fd6e0458b939a969284a0d377931b0"
+  },
+  "candidateSha256": {
+    "lib/app/providers.dart": "861869bfc01dc19b010e063a43def05ce1fd1a4a53f049208b301e269a9cae52",
+    "lib/features/notifications/presentation/episode_alert_navigation.dart": "de43e8f711362affc0f47703acc57c5f2093b805e4c65c1d0eab3256931fe164",
+    "lib/features/station_content/data/datasources/station_content_firestore_data_source.dart": "5ced47ba9ca0479c7ca2760668100f9da108d04bcc185c7418e8b3c93b4314b1",
+    "lib/features/station_content/data/repositories/firebase_station_content_repository.dart": "28bc1a7c9d42bcddb859f685ed3fabfae917304949b8c069a0bc8c6317ba8f68",
+    "lib/features/station_content/domain/models/content_page.dart": "7a41ec6470511c00fef2c585ccf35e31f2fece1a1a4fcda5a9a428384ac7b3d0",
+    "lib/features/station_content/domain/models/station_content_batch.dart": "1d701124b5ae873410477b41e676a18ded1cf872e4139a532325e6b786630304",
+    "lib/features/station_content/domain/repositories/station_content_repository.dart": "914cb3c3ff5d6593b20a16d40cdbdc0cc323fdc92b0ce8285639b257a815fe43",
+    "lib/features/station_content/presentation/controllers/station_content_controller.dart": "f334abf1351a35fbb86181d0725741b0143071dc8728e03fe919d6223faa4e0f",
+    "lib/features/station_content/presentation/controllers/station_content_state.dart": "86184d5c82946d00bf7ab74a43c4c411cbb62e48539ec478b01eff1db0766c1a",
+    "lib/features/station_content/presentation/program_details_screen.dart": "4adf0be322864cc660dfdd4b63c35f4e1f71433e4955dd6e05dcf46538a086de",
+    "lib/features/station_content/presentation/widgets/station_programs_tab.dart": "0b9d2b5e41e22ddd64fffeb8f092901cd56775a01c58e51f23e30e5bc862cd1f",
+    "lib/features/station_details/presentation/station_details_screen.dart": "984d9a1c58f469c1d06d9cc765c4265c7d09bf0a0c6f0337b78c76eb7ef21281",
+    "lib/l10n/app_ar.arb": "846a97e90a0876d5c7372f237393fd92c88c5f6c5f9d4402542f79d267782a3a",
+    "lib/l10n/app_en.arb": "8b4995b7b5c77f572dc2b2f3f8bd52ae09b17baf9f400f2545ff54c547e7e3e5",
+    "lib/l10n/generated/app_localizations.dart": "4187791c0f5f73549cfa2cea410654cdd4cd73242b0d8303266855f59d0e5d05",
+    "lib/l10n/generated/app_localizations_ar.dart": "54037459f5549294b678018c819e170d9d5b9cf65e28ccaad909792216719991",
+    "lib/l10n/generated/app_localizations_en.dart": "70aa20fe03e6e6f72b28c1602df64186edf198272329c0e48982418ef829a25e",
+    "test/features/notifications/domain/episode_alert_target_test.dart": "769d7276234cb5a484d74bf00c3e190ac5864f5f09d731f9829c41efad33d4ca",
+    "test/features/notifications/presentation/episode_alert_navigation_test.dart": "27af583ed6843c3174d23aa957ce575e38ae58797506208c9e73e235bc5c9dbc",
+    "test/features/station_content/data/content_pagination_test.dart": "e2391834c953df97490f70a8419752cb10ec6dedcb381714c7df758811a4275c",
+    "test/features/station_content/domain/content_page_test.dart": "b66755db7af6fcff26fb17189da723e7860e29347d90aef5e7ef86fd3428d270",
+    "test/features/station_content/presentation/program_details_view_test.dart": "d5184be1b237e537d7614dc5d772d6b50049b262114df48ee7b9e19dc527fb11",
+    "test/features/station_content/presentation/station_content_controller_test.dart": "5a4e9378396557acaf9dee7fbdcdb0eafb39365e91e3277b6cb515f4a54c4762",
+    "test/features/station_details/presentation/station_details_view_test.dart": "0d5990ad777012f872842d237126c36edc0c21501f926fbac9a2a297c031652e",
+    "test/support/development_fixtures.dart": "919b2c8a9d0bd7c3458f44813c1ab8dc0627f144b2627a99615a1b7b8cd20584"
+  },
+  "evidenceSha256": {
+    "B09-review-malformed-red.log": "5aadb21b31d62f4dddb36adffc15d95d906acba114a42eb53ea98c94a4a0ebf6",
+    "B09-review-refresh-red.log": "b3e65c6e20d5be229e4d8e0a3ba7253deb790df92ee6da2a653a3de16f2afacf",
+    "B09-review-fix-first-green.log": "48c9c9dd795d28e347ae908411e825e53486a1c84d6d1997045788bfab9c6b53",
+    "B09-review-final-analyze.log": "4d17af062c06dc2ee4476eb7c7347a86acd47f7513fa7ce5f6b90a51f0495779",
+    "B09-review-analyze-green.log": "89448e8e8a7da1d33f33a74fa5521e9c1b8ce03850bf4990aa2b194efebc4ca1",
+    "B09-review-flutter-full-green.log": "670b77a8428b142a20ef196a2d1d9ca5d5b96628fa232546949a019e75a74fe9",
+    "B09-review-format-check.log": "4abbec70751e1849f3c5b24b1481bc7d5667b1a657c00511b8f4c8b759c94860"
+  },
+  "redEvidence": [
+    {
+      "command": "flutter test --no-pub test/features/station_content/data/content_pagination_test.dart test/features/station_content/presentation/station_content_controller_test.dart --plain-name malformed",
+      "log": "B09-review-malformed-red.log",
+      "executed": 17,
+      "intendedBusinessFailures": 17,
+      "skipped": 0,
+      "qualification": "Authored permanent tests before applying fixes. Actual DS/repository aborts while creating raw continuation instead of returning individually rejected rows and a cursor. SDK-double comparison first gained Firestore type-order and null-versus-missing support; all failures arise in application cursor validation/raw tuple construction, not imports/compile/environment. The 18th reference-value guard was added later and is additional GREEN coverage, not credited RED."
+    },
+    {
+      "command": "flutter test --no-pub test/features/station_content/presentation/station_content_controller_test.dart --plain-name pending refresh blocks old",
+      "log": "B09-review-refresh-red.log",
+      "executed": 2,
+      "intendedBusinessAssertionFailures": 2,
+      "skipped": 0,
+      "assertion": "Expected exactly1 request already in flight before refresh; actual2 because old cursor started another request during pending refresh. Both program and episode paths fail. Authored before source correction."
+    }
+  ],
+  "corrections": [
+    "Existing content_page.dart now defines only content-specific immutable typed raw-sort values. Supported scalar/null, nanosecond timestamp, bytes, document-reference identity, geographic point, array, vector and map values preserve Firestore ordering without fabricating canonical field values. No new codec service/file/dependency.",
+    "Only existing Firestore data source converts SDK values to/from domain raw values. Programs use4sortslots and episodes3sortslots, including last consumed raw document ID. Timestamp metadata retains exact seconds/nanoseconds. New client cursors are unreleased; no deployed persisted cursor conversion or migration.",
+    "Paged repository rejects malformed canonical ordering fields individually, without altering shared ProgramMapper/EpisodeMapper numeric behavior. Raw50th cursor still advances through every supported Firestore type, including empty mapped pages; missing ordered fields remain excluded by native query and subject to existing audit obligations.",
+    "Cursor root/version/resource/parent/filter/order fingerprint, tuple size, document ID, cache/server identity and typed metadata remain fail-closed before IO. No Firebase types/snapshots in domain.",
+    "Refresh clears both old cursors at start and continuation methods reject initial-loading/refreshing states. Already in-flight old-generation completions remain ignored. Failed refresh retains visible items, never reinstates obsolete cursors, and explicit retry restores fresh traversal."
+  ],
+  "greenEvidence": {
+    "firstFocused": {
+      "passed": 44,
+      "failed": 0,
+      "skipped": 0,
+      "log": "B09-review-fix-first-green.log",
+      "note": "Before the additional failed-refresh retention guard and final test loop-style correction."
+    },
+    "fullFlutter": {
+      "command": "flutter test --no-pub",
+      "passed": 397,
+      "failed": 0,
+      "skipped": 0,
+      "log": "B09-review-flutter-full-green.log"
+    },
+    "analyze": {
+      "command": "flutter analyze --no-pub",
+      "result": "No issues found",
+      "durationSeconds": 37.0,
+      "log": "B09-review-analyze-green.log"
+    },
+    "format": {
+      "command": "dart format --output=none --set-exit-if-changed lib test",
+      "files": 213,
+      "changed": 0,
+      "log": "B09-review-format-check.log"
+    },
+    "whitespace": {
+      "command": "git diff --check",
+      "result": "PASS"
+    }
+  },
+  "routineFailuresRetainedNotRed": "Initial revision analyzer found two test-only forEach style infos. Replaced with for loops; final analyzer clean. No skipped/compile/environment failures credited RED.",
+  "remainingGates": [
+    "Independent re-review against this exact25inputhash candidate and actual permanent regression evidence before any B09 verified interim handoff.",
+    "Final merged-candidate Firestore queries/index/permissions, original17admin obligations, APK/iOS builds and physical Android/iPhone acceptance remain mandatory.",
+    "Production legacy audit, unresolved-data owner decisions, deployed index readiness, migrations/deployment approval remain separate. No production operation or finding closure."
+  ]
+}

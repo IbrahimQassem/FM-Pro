@@ -1,0 +1,140 @@
+{
+  "batch": "B13",
+  "tasks": [
+    "04-T02",
+    "04-T03"
+  ],
+  "finding": "R09",
+  "status": "DONE_WITH_CONCERNS",
+  "purpose": "Corrections for three independently reviewed HIGH repair-tool blockers; final review and E acceptance remain parent-owned.",
+  "baselineRepairToolSha256": "9de8ce79a2a0827c33810b0f4db16009f6cd76503927211af5f8a6bcb6c2fe49",
+  "baselineHashProvenance": "Matches independent B13-review.md fingerprint and reconstructed original tool addition from /tmp/hudhud-b13.patch.",
+  "permanentRegressionRed": {
+    "command": "node --test --test-name-pattern=REVIEW: tool/test/repair_rss_urls.test.mjs",
+    "cwd": "/tmp/hudhud-b13-candidate",
+    "tests": 4,
+    "pass": 0,
+    "fail": 4,
+    "skipped": 0,
+    "failures": [
+      "Untrusted transport plus memory backup: Missing expected rejection.",
+      "Expiry after first item: Missing expected rejection.",
+      "Newer-version same-content ABA rollback: Missing expected rejection.",
+      "Delete/recreate same-content rollback: Missing expected rejection."
+    ],
+    "validBusinessRed": true,
+    "timing": "Authored and executed before applying review corrections. Intermediate test-file hash was not captured at that instant; retained log hash and baseline source hash provide the recorded evidence. Unit version-drift model is distinct from real SDK two-write ABA acceptance."
+  },
+  "finalGuards": {
+    "command": "node --test tool/test/repair_rss_urls.test.mjs tool/test/backfill_content_identities.test.mjs",
+    "node": "v22.23.3",
+    "cwd": "/tmp/hudhud-b13-candidate",
+    "tests": 40,
+    "pass": 40,
+    "fail": 0,
+    "skipped": 0,
+    "scope": "Owned SDK/config capability, immutable encrypted backup, initial empty/nonempty lease drift, between-item drift and restore, expiry/recovery window, receipt version/create identity ABA/deletion/replay checks plus existing guard obligations."
+  },
+  "changes": [
+    "Owned factory constructs actual installed server SDK with frozen public settings and private WeakMap binding; arbitrary injected database/project/host claims refused. Unit SDK constructor mocking exists only in test code, not production registration.",
+    "Private frozen backup factory/capability keeps key, expiry, canonical directory and custody identities private. Executor requires pre-persisted immutable encrypted backup and never recreates a lost backup.",
+    "Authenticated backup readback, hour recovery window, permissions and directory/file identity checked inside initial lease even when empty, each item/restore mutation and final verification.",
+    "Schema2 manifest binds source create/update identity; atomic immutable apply/restore receipts share source commit updateTime with URL mutation and checkpoint. Verified committed prefixes prevent unknown-commit replay from trusting cursors alone.",
+    "Real SDK fixtures cover lost acknowledgement/recovery, valid two-write ABA, delete/recreate, missing/expired backup. Rules fixture preserves established importKeys administrator reads, denies all reservation writes and every client role access to new jobs/receipts.",
+    "Explicit schema2 data/operations contract documents exact receipt fields, transport/backup capabilities and approval boundaries."
+  ],
+  "actualEmulatorEvidence": {
+    "initialReviewGate": "B13-review-emulator.log:73 tests69 pass4 fail0skip. Two both-root permission fixture failures incorrectly expected established administrator reservation reads to fail. Two both-root ABA setup failures incorrectly assumed identical-data set increments updateTime. These are invalid new expectations/setup, not claimed security RED or tool-fix regressions.",
+    "correctedReviewGate": "B13-review-emulator-corrected.log:73 tests73 pass0 fail0 skipped; successful emulator shutdown. Executed by parent, not this child. No transfer-instability source fix is claimed.",
+    "earlierTransferInstability": "B13-editorial-emulator.log60/61 and B13-editorial-diagnostic.log61/61 remain retained; no source fix/cause established."
+  },
+  "independentPermissionRescope": "Pending independent approval: preserve current isAdmin reservation reads (admin:true OR role station_admin/super_admin), all reservation writes denied, new job/receipt paths default-denied for every role. No Rules change or existing permission-vulnerability remediation claim.",
+  "files": [
+    {
+      "path": "tool/repair_rss_urls.mjs",
+      "liveSha256": "593600397eaa52e9bc197b5de8efabf465ecc0a41be976800da71c63e971f7b0",
+      "candidateSha256": "593600397eaa52e9bc197b5de8efabf465ecc0a41be976800da71c63e971f7b0",
+      "identical": true
+    },
+    {
+      "path": "tool/test/repair_rss_urls.test.mjs",
+      "liveSha256": "714c41ba2fc9f49c7876126472a26e859c9444399a26b4c099f708501788a0f3",
+      "candidateSha256": "714c41ba2fc9f49c7876126472a26e859c9444399a26b4c099f708501788a0f3",
+      "identical": true
+    },
+    {
+      "path": "firebase_tests/firebase-emulators/editorial-rss.test.js",
+      "liveSha256": "69e81cb9ddec6b95549c01b3ca92431fd9271e4e8d0810e2b6436eb7faaaeac5",
+      "candidateSha256": "69e81cb9ddec6b95549c01b3ca92431fd9271e4e8d0810e2b6436eb7faaaeac5",
+      "identical": true
+    },
+    {
+      "path": "docs/contracts/firebase-data-contract.md",
+      "liveSha256": "aacc82431f9f84d21970fd49e7677853057a32543f98cee45d291a5519b7fe95",
+      "candidateSha256": "aacc82431f9f84d21970fd49e7677853057a32543f98cee45d291a5519b7fe95",
+      "identical": true
+    },
+    {
+      "path": "docs/operations/background-consistency-migrations.md",
+      "liveSha256": "2fb8f74b85fe0f42aae584e9f0745cfe82bd2629d30bb1884c97bb283ab4213d",
+      "candidateSha256": "2fb8f74b85fe0f42aae584e9f0745cfe82bd2629d30bb1884c97bb283ab4213d",
+      "identical": true
+    },
+    {
+      "path": "functions/lib/rss-ingestion.js",
+      "liveSha256": "2872cd619aa20beae29e1ea223468f7a96a315f5e652d272a1e469f9c6a806af",
+      "candidateSha256": "2872cd619aa20beae29e1ea223468f7a96a315f5e652d272a1e469f9c6a806af",
+      "identical": true
+    },
+    {
+      "path": "functions/lib/admin-content-relations.js",
+      "liveSha256": "a7fb618a56426db353c08ea9a238311a0aed01c4331fb18548a2081726d38b58",
+      "candidateSha256": "a7fb618a56426db353c08ea9a238311a0aed01c4331fb18548a2081726d38b58",
+      "identical": true
+    }
+  ],
+  "evidence": [
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B13-review-regression-red.log",
+      "sha256": "7be16515dc938b4ef019c613f1b320d141ffb96de6105950b456da82c69907e6"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B13-review-guards-green.log",
+      "sha256": "6672c4c4b06e47178cc785cc2055daecb3677b6f75b7a9c790eec57a25fc1cb5"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B13-review-first-green.log",
+      "sha256": "80547e5d3b21160a598301c6156a810371b1ee9c644d0c1d3b51a6847bbe03ed"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B13-review-expanded-green.log",
+      "sha256": "98867934d5a843f530b9453d519f0bb03ab434473465f2ec294248954529f7c8"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B13-review-prepersisted-green.log",
+      "sha256": "3aa05ec4d4e0fa274ea7b745545dc9f1d66ca1b724fa913e78d735928767765d"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B13-review-emulator-corrected.log",
+      "sha256": "cbb685dbcdacabea601c8586a7bf10c01e93fdc9790386bcc755ebfc070cd68b"
+    }
+  ],
+  "patches": [
+    {
+      "path": "/tmp/hudhud-b13-review-code.patch",
+      "sha256": "5b70f5ea8b98b858cf886d22dd6d3a6165965f059e70c342d1d54f003711a7e0"
+    },
+    {
+      "path": "/tmp/hudhud-b13-review-fixture-docs.patch",
+      "sha256": "ec82d2df67a6256f56d00a9cc329f1e825d0cd9595c33dd7a402c65445de850b"
+    }
+  ],
+  "remaining": [
+    "Independent source/security re-review and explicit permission contract rescope.",
+    "B15 actual mutation fence integration.",
+    "Original17 skipped emulator test obligations, complete Flutter and physical-device acceptance.",
+    "Separate production migration/deployment/rollback approvals; production support remains deliberately refused."
+  ],
+  "safety": "No live source/docs written by this child, no main tool execution, emulator launch, production data access/mutation, migration, deployment, protected merge or real notification. Parent applies all incremental patches. No .meta edits.",
+  "findingStatus": "OPEN; no finding/reviewer HIGH blocker marked CLOSED by implementation author"
+}

@@ -1,0 +1,36 @@
+--- a/functions/lib/program-notifications.js
++++ b/functions/lib/program-notifications.js
+@@ -42,7 +42,7 @@
+  * - Program starts within 0 to 10 minutes from now (startMinute - currentMinute in [0, 10])
+  * - Has not already been notified today (lastNotifiedDate !== todayYmd)
+  */
+-function normalizedSchedule(schedule) {
++export function normalizedSchedule(schedule) {
+   if (!schedule || !Array.isArray(schedule.weekdays) || !schedule.weekdays.length ||
+     schedule.weekdays.some(day => !Number.isInteger(day) || day < 1 || day > 7) ||
+     !Number.isInteger(schedule.startMinute) || schedule.startMinute < 0 || schedule.startMinute > 1439 ||
+@@ -56,13 +56,13 @@
+   Number.isInteger(value.nanoseconds) && value.nanoseconds >= 0 && value.nanoseconds < 1000000000;
+ const sameTime = (a, b) => native(a) && native(b) && a.seconds === b.seconds && a.nanoseconds === b.nanoseconds;
+ const millis = value => native(value) ? value.toMillis() : NaN;
+-function localTime(instant, offset) {
++export function localTime(instant, offset) {
+   const date = new Date(instant + offset * 60000);
+   const year = date.getUTCFullYear();
+   if (!Number.isFinite(date.getTime()) || year < 1 || year > 9999) return null;
+   return { weekday: date.getUTCDay() || 7, currentMinute: date.getUTCHours() * 60 + date.getUTCMinutes(), ymd: date.toISOString().slice(0, 10) };
+ }
+-function legacyDates(date, offset) {
++export function legacyDates(date, offset) {
+   const start = Date.parse(`${date}T00:00:00.000Z`) - offset * 60000;
+   if (!localTime(start, 0) || !localTime(start + 86400000, 0)) return null;
+   const first = localTime(start, 180), last = localTime(start + 86400000 - 1, 180);
+@@ -73,7 +73,7 @@
+   const time = schedule && localTime(instant, schedule.utcOffsetMinutes);
+   return time && shouldNotifyProgram(program, time) ? { schedule, time } : null;
+ }
+-function fingerprint(id, program, schedule) {
++export function fingerprint(id, program, schedule) {
+   return hash(['program-schedule-v2', id, program.stationId, true, true, schedule.weekdays,
+     schedule.startMinute, schedule.endMinute, schedule.utcOffsetMinutes]);
+ }

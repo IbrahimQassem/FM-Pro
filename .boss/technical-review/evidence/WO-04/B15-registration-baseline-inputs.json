@@ -1,0 +1,19 @@
+{
+  "classification": "Pre-binding integration baseline, not a deliberate disable flag",
+  "countWriteBindingPresent": false,
+  "moderationBindingPresent": true,
+  "node": "22.23.3",
+  "sha256": {
+    "functions/index.js": "e25125f6e8d1c27c8984b0a6e40adea06e1d9c44c969a1cda124540accf32a08",
+    "functions/lib/comment-counts.js": "8d39c9191ac3acd00adcfbd2d0d9bd6e3dcdd149a7e16c9c5a440b58179c2349",
+    "functions/lib/comment-count-maintenance.js": "1a4f6ab12f8a7bc2dadb8f2ff4966829f8d37df08a028472c20076dcfd0f2d70",
+    "functions/lib/comment-moderation.js": "f2a3e61d94faef6e5d26ed910159832389a1809876052dbda79551821af8225c",
+    "tool/reconcile_comment_counts.mjs": "44c5b9de68d2ed92846569fc0dacbd10696ca156a7ccc861e7947ce626d9d0b9",
+    "tool/run-count-emulator-tests.mjs": "871cd89521483edda579417592bd77f28dce93e4fd0f79703a5e81dc4ae5e35a",
+    "tool/run-admin-emulator-tests.mjs": "c26edf6f6350c7569d30d460ea334a6c3f329fd6f9f2d53be4b7892cece6c3b3",
+    "firebase_tests/support/comment-count-fixtures.mjs": "f9ad477a63a8711288971b23635de7f0469b50a2e8cbd7a19290ad89a3767cbf",
+    "web_admin/test/pl03-moderation.emulator.test.ts": "dee9f4ebda334dec70ec5e75b0fc137980240c88c65ef1df658467c996ed6d3c",
+    "web_admin/test/support/callable-emulator.ts": "a90b7d3763ddf847898505bd0a96953b40bd6c8283040ab53cf18768cd5c9c46",
+    "package.json": "398bec06985069f9072fd7711d7228dc5572c4ae31566b22d0e8ccb4f17ab225"
+  }
+}

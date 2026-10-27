@@ -1,0 +1,18 @@
+{
+  "recordedAt": "2026-10-27T00:52:09.402957+00:00",
+  "result": "PASS_LOCAL_NATIVE_GATE_INDEPENDENT_ACCEPTANCE_PENDING",
+  "tests": 125,
+  "pass": 125,
+  "fail": 0,
+  "skipped": 0,
+  "cancelled": 0,
+  "durationMs": 1533393.91524,
+  "exitCode": 0,
+  "emulatorShutdown": "clean",
+  "inputFiles": 50,
+  "changedInputs": [],
+  "logSha256": "c642e562b6367b4d981c5c13a276110becbd647f31ced06c2d974227f5a74f39",
+  "primaryWorkerCase": "both primary roots: registered callbacks converge after a normal full nonempty reconciliation",
+  "priorFailureRetained": "B15-full-native-result.json:122/124,2failed,0skipped",
+  "limits": "Demo-only execution; no production operations, finding closure, browser or physical-device acceptance."
+}

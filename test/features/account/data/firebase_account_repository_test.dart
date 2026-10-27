@@ -1,3 +1,4 @@
+import 'package:hudhud_fm/features/account/domain/models/account_registration_result.dart';
 import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -120,6 +121,38 @@ void main() {
     expect(dataSource.updatedDisplayName, 'Updated Listener');
     expect(dataSource.updatedPhotoUrl, 'https://example.com/pic.jpg');
   });
+
+  for (final delivery in AccountVerificationDelivery.values) {
+    test(
+        'registration preserves successful account creation and $delivery result',
+        () async {
+      final data = _FakeAccountAuthDataSource()..delivery = delivery;
+      final result = await FirebaseAccountRepository(data).register(
+          displayName: 'Synthetic',
+          email: 'new@example.test',
+          password: 'test-only');
+      expect(result.verificationDelivery, delivery);
+    });
+  }
+
+  for (final entry in {
+    'email-already-in-use': AccountFailure.accountConflict,
+    'weak-password': AccountFailure.weakPassword,
+    'network-request-failed': AccountFailure.network,
+  }.entries) {
+    test('registration creation error ${entry.key} remains an exception',
+        () async {
+      final repository = FirebaseAccountRepository(
+          _FakeAccountAuthDataSource(authErrorCode: entry.key));
+      await expectLater(
+          repository.register(
+              displayName: 'Synthetic',
+              email: 'new@example.test',
+              password: 'test-only'),
+          throwsA(isA<AccountException>()
+              .having((e) => e.failure, 'safe failure', entry.value)));
+    });
+  }
 }
 
 class _FakeAccountAuthDataSource implements AccountAuthDataSource {
@@ -132,6 +165,7 @@ class _FakeAccountAuthDataSource implements AccountAuthDataSource {
   final AccountAuthSnapshot? snapshot;
   final String? dataErrorCode;
   final String? authErrorCode;
+  AccountVerificationDelivery delivery = AccountVerificationDelivery.sent;
   String? requestedEmail;
   String? code;
   AccountSignInProvider? provider;
@@ -160,12 +194,14 @@ class _FakeAccountAuthDataSource implements AccountAuthDataSource {
   }
 
   @override
-  Future<void> register({
+  Future<AccountRegistrationResult> register({
     required String displayName,
     required String email,
     required String password,
   }) async {
     _throwIfNeeded();
+
+    return AccountRegistrationResult(verificationDelivery: delivery);
   }
 
   @override

@@ -1,0 +1,50 @@
+{
+  "status": "FROZEN_FOCUSED6_GREEN_FULL156_AND_NATIVE125_PENDING",
+  "createdAt": "2026-10-27T00:12:52.214970+00:00",
+  "candidate": "/tmp/hudhud-b15-post-native-candidate",
+  "inputs": {
+    "tool/reconcile_comment_counts.mjs": "2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e",
+    "tool/test/reconcile_comment_counts.test.mjs": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc",
+    "firebase_tests/firebase-emulators/editorial-audit.test.js": "cb4c6d0130631ab81ecf52ad8fc23ecb4018da6d1df6a29175e246ab856c6c4e",
+    "firebase_tests/firebase-emulators/editorial-comment-counts.test.js": "547c0d46984ebc4918dd9bdc608546e94879b921a0528403c514ac005dddc609"
+  },
+  "outputs": {
+    "tool/reconcile_comment_counts.mjs": "a6a10122ec7bb3596f842c1705ca53c15dcd3fb9fca5255c7ea7389588f5e04e",
+    "tool/test/reconcile_comment_counts.test.mjs": "fb751d6c977707f8366ae8098ce4db484090f575d73e15603c62e9020c295e0d",
+    "firebase_tests/firebase-emulators/editorial-audit.test.js": "6d1ef73fd3c76f7364aadf39b5b0cec85ddb4d5426a5e167d135a785fab9b3c4",
+    "firebase_tests/firebase-emulators/editorial-comment-counts.test.js": "dd2e8ae2aeb6140124421b4e97fcf4404986764982e5b086baf64a4a5d7f5a46"
+  },
+  "combinedPatch": "/tmp/hudhud-b15-post-native-combined.patch",
+  "combinedPatchSha256": "a5ba9a774491bfc828f4e870ce22758ccb3d21d2c810378bd58a969f908f2e96",
+  "components": {
+    "/tmp/hudhud-b15-replay-reporting-source-only.patch": "731db3428e2bf9ccb33a35d88aac79791a56392bc22b541cb5afd4df5d9c5deb",
+    "/tmp/hudhud-b15-replay-reporting-tests-only.patch": "5336e764de85536efd9123950161013d226ef73e18341d3c2519aea77f593217",
+    "/tmp/hudhud-b15-ordinary-integration-combined.patch": "48d326a0ff86772a5ae305c38fcc8adf26cda154dce31a2313018d16d8e227e4",
+    "/tmp/hudhud-b15-n13-canonical-destination-only.patch": "7d5604d6723bfca032ecfff454bb34b77eb14abeb62cad9f73b70a7b7edaeb38"
+  },
+  "focused6": {
+    "result": "6PASS0fail/skip/cancel exit0",
+    "log": "/tmp/hudhud-b15-replay-reporting-focused-green.log",
+    "sha256": "318a503bd462e9607773a90dedd5d81c1ee0ed51a5859a058a9fd20cb3e79370"
+  },
+  "red6": {
+    "result": "4numeric read-reporting failures2ordinary-apply controlsPASS0skip/cancel against unchanged2c",
+    "log": "/tmp/hudhud-b15-replay-reporting-baseline-with-controls.log",
+    "sha256": "02ceb4c9ed76e782498275f4d13784104feb7b48490571084f317b2499146a14",
+    "parentAccepted": true
+  },
+  "classification": {
+    "source": "Exactly one return-field refresh after all existing post-publication proof/binding reads; same globalbudget,SDKwork,status/proof/custody/checkpoint behavior",
+    "N13": "Fixture canonical realpath destination only; no productACK recovery change or assertion weakening",
+    "primaryPositive": "Only actual registered callbacks establish ordinary counts around realfullnonempty primaryreconciliation; nativeexecutionpending",
+    "setup": "Genuine55episode nativebirth setup before comments/concurrenttransfer, no late expectedcountrepair"
+  },
+  "priorNative124": "122PASS2FAIL0skip, original50inputs unchanged; reporting undercount and missedfixturepathhook separatelyclassified by TL/parent. No complete B15/nativeacceptance claim.",
+  "full156": "Will run once on this frozen source after syntax/patch checks; not a completed result.",
+  "boundaries": [
+    "No root/E/F/application sourcechanges appliedby author; parent I solewriter.",
+    "No contract/publicAPI/dependency/export/seam/runner addition.",
+    "BothreadyTLscope+parentREDacceptance received; freshnative125 remainsseparategate.",
+    "FullB15/findingsOPEN; no production/migration/deploy/merge/messages."
+  ]
+}

@@ -1,3 +1,6 @@
+import { logger } from 'firebase-functions';
+import { MemoryFirestore, FieldValue } from './support/comment-count-fixture.js';
+import { prepareNewEpisodeCountBaseline } from '../lib/comment-counts.js';
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import {
@@ -6,6 +9,20 @@ import {
   moderateCommentContent,
   handleCommentCreated,
 } from '../lib/comment-moderation.js';
+
+async function moderationFixture(root = 'HudHudDev', status = 'pending') {
+  const db = new MemoryFirestore();
+  db.seed(`${root}/commentCountContributions`, { version: 1, writerProtocol: 1, state: 'active', generation: 4,
+    owner: 'unit-owner', planHash: 'a'.repeat(64), leaseUntil: 0, activeFrom: FieldValue.serverTimestamp(), baselineManifestHash: 'b'.repeat(64) });
+  await db.runTransaction(async tx => {
+    const prepared = await prepareNewEpisodeCountBaseline(tx, db, { root, episodeId: 'ep-1', serverTimestamp: () => FieldValue.serverTimestamp() });
+    tx.create(db.doc(`${root}/episodes/episodes/ep-1`), { stats: { commentsCount: 0 } });
+    for (const write of prepared.writes) write();
+  });
+  const comment = `${root}/episodes/episodes/ep-1/comments/comment`;
+  db.seed(comment, { content: 'A useful synthetic comment', status });
+  return { db, comment, snapshot: db.snapshot(comment), root, episodeId: 'ep-1' };
+}
 
 describe('UGC Comment Moderation Pipeline', () => {
   describe('filterLocally (Stage 1 - Free Local Regex)', () => {
@@ -147,117 +164,47 @@ describe('UGC Comment Moderation Pipeline', () => {
 
   describe('handleCommentCreated', () => {
     it('updates Firestore document status on creation', async () => {
-      let updatedPayload = null;
-
-      const mockSnapshot = {
-        exists: true,
-        id: 'comm-123',
-        data: () => ({
-          content: 'شكراً للإذاعة',
-          status: 'pending',
-        }),
-        ref: {
-          update: async (payload) => {
-            updatedPayload = payload;
-          },
-        },
-      };
-
-      const mockFetch = async () => ({
-        ok: true,
-        json: async () => ({
-          candidates: [
-            { content: { parts: [{ text: '{"isAppropriate": true, "flagReason": null}' }] } },
-          ],
-        }),
-      });
-
-      const result = await handleCommentCreated({
-        snapshot: mockSnapshot,
-        root: 'HudHudDev',
-        episodeId: 'ep-1',
-        geminiApiKey: 'TEST_KEY',
-        fetchFn: mockFetch,
-      });
-
+      const f = await moderationFixture();
+      const result = await handleCommentCreated({ ...f, moderateFn: async () => ({ status: 'published', moderationReason: null }) });
       assert.strictEqual(result.status, 'published');
-      assert.strictEqual(updatedPayload.status, 'published');
-      assert.strictEqual(updatedPayload.moderationReason, null);
+      assert.strictEqual(f.db.snapshot(f.comment).get('status'), 'published');
+      assert.strictEqual(f.db.snapshot(f.comment).get('moderationReason'), null);
     });
-
     it('skips already hidden or removed comments (IR-06)', async () => {
-      let updateCalled = false;
-      const mockSnapshot = {
-        exists: true,
-        id: 'comm-hidden',
-        data: () => ({
-          content: 'تعليق تم إخفاؤه',
-          status: 'hidden',
-        }),
-        ref: {
-          update: async () => {
-            updateCalled = true;
-          },
-        },
-      };
-
-      const result = await handleCommentCreated({
-        snapshot: mockSnapshot,
-        root: 'HudHudDev',
-        episodeId: 'ep-1',
-        geminiApiKey: 'TEST_KEY',
-      });
-
-      assert.strictEqual(result, null);
-      assert.strictEqual(updateCalled, false);
+      for (const status of ['hidden', 'removed']) {
+        const f = await moderationFixture('HudHudDev', status), before = f.db.snapshot(f.comment).updateTime;
+        const result = await handleCommentCreated({ ...f, moderateFn: async () => assert.fail('Terminal decision reached classifier') });
+        assert.strictEqual(result, null); assert.equal(f.db.snapshot(f.comment).updateTime.isEqual(before), true);
+        assert.equal(f.db.snapshot(`${f.root}/episodes/episodes/ep-1`).get('stats.commentsCount'), 0);
+      }
     });
-
     it('preserves concurrent manual moderation in transaction (IR-06)', async () => {
-      let committedUpdate = false;
-      const mockRef = {
-        firestore: {
-          runTransaction: async (fn) => {
-            await fn({
-              get: async () => ({
-                exists: true,
-                data: () => ({ status: 'hidden' }), // Moderated to hidden concurrently
-              }),
-              update: () => {
-                committedUpdate = true;
-              },
-            });
-          },
-        },
-      };
-
-      const mockSnapshot = {
-        exists: true,
-        id: 'comm-concurrent',
-        data: () => ({
-          content: 'محتوى سليم',
-          status: 'pending',
-        }),
-        ref: mockRef,
-      };
-
-      const mockFetch = async () => ({
-        ok: true,
-        json: async () => ({
-          candidates: [
-            { content: { parts: [{ text: '{"isAppropriate": true, "flagReason": null}' }] } },
-          ],
-        }),
-      });
-
-      await handleCommentCreated({
-        snapshot: mockSnapshot,
-        root: 'HudHudDev',
-        episodeId: 'ep-1',
-        geminiApiKey: 'TEST_KEY',
-        fetchFn: mockFetch,
-      });
-
-      assert.strictEqual(committedUpdate, false, 'Must not overwrite concurrent manual hide');
+      const f = await moderationFixture();
+      const result = await handleCommentCreated({ ...f, moderateFn: async () => {
+        await f.db.doc(f.comment).update({ status: 'hidden' }); return { status: 'published', moderationReason: null };
+      } });
+      assert.strictEqual(result, null); assert.strictEqual(f.db.snapshot(f.comment).get('status'), 'hidden');
+      assert.strictEqual(f.db.snapshot(`${f.root}/episodes/episodes/ep-1`).get('stats.commentsCount'), 0);
     });
   });
+});
+
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  it(`R12 RED: ${root} a real published comment moderation leaves exactlyone counted contribution`, async () => {
+    const f = await moderationFixture(root, 'published');
+    await handleCommentCreated(f);
+    assert.strictEqual(f.db.snapshot(f.comment).get('status'), 'published');
+    assert.strictEqual(f.db.snapshot(`${root}/episodes/episodes/ep-1`).get('stats.commentsCount'), 1,
+      'A successful new published-comment worker must not leave the canonical count atzero.');
+    await handleCommentCreated(f);
+    assert.strictEqual(f.db.snapshot(`${root}/episodes/episodes/ep-1`).get('stats.commentsCount'), 1);
+  });
+}
+
+it('moderation provider failures never log synthetic credentials or user text', async t => {
+  const warnings = []; t.mock.method(logger, 'warn', (...args) => warnings.push(args));
+  const secret = 'SYNTHETIC_PRIVATE_CONTENT https://provider.example/?key=SYNTHETIC_SECRET';
+  const result = await filterWithGemini('Synthetic ordinary comment', { apiKey: 'SYNTHETIC_KEY', fetchFn: async () => { throw new Error(secret); } });
+  assert.strictEqual(result.isAppropriate, true);
+  assert.strictEqual(JSON.stringify(warnings).includes('SYNTHETIC_'), false, 'Credential/user-content sentinels must never reach logs.');
 });

@@ -1,3 +1,4 @@
+import { waitForEpisodeCount } from '../../firebase_tests/support/comment-count-fixtures.mjs';
 import { callableEmulator } from './support/callable-emulator.ts';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -56,13 +57,15 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
           const episodePath = `${root}/episodes/episodes/${id}`;
           const commentPath = `${episodePath}/comments/comment`;
           const reportPath = `${root}/users/users/${reporterId}/commentReportEpisodes/${id}/moderationReports/comment`;
+          await harness.seedEpisode(root, id, {
+            stationId: 'fixture-station', programId: 'fixture-program',
+            title: 'Synthetic accepted episode', isPublished: true,
+            broadcastAt: new Date(), priority: 0,
+            stats: { playsCount: 0, likesCount: 0 },
+          });
           await environment.withSecurityRulesDisabled(async (context) => {
             const db = context.firestore();
             const batch = db.batch();
-            batch.set(db.doc(episodePath), {
-              stationId: 'fixture-station',
-              stats: { playsCount: 0, likesCount: 0, commentsCount: 0 },
-            });
             for (const uid of [authorId, reporterId]) {
               batch.set(db.doc(`${root}/users/users/${uid}`), {
                 displayName: 'Fixture listener',
@@ -104,13 +107,11 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
             createdAt: serverTimestamp(),
           });
           if (correctedCounter) {
-            // Diagnostic control only; this is not a proposed client-side fix.
-            await harness.seed(
-              doc(admin, episodePath),
-              { stats: { commentsCount: 1 } },
-              { merge: true },
-            );
+            // Diagnostic control uses the actual authority, never a hand-written
+            // expected counter. It is distinct from the real event journeys.
+            await harness.syncComment(root, id, 'comment');
           }
+          await waitForEpisodeCount(harness.adminDb, root, id, 1);
           let failureName: string | null = null;
           try {
             await reviewReport(
@@ -149,4 +150,35 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
       },
     );
   }
+}
+
+// This path cannot pass through moderation alone: onCreated does not run again
+// for a later status write or deletion. No manual review/reconciliation intervenes.
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  void test(`${root}: actual comment write handler converges later status changes and deletion`,
+    { skip: !process.env.FIRESTORE_EMULATOR_HOST }, async () => {
+      const harness = await callableEmulator();
+      const id = `write-worker-${crypto.randomUUID()}`, authorId = `worker-author-${id}`;
+      const comment = harness.adminDb.doc(`${root}/episodes/episodes/${id}/comments/worker-comment`);
+      const app = initializeApp({ projectId: process.env.GCLOUD_PROJECT }, crypto.randomUUID());
+      const client = getFirestore(app);
+      const [host, port] = process.env.FIRESTORE_EMULATOR_HOST!.split(':');
+      connectFirestoreEmulator(client, host, Number(port), { mockUserToken: { sub: authorId, email_verified: true } });
+      try {
+        await harness.seedEpisode(root, id, { stationId: 'worker-station', programId: 'worker-program', title: 'Worker event fixture', isPublished: true, stats: {} });
+        await harness.adminDb.doc(`${root}/users/users/${authorId}`).set({ displayName: 'Synthetic listener', role: 'listener', isActive: true });
+        await setDoc(doc(client, `${root}/users/users/${authorId}/agreements/ugc`), { termsVersion: '2026-09-01', acceptedAt: serverTimestamp() });
+        await setDoc(doc(client, comment.path), { episodeId: id, authorId, authorName: 'Synthetic listener', content: 'Synthetic event worker fixture', createdAt: serverTimestamp(), isEdited: false, status: 'published' });
+        assert.equal((await comment.get()).get('status'), 'published', 'Healthy real client comment creation precedes the worker assertion');
+        await waitForEpisodeCount(harness.adminDb, root, id, 1, { requireModeratedComment: comment.id });
+        await comment.update({ status: 'hidden' });
+        assert.equal((await comment.get()).get('status'), 'hidden', 'The direct status write must succeed before count convergence is asserted');
+        await waitForEpisodeCount(harness.adminDb, root, id, 0);
+        await comment.update({ status: 'published' });
+        await waitForEpisodeCount(harness.adminDb, root, id, 1);
+        await comment.delete();
+        await waitForEpisodeCount(harness.adminDb, root, id, 0);
+        assert.equal((await comment.get()).exists, false);
+      } finally { await deleteApp(app); await harness.close(); }
+    });
 }

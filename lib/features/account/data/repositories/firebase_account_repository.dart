@@ -3,6 +3,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../domain/models/account_sign_in_provider.dart';
+import '../../domain/models/account_registration_result.dart';
 import '../../domain/models/account_user.dart';
 import '../../domain/repositories/account_repository.dart';
 import '../datasources/account_auth_data_source.dart';
@@ -53,7 +54,7 @@ class FirebaseAccountRepository implements AccountRepository {
   }
 
   @override
-  Future<void> register({
+  Future<AccountRegistrationResult> register({
     required String displayName,
     required String email,
     required String password,
@@ -98,13 +99,13 @@ class FirebaseAccountRepository implements AccountRepository {
   @override
   Future<void> signOut() => _guard(_dataSource.signOut);
 
-  static Future<void> _guard(
-    Future<void> Function() action, {
+  static Future<T> _guard<T>(
+    Future<T> Function() action, {
     bool deletion = false,
     bool profile = false,
   }) async {
     try {
-      await action();
+      return await action();
     } on AccountDataException catch (error) {
       throw AccountException(_mapDataFailure(error.code, deletion: deletion));
     } on FirebaseAuthException catch (error) {

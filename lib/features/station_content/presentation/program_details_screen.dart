@@ -28,12 +28,33 @@ class ProgramDetailsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final content = ref.watch(programContentControllerProvider(
+        (station.id, program.id, highlightedEpisodeId != null)));
+    final controller = ref.read(programContentControllerProvider(
+        (station.id, program.id, highlightedEpisodeId != null)).notifier);
+    // Once the user requests archive pages, show every consumed row in that
+    // bounded window; do not displace its last item with a distant target.
+    final highlighted = content.hasLoadedEpisodePage
+        ? const <Episode>[]
+        : episodes.where((e) => e.id == highlightedEpisodeId);
+    final visible = <String, Episode>{for (final e in highlighted) e.id: e};
+    for (final e in content.episodes) {
+      visible[e.id] = e;
+    }
     final playerState = ref.watch(stationPlayerControllerProvider);
     final playerController = ref.read(stationPlayerControllerProvider.notifier);
     return ProgramDetailsView(
       station: station,
       program: program,
-      episodes: episodes,
+      episodes: visible.values.take(100).toList(),
+      isLoading: content.isLoadingEpisodes,
+      pageFailed: content.episodePageFailed,
+      hasMore: content.episodeCursor != null ||
+          (highlightedEpisodeId != null && !content.hasLoadedEpisodePage),
+      onLoadMore: content.hasLoadedEpisodePage
+          ? controller.loadMoreEpisodes
+          : controller.refresh,
+      onRefresh: controller.refresh,
       highlightedEpisodeId: highlightedEpisodeId,
       playerState: playerState,
       onEpisodePlayPressed: (episode) =>
@@ -62,6 +83,11 @@ class ProgramDetailsView extends StatelessWidget {
     required this.program,
     required this.episodes,
     this.highlightedEpisodeId,
+    this.isLoading = false,
+    this.pageFailed = false,
+    this.hasMore = false,
+    this.onLoadMore,
+    this.onRefresh,
     required this.playerState,
     required this.onEpisodePlayPressed,
     this.onEpisodeCommentsPressed,
@@ -73,6 +99,11 @@ class ProgramDetailsView extends StatelessWidget {
   final StationProgram program;
   final List<Episode> episodes;
   final String? highlightedEpisodeId;
+  final bool isLoading;
+  final bool pageFailed;
+  final bool hasMore;
+  final Future<void> Function()? onLoadMore;
+  final Future<void> Function()? onRefresh;
   final StationPlayerState playerState;
   final ValueChanged<Episode> onEpisodePlayPressed;
   final ValueChanged<Episode>? onEpisodeCommentsPressed;
@@ -143,7 +174,7 @@ class ProgramDetailsView extends StatelessWidget {
                   ],
                   const SizedBox(height: 22),
                   Text(
-                    strings.programEpisodesTitle(episodes.length),
+                    strings.programEpisodesTitle(program.episodesCount),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w900,
                         ),
@@ -152,7 +183,31 @@ class ProgramDetailsView extends StatelessWidget {
               ),
             ),
           ),
-          if (episodes.isEmpty)
+          SliverToBoxAdapter(
+              child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(children: [
+                    Text(strings.contentPageScope),
+                    if (isLoading) const LinearProgressIndicator(),
+                    if (pageFailed) Text(strings.contentPageError),
+                    Wrap(spacing: 8, children: [
+                      TextButton(
+                          onPressed: isLoading ? null : onRefresh,
+                          child: Text(strings.refresh)),
+                      if (hasMore || pageFailed)
+                        TextButton(
+                            key: const Key('load-more-episodes'),
+                            onPressed: isLoading
+                                ? null
+                                : pageFailed && !hasMore
+                                    ? onRefresh
+                                    : onLoadMore,
+                            child: Text(pageFailed
+                                ? strings.retry
+                                : strings.contentLoadMore)),
+                    ]),
+                  ]))),
+          if (episodes.isEmpty && !isLoading && !pageFailed)
             SliverFillRemaining(
               hasScrollBody: false,
               child: Center(

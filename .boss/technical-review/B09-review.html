@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B09 independent Flutter technical review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b09-independent-flutter-technical-review">B09 independent Flutter technical review</a></li><li class="toc-level-2"><a href="#verdict">Verdict</a></li><li class="toc-level-2"><a href="#blocking-findings">Blocking findings</a></li><li class="toc-level-2"><a href="#independent-verification">Independent verification</a></li><li class="toc-level-2"><a href="#other-assessed-behavior">Other assessed behavior</a></li><li class="toc-level-2"><a href="#remaining-gates">Remaining gates</a></li><li class="toc-level-2"><a href="#independent-re-review-of-the-corrected-candidate">Independent re-review of the corrected candidate</a></li><li class="toc-level-3"><a href="#correction-assessment">Correction assessment</a></li><li class="toc-level-3"><a href="#independent-evidence">Independent evidence</a></li><li class="toc-level-3"><a href="#revised-source-fingerprints">Revised source fingerprints</a></li></ul>
+    </aside>
+    <main>
+      <h1>B09 independent Flutter technical review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B09-review.md</div>
+        <div>Generated: 2026-10-26T18:55:11.174Z</div>
+      </div>
+      <h1 id="b09-independent-flutter-technical-review">B09 independent Flutter technical review</h1>
+<p>Date: 2026-10-26. Reviewer: independent <code>b09_review</code>; no implementation authorship or application source changes.</p>
+<h2 id="verdict">Verdict</h2>
+<p><strong>REVISION_NEEDED.</strong> The candidate passes its existing focused suite, but two independently reproduced pagination contract failures block the interim handoff. R04 remains OPEN. The review does not establish deployed indexes, Firestore Rules acceptance, builds or physical-device acceptance.</p>
+<h2 id="blocking-findings">Blocking findings</h2>
+<ol><li><strong>P2 — malformed ordering data aborts a whole page instead of preserving raw continuation.</strong> In <code>lib/features/station_content/data/repositories/firebase_station_content_repository.dart:119</code>, the cursor is built from raw ordering values and then passed to the canonical-type-only validator at line139. Fifty-one published episode documents with otherwise valid data and malformed <code>priority: 0.5</code> cause the page read to throw <code>ArgumentError</code> while constructing the raw continuation. The existing mapper accepts numeric values via <code>toInt</code>; it does not itself reject this sort-schema mismatch. The permanent regression should therefore assert page-boundary rejection of malformed sort-schema rows plus preserved raw continuation, without silently changing shared mapper behavior. A malformed timestamp also reaches an unchecked Timestamp cast at line127. WO-03 and C03 require invalid documents to be rejected individually and the cursor to advance from the last consumed raw document. The production ordering audit remains necessary; it does not replace this runtime page contract. Preserve a safe value-only raw sort representation and exact timestamp precision without fabricating corrected values or exposing Firebase snapshots. Add permanent malformed-ordering boundary tests before correction, then verify continuation beyond the invalid page and strict scope/version validation.</li></ol>
+<ol><li><strong>P2 — a pending refresh still permits paging from the previous generation's cursor.</strong> <code>StationContentController.refresh</code> at <code>lib/features/station_content/presentation/controllers/station_content_controller.dart:78</code> increments generations and clears loading flags but retains both old cursors. <code>loadMorePrograms</code> at line121 does not reject a pending refresh; it captures the new generation while sending the old cursor. A user can pull to refresh and press the still-enabled Load more control, causing an obsolete continuation to run. Its completion has the same generation as the refresh and can append stale rows or replace the refreshed continuation. The episode path has the same retained-cursor/no-refresh guard pattern. The independent program probe confirms one page request starts while the refresh is pending, where zero is required. Invalidate old cursors at refresh start or otherwise prevent old-cursor execution, preserving explicit retry and cache behavior. Cover both program and episode directions, including stale completion after refreshed content wins.</li></ol>
+<h2 id="independent-verification">Independent verification</h2>
+<ul><li>Verified all <strong>25 recorded candidate input hashes</strong> in <code>evidence/WO-03/B09-provenance.json</code> before and after review; no mismatches.</li><li>Executed <code>flutter test --no-pub test/features/station_content test/features/notifications test/features/station_details</code>: <strong>67 passed, zero failures</strong>. Log: <code>evidence/WO-03/B09-independent-tests.log</code>.</li><li>Reviewer synthetic malformed-ordering probe: <strong>one executed failure</strong> after successful import/compilation, from actual data-source/repository cursor validation. File: <code>/tmp/hudhud-b09-independent-probe_test.dart</code>; log: <code>evidence/WO-03/B09-independent-probe.log</code>.</li><li>Reviewer refresh probe: <strong>one intended assertion failure</strong>, expected zero continuation calls while refresh pending, actual one. File: <code>/tmp/hudhud-b09-refresh-probe_test.dart</code>; log: <code>evidence/WO-03/B09-independent-refresh-probe.log</code>.</li><li>Probes use synthetic data and existing production boundaries. No missing module, skipped test, compilation or environment failure is credited as RED.</li><li>The author/coordinator's full375-test, analysis and format results remain retained evidence; they do not cover these independent gaps. Permanent regressions and fresh affected gates are required after corrections.</li></ul>
+<h2 id="other-assessed-behavior">Other assessed behavior</h2>
+<p>Visibility/parent equality filters precede query limits. Canonical ordering has a document-ID tie break, requests use51raw/50consumed records, timestamp cursors preserve nanoseconds for canonical values, and cache-derived server continuation is rejected. Domain cursor/page values do not expose snapshots. Bounded100-row windows, canonical episode-count labels, explicit page controls, localized labels, cache-first loading and disposal checks preserve the existing Riverpod layering. Direct episode resolution validates episode/program/station in at most3direct reads; alert navigation no longer scans the catalog, and the direct-target controller defers archive IO until explicit user action. No autoplay or new dependency is introduced.</p>
+<h2 id="remaining-gates">Remaining gates</h2>
+<p>Return the two blockers to the declared FL author and I integration owner. Independent re-review must inspect the corrected candidate and permanent regression evidence. Full merged-candidate integration, Firestore query/index/permission checks, all original17admin obligations, APK/iOS builds and physical Android/iPhone acceptance remain mandatory. No task or finding is CLOSED by this review. The reviewer has released the exclusive F runtime; no emulator, production operation, deployment or protected merge was performed.</p>
+<h2 id="independent-re-review-of-the-corrected-candidate">Independent re-review of the corrected candidate</h2>
+<p>Date: 2026-10-26. <strong>APPROVED for the B09 verified interim handoff.</strong> Both review blockers above have permanent pre-fix regression evidence and verified corrections. The original report remains retained as historical evidence. This approval does not close R04 or waive final integration, build, Rules or physical-device acceptance.</p>
+<h3 id="correction-assessment">Correction assessment</h3>
+<ul><li><strong>Raw continuation:</strong> the existing content-specific domain model holds immutable typed raw sort values; Firebase-specific conversion stays in the existing data source. The bridge preserves scalar/null values, exact timestamp seconds/nanoseconds, byte sequences, document-reference identity, geographic points, arrays, vectors and maps. The repository now rejects malformed canonical sort fields at its page boundary without changing shared numeric mappers, then advances from the raw50th consumed document. It neither substitutes a corrected business value nor uses the lookahead. Scope, version, filter/order identity, cache/server provenance, tuple length, last document ID and typed metadata remain validated. No new dependency or general codec service was introduced.</li><li><strong>Refresh generation:</strong> station refresh clears both old cursors immediately. Both continuation methods reject initial loading and pending refresh, while already in-flight old requests remain generation-guarded. Failed refresh retains visible records, keeps obsolete cursors cleared and supports explicit refresh retry. Program-scoped refresh retains its existing episode-generation guard and clears its episode cursor through selection.</li><li>The seven revision paths are confined to declared FL source/test ownership. Parent-owned composition/UI/localization paths and shared mappers remain unchanged from the original reviewed candidate.</li></ul>
+<h3 id="independent-evidence">Independent evidence</h3>
+<ul><li>Verified all <strong>25 current input hashes</strong> and all <strong>seven recorded evidence hashes</strong> against <code>evidence/WO-03/B09-review-revision-provenance.json</code>; zero mismatches.</li><li>Inspected retained permanent pre-fix results:17 malformed raw-ordering business failures and two pending-refresh assertion failures. The later reference-value case is correctly labeled additional GREEN coverage rather than pre-fix RED.</li><li>Independently reran the complete focused content, notification and station-detail suites: <strong>89 passed, zero failures</strong>. Log: <code>evidence/WO-03/B09-independent-revision-tests.log</code>.</li><li>Independently reran both original reviewer probes: <strong>2 passed, zero failures</strong>. The refresh probe's cursor construction was adapted only to the revised domain value API; its original zero-old-cursor-IO expectation is unchanged. Log: <code>evidence/WO-03/B09-independent-revision-probes.log</code>.</li><li>Inspected hash-matching author/coordinator evidence: full Flutter <strong>397 passed</strong>, analysis <strong>No issues found</strong>, and formatting <strong>213 files, zero changes</strong>. These are retained global verification results, not an independently repeated full run.</li><li>No application source was changed by this reviewer. The exclusive F runtime is released; no emulator, deployment, migration or production operation was performed.</li></ul>
+<h3 id="revised-source-fingerprints">Revised source fingerprints</h3>
+<table><thead><tr><th>Path</th><th>SHA-256</th></tr></thead><tbody><tr><td><code>lib/features/station_content/domain/models/content_page.dart</code></td><td><code>7a41ec6470511c00fef2c585ccf35e31f2fece1a1a4fcda5a9a428384ac7b3d0</code></td></tr><tr><td><code>lib/features/station_content/data/datasources/station_content_firestore_data_source.dart</code></td><td><code>5ced47ba9ca0479c7ca2760668100f9da108d04bcc185c7418e8b3c93b4314b1</code></td></tr><tr><td><code>lib/features/station_content/data/repositories/firebase_station_content_repository.dart</code></td><td><code>28bc1a7c9d42bcddb859f685ed3fabfae917304949b8c069a0bc8c6317ba8f68</code></td></tr><tr><td><code>lib/features/station_content/presentation/controllers/station_content_controller.dart</code></td><td><code>f334abf1351a35fbb86181d0725741b0143071dc8728e03fe919d6223faa4e0f</code></td></tr><tr><td><code>test/features/station_content/data/content_pagination_test.dart</code></td><td><code>e2391834c953df97490f70a8419752cb10ec6dedcb381714c7df758811a4275c</code></td></tr><tr><td><code>test/features/station_content/domain/content_page_test.dart</code></td><td><code>b66755db7af6fcff26fb17189da723e7860e29347d90aef5e7ef86fd3428d270</code></td></tr><tr><td><code>test/features/station_content/presentation/station_content_controller_test.dart</code></td><td><code>5a4e9378396557acaf9dee7fbdcdb0eafb39365e91e3277b6cb515f4a54c4762</code></td></tr></tbody></table>
+<p>Final merged-candidate Firestore query/index/permission verification, the original17admin obligations, APK/iOS builds and physical Android/iPhone acceptance remain mandatory. Production legacy audit, unresolved sort-schema repair decisions and deployed index readiness remain separate rollout prerequisites.</p>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,3 +1,5 @@
+import { readCommentCountFence } from './comment-count-maintenance.js';
+import { prepareNewEpisodeCountBaseline } from './comment-counts.js';
 import { publicStation, prepareStationPrivacy, validateStationPrivacyOptions } from './station-privacy.js';
 import { administrativeActor } from './admin-content-authorization.js';
 import { randomUUID } from 'node:crypto';
@@ -89,6 +91,8 @@ export async function saveAdminContent({
   await firestore.runTransaction(async tx => {
     const current = await tx.get(docRef);
     const existing = current.exists ? current.data() : null;
+    if (kind === 'episodes' || (kind === 'programs' && existing && existing.stationId !== content.stationId))
+      await readCommentCountFence(tx, firestore, root);
     if (existing?.adminDeletionToken) throw new HttpsError('failed-precondition', 'Content deletion is in progress.');
     if (existing && ['programs', 'episodes'].includes(kind) &&
         (!validId(existing.stationId) || !canManageStation(existing.stationId))) {
@@ -112,13 +116,14 @@ export async function saveAdminContent({
     const actorFields = { updatedBy: callerUid, updatedByName: actorName, updatedAt: FieldValue.serverTimestamp() };
     const { writes, relatedTargets } = await prepareContentRelations(tx, firestore, { root, kind, id, current, content, locationId, actorFields });
     const identityWrites = await prepareContentIdentity(tx, firestore, { root, kind, id, content, existing });
+    const creation = kind === 'episodes' && !existing ? await prepareNewEpisodeCountBaseline(tx, firestore, { root, episodeId: id, serverTimestamp: () => FieldValue.serverTimestamp() }) : { writes: [] };
     const stats = initialContentStats(kind);
     const payload = {
       ...(privacy ? publicStation(content) : content), ...actorFields,
       ...(!existing ? { createdBy: callerUid, createdByName: actorName, createdAt: FieldValue.serverTimestamp(),
         ...(stats ? { stats } : {}) } : {}),
     };
-    for (const write of [...writes, ...identityWrites]) write();
+    for (const write of [...writes, ...identityWrites, ...creation.writes]) write();
     if (privacy?.needsWrite) tx.set(privateRef, privacy.document);
     tx.set(docRef, privacy ? { ...publicStation(existing), ...payload } : payload, { merge: privacy ? false : Boolean(existing) });
     await recordEditorialAuditLog(tx, firestore, { root, targetKind: kind, targetId: id,

@@ -1,3 +1,4 @@
+import 'package:hudhud_fm/features/account/domain/models/account_registration_result.dart';
 import 'dart:typed_data';
 import "package:flutter/material.dart";
 import "package:flutter_localizations/flutter_localizations.dart";
@@ -155,10 +156,78 @@ void main() {
     expect(repository.updatedPhotoUrl,
         "assets/images/mascot/mascot_onboarding.webp");
   });
+
+  for (final locale in [const Locale('en'), const Locale('ar')]) {
+    for (final failure in [
+      AccountFailure.verificationDeliveryFailed,
+      AccountFailure.verificationRateLimited
+    ]) {
+      testWidgets(
+          'resend $failure clears stale success at 200% ${locale.languageCode}',
+          (tester) async {
+        tester.view.physicalSize = const Size(1200, 3000);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final repository = _FakeAccountRepository(user: _unverifiedUser);
+        await tester.pumpWidget(
+            _TestApp(repository: repository, locale: locale, textScale: 2));
+        await tester.pumpAndSettle();
+        final resend = find.byKey(const Key('account-resend-code'));
+        await tester.ensureVisible(resend);
+        await tester.tap(resend);
+        await tester.pumpAndSettle();
+        final context = tester.element(find.byType(ManageAccountScreen));
+        final strings = AppLocalizations.of(context);
+        expect(find.text(strings.verificationCodeSent), findsOneWidget);
+        repository.deliveryFailure = failure;
+        await tester.ensureVisible(resend);
+        await tester.tap(resend);
+        await tester.pumpAndSettle();
+        expect(find.text(strings.verificationCodeSent), findsNothing);
+        expect(
+            find.text(failure == AccountFailure.verificationRateLimited
+                ? strings.verificationRateLimited
+                : strings.verificationDeliveryFailed),
+            findsOneWidget);
+        expect(tester.widget<TextButton>(resend).onPressed, isNotNull);
+        expect(
+            ProviderScope.containerOf(context)
+                .read(accountControllerProvider)
+                .user
+                ?.emailVerified,
+            false);
+        expect(
+            Directionality.of(context),
+            locale.languageCode == 'ar'
+                ? TextDirection.rtl
+                : TextDirection.ltr);
+        repository.deliveryFailure = null;
+        await tester.ensureVisible(resend);
+        await tester.tap(resend);
+        await tester.pumpAndSettle();
+        expect(find.text(strings.verificationCodeSent), findsOneWidget);
+        expect(
+            find.text(failure == AccountFailure.verificationRateLimited
+                ? strings.verificationRateLimited
+                : strings.verificationDeliveryFailed),
+            findsNothing);
+        expect(repository.requestCalls, 3);
+        expect(repository.registerCalls, 0);
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
 }
 
 class _TestApp extends StatelessWidget {
-  const _TestApp({required this.repository});
+  const _TestApp(
+      {required this.repository,
+      this.locale = const Locale("ar"),
+      this.textScale = 1});
+
+  final Locale locale;
+  final double textScale;
 
   final AccountRepository repository;
 
@@ -166,8 +235,8 @@ class _TestApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ProviderScope(
       overrides: [accountRepositoryProvider.overrideWithValue(repository)],
-      child: const MaterialApp(
-        locale: Locale("ar"),
+      child: MaterialApp(
+        locale: locale,
         supportedLocales: AppLocalizations.supportedLocales,
         localizationsDelegates: [
           AppLocalizations.delegate,
@@ -175,7 +244,11 @@ class _TestApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        home: ManageAccountScreen(),
+        builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(textScale)),
+            child: child!),
+        home: const ManageAccountScreen(),
       ),
     );
   }
@@ -185,6 +258,9 @@ class _FakeAccountRepository implements AccountRepository {
   _FakeAccountRepository({this.user = _user});
 
   final AccountUser? user;
+  AccountFailure? deliveryFailure;
+  int requestCalls = 0;
+  int registerCalls = 0;
   String? deletionPassword;
   String? verificationCode;
   String? requestedEmail;
@@ -202,7 +278,9 @@ class _FakeAccountRepository implements AccountRepository {
 
   @override
   Future<void> requestEmailVerificationCode({String? email}) async {
+    requestCalls++;
     requestedEmail = email;
+    if (deliveryFailure case final failure?) throw AccountException(failure);
   }
 
   @override
@@ -213,10 +291,15 @@ class _FakeAccountRepository implements AccountRepository {
   @override
   Future<void> continueWithProvider(AccountSignInProvider provider) async {}
   @override
-  Future<void> register(
+  Future<AccountRegistrationResult> register(
       {required String displayName,
       required String email,
-      required String password}) async {}
+      required String password}) async {
+    registerCalls++;
+    return const AccountRegistrationResult(
+        verificationDelivery: AccountVerificationDelivery.sent);
+  }
+
   @override
   Future<void> sendPasswordReset(String email) async {}
   @override

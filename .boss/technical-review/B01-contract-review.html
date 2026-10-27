@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B01 contract review and scoped handoffs - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b01-contract-review-and-scoped-handoffs">B01 contract review and scoped handoffs</a></li><li class="toc-level-2"><a href="#reviewed-contract-hashes">Reviewed contract hashes</a></li><li class="toc-level-2"><a href="#remaining-gates">Remaining gates</a></li></ul>
+    </aside>
+    <main>
+      <h1>B01 contract review and scoped handoffs</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B01-contract-review.md</div>
+        <div>Generated: 2026-10-26T17:04:31.332Z</div>
+      </div>
+      <h1 id="b01-contract-review-and-scoped-handoffs">B01 contract review and scoped handoffs</h1>
+<p>Baseline: c304e85. The user approved the complete existing plan, per-schedule UTC-offset alerts, dual page/resumable dataset search and repair-and-rerun within an active batch. All amendments are English and preserve the existing architecture/dependencies.</p>
+<p>The architect supplied patches; I alone applied shared contract changes. Independent reviewer <code>contract_acceptance_review</code> approved C03, C04-RSS, C04-HEALTH and C04-TIMEZONE, then initially withheld C04-COUNTS for an incomplete episode-identity freeze. The revised fence contract was independently approved after covering all owned transaction/Rules writers, stable ID/createTime inventory and a second exhausted enumeration, fail-closed lease recovery, retryable paused events and count-reset producer paths. Production mutation remains refused pending separately reviewed external platform isolation. No contract approval is source-fix, test or production evidence.</p>
+<p>C03 explicitly loads an active-program page followed by the selected/first program's episode page. Partial parent pages are never proof of invalid episodes; direct links use direct validated lookup. Program order preserves featured/priority/title with ID tie-breaker. All existing request/document/render budgets remain mandatory.</p>
+<p>The early Rules output M04-T12-FENCE-READY is part of existing04-T12, not a new task/batch/wave. It depends only on C04-COUNTS, precedes04-T08/09 rehearsal, and cannot depend on full04-T12 completion. Independent graph inspection:65tasks,16batches,17waves;86acyclictask/milestone/checkpointnodes; no missing references. Original33owner assignments are retained; current48entries explicitly cover necessary additive paths.</p>
+<p>Maintenance fencing generation is distinct from retained per-episode baseline generation: releasing/recovering the fence must not invalidate accepted contribution ledgers. Source implementation and tests must prove that distinction.</p>
+<h2 id="reviewed-contract-hashes">Reviewed contract hashes</h2>
+<ul><li><code>docs/contracts/station-content-contract.md</code>: <code>d1aede9273f2cb2e75555bb7e62fb3ffcd149efef599525ad7bc17affb771abe</code></li><li><code>docs/contracts/firebase-data-contract.md</code>: <code>26826b3ac23492955a1888601e1ab203c56aa41b50bfcf8ba6724397d1efb249</code></li><li><code>docs/contracts/content-automation-contract.md</code>: <code>32473fcaa15469430bf95c935ee2f87c4afddd90ea307be869056b74aea68ad5</code></li><li><code>docs/decisions/0004-public-web-accounts-and-discovery.md</code>: <code>dc7a03dfa964a54747fdd8835908b98f162ed901c10a01dfd03f65517f5833fb</code></li><li><code>docs/decisions/0006-background-consistency-and-schedule-timezones.md</code>: <code>4f7922052f63fd49f9c16af73712cb43cbea917a0cb83a1987a7959c231d6eb6</code></li></ul>
+<h2 id="remaining-gates">Remaining gates</h2>
+<p>No production activation, index deployment, receipt migration or data backfill was performed. R01–R13 remain OPEN. Code batches, independent code reviews, exact-candidate integration, physical-device acceptance and operational readiness must still pass. Production CLI refusal is an explicit operational limitation, not production readiness.</p>
+    </main>
+  </div>
+</body>
+</html>

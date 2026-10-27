@@ -1,0 +1,100 @@
+{
+  "batch": "B12",
+  "tasks": [
+    "03-T14",
+    "03-T15"
+  ],
+  "finding": "R08",
+  "status": "READY_FOR_INDEPENDENT_REVIEW; not complete or CLOSED",
+  "baselineHead": "c304e85963546220ccbdac51390fe0c03de02419",
+  "writeSet": [
+    "web_hudhud/lib/content-repository.ts",
+    "web_hudhud/lib/discovery.ts",
+    "web_hudhud/test/content-pagination.test.mjs",
+    "web_hudhud/test/discovery.test.mjs",
+    "web_hudhud/public-home.tsx",
+    "web_hudhud/station-detail.tsx",
+    "web_hudhud/test/content-pagination-ui.test.mjs",
+    "web_hudhud/test/preview.html",
+    "web_hudhud/test/preview.tsx"
+  ],
+  "integrationOwnerPatch": "/tmp/hudhud-b12-public-home.patch applied by parent I; preserves S01 official platform footer",
+  "baselineSourceSha256": {
+    "web_hudhud/lib/content-repository.ts": "bbe1c181fbce1da985adebba5a3ce7c1f0aa80723371c3577d67274ebab95702",
+    "web_hudhud/station-detail.tsx": "1e215323f0cd20c49e5e144e7739b08948b3176c2964b7b4643d64eff4e49bdb"
+  },
+  "primaryRed": {
+    "command": "node --experimental-vm-modules --experimental-transform-types --test web_hudhud/test/content-pagination.test.mjs",
+    "log": "B12-red.log",
+    "tests": 1,
+    "pass": 0,
+    "intendedBusinessFailure": 1,
+    "skip": 0,
+    "assertion": "Initial content must read at most51 raw documents per query",
+    "behavior": "Actual existing repository downloaded all10000 synthetic episodes before any application edits. Compiled and executed successfully; only SDK network boundary substituted.",
+    "redTestPrefixSha256": "ae439a3cd214a6fbd0036c8a58e17b7429961497c0d74983f36b56f3cc8716fe"
+  },
+  "supplementaryBaselineReplay": {
+    "log": "B12-ui-red.log",
+    "tests": 1,
+    "pass": 0,
+    "intendedBusinessFailure": 1,
+    "skip": 0,
+    "assertion": "Mounted episode rows exceed100",
+    "classification": "Actual unchanged HEAD TSX replay through hook scheduler after first UI candidate existed; corroborating baseline evidence only, NOT credited as primary RED-before-fix."
+  },
+  "verification": {
+    "fullPublicTestLog": "B12-web-tests-final.log",
+    "fullPublicTests": {
+      "tests": 78,
+      "pass": 78,
+      "fail": 0,
+      "skip": 0
+    },
+    "dataCases": 14,
+    "actualTsxBehaviorCases": 8,
+    "lint": "B12-lint-final.log PASS",
+    "typecheckAndBuild": "B12-build-final.log: VITE_FIRESTORE_ROOT=HudHudDev npm run build (includes tsc --noEmit), PASS",
+    "diffCheck": "PASS for WP-owned tracked files"
+  },
+  "coverage": [
+    "10000 archive traversed by200 explicit page requests; each<=51raw/50returned",
+    "active/published/parent predicates before limit, featured/priority/title/ID programorder",
+    "last consumed raw cursor preserves empty mapped-page continuation, exact timestamp seconds/nanoseconds",
+    "wrongroot/filter/order/version/parent and malformed cursor noIO; cache offline/no cursor advancement",
+    "distant validated episode/program/station lookup<=3documents, bothroots and visibility/deletion checks",
+    "bounded50item replacement windows, defensive100rowcap,20priorcursorhistory; canonicalepisodecount",
+    "actualTSX next/previous/retry preservation/stalegeneration/offline/directlink selection/noautoplay/clock/duplicateinflight guards",
+    "concurrent insert/delete cursor semantics with refresh; no snapshot-isolation promise",
+    "synthetic preview state=pagination10k source, no production substitution"
+  ],
+  "failuresNotRed": [
+    "Initial interface typecheck caught old preview StationContent fixture missing page metadata; fixture updated, final build/typecheck pass. Not behavioral RED.",
+    "Two author shell path mistakes addressed immediately; no application command success claimed for them."
+  ],
+  "limitations": [
+    "Independent code/security review pending.",
+    "Actual browser/physical-device acceptance not run by WP; parent reports Chrome automation timeout. Hook scheduler tests do not replace real browser acceptance.",
+    "Firestore composite index deployment/readiness and any legacy audit/repair remain separately authorized external operations.",
+    "New source changes require affected gates again.",
+    "No emulator, production data, migration, deployment or merge executed by WP."
+  ],
+  "finalCandidateSha256": {
+    "web_hudhud/lib/content-repository.ts": "c429d1147f350c6200c24d871a29bca2363a1f151cbbac696994f4a737012a68",
+    "web_hudhud/lib/discovery.ts": "54aa8ce83e7863f9430e026f7a071790ff113c71ecaf847fdfa502b73508076b",
+    "web_hudhud/test/content-pagination.test.mjs": "7f684470266f4cf883b3b107e31d620fb7f27a483f9f7ee5ab03cfcd256da2b7",
+    "web_hudhud/test/discovery.test.mjs": "520b6cad0a212eed0cf93292ba8ccf14834adf0311dc813897403ccecfc2b6f9",
+    "web_hudhud/public-home.tsx": "ba60a3b6f68782a7a98b259b2c532450e145177159cc027851d7f7444a75396c",
+    "web_hudhud/station-detail.tsx": "a2684a01879147a29885d8f9f1a0a53e8f91d9f2270b9065ab0e91c73c1de419",
+    "web_hudhud/test/content-pagination-ui.test.mjs": "3a41ddcaee1bc6c166799a4ab4ed7a22718f70c3a420ba95ea2beacbe024de86",
+    "web_hudhud/test/preview.html": "39051468e74cffa6b8042ccc86569f1a0adb3d031bb7966b7b34b1b1e84a4199",
+    "web_hudhud/test/preview.tsx": "b11348792e600ae0592b5621604855cc8d8d542a224fe4ff1a68815185f83bdb"
+  },
+  "logSha256": {
+    "B12-red.log": "aa5470e61214c93e4b25b187c7851a4f1812ce80f664ae3ad1386ab0f19f6a0a",
+    "B12-ui-red.log": "4bbfa7463e4be0c873644877669cf810825bc769771a7e31ef5d1010f04d05e3",
+    "B12-web-tests-final.log": "8c3a5606505e5be3194d4ef9097fd7fc375472204ea36d699241bae7cf98393a",
+    "B12-lint-final.log": "cab0119043435af06b4f0ddfadcc519a54731306f00f0b3bcb0683e6fb8665b5",
+    "B12-build-final.log": "164b684a295cb32a47c04a3907894d11456a6e9d50c46a19dbb393e5e61fa0b2"
+  }
+}

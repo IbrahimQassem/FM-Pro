@@ -20,7 +20,7 @@ export function alertHref(data: Record<string, unknown> | undefined, root: strin
   return stationHref(data.stationId, data.programId, data.episodeId);
 }
 export type Schedule = { weekdays: number[]; startMinute: number; endMinute: number; utcOffsetMinutes: number };
-export type Program = { id: string; stationId: string; title: string; description: string; priority: number; schedule: Schedule | null };
+export type Program = { id: string; stationId: string; title: string; description: string; priority: number; isFeatured?: boolean; episodesCount?: number; schedule: Schedule | null };
 export type Episode = { id: string; programId: string; stationId: string; title: string; description: string; audioUrl: string; broadcastAt: number; utcOffsetMinutes: number };
 type Snapshot = { id: string; data(): Record<string, unknown> };
 function text(value: unknown) { return typeof value === 'string' ? value.trim() : ''; }
@@ -34,7 +34,7 @@ export function programFromSnapshot(doc: Snapshot, stationId: string): Program |
     if (!Array.isArray(s.weekdays) || !s.weekdays.length || !s.weekdays.every(day => integer(day, 1, 7)) || !integer(s.startMinute, 0, 1439) || !integer(s.endMinute, s.startMinute + 1, 1440) || !integer(s.utcOffsetMinutes, -720, 840)) return null;
     schedule = { weekdays: [...new Set(s.weekdays)], startMinute: s.startMinute, endMinute: s.endMinute, utcOffsetMinutes: s.utcOffsetMinutes };
   }
-  return { id: doc.id, stationId, title: text(d.title), description: text(d.description), priority: typeof d.priority === 'number' && Number.isFinite(d.priority) ? d.priority : 0, schedule };
+  return { id: doc.id, stationId, title: text(d.title), description: text(d.description), isFeatured: d.isFeatured === true, episodesCount: typeof (d.stats as { episodesCount?: unknown } | undefined)?.episodesCount === 'number' && Number.isSafeInteger((d.stats as { episodesCount: number }).episodesCount) && (d.stats as { episodesCount: number }).episodesCount >= 0 ? (d.stats as { episodesCount: number }).episodesCount : 0, priority: typeof d.priority === 'number' && Number.isFinite(d.priority) ? d.priority : 0, schedule };
 }
 export function episodeFromSnapshot(doc: Snapshot, stationId: string, programs: Program[]): Episode | null {
   const d = doc.data();

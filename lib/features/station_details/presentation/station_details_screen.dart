@@ -212,6 +212,7 @@ class _StationDetailsScreenState extends ConsumerState<StationDetailsScreen>
       onStopPressed: playerController.stop,
       contentState: contentState,
       onContentRefresh: contentController.refresh,
+      onMorePrograms: contentController.loadMorePrograms,
       onProgramPressed: openProgram,
       onWeekdaySelected: contentController.selectWeekday,
       playerBar: !playerState.hasSelection
@@ -237,6 +238,7 @@ class StationDetailsView extends StatelessWidget {
     this.onSharePressed,
     this.contentState = const StationContentState(isInitialLoading: false),
     this.onContentRefresh,
+    this.onMorePrograms,
     this.onProgramPressed,
     this.onWeekdaySelected,
     this.playerBar,
@@ -254,6 +256,7 @@ class StationDetailsView extends StatelessWidget {
   final VoidCallback? onSharePressed;
   final StationContentState contentState;
   final Future<void> Function()? onContentRefresh;
+  final Future<void> Function()? onMorePrograms;
   final ValueChanged<StationProgram>? onProgramPressed;
   final ValueChanged<int>? onWeekdaySelected;
   final Widget? playerBar;
@@ -332,6 +335,7 @@ class StationDetailsView extends StatelessWidget {
               StationProgramsTab(
                 state: contentState,
                 onRefresh: onContentRefresh ?? _completedRefresh,
+                onLoadMore: onMorePrograms,
                 onProgramPressed: onProgramPressed ?? _ignoreProgram,
               ),
               StationScheduleTab(

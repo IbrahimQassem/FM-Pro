@@ -442,5 +442,9 @@
   "stationInstagram": "Instagram",
   "stationYoutube": "YouTube",
   "stationTwitter": "X (Twitter)",
-  "stationWhatsapp": "WhatsApp"
+  "stationWhatsapp": "WhatsApp",
+  "contentLoadMore": "Load more",
+  "contentPageScope": "Showing a limited window. Refresh to return to the beginning.",
+  "contentPageError": "This page could not be loaded. Try again.",
+  "contentLoading": "Loading content…"
 }

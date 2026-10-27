@@ -1,0 +1,33 @@
+{
+  "milestone": "M03-T16-RED-READY",
+  "classification": "VALID behavioral RED baseline, not fix acceptance",
+  "baselineHead": "c304e85963546220ccbdac51390fe0c03de02419",
+  "seam": "Behavior-preserving extraction of existing direct SDK count and existing limit2000/50 report-only cursor; no Rules/callable/pagination behavior fix",
+  "preflight": "Admin build PASS; initial typed-lint missing footer import INVALID RED, restored and corrected lint PASS",
+  "command": "PATH=<Node22>:$PATH npm run emulators:admin",
+  "log": "M03-baseline-business-red.log",
+  "result": {
+    "total": 30,
+    "pass": 20,
+    "fail": 10,
+    "skip": 0,
+    "intendedBusinessChildFailures": 8,
+    "parentSubtestSummaryFailures": 2
+  },
+  "businessFailures": {
+    "R06": "Both roots: actual2000raw documents exceeds51; continuation repeats first consumed IDs and cannot reach2001",
+    "R07": "Both roots x station_admin/moderator verified active demo Auth: profile listing correctly denied, existing exact route adapter count permission-denied contrary to promised aggregate availability"
+  },
+  "existingOriginalIntegration": "All20 preexisting cases passed including original17 identities plus3privacy cases; finalactualworker obligations retained",
+  "sha256": {
+    "web_admin/lib/user-count.ts": "919d471181bf938d37fdf3274e697703cc346c983aefbeb08eb076a1ed51dabc",
+    "web_admin/components/admin/users-aggregate-view.tsx": "5bcff25028127081e8e108828abaa06b87f2f02285e3818af70967d0184449f3",
+    "web_admin/lib/resource-pagination.ts": "e562b812bb54e32faa2824266e8ec978339de3c819ab8a310c9679e019ee0a0a",
+    "web_admin/components/admin/admin-app.tsx": "54391c66c046d644f92f6e2a92337fa4625c8df643e22e5d8a2619e885b2a6ed",
+    "web_admin/test/user-count.emulator.test.ts": "89062730b0d19b2e418b9e63525ef97c5d859dac9f37611c50a728b3e240af71",
+    "web_admin/test/content-pagination.emulator.test.ts": "481c64671893d1d6020c8baef9325a7eb436e36e0dd6e344ffbf21c4b2f74ddc"
+  },
+  "logSha256": "4e199d63f234c0f6910300871e7d41202f8f78d4d9952c89eb513d46e1cea1bb",
+  "productionOperations": false,
+  "findingClosure": false
+}

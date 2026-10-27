@@ -1,0 +1,84 @@
+{
+  "status": "FAILED_NATIVE_GATE_CLASSIFIED_SOURCE_REPORTING_AND_FIXTURE_HOOK",
+  "reviewer": "Independent Tech Lead /root/b10_review",
+  "closedGate": {
+    "tests": 124,
+    "pass": 122,
+    "fail": 2,
+    "skipped": 0,
+    "cancelled": 0,
+    "durationMs": 1325133.377428,
+    "exitCode": 1,
+    "shutdown": "clean",
+    "logSha256": "058358b2a024c8bdbcdc7e6c44c4984daa878a82228c9a82131d8f825e0e75e3",
+    "resultSha256": "8f62c164703498b43f9a5b5e49dc6087610ddf9f1c0fc67782e854b469fa54b0"
+  },
+  "inputs": {
+    "captureSha256": "50442e7ca1a850636c55e56ac983be405de243b85bd0cf92a92eec2870932f20",
+    "count": 50,
+    "changed": 0,
+    "captureTiming": "Captured during the active gate after initial cases; approved before-run hashes are in accepted SDK/source handoffs.",
+    "sourceSha256": "2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e",
+    "fixtureSha256": "547c0d46984ebc4918dd9bdc608546e94879b921a0528403c514ac005dddc609"
+  },
+  "case61": {
+    "classification": "FIXTURE_INJECTION_MISS_NOT_PRODUCT_RED",
+    "assertion": "Missing expected rejection at fixture724; injected assertion not reached.",
+    "mechanism": "Store canonicalizes directory with realpath; fixture initial.path uses raw mkdtemp directory. Read-only local check confirms /var/folders prefix resolves to /private/var/folders. Exact raw/canonical string comparison prevents intended post-rename throw.",
+    "currentSourcePolicy": "Exact2c source awaits rename and propagates non-EEXIST error; no safe-success acknowledgement fallback observed or inferred.",
+    "requiredNext": "Canonicalize the exact target head path before hook; positively prove intended actual rename and injection before interpreting outcome. No source recovery-policy relaxation."
+  },
+  "case67": {
+    "classification": "VALID_EXECUTED_SOURCE_REPORTING_RED",
+    "assertion": "readEquivalents11 actual output versus13 independently observed in active replay; ERR_ASSERTION.",
+    "mechanism": "fullResult captures callback metrics before final postpublication readActive; final root+plan reads are charged to ctx budget but absent from returned snapshot.",
+    "trace": {
+      "bindBirthPlanAndInitialReceipt": 2,
+      "oldNamespaceQuery": 1,
+      "activeAdmissionRootPlanLastReceipt": 3,
+      "initialReadActive": 2,
+      "oneReplayReceipt": 1,
+      "callbackFinalReadActive": 2,
+      "reportedAtSnapshot": 11,
+      "postpublicationFinalReadActive": 2,
+      "actualChargedAndObserved": 13
+    },
+    "notActorPreflight": "In-process f.tool call, not coldSdkCall; no child preflight2 included. bindBirth reads occur before snapshot and are already included.",
+    "safetyLimit": "No demonstrated1536cap breach, hidden gRPC read or Firestore data write; meter itself charges/enforces final2 correctly.",
+    "requiredNext": "Permanent pre-fix business regression, refresh returned metrics after retaining final binding read, affected GREEN and independent review. Do not loosen observer equality or remove final read."
+  },
+  "sourceSecurityScope": "Previously reviewed purpose/custody/permission/clock boundaries remain same-hash evidence; overall native handoff blocked.",
+  "reviewBoundary": "Read-only source/log/SDK/path inspection; no application/fixture/actor/runtime/E/F/contract edit or additional test execution.",
+  "reportingTestsAndFixtureReadinessSupplement": {
+    "status": "ACCEPTED_REPORTING_RED_AND_READY_FIXTURE_NOT_METRIC_SOURCE_APPROVAL",
+    "handoffSha256": "524b3a1b1641a7824c76c4d6329fe267adf1bc0a884e54f86f9d1ff8216ea33a",
+    "testsOnlyPatchSha256": "5336e764de85536efd9123950161013d226ef73e18341d3c2519aea77f593217",
+    "testSha256": "fb751d6c977707f8366ae8098ce4db484090f575d73e15603c62e9020c295e0d",
+    "original150Preserved": true,
+    "parentBaseline": {
+      "tests": 6,
+      "pass": 2,
+      "fail": 4,
+      "skip": 0,
+      "cancelled": 0,
+      "logSha256": "e93b77029882c8e6ffac959dac1cb71ecfd040cff27cd8c2f00db8de952fe45b",
+      "classification": "Genuine numeric returned-read reporting failures; ordinary initial-apply controls pass."
+    },
+    "baselineState": "Root and immutable final2 source 2c7e remain unchanged. The authorized working copy advanced to a6a10122 after parent RED acceptance; the historical handoff is not a current freeze. No metric fix was reviewed or executed in this readiness supplement.",
+    "canonicalFixtureOnlySha256": "7d5604d6723bfca032ecfff454bb34b77eb14abeb62cad9f73b70a7b7edaeb38",
+    "combinedFixtureSha256": "48d326a0ff86772a5ae305c38fcc8adf26cda154dce31a2313018d16d8e227e4",
+    "fixtureInputs": {
+      "firebase_tests/firebase-emulators/editorial-audit.test.js": "cb4c6d0130631ab81ecf52ad8fc23ecb4018da6d1df6a29175e246ab856c6c4e",
+      "firebase_tests/firebase-emulators/editorial-comment-counts.test.js": "547c0d46984ebc4918dd9bdc608546e94879b921a0528403c514ac005dddc609"
+    },
+    "fixtureOutputs": {
+      "firebase_tests/firebase-emulators/editorial-audit.test.js": "6d1ef73fd3c76f7364aadf39b5b0cec85ddb4d5426a5e167d135a785fab9b3c4",
+      "firebase_tests/firebase-emulators/editorial-comment-counts.test.js": "dd2e8ae2aeb6140124421b4e97fcf4404986764982e5b086baf64a4a5d7f5a46"
+    },
+    "fixtureSyntaxAndApplyChecks": {
+      "exitCode": 0,
+      "originalAssertionsRetained": true
+    },
+    "nativeExecution": "The future 125-case native suite is unrun; no runtime PASS is claimed."
+  }
+}

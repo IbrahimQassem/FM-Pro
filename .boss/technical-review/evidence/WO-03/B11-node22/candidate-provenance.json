@@ -1,0 +1,149 @@
+{
+  "batch": "B11",
+  "tasks": [
+    "03-T09",
+    "03-T10",
+    "03-T11",
+    "03-T12",
+    "03-T13"
+  ],
+  "status": "candidate_node22_non_emulator_green_pending_actual_emulator_and_independent_review",
+  "recordedAt": "2026-10-26T18:23:52.057975+00:00",
+  "node": "v22.23.3",
+  "sourceSha256": {
+    "functions/lib/admin-user-count.js": "1b30bbb90e37ed83cf0622304eb11dbca966e46f8fea7ac2d1d90e289a9eb086",
+    "functions/test/admin-user-count.test.js": "0c0325f13f16d21d6593d297bc2d7ee298a90bb47fa035880de1723bf91bfab8",
+    "functions/index.js": "9fc086e98fd1e0c12265dfa36f96418536f8ecacd7c93995b165cc26e0d72714",
+    "web_admin/lib/user-count.ts": "ec89c2a4ead0c844bb242648bd2dc25cf2d8ccc4c77f8d3bf0fb260c39fcf0cd",
+    "web_admin/test/user-count.test.ts": "d76e737c39878c0bdbf5eb2763379e0c9d714afceb1a12844c4228370f4bc3c4",
+    "web_admin/components/admin/users-aggregate-view.tsx": "f54df8a5cf7b4a0778884f8b53b7792ef75368f30ffa15196f11ad9e43907875",
+    "web_admin/lib/admin-query.ts": "556fe049f7cf79b160b2d5688f16fe894bc289400e1dd8623584b367938ff91b",
+    "web_admin/lib/resource-pagination.ts": "afa7b53a6cf44150bea665669fe3ccb4d63eec553917fac45795975222b9b612",
+    "web_admin/lib/resource-filters.ts": "46c17de52d37ef96effdec62418c238b803faf47d08f19e41bef24f441002ee3",
+    "web_admin/test/resource-pagination.test.ts": "db44c1f61358f85288020bd5634d910991d2d7017762447b6b48b868663ae333",
+    "web_admin/test/content-pagination.emulator.test.ts": "3c310f2ea140eb2e849a17b3ed38f98b3697a4ebfc158d91cea8c57f55c228a2",
+    "web_admin/components/admin/admin-app.tsx": "c01d24e0817659ff734783b93c582a1660e643030166550c7d907ebd48e8fdb7",
+    "web_admin/lib/export-pages.ts": "8864b353b2e9d939c1267f26f0e3d026d8d00b0b0c04bee21cf869ac6f39d1da",
+    "web_admin/test/export-pages.test.ts": "61ae280f60fa2c0ad28b61e25eb77e49995694d59be9507126f5fd072e198eb7",
+    "web_admin/test/user-count.emulator.test.ts": "0d9360f3746594aab15485f1a4ab2e4d96da9c879e522faac49b72b49a3579eb"
+  },
+  "gates": [
+    {
+      "gate": "functions-lint",
+      "component": "functions",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "runtime": "v22.23.3",
+      "exitCode": 0,
+      "log": "/tmp/hudhud-b11-node22-evidence/functions-lint.log",
+      "sha256": "186e07968a1d721b70aa9f63cd56bf51401b887cbb68efa83831fa7f6ecaa817"
+    },
+    {
+      "gate": "functions-tests",
+      "component": "functions",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "runtime": "v22.23.3",
+      "exitCode": 0,
+      "log": "/tmp/hudhud-b11-node22-evidence/functions-tests.log",
+      "sha256": "a915bfd4d0626601cf0fc1f91d6dd3464bd8355787be61194aeccad7b3d79296"
+    },
+    {
+      "gate": "admin-tests",
+      "component": "web_admin",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "runtime": "v22.23.3",
+      "exitCode": 0,
+      "log": "/tmp/hudhud-b11-node22-evidence/admin-tests.log",
+      "sha256": "d66d958da2da4d2ac40901a1cd9131708e1c63f0e09fba32ac5f0474fac7ae20"
+    },
+    {
+      "gate": "admin-lint",
+      "component": "web_admin",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "runtime": "v22.23.3",
+      "exitCode": 0,
+      "log": "/tmp/hudhud-b11-node22-evidence/admin-lint.log",
+      "sha256": "9167d3e32f0d58e9d013805478882f8c38dbe20fdd6844d6df366fd7d66c09ac"
+    },
+    {
+      "gate": "admin-typecheck",
+      "component": "web_admin",
+      "command": [
+        "./node_modules/.bin/tsc",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "runtime": "v22.23.3",
+      "exitCode": 0,
+      "log": "/tmp/hudhud-b11-node22-evidence/admin-typecheck.log",
+      "sha256": "3c54c568f7df0f0391f71f65cb003591ecaa69fe34d71b85372d8bfed22a51f1"
+    },
+    {
+      "gate": "admin-build",
+      "component": "web_admin",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "runtime": "v22.23.3",
+      "exitCode": 0,
+      "log": "/tmp/hudhud-b11-node22-evidence/admin-build.log",
+      "sha256": "93f0fb53e6a9be75e860a320829fb2373eff267c2ff7109324bfa1e89a833108"
+    }
+  ],
+  "testCounts": {
+    "functions-tests": {
+      "tests": 259,
+      "pass": 259,
+      "fail": 0,
+      "skipped": 0
+    },
+    "admin-tests": {
+      "tests": 129,
+      "pass": 106,
+      "fail": 0,
+      "skipped": 23
+    }
+  },
+  "skipsHaveNoAcceptanceCredit": true,
+  "baseline": "Existing parent-owned immutable M03 RED provenance records eight valid intended child business failures under Node22.",
+  "supersededRuntimeEvidence": {
+    "directory": "/tmp/hudhud-b11-final-evidence",
+    "runtime": "v26.6.0",
+    "acceptedForMandatoryGates": false
+  },
+  "qualityFailuresDuringImplementation": [
+    "Initial lint7 failures corrected with character validation, event/snapshot timestamps and cancellation state.",
+    "Export lint2 React compiler failures corrected by ordering callback after memo and using page timestamp.",
+    "Wrong Node26 runtime identified by provenance and all six mandatory gates rerun successfully under Node22."
+  ],
+  "deferredHarnessPatch": "/tmp/hudhud-b11-count-harness.patch; parent I applies only after M03-T16-FIXTURE prerequisites.",
+  "findings": {
+    "R06": "OPEN",
+    "R07": "OPEN"
+  },
+  "unverified": [
+    "Actual demo emulator callable and pagination/security gates pending parent prerequisites/runtime",
+    "Independent implementation review",
+    "Browser UI acceptance including downloads/pause/resume",
+    "B15 full integrated worker acceptance",
+    "Final full Flutter and physical-device acceptance under master plan"
+  ],
+  "productionOperationsPerformed": false,
+  "sourceWriter": "Parent I only; child supplied patches."
+}

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>C04-TIMEZONE native item receipt contract review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#c04-timezone-native-item-receipt-contract-review">C04-TIMEZONE native item receipt contract review</a></li></ul>
+    </aside>
+    <main>
+      <h1>C04-TIMEZONE native item receipt contract review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B16-native-receipts-contract-review.md</div>
+        <div>Generated: 2026-10-26T22:36:56.374Z</div>
+      </div>
+      <h1 id="c04-timezone-native-item-receipt-contract-review">C04-TIMEZONE native item receipt contract review</h1>
+<p>Status: <strong>APPROVED docs-only technical amendment; live integration remains held.</strong> This resolves the precise native identity blocker in the B16 readiness preflight. It does not start B16, accept implementation or authorize operations.</p>
+<p>Independent reviewer: <code>/root/b10_review</code>. Proposal author: QA b09. Reviewed <code>/tmp/hudhud-b16-native-receipts-contract.patch</code>, SHA-256 <code>9ff895a5271c6c52a04ef158d38c55f9e7dd6e0a670c691e506a1a57e5929e3f</code>, and its input metadata. All current input and proposed document fingerprints match; <code>git apply --check</code> passes. The later B15 appendices in all three documents remain byte-identical. No tests, source edits, emulator, Flutter or production operation were performed.</p>
+<p>The correction is sound for the single V2 occurrence target per item:</p>
+<ul><li><code>targetChanged</code> distinguishes a genuine authorized changed projection from a preserved/no-op target. The immutable item receipt commits atomically with a changed target and job checkpoint. Its native snapshot updateTime proves the changed update version, and proves createTime too for a newly created target.</li><li>Stored targetCreateTime/targetUpdateTime describe exact pre-write observations. Existing target create identity remains literal. Preserved target updateTime remains its observed version even when the item receipt is later; proven absent no-op retains null/null. Unknown metadata cannot be represented as proven absence. Identical-data requests cannot manufacture a changed receipt.</li><li><code>recordedAt</code> is operational, and no REQUEST_TIME/serverTimestamp field impersonates exact native metadata. Postcommit readback, unknown-ACK recovery and committed-prefix verification use the original immutable receipt/native target proof. Equal-value ABA, delete/recreate and mismatched or missing proof remain conflict/held, without repeating uncertain writes or rewriting receipts.</li><li>Projection exclusion is restricted to action-defined newly generated operational server-timestamp fields. Copied carry clocks, statuses, attempts, lease/backoff/expiry and compatibility evidence remain hashed; no caller-selected ignore list is allowed. V1/source/stamp records stay read-only in this tool.</li><li>Conditional recovery preserves fresh source/backup/native CAS and non-erasing held rollback. No-op entries have no owned target mutation to undo. SENT/UNKNOWN suppression, ambiguous held evidence, original carry clocks and retry policy remain unchanged. Absence proves only observed absence under verified isolation, not arbitrary unfenced history.</li></ul>
+<p>The patch preserves offset/local-date policy, exact key/fingerprint tuples, legacy decision matrix, shared sender defaults, private namespaces, 25-entry bounds and production refusal. No collection, service, dependency, generic receipt framework, task, wave or owner change is introduced. The original 65/16/17/75/87 registry counts are unchanged.</p>
+<p>Parent I must integrate serially only after the current count source/contract freeze. At that integration, pending-review wording may become accepted technical contract with this review reference; no additional semantic change is approved. Record final integrated hashes. Future source gates must verify finer native precision, unchanged/no-op targets, preserved clocks/evidence, postcommit lost ACK, ABA/recreation and non-erasing recovery with actual regression assertions and applicable SDK evidence. This docs-only review supplies no RED or GREEN test credit. Full B16/B15 and all findings remain OPEN.</p>
+<p>Exact reviewed input/candidate fingerprints are recorded in <code>evidence/WO-04/B16-native-receipts-contract-review-provenance.json</code>.</p>
+    </main>
+  </div>
+</body>
+</html>

@@ -38,3 +38,8 @@ test('canonical subscription opt-out overrides newer legacy enablement',()=>{
  assert.deepEqual(results,[{stationId:'s',isActive:false,notificationsEnabled:false}]);
  assert.deepEqual(resolveFollows([doc('old',base),doc('new',{...base,notificationsEnabled:false,updatedAt:{toMillis:()=>100}})])[0].notificationsEnabled,false);
 });
+test('program projection exposes canonical episode totals without using loaded page length',()=>{
+ const mapped=programFromSnapshot(doc('p',{...program,isFeatured:true,stats:{episodesCount:10000}}),'s');
+ assert.equal(mapped.isFeatured,true);assert.equal(mapped.episodesCount,10000);
+ for(const value of [-1,Infinity,'100',1.5])assert.equal(programFromSnapshot(doc('p',{...program,stats:{episodesCount:value}}),'s').episodesCount,0);
+});

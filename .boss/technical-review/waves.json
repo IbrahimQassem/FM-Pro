@@ -8,10 +8,11 @@
     "head": "9fae3248aadecaa53198a5fb9f06576fdcc182cf",
     "branch": "hudhud_fm",
     "trackedDiffEmpty": true,
-    "reviewSha256": "875d41c459743b17d48343b74fdec7bf436feb9e6d6ed30b85d6c917205164d8"
+    "reviewSha256": "875d41c459743b17d48343b74fdec7bf436feb9e6d6ed30b85d6c917205164d8",
+    "classification": "historical_review_planning_baseline"
   },
   "runtimeRequirement": "Validated Node22 in PATH; default Node26 is not accepted. Installed Node22.23.3 was located. Refresh toolchain/HEAD/status and file inventory again before authorized execution.",
-  "executionPolicy": "Planning metadata only. Installed Boss normalizes argv; custom batches, dependencies, locks and checkpoints require coordinator enforcement and are not asserted to be automatically scheduled by Boss. No wave command executed during planning.",
+  "executionPolicy": "Authorized implementation of approved package. Coordinator enforces dependencies/shared-file/runtime locks; Boss runtime records events/artifacts. No productiondata/migration/deployment/protectedmerge authorization.",
   "tasks": [
     {
       "id": "01-T01",
@@ -24,7 +25,9 @@
       "state": "pending",
       "assignment": "B01",
       "assignmentKind": "batch",
-      "dependsOn": []
+      "dependsOn": [],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-01-validation.md; source-hash/input revalidation required before final integration acceptance"
     },
     {
       "id": "01-T02",
@@ -39,7 +42,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "01-T01"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-01-validation.md; source-hash/input revalidation required before final integration acceptance"
     },
     {
       "id": "01-T03",
@@ -56,7 +61,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "01-T02"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-01-validation.md; source-hash/input revalidation required before final integration acceptance"
     },
     {
       "id": "01-T04",
@@ -70,7 +77,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "01-T03"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-01-validation.md; source-hash/input revalidation required before final integration acceptance"
     },
     {
       "id": "01-T05",
@@ -78,6 +87,7 @@
         "web_admin/lib/delete-episode.ts",
         "web_admin/lib/save-content.ts",
         "web_admin/lib/station-private.ts",
+        "web_admin/test/location-relations.emulator.test.ts",
         "web_admin/test/save-content.emulator.test.ts",
         "web_admin/test/station-private.test.ts"
       ],
@@ -87,7 +97,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "01-T04"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-01-validation.md; B03-completion-admin-emulator20/20, independent48/48; negativebrowserchecks pendingfinalQA"
     },
     {
       "id": "01-T06",
@@ -104,7 +116,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "01-T05"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-01-validation.md; B03-completion-admin-emulator20/20, independent48/48; negativebrowserchecks pendingfinalQA"
     },
     {
       "id": "01-T07",
@@ -121,7 +135,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "01-T03"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-01-validation.md; source-hash/input revalidation required before final integration acceptance"
     },
     {
       "id": "01-T08",
@@ -138,7 +154,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "01-T07"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-01-validation.md; source-hash/input revalidation required before final integration acceptance"
     },
     {
       "id": "01-T09",
@@ -157,7 +175,9 @@
       "dependsOn": [
         "01-T01",
         "01-T08"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-01-validation.md; source-hash/input revalidation required before final integration acceptance"
     },
     {
       "id": "01-T09a",
@@ -171,7 +191,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "01-T09"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-01-validation.md; source-hash/input revalidation required before final integration acceptance"
     },
     {
       "id": "01-T10",
@@ -190,7 +212,9 @@
         "01-T06",
         "01-T09",
         "01-T09a"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-01-validation.md; B03-completion-admin-emulator20/20, independent48/48; negativebrowserchecks pendingfinalQA"
     },
     {
       "id": "01-T11",
@@ -206,7 +230,9 @@
         "01-T04",
         "01-T09a",
         "01-T10"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-01-validation.md; B03-completion-admin-emulator20/20, independent48/48; negativebrowserchecks pendingfinalQA"
     },
     {
       "id": "01-T12",
@@ -222,7 +248,9 @@
       "dependsOn": [
         "01-T08",
         "01-T11"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-01-validation.md B06 handoff; independent46guards+actual10emulator with finalprovenance; productionreadiness pending"
     },
     {
       "id": "01-T13",
@@ -237,7 +265,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "01-T12"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-01-validation.md B06 handoff; independent46guards+actual10emulator with finalprovenance; productionreadiness pending"
     },
     {
       "id": "01-T14",
@@ -264,7 +294,8 @@
         "01-T13",
         "01-T09a",
         "04-T08"
-      ]
+      ],
+      "implementationState": "in_progress"
     },
     {
       "id": "01-T15",
@@ -277,7 +308,8 @@
       "assignmentKind": "manual_checkpoint",
       "dependsOn": [
         "01-T14"
-      ]
+      ],
+      "implementationState": "not_started"
     },
     {
       "id": "01-T16",
@@ -291,7 +323,8 @@
       "assignmentKind": "manual_checkpoint",
       "dependsOn": [
         "01-T15"
-      ]
+      ],
+      "implementationState": "not_started"
     },
     {
       "id": "01-T17",
@@ -305,7 +338,8 @@
       "assignmentKind": "manual_checkpoint",
       "dependsOn": [
         "01-T16"
-      ]
+      ],
+      "implementationState": "not_started"
     },
     {
       "id": "02-T01",
@@ -316,7 +350,9 @@
       "state": "pending",
       "assignment": "B07",
       "assignmentKind": "batch",
-      "dependsOn": []
+      "dependsOn": [],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-02.md B07 progress; B07-provenance.json; final60player/independent11realstack; finalfullFlutter/devicepending"
     },
     {
       "id": "02-T02",
@@ -330,7 +366,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "02-T01"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-02.md B07 progress; B07-provenance.json; final60player/independent11realstack; finalfullFlutter/devicepending"
     },
     {
       "id": "02-T03",
@@ -344,7 +382,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "02-T02"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-02.md B07 progress; B07-provenance.json; final60player/independent11realstack; finalfullFlutter/devicepending"
     },
     {
       "id": "02-T04",
@@ -359,7 +399,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "02-T03"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "WO-02.md B07 progress; B07-provenance.json; final60player/independent11realstack; finalfullFlutter/devicepending"
     },
     {
       "id": "02-T05",
@@ -370,7 +412,9 @@
       "state": "pending",
       "assignment": "B08",
       "assignmentKind": "batch",
-      "dependsOn": []
+      "dependsOn": [],
+      "implementationState": "verified_interim",
+      "evidenceReference": "evidence/WO-02/B08-provenance.json; independent b08_review approved 16 hashes and 51 tests; integration cutpoint full Flutter355 and analysis pass; final gates pending"
     },
     {
       "id": "02-T06",
@@ -386,7 +430,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "02-T05"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "evidence/WO-02/B08-provenance.json; independent b08_review approved 16 hashes and 51 tests; integration cutpoint full Flutter355 and analysis pass; final gates pending"
     },
     {
       "id": "02-T07",
@@ -403,7 +449,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "02-T06"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "evidence/WO-02/B08-provenance.json; independent b08_review approved 16 hashes and 51 tests; integration cutpoint full Flutter355 and analysis pass; final gates pending"
     },
     {
       "id": "02-T08",
@@ -420,7 +468,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "02-T07"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "evidence/WO-02/B08-provenance.json; independent b08_review approved 16 hashes and 51 tests; integration cutpoint full Flutter355 and analysis pass; final gates pending"
     },
     {
       "id": "02-T09",
@@ -433,7 +483,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "02-T08"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "evidence/WO-02/B08-provenance.json; independent b08_review approved 16 hashes and 51 tests; integration cutpoint full Flutter355 and analysis pass; final gates pending"
     },
     {
       "id": "02-T10",
@@ -450,7 +502,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "02-T09"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "evidence/WO-02/B08-provenance.json; independent b08_review approved 16 hashes and 51 tests; integration cutpoint full Flutter355 and analysis pass; final gates pending"
     },
     {
       "id": "02-T11",
@@ -465,7 +519,8 @@
       "dependsOn": [
         "02-T04",
         "02-T10"
-      ]
+      ],
+      "implementationState": "not_started"
     },
     {
       "id": "02-T12",
@@ -478,7 +533,8 @@
       "assignmentKind": "manual_checkpoint",
       "dependsOn": [
         "02-T11"
-      ]
+      ],
+      "implementationState": "not_started"
     },
     {
       "id": "02-T13",
@@ -492,7 +548,8 @@
       "assignmentKind": "manual_checkpoint",
       "dependsOn": [
         "02-T12"
-      ]
+      ],
+      "implementationState": "not_started"
     },
     {
       "id": "03-T01",
@@ -507,7 +564,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "C01"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B01-contract-review.md; independent scoped approvals, no production acceptance"
     },
     {
       "id": "03-T02",
@@ -523,7 +582,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "03-T01"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B10-review.md; evidence/WO-03/B10-provenance.json; B10-emulator.log47/47; guard-only no business RED credit; production/index readiness pending"
     },
     {
       "id": "03-T03",
@@ -539,7 +600,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "03-T01"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B09-review.md appended approval;25source/7evidencehashes;397fullFlutter/89independent+2probesGREEN"
     },
     {
       "id": "03-T04",
@@ -555,7 +618,9 @@
       "dependsOn": [
         "03-T02",
         "03-T03"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B09-review.md appended approval;25source/7evidencehashes;397fullFlutter/89independent+2probesGREEN"
     },
     {
       "id": "03-T05",
@@ -572,7 +637,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "03-T04"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B09-review.md appended approval;25source/7evidencehashes;397fullFlutter/89independent+2probesGREEN"
     },
     {
       "id": "03-T06",
@@ -590,7 +657,9 @@
       "dependsOn": [
         "03-T05",
         "03-T08"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B09-review.md appended approval;25source/7evidencehashes;397fullFlutter/89independent+2probesGREEN"
     },
     {
       "id": "03-T07",
@@ -606,7 +675,9 @@
       "dependsOn": [
         "03-T04",
         "03-T06"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B09-review.md appended approval;25source/7evidencehashes;397fullFlutter/89independent+2probesGREEN"
     },
     {
       "id": "03-T08",
@@ -623,7 +694,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "03-T01"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B09-review.md appended approval;25source/7evidencehashes;397fullFlutter/89independent+2probesGREEN"
     },
     {
       "id": "03-T09",
@@ -638,7 +711,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "03-T01"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B11-review.md appended approval;16hashes;20independentfocused/41actualE/115adminunitGREEN; Node26excluded; fullworker/manualpending"
     },
     {
       "id": "03-T10",
@@ -653,7 +728,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "03-T09"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B11-review.md appended approval;16hashes;20independentfocused/41actualE/115adminunitGREEN; Node26excluded; fullworker/manualpending"
     },
     {
       "id": "03-T11",
@@ -671,7 +748,9 @@
       "dependsOn": [
         "03-T01",
         "03-T02"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B11-review.md appended approval;16hashes;20independentfocused/41actualE/115adminunitGREEN; Node26excluded; fullworker/manualpending"
     },
     {
       "id": "03-T12",
@@ -689,7 +768,9 @@
         "03-T10",
         "03-T11",
         "01-T10"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B11-review.md appended approval;16hashes;20independentfocused/41actualE/115adminunitGREEN; Node26excluded; fullworker/manualpending"
     },
     {
       "id": "03-T13",
@@ -707,7 +788,9 @@
       "dependsOn": [
         "03-T12",
         "01-T06"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B11-review.md appended approval;16hashes;20independentfocused/41actualE/115adminunitGREEN; Node26excluded; fullworker/manualpending"
     },
     {
       "id": "03-T14",
@@ -724,7 +807,9 @@
       "dependsOn": [
         "03-T01",
         "03-T02"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B12-review.md appended correction approval;83independentfulltests/raw2RED/native17typeproof;finalmanual/integrationpending"
     },
     {
       "id": "03-T15",
@@ -741,7 +826,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "03-T14"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B12-review.md appended correction approval;83independentfulltests/raw2RED/native17typeproof;finalmanual/integrationpending"
     },
     {
       "id": "03-T16",
@@ -762,7 +849,8 @@
         "03-T14",
         "M03-T16-FIXTURE",
         "04-T08"
-      ]
+      ],
+      "implementationState": "in_progress"
     },
     {
       "id": "03-T17",
@@ -778,7 +866,8 @@
         "03-T13",
         "03-T15",
         "03-T16"
-      ]
+      ],
+      "implementationState": "not_started"
     },
     {
       "id": "03-T18",
@@ -792,7 +881,8 @@
       "dependsOn": [
         "03-T17",
         "04-T08"
-      ]
+      ],
+      "implementationState": "not_started"
     },
     {
       "id": "04-T01",
@@ -813,11 +903,14 @@
         "C04-HEALTH",
         "C04-COUNTS",
         "C04-TIMEZONE"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B01-contract-review.md; independent scoped approvals, no production acceptance"
     },
     {
       "id": "04-T02",
       "writeSet": [
+        "firebase_tests/firebase-emulators/editorial-rss.test.js",
         "functions/lib/admin-content-relations.js",
         "functions/lib/rss-ingestion.js",
         "functions/test/admin-content.test.js",
@@ -830,7 +923,9 @@
       "dependsOn": [
         "C04-RSS",
         "01-T03"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B13-review.md appended independent approval; B13-review-revision-provenance.json;40guard/73actualGREEN; fourreviewRED; no production or R09 closure"
     },
     {
       "id": "04-T03",
@@ -845,7 +940,9 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "04-T02"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "B13-review.md appended independent approval; B13-review-revision-provenance.json;40guard/73actualGREEN; fourreviewRED; no production or R09 closure"
     },
     {
       "id": "04-T04",
@@ -859,7 +956,8 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "C04-HEALTH"
-      ]
+      ],
+      "implementationState": "in_progress"
     },
     {
       "id": "04-T05",
@@ -877,15 +975,18 @@
         "04-T04",
         "01-T09",
         "03-T09"
-      ]
+      ],
+      "implementationState": "in_progress"
     },
     {
       "id": "04-T06",
       "writeSet": [
+        "functions/lib/comment-count-maintenance.js",
         "functions/lib/comment-counts.js",
         "functions/lib/comment-moderation.js",
         "functions/test/comment-counts.test.js",
-        "functions/test/comment-moderation.test.js"
+        "functions/test/comment-moderation.test.js",
+        "functions/test/support/comment-count-fixture.js"
       ],
       "source": "WO-04.md",
       "state": "pending",
@@ -893,7 +994,8 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "C04-COUNTS"
-      ]
+      ],
+      "implementationState": "in_progress"
     },
     {
       "id": "04-T07",
@@ -902,7 +1004,13 @@
         "functions/index.js",
         "functions/lib/admin-content-delete.js",
         "functions/lib/admin-report-review.js",
-        "functions/test/admin-report-review.test.js"
+        "functions/lib/editorial-audit.js",
+        "functions/lib/rss-ingestion.js",
+        "functions/test/admin-content-delete.test.js",
+        "functions/test/admin-report-review.test.js",
+        "functions/test/comment-moderation.test.js",
+        "functions/test/editorial-audit.test.js",
+        "functions/test/rss-ingestion.test.js"
       ],
       "source": "WO-04.md",
       "state": "pending",
@@ -914,14 +1022,29 @@
         "01-T03",
         "03-T09",
         "M03-T16-FIXTURE"
-      ]
+      ],
+      "implementationState": "in_progress"
     },
     {
       "id": "04-T08",
       "writeSet": [
+        "firebase_tests/firebase-emulators/editorial-audit.test.js",
         "firebase_tests/firebase-emulators/editorial-comment-counts.test.js",
+        "firebase_tests/firebase-emulators/editorial-delete.test.js",
+        "firebase_tests/firebase-emulators/editorial-identity-backfill.test.js",
+        "firebase_tests/firebase-emulators/editorial-images.test.js",
+        "firebase_tests/firebase-emulators/editorial-regional-migration.test.js",
+        "firebase_tests/firebase-emulators/editorial-rss.test.js",
+        "firebase_tests/support/comment-count-fixtures.mjs",
+        "package.json",
         "tool/run-admin-emulator-tests.mjs",
-        "web_admin/test/pl03-moderation.emulator.test.ts"
+        "tool/run-count-emulator-tests.mjs",
+        "web_admin/test/episode-deletion.emulator.test.ts",
+        "web_admin/test/moderation-authorization.emulator.test.ts",
+        "web_admin/test/pl03-moderation.emulator.test.ts",
+        "web_admin/test/program-transfer.emulator.test.ts",
+        "web_admin/test/review-report.emulator.test.ts",
+        "web_admin/test/support/callable-emulator.ts"
       ],
       "source": "WO-04.md",
       "state": "pending",
@@ -929,15 +1052,28 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "04-T07",
-        "M03-T16-FIXTURE"
-      ]
+        "M03-T16-FIXTURE",
+        "M04-T12-FENCE-READY",
+        "M04-T09-BOOTSTRAP-READY"
+      ],
+      "implementationState": "in_progress",
+      "scopeRefinement": "Fixture/bootstrap/isolation compatibility attachments required by the accepted root-global baseline protocol. Original65 IDs retained; expanded test-support write set is explicit, not hidden behind the original five-file planning estimate."
     },
     {
       "id": "04-T09",
       "writeSet": [
         "docs/operations/background-consistency-migrations.md",
+        "tool/backfill_content_pagination.mjs",
+        "tool/firebase_seed/migrate_comment_status.mjs",
+        "tool/firebase_seed/seed.mjs",
+        "tool/import_programs_and_episodes.mjs",
         "tool/reconcile_comment_counts.mjs",
-        "tool/test/reconcile_comment_counts.test.mjs"
+        "tool/repair_rss_urls.mjs",
+        "tool/seed-admin-preview.mjs",
+        "tool/test/comment-count-producers.test.mjs",
+        "tool/test/content_pagination_migration.test.mjs",
+        "tool/test/reconcile_comment_counts.test.mjs",
+        "tool/test/repair_rss_urls.test.mjs"
       ],
       "source": "WO-04.md",
       "state": "pending",
@@ -947,12 +1083,37 @@
         "04-T06",
         "04-T07",
         "04-T08",
-        "04-T03"
-      ]
+        "04-T03",
+        "M04-T12-FENCE-READY"
+      ],
+      "implementationState": "in_progress",
+      "testAttachments": {
+        "existingRepairRegressions": [
+          "tool/test/repair_rss_urls.test.mjs",
+          "tool/test/content_pagination_migration.test.mjs"
+        ],
+        "newProducerRegressions": "tool/test/comment-count-producers.test.mjs",
+        "coverage": {
+          "tool/test/repair_rss_urls.test.mjs": [
+            "tool/repair_rss_urls.mjs"
+          ],
+          "tool/test/content_pagination_migration.test.mjs": [
+            "tool/backfill_content_pagination.mjs"
+          ],
+          "tool/test/comment-count-producers.test.mjs": [
+            "tool/import_programs_and_episodes.mjs",
+            "tool/firebase_seed/seed.mjs",
+            "tool/firebase_seed/migrate_comment_status.mjs",
+            "tool/seed-admin-preview.mjs"
+          ]
+        },
+        "policy": "Permanent behavioral RED targets existing unsafe producer writes before fixes. A behavior-preserving import-safe entrypoint extraction is setup, not RED. Missing APIs/modules, skipped cases and environment failures never count. Source implementation still requires coordinator release and reviewed nonempty contracts."
+      }
     },
     {
       "id": "04-T10",
       "writeSet": [
+        "functions/lib/notification-delivery.js",
         "functions/lib/program-notifications.js",
         "functions/test/notification-delivery.test.js",
         "functions/test/program-notifications.test.js"
@@ -963,12 +1124,14 @@
       "assignmentKind": "batch",
       "dependsOn": [
         "C04-TIMEZONE"
-      ]
+      ],
+      "implementationState": "not_started"
     },
     {
       "id": "04-T11",
       "writeSet": [
         "docs/operations/background-consistency-migrations.md",
+        "functions/lib/program-notifications.js",
         "tool/migrate_program_notification_dates.mjs",
         "tool/test/migrate_program_notification_dates.test.mjs"
       ],
@@ -979,7 +1142,14 @@
       "dependsOn": [
         "04-T10",
         "04-T09"
-      ]
+      ],
+      "implementationState": "not_started",
+      "compatibilityAttachment": {
+        "path": "functions/lib/program-notifications.js",
+        "integrationOwner": "I",
+        "scope": "Keyword-only exports of existing pure normalizedSchedule, localTime, legacyDates and fingerprint; bodies/defaults/index/scheduler behavior unchanged. Reuse canonical runtime logic in the timezone tool without duplication.",
+        "order": "04-T10 reviewed/integrated source before 04-T11 attachment; I alone applies specialist patch under path lock."
+      }
     },
     {
       "id": "04-T12",
@@ -1000,7 +1170,8 @@
         "04-T11",
         "03-T02",
         "03-T16"
-      ]
+      ],
+      "implementationState": "not_started"
     },
     {
       "id": "04-T13",
@@ -1023,7 +1194,8 @@
         "04-T10",
         "04-T11",
         "04-T12"
-      ]
+      ],
+      "implementationState": "not_started"
     },
     {
       "id": "04-T14",
@@ -1036,7 +1208,8 @@
       "assignmentKind": "manual_checkpoint",
       "dependsOn": [
         "04-T13"
-      ]
+      ],
+      "implementationState": "not_started"
     },
     {
       "id": "04-T15",
@@ -1050,7 +1223,8 @@
       "assignmentKind": "manual_checkpoint",
       "dependsOn": [
         "04-T14"
-      ]
+      ],
+      "implementationState": "not_started"
     },
     {
       "id": "04-T16",
@@ -1064,7 +1238,8 @@
       "assignmentKind": "manual_checkpoint",
       "dependsOn": [
         "04-T15"
-      ]
+      ],
+      "implementationState": "not_started"
     }
   ],
   "batches": [
@@ -1148,6 +1323,7 @@
         "web_admin/lib/station-private.ts",
         "web_admin/test/content-form.test.ts",
         "web_admin/test/export-excel.test.ts",
+        "web_admin/test/location-relations.emulator.test.ts",
         "web_admin/test/resource-filters.test.ts",
         "web_admin/test/save-content.emulator.test.ts",
         "web_admin/test/station-private.test.ts",
@@ -1228,7 +1404,8 @@
         "tool/migrate_station_privacy.mjs",
         "tool/test/migrate_station_privacy.test.mjs"
       ],
-      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass."
+      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass.",
+      "implementationState": "verified_interim"
     },
     {
       "id": "B07",
@@ -1251,7 +1428,8 @@
         "test/features/player/presentation/now_playing_sheet_test.dart",
         "test/features/player/presentation/station_player_controller_test.dart"
       ],
-      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass."
+      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass.",
+      "implementationState": "verified_interim"
     },
     {
       "id": "B08",
@@ -1286,7 +1464,8 @@
         "test/features/comments/presentation/episode_comments_screen_test.dart",
         "test/features/favorites/presentation/favorites_controller_test.dart"
       ],
-      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass."
+      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass.",
+      "implementationState": "verified_interim"
     },
     {
       "id": "B09",
@@ -1334,7 +1513,8 @@
         "test/features/station_details/presentation/station_details_view_test.dart",
         "test/support/development_fixtures.dart"
       ],
-      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass."
+      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass.",
+      "implementationState": "verified_interim"
     },
     {
       "id": "B10",
@@ -1354,7 +1534,8 @@
         "tool/backfill_content_pagination.mjs",
         "tool/test/content_pagination_migration.test.mjs"
       ],
-      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass."
+      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass.",
+      "implementationState": "verified_interim"
     },
     {
       "id": "B11",
@@ -1399,7 +1580,8 @@
       "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass.",
       "requiresMilestones": [
         "M03-T16-RED-READY"
-      ]
+      ],
+      "implementationState": "verified_interim"
     },
     {
       "id": "B12",
@@ -1427,7 +1609,8 @@
         "web_hudhud/test/preview.html",
         "web_hudhud/test/preview.tsx"
       ],
-      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass."
+      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass.",
+      "implementationState": "verified_interim"
     },
     {
       "id": "B13",
@@ -1446,6 +1629,7 @@
       "status": "pending",
       "writeSet": [
         "docs/operations/background-consistency-migrations.md",
+        "firebase_tests/firebase-emulators/editorial-rss.test.js",
         "functions/lib/admin-content-relations.js",
         "functions/lib/rss-ingestion.js",
         "functions/test/admin-content.test.js",
@@ -1453,7 +1637,8 @@
         "tool/repair_rss_urls.mjs",
         "tool/test/repair_rss_urls.test.mjs"
       ],
-      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass."
+      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass.",
+      "implementationState": "verified_interim"
     },
     {
       "id": "B14",
@@ -1477,7 +1662,8 @@
         "functions/test/stream-health-progress.test.js",
         "functions/test/stream-health.test.js"
       ],
-      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass."
+      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass.",
+      "implementationState": "in_progress"
     },
     {
       "id": "B15",
@@ -1506,27 +1692,58 @@
       "writeSet": [
         "docs/operations/background-consistency-migrations.md",
         "firebase_tests/firebase-emulators/account-deletion.test.js",
+        "firebase_tests/firebase-emulators/editorial-audit.test.js",
         "firebase_tests/firebase-emulators/editorial-comment-counts.test.js",
+        "firebase_tests/firebase-emulators/editorial-delete.test.js",
+        "firebase_tests/firebase-emulators/editorial-identity-backfill.test.js",
+        "firebase_tests/firebase-emulators/editorial-images.test.js",
+        "firebase_tests/firebase-emulators/editorial-regional-migration.test.js",
+        "firebase_tests/firebase-emulators/editorial-rss.test.js",
         "firebase_tests/firebase-emulators/station-privacy.test.js",
         "firebase_tests/firebase-rules/firestore.rules.test.js",
+        "firebase_tests/support/comment-count-fixtures.mjs",
         "functions/index.js",
         "functions/lib/admin-content-delete.js",
         "functions/lib/admin-report-review.js",
+        "functions/lib/comment-count-maintenance.js",
         "functions/lib/comment-counts.js",
         "functions/lib/comment-moderation.js",
+        "functions/lib/editorial-audit.js",
+        "functions/lib/rss-ingestion.js",
+        "functions/test/admin-content-delete.test.js",
         "functions/test/admin-report-review.test.js",
         "functions/test/comment-counts.test.js",
         "functions/test/comment-moderation.test.js",
+        "functions/test/editorial-audit.test.js",
+        "functions/test/rss-ingestion.test.js",
+        "functions/test/support/comment-count-fixture.js",
+        "package.json",
+        "tool/backfill_content_pagination.mjs",
+        "tool/firebase_seed/migrate_comment_status.mjs",
+        "tool/firebase_seed/seed.mjs",
+        "tool/import_programs_and_episodes.mjs",
         "tool/reconcile_comment_counts.mjs",
+        "tool/repair_rss_urls.mjs",
         "tool/run-admin-emulator-tests.mjs",
+        "tool/run-count-emulator-tests.mjs",
+        "tool/seed-admin-preview.mjs",
+        "tool/test/comment-count-producers.test.mjs",
+        "tool/test/content_pagination_migration.test.mjs",
         "tool/test/reconcile_comment_counts.test.mjs",
+        "tool/test/repair_rss_urls.test.mjs",
         "web_admin/test/batch-import.emulator.test.ts",
         "web_admin/test/content-pagination.emulator.test.ts",
+        "web_admin/test/episode-deletion.emulator.test.ts",
+        "web_admin/test/moderation-authorization.emulator.test.ts",
         "web_admin/test/pl03-moderation.emulator.test.ts",
+        "web_admin/test/program-transfer.emulator.test.ts",
+        "web_admin/test/review-report.emulator.test.ts",
         "web_admin/test/save-content.emulator.test.ts",
+        "web_admin/test/support/callable-emulator.ts",
         "web_admin/test/user-count.emulator.test.ts"
       ],
-      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass."
+      "completionPolicy": "Local checks enable ready-for-review only. Every subtask remains incomplete until relevant GREEN, independent review and exact-candidate integration checks pass.",
+      "implementationState": "in_progress"
     },
     {
       "id": "B16",
@@ -1555,6 +1772,7 @@
         "firebase_tests/firebase-rules/firestore.rules.test.js",
         "firestore.indexes.json",
         "firestore.rules",
+        "functions/lib/notification-delivery.js",
         "functions/lib/program-notifications.js",
         "functions/test/notification-delivery.test.js",
         "functions/test/program-notifications.test.js",
@@ -1579,7 +1797,8 @@
       "dependsOn": [
         "03-T01"
       ],
-      "kind": "approved_contract"
+      "kind": "approved_contract",
+      "implementationState": "independently_approved_scoped_handoff"
     },
     {
       "id": "C04-RSS",
@@ -1589,7 +1808,8 @@
         "C03"
       ],
       "kind": "independently_approved_scoped_output",
-      "note": "Output readiness precedes completion of its multi-output producer task; no edge from whole 04-T01 completion."
+      "note": "Output readiness precedes completion of its multi-output producer task; no edge from whole 04-T01 completion.",
+      "implementationState": "independently_approved_scoped_handoff"
     },
     {
       "id": "C04-HEALTH",
@@ -1599,7 +1819,8 @@
         "C03"
       ],
       "kind": "independently_approved_scoped_output",
-      "note": "Output readiness precedes completion of its multi-output producer task; no edge from whole 04-T01 completion."
+      "note": "Output readiness precedes completion of its multi-output producer task; no edge from whole 04-T01 completion.",
+      "implementationState": "independently_approved_scoped_handoff"
     },
     {
       "id": "C04-COUNTS",
@@ -1609,7 +1830,8 @@
         "C03"
       ],
       "kind": "independently_approved_scoped_output",
-      "note": "Output readiness precedes completion of its multi-output producer task; no edge from whole 04-T01 completion."
+      "note": "Output readiness precedes completion of its multi-output producer task; no edge from whole 04-T01 completion.",
+      "implementationState": "independently_approved_scoped_handoff"
     },
     {
       "id": "C04-TIMEZONE",
@@ -1619,7 +1841,8 @@
         "C03"
       ],
       "kind": "independently_approved_scoped_output",
-      "note": "Output readiness precedes completion of its multi-output producer task; no edge from whole 04-T01 completion."
+      "note": "Output readiness precedes completion of its multi-output producer task; no edge from whole 04-T01 completion.",
+      "implementationState": "independently_approved_scoped_handoff"
     },
     {
       "id": "M03-T16-FIXTURE",
@@ -1631,7 +1854,9 @@
         "03-T14"
       ],
       "kind": "authored_fixture_and_harness_patch",
-      "note": "Scaffold only; does not require final 03-T16 acceptance, run all17 integration identities after 04-T08."
+      "note": "Scaffold only; does not require final 03-T16 acceptance, run all17 integration identities after 04-T08.",
+      "implementationState": "verified_interim_partial",
+      "evidenceReference": "Narrow count-callable harness export and authored count/pagination fixtures execute41/41; actualcountworker registration/final03T16 acceptance remain B15"
     },
     {
       "id": "M03-T16-RED-READY",
@@ -1656,7 +1881,49 @@
       "coordinatedTasks": [
         "03-T10",
         "03-T16"
-      ]
+      ],
+      "implementationState": "verified_interim",
+      "evidenceReference": "evidence/WO-03/M03-baseline-provenance.json; eight child business assertions fail as intended, no skipped tests"
+    },
+    {
+      "id": "M04-T12-FENCE-READY",
+      "producerTask": "04-T12",
+      "dependsOn": [
+        "C04-COUNTS"
+      ],
+      "kind": "independently_verified_partial_rules_output",
+      "owner": "I",
+      "writeSet": [
+        "firestore.rules",
+        "firebase_tests/firebase-rules/firestore.rules.test.js"
+      ],
+      "runtimeLocks": [
+        "E"
+      ],
+      "mayRunBeforeAssignedBatch": true,
+      "note": "Partial output of existing04T12, no new task/batch/wave. Both-root Rules role/private/pause guards before04T08/09 rehearsal. Does not depend on full04T12 completion; final04T12 remains B16.",
+      "implementationState": "verified_interim",
+      "evidenceReference": "M04-contract-review.md; M04-review.md; baseline28fenceRED+4designfail;75/75GREEN;full04T12notcomplete"
+    },
+    {
+      "id": "M04-T09-BOOTSTRAP-READY",
+      "producerTask": "04-T09",
+      "dependsOn": [
+        "04-T06",
+        "04-T07",
+        "M04-T12-FENCE-READY"
+      ],
+      "kind": "guarded_demo_empty_root_bootstrap_preparation",
+      "owner": "BE",
+      "integrationOwner": "I",
+      "writeSet": [
+        "tool/reconcile_comment_counts.mjs",
+        "tool/test/reconcile_comment_counts.test.mjs"
+      ],
+      "mayRunBeforeFullProducerTaskAcceptance": true,
+      "note": "Early code/guard preparation only for genuine empty-demo-root activation before04-T08 real worker tests. Full04-T09 nonempty reconciliation/restore rehearsal and acceptance still require04-T08. No new task/batch/wave or production permission.",
+      "implementationState": "blocked_precision",
+      "evidenceReference": "Two permanent native metadata versus REQUEST_TIME precision failures; no bootstrap/E use; schema correction and independent review required"
     }
   ],
   "checkpoints": [
@@ -2285,6 +2552,507 @@
         "B15"
       ],
       "policy": "I is the sole physical writer/integrator; specialists provide patches. Acquire path lock, reconcile against latest approved artifact, serialize within and across batches."
+    },
+    {
+      "path": "web_admin/test/location-relations.emulator.test.ts",
+      "integrationOwner": "I",
+      "tasks": [
+        "01-T05"
+      ],
+      "batches": [
+        "B03"
+      ],
+      "policy": "Additive approved R01 compatibility lock; I alone applies specialist patch. Original33assignments unchanged; existing WO03 acceptance identity preserved."
+    },
+    {
+      "path": "functions/lib/notification-delivery.js",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T10"
+      ],
+      "batches": [
+        "B16"
+      ],
+      "policy": "Additive R13 lock: same-transaction schedule revalidation at delivery start. Specialist supplies patch; existing senders/default behavior preserved. No source write before reviewed C04-TIMEZONE."
+    },
+    {
+      "path": "functions/lib/comment-count-maintenance.js",
+      "integrationOwner": "BE",
+      "tasks": [
+        "04-T06"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Reviewed R12 maintenance-fence amendment candidate. Preserve original owner entries; I integrates cross-batch producer patches; new dependency-free maintenance helper stays with B15 BE owner. No count source dispatch until independent C04-COUNTS approval."
+    },
+    {
+      "path": "functions/lib/editorial-audit.js",
+      "integrationOwner": "I",
+      "tasks": [
+        "01-T03",
+        "04-T07"
+      ],
+      "batches": [
+        "B02",
+        "B15"
+      ],
+      "policy": "Reviewed R12 maintenance-fence amendment candidate. Preserve original owner entries; I integrates cross-batch producer patches; new dependency-free maintenance helper stays with B15 BE owner. No count source dispatch until independent C04-COUNTS approval."
+    },
+    {
+      "path": "functions/lib/rss-ingestion.js",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T02",
+        "04-T07"
+      ],
+      "batches": [
+        "B13",
+        "B15"
+      ],
+      "policy": "Reviewed R12 maintenance-fence amendment candidate. Preserve original owner entries; I integrates cross-batch producer patches; new dependency-free maintenance helper stays with B15 BE owner. No count source dispatch until independent C04-COUNTS approval."
+    },
+    {
+      "path": "functions/test/admin-content-delete.test.js",
+      "integrationOwner": "I",
+      "tasks": [
+        "01-T03",
+        "04-T07"
+      ],
+      "batches": [
+        "B02",
+        "B15"
+      ],
+      "policy": "Reviewed R12 maintenance-fence amendment candidate. Preserve original owner entries; I integrates cross-batch producer patches; new dependency-free maintenance helper stays with B15 BE owner. No count source dispatch until independent C04-COUNTS approval."
+    },
+    {
+      "path": "functions/test/comment-moderation.test.js",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T06",
+        "04-T07"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Reviewed R12 maintenance-fence amendment candidate. Preserve original owner entries; I integrates cross-batch producer patches; new dependency-free maintenance helper stays with B15 BE owner. No count source dispatch until independent C04-COUNTS approval."
+    },
+    {
+      "path": "functions/test/editorial-audit.test.js",
+      "integrationOwner": "I",
+      "tasks": [
+        "01-T03",
+        "04-T07"
+      ],
+      "batches": [
+        "B02",
+        "B15"
+      ],
+      "policy": "Reviewed R12 maintenance-fence amendment candidate. Preserve original owner entries; I integrates cross-batch producer patches; new dependency-free maintenance helper stays with B15 BE owner. No count source dispatch until independent C04-COUNTS approval."
+    },
+    {
+      "path": "functions/test/rss-ingestion.test.js",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T02",
+        "04-T07"
+      ],
+      "batches": [
+        "B13",
+        "B15"
+      ],
+      "policy": "Reviewed R12 maintenance-fence amendment candidate. Preserve original owner entries; I integrates cross-batch producer patches; new dependency-free maintenance helper stays with B15 BE owner. No count source dispatch until independent C04-COUNTS approval."
+    },
+    {
+      "path": "tool/backfill_content_pagination.mjs",
+      "integrationOwner": "I",
+      "tasks": [
+        "03-T02",
+        "04-T09"
+      ],
+      "batches": [
+        "B10",
+        "B15"
+      ],
+      "policy": "Reviewed R12 maintenance-fence amendment candidate. Preserve original owner entries; I integrates cross-batch producer patches; new dependency-free maintenance helper stays with B15 BE owner. No count source dispatch until independent C04-COUNTS approval."
+    },
+    {
+      "path": "tool/firebase_seed/migrate_comment_status.mjs",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T09"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Reviewed R12 maintenance-fence amendment candidate. Preserve original owner entries; I integrates cross-batch producer patches; new dependency-free maintenance helper stays with B15 BE owner. No count source dispatch until independent C04-COUNTS approval."
+    },
+    {
+      "path": "tool/firebase_seed/seed.mjs",
+      "integrationOwner": "I",
+      "tasks": [
+        "01-T07",
+        "04-T09"
+      ],
+      "batches": [
+        "B04",
+        "B15"
+      ],
+      "policy": "Reviewed R12 maintenance-fence amendment candidate. Preserve original owner entries; I integrates cross-batch producer patches; new dependency-free maintenance helper stays with B15 BE owner. No count source dispatch until independent C04-COUNTS approval."
+    },
+    {
+      "path": "tool/import_programs_and_episodes.mjs",
+      "integrationOwner": "I",
+      "tasks": [
+        "01-T07",
+        "04-T09"
+      ],
+      "batches": [
+        "B04",
+        "B15"
+      ],
+      "policy": "Reviewed R12 maintenance-fence amendment candidate. Preserve original owner entries; I integrates cross-batch producer patches; new dependency-free maintenance helper stays with B15 BE owner. No count source dispatch until independent C04-COUNTS approval."
+    },
+    {
+      "path": "tool/repair_rss_urls.mjs",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T03",
+        "04-T09"
+      ],
+      "batches": [
+        "B13",
+        "B15"
+      ],
+      "policy": "Reviewed R12 maintenance-fence amendment candidate. Preserve original owner entries; I integrates cross-batch producer patches; new dependency-free maintenance helper stays with B15 BE owner. No count source dispatch until independent C04-COUNTS approval."
+    },
+    {
+      "path": "tool/seed-admin-preview.mjs",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T09"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Reviewed R12 maintenance-fence amendment candidate. Preserve original owner entries; I integrates cross-batch producer patches; new dependency-free maintenance helper stays with B15 BE owner. No count source dispatch until independent C04-COUNTS approval."
+    },
+    {
+      "path": "firebase_tests/firebase-emulators/editorial-rss.test.js",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T02",
+        "04-T08"
+      ],
+      "batches": [
+        "B13",
+        "B15"
+      ],
+      "policy": "I integrates specialist-authored real Firestore RSS identity/alias regression. Existing editorial emulator glob executes it; no new script/dependency."
+    },
+    {
+      "path": "web_hudhud/public-home.tsx",
+      "integrationOwner": "I",
+      "tasks": [
+        "03-T15"
+      ],
+      "batches": [
+        "B12"
+      ],
+      "policy": "Cross-supplement S01/B12 shared public UI path. I alone applies the public worker patch; original ownership assignments preserved."
+    },
+    {
+      "path": "lib/app/providers.dart",
+      "integrationOwner": "I",
+      "tasks": [
+        "03-T05"
+      ],
+      "batches": [
+        "B09"
+      ],
+      "policy": "Explicit B09 composition/UI/localization integration lock; FL supplies reviewed patches, I alone applies. Preserve existing source owners and B15 ProgramDetails handoff."
+    },
+    {
+      "path": "lib/features/station_content/presentation/program_details_screen.dart",
+      "integrationOwner": "I",
+      "tasks": [
+        "03-T06"
+      ],
+      "batches": [
+        "B09"
+      ],
+      "policy": "Explicit B09 UI integration lock; FL supplies reviewed patch and I alone applies. Future count-presentation changes require a separately enumerated task write set; B15 currently has no authority to edit this path."
+    },
+    {
+      "path": "lib/features/station_details/presentation/station_details_screen.dart",
+      "integrationOwner": "I",
+      "tasks": [
+        "03-T06"
+      ],
+      "batches": [
+        "B09"
+      ],
+      "policy": "Explicit B09 composition/UI/localization integration lock; FL supplies reviewed patches, I alone applies. Preserve existing source owners and B15 ProgramDetails handoff."
+    },
+    {
+      "path": "lib/l10n/app_ar.arb",
+      "integrationOwner": "I",
+      "tasks": [
+        "03-T08"
+      ],
+      "batches": [
+        "B09"
+      ],
+      "policy": "Explicit B09 composition/UI/localization integration lock; FL supplies reviewed patches, I alone applies. Preserve existing source owners and B15 ProgramDetails handoff."
+    },
+    {
+      "path": "lib/l10n/app_en.arb",
+      "integrationOwner": "I",
+      "tasks": [
+        "03-T08"
+      ],
+      "batches": [
+        "B09"
+      ],
+      "policy": "Explicit B09 composition/UI/localization integration lock; FL supplies reviewed patches, I alone applies. Preserve existing source owners and B15 ProgramDetails handoff."
+    },
+    {
+      "path": "lib/l10n/generated/app_localizations.dart",
+      "integrationOwner": "I",
+      "tasks": [
+        "03-T08"
+      ],
+      "batches": [
+        "B09"
+      ],
+      "policy": "Explicit B09 composition/UI/localization integration lock; FL supplies reviewed patches, I alone applies. Preserve existing source owners and B15 ProgramDetails handoff."
+    },
+    {
+      "path": "lib/l10n/generated/app_localizations_ar.dart",
+      "integrationOwner": "I",
+      "tasks": [
+        "03-T08"
+      ],
+      "batches": [
+        "B09"
+      ],
+      "policy": "Explicit B09 composition/UI/localization integration lock; FL supplies reviewed patches, I alone applies. Preserve existing source owners and B15 ProgramDetails handoff."
+    },
+    {
+      "path": "lib/l10n/generated/app_localizations_en.dart",
+      "integrationOwner": "I",
+      "tasks": [
+        "03-T08"
+      ],
+      "batches": [
+        "B09"
+      ],
+      "policy": "Explicit B09 composition/UI/localization integration lock; FL supplies reviewed patches, I alone applies. Preserve existing source owners and B15 ProgramDetails handoff."
+    },
+    {
+      "path": "firebase_tests/support/comment-count-fixtures.mjs",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T08"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Necessary count-baseline test fixture/harness compatibility attachment. QA authors /tmp patches; I alone applies. Preserve assertions, real handlers and public npm command names; package.json may change only two emulator script targets, no dependency/lock changes."
+    },
+    {
+      "path": "web_admin/test/support/callable-emulator.ts",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T08"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Necessary count-baseline test fixture/harness compatibility attachment. QA authors /tmp patches; I alone applies. Preserve assertions, real handlers and public npm command names; package.json may change only two emulator script targets, no dependency/lock changes."
+    },
+    {
+      "path": "tool/run-count-emulator-tests.mjs",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T08"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Necessary count-baseline test fixture/harness compatibility attachment. QA authors /tmp patches; I alone applies. Preserve assertions, real handlers and public npm command names; package.json may change only two emulator script targets, no dependency/lock changes."
+    },
+    {
+      "path": "package.json",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T08"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Necessary count-baseline test fixture/harness compatibility attachment. QA authors /tmp patches; I alone applies. Preserve assertions, real handlers and public npm command names; package.json may change only two emulator script targets, no dependency/lock changes."
+    },
+    {
+      "path": "web_admin/test/episode-deletion.emulator.test.ts",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T08"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Necessary count-baseline test fixture/harness compatibility attachment. QA authors /tmp patches; I alone applies. Preserve assertions, real handlers and public npm command names; package.json may change only two emulator script targets, no dependency/lock changes."
+    },
+    {
+      "path": "web_admin/test/moderation-authorization.emulator.test.ts",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T08"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Necessary count-baseline test fixture/harness compatibility attachment. QA authors /tmp patches; I alone applies. Preserve assertions, real handlers and public npm command names; package.json may change only two emulator script targets, no dependency/lock changes."
+    },
+    {
+      "path": "web_admin/test/review-report.emulator.test.ts",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T08"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Necessary count-baseline test fixture/harness compatibility attachment. QA authors /tmp patches; I alone applies. Preserve assertions, real handlers and public npm command names; package.json may change only two emulator script targets, no dependency/lock changes."
+    },
+    {
+      "path": "web_admin/test/program-transfer.emulator.test.ts",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T08"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Necessary count-baseline test fixture/harness compatibility attachment. QA authors /tmp patches; I alone applies. Preserve assertions, real handlers and public npm command names; package.json may change only two emulator script targets, no dependency/lock changes."
+    },
+    {
+      "path": "firebase_tests/firebase-emulators/editorial-images.test.js",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T08"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Necessary count-baseline test fixture/harness compatibility attachment. QA authors /tmp patches; I alone applies. Preserve assertions, real handlers and public npm command names; package.json may change only two emulator script targets, no dependency/lock changes."
+    },
+    {
+      "path": "firebase_tests/firebase-emulators/editorial-delete.test.js",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T08"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Necessary count-baseline test fixture/harness compatibility attachment. QA authors /tmp patches; I alone applies. Preserve assertions, real handlers and public npm command names; package.json may change only two emulator script targets, no dependency/lock changes."
+    },
+    {
+      "path": "firebase_tests/firebase-emulators/editorial-regional-migration.test.js",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T08"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Necessary count-baseline test fixture/harness compatibility attachment. QA authors /tmp patches; I alone applies. Preserve assertions, real handlers and public npm command names; package.json may change only two emulator script targets, no dependency/lock changes."
+    },
+    {
+      "path": "firebase_tests/firebase-emulators/editorial-identity-backfill.test.js",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T08"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Necessary count-baseline test fixture/harness compatibility attachment. QA authors /tmp patches; I alone applies. Preserve assertions, real handlers and public npm command names; package.json may change only two emulator script targets, no dependency/lock changes."
+    },
+    {
+      "path": "firebase_tests/firebase-emulators/editorial-audit.test.js",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T08"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Necessary count-baseline test fixture/harness compatibility attachment. QA authors /tmp patches; I alone applies. Preserve assertions, real handlers and public npm command names; package.json may change only two emulator script targets, no dependency/lock changes."
+    },
+    {
+      "path": "functions/test/support/comment-count-fixture.js",
+      "integrationOwner": "BE",
+      "tasks": [
+        "04-T06",
+        "04-T07",
+        "04-T09"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "Unit-test-only native snapshot/version/atomic storage fake shared within the one BE batch. No contribution arithmetic or production injection capability; actual SDK integration fixtures never use it."
+    },
+    {
+      "path": "tool/test/repair_rss_urls.test.mjs",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T03",
+        "04-T09"
+      ],
+      "batches": [
+        "B13",
+        "B15"
+      ],
+      "policy": "I is the sole shared content integrator. BE authors an isolated incremental B15 regression patch after release; preserve independently reviewed earlier-batch test assertions and native receipt/security contracts. No concurrent test writer or live child edit."
+    },
+    {
+      "path": "tool/test/content_pagination_migration.test.mjs",
+      "integrationOwner": "I",
+      "tasks": [
+        "03-T02",
+        "04-T09"
+      ],
+      "batches": [
+        "B10",
+        "B15"
+      ],
+      "policy": "I is the sole shared content integrator. BE authors an isolated incremental B15 regression patch after release; preserve independently reviewed earlier-batch test assertions and native receipt/security contracts. No concurrent test writer or live child edit."
+    },
+    {
+      "path": "tool/test/comment-count-producers.test.mjs",
+      "integrationOwner": "BE",
+      "tasks": [
+        "04-T09"
+      ],
+      "batches": [
+        "B15"
+      ],
+      "policy": "One cohesive B15 producer-regression file for the four already-registered importer/seed/status/preview writers. BE authors only isolated candidate changes; I applies. Reuse real production helpers and existing unit storage support; no copied arithmetic, generic test framework or dependency. Do not modify QA-owned emulator fixtures."
+    },
+    {
+      "path": "functions/lib/program-notifications.js",
+      "integrationOwner": "I",
+      "tasks": [
+        "04-T10",
+        "04-T11"
+      ],
+      "batches": [
+        "B16"
+      ],
+      "policy": "I is the sole physical writer/integrator; serialize 04-T10 then 04-T11. The 04-T11 compatibility attachment exports only existing pure normalizedSchedule, localTime, legacyDates and fingerprint; no bodies/defaults/index/scheduler behavior change. Specialists provide reviewed patches under this path lock."
     }
   ],
   "workers": {
@@ -2488,6 +3256,7 @@
         "web_admin/lib/station-private.ts",
         "web_admin/test/content-form.test.ts",
         "web_admin/test/export-excel.test.ts",
+        "web_admin/test/location-relations.emulator.test.ts",
         "web_admin/test/save-content.emulator.test.ts",
         "web_admin/test/station-private.test.ts"
       ],
@@ -3453,6 +4222,7 @@
       "scope": "Tasks 04-T02, 04-T03",
       "writeSet": [
         "docs/operations/background-consistency-migrations.md",
+        "firebase_tests/firebase-emulators/editorial-rss.test.js",
         "functions/lib/admin-content-relations.js",
         "functions/lib/rss-ingestion.js",
         "functions/test/admin-content.test.js",
@@ -3626,14 +4396,29 @@
         "functions/index.js",
         "functions/lib/admin-content-delete.js",
         "functions/lib/admin-report-review.js",
+        "functions/lib/comment-count-maintenance.js",
         "functions/lib/comment-counts.js",
         "functions/lib/comment-moderation.js",
+        "functions/lib/editorial-audit.js",
+        "functions/lib/rss-ingestion.js",
+        "functions/test/admin-content-delete.test.js",
         "functions/test/admin-report-review.test.js",
         "functions/test/comment-counts.test.js",
         "functions/test/comment-moderation.test.js",
+        "functions/test/editorial-audit.test.js",
+        "functions/test/rss-ingestion.test.js",
+        "tool/backfill_content_pagination.mjs",
+        "tool/firebase_seed/migrate_comment_status.mjs",
+        "tool/firebase_seed/seed.mjs",
+        "tool/import_programs_and_episodes.mjs",
         "tool/reconcile_comment_counts.mjs",
+        "tool/repair_rss_urls.mjs",
         "tool/run-admin-emulator-tests.mjs",
+        "tool/seed-admin-preview.mjs",
+        "tool/test/comment-count-producers.test.mjs",
+        "tool/test/content_pagination_migration.test.mjs",
         "tool/test/reconcile_comment_counts.test.mjs",
+        "tool/test/repair_rss_urls.test.mjs",
         "web_admin/test/pl03-moderation.emulator.test.ts"
       ],
       "redTests": [
@@ -3671,6 +4456,13 @@
           "--test",
           "functions/test/comment-counts.test.js",
           "functions/test/comment-moderation.test.js"
+        ],
+        [
+          "node",
+          "--test",
+          "tool/test/repair_rss_urls.test.mjs",
+          "tool/test/content_pagination_migration.test.mjs",
+          "tool/test/comment-count-producers.test.mjs"
         ]
       ],
       "contractRows": [
@@ -3714,10 +4506,14 @@
         "functions/test/admin-report-review.test.js",
         "functions/test/comment-counts.test.js",
         "functions/test/comment-moderation.test.js",
-        "tool/test/reconcile_comment_counts.test.mjs"
+        "tool/test/comment-count-producers.test.mjs",
+        "tool/test/content_pagination_migration.test.mjs",
+        "tool/test/reconcile_comment_counts.test.mjs",
+        "tool/test/repair_rss_urls.test.mjs"
       ],
       "proposedTestFiles": [
         "functions/test/comment-counts.test.js",
+        "tool/test/comment-count-producers.test.mjs",
         "tool/test/reconcile_comment_counts.test.mjs"
       ],
       "testPreparationPolicy": "Before each command, its specific test files must exist, compile/import, and discover the intended cases under the validated runtime. Future GREEN files may be authored later in their task; none may execute while missing. Passing guard cases do not earn RED credit."
@@ -3728,6 +4524,7 @@
       "scope": "Tasks 04-T10, 04-T11",
       "writeSet": [
         "docs/operations/background-consistency-migrations.md",
+        "functions/lib/notification-delivery.js",
         "functions/lib/program-notifications.js",
         "functions/test/notification-delivery.test.js",
         "functions/test/program-notifications.test.js",
@@ -3840,7 +4637,8 @@
       ],
       "executionKind": "executable_guard_verification",
       "batches": [
-        "B16"
+        "B16",
+        "B15"
       ],
       "workingDirectory": ".",
       "redEvidenceRequirements": {
@@ -3868,7 +4666,8 @@
       "guardPolicy": "Existing-policy denials may PASS at baseline; newly authored migration/index/tool safety cases must PASS after implementation. Preserve all safeguards; never weaken Rules, break code, or fabricate a failure to obtain RED.",
       "requiredTestFiles": [],
       "proposedTestFiles": [],
-      "testPreparationPolicy": "Before each command, its specific test files must exist, compile/import, and discover the intended cases under the validated runtime. Future GREEN files may be authored later in their task; none may execute while missing. Passing guard cases do not earn RED credit."
+      "testPreparationPolicy": "Before each command, its specific test files must exist, compile/import, and discover the intended cases under the validated runtime. Future GREEN files may be authored later in their task; none may execute while missing. Passing guard cases do not earn RED credit.",
+      "partialOutputNote": "M04-T12-FENCE-READY verifies the count fence before B15 worker/reconciliation rehearsal; full wave acceptance remains after B16."
     }
   ],
   "manualCheckpoints": [
@@ -3888,8 +4687,9 @@
   "fileInventory": [
     {
       "path": ".boss/technical-review/WO-01-validation.md",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": ".boss/technical-review/WO-02-qa.md",
@@ -3953,18 +4753,21 @@
     },
     {
       "path": "docs/decisions/0006-background-consistency-and-schedule-timezones.md",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "docs/operations/background-consistency-migrations.md",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "docs/operations/station-privacy-migration.md",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "docs/release/november-2026-device-acceptance.md",
@@ -3978,13 +4781,15 @@
     },
     {
       "path": "firebase_tests/firebase-emulators/editorial-comment-counts.test.js",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "firebase_tests/firebase-emulators/station-privacy.test.js",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "firebase_tests/firebase-rules/firestore.rules.test.js",
@@ -4028,13 +4833,15 @@
     },
     {
       "path": "functions/lib/admin-user-count.js",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "functions/lib/comment-counts.js",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "functions/lib/comment-moderation.js",
@@ -4049,7 +4856,17 @@
     {
       "path": "functions/lib/program-notifications.js",
       "planningStatus": "existing",
-      "mustRefreshBeforeExecution": true
+      "mustRefreshBeforeExecution": true,
+      "compatibilityAttachment": {
+        "task": "04-T11",
+        "integrationOwner": "I",
+        "existingPureHelperExportsOnly": [
+          "normalizedSchedule",
+          "localTime",
+          "legacyDates",
+          "fingerprint"
+        ]
+      }
     },
     {
       "path": "functions/lib/rss-ingestion.js",
@@ -4058,8 +4875,9 @@
     },
     {
       "path": "functions/lib/station-privacy.js",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "functions/lib/station-subscriptions.js",
@@ -4068,8 +4886,9 @@
     },
     {
       "path": "functions/lib/stream-health-progress.js",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "functions/lib/stream-health.js",
@@ -4103,13 +4922,15 @@
     },
     {
       "path": "functions/test/admin-user-count.test.js",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "functions/test/comment-counts.test.js",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "functions/test/comment-moderation.test.js",
@@ -4138,8 +4959,9 @@
     },
     {
       "path": "functions/test/station-privacy.test.js",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "functions/test/station-subscriptions.test.js",
@@ -4148,8 +4970,9 @@
     },
     {
       "path": "functions/test/stream-health-progress.test.js",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "functions/test/stream-health.test.js",
@@ -4178,8 +5001,9 @@
     },
     {
       "path": "lib/features/account/domain/models/account_registration_result.dart",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "lib/features/account/domain/repositories/account_repository.dart",
@@ -4218,8 +5042,9 @@
     },
     {
       "path": "lib/features/station_content/domain/models/content_page.dart",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "lib/features/station_content/domain/models/station_content_batch.dart",
@@ -4368,13 +5193,15 @@
     },
     {
       "path": "test/features/station_content/data/content_pagination_test.dart",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "test/features/station_content/domain/content_page_test.dart",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "test/features/station_content/presentation/program_details_view_test.dart",
@@ -4398,13 +5225,15 @@
     },
     {
       "path": "tool/audit_content_pagination.mjs",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "tool/backfill_content_pagination.mjs",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "tool/firebase_seed/seed.mjs",
@@ -4433,8 +5262,11 @@
     },
     {
       "path": "tool/migrate_program_notification_dates.mjs",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored",
+      "currentSourceSha256": "93dfb3d372bba711efb1612f91114c9545cb10c95185b553d54252a4e9de2597",
+      "evidenceReference": "B16-T11-source-review.md; evidence/WO-04/B16-T11-freeze.json; presence/source handoff only, native T12 pending"
     },
     {
       "path": "tool/migrate_regional_location.mjs",
@@ -4448,18 +5280,21 @@
     },
     {
       "path": "tool/migrate_station_privacy.mjs",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "tool/reconcile_comment_counts.mjs",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "tool/repair_rss_urls.mjs",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "tool/run-admin-emulator-tests.mjs",
@@ -4468,18 +5303,23 @@
     },
     {
       "path": "tool/test/content_pagination_migration.test.mjs",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "tool/test/migrate-legacy-users.test.mjs",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "tool/test/migrate_program_notification_dates.test.mjs",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored",
+      "currentSourceSha256": "877c8983d6d4f7f14645a83716b4dc589f528aa40f2a1dd1e287b01389e02d1b",
+      "evidenceReference": "B16-T11-source-review.md; evidence/WO-04/B16-T11-freeze.json; presence/source handoff only, native T12 pending"
     },
     {
       "path": "tool/test/migrate_station_locations.test.mjs",
@@ -4488,23 +5328,27 @@
     },
     {
       "path": "tool/test/migrate_station_privacy.test.mjs",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "tool/test/reconcile_comment_counts.test.mjs",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "tool/test/repair_rss_urls.test.mjs",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "tool/test/station-writer-privacy.test.mjs",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "web_admin/components/admin/admin-app.tsx",
@@ -4548,8 +5392,9 @@
     },
     {
       "path": "web_admin/lib/export-pages.ts",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "web_admin/lib/resource-filters.ts",
@@ -4558,8 +5403,9 @@
     },
     {
       "path": "web_admin/lib/resource-pagination.ts",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "web_admin/lib/save-content.ts",
@@ -4568,13 +5414,15 @@
     },
     {
       "path": "web_admin/lib/station-private.ts",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "web_admin/lib/user-count.ts",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "web_admin/test/admin-relations.test.ts",
@@ -4593,8 +5441,9 @@
     },
     {
       "path": "web_admin/test/content-pagination.emulator.test.ts",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "web_admin/test/export-excel.test.ts",
@@ -4603,8 +5452,9 @@
     },
     {
       "path": "web_admin/test/export-pages.test.ts",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "web_admin/test/pl03-moderation.emulator.test.ts",
@@ -4623,8 +5473,9 @@
     },
     {
       "path": "web_admin/test/resource-pagination.test.ts",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "web_admin/test/save-content.emulator.test.ts",
@@ -4633,18 +5484,21 @@
     },
     {
       "path": "web_admin/test/station-private.test.ts",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "web_admin/test/user-count.emulator.test.ts",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "web_admin/test/user-count.test.ts",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "web_admin/test/user-management.test.ts",
@@ -4673,13 +5527,15 @@
     },
     {
       "path": "web_hudhud/test/content-pagination-ui.test.mjs",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "web_hudhud/test/content-pagination.test.mjs",
-      "planningStatus": "proposed_not_yet_authored",
-      "mustRefreshBeforeExecution": true
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
     },
     {
       "path": "web_hudhud/test/discovery.test.mjs",
@@ -4705,6 +5561,152 @@
       "path": "firebase_tests/firebase-emulators/email-verification.test.js",
       "planningStatus": "existing",
       "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "web_admin/test/location-relations.emulator.test.ts",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "functions/lib/notification-delivery.js",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "functions/lib/comment-count-maintenance.js",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_new"
+    },
+    {
+      "path": "tool/firebase_seed/migrate_comment_status.mjs",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "tool/seed-admin-preview.mjs",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "firebase_tests/firebase-emulators/editorial-rss.test.js",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_new"
+    },
+    {
+      "path": "assets/platform-links.json",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_new"
+    },
+    {
+      "path": "web_hudhud/platform-links.tsx",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_new"
+    },
+    {
+      "path": "web_hudhud/server/render.ts",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "web_hudhud/test/platform-links.test.mjs",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_new"
+    },
+    {
+      "path": "web_hudhud/test/seo.test.mjs",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "web_admin/components/admin/platform-links.tsx",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_new"
+    },
+    {
+      "path": "web_admin/test/platform-links.test.ts",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_new"
+    },
+    {
+      "path": "firebase_tests/support/comment-count-fixtures.mjs",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
+    },
+    {
+      "path": "web_admin/test/support/callable-emulator.ts",
+      "planningStatus": "existing_revalidated",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "tool/run-count-emulator-tests.mjs",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
+    },
+    {
+      "path": "package.json",
+      "planningStatus": "existing_revalidated",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "web_admin/test/episode-deletion.emulator.test.ts",
+      "planningStatus": "existing_revalidated",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "web_admin/test/moderation-authorization.emulator.test.ts",
+      "planningStatus": "existing_revalidated",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "web_admin/test/review-report.emulator.test.ts",
+      "planningStatus": "existing_revalidated",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "web_admin/test/program-transfer.emulator.test.ts",
+      "planningStatus": "existing_revalidated",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "firebase_tests/firebase-emulators/editorial-images.test.js",
+      "planningStatus": "existing_revalidated",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "firebase_tests/firebase-emulators/editorial-delete.test.js",
+      "planningStatus": "existing_revalidated",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "firebase_tests/firebase-emulators/editorial-regional-migration.test.js",
+      "planningStatus": "existing_revalidated",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "firebase_tests/firebase-emulators/editorial-identity-backfill.test.js",
+      "planningStatus": "existing_revalidated",
+      "mustRefreshBeforeExecution": true
+    },
+    {
+      "path": "functions/test/support/comment-count-fixture.js",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_not_yet_authored"
+    },
+    {
+      "path": "tool/test/comment-count-producers.test.mjs",
+      "planningStatus": "existing",
+      "mustRefreshBeforeExecution": true,
+      "originalPlanningStatus": "proposed_new"
     }
   ],
   "validationSnapshot": {
@@ -4737,7 +5739,9 @@
     "applicationSourceUnchanged": true,
     "applicationTestsExecuted": false,
     "migrationsOrDeploymentsExecuted": false,
-    "commandSyntaxValidatedWithBoss": true
+    "commandSyntaxValidatedWithBoss": true,
+    "classification": "historical_planning_validation_only",
+    "scopeNote": "Original 9fae324 planning results, not current execution claims; current registry/graph metadata is in executionReconciliation.currentRegistrySnapshot."
   },
   "dependencySemantics": {
     "artifactReadiness": "Task dependency edges express scoped tested artifact/contract readiness for continued work; they do not certify final task completion. Intermediate code must compile and pass its applicable focused checks.",
@@ -4751,13 +5755,127 @@
     "note": "English-only HTML companion template; installed plugin and application unchanged. Historical review input retained."
   },
   "authorizedExecution": {
-    "scope": "WO-01 R01/R10 only",
+    "scope": "WO-01 through WO-04, R01\u2013R13, existing65tasks16batches17waves",
     "baseline": "9fae3248aadecaa53198a5fb9f06576fdcc182cf",
     "productionData": false,
     "productionMigration": false,
     "deployment": false,
     "protectedBranchMerge": false,
     "applicationTests": "Synthetic/demo only; actual evidence required",
-    "note": "Runtime events and recorded execution report hold actual status; unexecuted planning waves remain pending."
-  }
+    "note": "Runtime events and recorded execution report hold actual status; unexecuted planning waves remain pending.",
+    "resumedBaseline": "c304e85",
+    "gateFailurePolicy": "Repair routine in-scope failures and rerun affected checks inside activebatch; blockdownstream untilGREEN; stopfor unresolvedsecurity, unownedexpansion orproduction.",
+    "approvedDecisions": {
+      "scheduleTimezone": "Honor accepted per-scheduleUTCoffset with duplicate-safe receiptcutover",
+      "adminSearch": "Clearlylabeled currentpage plus explicitresumable dataset scan<=200documents/continuation"
+    }
+  },
+  "executionReconciliation": {
+    "baseline": "c304e85",
+    "runtimeTaskStatePolicy": "Existing state fields remain pending until final required acceptance; implementationState distinguishes recorded local handoff from unstarted work. No finding closure inferred.",
+    "currentBatch": "STOP: mandatory subscriptions gate FAILED (18 tests, 15 pass, 3 ERR_ASSERTION, zero skips, exit 1, clean shutdown). Email verification passed 14/14. Read-only classification: legacy profile-email expectation conflicts R10 and both program fixtures omit required R13 schedule fields; these do not authorize a source/security change. No correction/rerun/new native T12 or account-deletion gate performed. Prior scoped gates remain historical; all findings OPEN, browser/device/native/final gates incomplete and production unauthorized. Parent must record this blocked checkpoint and end the current run.",
+    "findingStatus": "R01\u2013R13 OPEN",
+    "existingOwnershipEntriesPreserved": 33,
+    "additionalICompatibilityLocks": 1,
+    "additionalCountFencePaths": [
+      "functions/lib/comment-count-maintenance.js",
+      "functions/lib/editorial-audit.js",
+      "functions/lib/rss-ingestion.js",
+      "functions/test/admin-content-delete.test.js",
+      "functions/test/comment-moderation.test.js",
+      "functions/test/editorial-audit.test.js",
+      "functions/test/rss-ingestion.test.js",
+      "tool/backfill_content_pagination.mjs",
+      "tool/firebase_seed/migrate_comment_status.mjs",
+      "tool/firebase_seed/seed.mjs",
+      "tool/import_programs_and_episodes.mjs",
+      "tool/repair_rss_urls.mjs",
+      "tool/seed-admin-preview.mjs"
+    ],
+    "countFenceApproval": "Independent contract_acceptance_review approved revised C04-COUNTS; source and regression acceptance still required.",
+    "countProducerTestAttachments": {
+      "task": "04-T09",
+      "originalOwnershipEntriesPreserved": 33,
+      "existingCrossBatchTestsOwnedByI": [
+        "tool/test/repair_rss_urls.test.mjs",
+        "tool/test/content_pagination_migration.test.mjs"
+      ],
+      "newSingleBatchBERegressionFile": "tool/test/comment-count-producers.test.mjs",
+      "originalTaskBatchWaveCounts": [
+        65,
+        16,
+        17
+      ],
+      "existingSeedTestsReadOnly": [
+        "tool/firebase_seed/test/seed_contract.test.mjs",
+        "tool/firebase_seed/test/seed_locations.test.mjs"
+      ],
+      "existingPrivacyTestsReadOnly": [
+        "tool/test/station-writer-privacy.test.mjs"
+      ]
+    },
+    "additionalICompatibilityLocksNote": "The retained value records the first resumption compatibility increment, not the current registry total; all current assignments remain in sharedFileOwners.",
+    "currentRegistrySnapshot": {
+      "taskCount": 65,
+      "batchCount": 16,
+      "waveCount": 17,
+      "uniqueOwnerPaths": 76,
+      "ownerCounts": {
+        "I": 62,
+        "BE": 4,
+        "FL": 7,
+        "DT": 3
+      },
+      "taskMilestoneCheckpointNodes": 87,
+      "acyclic": true,
+      "unknownDependencies": [],
+      "acceptanceNote": "Metadata/presence reconciliation only; final task/wave/checkpoint states and all finding closures remain unchanged."
+    },
+    "fileInventoryStatusNote": "planningStatus=existing means file presence was checked, not implementation completeness or verified acceptance. originalPlanningStatus preserves prior proposed classifications. Refresh source and applicable evidence before every execution.",
+    "timezoneCanonicalHelperAttachment": {
+      "task": "04-T11",
+      "path": "functions/lib/program-notifications.js",
+      "previousOwnerEntriesPreserved": 75,
+      "originalOwnerEntriesPreserved": 33,
+      "sharedBy": [
+        "04-T10",
+        "04-T11"
+      ],
+      "integrationOwner": "I",
+      "scope": "Keyword-only canonical pure helper exports; no body/runtime/default change, dependency/task/wave addition or acceptance closure."
+    },
+    "currentEvidenceReferences": {
+      "B15ScopedNative": "B15-native125-acceptance-review.md (under evidence/WO-04)",
+      "T10Source": "B16-T10-source-review.md",
+      "T11Source": "B16-T11-source-review.md",
+      "T11Contract": "B16-T11-contract-review.md",
+      "RulesGuard": "B16-T12-Rules-result-review.md",
+      "original17AndAdditional8": "B16-original17-acceptance-review.md; B16-final-automated-gates-review.md",
+      "automatedGates": "B16-final-automated-gates-review.md; evidence/integration/hudhud-final-frontend-provenance.json",
+      "currentLimits": "No native T12 runtime acceptance or full Work Order/finding closure; browser/device and separate production approval remain."
+    }
+  },
+  "authorizedSupplements": [
+    {
+      "id": "S01-PLATFORM-LINKS",
+      "source": "Explicit user addition clarified as platform links, not radio-station links",
+      "owner": "I",
+      "writeSet": [
+        "assets/platform-links.json",
+        "web_hudhud/platform-links.tsx",
+        "web_hudhud/public-home.tsx",
+        "web_hudhud/server/render.ts",
+        "web_hudhud/test/platform-links.test.mjs",
+        "web_hudhud/test/seo.test.mjs",
+        "web_admin/components/admin/platform-links.tsx",
+        "web_admin/components/admin/admin-app.tsx",
+        "web_admin/test/platform-links.test.ts"
+      ],
+      "behavior": "Official HudHudFM website alongside platform Facebook and Instagram; public footer/initial HTML and admin login/header; no station identifiers, new DB fields, permissions or dependencies.",
+      "state": "in_progress",
+      "verification": "Existing SSR business regression before fix; new pure component guards after creation; both web owning test/lint/type/build gates and independent review. Browser visual check remains explicit if unavailable.",
+      "implementationState": "verified_interim",
+      "evidenceReference": "S01-review.md; evidence/S01/*; public55pass/admin95pass20emulatorskips/bothbuild/lintGREEN; visual browser blocked debugger timeout"
+    }
+  ]
 }

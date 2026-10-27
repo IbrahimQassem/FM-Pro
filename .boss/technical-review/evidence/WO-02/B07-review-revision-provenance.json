@@ -1,0 +1,41 @@
+{
+  "redCommand": "flutter test --no-pub test/features/player/data/audio_episode_progress_test.dart --plain-name \"reentrant resume\"",
+  "redCandidateSha256": {
+    "lib/features/player/presentation/controllers/station_player_controller.dart": "70106c187df787caff0f5d1c03dc00bc9405fc0c0128049b4244e4d21efb94dc",
+    "test/features/player/data/audio_episode_progress_test.dart": "26dc308970264ed71df87310350db727ea04e11626e83d6c312cbe38c632d087"
+  },
+  "redResult": {
+    "matched": 1,
+    "passed": 0,
+    "intendedAssertionFailures": 1,
+    "skipped": 0,
+    "actual": "Two zero-position seeks instead of one after a second resume during native completed-pause rewind barrier."
+  },
+  "correction": "Recheck the private completion marker at existing serialized replay queue entry; duplicate queued replay exits after the first consumes completion. No public API change.",
+  "changedRevisionPaths": [
+    "lib/features/player/presentation/controllers/station_player_controller.dart",
+    "test/features/player/data/audio_episode_progress_test.dart"
+  ],
+  "finalCandidateSha256": {
+    "lib/features/player/presentation/controllers/station_player_controller.dart": "644955e99f80883dfb5603001cf7c824dedc96fbc5bb2a2e520de15030a3632d",
+    "lib/features/player/data/datasources/just_audio_player_data_source.dart": "3806aa308e1511a5de35307bfac8981a4a035d287ea93131dcfbf2f7b8ec2738",
+    "test/features/player/presentation/station_player_controller_test.dart": "1d51c778ee2e60e225019347a16951122ac4d3d4d6924dabaf684284dc1db145",
+    "test/features/player/presentation/now_playing_sheet_test.dart": "37b9c8b6b54b9cd5cc69603f5f60da256c7af051fb27d4aa0fb18302da98e590",
+    "test/features/player/data/audio_episode_progress_test.dart": "26dc308970264ed71df87310350db727ea04e11626e83d6c312cbe38c632d087"
+  },
+  "green": {
+    "command": "flutter test --no-pub test/features/player",
+    "passed": 60,
+    "failed": 0,
+    "skipped": 0,
+    "manualSeekPositionPreservation": "Passed real controller/repository/native-source manual seek case."
+  },
+  "analysis": {
+    "command": "flutter analyze --no-pub lib/features/player test/features/player",
+    "result": "PASS no issues"
+  },
+  "format": "dart format --output=none --set-exit-if-changed (two revision paths): PASS 0 changed",
+  "diffCheck": "git diff --check -- lib/features/player test/features/player: PASS",
+  "intermediateFailures": [],
+  "remaining": "Independent reviewer recheck, parent integration/full Flutter/build and physical-device acceptance remain pending. B08 not released; R02/R03 OPEN."
+}

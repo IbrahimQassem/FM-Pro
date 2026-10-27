@@ -1,0 +1,78 @@
+{
+  "batch": "B12",
+  "finding": "R08",
+  "status": "REVISED_CANDIDATE_FROZEN; independent correction review required; not CLOSED",
+  "baselineHead": "c304e85963546220ccbdac51390fe0c03de02419",
+  "supersedes": "B12-provenance.json source hashes and prior independent interim approval only for corrected paths; historical evidence retained",
+  "reviewedDefects": [
+    "Last consumed raw map sort field rejected entire page and blocked valid51st record",
+    "Timestamp-shaped plain map silently became native Timestamp in next startAfter bound"
+  ],
+  "primaryCorrectionRed": {
+    "permanentCases": [
+      "REVIEW B12: invalid raw map sort value must advance to later valid episode",
+      "REVIEW B12: plain map with timestamp-looking fields must remain a map in cursor"
+    ],
+    "command": [
+      "/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node",
+      "--experimental-vm-modules",
+      "--experimental-transform-types",
+      "--test",
+      "--test-name-pattern=REVIEW B12:",
+      "web_hudhud/test/content-pagination.test.mjs"
+    ],
+    "log": "B12-review-raw-red.log",
+    "tests": 2,
+    "pass": 0,
+    "intendedBusinessFailures": 2,
+    "skipped": 0,
+    "ordering": "Permanent tests promoted and executed before any correction source edits. Existing SDK test doubles were replaced with installed native value constructors; no network or emulator."
+  },
+  "implementation": [
+    "Explicit native value tags within existing data repository; no generic codec service, extra source file, dependency or architecture change",
+    "Raw null/bool/string/finite numbers, NaN/infinities/negative zero; native Timestamp/Bytes/Reference/GeoPoint/VectorValue; recursive arrays/maps preserve Firestore type",
+    "Map timestamp-looking or reserved-kind properties remain plain maps, including safe own __proto__ keys",
+    "Deeply immutable plain cursor values, bounded recursion20/node1048576/text+serialized limits, unknown/malformed/duplicate-map-key payload rejection",
+    "Document-reference project/database/path copied from public SDK APIs; query database identity checked before reconstruction, never silently retargeted or used to create/read a foreign client",
+    "Root/resource/version/parent/order/tuple-ID validation before client acquisition; cache-derived traversal remains forbidden, native nanos exact",
+    "Only synthetic cursor fixtures changed alongside repository/tests; no S01/public-home/UI behavior change"
+  ],
+  "regressionVerification": {
+    "actualRepositoryDataCases": 19,
+    "realSdkLocalProof": "17 raw scalar/native/array/map cases round-trip through immutable JSON cursor. Actual installed SDK queryEqual compares decoded startAfter bound with original raw bound (zero network reads).",
+    "largeBytes": "256KiB native byte value continuation passes",
+    "malformed": "Unknown tags, excessive depth/size, cycles, duplicate map keys, invalid nanos/bytes/vector/geo/ref and foreign project/database refused before query read",
+    "fullPublicTests": {
+      "pass": 83,
+      "fail": 0,
+      "skipped": 0,
+      "log": "B12-review-web-tests.log"
+    },
+    "lint": "PASS B12-review-lint.log",
+    "typecheck": "PASS B12-review-typecheck.log and build includes tsc --noEmit",
+    "build": "PASS VITE_FIRESTORE_ROOT=HudHudDev npm run build; B12-review-build.log",
+    "diffCheck": "PASS for four revised paths"
+  },
+  "finalCandidateSha256": {
+    "web_hudhud/lib/content-repository.ts": "25abb0980e4e0717b75f11e9ea01ba2f1acd6b6a98783d1f1a0d99a03e2ff4ac",
+    "web_hudhud/test/content-pagination.test.mjs": "59ff2476d1c20b70bb3943e812aab514e82dde4c49b2f8fd8726d94f9f7c5407",
+    "web_hudhud/test/content-pagination-ui.test.mjs": "13162d92aed3c2d95a221459054337af7cf12a4d2ee5478fb90cbe2d079f02ce",
+    "web_hudhud/test/preview.tsx": "3a62c15ba1e6b484cb4709911bea4fe26175d0d094725427f4655fdee3d8fd11"
+  },
+  "logSha256": {
+    "B12-review-raw-red.log": "dc2e22194475367fa1c4a4103c461a83d2dc5f17e7241326cf7fed0088702af3",
+    "B12-review-raw-first-green.log": "7456f3859b1dc4d6134e44e303d944a01161a2cceaa0cc508299eaad7b60562e",
+    "B12-review-data-green.log": "8e7a0ace92c60a60eb180b9c9a0ccf713325b5b9d7c29caea279225ed7e1e216",
+    "B12-review-large-bytes.log": "73aebf5201d37825719c0131afe3625591286105a330adc40f57c68e595875e1",
+    "B12-review-native-query.log": "dfb700503506293df0b36a28cd64ff22fac97c6a0ca6a7439fd259e74f9fe284",
+    "B12-review-web-tests.log": "5075f847333a45f40ff6d7a717a35a73cc0f5e3f9b5b9bfa85a6d5eb74e77307",
+    "B12-review-lint.log": "cab0119043435af06b4f0ddfadcc519a54731306f00f0b3bcb0683e6fb8665b5",
+    "B12-review-typecheck.log": "b2fa15d372f19273d1ec00172b25d3dd3f720b508cb62c905df915a5de5d005f",
+    "B12-review-build.log": "a870d2746db34e0ee814dd5ce12b3354b75e0f218976b01151dc38be4074456d"
+  },
+  "unresolved": [
+    "Independent correction review pending; parent owns approval and runtime evidence recording",
+    "Browser/physical-device acceptance not performed by this worker",
+    "No production operation, migration, deployment, protected merge, emulator or Flutter command performed"
+  ]
+}

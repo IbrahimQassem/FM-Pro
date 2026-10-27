@@ -1,0 +1,261 @@
+{
+  "scope": "Final front-end automated gates only; read-only source, build outputs allowed",
+  "node": "v22.23.3",
+  "sourceFilesInventoried": 257,
+  "sourceFilesChanged": [],
+  "sourceFilesMissing": [],
+  "inventoryBefore": "/tmp/hudhud-final-frontend-before.json",
+  "inventoryAfter": "/tmp/hudhud-final-frontend-after.json",
+  "results": {
+    "web_admin": [
+      {
+        "command": "npm test",
+        "cwd": "web_admin",
+        "node": "v22.23.3",
+        "exitCode": 0,
+        "startedAtUtc": "2026-10-27T02:21:06.494232+00:00",
+        "finishedAtUtc": "2026-10-27T02:21:09.956876+00:00",
+        "log": "/tmp/hudhud-final-web_admin-test.log"
+      },
+      {
+        "command": "npm run lint",
+        "cwd": "web_admin",
+        "node": "v22.23.3",
+        "exitCode": 0,
+        "startedAtUtc": "2026-10-27T02:21:09.957055+00:00",
+        "finishedAtUtc": "2026-10-27T02:21:11.871252+00:00",
+        "log": "/tmp/hudhud-final-web_admin-lint.log"
+      },
+      {
+        "command": "VITE_FIRESTORE_ROOT=HudHudDev npm run build",
+        "cwd": "web_admin",
+        "node": "v22.23.3",
+        "exitCode": 0,
+        "startedAtUtc": "2026-10-27T02:21:11.871536+00:00",
+        "finishedAtUtc": "2026-10-27T02:21:13.457166+00:00",
+        "log": "/tmp/hudhud-final-web_admin-build.log"
+      }
+    ],
+    "web_hudhud": [
+      {
+        "command": "npm test",
+        "cwd": "web_hudhud",
+        "node": "v22.23.3",
+        "exitCode": 0,
+        "startedAtUtc": "2026-10-27T02:21:08.650177+00:00",
+        "finishedAtUtc": "2026-10-27T02:21:17.725933+00:00",
+        "log": "/tmp/hudhud-final-web_hudhud-test.log"
+      },
+      {
+        "command": "npm run lint",
+        "cwd": "web_hudhud",
+        "node": "v22.23.3",
+        "exitCode": 0,
+        "startedAtUtc": "2026-10-27T02:21:17.726124+00:00",
+        "finishedAtUtc": "2026-10-27T02:21:18.041695+00:00",
+        "log": "/tmp/hudhud-final-web_hudhud-lint.log"
+      },
+      {
+        "command": "VITE_FIRESTORE_ROOT=HudHudDev npm run build",
+        "cwd": "web_hudhud",
+        "node": "v22.23.3",
+        "exitCode": 0,
+        "startedAtUtc": "2026-10-27T02:21:18.041822+00:00",
+        "finishedAtUtc": "2026-10-27T02:21:22.412992+00:00",
+        "log": "/tmp/hudhud-final-web_hudhud-build.log"
+      }
+    ]
+  },
+  "testCounts": {
+    "web_admin": {
+      "tests": 140,
+      "suites": 0,
+      "pass": 115,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 25,
+      "todo": 0,
+      "duration_ms": 3101.56761
+    },
+    "web_hudhud": {
+      "tests": 83,
+      "suites": 0,
+      "pass": 83,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "duration_ms": 8574.083776
+    }
+  },
+  "adminSkippedIdentities": [
+    "real admin image callable re-encodes files in Storage, isolates roots and keeps SDK writes closed",
+    "real image callable rejects authenticated non-admin and forged actor data",
+    "real image callable rejects foreign ownership and global media for station admins",
+    "batch import against emulator: creates programs and episodes, increments counters, and handles unchanged re-imports as no-ops",
+    "R06 existing resource request provides bounded ordinary pages and reaches record2001",
+    "editorial aggregates respect expiry boundaries, activation and explicit null schedules in both roots",
+    "episode deletion is retryable, root-scoped and decrements counters once",
+    "trusted location saves update off-page stations, serialize identity and reject stale reference selection",
+    "station_admin: real callable enforces station scope and reserves account disabling for super admins",
+    "moderator: real callable enforces station scope and reserves account disabling for super admins",
+    "HudHudDev: new comment journey",
+    "HudHudDev: corrected counter control",
+    "HudHudOfficial: new comment journey",
+    "HudHudOfficial: corrected counter control",
+    "HudHudDev: actual comment write handler converges later status changes and deletion",
+    "HudHudOfficial: actual comment write handler converges later status changes and deletion",
+    "trusted program transfer includes off-page children, races safely with creation and rejects overflow",
+    "concurrent moderation resolves off-page reports and decrements once",
+    "real callable rejects unauthenticated callers and cross-station takeover, and permits own-station edits",
+    "actual save transaction preserves retry counters, rejects stale edits and moves atomically in both roots",
+    "R01 admin helpers read canonical private state, enforce stale revisions and delete both projections",
+    "R01 scoped admin cannot load station private metadata through the SDK helper",
+    "R01 offline private reads reject without returning cached metadata or changing either projection",
+    "R07 existing users aggregate route provides counts to verified active scoped administrators",
+    "R07 real callable rejects guest, listener, forged request roles and revoked current authority"
+  ],
+  "original17": [
+    {
+      "id": 1,
+      "file": "web_admin/test/admin-images.emulator.test.ts",
+      "identity": "real admin image callable re-encodes files in Storage, isolates roots and keeps SDK writes closed",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 2,
+      "file": "web_admin/test/admin-images.emulator.test.ts",
+      "identity": "real image callable rejects authenticated non-admin and forged actor data",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 3,
+      "file": "web_admin/test/admin-images.emulator.test.ts",
+      "identity": "real image callable rejects foreign ownership and global media for station admins",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 4,
+      "file": "web_admin/test/batch-import.emulator.test.ts",
+      "identity": "batch import against emulator: creates programs and episodes, increments counters, and handles unchanged re-imports as no-ops",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 5,
+      "file": "web_admin/test/editorial-queries.emulator.test.ts",
+      "identity": "editorial aggregates respect expiry boundaries, activation and explicit null schedules in both roots",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 6,
+      "file": "web_admin/test/episode-deletion.emulator.test.ts",
+      "identity": "episode deletion is retryable, root-scoped and decrements counters once",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 7,
+      "file": "web_admin/test/location-relations.emulator.test.ts",
+      "identity": "trusted location saves update off-page stations, serialize identity and reject stale reference selection",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 8,
+      "file": "web_admin/test/moderation-authorization.emulator.test.ts",
+      "identity": "station_admin: real callable enforces station scope and reserves account disabling for super admins",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 9,
+      "file": "web_admin/test/moderation-authorization.emulator.test.ts",
+      "identity": "moderator: real callable enforces station scope and reserves account disabling for super admins",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 10,
+      "file": "web_admin/test/pl03-moderation.emulator.test.ts",
+      "identity": "HudHudDev: new comment journey",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 11,
+      "file": "web_admin/test/pl03-moderation.emulator.test.ts",
+      "identity": "HudHudDev: corrected counter control",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 12,
+      "file": "web_admin/test/pl03-moderation.emulator.test.ts",
+      "identity": "HudHudOfficial: new comment journey",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 13,
+      "file": "web_admin/test/pl03-moderation.emulator.test.ts",
+      "identity": "HudHudOfficial: corrected counter control",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 14,
+      "file": "web_admin/test/program-transfer.emulator.test.ts",
+      "identity": "trusted program transfer includes off-page children, races safely with creation and rejects overflow",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 15,
+      "file": "web_admin/test/review-report.emulator.test.ts",
+      "identity": "concurrent moderation resolves off-page reports and decrements once",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 16,
+      "file": "web_admin/test/save-authorization.emulator.test.ts",
+      "identity": "real callable rejects unauthenticated callers and cross-station takeover, and permits own-station edits",
+      "ordinaryRun": "SKIPPED"
+    },
+    {
+      "id": 17,
+      "file": "web_admin/test/save-content.emulator.test.ts",
+      "identity": "actual save transaction preserves retry counters, rejects stale edits and moves atomically in both roots",
+      "ordinaryRun": "SKIPPED"
+    }
+  ],
+  "additionalAdminSkippedIdentities": [
+    "R06 existing resource request provides bounded ordinary pages and reaches record2001",
+    "HudHudDev: actual comment write handler converges later status changes and deletion",
+    "HudHudOfficial: actual comment write handler converges later status changes and deletion",
+    "R01 admin helpers read canonical private state, enforce stale revisions and delete both projections",
+    "R01 scoped admin cannot load station private metadata through the SDK helper",
+    "R01 offline private reads reject without returning cached metadata or changing either projection",
+    "R07 existing users aggregate route provides counts to verified active scoped administrators",
+    "R07 real callable rejects guest, listener, forged request roles and revoked current authority"
+  ],
+  "allAdminSkipsUncredited": true,
+  "logsSha256": {
+    "/tmp/hudhud-final-web_admin-test.log": "6fd1867aa3346e129e7531b7bd2b9c6fdaf30f1d2ed26db3345a0c146818bdb6",
+    "/tmp/hudhud-final-web_admin-lint.log": "b47df0ff5f03616a2ef006e87565723f599ad3074ad5eebaa6a157591479c683",
+    "/tmp/hudhud-final-web_admin-build.log": "07b5767beb82c0476011affa3fca6372c6a2b2f0f856d45602190a4f62eb9a01",
+    "/tmp/hudhud-final-web_hudhud-test.log": "cba3a97c646f57a77313c9a4cb92a12eb3e7c1898c2a287d5b5d91b3f49221f3",
+    "/tmp/hudhud-final-web_hudhud-lint.log": "cab0119043435af06b4f0ddfadcc519a54731306f00f0b3bcb0683e6fb8665b5",
+    "/tmp/hudhud-final-web_hudhud-build.log": "6dfff994c3bead7705d23c30cb418be74bb93c20e761f846aaa6c46ab396cb37"
+  },
+  "publicTypecheck": "PASS inside npm run build; no redundant standalone run",
+  "adminTypecheck": "No existing typecheck script; no command invented",
+  "warnings": [
+    "Admin Vite chunk-size advisory: Firebase chunk571.81kB exceeds500kB; retained without source/config changes"
+  ],
+  "limitations": [
+    "No browser/visual/keyboard proof",
+    "No actual provider delivery",
+    "No physical-device acceptance",
+    "No emulator runtime in this assignment; parent separately owns actual admin gate",
+    "No deployed index/config readiness or production authorization",
+    "Source input inventory limited to declared frontend code/assets/packages/configs; parent owns whole-candidate freeze"
+  ],
+  "findings": "R01\u2013R13 remain OPEN",
+  "publicGeneratedServerBuildOutputs": {
+    "functions/public-web/renderer.mjs": "ec9b981c52a276c1a4cd766b314d9ea4e6637a4dc720b02ad2c36e4f66003012",
+    "functions/public-web/index.html": "fbd36c84a7c1844021fffd0506ea73db561a72debce7bfffabd7d33d08d1dc6c",
+    "functions/public-web/build.json": "279b025032a7bb4ab756a0777e36839919dc259f82643786ba07371e1d086682"
+  },
+  "publicBuildOutputLimit": "Existing build writes generated Functions public-web outputs as well as webdist; their final hashes are recorded, no before-hash claim is made. git status for functions/public-web was empty."
+}

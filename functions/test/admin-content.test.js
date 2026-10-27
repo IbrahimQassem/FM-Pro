@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { prepareContentIdentity } from '../lib/admin-content-relations.js';
 import { test } from 'node:test';
 import { Timestamp } from 'firebase-admin/firestore';
 import {
@@ -14,6 +16,55 @@ const fixtures = JSON.parse(
     'utf8',
   ),
 );
+
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  const aliasFixture = () => {
+    const raw = 'https://cdn.example.com/alias.mp3?a=1&amp;b=2', decoded = raw.replace('&amp;', '&');
+    const owner = { stationId: 'alias-station', programId: 'alias-program', audioUrl: decoded, externalId: 'stable-guid' };
+    const keys = [raw, decoded].map(audioUrl => contentIdentity('episodes', { programId: owner.programId, audioUrl }));
+    const reservations = new Map(keys.map(key => [key, { targetKind: 'episodes', targetId: 'alias-owner', keyHash: key,
+      rssAliasVersion: 1, rssOwnerRoot: root, rssOwnerProgramId: owner.programId, rssOwnerStationId: owner.stationId, rssOwnerExternalIdHash: createHash('sha256').update(owner.externalId).digest('hex') }]));
+    const staged = [];
+    const ref = path => ({ path, id: path.split('/').at(-1) });
+    const db = { doc: ref, collection: path => ({ where: () => ({ limit: () => ({ queryPath: path }) }) }) };
+    const tx = { get: async target => {
+      if (target.queryPath) return { size: 1, docs: [{ id: 'alias-owner', data: () => owner }] };
+      const value = target.path.includes('/importKeys/') ? reservations.get(target.id) : target.id === 'alias-owner' ? owner : undefined;
+      return { exists: !!value, data: () => value, get: key => value?.[key] };
+    }, set: (target, value) => staged.push({ action: 'set', target, value }), delete: target => staged.push({ action: 'delete', target }) };
+    return { raw, decoded, owner, keys, reservations, staged, db, tx };
+  };
+  test(`${root}: R09 admin imports cannot steal a verified historical RSS alias`, async () => {
+    const f = aliasFixture();
+    await assert.rejects(prepareContentIdentity(f.tx, f.db, { root, kind: 'episodes', id: 'other', content: { ...f.owner, audioUrl: f.raw }, existing: null }),
+      error => error.code === 'already-exists');
+    assert.equal(f.staged.length, 0);
+  });
+  test(`${root}: R09 editing an RSS URL retains historical alias ownership`, async () => {
+    const f = aliasFixture();
+    const writes = await prepareContentIdentity(f.tx, f.db, { root, kind: 'episodes', id: 'alias-owner',
+      content: { ...f.owner, audioUrl: 'https://cdn.example.com/edited.mp3' }, existing: f.owner });
+    for (const write of writes) write();
+    assert.equal(f.staged.some(write => write.action === 'delete'), false);
+  });
+  test(`${root}: R09 malformed RSS alias proof fails closed instead of releasing an occupied key`, async () => {
+    const f = aliasFixture(); f.reservations.get(f.keys[0]).rssAliasVersion = 99;
+    await assert.rejects(prepareContentIdentity(f.tx, f.db, { root, kind: 'episodes', id: 'other', content: { ...f.owner, audioUrl: f.raw }, existing: null }),
+      error => error.code === 'failed-precondition');
+    assert.equal(f.staged.length, 0);
+  });  for (const [label, change] of [
+    ['foreign root', proof => { proof.rssOwnerRoot = root === 'HudHudDev' ? 'HudHudOfficial' : 'HudHudDev'; }],
+    ['foreign station', proof => { proof.rssOwnerStationId = 'other-station'; }],
+    ['foreign program', proof => { proof.rssOwnerProgramId = 'other-program'; }],
+    ['external identity mismatch', proof => { proof.rssOwnerExternalIdHash = 'f'.repeat(64); }],
+  ]) test(`${root}: R09 ${label} proof cannot authorize alias ownership`, async () => {
+    const f = aliasFixture(); change(f.reservations.get(f.keys[0]));
+    await assert.rejects(prepareContentIdentity(f.tx, f.db, { root, kind: 'episodes', id: 'other', content: { ...f.owner, audioUrl: f.raw }, existing: null }),
+      error => error.code === 'failed-precondition');
+    assert.equal(f.staged.length, 0);
+  });
+
+}
 function fields(kind) {
   const { stats, ...content } = fixtures[kind];
   if (kind === 'stations' || kind === 'locations')

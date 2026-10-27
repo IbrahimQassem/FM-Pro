@@ -1,3 +1,4 @@
+import 'package:hudhud_fm/features/account/domain/models/account_registration_result.dart';
 import 'dart:typed_data';
 import "package:flutter/material.dart";
 import "package:flutter_localizations/flutter_localizations.dart";
@@ -113,10 +114,71 @@ void main() {
     await tester.pump();
     expect(repository.provider, AccountSignInProvider.google);
   });
+
+  for (final locale in [const Locale('en'), const Locale('ar')]) {
+    for (final delivery in [
+      AccountVerificationDelivery.failed,
+      AccountVerificationDelivery.rateLimited
+    ]) {
+      testWidgets(
+          'registration $delivery uses safe feedback at 200% ${locale.languageCode}',
+          (tester) async {
+        tester.view.physicalSize = const Size(1200, 3000);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final repository = _FakeAccountRepository()..delivery = delivery;
+        await tester.pumpWidget(
+            _TestApp(repository: repository, locale: locale, textScale: 2));
+        await tester.pumpAndSettle();
+        for (final field in {
+          'account-name': 'Synthetic listener',
+          'account-email': 'new@example.test',
+          'account-password': 'test-only-password',
+          'account-confirm-password': 'test-only-password'
+        }.entries) {
+          await tester.ensureVisible(find.byKey(Key(field.key)));
+          await tester.enterText(find.byKey(Key(field.key)), field.value);
+        }
+        await tester.ensureVisible(find.byKey(const Key('account-submit')));
+        await tester.tap(find.byKey(const Key('account-submit')));
+        await tester.pumpAndSettle();
+        final strings =
+            AppLocalizations.of(tester.element(find.byType(RegisterScreen)));
+        expect(
+            find.text(delivery == AccountVerificationDelivery.rateLimited
+                ? strings.verificationRateLimited
+                : strings.verificationDeliveryFailed),
+            findsOneWidget);
+        expect(find.text(strings.verificationCodeSent), findsNothing);
+        expect(repository.registerCalls, 1);
+        final context = tester.element(find.byType(RegisterScreen));
+        expect(
+            Directionality.of(context),
+            locale.languageCode == 'ar'
+                ? TextDirection.rtl
+                : TextDirection.ltr);
+        final controller = ProviderScope.containerOf(context)
+            .read(accountControllerProvider.notifier);
+        await controller.register(
+            displayName: 'Duplicate',
+            email: 'new@example.test',
+            password: 'test-only');
+        expect(repository.registerCalls, 1);
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
 }
 
 class _TestApp extends StatelessWidget {
-  const _TestApp({required this.repository});
+  const _TestApp(
+      {required this.repository,
+      this.locale = const Locale("ar"),
+      this.textScale = 1});
+
+  final Locale locale;
+  final double textScale;
 
   final AccountRepository repository;
 
@@ -124,8 +186,8 @@ class _TestApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ProviderScope(
       overrides: [accountRepositoryProvider.overrideWithValue(repository)],
-      child: const MaterialApp(
-        locale: Locale("ar"),
+      child: MaterialApp(
+        locale: locale,
         supportedLocales: AppLocalizations.supportedLocales,
         localizationsDelegates: [
           AppLocalizations.delegate,
@@ -133,7 +195,11 @@ class _TestApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        home: RegisterScreen(),
+        builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(textScale)),
+            child: child!),
+        home: const RegisterScreen(),
       ),
     );
   }
@@ -141,6 +207,8 @@ class _TestApp extends StatelessWidget {
 
 class _FakeAccountRepository implements AccountRepository {
   AccountSignInProvider? provider;
+  int registerCalls = 0;
+  AccountVerificationDelivery delivery = AccountVerificationDelivery.sent;
   String? registeredName;
   String? registeredEmail;
   String? registeredPassword;
@@ -160,7 +228,7 @@ class _FakeAccountRepository implements AccountRepository {
   @override
   Future<void> verifyEmailCode(String code) async {}
   @override
-  Future<void> register({
+  Future<AccountRegistrationResult> register({
     required String displayName,
     required String email,
     required String password,
@@ -168,6 +236,9 @@ class _FakeAccountRepository implements AccountRepository {
     registeredName = displayName;
     registeredEmail = email;
     registeredPassword = password;
+
+    registerCalls++;
+    return AccountRegistrationResult(verificationDelivery: delivery);
   }
 
   @override

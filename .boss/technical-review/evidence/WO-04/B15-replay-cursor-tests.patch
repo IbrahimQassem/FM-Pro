@@ -1,0 +1,67 @@
+--- a/tool/test/reconcile_comment_counts.test.mjs
++++ b/tool/test/reconcile_comment_counts.test.mjs
+@@ -9,7 +9,7 @@
+ import { prepareNewEpisodeCountBaseline, prepareCommentCountMutation, reconcileCommentCount } from '../../functions/lib/comment-counts.js';
+ import fsPromises from 'node:fs/promises';
+ import { syncBuiltinESMExports } from 'node:module';
+-import { createHash } from 'node:crypto';
++import { createHash, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
+ import { spawnSync } from 'node:child_process';
+ import { encodeCleanupValue } from '../remove_old_locations.mjs';
+ import { CommentCountBackupStore, createCommentCountDemoFirestore, previewCommentCountReconciliation, bootstrapEmptyCommentCountRoot } from '../reconcile_comment_counts.mjs';
+@@ -719,4 +719,54 @@
+   assert.equal(f.raw.writes.length, writes);
+ }, 'HudHudDev', true));
+ 
+-}
++
++async function authenticatedReviewReplay(f) {
++  const name = (await fsPromises.readdir(f.config.directory)).find(value => value.endsWith('.counts-replay'));
++  assert.ok(name, 'The actual successful apply must have published its genuine private replay head.');
++  const path = join(f.config.directory, name), envelope = JSON.parse(await readFile(path, 'utf8'));
++  const identity = await fsPromises.lstat(f.config.directory);
++  const aad = Buffer.from(`comment-count-replay:1:${envelope.bindingHash}:${identity.dev}:${identity.ino}:${envelope.expiresAt}`);
++  const decipher = createDecipheriv('aes-256-gcm', f.config.key, Buffer.from(envelope.nonce, 'base64'));
++  decipher.setAAD(aad); decipher.setAuthTag(Buffer.from(envelope.tag, 'base64'));
++  const value = JSON.parse(Buffer.concat([decipher.update(Buffer.from(envelope.ciphertext, 'base64')), decipher.final()]).toString('utf8'));
++  return { path, envelope, aad, value };
++}
++async function publishReviewReplayType(f, original, field, value) {
++  const body = { ...original.value, [field]: value }, nonce = randomBytes(12);
++  const cipher = createCipheriv('aes-256-gcm', f.config.key, nonce); cipher.setAAD(original.aad);
++  const ciphertext = Buffer.concat([cipher.update(JSON.stringify(body)), cipher.final()]);
++  await writeFile(original.path, JSON.stringify({ ...original.envelope,
++    hash: createHash('sha256').update(JSON.stringify(encodeCleanupValue(body))).digest('hex'),
++    nonce: nonce.toString('base64'), tag: cipher.getAuthTag().toString('base64'), ciphertext: ciphertext.toString('base64') }));
++}
++for (const [field, invalid] of [['lastEpisode', { content: 'Synthetic invalid cursor content', authorId: 'synthetic-only-author' }],
++  ['lastHead', ['Synthetic invalid head cursor']]]) {
++  test(`review replay cursor regression: authenticated ${field} rejects malformed type before local publication`, async () => fixture(async f => {
++    f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await runFull(f.input);
++    const original = await authenticatedReviewReplay(f);
++    assert.equal(original.value.lastEpisode, null); assert.equal(original.value.lastHead, null);
++    await publishReviewReplayType(f, original, field, invalid);
++    const before = await readFile(original.path), writes = f.raw.writes.length;
++    await assert.rejects(fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 }),
++      'Authenticated state must still satisfy existing nullable opaque-ID/hash types; malformed progress cannot be republished.');
++    assert.deepEqual(await readFile(original.path), before, 'Rejected malformed state cannot publish a new local revision.');
++    assert.equal(f.raw.writes.length, writes, 'Accepted historical replay remains Firestore read-only.');
++  }, 'HudHudDev', true));
++}
++test('review replay cursor control: genuine null and string cursors survive accepted bounded replay', async () => fixture(async f => {
++  f.raw.seed('HudHudDev/episodes/episodes/e', { stats: { commentsCount: 0 } }); await runFull(f.input);
++  const initial = await authenticatedReviewReplay(f); assert.equal(initial.value.lastEpisode, null); assert.equal(initial.value.lastHead, null);
++  const writes = f.raw.writes.length; let strings = false;
++  for (let n = 0; n < 2000; n++) {
++    const result = await fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 });
++    const current = await authenticatedReviewReplay(f);
++    if (typeof current.value.lastEpisode === 'string' && typeof current.value.lastHead === 'string') {
++      assert.equal(countId(current.value.lastEpisode), true); assert.equal(countHash(current.value.lastHead), true);
++      await fullTool.applyCommentCountReconciliation({ ...f.input, maxItems: 1 }); strings = true; break;
++    }
++    assert.notEqual(result.status, 'active', 'A genuine historical string cursor must be observed before proof exhaustion.');
++  }
++  assert.equal(strings, true); assert.equal(f.raw.writes.length, writes);
++}, 'HudHudDev', true));
++
++}

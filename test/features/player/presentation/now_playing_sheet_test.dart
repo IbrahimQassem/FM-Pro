@@ -148,4 +148,56 @@ void main() {
 
     expect(find.byType(NowPlayingSheet), findsNothing);
   });
+  testWidgets(
+      'Sleep deadline and cancel action survive an episode switch and disappear after stop',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 932);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final harness = ReviewHarness();
+    late WidgetRef playerRef;
+    await tester.pumpWidget(harness.app(Consumer(builder: (context, ref, _) {
+      playerRef = ref;
+      final state = ref.watch(stationPlayerControllerProvider);
+      final controller = ref.read(stationPlayerControllerProvider.notifier);
+      return Scaffold(
+          bottomNavigationBar: state.hasSelection
+              ? MiniPlayer(
+                  state: state,
+                  onToggle: controller.toggleCurrent,
+                  onStop: controller.stop)
+              : null);
+    })));
+    final controller = playerRef.read(stationPlayerControllerProvider.notifier);
+    await controller.play(reviewStation);
+    controller.setSleepTimer(const Duration(minutes: 15));
+    final deadline = controller.state.sleepTimerEnd;
+    await tester.pump();
+    await tester.tap(find.byType(MiniPlayer));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await controller.playEpisode(reviewEpisode, reviewStation);
+    await tester.pump();
+    expect(controller.state.sleepTimerEnd, deadline);
+    expect(find.byIcon(Icons.bedtime_rounded), findsOneWidget);
+    await tester.ensureVisible(find.byIcon(Icons.bedtime_rounded));
+    await tester.tap(find.byIcon(Icons.bedtime_rounded));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byIcon(Icons.timer_off_outlined), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.timer_off_outlined));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(controller.state.sleepTimerEnd, isNull);
+    expect(find.byIcon(Icons.bedtime_outlined), findsOneWidget);
+    controller.setSleepTimer(const Duration(minutes: 15));
+    await controller.stop();
+    await tester.pump();
+    expect(controller.state.hasSleepTimer, false);
+    expect(find.byIcon(Icons.bedtime_rounded), findsNothing);
+    expect(find.byIcon(Icons.timer_off_outlined), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+  });
 }

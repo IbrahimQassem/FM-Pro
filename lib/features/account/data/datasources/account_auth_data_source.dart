@@ -12,6 +12,7 @@ import '../../../../core/config/app_config.dart';
 import '../../../../core/config/firestore_paths.dart';
 import '../../../../core/config/profile_avatar.dart';
 import '../../domain/models/account_sign_in_provider.dart';
+import '../../domain/models/account_registration_result.dart';
 import 'dart:developer' as developer;
 
 class AccountAuthSnapshot {
@@ -43,7 +44,7 @@ abstract interface class AccountAuthDataSource {
 
   Future<void> signIn({required String email, required String password});
 
-  Future<void> register({
+  Future<AccountRegistrationResult> register({
     required String displayName,
     required String email,
     required String password,
@@ -176,7 +177,7 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
   }
 
   @override
-  Future<void> register({
+  Future<AccountRegistrationResult> register({
     required String displayName,
     required String email,
     required String password,
@@ -191,10 +192,18 @@ class FirebaseAccountAuthDataSource implements AccountAuthDataSource {
     await user.reload();
     try {
       await requestEmailVerificationCode();
-    } on Object catch (error) {
-      debugPrint('Initial email verification code delivery failed: $error');
-      // Do not fail account registration if the initial code dispatch fails;
-      // the account is successfully created and the user can request resending the code.
+      return const AccountRegistrationResult(
+          verificationDelivery: AccountVerificationDelivery.sent);
+    } on FirebaseFunctionsException catch (error) {
+      return AccountRegistrationResult(
+          verificationDelivery: error.code == 'resource-exhausted'
+              ? AccountVerificationDelivery.rateLimited
+              : AccountVerificationDelivery.failed);
+    } on Object {
+      // Keep the created account unverified and allow resend. Never log the
+      // callable exception: its message may contain account or delivery data.
+      return const AccountRegistrationResult(
+          verificationDelivery: AccountVerificationDelivery.failed);
     }
   }
 

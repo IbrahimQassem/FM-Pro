@@ -1,0 +1,1157 @@
+diff --git a/tool/migrate_program_notification_dates.mjs b/tool/migrate_program_notification_dates.mjs
+new file mode 100644
+--- /dev/null
++++ b/tool/migrate_program_notification_dates.mjs
+@@ -0,0 +1,614 @@
++#!/usr/bin/env node
++import { createHash, randomBytes, createCipheriv, createDecipheriv } from 'node:crypto';
++import { constants } from 'node:fs';
++import { open, realpath, lstat } from 'node:fs/promises';
++import { createRequire } from 'node:module';
++import { resolve, relative, isAbsolute, join, sep, dirname } from 'node:path';
++import { fileURLToPath } from 'node:url';
++import { normalizedSchedule, localTime, legacyDates, fingerprint } from '../functions/lib/program-notifications.js';
++import { notificationFailure } from '../functions/lib/notification-delivery.js';
++import { encodeCleanupValue } from './remove_old_locations.mjs';
++
++const require = createRequire(new URL('../functions/package.json', import.meta.url));
++const { Timestamp, FieldValue } = require('firebase-admin/firestore');
++const roots = ['HudHudDev', 'HudHudOfficial'];
++const HEX = /^[0-9a-f]{64}$/;
++const fail = () => { throw new Error('Program date migration scope, source, proof or backup precondition failed.'); };
++const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
++const fingerprintValue = value => hash(encodeCleanupValue(value));
++const same = (a, b) => fingerprintValue(a) === fingerprintValue(b);
++const id = value => typeof value === 'string' && value.length >= 1 && value.length <= 128 && value === value.trim() && !value.includes('/') && !['.', '..'].includes(value);
++const native = value => value instanceof Timestamp && Number.isSafeInteger(value.seconds) && value.seconds >= -62135596800 && value.seconds <= 253402300799 &&
++  Number.isInteger(value.nanoseconds) && value.nanoseconds >= 0 && value.nanoseconds < 1000000000;
++const sameNative = (a, b) => native(a) && native(b) && a.seconds === b.seconds && a.nanoseconds === b.nanoseconds;
++const canonicalDate = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && value >= '0001-01-01' && value <= '9999-12-31' &&
++  Number.isFinite(Date.parse(`${value}T00:00:00.000Z`)) && new Date(`${value}T00:00:00.000Z`).toISOString().slice(0, 10) === value;
++const canonicalCutoff = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value) && canonicalDate(value.slice(0, 10)) &&
++  Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value;
++const nextDate = value => {
++  const next = new Date(Date.parse(`${value}T00:00:00.000Z`) + 86400000);
++  return next.getUTCFullYear() <= 9999 ? next.toISOString().slice(0, 10) : null;
++};
++const closed = (value, keys) => value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === keys.length && Object.keys(value).every(key => keys.includes(key));
++
++function scope(options, db) {
++  const fields = ['mode', 'projectId', 'root', 'programId', 'fromLocalDate', 'toLocalDate', 'cutoverAt', 'cursor', 'maxItems', 'directory', 'keyFile', 'expiresAt', 'manifestHash', 'owner'];
++  if (!options || typeof options !== 'object' || Object.keys(options).some(key => !fields.includes(key))) fail();
++  if (!/^[a-z][a-z0-9-]{4,62}$/.test(options.projectId ?? '') || !roots.includes(options.root) || !id(options.programId) ||
++    !canonicalDate(options.fromLocalDate) || !canonicalDate(options.toLocalDate) || options.toLocalDate < options.fromLocalDate ||
++    Date.parse(`${options.toLocalDate}T00:00:00.000Z`) - Date.parse(`${options.fromLocalDate}T00:00:00.000Z`) > 30 * 86400000 ||
++    !canonicalCutoff(options.cutoverAt) || (options.cursor !== undefined && (!canonicalDate(options.cursor) || options.cursor < options.fromLocalDate || options.cursor > options.toLocalDate)) ||
++    (db && db.projectId !== options.projectId)) fail();
++  const maxItems = options.maxItems ?? 25;
++  if (!Number.isInteger(maxItems) || maxItems < 1 || maxItems > 25 || !['preview', 'apply', 'restore'].includes(options.mode ?? 'preview')) fail();
++  return maxItems;
++}
++export function parseProgramDateMigrationArgs(args) {
++  const options = { mode: 'preview' }, names = { '--project': 'projectId', '--root': 'root', '--program': 'programId', '--from': 'fromLocalDate', '--to': 'toLocalDate',
++    '--cutover-at': 'cutoverAt', '--cursor': 'cursor', '--max-items': 'maxItems', '--backup-dir': 'directory', '--key-file': 'keyFile', '--expires-at': 'expiresAt', '--manifest': 'manifestHash', '--owner': 'owner' };
++  let selected;
++  for (let i = 0; i < args.length; i++) {
++    const key = args[i];
++    if (['--dry-run', '--apply', '--restore'].includes(key)) {
++      if (selected) fail(); selected = key; options.mode = key === '--dry-run' ? 'preview' : key.slice(2);
++    } else if (names[key] && options[names[key]] === undefined && args[i + 1] && !args[i + 1].startsWith('--')) options[names[key]] = args[++i];
++    else fail();
++  }
++  options.maxItems = Number(options.maxItems ?? 25);
++  scope(options);
++  if (options.expiresAt !== undefined) options.expiresAt = Number(options.expiresAt);
++  if (options.owner !== undefined && !id(options.owner)) fail();
++  if (options.mode !== 'preview' && (!HEX.test(options.manifestHash ?? '') || !options.directory || !options.keyFile || !Number.isSafeInteger(options.expiresAt))) fail();
++  return options;
++}
++
++// Decode only the accepted notification-purpose codec. Generic cleanup codecs
++// also support references/bytes/points; those are deliberately inadmissible here.
++function decodePurpose(node) {
++  if (!closed(node, ['t', 'v'])) fail();
++  if (node.t === 'timestamp') {
++    if (!Array.isArray(node.v) || node.v.length !== 2 || !Number.isSafeInteger(node.v[0]) || !Number.isInteger(node.v[1])) fail();
++    const value = new Timestamp(...node.v); if (!native(value)) fail(); return value;
++  }
++  if (node.t === 'value') {
++    if (node.v !== null && !['string', 'boolean', 'number'].includes(typeof node.v)) fail();
++    if (typeof node.v === 'number' && !Number.isFinite(node.v)) fail(); return node.v;
++  }
++  if (node.t === 'array') { if (!Array.isArray(node.v)) fail(); return node.v.map(decodePurpose); }
++  if (node.t === 'map') {
++    if (!Array.isArray(node.v)) fail();
++    let prior = null;
++    for (const pair of node.v) {
++      if (!Array.isArray(pair) || pair.length !== 2 || typeof pair[0] !== 'string' || (prior !== null && pair[0] <= prior)) fail(); prior = pair[0];
++    }
++    return Object.fromEntries(node.v.map(([key, value]) => [key, decodePurpose(value)]));
++  }
++  fail();
++}
++function image(snapshot, data = snapshot.data()) {
++  if (!snapshot.exists) return { exists: false };
++  if (!native(snapshot.createTime) || !native(snapshot.updateTime)) fail();
++  return { exists: true, data: encodeCleanupValue(data), createTime: encodeCleanupValue(snapshot.createTime), updateTime: encodeCleanupValue(snapshot.updateTime) };
++}
++function decodeImage(value, validate) {
++  if (value?.exists === false) { if (!closed(value, ['exists'])) fail(); return null; }
++  if (!closed(value, ['exists', 'data', 'createTime', 'updateTime']) || value.exists !== true ||
++    !native(decodePurpose(value.createTime)) || !native(decodePurpose(value.updateTime))) fail();
++  const data = decodePurpose(value.data); validate(data); return data;
++}
++const select = (value, fields) => Object.fromEntries(fields.filter(key => Object.hasOwn(value, key)).map(key => [key, value[key]]));
++const programFields = ['stationId', 'isActive', 'schedule', 'lastNotifiedDate', 'lastNotifiedPolicyVersion', 'adminDeletionToken'];
++const stationFields = ['isActive', 'adminDeletionToken'];
++const receiptFields = ['status', 'phase', 'lease', 'fingerprint', 'leaseUntil', 'attempts', 'createdAt', 'updatedAt', 'expiresAt', 'cleanupAt', 'retryAt', 'retryable', 'reason', 'messageId', 'programCompatibility'];
++function validateReceipt(data) {
++  if (!data || typeof data !== 'object' || Array.isArray(data) || Object.keys(data).some(key => !receiptFields.includes(key))) fail();
++  for (const [key, value] of Object.entries(data)) {
++    if (['createdAt', 'updatedAt', 'expiresAt', 'cleanupAt', 'retryAt', 'leaseUntil'].includes(key)) { if (!native(value)) fail(); }
++    else if (key === 'programCompatibility') validateCompatibility(value);
++    else if (key === 'attempts') { if (!Number.isSafeInteger(value) || value < 0) fail(); }
++    else if (key === 'retryable') { if (typeof value !== 'boolean') fail(); }
++    else if (typeof value !== 'string' || value.length > (key === 'messageId' ? 256 : 128)) fail();
++  }
++}
++function validateCompatibility(proof) {
++  const base = ['version', 'manifestHash', 'cutoverAt', 'programCreateTime', 'scheduleFingerprint', 'legacyDates', 'legacyKeys', 'evidenceHashes', 'decision', 'recordedAt'];
++  const carry = ['legacySourceKey', 'legacySourceCreateTime', 'legacySourceUpdateTime'];
++  if (!proof || !closed(proof, proof.decision === 'suppressed' ? base : [...base, ...carry]) || proof.version !== 1 || !HEX.test(proof.manifestHash ?? '') ||
++    !HEX.test(proof.scheduleFingerprint ?? '') || !native(proof.cutoverAt) || !native(proof.programCreateTime) || !native(proof.recordedAt) ||
++    !['suppressed', 'carried-prepared', 'carried-retryable', 'carried-terminal-failed'].includes(proof.decision) ||
++    !Array.isArray(proof.legacyDates) || proof.legacyDates.length < 1 || proof.legacyDates.length > 2 || !proof.legacyDates.every(canonicalDate) ||
++    (proof.legacyDates.length === 2 && proof.legacyDates[0] >= proof.legacyDates[1]) || !Array.isArray(proof.legacyKeys) || proof.legacyKeys.length !== proof.legacyDates.length || !proof.legacyKeys.every(key => HEX.test(key)) ||
++    !Array.isArray(proof.evidenceHashes) || proof.evidenceHashes.length > 3 || !proof.evidenceHashes.every(key => HEX.test(key)) ||
++    (proof.decision !== 'suppressed' && (!HEX.test(proof.legacySourceKey ?? '') || !native(proof.legacySourceCreateTime) || !native(proof.legacySourceUpdateTime)))) fail();
++}
++function sourceProjection(snapshot, fields) { return image(snapshot, snapshot.exists ? select(snapshot.data(), fields) : undefined); }
++function programShape(data) {
++  if (!data || Object.keys(data).some(key => !programFields.includes(key)) || !id(data.stationId) || data.isActive !== true || data.adminDeletionToken ||
++    !closed(data.schedule, ['weekdays', 'startMinute', 'endMinute', 'utcOffsetMinutes']) || !normalizedSchedule(data.schedule) ||
++    (data.lastNotifiedDate !== undefined && (typeof data.lastNotifiedDate !== 'string' || data.lastNotifiedDate.length > 10)) ||
++    (data.lastNotifiedPolicyVersion !== undefined && !Number.isSafeInteger(data.lastNotifiedPolicyVersion))) fail();
++}
++function stationShape(data) {
++  if (!data || Object.keys(data).some(key => !stationFields.includes(key)) || data.isActive !== true || data.adminDeletionToken) fail();
++}
++
++const demoTransports = new WeakMap(), backupStores = new WeakSet(), backupToken = Symbol('program-date-backup');
++const recoveryWindow = 3600000, leaseDuration = 120000;
++const demoHost = (projectId, host) => {
++  if (!/^demo-[a-z0-9-]{1,58}$/.test(projectId ?? '') || !/^(127\.0\.0\.1|localhost):[1-9][0-9]{0,4}$/.test(host ?? '') || Number(host.split(':').at(-1)) > 65535 ||
++    (process.env.FIRESTORE_EMULATOR_HOST && process.env.FIRESTORE_EMULATOR_HOST !== host)) fail();
++};
++export function createProgramDateDemoFirestore({ projectId, emulatorHost = process.env.FIRESTORE_EMULATOR_HOST }) {
++  demoHost(projectId, emulatorHost);
++  const { Firestore } = require('firebase-admin/firestore');
++  const client = new Firestore(); client.settings({ projectId, host: emulatorHost, ssl: false });
++  const facade = Object.freeze({ projectId, doc: client.doc.bind(client), runTransaction: client.runTransaction.bind(client), terminate: client.terminate.bind(client) });
++  demoTransports.set(facade, { projectId, host: emulatorHost }); return facade;
++}
++function trustedDemo(options, db) {
++  const binding = demoTransports.get(db);
++  if (!binding || binding.projectId !== options.projectId) fail();
++  demoHost(binding.projectId, binding.host);
++}
++
++/** Narrow immutable notification manifests; no operator clock/verification adapter. */
++export class ProgramDateBackupStore {
++  #directory; #key; #expiresAt; #identity; #files = new Map();
++  constructor(token, config, identity) {
++    if (token !== backupToken) fail();
++    this.#directory = config.directory; this.#key = Buffer.from(config.key); this.#expiresAt = config.expiresAt; this.#identity = identity;
++  }
++  static async open(config) {
++    if (!closed(config, ['directory', 'key', 'expiresAt']) || typeof config.directory !== 'string' || !isAbsolute(config.directory) ||
++      !Buffer.isBuffer(config.key) || config.key.length !== 32 || !Number.isSafeInteger(config.expiresAt)) fail();
++    const actual = await realpath(config.directory), stat = await lstat(config.directory);
++    if (stat.isSymbolicLink()) fail();
++    const store = new ProgramDateBackupStore(backupToken, { ...config, directory: actual }, { dev: stat.dev, ino: stat.ino });
++    await store.#checkDirectory(); backupStores.add(store); return Object.freeze(store);
++  }
++  get expiresAt() { return this.#expiresAt; }
++  async #checkDirectory() {
++    const now = Date.now();
++    if (!Number.isSafeInteger(now) || this.#expiresAt - now < recoveryWindow || this.#expiresAt > now + 30 * 86400000) fail();
++    const actual = await realpath(this.#directory), stat = await lstat(this.#directory), repo = await realpath(fileURLToPath(new URL('../', import.meta.url)));
++    const inside = relative(repo, actual);
++    if (actual !== this.#directory || stat.dev !== this.#identity.dev || stat.ino !== this.#identity.ino || !stat.isDirectory() || stat.isSymbolicLink() ||
++      (stat.mode & 0o077) !== 0 || (process.getuid && stat.uid !== process.getuid()) || !inside ||
++      (inside !== '..' && !inside.startsWith(`..${sep}`) && !isAbsolute(inside)) || actual.split('/').includes('.boss')) fail();
++    let parent = actual;
++    for (let depth = 0; depth < 64; depth++) {
++      try { await lstat(join(parent, '.git')); fail(); } catch (error) { if (error?.code !== 'ENOENT') throw error; }
++      const next = dirname(parent); if (next === parent) return actual; parent = next;
++    }
++    fail();
++  }
++  async put(manifest) {
++    validateProgramDateManifest(manifest);
++    const directory = await this.#checkDirectory(), key = manifest.manifestHash;
++    const nonce = randomBytes(12), aad = Buffer.from(JSON.stringify(['program-date-migration-backup', 1, key, this.#expiresAt]));
++    const cipher = createCipheriv('aes-256-gcm', this.#key, nonce); cipher.setAAD(aad);
++    const ciphertext = Buffer.concat([cipher.update(JSON.stringify(manifest)), cipher.final()]);
++    const body = JSON.stringify({ version: 1, kind: 'program-date-migration-backup', manifestHash: key, expiresAt: this.#expiresAt,
++      nonce: nonce.toString('base64'), tag: cipher.getAuthTag().toString('base64'), ciphertext: ciphertext.toString('base64') });
++    if (Buffer.byteLength(body) > 1048576) fail();
++    let handle;
++    try { handle = await open(join(directory, `${key}.program-date-backup`), 'wx', 0o600); await handle.writeFile(body); await handle.sync(); }
++    catch (error) { if (error?.code !== 'EEXIST') throw error; }
++    finally { await handle?.close(); }
++    const folder = await open(directory, 'r'); try { await folder.sync(); } finally { await folder.close(); }
++    if (!same(await this.get(key), manifest)) fail(); return key;
++  }
++  async get(key) {
++    if (!HEX.test(key ?? '')) fail();
++    const directory = await this.#checkDirectory(), path = join(directory, `${key}.program-date-backup`), stat = await lstat(path);
++    const valid = value => value.isFile() && !value.isSymbolicLink() && value.nlink === 1 && (value.mode & 0o077) === 0 &&
++      (!process.getuid || value.uid === process.getuid()) && value.size <= 1048576;
++    if (!valid(stat)) fail();
++    const handle = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW); let envelope;
++    try {
++      const opened = await handle.stat(), prior = this.#files.get(key);
++      if (!valid(opened) || opened.dev !== stat.dev || opened.ino !== stat.ino || (prior && (prior.dev !== opened.dev || prior.ino !== opened.ino))) fail();
++      this.#files.set(key, { dev: opened.dev, ino: opened.ino });
++      envelope = JSON.parse(await handle.readFile('utf8'));
++    } finally { await handle.close(); }
++    await this.#checkDirectory();
++    if (!closed(envelope, ['version', 'kind', 'manifestHash', 'expiresAt', 'nonce', 'tag', 'ciphertext']) || envelope.version !== 1 || envelope.kind !== 'program-date-migration-backup' ||
++      envelope.manifestHash !== key || envelope.expiresAt !== this.#expiresAt) fail();
++    const bytes = (value, size) => {
++      if (typeof value !== 'string') fail(); const result = Buffer.from(value, 'base64');
++      if (result.toString('base64') !== value || (size !== undefined && result.length !== size)) fail(); return result;
++    };
++    const decipher = createDecipheriv('aes-256-gcm', this.#key, bytes(envelope.nonce, 12));
++    decipher.setAAD(Buffer.from(JSON.stringify(['program-date-migration-backup', 1, key, this.#expiresAt]))); decipher.setAuthTag(bytes(envelope.tag, 16));
++    const manifest = JSON.parse(Buffer.concat([decipher.update(bytes(envelope.ciphertext)), decipher.final()]).toString('utf8'));
++    validateProgramDateManifest(manifest);
++    if (manifest.manifestHash !== key) fail(); return manifest;
++  }
++}
++Object.freeze(ProgramDateBackupStore.prototype);
++
++function occurrenceDates(schedule, cursor, to, cap) {
++  const dates = []; let date = cursor, nextCursor = null;
++  for (let visited = 0; date && date <= to && visited < 31; visited++, date = nextDate(date)) {
++    const weekday = localTime(Date.parse(`${date}T00:00:00.000Z`), 0).weekday;
++    if (schedule.weekdays.includes(weekday)) {
++      if (dates.length === cap) { nextCursor = date; break; }
++      if (!legacyDates(date, schedule.utcOffsetMinutes)) fail();
++      dates.push(date);
++    }
++  }
++  return { dates, nextCursor };
++}
++function supportedReceipt(data) {
++  if (!data || !['pending', 'failed'].includes(data.status) || !['claimed', 'sending'].includes(data.phase) ||
++    !Number.isSafeInteger(data.attempts) || data.attempts < 1 || !['createdAt', 'updatedAt', 'expiresAt', 'cleanupAt'].every(field => native(data[field])) ||
++    data.updatedAt.toMillis() < data.createdAt.toMillis() || data.expiresAt.toMillis() <= data.createdAt.toMillis() || data.cleanupAt.toMillis() < data.expiresAt.toMillis()) return false;
++  if (data.status === 'pending') return id(data.lease) && native(data.leaseUntil);
++  return typeof data.retryable === 'boolean' && native(data.retryAt) &&
++    (['preparation-failed', 'ineligible', 'expired'].includes(data.reason) || notificationFailure({ code: data.reason }).status === 'failed');
++}
++function decision(manifest, item) {
++  const program = decodeImage(manifest.program, programShape), schedule = normalizedSchedule(program.schedule);
++  const target = decodeImage(item.before, validateReceipt), sources = item.legacy.map(value => decodeImage(value.before, validateReceipt));
++  const now = decodePurpose(manifest.cutoverAt).toMillis();
++  if (target && ['sent', 'unknown'].includes(target.status)) return { decision: 'existing-terminal', action: 'preserved-terminal' };
++  let terminal = false;
++  if (program.lastNotifiedDate !== undefined || program.lastNotifiedPolicyVersion !== undefined) {
++    if (!canonicalDate(program.lastNotifiedDate) || ![undefined, 1, 2].includes(program.lastNotifiedPolicyVersion)) return { decision: 'blocked', action: 'blocked' };
++    terminal = program.lastNotifiedPolicyVersion === 2 ? program.lastNotifiedDate === item.localDate : item.legacyDates.includes(program.lastNotifiedDate);
++  }
++  terminal ||= sources.some(data => data && (['sent', 'unknown'].includes(data.status) ||
++    (data.status === 'pending' && data.phase === 'sending' && native(data.leaseUntil) && data.leaseUntil.toMillis() <= now)));
++  if (terminal) {
++    if (target && !supportedReceipt(target)) return { decision: 'blocked', action: 'blocked' };
++    return { decision: 'terminal-suppression', action: target ? 'strengthened-suppression' : 'created-suppression' };
++  }
++  const present = sources.filter(Boolean);
++  if (target) {
++    if (!present.length && supportedReceipt(target) && target.fingerprint === item.fingerprint) return { decision: 'existing-v2', action: 'clear-noop' };
++    return { decision: 'blocked', action: 'blocked' };
++  }
++  if (present.length > 1) return { decision: 'blocked', action: 'blocked' };
++  if (present.length === 1) {
++    const data = present[0];
++    if (!supportedReceipt(data) || data.fingerprint !== undefined) return { decision: 'blocked', action: 'blocked' };
++    if (data.status === 'pending') {
++      if (data.phase === 'sending') return { decision: 'blocked', action: 'blocked' };
++      if (data.expiresAt.toMillis() <= now) return data.leaseUntil.toMillis() > now ? { decision: 'blocked', action: 'blocked' } : { decision: 'terminal-failed', action: 'carried-terminal-failed' };
++      return { decision: 'prepared', action: 'carried-prepared' };
++    }
++    if (!data.retryable || data.expiresAt.toMillis() <= now) return { decision: 'terminal-failed', action: 'carried-terminal-failed' };
++    return { decision: 'retryable', action: 'carried-retryable' };
++  }
++  const endedAt = Date.parse(`${item.localDate}T00:00:00.000Z`) - schedule.utcOffsetMinutes * 60000 + (schedule.startMinute + 1) * 60000;
++  return endedAt < now ? { decision: 'historical-uncertain', action: 'blocked' } : { decision: 'clear', action: 'clear-noop' };
++}
++const manifestFields = ['version', 'kind', 'projectId', 'root', 'programId', 'cutoverAt', 'fromLocalDate', 'toLocalDate', 'cursor', 'nextCursor', 'program', 'station', 'items', 'manifestHash'];
++function manifestOptions(manifest) {
++  const cutover = decodePurpose(manifest.cutoverAt);
++  if (!native(cutover)) fail();
++  return { projectId: manifest.projectId, root: manifest.root, programId: manifest.programId, fromLocalDate: manifest.fromLocalDate, toLocalDate: manifest.toLocalDate,
++    cursor: manifest.cursor, cutoverAt: cutover.toDate().toISOString() };
++}
++const sourceHash = (manifest, item) => fingerprintValue([manifest.program, manifest.station, item.localDate, item.legacyDates, item.legacy, item.before]);
++export function validateProgramDateManifest(manifest, options) {
++  if (!closed(manifest, manifestFields) || manifest.version !== 1 || manifest.kind !== 'program-date-migration' || !HEX.test(manifest.manifestHash ?? '')) fail();
++  const bound = manifestOptions(manifest); scope(bound);
++  if (options) {
++    scope(options);
++    for (const field of ['projectId', 'root', 'programId', 'fromLocalDate', 'toLocalDate', 'cutoverAt']) if (options[field] !== bound[field]) fail();
++    if ((options.cursor ?? options.fromLocalDate) !== bound.cursor) fail();
++  }
++  const program = decodeImage(manifest.program, programShape), station = decodeImage(manifest.station, stationShape);
++  if (!program || !station || !Array.isArray(manifest.items) || manifest.items.length > 25) fail();
++  const schedule = normalizedSchedule(program.schedule), expected = occurrenceDates(schedule, manifest.cursor, manifest.toLocalDate, manifest.items.length || 25);
++  if (JSON.stringify(expected.dates) !== JSON.stringify(manifest.items.map(item => item.localDate)) || expected.nextCursor !== manifest.nextCursor) fail();
++  for (const item of manifest.items) {
++    if (!closed(item, ['localDate', 'v2Key', 'fingerprint', 'legacyDates', 'legacy', 'before', 'decision', 'action', 'sourceHash']) ||
++      !canonicalDate(item.localDate) || item.v2Key !== hash(['program-start-v2', manifest.programId, item.localDate]) ||
++      item.fingerprint !== fingerprint(manifest.programId, program, schedule) ||
++      JSON.stringify(item.legacyDates) !== JSON.stringify(legacyDates(item.localDate, schedule.utcOffsetMinutes)) ||
++      !Array.isArray(item.legacy) || item.legacy.length !== item.legacyDates.length) fail();
++    decodeImage(item.before, validateReceipt);
++    for (let i = 0; i < item.legacy.length; i++) {
++      if (!closed(item.legacy[i], ['key', 'before']) || item.legacy[i].key !== hash([manifest.programId, item.legacyDates[i]])) fail();
++      decodeImage(item.legacy[i].before, validateReceipt);
++    }
++    const expectedDecision = decision(manifest, item);
++    if (item.decision !== expectedDecision.decision || item.action !== expectedDecision.action || item.sourceHash !== sourceHash(manifest, item)) fail();
++  }
++  const { manifestHash, ...body } = manifest;
++  if (fingerprintValue(body) !== manifestHash) fail();
++  return manifest;
++}
++export async function previewProgramNotificationDates(options, db) {
++  const cap = scope(options, db);
++  const programSnapshot = await db.doc(`${options.root}/programs/programs/${options.programId}`).get();
++  const program = sourceProjection(programSnapshot, programFields), programData = decodeImage(program, programShape);
++  if (!programData) fail();
++  const stationSnapshot = await db.doc(`${options.root}/stations/stations/${programData.stationId}`).get();
++  const station = sourceProjection(stationSnapshot, stationFields); if (!decodeImage(station, stationShape)) fail();
++  const schedule = normalizedSchedule(programData.schedule), cursor = options.cursor ?? options.fromLocalDate;
++  const chunk = occurrenceDates(schedule, cursor, options.toLocalDate, cap);
++  const manifest = { version: 1, kind: 'program-date-migration', projectId: options.projectId, root: options.root, programId: options.programId,
++    cutoverAt: encodeCleanupValue(Timestamp.fromMillis(Date.parse(options.cutoverAt))), fromLocalDate: options.fromLocalDate, toLocalDate: options.toLocalDate,
++    cursor, nextCursor: chunk.nextCursor, program, station, items: [] };
++  for (const date of chunk.dates) {
++    const dates = legacyDates(date, schedule.utcOffsetMinutes), legacy = [];
++    for (const day of dates) {
++      const key = hash([options.programId, day]); legacy.push({ key, before: image(await db.doc(`${options.root}/notificationOperations/operations/${key}`).get()) });
++    }
++    const v2Key = hash(['program-start-v2', options.programId, date]);
++    const item = { localDate: date, v2Key, fingerprint: fingerprint(options.programId, programData, schedule), legacyDates: dates, legacy,
++      before: image(await db.doc(`${options.root}/notificationOperations/operations/${v2Key}`).get()) };
++    Object.assign(item, decision(manifest, item)); item.sourceHash = sourceHash(manifest, item); manifest.items.push(item);
++  }
++  manifest.manifestHash = fingerprintValue(manifest);
++  return validateProgramDateManifest(manifest, options);
++}
++
++const actions = ['created-suppression', 'strengthened-suppression', 'carried-prepared', 'carried-retryable', 'carried-terminal-failed', 'preserved-terminal', 'clear-noop'];
++function targetBody(manifest, item) {
++  if (['preserved-terminal', 'clear-noop'].includes(item.action)) return decodeImage(item.before, validateReceipt);
++  const programBirth = decodePurpose(manifest.program.createTime);
++  const carry = item.action.startsWith('carried-');
++  const observed = item.legacy.find(value => value.before.exists);
++  const proof = { version: 1, manifestHash: manifest.manifestHash, cutoverAt: decodePurpose(manifest.cutoverAt), programCreateTime: programBirth,
++    scheduleFingerprint: item.fingerprint, legacyDates: [...item.legacyDates], legacyKeys: item.legacy.map(value => value.key),
++    evidenceHashes: [fingerprintValue(manifest.program), ...item.legacy.map(value => fingerprintValue(value.before))],
++    decision: carry ? item.action : 'suppressed', recordedAt: FieldValue.serverTimestamp() };
++  if (carry) {
++    const source = decodeImage(observed.before, validateReceipt);
++    Object.assign(proof, { legacySourceKey: observed.key, legacySourceCreateTime: decodePurpose(observed.before.createTime), legacySourceUpdateTime: decodePurpose(observed.before.updateTime) });
++    const body = { ...source, fingerprint: item.fingerprint, programCompatibility: proof };
++    if (item.action === 'carried-terminal-failed' && source.expiresAt.toMillis() <= decodePurpose(manifest.cutoverAt).toMillis()) Object.assign(body, { status: 'failed', retryable: false, reason: 'expired' });
++    return body;
++  }
++  const before = decodeImage(item.before, validateReceipt);
++  return { ...(before ?? { phase: 'claimed', lease: `migration-${item.v2Key.slice(0, 32)}`, attempts: 0, fingerprint: item.fingerprint, createdAt: FieldValue.serverTimestamp() }),
++    status: 'unknown', retryable: false, reason: 'legacy-compatibility-suppression', leaseUntil: Timestamp.fromMillis(0),
++    updatedAt: FieldValue.serverTimestamp(), programCompatibility: proof };
++}
++function projectionHash(action, value) {
++  if (value === null) return fingerprintValue(null);
++  const body = { ...value };
++  // This exact list follows the accepted action; callers cannot choose ignores.
++  if (action === 'created-suppression') delete body.createdAt;
++  if (['created-suppression', 'strengthened-suppression'].includes(action)) delete body.updatedAt;
++  if (!['preserved-terminal', 'clear-noop'].includes(action)) {
++    body.programCompatibility = { ...body.programCompatibility }; delete body.programCompatibility.recordedAt;
++  }
++  return fingerprintValue(body);
++}
++function itemReceipt(manifest, item, index) {
++  const changed = !['preserved-terminal', 'clear-noop'].includes(item.action);
++  return { version: 1, manifestHash: manifest.manifestHash, index, v2Key: item.v2Key, action: item.action, sourceHash: item.sourceHash,
++    beforeHash: fingerprintValue(item.before), afterProjectionHash: projectionHash(item.action, targetBody(manifest, item)), targetChanged: changed,
++    targetCreateTime: item.before.exists ? decodePurpose(item.before.createTime) : null, targetUpdateTime: item.before.exists ? decodePurpose(item.before.updateTime) : null };
++}
++function assertApplied(manifest, item, index, target, receipt) {
++  const expected = itemReceipt(manifest, item, index);
++  if (!receipt.exists || !native(receipt.createTime) || !sameNative(receipt.createTime, receipt.updateTime) || !same(receipt.data(), expected)) fail();
++  if (!expected.targetChanged) {
++    if (!same(image(target), item.before)) fail(); return;
++  }
++  if (!target.exists || !sameNative(target.createTime, expected.targetCreateTime ?? receipt.updateTime) || !sameNative(target.updateTime, receipt.updateTime)) fail();
++  validateReceipt(target.data());
++  if (projectionHash(item.action, target.data()) !== expected.afterProjectionHash) fail();
++}
++const nativeNotAfter = (a, b) => native(a) && native(b) && (a.seconds < b.seconds || (a.seconds === b.seconds && a.nanoseconds <= b.nanoseconds));
++const jobFields = ['version', 'kind', 'manifestHash', 'projectId', 'root', 'programId', 'cutoverAt', 'fromLocalDate', 'toLocalDate', 'owner', 'generation',
++  'leaseUntilMs', 'nextIndex', 'entryCount', 'status', 'backupExpiresAtMs', 'receiptVersions', 'pendingReceiptIndex'];
++function validateJob(job, manifest, store) {
++  if (!closed(job, jobFields) || job.version !== 1 || job.kind !== 'program-date-migration' || job.manifestHash !== manifest.manifestHash ||
++    ['projectId', 'root', 'programId', 'fromLocalDate', 'toLocalDate'].some(key => job[key] !== manifest[key]) || !sameNative(job.cutoverAt, decodePurpose(manifest.cutoverAt)) ||
++    !id(job.owner) || !Number.isSafeInteger(job.generation) || job.generation < 1 || !Number.isSafeInteger(job.leaseUntilMs) || job.leaseUntilMs < 0 ||
++    !Number.isSafeInteger(job.nextIndex) || job.nextIndex < 0 || job.nextIndex > manifest.items.length || job.entryCount !== manifest.items.length ||
++    !['applying', 'completed', 'rollback-held'].includes(job.status) || job.backupExpiresAtMs !== store.expiresAt ||
++    !Array.isArray(job.receiptVersions) || job.receiptVersions.length > 25 || !job.receiptVersions.every(native)) fail();
++  if (job.pendingReceiptIndex === null) {
++    if (job.receiptVersions.length !== job.nextIndex || (job.status === 'completed' && job.nextIndex !== job.entryCount) ||
++      (job.status === 'applying' && job.nextIndex >= job.entryCount)) fail();
++  } else if (!Number.isSafeInteger(job.pendingReceiptIndex) || job.pendingReceiptIndex < 0 || job.pendingReceiptIndex >= job.entryCount ||
++    job.pendingReceiptIndex !== job.nextIndex - 1 || job.receiptVersions.length !== job.pendingReceiptIndex || job.status !== 'applying') fail();
++}
++const transaction = (db, callback) => db.runTransaction(callback, { maxAttempts: 3 });
++export async function executeProgramNotificationDateMigration(options, db, context) {
++  const maxItems = scope(options, db); trustedDemo(options, db);
++  if (!context || Object.keys(context).some(key => !['manifest', 'store', 'reviewedHash', 'owner'].includes(key))) fail();
++  const { manifest, store, reviewedHash } = context, owner = context.owner ?? options.owner;
++  if (!['apply', 'restore'].includes(options.mode) || !id(owner) || !backupStores.has(store)) fail();
++  validateProgramDateManifest(manifest, options);
++  if (reviewedHash !== manifest.manifestHash || manifest.items.some(item => !actions.includes(item.action))) fail();
++  const verifyBackup = async () => { if (!same(await store.get(manifest.manifestHash), manifest)) fail(); };
++  await verifyBackup();
++  const programRef = db.doc(`${options.root}/programs/programs/${options.programId}`), stationId = decodeImage(manifest.program, programShape).stationId;
++  const stationRef = db.doc(`${options.root}/stations/stations/${stationId}`), collection = `${options.root}/notificationOperations/operations`;
++  const jobRef = db.doc(`${collection}/program_date_migration_${manifest.manifestHash}`);
++  const targetRef = item => db.doc(`${collection}/${item.v2Key}`);
++  const receiptRef = index => db.doc(`${jobRef.path}/items/${String(index).padStart(3, '0')}`);
++  const verifyProgram = async tx => {
++    const program = await tx.get(programRef), station = await tx.get(stationRef);
++    if (!same(sourceProjection(program, programFields), manifest.program) || !same(sourceProjection(station, stationFields), manifest.station)) fail();
++  };
++  const verifyLegacy = async (tx, item) => {
++    for (const legacy of item.legacy) if (!same(image(await tx.get(db.doc(`${collection}/${legacy.key}`))), legacy.before)) fail();
++  };
++  const verifyPrefix = async (tx, job, jobSnapshot) => {
++    const observed = [];
++    await verifyProgram(tx);
++    for (let index = 0; index < manifest.items.length; index++) {
++      const item = manifest.items[index]; await verifyLegacy(tx, item);
++      const target = await tx.get(targetRef(item)), receipt = await tx.get(receiptRef(index));
++      if (index < (job?.nextIndex ?? 0)) {
++        assertApplied(manifest, item, index, target, receipt);
++        if (!nativeNotAfter(jobSnapshot.createTime, receipt.createTime)) fail();
++        const original = index < job.receiptVersions.length ? job.receiptVersions[index] :
++          job.pendingReceiptIndex === index ? jobSnapshot.updateTime : null;
++        if (!sameNative(receipt.createTime, original) || !sameNative(receipt.updateTime, original)) fail();
++      } else if (receipt.exists || !same(image(target), item.before)) fail();
++      observed.push({ target, receipt });
++    }
++    return observed;
++  };
++  const newJob = previous => {
++    if ((previous?.generation ?? 0) >= Number.MAX_SAFE_INTEGER) fail();
++    const now = Date.now(); if (!Number.isSafeInteger(now) || !Number.isSafeInteger(now + leaseDuration)) fail();
++    return { version: 1, kind: 'program-date-migration', manifestHash: manifest.manifestHash, projectId: options.projectId, root: options.root, programId: options.programId,
++      cutoverAt: decodePurpose(manifest.cutoverAt), fromLocalDate: manifest.fromLocalDate, toLocalDate: manifest.toLocalDate, owner,
++      generation: (previous?.generation ?? 0) + 1, leaseUntilMs: now + leaseDuration, nextIndex: previous?.nextIndex ?? 0, entryCount: manifest.items.length,
++      status: options.mode === 'restore' ? 'rollback-held' : previous?.status ?? (manifest.items.length ? 'applying' : 'completed'), backupExpiresAtMs: store.expiresAt,
++      receiptVersions: previous?.receiptVersions ?? [], pendingReceiptIndex: null };
++  };
++  const sealedJob = (previous, originalVersion) => {
++    const now = Date.now(), expired = previous.leaseUntilMs <= now;
++    if (!Number.isSafeInteger(now) || !Number.isSafeInteger(now + leaseDuration) || previous.pendingReceiptIndex === null ||
++      (!expired && previous.owner !== owner) || (expired && previous.generation >= Number.MAX_SAFE_INTEGER) || !native(originalVersion)) fail();
++    return { ...previous, receiptVersions: [...previous.receiptVersions, originalVersion], pendingReceiptIndex: null,
++      status: previous.nextIndex === previous.entryCount ? 'completed' : 'applying', owner,
++      generation: previous.generation + (expired ? 1 : 0), leaseUntilMs: now + leaseDuration };
++  };
++  const acquired = await transaction(db, async tx => {
++    const snapshot = await tx.get(jobRef), previous = snapshot.exists ? snapshot.data() : null;
++    if (previous) validateJob(previous, manifest, store);
++    if (previous && previous.owner !== owner && previous.leaseUntilMs > Date.now()) fail();
++    if (options.mode === 'restore' && !previous) fail();
++    if (options.mode === 'apply' && previous?.status === 'rollback-held') fail();
++    await verifyPrefix(tx, previous, snapshot); await verifyBackup();
++    // The untouched original job updateTime anchors an unsealed commit. Never
++    // renew or transfer ownership first and then inspect a replacement receipt.
++    if (previous?.pendingReceiptIndex !== null && previous?.pendingReceiptIndex !== undefined) {
++      const data = sealedJob(previous, snapshot.updateTime); validateJob(data, manifest, store); tx.update(jobRef, data);
++      return { data, unchanged: false, priorBirth: snapshot.createTime, priorVersion: snapshot.updateTime };
++    }
++    if (previous && ((options.mode === 'apply' && previous.status === 'completed') || (options.mode === 'restore' && previous.status === 'rollback-held'))) {
++      return { data: previous, unchanged: true, priorBirth: snapshot.createTime, priorVersion: snapshot.updateTime };
++    }
++    const data = newJob(previous); validateJob(data, manifest, store); tx.set(jobRef, data);
++    return { data, unchanged: false, priorBirth: snapshot.createTime, priorVersion: snapshot.updateTime };
++  });
++  const readback = (expected, birth, priorVersion, unchanged = false) => transaction(db, async tx => {
++    const snapshot = await tx.get(jobRef);
++    if (!snapshot.exists || !same(snapshot.data(), expected) || !native(snapshot.createTime) || !native(snapshot.updateTime) ||
++      (birth && !sameNative(snapshot.createTime, birth)) ||
++      (priorVersion && (unchanged ? !sameNative(snapshot.updateTime, priorVersion) : !nativeNotAfter(priorVersion, snapshot.updateTime) || sameNative(priorVersion, snapshot.updateTime)))) fail();
++    validateJob(snapshot.data(), manifest, store); await verifyPrefix(tx, expected, snapshot); await verifyBackup(); return snapshot;
++  });
++  let current = acquired.data, snapshot = await readback(current, acquired.priorBirth, acquired.priorVersion, acquired.unchanged);
++  let expectedVersion = snapshot.updateTime, birth = snapshot.createTime, applied = 0;
++  if (options.mode === 'apply' && !acquired.unchanged) {
++    const end = Math.min(manifest.items.length, current.nextIndex + maxItems);
++    while (current.nextIndex < end) {
++      const index = current.nextIndex, item = manifest.items[index];
++      const result = await transaction(db, async tx => {
++        const jobSnapshot = await tx.get(jobRef), job = jobSnapshot.exists ? jobSnapshot.data() : null;
++        validateJob(job, manifest, store);
++        if (!sameNative(jobSnapshot.createTime, birth) || !sameNative(jobSnapshot.updateTime, expectedVersion) || !same(job, current) || job.owner !== owner ||
++          job.generation !== current.generation || job.leaseUntilMs <= Date.now() || job.status !== 'applying' || job.nextIndex !== index || job.pendingReceiptIndex !== null) fail();
++        const observed = await verifyPrefix(tx, job, jobSnapshot);
++        const { target, receipt } = observed[index];
++        if (receipt.exists || !same(image(target), item.before)) fail();
++        if (['carried-prepared', 'carried-retryable'].includes(item.action)) {
++          const source = item.legacy.find(legacy => legacy.before.exists);
++          if (decodeImage(source.before, validateReceipt).expiresAt.toMillis() <= Date.now()) fail();
++        }
++        await verifyBackup();
++        if (job.leaseUntilMs <= Date.now()) fail();
++        const expectedReceipt = itemReceipt(manifest, item, index), body = targetBody(manifest, item);
++        const next = { ...job, nextIndex: index + 1, pendingReceiptIndex: index, status: 'applying', leaseUntilMs: Date.now() + leaseDuration };
++        validateJob(next, manifest, store);
++        if (expectedReceipt.targetChanged) {
++          if (target.exists) tx.set(targetRef(item), body); else tx.create(targetRef(item), body);
++        }
++        tx.create(receiptRef(index), expectedReceipt); tx.update(jobRef, next); return next;
++      });
++      // With pending set, prefix readback proves original receipt create/update
++      // equals this job's native updateTime, even for a genuine no-op target.
++      snapshot = await readback(result, birth, expectedVersion);
++      current = result; expectedVersion = snapshot.updateTime;
++      const sealed = await transaction(db, async tx => {
++        const jobSnapshot = await tx.get(jobRef), job = jobSnapshot.exists ? jobSnapshot.data() : null;
++        validateJob(job, manifest, store);
++        if (!same(job, current) || !sameNative(jobSnapshot.createTime, birth) || !sameNative(jobSnapshot.updateTime, expectedVersion) ||
++          job.owner !== owner || job.generation !== current.generation) fail();
++        await verifyPrefix(tx, job, jobSnapshot); await verifyBackup();
++        const next = sealedJob(job, jobSnapshot.updateTime); validateJob(next, manifest, store); tx.update(jobRef, next); return next;
++      });
++      snapshot = await readback(sealed, birth, expectedVersion);
++      current = sealed; expectedVersion = snapshot.updateTime; applied++;
++    }
++  }
++  if (options.mode === 'restore' && current.status !== 'rollback-held') {
++    const held = await transaction(db, async tx => {
++      const jobSnapshot = await tx.get(jobRef), job = jobSnapshot.exists ? jobSnapshot.data() : null;
++      validateJob(job, manifest, store);
++      if (!same(job, current) || !sameNative(jobSnapshot.createTime, birth) || !sameNative(jobSnapshot.updateTime, expectedVersion) ||
++        job.owner !== owner || job.generation !== current.generation || job.leaseUntilMs <= Date.now() || job.pendingReceiptIndex !== null) fail();
++      await verifyPrefix(tx, job, jobSnapshot); await verifyBackup();
++      if (job.leaseUntilMs <= Date.now()) fail();
++      const next = { ...job, status: 'rollback-held' }; validateJob(next, manifest, store); tx.update(jobRef, next); return next;
++    });
++    snapshot = await readback(held, birth, expectedVersion); current = held; expectedVersion = snapshot.updateTime;
++  }
++  await transaction(db, async tx => {
++    const final = await tx.get(jobRef);
++    if (!final.exists || !same(final.data(), current) || !sameNative(final.createTime, birth) || !sameNative(final.updateTime, expectedVersion)) fail();
++    validateJob(final.data(), manifest, store);
++    if (current.pendingReceiptIndex !== null || (!acquired.unchanged && (current.owner !== owner || current.leaseUntilMs <= Date.now()))) fail();
++    await verifyPrefix(tx, current, final); await verifyBackup();
++  });
++  const chunkCompleted = options.mode === 'restore' || current.nextIndex === manifest.items.length;
++  return { mode: options.mode, status: current.status, applied, total: manifest.items.length, nextIndex: current.nextIndex, chunkCompleted,
++    completed: options.mode === 'apply' && chunkCompleted && manifest.nextCursor === null, nextCursor: manifest.nextCursor };
++}
++
++async function readPrivateKey(path, directory) {
++  if (typeof path !== 'string') fail();
++  const actual = await realpath(path), stat = await lstat(path);
++  if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1 || stat.size !== 32 || (stat.mode & 0o077) !== 0 ||
++    (process.getuid && stat.uid !== process.getuid()) || actual.split('/').includes('.boss')) fail();
++  const repositoryRoot = await realpath(fileURLToPath(new URL('../', import.meta.url))), backupRoot = await realpath(directory);
++  for (const forbidden of [repositoryRoot, backupRoot]) {
++    const inside = relative(forbidden, actual);
++    if (!inside || (inside !== '..' && !inside.startsWith(`..${sep}`) && !isAbsolute(inside))) fail();
++  }
++  let parent = dirname(actual), outside = false;
++  for (let depth = 0; depth < 64; depth++) {
++    try { await lstat(join(parent, '.git')); fail(); } catch (error) { if (error?.code !== 'ENOENT') throw error; }
++    const next = dirname(parent); if (next === parent) { outside = true; break; } parent = next;
++  }
++  if (!outside) fail();
++  const handle = await open(actual, constants.O_RDONLY | constants.O_NOFOLLOW);
++  try {
++    const opened = await handle.stat();
++    if (!opened.isFile() || opened.dev !== stat.dev || opened.ino !== stat.ino || opened.size !== 32 || opened.nlink !== 1 ||
++      (opened.mode & 0o077) !== 0 || (process.getuid && opened.uid !== process.getuid())) fail();
++    const key = await handle.readFile(); if (key.length !== 32) { key.fill(0); fail(); } return key;
++  } finally { await handle.close(); }
++}
++async function main() {
++  const options = parseProgramDateMigrationArgs(process.argv.slice(2));
++  // Production mutations fail before key/backup access or any SDK initialization.
++  if (options.mode !== 'preview') demoHost(options.projectId, process.env.FIRESTORE_EMULATOR_HOST);
++  if (!options.directory || !options.keyFile || !Number.isSafeInteger(options.expiresAt) || (options.mode !== 'preview' && !id(options.owner))) fail();
++  const key = await readPrivateKey(options.keyFile, options.directory); let store;
++  try { store = await ProgramDateBackupStore.open({ directory: options.directory, key, expiresAt: options.expiresAt }); }
++  finally { key.fill(0); }
++  let db;
++  try {
++    if (options.mode === 'preview') {
++      const { initializeApp } = require('firebase-admin/app');
++      db = require('firebase-admin/firestore').getFirestore(initializeApp({ projectId: options.projectId }));
++      const manifest = await previewProgramNotificationDates(options, db); await store.put(manifest);
++      console.log(JSON.stringify({ mode: 'preview', manifestHash: manifest.manifestHash, total: manifest.items.length,
++        blockers: manifest.items.filter(item => item.action === 'blocked').length, nextCursor: manifest.nextCursor, rangeExhausted: manifest.nextCursor === null }));
++    } else {
++      db = createProgramDateDemoFirestore({ projectId: options.projectId });
++      const manifest = await store.get(options.manifestHash);
++      console.log(JSON.stringify(await executeProgramNotificationDateMigration(options, db, { manifest, store, reviewedHash: options.manifestHash, owner: options.owner })));
++    }
++  } finally { await db?.terminate?.(); }
++}
++if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().catch(() => {
++  console.error('Program date migration stopped: explicit scope, reviewed proof, private backup or source preconditions failed.'); process.exitCode = 1;
++});
+diff --git a/tool/test/migrate_program_notification_dates.test.mjs b/tool/test/migrate_program_notification_dates.test.mjs
+new file mode 100644
+--- /dev/null
++++ b/tool/test/migrate_program_notification_dates.test.mjs
+@@ -0,0 +1,460 @@
++import assert from 'node:assert/strict';
++import { test } from 'node:test';
++import { spawnSync } from 'node:child_process';
++import { createRequire } from 'node:module';
++import { createHash, randomBytes } from 'node:crypto';
++import { mkdtemp, chmod, rm, readFile, writeFile, lstat, rename, mkdir, symlink, readdir } from 'node:fs/promises';
++import { tmpdir } from 'node:os';
++import { join } from 'node:path';
++import { isDeepStrictEqual } from 'node:util';
++import * as migration from '../migrate_program_notification_dates.mjs';
++import { parseProgramDateMigrationArgs } from '../migrate_program_notification_dates.mjs';
++
++const require = createRequire(new URL('../../functions/package.json', import.meta.url));
++const { Timestamp, FieldValue } = require('firebase-admin/firestore');
++const H = tuple => createHash('sha256').update(JSON.stringify(tuple)).digest('hex');
++const copy = value => value instanceof Timestamp ? new Timestamp(value.seconds, value.nanoseconds) : Array.isArray(value) ? value.map(copy) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, copy(item)])) : value;
++const baseArgs = () => ['--project', 'demo-hudhud-program-dates', '--root', 'HudHudDev', '--program', 'program',
++  '--from', '2026-10-19', '--to', '2026-11-18', '--cutover-at', '2026-10-19T07:00:00.000Z'];
++
++test('new tool imports without SDK construction, credential lookup or CLI execution', () => {
++  const file = new URL('../migrate_program_notification_dates.mjs', import.meta.url).href;
++  const modulePath = require.resolve('firebase-admin/firestore');
++  const script = `import { createRequire } from 'node:module'; const require=createRequire(${JSON.stringify(new URL('../../functions/package.json', import.meta.url).href)});
++    const actual=require(${JSON.stringify(modulePath)}); require.cache[${JSON.stringify(modulePath)}].exports={...actual,Firestore:class{constructor(){throw new Error('Unexpected SDK construction');}}};
++    await import(${JSON.stringify(file)});`;
++  const result = spawnSync(process.execPath, ['--input-type=module', '-e', script], { encoding: 'utf8', env: { PATH: process.env.PATH } });
++  assert.equal(result.status, 0, result.stderr); assert.equal(result.stdout, '');
++});
++test('new CLI defaults to read-only preview with explicit scope and bounded date range', () => {
++  const options = parseProgramDateMigrationArgs(baseArgs()); assert.equal(options.mode, 'preview'); assert.equal(options.maxItems, 25);
++  assert.equal(parseProgramDateMigrationArgs([...baseArgs(), '--dry-run', '--max-items', '1']).maxItems, 1);
++});
++for (const [name, args] of [
++  ['missing scope', []], ['unknown root', [...baseArgs(), '--root', 'Other']], ['duplicate scope', [...baseArgs(), '--program', 'other']],
++  ['unknown flag', [...baseArgs(), '--isolated', 'true']], ['contradictory modes', [...baseArgs(), '--apply', '--restore']],
++  ['too many items', [...baseArgs(), '--max-items', '26']], ['fractional budget', [...baseArgs(), '--max-items', '1.5']],
++  ['invalid cursor', [...baseArgs(), '--cursor', '2026-11-19']], ['unreviewed apply', [...baseArgs(), '--apply']],
++  ['unreviewed restore', [...baseArgs(), '--restore']],
++]) test(`new CLI rejects ${name}`, () => assert.throws(() => parseProgramDateMigrationArgs(args)));
++for (const [flag, value] of [['--from', '2026-02-30'], ['--from', '0000-01-01'], ['--to', '10000-01-01'],
++  ['--to', '2026-11-19'], ['--to', '2026-10-18'], ['--cutover-at', '2026-10-19T07:00:00Z'], ['--cutover-at', '2026-10-19T10:00:00.000+03:00']]) {
++  test(`new CLI rejects noncanonical/unbounded ${flag} ${value}`, () => {
++    const args = baseArgs(), at = args.indexOf(flag); args[at + 1] = value; assert.throws(() => parseProgramDateMigrationArgs(args));
++  });
++}
++
++function storage(root = 'HudHudDev', offset = 0) {
++  const records = new Map(), writes = [], reads = []; let tick = 0, queue = Promise.resolve();
++  const time = () => new Timestamp(1800000000, ++tick);
++  const put = (path, data, stamp = time()) => {
++    const old = records.get(path), body = copy(data);
++    records.set(path, { data: body, createTime: old?.createTime ?? stamp, updateTime: old && isDeepStrictEqual(old.data, body) ? old.updateTime : stamp });
++  };
++  const snapshot = ref => {
++    const old = records.get(ref.path), body = old ? copy(old.data) : undefined;
++    return { ref, id: ref.id, exists: !!old, createTime: old?.createTime, updateTime: old?.updateTime, data: () => copy(body), get: field => field.split('.').reduce((value, key) => value?.[key], body) };
++  };
++  const reference = path => ({ path, id: path.split('/').at(-1), get: async () => { reads.push(path); return snapshot(reference(path)); } });
++  const transform = (value, stamp) => value instanceof Timestamp ? value : value?.isEqual?.(FieldValue.serverTimestamp()) ? Timestamp.fromMillis(stamp.toMillis()) :
++    Array.isArray(value) ? value.map(item => transform(item, stamp)) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, transform(item, stamp)])) : value;
++  const raw = { projectId: 'demo-hudhud-program-dates', doc: reference, settings(config) {
++    assert.equal(config.projectId, raw.projectId); assert.equal(config.host, '127.0.0.1:8180'); assert.equal(config.ssl, false);
++  }, terminate: async () => {}, runTransaction(callback) {
++    const task = queue.then(async () => {
++      await raw.beforeTransaction?.(); const staged = [];
++      const result = await callback({ get: async ref => { assert.equal(staged.length, 0, 'all reads before writes'); reads.push(ref.path); return snapshot(ref); },
++        set: (ref, data) => staged.push(['set', ref, data]), create: (ref, data) => staged.push(['create', ref, data]), update: (ref, data) => staged.push(['update', ref, data]) });
++      await raw.beforeCommit?.(staged);
++      for (const [kind, ref] of staged) { if (kind === 'create') assert.equal(records.has(ref.path), false); if (kind === 'update') assert.equal(records.has(ref.path), true); }
++      const stamp = time();
++      for (const [kind, ref, data] of staged) { put(ref.path, transform(kind === 'update' ? { ...records.get(ref.path).data, ...data } : data, stamp), stamp); writes.push({ path: ref.path, kind }); }
++      await raw.afterCommit?.(staged); return result;
++    }); queue = task.catch(() => {}); return task;
++  } };
++  const sdkPath = require.resolve('firebase-admin/firestore'), actual = require(sdkPath), prior = require.cache[sdkPath].exports;
++  let db;
++  try { require.cache[sdkPath].exports = { ...actual, Firestore: class { constructor() { return raw; } } }; db = migration.createProgramDateDemoFirestore({ projectId: raw.projectId, emulatorHost: '127.0.0.1:8180' }); }
++  finally { require.cache[sdkPath].exports = prior; }
++  const programPath = `${root}/programs/programs/program`, stationPath = `${root}/stations/stations/station`;
++  put(programPath, { stationId: 'station', title: 'Synthetic program', isActive: true, schedule: { weekdays: [1, 2, 3, 4, 5, 6, 7], startMinute: 1439, endMinute: 1440, utcOffsetMinutes: offset } });
++  put(stationPath, { isActive: true, name: 'Synthetic station' });
++  const options = { projectId: raw.projectId, root, programId: 'program', fromLocalDate: '2026-10-19', toLocalDate: '2026-10-19', cutoverAt: '2026-10-19T07:00:00.000Z' };
++  const op = key => `${root}/notificationOperations/operations/${key}`;
++  return { db, raw, records, writes, reads, put, options, programPath, stationPath, op, legacyKey: H(['program', options.fromLocalDate]), v2Key: H(['program-start-v2', 'program', options.fromLocalDate]) };
++}
++async function privateStore(callback) {
++  const directory = await mkdtemp(join(tmpdir(), 'hudhud-program-date-backup-')); await chmod(directory, 0o700);
++  const config = { directory, key: randomBytes(32), expiresAt: Date.now() + 86400000 };
++  try { return await callback(await migration.ProgramDateBackupStore.open(config), config); }
++  finally { await rm(directory, { recursive: true, force: true }); }
++}
++const preview = f => migration.previewProgramNotificationDates(f.options, f.db);
++
++test('preview is deterministic, point-read-only and bounded to25 with exact date cursor exhaustion', async () => {
++  const f = storage(); f.options.toLocalDate = '2026-11-18';
++  const first = await preview(f); assert.equal(first.items.length, 25); assert.equal(first.nextCursor, '2026-11-13');
++  assert.deepEqual(await preview(f), first); assert.equal(f.writes.length, 0);
++  const last = await migration.previewProgramNotificationDates({ ...f.options, cursor: first.nextCursor }, f.db);
++  assert.equal(last.items.length, 6); assert.equal(last.nextCursor, null); assert.equal(f.writes.length, 0);
++  assert.equal(first.items[0].v2Key, f.v2Key); assert.deepEqual(first.items[0].legacyDates, ['2026-10-19', '2026-10-20']);
++});
++for (const root of ['HudHudDev', 'HudHudOfficial']) test(`${root}: preview preserves terminal legacy evidence and exact nanos without writes`, async () => {
++  const f = storage(root); f.put(f.op(f.legacyKey), { status: 'sent' });
++  const before = copy(f.records.get(f.op(f.legacyKey))), manifest = await preview(f);
++  assert.equal(manifest.items[0].action, 'created-suppression'); assert.deepEqual(f.records.get(f.op(f.legacyKey)), before); assert.equal(f.writes.length, 0);
++  assert.deepEqual(manifest.items[0].legacy[0].before.updateTime.v, [before.updateTime.seconds, before.updateTime.nanoseconds]);
++});
++test('preview holds historical absence instead of inferring unsent delivery', async () => {
++  const f = storage(); f.options.cutoverAt = '2026-10-21T00:00:00.000Z';
++  const result = await preview(f); assert.equal(result.items[0].decision, 'historical-uncertain'); assert.equal(result.items[0].action, 'blocked'); assert.equal(f.writes.length, 0);
++});
++test('manifest validation rejects rehashed caller projections, unknown schema fields and malformed codec nodes', async () => {
++  const f = storage(), original = await preview(f);
++  for (const mutate of [m => { m.afterProjection = { status: 'sent' }; }, m => { m.items[0].action = 'created-suppression'; },
++    m => { m.program.data.extra = true; }, m => { m.program.data.v.push(['syntheticContent', { t: 'value', v: 'synthetic' }]); },
++    m => { m.items[0].legacy[0].before = { exists: false, data: null }; }, m => { m.program.createTime.v[1] = 1000000000; }]) {
++    const value = copy(original); mutate(value); assert.throws(() => migration.validateProgramDateManifest(value, f.options));
++  }
++  assert.equal(f.writes.length, 0);
++});
++test('purpose backup is private, durable, readback verified and immutable', async () => privateStore(async (store, config) => {
++  const f = storage(), manifest = await preview(f); await store.put(manifest); assert.deepEqual(await store.get(manifest.manifestHash), manifest);
++  const path = join(config.directory, `${manifest.manifestHash}.program-date-backup`);
++  assert.equal((await lstat(path)).mode & 0o077, 0); assert.equal((await readFile(path, 'utf8')).includes('Synthetic program'), false);
++  const cold = await migration.ProgramDateBackupStore.open(config); assert.deepEqual(await cold.get(manifest.manifestHash), manifest);
++  await store.put(manifest); assert.equal((await readdir(config.directory)).length, 1);
++}));
++test('new backup capability rejects public clocks, foreign repositories, loose permissions and forgery', async () => privateStore(async (store, config) => {
++  await assert.rejects(migration.ProgramDateBackupStore.open({ ...config, now: () => 0 }));
++  await assert.rejects(migration.ProgramDateBackupStore.open({ ...config, expiresAt: Date.now() + 3599999 }));
++  await chmod(config.directory, 0o755); await assert.rejects(migration.ProgramDateBackupStore.open(config)); await chmod(config.directory, 0o700);
++  assert.throws(() => new migration.ProgramDateBackupStore({}, config));
++  assert.equal(Object.isFrozen(store), true); assert.equal(Object.isFrozen(Object.getPrototypeOf(store)), true);
++}));
++
++const execution = (f, manifest, store, extra = {}) => migration.executeProgramNotificationDateMigration({ ...f.options, mode: 'apply' }, f.db,
++  { manifest, store, reviewedHash: manifest.manifestHash, owner: 'demo-worker', ...extra });
++const jobPath = (f, manifest) => f.op(`program_date_migration_${manifest.manifestHash}`);
++const itemPath = (f, manifest, index = 0) => `${jobPath(f, manifest)}/items/${String(index).padStart(3, '0')}`;
++for (const root of ['HudHudDev', 'HudHudOfficial']) {
++  test(`${root}: demo apply creates native-owned unknown suppression; replay and held rollback never erase evidence`, async () => privateStore(async store => {
++    const f = storage(root); f.put(f.op(f.legacyKey), { status: 'sent' });
++    const originals = [f.programPath, f.stationPath, f.op(f.legacyKey)].map(path => copy(f.records.get(path)));
++    const manifest = await preview(f); await store.put(manifest);
++    const result = await execution(f, manifest, store); assert.equal(result.chunkCompleted, true); assert.equal(result.completed, true);
++    const target = f.records.get(f.op(f.v2Key)), receipt = f.records.get(itemPath(f, manifest));
++    assert.equal(target.data.status, 'unknown'); assert.equal(target.data.retryable, false); assert.equal(target.data.reason, 'legacy-compatibility-suppression');
++    assert.equal(target.data.programCompatibility.manifestHash, manifest.manifestHash);
++    assert.ok(target.createTime.isEqual(receipt.updateTime)); assert.ok(target.updateTime.isEqual(receipt.updateTime));
++    assert.equal(receipt.data.targetChanged, true); assert.equal(receipt.data.targetCreateTime, null); assert.equal(receipt.data.targetUpdateTime, null);
++    assert.equal(Object.hasOwn(receipt.data, 'committedAt'), false);
++    const count = f.writes.length; const nativeBefore = copy(target);
++    assert.equal((await execution(f, manifest, store)).applied, 0); assert.equal(f.writes.length, count);
++    const held = await migration.executeProgramNotificationDateMigration({ ...f.options, mode: 'restore' }, f.db,
++      { manifest, store, reviewedHash: manifest.manifestHash, owner: 'demo-worker' });
++    assert.equal(held.status, 'rollback-held'); assert.deepEqual(f.records.get(f.op(f.v2Key)), nativeBefore);
++    assert.deepEqual([f.programPath, f.stationPath, f.op(f.legacyKey)].map(path => f.records.get(path)), originals);
++    const after = f.writes.length;
++    await migration.executeProgramNotificationDateMigration({ ...f.options, mode: 'restore' }, f.db, { manifest, store, reviewedHash: manifest.manifestHash, owner: 'demo-worker' });
++    assert.equal(f.writes.length, after);
++    await assert.rejects(execution(f, manifest, store));
++  }));
++  test(`${root}: preserved terminal no-op retains observed native target version, not later receipt time`, async () => privateStore(async store => {
++    const f = storage(root); f.put(f.op(f.v2Key), { status: 'sent', fingerprint: 'different-existing-binding' });
++    const original = copy(f.records.get(f.op(f.v2Key))), manifest = await preview(f); await store.put(manifest);
++    await execution(f, manifest, store);
++    const receipt = f.records.get(itemPath(f, manifest));
++    assert.equal(receipt.data.action, 'preserved-terminal'); assert.equal(receipt.data.targetChanged, false);
++    assert.ok(receipt.data.targetUpdateTime.isEqual(original.updateTime)); assert.equal(receipt.updateTime.isEqual(original.updateTime), false);
++    assert.deepEqual(f.records.get(f.op(f.v2Key)), original);
++    await migration.executeProgramNotificationDateMigration({ ...f.options, mode: 'restore' }, f.db, { manifest, store, reviewedHash: manifest.manifestHash, owner: 'demo-worker' });
++    assert.deepEqual(f.records.get(f.op(f.v2Key)), original);
++  }));
++  test(`${root}: clear absence is a native no-op and conditional held rollback never creates a target`, async () => privateStore(async store => {
++    const f = storage(root), manifest = await preview(f); await store.put(manifest); await execution(f, manifest, store);
++    const receipt = f.records.get(itemPath(f, manifest));
++    assert.equal(receipt.data.action, 'clear-noop'); assert.equal(receipt.data.targetChanged, false); assert.equal(receipt.data.targetCreateTime, null); assert.equal(receipt.data.targetUpdateTime, null);
++    assert.equal(f.records.has(f.op(f.v2Key)), false);
++    await migration.executeProgramNotificationDateMigration({ ...f.options, mode: 'restore' }, f.db, { manifest, store, reviewedHash: manifest.manifestHash, owner: 'demo-worker' });
++    assert.equal(f.records.has(f.op(f.v2Key)), false);
++  }));
++}
++function sourceReceipt(status = 'pending') {
++  const now = Date.now(), stamp = ms => Timestamp.fromMillis(ms);
++  return { status, phase: 'claimed', lease: 'controlled-old-worker', attempts: 4, createdAt: stamp(now - 10000), updatedAt: stamp(now - 5000),
++    leaseUntil: stamp(now - 1000), expiresAt: stamp(now + 3600000), cleanupAt: stamp(now + 86400000),
++    ...(status === 'failed' ? { retryable: true, reason: 'messaging/server-unavailable', retryAt: stamp(now + 120000) } : {}) };
++}
++function currentScope(f) {
++  const now = new Date(); f.options.fromLocalDate = now.toISOString().slice(0, 10); f.options.toLocalDate = f.options.fromLocalDate; f.options.cutoverAt = now.toISOString();
++  f.legacyKey = H(['program', f.options.fromLocalDate]); f.v2Key = H(['program-start-v2', 'program', f.options.fromLocalDate]);
++}
++for (const status of ['pending', 'failed']) test(`reviewed ${status} carry preserves every original clock, attempts, backoff and V1 native identity`, async () => privateStore(async store => {
++  const f = storage(); currentScope(f); const original = sourceReceipt(status); f.put(f.op(f.legacyKey), original);
++  const sourceBefore = copy(f.records.get(f.op(f.legacyKey))), manifest = await preview(f); await store.put(manifest); await execution(f, manifest, store);
++  const data = f.records.get(f.op(f.v2Key)).data;
++  for (const key of Object.keys(original)) assert.deepEqual(data[key], original[key]);
++  assert.equal(data.programCompatibility.decision, status === 'pending' ? 'carried-prepared' : 'carried-retryable');
++  assert.ok(data.programCompatibility.legacySourceUpdateTime.isEqual(sourceBefore.updateTime));
++  assert.deepEqual(f.records.get(f.op(f.legacyKey)), sourceBefore); assert.equal(data.attempts, 4);
++}));
++test('inherited expired state cannot gain a fresh24-hour lifetime or retry permission', async () => privateStore(async store => {
++  const f = storage(); currentScope(f); const old = sourceReceipt(); old.expiresAt = Timestamp.fromMillis(Date.now() - 1); f.put(f.op(f.legacyKey), old);
++  const manifest = await preview(f); assert.equal(manifest.items[0].action, 'carried-terminal-failed'); await store.put(manifest); await execution(f, manifest, store);
++  const data = f.records.get(f.op(f.v2Key)).data; assert.equal(data.status, 'failed'); assert.equal(data.retryable, false); assert.equal(data.reason, 'expired');
++  assert.deepEqual(data.createdAt, old.createdAt); assert.deepEqual(data.expiresAt, old.expiresAt); assert.equal(data.attempts, old.attempts);
++}));
++test('bounded partial apply resumes only after complete persisted prefix proof', async () => privateStore(async store => {
++  const f = storage(); f.options.toLocalDate = '2026-10-20'; f.options.maxItems = 1;
++  f.put(f.op(f.legacyKey), { status: 'sent' });
++  const manifest = await preview(f); assert.equal(manifest.items.length, 1); assert.equal(manifest.nextCursor, '2026-10-20');
++  await store.put(manifest); const result = await execution(f, manifest, store);
++  assert.equal(result.chunkCompleted, true); assert.equal(result.completed, false); assert.equal(result.nextCursor, '2026-10-20');
++  const second = await migration.previewProgramNotificationDates({ ...f.options, cursor: result.nextCursor }, f.db); assert.equal(second.nextCursor, null);
++  // A separate max2 manifest proves max1 applies at most one occurrence transaction per invocation.
++  const g = storage(); g.options.toLocalDate = '2026-10-20'; const whole = await preview(g); await store.put(whole); g.options.maxItems = 1;
++  const first = await execution(g, whole, store); assert.equal(first.applied, 1); assert.equal(first.chunkCompleted, false);
++  const next = await execution(g, whole, store); assert.equal(next.applied, 1); assert.equal(next.chunkCompleted, true);
++  assert.equal(g.records.get(jobPath(g, whole)).data.nextIndex, 2);
++}));
++test('lost item ACK resumes immutable native receipts without repeating the target write', async () => privateStore(async store => {
++  const f = storage(); f.put(f.op(f.legacyKey), { status: 'unknown' }); const manifest = await preview(f); await store.put(manifest); let fired = 0;
++  f.raw.afterCommit = staged => { if (!fired && staged.some(([, ref]) => ref.path === itemPath(f, manifest))) { fired++; throw new Error('Synthetic lost ACK'); } };
++  await assert.rejects(execution(f, manifest, store), /Synthetic lost ACK/); assert.equal(fired, 1);
++  const target = copy(f.records.get(f.op(f.v2Key))), count = f.writes.length;
++  const targetWrites = f.writes.filter(write => write.path === f.op(f.v2Key)).length;
++  assert.equal((await execution(f, manifest, store)).chunkCompleted, true);
++  assert.equal(f.writes.filter(write => write.path === f.op(f.v2Key)).length, targetWrites);
++  assert.deepEqual(f.writes.slice(count), [{ path: jobPath(f, manifest), kind: 'update' }]);
++  assert.deepEqual(f.records.get(f.op(f.v2Key)), target);
++}));
++for (const drift of ['target ABA', 'target recreation', 'receipt ABA']) test(`current native proof rejects ${drift} after a completed apply`, async () => privateStore(async store => {
++  const f = storage(); f.put(f.op(f.legacyKey), { status: 'sent' }); const manifest = await preview(f); await store.put(manifest); await execution(f, manifest, store);
++  const path = drift === 'receipt ABA' ? itemPath(f, manifest) : f.op(f.v2Key), old = copy(f.records.get(path).data);
++  if (drift === 'target recreation') f.records.delete(path); else f.put(path, { ...old, temporary: true }); f.put(path, old);
++  const count = f.writes.length; await assert.rejects(execution(f, manifest, store)); assert.equal(f.writes.length, count);
++  await assert.rejects(migration.executeProgramNotificationDateMigration({ ...f.options, mode: 'restore' }, f.db, { manifest, store, reviewedHash: manifest.manifestHash, owner: 'demo-worker' }));
++  assert.equal(f.writes.length, count);
++}));
++for (const drift of ['program', 'station', 'legacy']) test(`source ${drift} native drift stops before lease or target writes`, async () => privateStore(async store => {
++  const f = storage(); f.put(f.op(f.legacyKey), { status: 'sent' }); const manifest = await preview(f); await store.put(manifest);
++  const path = drift === 'program' ? f.programPath : drift === 'station' ? f.stationPath : f.op(f.legacyKey), original = copy(f.records.get(path).data);
++  f.put(path, { ...original, temporary: true }); f.put(path, original);
++  await assert.rejects(execution(f, manifest, store)); assert.equal(f.writes.length, 0);
++}));
++test('backup custody loss after lease acquisition stops the next item and retains durable job', async () => privateStore(async (store, config) => {
++  const f = storage(); f.put(f.op(f.legacyKey), { status: 'sent' }); const manifest = await preview(f); await store.put(manifest); let fired = 0;
++  f.raw.beforeTransaction = async () => { if (!fired && f.records.has(jobPath(f, manifest))) { fired++; await chmod(config.directory, 0o755); } };
++  await assert.rejects(execution(f, manifest, store)); assert.equal(fired, 1); assert.equal(f.records.has(jobPath(f, manifest)), true);
++  assert.equal(f.records.has(f.op(f.v2Key)), false); assert.equal(f.records.get(jobPath(f, manifest)).data.nextIndex, 0); await chmod(config.directory, 0o700);
++}));
++test('production, foreign facade, public clock and forged backup capabilities are rejected before transactions', async () => privateStore(async store => {
++  const f = storage(), manifest = await preview(f); await store.put(manifest);
++  for (const config of [{ ...f.options, mode: 'apply', projectId: 'production-project' }, { ...f.options, mode: 'apply', now: () => 0 }, { ...f.options, mode: 'apply', isolated: true }]) {
++    await assert.rejects(migration.executeProgramNotificationDateMigration(config, f.db, { manifest, store, reviewedHash: manifest.manifestHash, owner: 'demo-worker' }));
++  }
++  await assert.rejects(migration.executeProgramNotificationDateMigration({ ...f.options, mode: 'apply' }, { ...f.db }, { manifest, store, reviewedHash: manifest.manifestHash, owner: 'demo-worker' }));
++  await assert.rejects(execution(f, manifest, { get: async () => manifest }));
++  await assert.rejects(execution(f, manifest, Object.create(migration.ProgramDateBackupStore.prototype)));
++  await assert.rejects(execution(f, manifest, store, { now: () => 0 }));
++  assert.throws(() => migration.createProgramDateDemoFirestore({ projectId: 'production-project', emulatorHost: '127.0.0.1:8180' }));
++  assert.throws(() => migration.createProgramDateDemoFirestore({ projectId: f.options.projectId, emulatorHost: 'example.test:8180' }));
++  assert.equal(f.writes.length, 0);
++}));
++test('a blocker anywhere in a reviewed chunk refuses all mutation without picking an arbitrary owner', async () => privateStore(async store => {
++  const f = storage(); currentScope(f); const old = sourceReceipt();
++  f.put(f.op(f.legacyKey), old); f.put(f.op(H(['program', new Date(Date.parse(`${f.options.fromLocalDate}T00:00:00Z`) + 86400000).toISOString().slice(0, 10)])), old);
++  const manifest = await preview(f); assert.equal(manifest.items[0].action, 'blocked'); await store.put(manifest);
++  await assert.rejects(execution(f, manifest, store)); assert.equal(f.writes.length, 0);
++}));
++
++test('native no-op receipt recreation cannot be adopted as the original immutable proof', async () => privateStore(async store => {
++  const f = storage(), manifest = await preview(f); await store.put(manifest); await execution(f, manifest, store);
++  const path = itemPath(f, manifest), original = copy(f.records.get(path));
++  assert.equal(original.data.targetChanged, false); assert.equal(f.records.has(f.op(f.v2Key)), false);
++  f.records.delete(path); f.put(path, original.data);
++  const recreated = f.records.get(path);
++  assert.equal(recreated.createTime.isEqual(original.createTime), false); assert.ok(recreated.createTime.isEqual(recreated.updateTime));
++  const count = f.writes.length;
++  await assert.rejects(execution(f, manifest, store)); assert.equal(f.writes.length, count);
++}));
++
++async function pendingItem(f, manifest, store) {
++  let fired = 0;
++  f.raw.afterCommit = staged => {
++    if (!fired && staged.some(([, ref]) => ref.path === itemPath(f, manifest))) { fired++; throw new Error('Synthetic item ACK loss before seal'); }
++  };
++  await assert.rejects(execution(f, manifest, store), /Synthetic item ACK loss before seal/); assert.equal(fired, 1);
++  f.raw.afterCommit = undefined;
++}
++test('final occurrence stays applying with one native-anchored pending receipt until mandatory seal', async () => privateStore(async store => {
++  const f = storage(), manifest = await preview(f); await store.put(manifest); await pendingItem(f, manifest, store);
++  const job = f.records.get(jobPath(f, manifest)), receipt = f.records.get(itemPath(f, manifest));
++  assert.equal(job.data.status, 'applying'); assert.equal(job.data.nextIndex, 1); assert.equal(job.data.pendingReceiptIndex, 0);
++  assert.deepEqual(job.data.receiptVersions, []); assert.ok(job.updateTime.isEqual(receipt.createTime)); assert.ok(job.updateTime.isEqual(receipt.updateTime));
++  const result = await execution(f, manifest, store); assert.equal(result.chunkCompleted, true);
++  const sealed = f.records.get(jobPath(f, manifest)).data;
++  assert.equal(sealed.status, 'completed'); assert.equal(sealed.pendingReceiptIndex, null); assert.equal(sealed.receiptVersions.length, 1);
++  assert.ok(sealed.receiptVersions[0].isEqual(receipt.createTime)); assert.equal(f.records.has(f.op(f.v2Key)), false);
++}));
++test('expired pending ownership transfers only atomically with the verified native seal', async t => privateStore(async store => {
++  const f = storage(), manifest = await preview(f); await store.put(manifest); await pendingItem(f, manifest, store);
++  const original = copy(f.records.get(jobPath(f, manifest))), receipt = copy(f.records.get(itemPath(f, manifest))), before = f.writes.length;
++  assert.equal(original.data.pendingReceiptIndex, 0);
++  const actualNow = Date.now, future = actualNow() + 120001;
++  const clock = t.mock.method(Date, 'now', () => future);
++  try {
++    const result = await execution(f, manifest, store, { owner: 'replacement-owner' }); assert.equal(result.chunkCompleted, true);
++    const job = f.records.get(jobPath(f, manifest)).data;
++    assert.equal(job.owner, 'replacement-owner'); assert.equal(job.generation, original.data.generation + 1); assert.equal(job.pendingReceiptIndex, null);
++    assert.deepEqual(job.receiptVersions, [receipt.createTime]);
++    assert.deepEqual(f.writes.slice(before), [{ path: jobPath(f, manifest), kind: 'update' }]);
++  } finally { clock.mock.restore(); }
++}));
++test('a different live pending owner cannot rewrite the native anchor before sealing', async () => privateStore(async store => {
++  const f = storage(), manifest = await preview(f); await store.put(manifest); await pendingItem(f, manifest, store);
++  const job = copy(f.records.get(jobPath(f, manifest))), before = f.writes.length;
++  assert.equal(job.data.pendingReceiptIndex, 0);
++  await assert.rejects(execution(f, manifest, store, { owner: 'foreign-live-owner' }));
++  assert.deepEqual(f.records.get(jobPath(f, manifest)), job); assert.equal(f.writes.length, before);
++}));
++test('post-seal lost ACK resumes literal prefix without appending or applying twice', async () => privateStore(async store => {
++  const f = storage(), manifest = await preview(f); await store.put(manifest); let fired = 0;
++  f.raw.afterCommit = staged => {
++    if (!fired && staged.some(([, ref, data]) => ref.path === jobPath(f, manifest) && data.pendingReceiptIndex === null && data.receiptVersions?.length === 1)) {
++      fired++; throw new Error('Synthetic seal ACK loss');
++    }
++  };
++  await assert.rejects(execution(f, manifest, store), /Synthetic seal ACK loss/); assert.equal(fired, 1);
++  const original = copy(f.records.get(jobPath(f, manifest))), receipt = copy(f.records.get(itemPath(f, manifest))), before = f.writes.length;
++  assert.deepEqual(original.data.receiptVersions, [receipt.createTime]); assert.equal(original.data.pendingReceiptIndex, null);
++  assert.equal((await execution(f, manifest, store)).chunkCompleted, true); assert.equal(f.writes.length, before);
++  assert.deepEqual(f.records.get(itemPath(f, manifest)), receipt); assert.deepEqual(f.records.get(jobPath(f, manifest)), original);
++}));
++for (const drift of ['pending receipt recreation', 'pending job anchor ABA']) test(`${drift} refuses seal and retains the unverified prefix`, async () => privateStore(async store => {
++  const f = storage(), manifest = await preview(f); await store.put(manifest); await pendingItem(f, manifest, store);
++  const path = drift === 'pending receipt recreation' ? itemPath(f, manifest) : jobPath(f, manifest), original = copy(f.records.get(path).data);
++  assert.equal(f.records.get(jobPath(f, manifest)).data.pendingReceiptIndex, 0);
++  if (drift === 'pending receipt recreation') f.records.delete(path); else f.put(path, { ...original, temporary: true }); f.put(path, original);
++  const count = f.writes.length; await assert.rejects(execution(f, manifest, store)); assert.equal(f.writes.length, count);
++}));
++test('partial rollback first seals its pending commit and preserves every literal receipt through held state', async () => privateStore(async store => {
++  const f = storage(); f.options.toLocalDate = '2026-10-20'; const manifest = await preview(f); await store.put(manifest); await pendingItem(f, manifest, store);
++  const receipt = copy(f.records.get(itemPath(f, manifest))); assert.equal(f.records.get(jobPath(f, manifest)).data.pendingReceiptIndex, 0);
++  const result = await migration.executeProgramNotificationDateMigration({ ...f.options, mode: 'restore' }, f.db,
++    { manifest, store, reviewedHash: manifest.manifestHash, owner: 'demo-worker' });
++  assert.equal(result.status, 'rollback-held'); const job = f.records.get(jobPath(f, manifest)).data;
++  assert.equal(job.nextIndex, 1); assert.equal(job.pendingReceiptIndex, null); assert.deepEqual(job.receiptVersions, [receipt.createTime]);
++  assert.deepEqual(f.records.get(itemPath(f, manifest)), receipt); assert.equal(f.records.has(itemPath(f, manifest, 1)), false);
++  assert.equal(f.records.has(f.op(f.v2Key)), false);
++}));
++test('empty manifest initializes closed completed seal state and still requires verified backup', async () => privateStore(async store => {
++  const f = storage(); const raw = f.records.get(f.programPath).data;
++  f.put(f.programPath, { ...raw, schedule: { ...raw.schedule, weekdays: [2] } }); const manifest = await preview(f); assert.equal(manifest.items.length, 0);
++  await store.put(manifest); await execution(f, manifest, store); const job = f.records.get(jobPath(f, manifest)).data;
++  assert.equal(job.status, 'completed'); assert.deepEqual(job.receiptVersions, []); assert.equal(job.pendingReceiptIndex, null);
++}));
++
++for (const drift of ['prior target ABA', 'prior sealed receipt recreation']) test(`next item transaction refuses ${drift} before any new occurrence write`, async () => privateStore(async store => {
++  const f = storage(); f.options.toLocalDate = '2026-10-20';
++  f.put(f.op(f.legacyKey), { status: 'sent' }); f.put(f.op(H(['program', '2026-10-20'])), { status: 'sent' });
++  const manifest = await preview(f); assert.equal(manifest.items.length, 2); await store.put(manifest);
++  let armed = false, fired = 0;
++  f.raw.afterCommit = staged => {
++    const job = f.records.get(jobPath(f, manifest))?.data;
++    if (!staged.length && job?.nextIndex === 1 && job.pendingReceiptIndex === null && job.receiptVersions.length === 1) armed = true;
++  };
++  f.raw.beforeTransaction = () => {
++    if (armed && !fired) {
++      fired++;
++      const path = drift === 'prior target ABA' ? f.op(f.v2Key) : itemPath(f, manifest), original = copy(f.records.get(path).data);
++      if (drift === 'prior sealed receipt recreation') f.records.delete(path); else f.put(path, { ...original, temporary: true });
++      f.put(path, original);
++    }
++  };
++  await assert.rejects(execution(f, manifest, store)); assert.equal(fired, 1, 'drift must occur after seal readback and before the next actual transaction');
++  const secondTarget = f.op(H(['program-start-v2', 'program', '2026-10-20']));
++  assert.equal(f.records.has(secondTarget), false, 'invalid prior prefix must stop the next target mutation in that same transaction');
++  assert.equal(f.records.has(itemPath(f, manifest, 1)), false);
++  assert.equal(f.records.get(jobPath(f, manifest)).data.nextIndex, 1);
++}));
++
++test('production CLI mutation is refused before SDK initialization and key/backup filesystem reads', () => {
++  const file = new URL('../migrate_program_notification_dates.mjs', import.meta.url);
++  const sdk = require.resolve('firebase-admin/firestore'), app = require.resolve('firebase-admin/app');
++  const args = baseArgs(); args[1] = 'production-hudhud-project';
++  args.push('--apply', '--manifest', 'a'.repeat(64), '--backup-dir', '/not-a-real-backup', '--key-file', '/not-a-real-key', '--expires-at', String(Date.now() + 86400000), '--owner', 'operator');
++  const script = `import { createRequire, syncBuiltinESMExports } from 'node:module'; import { fileURLToPath } from 'node:url';
++    const require=createRequire(${JSON.stringify(new URL('../../functions/package.json', import.meta.url).href)}); let sdkCalls=0,fsCalls=0;
++    const actual=require(${JSON.stringify(sdk)}); require.cache[${JSON.stringify(sdk)}].exports={...actual,Firestore:class{constructor(){sdkCalls++;throw Error('Unexpected SDK');}},getFirestore(){sdkCalls++;throw Error('Unexpected SDK');}};
++    const admin=require(${JSON.stringify(app)}); require.cache[${JSON.stringify(app)}].exports={...admin,initializeApp(){sdkCalls++;throw Error('Unexpected SDK');}};
++    const fs=require('node:fs/promises'); fs.lstat=async()=>{fsCalls++;throw Error('Unexpected filesystem');}; fs.open=async()=>{fsCalls++;throw Error('Unexpected filesystem');}; syncBuiltinESMExports();
++    process.argv=[process.execPath,fileURLToPath(${JSON.stringify(file.href)}),...${JSON.stringify(args)}];
++    process.on('beforeExit',()=>{if(sdkCalls!==0||fsCalls!==0)process.exitCode=97;}); await import(${JSON.stringify(file.href)});`;
++  const result = spawnSync(process.execPath, ['--input-type=module', '-e', script], { encoding: 'utf8', env: { PATH: process.env.PATH } });
++  assert.equal(result.status, 1); assert.equal(result.stdout, ''); assert.match(result.stderr, /^Program date migration stopped: /);
++  assert.equal(result.stderr.includes('Unexpected'), false);
++});
++test('all malformed native seal checkpoints fail closed without implicit legacy defaults', async () => privateStore(async store => {
++  const f = storage(), manifest = await preview(f); await store.put(manifest); await execution(f, manifest, store);
++  const path = jobPath(f, manifest), original = copy(f.records.get(path).data);
++  const malformed = [data => { delete data.receiptVersions; }, data => { delete data.pendingReceiptIndex; },
++    data => { data.receiptVersions = [null]; }, data => { data.receiptVersions = [{ seconds: 1800000000, nanoseconds: 1 }]; },
++    data => { data.receiptVersions = []; }, data => { data.receiptVersions = Array(26).fill(new Timestamp(1800000000, 1)); },
++    data => { data.pendingReceiptIndex = 0; }, data => { data.status = 'applying'; }, data => { data.pendingReceiptIndex = '0'; },
++    data => { data.extra = { syntheticContent: 'not-supported' }; }];
++  for (const mutate of malformed) {
++    const data = copy(original); mutate(data); f.put(path, data); const before = f.writes.length;
++    await assert.rejects(execution(f, manifest, store)); assert.equal(f.writes.length, before); f.put(path, original);
++  }
++  assert.equal((await execution(f, manifest, store)).chunkCompleted, true);
++}));
++test('conditional held rollback rejects an external edit of a genuine no-op target without restoring any old value', async () => privateStore(async store => {
++  const f = storage(); f.put(f.op(f.v2Key), { status: 'unknown' }); const manifest = await preview(f); await store.put(manifest); await execution(f, manifest, store);
++  const before = copy(f.records.get(f.op(f.v2Key)).data); f.put(f.op(f.v2Key), { ...before, reason: 'delivery-uncertain' });
++  const count = f.writes.length;
++  await assert.rejects(migration.executeProgramNotificationDateMigration({ ...f.options, mode: 'restore' }, f.db,
++    { manifest, store, reviewedHash: manifest.manifestHash, owner: 'demo-worker' }));
++  assert.equal(f.writes.length, count); assert.equal(f.records.get(f.op(f.v2Key)).data.reason, 'delivery-uncertain');
++}));
++test('missing or expired encrypted backup blocks even an empty manifest before initial lease writes', async t => privateStore(async (store, config) => {
++  const f = storage(), raw = f.records.get(f.programPath).data;
++  f.put(f.programPath, { ...raw, schedule: { ...raw.schedule, weekdays: [2] } }); const manifest = await preview(f); await store.put(manifest);
++  const now = Date.now(), clock = t.mock.method(Date, 'now', () => now + 86400000);
++  try { await assert.rejects(execution(f, manifest, store)); assert.equal(f.writes.length, 0); }
++  finally { clock.mock.restore(); }
++  await rm(join(config.directory, `${manifest.manifestHash}.program-date-backup`));
++  await assert.rejects(execution(f, manifest, store)); assert.equal(f.writes.length, 0);
++}));
++test('authenticated backup tampering and directory replacement stop before database mutation', async () => privateStore(async (store, config) => {
++  const f = storage(), manifest = await preview(f); await store.put(manifest);
++  const path = join(config.directory, `${manifest.manifestHash}.program-date-backup`), body = await readFile(path, 'utf8');
++  const envelope = JSON.parse(body); envelope.ciphertext = Buffer.from('synthetic corrupt ciphertext').toString('base64'); await writeFile(path, JSON.stringify(envelope));
++  await assert.rejects(execution(f, manifest, store)); assert.equal(f.writes.length, 0); await writeFile(path, body);
++  const old = `${config.directory}-moved`; await rename(config.directory, old); await mkdir(config.directory, { mode: 0o700 });
++  try { await assert.rejects(execution(f, manifest, store)); assert.equal(f.writes.length, 0); }
++  finally { await rm(config.directory, { recursive: true, force: true }); await rename(old, config.directory); }
++}));
++test('program wire-review-4 retains decreasing hash order paired with ascending legacy dates', async () => {
++  const f = storage(); const data = f.records.get(f.programPath).data;
++  const id = 'wire-review-4', path = `HudHudDev/programs/programs/${id}`; f.put(path, data);
++  const manifest = await migration.previewProgramNotificationDates({ ...f.options, programId: id, fromLocalDate: '2026-10-26', toLocalDate: '2026-10-26' }, f.db);
++  assert.deepEqual(manifest.items[0].legacyDates, ['2026-10-26', '2026-10-27']);
++  assert.deepEqual(manifest.items[0].legacy.map(item => item.key), ['67b46c21aaa6afb1c10f7093da14ec8379939090627bfa43e9ac6925f65f5601', '43d1a107e43ba6820e0eb364baa1cce52a99cbd662ec52f8177cd8a526125588']);
++});
++
++test('CLI key custody remains separate from the encrypted backup directory before SDK initialization', async () => privateStore(async (_store, config) => {
++  const keyFile = join(config.directory, 'synthetic-private-key'); await writeFile(keyFile, config.key, { mode: 0o600 });
++  const file = new URL('../migrate_program_notification_dates.mjs', import.meta.url), sdk = require.resolve('firebase-admin/firestore'), app = require.resolve('firebase-admin/app');
++  const args = [...baseArgs(), '--dry-run', '--backup-dir', config.directory, '--key-file', keyFile, '--expires-at', String(config.expiresAt)];
++  const script = `import { createRequire } from 'node:module'; import { fileURLToPath } from 'node:url';
++    const require=createRequire(${JSON.stringify(new URL('../../functions/package.json', import.meta.url).href)}); let sdkCalls=0;
++    const actual=require(${JSON.stringify(sdk)}); require.cache[${JSON.stringify(sdk)}].exports={...actual,Firestore:class{constructor(){sdkCalls++;throw Error('Unexpected SDK');}},getFirestore(){sdkCalls++;throw Error('Unexpected SDK');}};
++    const admin=require(${JSON.stringify(app)}); require.cache[${JSON.stringify(app)}].exports={...admin,initializeApp(){sdkCalls++;throw Error('Unexpected SDK');}};
++    process.argv=[process.execPath,fileURLToPath(${JSON.stringify(file.href)}),...${JSON.stringify(args)}];
++    process.on('beforeExit',()=>{if(sdkCalls!==0)process.exitCode=97;}); await import(${JSON.stringify(file.href)});`;
++  const result = spawnSync(process.execPath, ['--input-type=module', '-e', script], { encoding: 'utf8', env: { PATH: process.env.PATH } });
++  assert.equal(result.status, 1); assert.equal(result.stdout, ''); assert.match(result.stderr, /^Program date migration stopped: /);
++  assert.equal(result.stderr.includes('Unexpected'), false);
++}));
+--- a/docs/operations/background-consistency-migrations.md
++++ b/docs/operations/background-consistency-migrations.md
+@@ -521,3 +521,70 @@
+ Production mutation/isolation remains unsupported; retain both namespaces, every
+ suppression and backup evidence. All count appendices, original17 identities,
+ Flutter/device gates, independent reviews and production approvals remain intact.
++
++
++## T11 demo migration candidate handoff — independent source/native review pending
++
++`tool/migrate_program_notification_dates.mjs` is import-safe. Its default mode is
++read-only preview. Explicit project/root/program, canonical inclusive local dates
++(max31days), canonical UTC cutoverAt, optional local-date cursor and maxItems1..25
++select a reviewed chunk; they do not override security runtime clocks. A preview
++contains at most25 occurrences, deterministic ordered legacy date/key pairs,
++typed source/target observations, exact native identities and closed decisions.
++An unresolved blocker prevents all apply writes. nextCursor must be reviewed until
++null; finishing one chunk is not completing an unreviewed remaining range.
++
++Actual candidate interfaces:
++
++- `previewProgramNotificationDates(options, firestore)` and
++  `validateProgramDateManifest(manifest, options)` are read-only.
++- `createProgramDateDemoFirestore({projectId, emulatorHost})` constructs the real
++  frozen SDK facade, bound privately to an explicit demo project and loopback
++  host. Arbitrary SDK/store facades and production mutation flags are refused.
++- `ProgramDateBackupStore.open({directory,key,expiresAt})` provides private,
++  purpose-validated AES-256-GCM custody. put/get use immutable exclusive files,
++  authenticated readback, directory/file identity,0700/0600 ownership and the
++  existing1hour recovery/30day ceiling. Keep the32-byte key separately; CLI key
++  files must be private, outside repositories/.boss and outside the backup folder.
++- `executeProgramNotificationDateMigration(options, firestore,
++  {manifest,store,reviewedHash,owner})` accepts mode apply or restore, using only
++  the existing private notificationOperations job/item paths. No public clock,
++  isolation boolean, caller projection or ignored-field list exists.
++
++CLI scope flags are `--project`, `--root`, `--program`, `--from`, `--to`,
++`--cutover-at`, optional `--cursor`/`--max-items`, and explicit private
++`--backup-dir`, `--key-file`, `--expires-at`. Preview/`--dry-run` persists only
++its encrypted reviewed artifact and emits counts/hash/cursor. Later authorized
++apply/restore additionally requires `--manifest` and stable `--owner`. No
++production apply/restore/activation is supported: refusal precedes SDK creation
++and key/backup filesystem access. Importing the module executes no CLI, SDK
++initialization, credential lookup or migration. No real migration command was
++executed for this candidate.
++
++Apply preserves V1/program/station/stamp documents and writes only the authorized
++V2 target when necessary, immutable same-transaction item receipt and bounded
++job progress. Genuine no-ops retain literal observed target versions/absence.
++Mandatory native pending seals use the independently approved T11 contract
++(`.boss/technical-review/B16-T11-contract-review.md`); original receiptVersions
++remain immutable across lease renewal/resume/held rollback. Every NEW occurrence
++transaction verifies the entire bounded sealed prefix itself before writes;
++an earlier separate readback is insufficient. Security clocks are internal
++Date.now; source/type/identity/custody drift stops before the next mutation.
++
++The result reports applied NEW occurrences, status, nextIndex, chunkCompleted,
++completed and nextCursor. completed is true only for an applied fully sealed
++chunk with null nextCursor. Restore conditionally verifies the complete committed
++prefix and records rollback-held; it does not erase/revert any V2 target, create
++an absent target, reset stamps, resurrect sources or authorize old workers.
++Held status alone does not drain workers; later operations must independently
++keep incompatible notifier/collector workers isolated.
++
++Validation uses Node22: `node --test tool/test/migrate_program_notification_dates.test.mjs`,
++then the existing Functions `npm test` and `npm run lint`. Model/CLI refusal
++checks are candidate evidence, not actual Firestore commit, client permission or
++production index evidence. Parent-owned04-T12 must rehearse native pending/seal,
++ACK loss/expiry, prefix drift, carry clocks, both-root client denials and the
++unchanged broadcast-prefix collector query. Its20-result limit is not a promise
++of20 reads or billing units; emulator success cannot prove production index
++availability/read cost. All original17 identities, full Flutter/device acceptance,
++independent reviews and later production approvals remain separate. R13 is OPEN.

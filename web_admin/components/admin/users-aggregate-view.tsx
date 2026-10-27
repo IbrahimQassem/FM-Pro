@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { collection, getCountFromServer, type Firestore } from 'firebase/firestore';
+import { type Firestore } from 'firebase/firestore';
+import { loadUserCount } from '@/lib/user-count';
 import { firestoreRoot } from '@/lib/firestore-root';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,13 +17,11 @@ export function UsersAggregateView({ firestore }: { firestore: Firestore }) {
     setLoading(true);
     setError(null);
     try {
-      const snap = await getCountFromServer(
-        collection(firestore, `${firestoreRoot}/users/users`),
-      );
-      setTotalCount(snap.data().count);
-      setLastChecked(new Date());
-    } catch (err) {
-      console.error('Failed to get total users count:', err);
+      const result = await loadUserCount(firestore);
+      setTotalCount(result.total);
+      setLastChecked(new Date(result.asOf));
+    } catch {
+      console.error('Failed to get administrative aggregate.');
       setError('تعذر تحميل إجمالي المستخدمين من الخادم. يرجى التحقق من الاتصال بالشبكة والمحاولة مجدداً.');
     } finally {
       setLoading(false);
@@ -31,17 +30,17 @@ export function UsersAggregateView({ firestore }: { firestore: Firestore }) {
 
   useEffect(() => {
     let cancelled = false;
-    void getCountFromServer(collection(firestore, `${firestoreRoot}/users/users`))
-      .then((snap) => {
+    void loadUserCount(firestore)
+      .then((result) => {
         if (!cancelled) {
-          setTotalCount(snap.data().count);
-          setLastChecked(new Date());
+          setTotalCount(result.total);
+          setLastChecked(new Date(result.asOf));
           setLoading(false);
         }
       })
-      .catch((err) => {
+      .catch(() => {
         if (!cancelled) {
-          console.error('Failed to get total users count:', err);
+          console.error('Failed to get administrative aggregate.');
           setError('تعذر تحميل إجمالي المستخدمين من الخادم. يرجى التحقق من الاتصال بالشبكة والمحاولة مجدداً.');
           setLoading(false);
         }
@@ -139,7 +138,7 @@ export function UsersAggregateView({ firestore }: { firestore: Firestore }) {
           <CardContent>
             <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
               <CheckCircle2 className="size-3" />
-              <span>حسابات نشطة في التطبيق</span>
+              <span>حسابات مسجلة في التطبيق</span>
             </div>
           </CardContent>
         </Card>

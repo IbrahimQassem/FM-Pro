@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HudHud FM execution plan — cohesive batches with independent evidence - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#hudhud-fm-execution-plan-cohesive-batches-with-independent-evidence">HudHud FM execution plan — cohesive batches with independent evidence</a></li><li class="toc-level-2"><a href="#summary">Summary</a></li><li class="toc-level-2"><a href="#document-information">Document information</a></li><li class="toc-level-2"><a href="#0-repository-preflight">0. Repository preflight</a></li><li class="toc-level-3"><a href="#english-only-artifact-rendering">English-only artifact rendering</a></li><li class="toc-level-2"><a href="#1-scope-and-acceptance">1. Scope and acceptance</a></li><li class="toc-level-2"><a href="#2-stable-workers-and-physical-write-ownership">2. Stable workers and physical-write ownership</a></li><li class="toc-level-3"><a href="#2-1-single-integration-owner-registry">2.1 Single integration-owner registry</a></li><li class="toc-level-2"><a href="#3-sixteen-batches-one-assignment-per-implementation-task">3. Sixteen batches — one assignment per implementation task</a></li><li class="toc-level-3"><a href="#3-1-scoped-contract-milestones-inside-b01">3.1 Scoped contract milestones inside B01</a></li><li class="toc-level-3"><a href="#3-2-complete-batch-graph-with-contract-milestones">3.2 Complete batch graph with contract milestones</a></li><li class="toc-level-3"><a href="#3-3-preserved-task-local-dependencies">3.3 Preserved task-local dependencies</a></li><li class="toc-level-3"><a href="#3-4-b15-eliminates-the-acceptance-handoff-cycle">3.4 B15 eliminates the acceptance handoff cycle</a></li><li class="toc-level-2"><a href="#4-eleven-manual-tasks-outside-automatic-code-dispatch">4. Eleven manual tasks — outside automatic code dispatch</a></li><li class="toc-level-2"><a href="#5-parallelism-and-runtime-locks">5. Parallelism and runtime locks</a></li><li class="toc-level-2"><a href="#6-seventeen-verification-waves-and-red-green-discipline">6. Seventeen verification waves and RED/GREEN discipline</a></li><li class="toc-level-3"><a href="#6-1-reduce-repetition-without-reducing-verification">6.1 Reduce repetition without reducing verification</a></li><li class="toc-level-2"><a href="#7-contracts-security-and-actual-commands">7. Contracts, security and actual commands</a></li><li class="toc-level-2"><a href="#8-test-debt-devices-and-operations">8. Test debt, devices and operations</a></li><li class="toc-level-3"><a href="#8-1-devices-pending-and-blocking-release-approval">8.1 Devices — PENDING and blocking release approval</a></li><li class="toc-level-3"><a href="#8-2-migration-rollback-and-production">8.2 Migration, rollback and production</a></li><li class="toc-level-2"><a href="#9-plan-validation-and-delivery">9. Plan validation and delivery</a></li><li class="toc-level-2"><a href="#change-log">Change log</a></li></ul>
+    </aside>
+    <main>
+      <h1>HudHud FM execution plan — cohesive batches with independent evidence</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: execution-plan.md</div>
+        <div>Generated: 2026-10-25T19:09:26.066Z</div>
+      </div>
+      <hr>
+<p>type: tasks outputFor: [delivery-lead, frontend, backend, tech-lead, qa] dependencies: [tech-review, existing-contracts]</p>
+<hr>
+<h1 id="hudhud-fm-execution-plan-cohesive-batches-with-independent-evidence">HudHud FM execution plan — cohesive batches with independent evidence</h1>
+<h2 id="summary">Summary</h2>
+<ul><li><strong>Planning optimization only. R01–R13 remain OPEN.</strong> No application source edits, application test runs, data migrations or deployment occurred in this task.</li><li>Preserve all <strong>65 atomic task IDs</strong>: <strong>54 source/test/contract tasks in 16 implementation batches</strong>, plus <strong>11 independent review, QA, device, rehearsal and operational tasks</strong>. Original task acceptance criteria remain mandatory.</li><li>Preserve all <strong>17 registered verification waves</strong> in [waves.json](waves.json), separate from work-assignment batches. Consolidation does not reduce testing or bypass gates.</li><li>B15 colocates comment-count authority, harness integration, privacy QA and pagination QA. This removes the cycle where WO-03 acceptance waits for a worker that itself waits for WO-03 acceptance.</li><li>Integration owner <strong>I</strong> owns cross-batch/control paths; designated component owners retain intrabatch content writes. Stable component workers reuse context; parallel execution requires disjoint writes and runtime resources, not merely different WO labels.</li></ul>
+<h2 id="document-information">Document information</h2>
+<table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Project</td><td><code>hudhud_fm</code> only; excludes <code>FM-Pro</code></td></tr><tr><td>Date / freshly checked baseline</td><td>2026-10-25 / <code>9fae3248aadecaa53198a5fb9f06576fdcc182cf</code></td></tr><tr><td>Current branch / local default</td><td><code>hudhud_fm</code> / <code>origin/main</code></td></tr><tr><td>Inputs</td><td>[Review](tech-review.md), [WO-01](WO-01.md), [WO-02](WO-02.md), [WO-03](WO-03.md), [WO-04](WO-04.md), previous master and [waves.json](waves.json)</td></tr><tr><td>Scheduling authority</td><td>This master and consolidated batches govern coordination; WOs retain exact task write sets and acceptance criteria</td></tr><tr><td>Execution authority</td><td>Implementation has not started; planning does not authorize it. Production operations require their separately scoped authorization</td></tr><tr><td>Language</td><td>English throughout, including artifacts, instructions, progress and final summaries</td></tr></tbody></table>
+<h2 id="0-repository-preflight">0. Repository preflight</h2>
+<table><thead><tr><th>Check</th><th>Observation / action</th></tr></thead><tbody><tr><td>Git</td><td>HEAD and branches rechecked; <code>git diff --stat</code> has no tracked source change; <code>.boss/</code> holds review/planning artifacts</td></tr><tr><td>Node</td><td>Current PATH is <code>v26.6.0</code>; select installed Node 22 or a validated portable Node 22 environment before Node gates. No implicit installation</td></tr><tr><td>Dependencies</td><td>npm lockfiles exist; no dependency upgrade, lockfile edit or package installation planned</td></tr><tr><td>CI</td><td>No configuration found in inspected <code>.github/workflows</code>, <code>.gitlab-ci.yml</code>, <code>.circleci</code>, Vercel/Netlify locations. Hosted CI commands remain <strong>UNKNOWN</strong></td></tr><tr><td>Verification authority</td><td>Actual package scripts and quality contract; do not invent an admin typecheck script or CI pass</td></tr><tr><td>Architecture</td><td>Riverpod, <code>presentation -&gt; domain &lt;- data</code>, one player; retain React/Firebase component boundaries</td></tr><tr><td>Historical evidence</td><td>368 passed, 17 skipped, three expected failing temporary reproductions; historical review evidence, not results of this plan</td></tr><tr><td>R13</td><td><strong>CONTRACT_DECISION_REQUIRED while OPEN</strong>: Yemen-date semantics conflict with accepted offsets; resolve the policy without blocking unrelated work</td></tr><tr><td>Devices</td><td>[Existing worksheet](../../docs/release/november-2026-device-acceptance.md) is NOT RUN; simulator/builds do not substitute</td></tr></tbody></table>
+<p>Before every dispatch, check HEAD, exact write set, owner, contracts, worker availability and locks. Unknown paths/owners or unlisted writes block dispatch until the plan is updated. Preflight does not require reading secrets or private Firebase configuration.</p>
+<h3 id="english-only-artifact-rendering">English-only artifact rendering</h3>
+<p>All new documents, handoffs and reports remain English. Use <code>--lang en</code> on Boss commands that advertise that option. The installed runtime artifact/status commands do not expose a language flag; <code>.boss/templates/artifact.html.template</code> supplies English-only companion rendering without changing the installed skill or application. The original technical review remains an unchanged historical input.</p>
+<h2 id="1-scope-and-acceptance">1. Scope and acceptance</h2>
+<table><thead><tr><th>Source work order</th><th>Exact findings</th><th>Required outcome</th></tr></thead><tbody><tr><td>WO-01</td><td>R01, R10</td><td>Separate private station data; close all profile-email producers/consumers while preserving Auth and verification</td></tr><tr><td>WO-02</td><td>R02, R03, R05</td><td>Correct visible timer, safe replay, accurate dispatch result without duplicate accounts</td></tr><tr><td>WO-03</td><td>R04, R06, R07, R08</td><td>Bounded pages with complete reachability, safe counts, correct exports and bounded public archives</td></tr><tr><td>WO-04</td><td>R09, R11, R12, R13</td><td>Correct XML, fair health progress, one idempotent count authority, compatible timing/receipts</td></tr></tbody></table>
+<p>Finding lifecycle: <code>OPEN -&gt; IN_PROGRESS -&gt; IMPLEMENTED -&gt; VERIFIED -&gt; CLOSED</code>. A plan does not advance status. Closure requires the fix, permanent regression, independent review and applicable gates. Missing device/operational evidence still blocks release approval even after local code is complete.</p>
+<h2 id="2-stable-workers-and-physical-write-ownership">2. Stable workers and physical-write ownership</h2>
+<table><thead><tr><th>Code</th><th>Stable role</th><th>Assignment policy</th></tr></thead><tbody><tr><td>I</td><td>Delivery / Integration Lead</td><td>Coordination and sole content writer for cross-batch/control paths; merges approved batch commits without independent content edits; cannot approve its own implementation</td></tr><tr><td>BE</td><td>Backend</td><td>Server modules and designated intrabatch paths; prepares cross-batch/control patches for I</td></tr><tr><td>DT</td><td>Data Tools</td><td>Audit/repair/restore tools and synthetic fixtures, including designated intrabatch paths</td></tr><tr><td>FL</td><td>Flutter</td><td>Reuses context across B07, B08 and B09; this default capacity order is not a new functional DAG edge</td></tr><tr><td>WA</td><td>Web Admin</td><td>Forms, queries and export; consults BE for aggregate-server changes without overlapping write authority</td></tr><tr><td>WP</td><td>Public Web</td><td>Content repository and bounded archive UI</td></tr><tr><td>QA</td><td>Independent QA</td><td>Integration regressions/evidence; cannot approve application code it implemented</td></tr></tbody></table>
+<p>Default capacity is one coordinator and at most three implementation workers, with one available worker per role code. Adding another FL worker requires a distinct identity, isolated worktree/build cache and disjoint writes. Multiple sessions do not automatically isolate files or emulators.</p>
+<h3 id="2-1-single-integration-owner-registry">2.1 Single integration-owner registry</h3>
+<p>Every repeated source/test/contract/artifact path has exactly one content writer: <strong>I owns 22 cross-batch/control paths; component owners retain 11 intrabatch paths (FL7, DT3, BE1)</strong>. For paths used entirely inside B04/B06/B07/B08/B14 without a preparatory milestone, the stable component owner continues across atomic subtasks without an intermediate I handoff. I merges the independently reviewed batch commit without separate content edits; merge conflicts return to that file owner. Source reviewers are read-only. For shared review/QA artifacts, I serializes collection of independent reviewers' results without changing their verdicts.</p>
+<table><thead><tr><th>Exact shared path</th><th>Sole physical writer</th><th>Ordered patch/task users</th></tr></thead><tbody><tr><td><code>.boss/technical-review/WO-01-validation.md</code></td><td>I</td><td>01-T15 -&gt; 01-T16 -&gt; 01-T17</td></tr><tr><td><code>.boss/technical-review/WO-04-validation.md</code></td><td>I</td><td>04-T13 -&gt; 04-T14 -&gt; 04-T15 -&gt; 04-T16</td></tr><tr><td><code>docs/contracts/firebase-data-contract.md</code></td><td>I</td><td>01-T01 -&gt; 03-T01 -&gt; 04-T01</td></tr><tr><td><code>docs/contracts/station-content-contract.md</code></td><td>I</td><td>03-T01 -&gt; 04-T01</td></tr><tr><td><code>docs/operations/background-consistency-migrations.md</code></td><td>I</td><td>04-T03 -&gt; 04-T09 -&gt; 04-T11 -&gt; 04-T15 -&gt; 04-T16</td></tr><tr><td><code>docs/operations/station-privacy-migration.md</code></td><td>I</td><td>01-T01 -&gt; 01-T12 -&gt; 01-T16 -&gt; 01-T17</td></tr><tr><td><code>firebase_tests/firebase-emulators/editorial-comment-counts.test.js</code></td><td>I</td><td>04-T08 -&gt; 04-T12</td></tr><tr><td><code>firebase_tests/firebase-emulators/station-privacy.test.js</code></td><td>I</td><td>01-T13 -&gt; 01-T14</td></tr><tr><td><code>firebase_tests/firebase-rules/firestore.rules.test.js</code></td><td>I</td><td>01-T04 -&gt; 01-T11 -&gt; 03-T16 -&gt; 04-T12</td></tr><tr><td><code>firestore.indexes.json</code></td><td>I</td><td>03-T02 -&gt; 04-T12</td></tr><tr><td><code>firestore.rules</code></td><td>I</td><td>01-T04 -&gt; 01-T11 -&gt; 04-T12</td></tr><tr><td><code>functions/index.js</code></td><td>I</td><td>01-T09 -&gt; 03-T09 -&gt; 04-T05 -&gt; 04-T07</td></tr><tr><td><code>functions/lib/admin-content-delete.js</code></td><td>I</td><td>01-T03 -&gt; 04-T07</td></tr><tr><td><code>functions/lib/stream-health.js</code></td><td>BE</td><td>04-T04 -&gt; 04-T05</td></tr><tr><td><code>lib/features/player/presentation/controllers/station_player_controller.dart</code></td><td>FL</td><td>02-T02 -&gt; 02-T04</td></tr><tr><td><code>test/features/account/data/firebase_account_repository_test.dart</code></td><td>FL</td><td>02-T08 -&gt; 02-T10</td></tr><tr><td><code>test/features/account/presentation/account_controller_test.dart</code></td><td>FL</td><td>02-T08 -&gt; 02-T10</td></tr><tr><td><code>test/features/account/presentation/auth_screen_test.dart</code></td><td>FL</td><td>02-T08 -&gt; 02-T10</td></tr><tr><td><code>test/features/account/presentation/manage_account_screen_test.dart</code></td><td>FL</td><td>02-T08 -&gt; 02-T10</td></tr><tr><td><code>test/features/account/presentation/register_screen_test.dart</code></td><td>FL</td><td>02-T07 -&gt; 02-T10</td></tr><tr><td><code>test/features/player/presentation/station_player_controller_test.dart</code></td><td>FL</td><td>02-T01 -&gt; 02-T03</td></tr><tr><td><code>tool/migrate_station_privacy.mjs</code></td><td>DT</td><td>01-T12 -&gt; 01-T13</td></tr><tr><td><code>tool/run-admin-emulator-tests.mjs</code></td><td>I</td><td>03-T16 -&gt; 04-T08</td></tr><tr><td><code>tool/test/migrate_station_privacy.test.mjs</code></td><td>DT</td><td>01-T12 -&gt; 01-T13</td></tr><tr><td><code>tool/test/station-writer-privacy.test.mjs</code></td><td>DT</td><td>01-T07 -&gt; 01-T08</td></tr><tr><td><code>web_admin/components/admin/admin-app.tsx</code></td><td>I</td><td>01-T06 -&gt; 01-T10 -&gt; 03-T12 -&gt; 03-T13</td></tr><tr><td><code>web_admin/components/admin/users-aggregate-view.tsx</code></td><td>I</td><td>M03-T16-RED-READY (preparatory seam) -&gt; 03-T10 (implementation)</td></tr><tr><td><code>web_admin/lib/export-excel.ts</code></td><td>I</td><td>01-T06 -&gt; 03-T13</td></tr><tr><td><code>web_admin/lib/resource-filters.ts</code></td><td>I</td><td>01-T10 -&gt; 03-T11</td></tr><tr><td><code>web_admin/lib/user-count.ts</code></td><td>I</td><td>M03-T16-RED-READY (preparatory seam) -&gt; 03-T10 (implementation)</td></tr><tr><td><code>web_admin/test/export-excel.test.ts</code></td><td>I</td><td>01-T06 -&gt; 03-T13</td></tr><tr><td><code>web_admin/test/resource-filters.test.ts</code></td><td>I</td><td>01-T10 -&gt; 03-T11</td></tr><tr><td><code>web_admin/test/save-content.emulator.test.ts</code></td><td>I</td><td>01-T05 -&gt; 01-T14</td></tr></tbody></table>
+<p>All <strong>33 exact shared paths</strong> above match <code>sharedFileOwners</code> in <code>waves.json</code>. Task users describe patch handoffs, not an assertion that an entire upstream task has completed: 03-T16 contributes M03-T16-FIXTURE before 04-T08, while final 03-T16 acceptance follows 04-T08. Acquire the path lock before each write and reconcile against the latest approved artifact. The listed owner retains exclusive content-write authority; workers supply patches to I for cross-batch/control paths. New overlaps are classified and assigned one owner before dispatch; cross-batch/control overlaps belong to I. WO-02 currently does not write providers/station-content/screens/ARB; any expansion must be reconciled before B09.</p>
+<h2 id="3-sixteen-batches-one-assignment-per-implementation-task">3. Sixteen batches — one assignment per implementation task</h2>
+<p>Listed task order does not override internal dependencies; section 3.3 specifies them. A batch write set is the union of its exact WO task write sets, with no extra files. NEW items remain proposed additions, not existing APIs.</p>
+<table><thead><tr><th>Batch</th><th>Worker</th><th>Atomic tasks assigned exactly once</th><th>Batch predecessors</th><th>Required contracts</th></tr></thead><tbody><tr><td>B01</td><td>I</td><td>01-T01, 03-T01, 04-T01</td><td>None</td><td>Emits scoped milestones below</td></tr><tr><td>B02</td><td>BE + I</td><td>01-T02, 01-T03, 01-T04</td><td>None</td><td>C01</td></tr><tr><td>B03</td><td>WA + I</td><td>01-T05, 01-T06, 01-T10, 01-T11</td><td>B02, B05</td><td>Inherited</td></tr><tr><td>B04</td><td>DT + I</td><td>01-T07, 01-T08</td><td>B02</td><td>Inherited</td></tr><tr><td>B05</td><td>BE + I</td><td>01-T09, 01-T09a</td><td>B04</td><td>C01</td></tr><tr><td>B06</td><td>DT + I</td><td>01-T12, 01-T13</td><td>B03, B04</td><td>Inherited</td></tr><tr><td>B07</td><td>FL + I</td><td>02-T01, 02-T02, 02-T03, 02-T04</td><td>None</td><td>Existing playback contract</td></tr><tr><td>B08</td><td>FL + I</td><td>02-T05, 02-T06, 02-T07, 02-T08, 02-T09, 02-T10</td><td>None</td><td>Existing account/security contract</td></tr><tr><td>B09</td><td>FL + I</td><td>03-T03, 03-T04, 03-T05, 03-T06, 03-T07, 03-T08</td><td>B10</td><td>C03</td></tr><tr><td>B10</td><td>DT + I</td><td>03-T02</td><td>None</td><td>C03</td></tr><tr><td>B11</td><td>WA + I</td><td>03-T09, 03-T10, 03-T11, 03-T12, 03-T13</td><td>B03, B10; M03-T16-RED-READY</td><td>C03</td></tr><tr><td>B12</td><td>WP</td><td>03-T14, 03-T15</td><td>B10</td><td>C03</td></tr><tr><td>B13</td><td>BE + I</td><td>04-T02, 04-T03</td><td>B02</td><td>C04-RSS</td></tr><tr><td>B14</td><td>BE + I</td><td>04-T04, 04-T05</td><td>B11</td><td>C04-HEALTH</td></tr><tr><td>B15</td><td>BE + QA + I</td><td>04-T06, 03-T16, 04-T07, 04-T08, 04-T09, 01-T14</td><td>B06, B09, B11, B12, B13, B14</td><td>C04-COUNTS</td></tr><tr><td>B16</td><td>BE + I</td><td>04-T10, 04-T11, 04-T12, 02-T11</td><td>B07, B08, B15</td><td>C04-TIMEZONE</td></tr></tbody></table>
+<h3 id="3-1-scoped-contract-milestones-inside-b01">3.1 Scoped contract milestones inside B01</h3>
+<p>C01 comes from reviewed 01-T01 privacy/writer decisions. C03 comes from 03-T01 after C01. Then 04-T01 emits independently reviewed <strong>C04-RSS, C04-HEALTH, C04-COUNTS and C04-TIMEZONE</strong>. I serializes shared contract edits.</p>
+<p>A batch waits only for its required approved milestone, not all of B01. Unresolved R13 blocks <strong>C04-TIMEZONE/B16 only</strong>, never unrelated privacy, playback, queries or approved RSS/health/counts. Atomic task 04-T01 remains incomplete until all its outputs are approved; partial contract release is not fabricated task completion.</p>
+<h3 id="3-2-complete-batch-graph-with-contract-milestones">3.2 Complete batch graph with contract milestones</h3>
+<pre><code class="language-mermaid">flowchart TD
+  B01[&quot;B01: I — contract decisions&quot;] --&gt; C01[&quot;C01&quot;]
+  B01 --&gt; C03[&quot;C03 after C01&quot;]
+  B01 --&gt; CR[&quot;C04-RSS&quot;]
+  B01 --&gt; CH[&quot;C04-HEALTH&quot;]
+  B01 --&gt; CC[&quot;C04-COUNTS&quot;]
+  B01 --&gt; CT[&quot;C04-TIMEZONE: R13 decision&quot;]
+  C01 --&gt; B02
+  C01 --&gt; B05
+  B02 --&gt; B04 --&gt; B05
+  B02 --&gt; B03
+  B05 --&gt; B03
+  B03 --&gt; B06
+  B04 --&gt; B06
+  C03 --&gt; B10
+  C03 --&gt; B09
+  C03 --&gt; B11
+  C03 --&gt; MR[&quot;M03-T16-RED-READY: QA/I baseline regression&quot;]
+  MR --&gt; B11
+  C03 --&gt; B12
+  B10 --&gt; B09
+  B10 --&gt; B11
+  B10 --&gt; B12
+  B03 --&gt; B11
+  B02 --&gt; B13
+  CR --&gt; B13
+  B11 --&gt; B14
+  CH --&gt; B14
+  B06 --&gt; B15
+  B09 --&gt; B15
+  B11 --&gt; B15
+  B12 --&gt; B15
+  B13 --&gt; B15
+  B14 --&gt; B15
+  CC --&gt; B15
+  B07[&quot;B07: playback&quot;] --&gt; B16
+  B08[&quot;B08: registration&quot;] --&gt; B16
+  B15 --&gt; B16
+  CT --&gt; B16</code></pre>
+<h3 id="3-3-preserved-task-local-dependencies">3.3 Preserved task-local dependencies</h3>
+<p>Unqualified T IDs within a row use the row's stated WO prefix.</p>
+<table><thead><tr><th>Scope</th><th>Required local or cross-task edges</th></tr></thead><tbody><tr><td>B01</td><td>01-T01 -&gt; 03-T01 -&gt; relevant 04-T01 milestone; contract release does not wait for WO closure</td></tr><tr><td>B02/B04/B05, prefix01</td><td>T01 -&gt; T02 -&gt; T03 -&gt; T04; T03 -&gt; T07 -&gt; T08 -&gt; T09 -&gt; T09a; T09 also requires T01</td></tr><tr><td>B03/B06, prefix01</td><td>T04 -&gt; T05 -&gt; T06; T06+T09+T09a -&gt; T10; T04+T09a+T10 -&gt; T11; T08+T11 -&gt; T12 -&gt; T13</td></tr><tr><td>B07, prefix02</td><td>T01 -&gt; T02 -&gt; T03 -&gt; T04</td></tr><tr><td>B08, prefix02</td><td>T05 -&gt; T06 -&gt; T07 -&gt; T08 -&gt; T09 -&gt; T10; T06–T09 form one compatible integration unit</td></tr><tr><td>B09/B10, prefix03</td><td>T01 -&gt; T02, T03, T08; T02+T03 -&gt; T04 -&gt; T05; T05+T08 -&gt; T06; T04+T06 -&gt; T07. Execute T08 before T06 despite its position in B09's task list</td></tr><tr><td>B11, prefix03</td><td>C03 -&gt; M03-T16-RED-READY -&gt; B11 implementation; T01 -&gt; T09 -&gt; T10; T01+T02 -&gt; T11; T10+T11+B03 handoff -&gt; T12 -&gt; T13; export requires WO-01's projection contract</td></tr><tr><td>B12, prefix03</td><td>T01+T02 -&gt; T14 -&gt; T15</td></tr><tr><td>B13/B14, prefix04</td><td>C04-RSS -&gt; T02 -&gt; T03; C04-HEALTH -&gt; T04 -&gt; T05; T05 waits for B11 entry-point handoff</td></tr><tr><td>B15</td><td>C04-COUNTS -&gt; 04-T06; 03-T04+03-T09+03-T11+03-T14 -&gt; 03-T16 scaffolding; 04-T05+04-T06+01/03 handoffs -&gt; 04-T07 -&gt; 04-T08 -&gt; 04-T09; M03-T16-FIXTURE precedes 04-T08; 04-T08 precedes full 03-T16 acceptance; 01-T03…T13 and T09a precede 01-T14, with actual worker integrated before its acceptance</td></tr><tr><td>B16</td><td>C04-TIMEZONE -&gt; 04-T10 -&gt; 04-T11; 04-T05+04-T07+04-T08+04-T11 and Rules/index handoff -&gt; 04-T12; 02-T04+02-T10 -&gt; 02-T11; shared operations document 04-T03 -&gt; 04-T09 -&gt; 04-T11 remains serial</td></tr></tbody></table>
+<h3 id="3-4-b15-eliminates-the-acceptance-handoff-cycle">3.4 B15 eliminates the acceptance handoff cycle</h3>
+<p><strong>Pre-B11 RED preparation:</strong> <code>M03-T16-RED-READY</code> coordinates preparatory portions of existing tasks03-T10/03-T16, not another atomic task, file or batch. After C03, I introduces a behavior-preserving adapter in the already planned <code>web_admin/lib/user-count.ts</code> and routes both initial and retry SDK calls in <code>web_admin/components/admin/users-aggregate-view.tsx</code> through it. The existing <code>.ts</code> emulator harness cannot import/render TSX directly; QA's planned <code>web_admin/test/user-count.emulator.test.ts</code> imports that same adapter. I remains sole physical writer of both adapter/view paths during preparation and later implementation, with fixture execution under the E-RUNTIME lock. This discoverable fixture must demonstrate the current authorization/behavior failure before B11 replaces the SDK path with the authorized callable. Preparation must not covertly fix the behavior. A missing proposed module, absent endpoint or HTTP404 is not valid RED. B11 explicitly requires this milestone. Full03-T16 implementation/acceptance remains assigned to B15.</p>
+<p>03-T16 prepares the harness/fixtures and hands its reviewed patch to I as output milestone <strong>M03-T16-FIXTURE</strong>. The explicit chain is <strong>M03-T16-FIXTURE -&gt; 04-T08 -&gt; 03-T16 final acceptance</strong>. <strong>Full 03-T16 acceptance is not a prerequisite of 04-T08.</strong> Task 04-T07 integrates the worker; 04-T08 registers it and demonstrates its actual effect. Independent QA then performs full 03-T16 and 01-T14 acceptance at B15's end. 04-T06 and 03-T16 scaffolding may develop disjoint files; shared harness/Rules fixtures remain serial through I.</p>
+<p>B15 exit requires <strong>all 17 registered emulator test identities to execute</strong>, including real PL03 new-comment behavior without manually seeding counters instead of running the worker. B15 does not wait for WO-01/03 closure, and WO-04 does not wait for their final reviews. A source-ready transfer is <strong>INTERIM HANDOFF / LOCAL_GREEN</strong>, not WO DONE, complete-wave GREEN or finding CLOSED. Source dependencies may consume reviewed artifact-ready milestones without requiring finding closure; final task completion still requires GREEN, independent review and exact-candidate integration evidence.</p>
+<h2 id="4-eleven-manual-tasks-outside-automatic-code-dispatch">4. Eleven manual tasks — outside automatic code dispatch</h2>
+<table><thead><tr><th>Checkpoint</th><th>Single assigned atomic task</th><th>Independent owner / prerequisite</th></tr></thead><tbody><tr><td>G-R1</td><td>01-T15</td><td>Non-author reviewer; after 01-T14 acceptance in B15</td></tr><tr><td>G-O1-READY</td><td>01-T16</td><td>Operations + QA; after G-R1, rehearsal and concrete action preparation</td></tr><tr><td>O-1</td><td>01-T17</td><td>Operations; after G-O1-READY and actual scoped production authorization</td></tr><tr><td>G-R2</td><td>02-T12</td><td>Independent reviewer; after 02-T11 in B16</td></tr><tr><td>D-2</td><td>02-T13</td><td>Independent QA; after G-R2, full Flutter/build/device gates</td></tr><tr><td>G-R3</td><td>03-T17</td><td>Independent reviewer; after 03-T07/T13/T15 and full T16 acceptance in B15</td></tr><tr><td>G-Q3</td><td>03-T18</td><td>Independent QA; after G-R3, 04-T08 and merged candidate; all 17 identities</td></tr><tr><td>G-Q4</td><td>04-T13</td><td>Independent QA; after 04-T02…T12</td></tr><tr><td>G-R4</td><td>04-T14</td><td>Independent reviewer; after G-Q4, preserving WO-04 order</td></tr><tr><td>G-O4-READY</td><td>04-T15</td><td>Operations + QA; after G-R4, scoped rehearsal</td></tr><tr><td>O-4</td><td>04-T16</td><td>Operations; after G-O4-READY and actual authorization</td></tr></tbody></table>
+<p>These are 11 existing tasks, not new atomic IDs. <strong>G-INTEGRATION</strong> collects evidence on the exact merged commit; it is not task66. I serializes shared validation-artifact writes while preserving independent QA/reviewer judgments.</p>
+<h2 id="5-parallelism-and-runtime-locks">5. Parallelism and runtime locks</h2>
+<p>Parallel execution requires approved contracts, ready predecessors, disjoint write sets, distinct available workers and isolated runtime outputs. An acyclic DAG alone is insufficient.</p>
+<table><thead><tr><th>Lock</th><th>Policy</th></tr></thead><tbody><tr><td>Every repeated file</td><td>Exactly one designated content writer: I for cross-batch/control paths, stable component owner for designated intrabatch paths; I merges approved commits without independent content edits and returns conflicts to the owner</td></tr><tr><td>E-RUNTIME</td><td>Serialize emulator runs by default: ports, demo project/state, harness and temporary Firebase configuration are shared</td></tr><tr><td>F-RUNTIME</td><td>Serialize Flutter tools/builds in the shared environment; SDK cache/build outputs are not automatically isolated</td></tr><tr><td>WEB-BUILD(worktree,component)</td><td>Serialize operations generating outputs for the same web component/worktree</td></tr><tr><td>Worker capacity</td><td>One worker per BE/DT/FL/WA/WP/QA by default; ready tasks may wait for capacity without adding functional dependency edges</td></tr></tbody></table>
+<p>Statically validated candidate groups are <strong>[B04, B07, B13]</strong> (DT/FL/BE), <strong>[B06, B09, B12]</strong> (DT/FL/WP), and <strong>[B13, B09, B12]</strong> (BE/FL/WP). They become eligible only after every exact prerequisite and lock check; this is not automatic parallel authorization. <strong>[B04, B07, B10] is invalid</strong> because B04/B10 both need the single DT worker. B07/B08 are logically independent but use one FL worker serially by default; B13/B14 compete for BE. E-RUNTIME/F-RUNTIME gates still serialize even with disjoint source files.</p>
+<p>A separate worktree does not isolate emulator/project state or SDK cache. Further isolation requires actual supported ports, demo projects, temporary configuration and output locations, never invented CLI capabilities. Custom batch/lock metadata is <strong>not claimed to be automatically enforced by Boss CLI</strong>; the coordinator enforces preflight before dispatch and execution.</p>
+<h2 id="6-seventeen-verification-waves-and-red-green-discipline">6. Seventeen verification waves and RED/GREEN discipline</h2>
+<table><thead><tr><th>Registered waves, none removed</th><th>Batches supplying their evidence</th></tr></thead><tbody><tr><td>W01-W1, W01-W2, W01-W3, W01-W4</td><td>B01/B02; B03/B04 plus B15 integration; B05/B03; B06</td></tr><tr><td>W02-A, W02-B, W02-C</td><td>B07; B07; B08</td></tr><tr><td>W03-A, W03-B, W03-C, W03-D, W03-E</td><td>B01/B10; B09; B11 plus B15 acceptance; B11; B12</td></tr><tr><td>W04-W2, W04-W3, W04-W4, W04-W5, W04-W6-CODE</td><td>B13; B14; B15; B16; B16</td></tr></tbody></table>
+<p>A wave can span batches. Do not require complete GREEN for a wave depending on B15 before admitting B15's predecessors. <strong>Full W03-C GREEN and W01-W2 admin integration follow the actual worker in B15.</strong> Policy, device, rehearsal and production checkpoints stay separate; no automatic production commands enter the manifest.</p>
+<ol><li>Author/discover permanent business regressions first. If a test seam is needed, add explicit scaffolding without implementing the fix covertly.</li><li>Valid RED executes nonzero matched cases and fails the intended business assertion. Missing modules, compilation/environment errors and skips are not RED.</li><li>Make the focused fix, run focused GREEN and obtain independent review before the atomic task is complete. That local evidence may unlock the next internal task, but never closes a finding or waives final QA.</li><li>Three waves are executable <strong>GUARD</strong> verification rather than forced defect-RED: <code>W01-W4</code> (new migration safety; linked business RED in W01-W1/W01-W3), <code>W03-A</code> (data/index/tool safety; linked business RED in W03-B), and <code>W04-W6-CODE</code> (existing default-deny guards; linked business RED in W04-W4/W04-W5). Existing protections may pass at baseline; new tool safety cases must pass once implemented. <strong>Never fabricate RED, break code or weaken Rules to obtain failure.</strong> The remaining <strong>14 waves</strong> retain genuine business-regression RED requirements.</li><li>Preserve all <strong>39 previously referenced test-file targets in GREEN</strong>; guard classification does not remove coverage. Persist the three temporary playback reproductions in B07; <code>/tmp</code> is not a CI dependency. Keep explicit cwd/argv in the manifest, without shell interpolation or automatic apply commands.</li></ol>
+<h3 id="6-1-reduce-repetition-without-reducing-verification">6.1 Reduce repetition without reducing verification</h3>
+<p>Each batch runs focused GREEN for its behavior and write set. Run the full integrated gates <strong>once per exact candidate hash at shared cut points</strong>, retain results and reuse them only for the identical tree/environment. Repeating unchanged checks is not additional required proof.</p>
+<p>After new integration or a failure fix, rerun affected checks and any full gate whose inputs changed before final acceptance. Do not combine successes from different commits into one candidate pass. B15 proves all 17 identities/harness/worker; B16 Rules/index changes require affected gates again on the new candidate at G-INTEGRATION.</p>
+<h2 id="7-contracts-security-and-actual-commands">7. Contracts, security and actual commands</h2>
+<table><thead><tr><th>Requirement</th><th>Authoritative source</th></tr></thead><tbody><tr><td>Public/private, every writer, email and restore</td><td>WO-01 CM01–CM10, including 01-T09a <code>tool/migrate-legacy-users.mjs</code> before cleanup and a fresh writer search</td></tr><tr><td>Timer/replay/registration and verification authority</td><td>WO-02 CM02-1…CM02-5: switch preserves deadline, stop cancels, dispatch never verifies email</td></tr><tr><td>Pages/cursors/deep links/counts/exports</td><td>WO-03 CM03-01…CM03-07:101+,2001+,10000 fixtures and stated budgets, no invented latency gains</td></tr><tr><td>RSS/health/counts/timezone</td><td>WO-04 CM09/CM11/CM12/CM13: stable aliases, fair progress, single count authority, preserved sent/unknown receipts</td></tr></tbody></table>
+<p>Repeat security cases for HudHudDev/HudHudOfficial: guest, unverified, verified owner, another user, assigned/foreign station admin, moderator, super-admin and forged root/claims. Private/direct writes stay denied as specified; aggregate access does not grant profiles. Administrators using client SDKs are governed by Rules; <strong>Admin SDK bypasses Rules and requires server-side authorization</strong>. UI filtering is not authorization.</p>
+<p>The following are actual planned commands at the stated cwd with Node22; they were not run during this optimization:</p>
+<table><thead><tr><th>cwd</th><th>Gates</th></tr></thead><tbody><tr><td>Repository root</td><td><code>./tool/verify-governance.sh</code>; <code>dart format --output=none --set-exit-if-changed lib test</code>; <code>flutter analyze</code>; **<code>flutter test</code>**</td></tr><tr><td>Root</td><td><code>flutter build apk --debug</code>; <code>flutter build ios --simulator --debug</code></td></tr><tr><td><code>functions</code></td><td><code>npm run lint</code>; <code>npm test</code>; recorded wave-specific regression commands</td></tr><tr><td><code>web_admin</code></td><td><code>npm test</code>; <code>npm run lint</code>; <code>VITE_FIRESTORE_ROOT=HudHudDev npm run build</code>; no invented typecheck script</td></tr><tr><td><code>web_hudhud</code></td><td><code>npm test</code>; <code>npm run lint</code>; <code>npm run typecheck</code>; <code>VITE_FIRESTORE_ROOT=HudHudDev npm run build</code></td></tr><tr><td>Root / E-RUNTIME</td><td><code>npm run emulators:test</code>; <code>npm run emulators:admin</code>; <code>npm run emulators:editorial</code></td></tr><tr><td>Root / E-RUNTIME</td><td><code>npm run emulators:account-deletion</code>; <code>npm run emulators:email-verification</code>; <code>npm run emulators:subscriptions</code>; <code>npm run emulators:profile-images</code></td></tr><tr><td>Root, when affected</td><td><code>npm run emulators:location-cleanup</code>; <code>npm run emulators:advertising</code> if shared changes affect campaigns</td></tr></tbody></table>
+<h2 id="8-test-debt-devices-and-operations">8. Test debt, devices and operations</h2>
+<p>The <strong>exact 17-test identity registry</strong> remains in [WO-03 section5](WO-03.md). Ordinary <code>npm test</code> skips are not passes. B15 executes every identity with the real worker; G-INTEGRATION reruns affected gates after final integration.</p>
+<table><thead><tr><th>WO-03 registry identities</th><th>Accountable owner / deadline</th></tr></thead><tbody><tr><td>1–3,16–17: image/save</td><td>Independent QA in B15, then G-R1/G-INTEGRATION before closure</td></tr><tr><td>4–5,7,14: import/query/location/transfer</td><td>QA in B15, then G-Q3</td></tr><tr><td>6: episode deletion</td><td>QA in B15 and lifecycle review in G-Q4</td></tr><tr><td>8–13,15: authorization/PL03/report</td><td>Independent QA in B15, then G-Q4; no corrected-counter seeding in place of the worker</td></tr></tbody></table>
+<p>The current harness exports only four admin callables. Inside B15, 03-T16 adds the count callable and 04-T08 adds the actual worker with deterministic external-AI replacement and no external call. Full 03-T16/01-T14 acceptance follows actual integrated execution. No developer secrets, production accounts or real messages are used.</p>
+<h3 id="8-1-devices-pending-and-blocking-release-approval">8.1 Devices — PENDING and blocking release approval</h3>
+<p>D-2/final acceptance require physical Android and iPhone, baseline/candidate fingerprints and actual worksheet records: <strong>more than30 minutes background/lock playback</strong>; interruption/duck/manual pause; headset/Bluetooth; timer across switch/remote stop; completed replay; replacement during seek/load; offline/recovery and primary/backup. Include AR/EN, RTL,200% text, small/large layouts and screen readers. Do not disclose serials, UIDs or source URLs.</p>
+<p>Missing devices, full suite or required builds remain <strong>PENDING/BLOCK RELEASE</strong>. Builds/simulators are not physical audio evidence; do not invent latency thresholds or improvement percentages.</p>
+<h3 id="8-2-migration-rollback-and-production">8.2 Migration, rollback and production</h3>
+<p>Tools in code batches are tested only with synthetic/demo data. Production apply is never a code-batch dispatch: O-1/O-4 follow rehearsal, review and actual scoped authorization. Require explicit project and one root with no production default, reviewed dry-run/manifest and a durable private verified backup before first mutation.</p>
+<p>Retain WO-01 limits:100 records/invocation,50/read page, batches≤25 transactions at concurrency1; preserve smaller WO-04 limits. Version/preimage comparisons, resume and conditional restore must not overwrite newer edits. Never restore private fields into public documents, automatically restore profile.email or delete a successful account to compensate for email failure.</p>
+<p>Upgrade/quiesce every old writer before cleanup and repeat inventory, including the standalone legacy-user tool. Pause affected workers during reconciliation and preserve idempotency receipts/leases; never replay unknown/sent or erase evidence to force success. Application rollback uses an integrated reviewed revert/previous artifact without destructive Git. Data rollback is conditional and privacy-safe.</p>
+<h2 id="9-plan-validation-and-delivery">9. Plan validation and delivery</h2>
+<p>Implementation assignment union=54; atomic manual checkpoint union=11; intersection is empty; total=65. The manifest additionally contains supplemental G-INTEGRATION without another atomic task. Its static validation snapshot records <strong>16 batches, 17 waves, 33 exact single-owner shared paths (22 I +11 component), 73 acyclic task/output nodes (65 tasks +8 outputs) and all39 prior test-file targets retained</strong>. Final reconciliation remains required if any artifact changes. These are static planning checks only; no application commands ran. The coordinator enforces dependency, write-set, capacity and runtime-lock preflight; custom scheduling metadata is not automatically supported/enforced by installed Boss CLI.</p>
+<p>Delivery pressure does not remove independent review, RED/GREEN, security or devices. Preserve all original WO acceptance criteria; record each LOCAL_GREEN/INTERIM HANDOFF, its commit and <strong>unfinished evidence</strong>. All source findings remain OPEN. This task delivers a more coherent plan with fewer context switches, not implemented fixes.</p>
+<h2 id="change-log">Change log</h2>
+<table><thead><tr><th>Version</th><th>Date</th><th>Change</th></tr></thead><tbody><tr><td>2.0</td><td>2026-10-25</td><td>English optimization:16 batches/54 tasks plus11 checkpoints;65 IDs and17 waves preserved; B15 cycle removed; no application execution</td></tr></tbody></table>
+    </main>
+  </div>
+</body>
+</html>

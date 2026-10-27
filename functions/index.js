@@ -1,3 +1,5 @@
+import { prepareCommentCountMutation, handleCommentCountWritten } from './lib/comment-counts.js';
+import { getAdminUserCount } from './lib/admin-user-count.js';
 import { uploadAdminImage, collectAdminImages } from './lib/admin-images.js';
 import { deleteAdminContent } from './lib/admin-content-delete.js';
 import { reviewAdminReport } from './lib/admin-report-review.js';
@@ -21,6 +23,7 @@ import { getStorage } from 'firebase-admin/storage';
 import { activeProfile, updateProfileImage, cleanupProfileImage, cleanupAccountImages, collectProfileImages } from './lib/profile-images.js';
 import {
   FieldValue,
+  FieldPath,
   getFirestore,
   Timestamp,
 } from 'firebase-admin/firestore';
@@ -36,7 +39,7 @@ setGlobalOptions({
   cpu: 'gcf_gen1',
   maxInstances: 10,
 });
-import { checkStationsStreamHealthForRoot } from './lib/stream-health.js';
+import { checkAllStationHealth } from './lib/stream-health.js';
 import { notifyUpcomingProgramsForRoot, collectNotificationOperations } from './lib/program-notifications.js';
 import { handleCommentCreated } from './lib/comment-moderation.js';
 import { ingestConfiguredPodcastFeedsForRoot } from './lib/rss-ingestion.js';
@@ -433,6 +436,8 @@ export const deleteAccountData = onCall(
       logger.info('Account deletion completed.');
       return { deleted: true };
     } catch (error) {
+      if (error?.retryable && error?.details?.reason?.startsWith('comment-count-'))
+        throw new HttpsError('failed-precondition', 'Account cleanup is waiting for comment-count maintenance.', { reason: error.details.reason, retryable: true });
       if (error instanceof HttpsError) throw error;
       logger.error('Account deletion failed.', {
         errorCode: safeErrorCode(error),
@@ -597,17 +602,24 @@ async function deleteAccount(uid, source = 'user') {
   });
   for (const root of roots) {
     const jobReference = firestore.doc(deletionJobPath(uid, root));
-    const comments = (await firestore.collectionGroup('comments').where('authorId', '==', uid).get()).docs.filter((doc) => canonicalRelatedDocument(doc, 'comments') && doc.ref.path.startsWith(`${root}/`));
-    const episodePaths = await firestore.runTransaction(async (transaction) => {
-      const job = await transaction.get(jobReference);
-      const saved = job.get('affectedEpisodePaths') ?? [];
-      const legacy = (job.get('affectedEpisodeIds') ?? []).filter((id) => typeof id === 'string' && id && !id.includes('/')).map((id) => `${root}/episodes/episodes/${id}`);
-      const paths = [...new Set([...saved, ...legacy, ...comments.map((doc) => doc.ref.parent.parent.path)])].filter((path) => typeof path === 'string' && path.startsWith(`${root}/episodes/episodes/`) && path.split('/').length === 4);
-      transaction.set(jobReference, { affectedEpisodePaths: paths }, { merge: true });
-      return paths;
-    });
-    await deleteDocuments(firestore, comments);
-    await reconcileCommentCounts(firestore, episodePaths);
+    // Canonical comments are removed in bounded fresh-state count transactions.
+    // A maintenance failure leaves both durable jobs/barriers and Auth intact.
+    while (true) {
+      const page = await firestore.collectionGroup('comments')
+        .where(FieldPath.documentId(), '>=', firestore.doc(`${root}/episodes`))
+        .where(FieldPath.documentId(), '<', firestore.doc(`${root}/episodes\uf8ff`))
+        .where('authorId', '==', uid).orderBy(FieldPath.documentId()).limit(25).get();
+      const comments = page.docs.filter(doc => canonicalRelatedDocument(doc, 'comments') && doc.ref.path.startsWith(`${root}/`));
+      if (page.size && !comments.length) throw new HttpsError('failed-precondition', 'Account comment cleanup needs review.');
+      for (const item of comments) await firestore.runTransaction(async tx => {
+        const current = await tx.get(item.ref);
+        if (!current.exists || current.get('authorId') !== uid) return;
+        const parts = item.ref.path.split('/');
+        const prepared = await prepareCommentCountMutation(tx, firestore, { root, episodeId: parts[3], commentId: parts[5], action: 'delete' });
+        for (const write of prepared.writes) write();
+      });
+      if (page.size < 25) break;
+    }
     for (const [collection, field] of [['moderationReports', 'reportedAuthorId'], ['blockedUsers', 'blockedUserId']]) {
       const documents = (await firestore.collectionGroup(collection).where(field, '==', uid).get()).docs.filter((doc) => canonicalRelatedDocument(doc, collection) && doc.ref.path.startsWith(`${root}/`));
       await deleteDocuments(firestore, documents);
@@ -633,20 +645,6 @@ async function deleteDocuments(firestore, documents) {
   await writer.close();
 }
 
-async function reconcileCommentCounts(firestore, episodePaths) {
-  for (const path of episodePaths) {
-    const episode = firestore.doc(path);
-    const count = await episode
-      .collection('comments')
-      .where('status', '==', 'published')
-      .count()
-      .get();
-    if (!(await episode.get()).exists) continue;
-    await episode.update({
-      'stats.commentsCount': count.data().count,
-    });
-  }
-}
 
 function safeErrorCode(error) {
   return typeof error === 'object' &&
@@ -763,6 +761,7 @@ export const queuePublishedEpisodeAlert = onDocumentWritten({ document: '{root}/
 export const moderateEpisodeComment = onDocumentCreated(
   {
     document: '{root}/episodes/episodes/{episodeId}/comments/{commentId}',
+    retry: true,
     timeoutSeconds: 30,
     maxInstances: 10,
   },
@@ -775,6 +774,10 @@ export const moderateEpisodeComment = onDocumentCreated(
     });
   },
 );
+export const countEpisodeComments = onDocumentWritten({
+  document: '{root}/episodes/episodes/{episodeId}/comments/{commentId}', retry: true,
+}, async event => handleCommentCountWritten({ firestore: getFirestore(), root: event.params.root,
+  episodeId: event.params.episodeId, commentId: event.params.commentId }));
 export const deliverEpisodeAlerts = onSchedule({ schedule: 'every 1 minutes', timeoutSeconds: 540, maxInstances: 1 }, async () => collectEpisodeAlerts({ firestore: getFirestore(), auth: getAuth(), send: message => getMessaging().sendEachForMulticast(message) }));
 export const checkStationsStreamHealth = onSchedule(
   {
@@ -784,18 +787,12 @@ export const checkStationsStreamHealth = onSchedule(
     maxInstances: 1,
   },
   async () => {
-    const firestore = getFirestore();
-    for (const root of roots) {
-      try {
-        const summary = await checkStationsStreamHealthForRoot({ firestore, root });
-        logger.info(
-          `Stream health check complete for ${root}: ${summary.probed} probed, ` +
-          `${summary.updated} updated, ${summary.unchanged} unchanged (0-write), ` +
-          `${summary.alerted} alerted.`,
-        );
-      } catch (err) {
-        logger.error(`Stream health check failed for ${root}: ${err?.message}`);
-      }
+    const summaries = await checkAllStationHealth({ firestore: getFirestore() });
+    for (const summary of summaries) {
+      if (summary.failed) logger.error(`Stream health check failed for ${summary.root}.`);
+      else logger.info(`Stream health check complete for ${summary.root}: ${summary.probed} probed, ` +
+        `${summary.updated} station updates, ${summary.unchanged} unchanged, ` +
+        `${summary.checkpointWrites} progress writes, busy=${summary.busy}, deferred=${summary.deferred}.`);
     }
   },
 );
@@ -935,6 +932,15 @@ export const adminBroadcastNotification = onCall(
 );
 
 
+async function countAwareAdminCall(operation) {
+  try { return await operation(); }
+  catch (error) {
+    if (error?.retryable && error?.details?.reason?.startsWith('comment-count-'))
+      throw new HttpsError('failed-precondition', 'Comment counts are temporarily unavailable. Retry after maintenance.',
+        { reason: error.details.reason, retryable: true });
+    throw error;
+  }
+}
 function contentAdminArguments(request) {
   const uid = requireAuthenticatedUid(request);
   const token = request.auth?.token;
@@ -948,14 +954,20 @@ export const adminUploadImage = onCall(
 );
 
 export const adminSaveContent = onCall(
-  { timeoutSeconds: 30, maxInstances: 20 }, request => saveAdminContent(contentAdminArguments(request)),
+  { timeoutSeconds: 30, maxInstances: 20 }, request => countAwareAdminCall(() => saveAdminContent(contentAdminArguments(request))),
 );
 export const adminDeleteContent = onCall(
-  { timeoutSeconds: 30, maxInstances: 20 }, request => deleteAdminContent(contentAdminArguments(request)),
+  { timeoutSeconds: 30, maxInstances: 20 }, request => countAwareAdminCall(() => deleteAdminContent(contentAdminArguments(request))),
 );
 export const adminReviewReport = onCall(
-  { timeoutSeconds: 30, maxInstances: 20 }, request => reviewAdminReport(contentAdminArguments(request)),
+  { timeoutSeconds: 30, maxInstances: 20 }, request => countAwareAdminCall(() => reviewAdminReport(contentAdminArguments(request))),
 );
 
 // Anonymous, rule-enforced public catalog rendering; no account data access.
 export const hudhudPublic = onRequest({ region: 'us-central1', timeoutSeconds: 30, memory: '256MiB', maxInstances: 10 }, servePublicWeb);
+
+// Administrative aggregate only; user profile listing remains Rules-restricted.
+export const adminGetUserCount = onCall(
+  { timeoutSeconds: 30, maxInstances: 10 },
+  request => getAdminUserCount({ request, auth: getAuth(), firestore: getFirestore() }),
+);

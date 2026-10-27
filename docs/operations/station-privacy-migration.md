@@ -122,3 +122,74 @@ missing/deleted documents, conflicting private copies, backup failure and safe
 restore for both roots with synthetic data before any authorized production apply.
 No migration, deployment, production inspection or new test result is asserted by
 this contract amendment. R01 and R10 remain OPEN pending implementation evidence.
+
+
+## B06 implementation and demo-only execution boundary
+
+The prepared module is `tool/migrate_station_privacy.mjs`; importing it does not
+initialize Firebase or execute a command. The current CLI refuses production
+apply/restore/verify before loading the SDK. No production approval adapter is
+invented. G-O1-READY/O-1 must review any later production executor, actual backup
+storage, key custody, retention/deletion mechanism and root-specific manifest.
+The module is not production-accepted merely because demo tests pass.
+
+Preview requires explicit `--project=...`, `--root=HudHudDev|HudHudOfficial` and
+`--operation=station-private|profile-email`. It scans at most100 source records per
+invocation using pages at most50; records without migration targets still consume
+that budget. `--cursor=<last-id>` is explicit continuation. Preview prints only
+aggregate counts/status; identifiers, cursors, private values and exact before/
+after images remain inside an encrypted private manifest. A conflicting manifest
+may be persisted for private review but cannot be applied.
+
+Provide an existing owner-only directory outside every Git checkout and `.boss`,
+a32-byte key held separately from that directory and outside this repository,
+and an explicit expiry (`--backup-dir`, `--key-file`, `--expires-at=<epoch-ms>`).
+Key files must be owner-only regular files, never symlinks. Backups are immutable
+AES-256-GCM authenticated envelopes written with exclusive create, file and
+parent-directory fsync, readback, manifest-hash verification and permission checks.
+Neither keys nor backup values are printed. Retention may not exceed30 days;
+at least one hour of recovery coverage must remain before execution. Production
+storage/retention approval and verified expiry deletion remain separate required
+operational work. Synthetic tests use temporary private directories and remove
+them during fixture cleanup.
+
+The private operational path is
+`{root}/privacyMigrationJobs/jobs/{manifestHash}` with per-item receipts beneath
+`items/{zero-padded-index}`. No SDK client role may read or mutate jobs/receipts.
+Jobs bind schema/tool/project-root-operation identity, lease owner/generation,
+expiry and next index; receipts contain hashes/state only. The reviewed private
+manifest carries the target IDs. These metadata writes are additional to target
+writes and must not be represented as zero total writes.
+
+Apply additionally requires both a `demo-` project and a loopback emulator host,
+`--apply`, the encrypted reviewed manifest (`--manifest-hash`) and successful
+backup verification before any Firestore mutation. All target/private/source/job
+reads precede transaction writes. Each batch performs at most25 target
+transactions, serially; one separate bounded control transaction acquires the
+job lease. Data, receipt and checkpoint commit atomically, eliminating a
+non-atomic commit/checkpoint gap. After commit-before-acknowledgement, resume
+verifies receipt and exact source/private update-time seconds+nanos. An active
+lease blocks another executor, even if it reuses the owner string. Lease theft,
+source edits, deleted source records, changed private copies or a new account-
+deletion job conflict rather than overwrite or resurrect.
+
+`--verify` checks receipt-bound exact postimages, including document versions.
+`--restore` is deliberately privacy-preserving: this migration changes no safe
+public field, so their safe before/after projections are identical. It verifies
+the exact committed postimages and performs zero data writes. Moved metadata
+remains private and profile email remains absent. It never restores a whole
+public snapshot, deletes the canonical private copy, recreates a deleted record,
+or overwrites subsequent edits. Drift blocks restore and requires a separately
+reviewed recovery action. This is not an unrestricted undo facility.
+
+The API exports `previewPrivacy`, `applyPrivacy`, `verifyPrivacy`, `restorePrivacy`
+and the private `PrivatePrivacyBackupStore` factory. This store validates this
+specific privacy manifest; other migration tools must not manufacture a fake
+privacy manifest to reuse it. Existing SDK timestamps/bytes/references/geopoints
+are encoded in private fingerprints; opaque unsupported types fail closed.
+Public operational/counter fields are preserved by field-specific deletions,
+not lossy full-document rewrites. R01/R10 remain OPEN pending full acceptance
+and later authorized live cleanup.
+
+
+B06 review correction: mutation APIs require a client returned by `createPrivacyDemoFirestore`, which constructs and freezes the explicit local demo transport. Caller-supplied project/host strings cannot authorize an unknown injected client. Backup directory ownership, mode, real path and device/inode identity are revalidated for every operation, including transaction/checkpoint boundaries. Recovery-window expiry is checked inside initial lease acquisition before any job write, including empty manifests. These corrections require fresh guard/emulator/review evidence; prior passes are not reused as proof for this revised source. Production mutation remains refused.

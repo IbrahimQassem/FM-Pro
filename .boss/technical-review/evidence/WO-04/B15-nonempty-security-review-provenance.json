@@ -1,0 +1,807 @@
+{
+  "decision": "APPROVED_EXACT_FINAL2_SOURCE_FULL150_VERIFIED_NATIVE_ACCEPTANCE_PENDING",
+  "reviewer": "/root/b09_review",
+  "reviewPath": ".boss/technical-review/B15-nonempty-security-review.md",
+  "reviewSha256": "230e0657c84f94bc197ce3fb24c136f898f96bcb01ab8b922c8bb9ef7e54148d",
+  "candidateDirectory": "/tmp/hudhud-b15-nonempty",
+  "authorProvenance": {
+    "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-candidate-provenance.json",
+    "sha256": "f2316745ae0849cc5fe2f4dfdadb943b18bfdb8676a774e52143f7035622bab8"
+  },
+  "fingerprintChecks": [
+    {
+      "group": "sourceInputs",
+      "path": "tool/reconcile_comment_counts.mjs",
+      "sha256": "c46238aef4fdb072349e45c2e6f7a14ff2b50b24d15e7984448b89f5ae15709e",
+      "match": true
+    },
+    {
+      "group": "sourceInputs",
+      "path": "tool/test/reconcile_comment_counts.test.mjs",
+      "sha256": "a5a575d211d2c59f5b5e8767ab9feb2bb44c535e776ef8def777258b728227e3",
+      "match": true
+    },
+    {
+      "group": "sourceInputs",
+      "path": "functions/lib/comment-counts.js",
+      "sha256": "77fc7b9d0e97aabe92acf6b551c4ec021c72ae1defe7333e8983b736de49547a",
+      "match": true
+    },
+    {
+      "group": "sourceInputs",
+      "path": "docs/operations/background-consistency-migrations.md",
+      "sha256": "85c47271154a332ed2591b9cb74bf55f72069d5de8938f306842b36b63092fd8",
+      "match": true
+    },
+    {
+      "group": "candidateOutputs",
+      "path": "/tmp/hudhud-b15-nonempty/tool/reconcile_comment_counts.mjs",
+      "sha256": "29d0b5f5e8b683c9157cb600efabeb5d7c9bd0353e3ffc14befe1482a98e5c05",
+      "match": true
+    },
+    {
+      "group": "candidateOutputs",
+      "path": "/tmp/hudhud-b15-nonempty/tool/test/reconcile_comment_counts.test.mjs",
+      "sha256": "f0d4d04bd346ccc15fc3ffbdf79c48a82d6d3861aaef384c3dcd9282ef2ff4e1",
+      "match": true
+    },
+    {
+      "group": "candidateOutputs",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/comment-counts.js",
+      "sha256": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04",
+      "match": true
+    },
+    {
+      "group": "candidateOutputs",
+      "path": "/tmp/hudhud-b15-nonempty/docs/operations/background-consistency-migrations.md",
+      "sha256": "a770c9c644a33d1b38c7707a721b6028ed273f9a7cff096d842a99c5c5edac36",
+      "match": true
+    },
+    {
+      "group": "contracts",
+      "path": "docs/contracts/firebase-data-contract.md",
+      "sha256": "4e67f7d3fcc690c21285e9992eddea9b346e64059dcd03914c1536962106e097",
+      "match": true
+    },
+    {
+      "group": "contracts",
+      "path": "docs/contracts/content-automation-contract.md",
+      "sha256": "dd2c1eddf0e8b838000828cc81a5e1a6f27d0c97c4c9abf03be30404209b3f8f",
+      "match": true
+    },
+    {
+      "group": "contracts",
+      "path": "docs/decisions/0006-background-consistency-and-schedule-timezones.md",
+      "sha256": "ef0db668fc0ebf3357a9df2e042d75964abb6187da7bd2fc23e9dff087e4d2ed",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/index.js",
+      "sha256": "e25125f6e8d1c27c8984b0a6e40adea06e1d9c44c969a1cda124540accf32a08",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/account-deletion.js",
+      "sha256": "2d1bd423af798745fc28bf9034a55170889e266ba4aa9edc396187ae0e26fba0",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/admin-content-authorization.js",
+      "sha256": "42e2327092b52b1fc2703f13330d05f4f144d7cd417baedf77dde7b81b2a1382",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/admin-content-delete.js",
+      "sha256": "2f9e8b003717eeecb4d7c141caa431064a120990466f435b0a9f841bac427a58",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/admin-content-relations.js",
+      "sha256": "a7fb618a56426db353c08ea9a238311a0aed01c4331fb18548a2081726d38b58",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/admin-content.js",
+      "sha256": "6de10c3de670cc079a710a46e798f41b54eadfc3656e61b15517cb149c529940",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/admin-images.js",
+      "sha256": "5ad89e3ab537cb8f47520f4bcd2c8aca1c753256b47318bb289376d2de37cfb9",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/admin-report-review.js",
+      "sha256": "684c26a317b0aefb5375679fffd9e6a4933cfb703afe7026be7cb5cfaf783dc8",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/admin-user-count.js",
+      "sha256": "1b30bbb90e37ed83cf0622304eb11dbca966e46f8fea7ac2d1d90e289a9eb086",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/advertising-handlers.js",
+      "sha256": "d00590432e3a4cf966fb1beee48b04998084202655746687510382c832c706ea",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/advertising.js",
+      "sha256": "971e4b467bcc163e4d0d3a303f3af3055ff4e4d4e4037e74d54bb97a224f3d71",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/comment-count-maintenance.js",
+      "sha256": "1a4f6ab12f8a7bc2dadb8f2ff4966829f8d37df08a028472c20076dcfd0f2d70",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/comment-counts.js",
+      "sha256": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/comment-moderation.js",
+      "sha256": "f2a3e61d94faef6e5d26ed910159832389a1809876052dbda79551821af8225c",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/editorial-audit.js",
+      "sha256": "4950f4088b7fdb6f97abf1e6b38246580cc6b155c34ce8878b8aa7cc78e47016",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/email-verification.js",
+      "sha256": "4239227381b3ed6e2c53585d11b1774b2da82865af572476b766d316daa07e52",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/episode-alerts.js",
+      "sha256": "d33233b6578e38a3d49aea01a8279f4404181f78c70328a8ad0352088f91a729",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/notification-delivery.js",
+      "sha256": "3d44097a19484335bc0f2145c0c334ed95d3a1dcacd23aece3909de2555f881f",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/profile-images.js",
+      "sha256": "ba249a879054df712eb432c808bf32a279056d9aafdca6cbd35ddb74f5bcc38c",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/program-notifications.js",
+      "sha256": "26f4485e5cbca1a8577c6e4d5799da2ad8475393e249e6a45e4c76a41de954b9",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/public-fetch.js",
+      "sha256": "158669c0ac900b1b91f196ff1df1c474e6420a4b942def6044b9cf88eebd7912",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/public-web.js",
+      "sha256": "a4c2736df2e4067a4b0f014379333f5e9dfe2dab00750ab1543c4d9cd0443e5d",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/rss-ingestion.js",
+      "sha256": "809c0b17f2c9bfcb5e39a26ef9969c905cda0a655937d7ce740c914493fe195c",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/station-privacy.js",
+      "sha256": "d5ba30dead1e65a34d3cb253e8e91a730a3b4a5e66adf88e849b069d3df85305",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/station-subscriptions.js",
+      "sha256": "78fbe5443784770852fc23cfa2cbcd6c2abadf8c21b7f4cc9c773c18e98f39cb",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/stream-health-progress.js",
+      "sha256": "8a72080287fb202e71b70fb539f27c23028f09d099c4a28083fddd874fe3c6f2",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/stream-health.js",
+      "sha256": "801a0ae7ac5b451db9dfcfe8f1f60213f56990abdcc43fcd01cc95ce6e25feeb",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/lib/user-management.js",
+      "sha256": "d60d814861ff2b095b03ba82e110da2517bc8bce2aa6e5032f30d2fbd604ed59",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/account-deletion.test.js",
+      "sha256": "8616c4d328487a04ba58ab0b7c5b4aeeec5a38f5a8c0822150276211bb63c7c2",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/admin-content-delete.test.js",
+      "sha256": "065ac6869788204e131574f5698d4ff7189790c9211442e610888a3c37978715",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/admin-content.test.js",
+      "sha256": "19a4602fba970f421ef0b703f87caf572e89a427db853f01886bff4a7c2bb211",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/admin-images.test.js",
+      "sha256": "92160bb0f14428341a60ad3f4268fd8af579f0b3fe82e79f369078d7642a7b51",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/admin-report-review.test.js",
+      "sha256": "068c18439fbedcaf47624c1d317f90632b70ac3429e37771c8c1a13a6bf042d1",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/admin-user-count.test.js",
+      "sha256": "0c0325f13f16d21d6593d297bc2d7ee298a90bb47fa035880de1723bf91bfab8",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/advertising.test.js",
+      "sha256": "1dba889d968ebabbc61ee6123b36706fb8f2da02370299071f6bc3884772ea25",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/comment-counts.test.js",
+      "sha256": "271a4e7063a55b1bae63053dd998687bf88189389d5a314a1e67d37c38a03fd9",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/comment-moderation.test.js",
+      "sha256": "158fee440b4cc34990c614f98c366ac34a74aa757cb0ec7bbf176594314dfec0",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/editorial-audit.test.js",
+      "sha256": "e67c6473baca18b0197c26c7903650ee46e98919ce90b69a8fc92867605e52fc",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/email-verification.test.js",
+      "sha256": "9641b61f858493904bc61800a01243e7e37965ae7445b82bfe7ec3988fd08a1c",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/notification-delivery.test.js",
+      "sha256": "3b45e54a07a46d1ddb627ddb09c81b8250a550d8c5ad605fc5b085fce250b420",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/profile-images.test.js",
+      "sha256": "f9bc7e6bcfa376694a21b18022bd04a2a48c612719f6884b16fa9ac938056432",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/program-notifications.test.js",
+      "sha256": "02277c7b09ebfbd2cfb54ccf9ecda9b6a8369763c827633df64eb0e1c4d5fb33",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/public-fetch.test.js",
+      "sha256": "0700d90aef1d5e88e01d8dd3a0ebf20d2dbcc253eaeb8296717cc71bc45d498b",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/public-web.test.js",
+      "sha256": "7d0cf034f128f685186ba4fa0a93b3fbdfde65c822db23d87db0c5aebc63a435",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/regional-location.test.js",
+      "sha256": "ade85b0f603ce3b7bdf018d91fc54622eac4ee72dd2f145f0adb72af77dad8fe",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/rss-ingestion.test.js",
+      "sha256": "183cc4ac37199547f3877522e52339972a4a7b9d4ba08f522942466a1ad1963b",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/station-privacy.test.js",
+      "sha256": "7c654b80ee9977e6101ac347e85037902a696e077cc5a5151a09b2fd94019737",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/station-subscriptions.test.js",
+      "sha256": "8cb247a6fda6ddf838c91b167824edda2f25002bab475f1f249f21ee1cf90ec6",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/stream-health-progress.test.js",
+      "sha256": "13b36dbd1d10c251bea2802a791002b0f16f422d61a614c1d4586b21445b588c",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/stream-health.test.js",
+      "sha256": "517827fbda8ba33033983bbf1ed4937397137a71d512864a926e3304c5738b49",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/support/comment-count-fixture.js",
+      "sha256": "8cfc54bc8779c152a8331b97161eca30bd1cbea9998f143bdce92c533a96244f",
+      "match": true
+    },
+    {
+      "group": "functionsSnapshot",
+      "path": "/tmp/hudhud-b15-nonempty/functions/test/user-management.test.js",
+      "sha256": "7b21ef45c335e23363838b042829603c7f53a619684f7f5b87582f433bc8d6c6",
+      "match": true
+    },
+    {
+      "group": "patch",
+      "path": "/tmp/hudhud-b15-nonempty-implementation.patch",
+      "sha256": "2960e666981542f81d321dd59f428e4cdd59f8070661b55a3eb44bd55a056e6c",
+      "match": true
+    },
+    {
+      "group": "patch",
+      "path": "/tmp/hudhud-b15-status-projection-export.patch",
+      "sha256": "80844b884f0c851dadafa5aa2dc1c7e8823bf01fb62122dda1bfc783eb8dd540",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-actor-green.log",
+      "sha256": "215b4d414adca1f5df50522e0b66836766ea81f91766239d270db54cee3feaa6",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-actor-security-green.log",
+      "sha256": "6cb2b0731d72880e36be5d2706e01a40dcb36f14c6cdbb87b2092b8909ac258f",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-final-controls.log",
+      "sha256": "8a90c363f27bc7fec145adb94279cfe501da2f76cf272fee5a00039cf4c82606",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-first-guards.log",
+      "sha256": "32b890056409bf1cff6c49de8e3696107235ec5033ce3ce8726031d5cc1df05e",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-functions-combined-green.log",
+      "sha256": "956350daa5f8be10fcfa20deaace08bb2c57e73262d8b302d322d048f3367e19",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-functions-green.log",
+      "sha256": "068898584fae8bcf3d870b6a4a8339d2ee9a4cec5937a794421307cb7c7cf39a",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-functions-lint.log",
+      "sha256": "9cb86fb875f0a2ccbac02e6d7f904bd806d6c85c4b8453c4fd9e7366d182e45b",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-last-targeted-green.log",
+      "sha256": "38e0fb6c1f96c9854377f6b1856fbcc276722d3beb6574d87fdfdec5771c2213",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-last-targeted.log",
+      "sha256": "63695bf051492f3228eef02e3fce6605a3339114d60ece28bc76219ec5e06688",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-native-targeted.log",
+      "sha256": "98ac3a4300f1f1e0ccc7dd887eaba68d2f2b52899979bd85942ba9c621a5c253",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-negative-first.log",
+      "sha256": "bf7f7585e9ab48c9ad52c9abab13df3c1632228337292605be45f698de55da6f",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-negative-green.log",
+      "sha256": "0c298c683067ca196b1b7ab28504ea5333b72abcf193745ee66b95108aba9cff",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-purpose-driver-green.log",
+      "sha256": "30a098eed066b05ea932a13549dde7b3f50cfcd60fc2d9ead2811f1888c3cfde",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-release-pin-candidate-failure.log",
+      "sha256": "118bbfb784c673a9a5cc89aeefdf8bc2101cc0de9cae743659e6c5817a64d3c3",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-release-pin-green.log",
+      "sha256": "dc557e86fb8212a6dc6ab2ca62c528733c1404e6ad87427cdbe4e02850b1558d",
+      "match": true
+    },
+    {
+      "group": "authorEvidence",
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-small-green.log",
+      "sha256": "586557c9e7de66ceba57c6eabd63f97d63c0a4928c55a83d9043001a79c91c54",
+      "match": true
+    }
+  ],
+  "independentEvidence": [
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-security-focused.log",
+      "sha256": "7c601d9fe294ccc798e48d9d2561bd8d19be41771bd25973cd0aa423fb634c76"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-security-proof-schema-probe.log",
+      "sha256": "4fb5bbf1cfacc5981ac2a6169f831a8edd3411df565e92da8753323ea5341495"
+    },
+    {
+      "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-security-clock-probe.log",
+      "sha256": "a2cf4d1bc3f3ea0f6488c4055495e29f6baf93abdbd6addb7905e35fde9c725d"
+    }
+  ],
+  "focusedCommand": "node --test --test-name-pattern='backup corruption|forged transport|corrupted encrypted manifest|exclusive durable replay lock|lost local publication|purpose-bound unit backups|direct CLI mutation|SDK actor guard|lock token substitution|scope is snapshotted|release identity stays pinned' tool/test/reconcile_comment_counts.test.mjs",
+  "focusedResult": {
+    "tests": 11,
+    "pass": 11,
+    "fail": 0,
+    "skip": 0,
+    "durationMs": 36314.95323
+  },
+  "blockers": [
+    "S01 nested proofImage closed-schema/privacy rejection absent",
+    "S02 new public full-tool clock callback exceeds parent-approved actor seam"
+  ],
+  "limits": [
+    "No source/contracts/fixture edits, E/F, native SDK, production operation or deployment",
+    "Public clock behavior probe uses existing MemoryFirestore; purpose-schema probe actual custody only zeroDBIO",
+    "Independent protocol review separate; full task/finding acceptance remains OPEN"
+  ],
+  "correctionRereview": {
+    "decision": "CHANGES_REQUIRED_S01_CURSOR_TYPES_REMAIN",
+    "frozenDirectory": "/tmp/hudhud-b15-nonempty-revision",
+    "hashes": {
+      "/tmp/hudhud-b15-nonempty-revision/tool/reconcile_comment_counts.mjs": "3619ab8dfe977c4f1ea7b8dc016f17353fd7f09a2c11b4c35a7077af8e1c54f0",
+      "/tmp/hudhud-b15-nonempty-revision/tool/test/reconcile_comment_counts.test.mjs": "487e3d8531c8f2d5a98b3f785bb570b2599e8f476d87644f62d170517194b95c",
+      "/tmp/hudhud-b15-nonempty-revision/docs/operations/background-consistency-migrations.md": "d9dfc0f2b0662c0de5e36a0b9de2ca3dea35923b18e30063e19bf4cccddd3f19",
+      "/tmp/hudhud-b15-nonempty-revised-implementation.patch": "ad12bbf1ef81ee7296914ef87a000967cafb1a44abcd9dffee1c48bf6df4576c",
+      "/tmp/hudhud-b15-nonempty-review-corrections.patch": "720db8a5d12578281f5c249dca91e935a6930b878c07e9b058cc1585a37112f3"
+    },
+    "evidence": [
+      {
+        "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-security-rereview-focused.log",
+        "sha256": "9eee3c1df878dec65d073c8056cfac2fe880e0541f007c53b0929ee4ff61f0eb",
+        "classification": "actual isolated review evidence; no native SDK claim"
+      },
+      {
+        "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-security-rereview-probes.log",
+        "sha256": "7152bc35d60aa8865aa94b98eab3120f90f45e467f7a288bc8067b2b8bf914ee",
+        "classification": "actual isolated review evidence; no native SDK claim"
+      },
+      {
+        "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-security-rereview-replay-cursor.log",
+        "sha256": "7bc63308107ba5894ac637cd5302e2bf37686ad5a80f0fb6bff27266e355d738",
+        "classification": "actual isolated review evidence; no native SDK claim"
+      },
+      {
+        "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-security-cursor-permanent-baseline.log",
+        "sha256": "a8df677b1ef0a8a7d93493ac5cc4f0d2630b4c8ef96353044dc510b46d23d7f2",
+        "classification": "actual isolated review evidence; no native SDK claim"
+      },
+      {
+        "path": ".boss/technical-review/evidence/WO-04/B15-nonempty-security-cursor-invalid-zero-tests.log",
+        "sha256": "183353d9eedf35a059092639d271ac35da23b8ba40afa95b9e5ee90f25a22c86",
+        "classification": "INVALID wrong-path zero-test run; no RED credit"
+      }
+    ],
+    "focusedResult": {
+      "tests": 25,
+      "pass": 25,
+      "fail": 0,
+      "skip": 0,
+      "durationMs": 145977.955844
+    },
+    "originalProbes": "malformed proof refused; public now rejected apply+restore; actual runtime live lease preserved, zero extra writes",
+    "remainingExecutedGap": "Authenticated local cursor object/array accepted and republished, in-progress only, zero Firestore writes; no forged active proof claim",
+    "permanentTests": {
+      "patch": "/tmp/hudhud-b15-replay-cursor-tests.patch",
+      "sha256": "209fee8bfddb7fee9760655f4823ac6a3028f5bc515dee7389b8667a9038a1a5",
+      "directory": "/tmp/hudhud-b15-cursor-regression",
+      "testSha256": "6e2981b27228c1636b57673dbcad1ea076dc642e9a223980995d6353ef57f985",
+      "result": {
+        "tests": 3,
+        "pass": 1,
+        "fail": 2,
+        "skip": 0,
+        "durationMs": 11989.21246
+      },
+      "failures": "Missing expected rejection for lastEpisode object/lastHead array; valid null/string control passes"
+    },
+    "staticMatrix": {
+      "path": "/tmp/hudhud-b15-final-schema-matrix.md",
+      "sha256": "7560990c0469993978c836511cdd1609b638617992bbc107861567a8fc2528c5",
+      "classification": "existing wire only, no additional bypass claims; downstream-already-rejected changes are guards"
+    },
+    "limits": [
+      "Full81 author gate pending at this cutpoint",
+      "No E/F/native SDK/source/contract/production changes",
+      "SDK fixtures not integrated; original92+N01N14/full application acceptance remains open"
+    ],
+    "parentConfirmedCursorBaseline": {
+      "path": ".boss/technical-review/evidence/WO-04/B15-replay-cursor-tests-provenance.json",
+      "sha256": "a1c4e6399ee85c480b76daa7be1a5dc835220ad9f3181e99098c06c0ae322597",
+      "parentLogSha256": "fa767b61be37d8b1e0528e79d006eb5440297c600ea76e16f0a4d7493eb00584",
+      "matrixSha256": "7560990c0469993978c836511cdd1609b638617992bbc107861567a8fc2528c5",
+      "patchSha256": "209fee8bfddb7fee9760655f4823ac6a3028f5bc515dee7389b8667a9038a1a5",
+      "status": "1PASS2INTENDEDFAIL0SKIP, source unchanged"
+    }
+  },
+  "testsOnlyMatrixReadiness": {
+    "status": "STRUCTURALLY_ACCEPTABLE_FOR_ONE_CONSOLIDATED_FIX_NOT_FINAL_APPROVAL",
+    "sourceSha256": "3619ab8dfe977c4f1ea7b8dc016f17353fd7f09a2c11b4c35a7077af8e1c54f0",
+    "testsSha256": "c6e1c7e8dfc4ee226e6d112578727a63aa6dc7ce7602774ca5ef0b316aca2844",
+    "patchSha256": "a60b9b3450f902f7b9b9f83f8fd61bce362df6021a86360cf9d575e81527b383",
+    "original81BodiesAnd3CursorCasesPreserved": true,
+    "matrixCases": 43,
+    "execution": "parent-owned gate; not redundantly run by this reviewer",
+    "identifierScope": "B15 security review S01/S02 do not refer to platform shortcut S01"
+  },
+  "finalSecurityReview": {
+    "decision": "SOURCE_SECURITY_APPROVED_CONDITIONAL_ON_FULL127_GREEN_AND_SEPARATE_NATIVE_GATES",
+    "directory": "/tmp/hudhud-b15-final-revision",
+    "inputs": [
+      {
+        "path": "/tmp/hudhud-b15-final-revision/tool/reconcile_comment_counts.mjs",
+        "sha256": "aa3b3c6c5be5546d4d8264b3ca4c3f783b576704eb2813f18eab1c2d3a6feb72"
+      },
+      {
+        "path": "/tmp/hudhud-b15-final-revision/tool/test/reconcile_comment_counts.test.mjs",
+        "sha256": "c6e1c7e8dfc4ee226e6d112578727a63aa6dc7ce7602774ca5ef0b316aca2844"
+      },
+      {
+        "path": "/tmp/hudhud-b15-final-revision/docs/operations/background-consistency-migrations.md",
+        "sha256": "d9dfc0f2b0662c0de5e36a0b9de2ca3dea35923b18e30063e19bf4cccddd3f19"
+      },
+      {
+        "path": "/tmp/hudhud-b15-final-implementation.patch",
+        "sha256": "7fbc074749e39778368c57bec1c55921becf973f9ae575ea4aa0f7d18754b19f"
+      },
+      {
+        "path": "/tmp/hudhud-b15-final-schema-corrections.patch",
+        "sha256": "19f195d460d42e6750be228ea1747943933059cbbdca4055e210940d8c08a944"
+      },
+      {
+        "path": "/tmp/hudhud-b15-final-review-corrections.patch",
+        "sha256": "a65dace67c3753b0ef92dc97ebb73a11716171c613114de57a6631c67a9eac8d"
+      },
+      {
+        "path": "/tmp/hudhud-b15-status-projection-export.patch",
+        "sha256": "80844b884f0c851dadafa5aa2dc1c7e8823bf01fb62122dda1bfc783eb8dd540"
+      }
+    ],
+    "evidence": [
+      {
+        "path": ".boss/technical-review/evidence/WO-04/B15-final-security-focused.log",
+        "sha256": "02ef3659df0651b42dd4e1366a40b78254550f906ae8e20f6cb257146a8c6e46"
+      },
+      {
+        "path": ".boss/technical-review/evidence/WO-04/B15-final-security-cursor-probe.log",
+        "sha256": "66ee6e484074215303336aa45c575eb6b9905c468e840df900e7637367fdaa0b"
+      },
+      {
+        "path": ".boss/technical-review/evidence/WO-04/B15-sdk-final-api-readiness.json",
+        "sha256": "4b03572e778110a2ee5265291f2447b5b5589caa995c7c162d132e7044539163"
+      }
+    ],
+    "focusedResult": {
+      "tests": 16,
+      "pass": 16,
+      "fail": 0,
+      "skip": 0,
+      "cancelled": 0,
+      "durationMs": 58326.173037
+    },
+    "probe": "actual genuine local AEAD malformed cursor head refused; byte-identical ciphertext,0Firestore writes; existing MemoryFirestore not nativeSDK",
+    "findings": {
+      "B15 security review S01 (count-purpose schema)": "addressed on frozen source; original historical evidence retained",
+      "B15 security review S02 (public clock)": "addressed on frozen source; actor-only finite shim preserved",
+      "platform shortcut supplement S01": "unrelated, independently approved, no URL/source change"
+    },
+    "full127": "PENDING separate parent/author single full run at approval cutpoint",
+    "sdk": "static API/import/syntax/apply-check PASS against root92;103 candidate not executed/integrated; N07/12/13/14 supplemental obligations explicit",
+    "noSourceOrRuntimeMutation": true
+  },
+  "currentIntegrationStatus": "SOURCE_SECURITY_APPROVED_EXACT_ROOT_MATCH_NATIVE_B15_ACCEPTANCE_PENDING",
+  "partialRollbackTestsReadiness": {
+    "status": "STRUCTURALLY_ACCEPTABLE_TESTS_ONLY_NO_NEW_WIRE",
+    "directory": "/tmp/hudhud-b15-final-revision2",
+    "sourceSha256": "aa3b3c6c5be5546d4d8264b3ca4c3f783b576704eb2813f18eab1c2d3a6feb72",
+    "testsSha256": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc",
+    "patchSha256": "8048fb753e20820d1e8de475ac2d84f9397a9918985a818e859746c5a3217f2f",
+    "original127Retained": true,
+    "runtime": "parent-owned17baseline and admission-only-then5lateCAS sequence; no duplicate reviewer run",
+    "supersededFull127": "stopped after24passes; no fullPASS; prior source security controls aa3-only",
+    "securityBoundary": "fresh parent native version absent owned counterhead; retained effectiveHead CAS otherwise; no resurrection; held pause; exact frozen reverseprefix"
+  },
+  "final2PartialSecurityReview": {
+    "decision": "SOURCE_SECURITY_APPROVED_CONDITIONAL_FULL150_GREEN",
+    "directory": "/tmp/hudhud-b15-final-revision2",
+    "inputs": [
+      {
+        "path": "/tmp/hudhud-b15-final-revision2/tool/reconcile_comment_counts.mjs",
+        "sha256": "2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e"
+      },
+      {
+        "path": "/tmp/hudhud-b15-final-revision2/tool/test/reconcile_comment_counts.test.mjs",
+        "sha256": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc"
+      },
+      {
+        "path": "/tmp/hudhud-b15-final-revision2/docs/operations/background-consistency-migrations.md",
+        "sha256": "d9dfc0f2b0662c0de5e36a0b9de2ca3dea35923b18e30063e19bf4cccddd3f19"
+      },
+      {
+        "path": "/tmp/hudhud-b15-final2-implementation.patch",
+        "sha256": "1dad0e8542316e42b20c8caf3a99f857ea95a21f14954aa4a5f7f4d6310816ee"
+      },
+      {
+        "path": "/tmp/hudhud-b15-final2-partial-corrections.patch",
+        "sha256": "76357ef213851438f4208f1f1ebcd1450e6c283902c803e9dd032435cd27f2c1"
+      },
+      {
+        "path": "/tmp/hudhud-b15-status-projection-export.patch",
+        "sha256": "80844b884f0c851dadafa5aa2dc1c7e8823bf01fb62122dda1bfc783eb8dd540"
+      }
+    ],
+    "independentFocused": {
+      "path": ".boss/technical-review/evidence/WO-04/B15-final2-security-focused.log",
+      "sha256": "1d11447a5ab3a01608091ae1140a80c18d9e3c7712990058f35da204c321c03a",
+      "tests": 15,
+      "pass": 15,
+      "fail": 0,
+      "skip": 0,
+      "cancelled": 0,
+      "durationMs": 49153.012499
+    },
+    "freshCAS": "No owned counterhead => parent.updateTime matches exact original.source.episodeVersion; existing owned head => preserved sealed effectiveHead CAS. Parent/comment identity/native version and held/no-resurrection controls pass.",
+    "securityS01S02": "count-purpose and public-clock boundaries preserved; platform shortcut S01 unrelated",
+    "full150": "PENDING author/parent single full run at review cutpoint; earlier127 stopped/superseded, neverPASS",
+    "sdkReadiness": "Final2 actual export import + unchanged patch apply-check PASS against exact root92. API shape unchanged;103 SDK fixture stillheld/unrun, N07/12/13/14 supplemental gaps tracked.",
+    "limits": "Source/security review only; separate protocol review/native/integration/device/production gates; no source/E/F/runtime mutation by reviewer"
+  },
+  "full150ConditionSatisfied": {
+    "authorProvenance": {
+      "path": ".boss/technical-review/evidence/WO-04/B15-final2-candidate-provenance.json",
+      "sha256": "a775258004db315b88632697c4be98c350108042ed967a9ab53b7097111558d3"
+    },
+    "log": {
+      "path": ".boss/technical-review/evidence/WO-04/B15-final2-full-green.log",
+      "sha256": "fe521e4f834c5a83584400422076de20954451263c1725f47cb9de0de4fe376f"
+    },
+    "result": {
+      "tests": 150,
+      "pass": 150,
+      "fail": 0,
+      "skip": 0,
+      "cancelled": 0,
+      "exitCode": 0,
+      "durationMs": 507982.151104
+    },
+    "fourRootFrozenMatches": [
+      {
+        "path": "tool/reconcile_comment_counts.mjs",
+        "sha256": "2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e",
+        "matches": true
+      },
+      {
+        "path": "tool/test/reconcile_comment_counts.test.mjs",
+        "sha256": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc",
+        "matches": true
+      },
+      {
+        "path": "functions/lib/comment-counts.js",
+        "sha256": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04",
+        "matches": true
+      },
+      {
+        "path": "docs/operations/background-consistency-migrations.md",
+        "sha256": "d9dfc0f2b0662c0de5e36a0b9de2ca3dea35923b18e30063e19bf4cccddd3f19",
+        "matches": true
+      }
+    ],
+    "sdkFixture": {
+      "patch": "/tmp/hudhud-b15-full-sdk-expanded.patch",
+      "sha256": "9f1d08b7246854e2542f781214d0c518f7777022767ef2175b92e46265f7255b",
+      "metadata": "/tmp/hudhud-b15-sdk-expanded-inputs.json",
+      "metadataSha256": "37ac24f87759b95225ebc9497dcf5f4a92a0efcbe61223bbb46364fc5f88307c",
+      "fixtureDiscovery": {
+        "current": 19,
+        "expanded": 51,
+        "unique": 51,
+        "additive": 32,
+        "predictedFullSuite": 124,
+        "executed": 0
+      },
+      "runtime": "NOT RUN/INTEGRATED by reviewer; parent E only"
+    },
+    "limits": "Source-level conditional full gate satisfied only; no native SDK/B15/04-T09/R12/device/production closure."
+  },
+  "sdkAssertionRefinementReadiness": {
+    "approvalSidecar": "/tmp/hudhud-b15-sdk-assertion-refinement-approval.json",
+    "sha256": "6f32aed1b61513c4ff3840632e2b7ed0dae1c2d042e7ddb223d9652504351084",
+    "independentReviewer": "/root/b10_review",
+    "patchSha256": "3785786a5ff2de248d17984dfcece5586621af47fb78595a51e91eb9b2994cb5",
+    "candidateSha256": "547c0d46984ebc4918dd9bdc608546e94879b921a0528403c514ac005dddc609",
+    "metadataSha256": "b45bc73935107d0a2729a6301aa71e2b111c21b8de8a947e2a075e7fdc8f0800",
+    "scope": "parent integration/rehearsal only; no actual E/runtime acceptance"
+  }
+}

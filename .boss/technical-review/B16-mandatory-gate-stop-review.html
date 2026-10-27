@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B16 mandatory-gate stop review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b16-mandatory-gate-stop-review">B16 mandatory-gate stop review</a></li><li class="toc-level-2"><a href="#read-only-failure-classification">Read-only failure classification</a></li><li class="toc-level-2"><a href="#preserved-evidence-and-hard-boundary">Preserved evidence and hard boundary</a></li><li class="toc-level-2"><a href="#confirmed-stopped-state-handoff">Confirmed stopped-state handoff</a></li></ul>
+    </aside>
+    <main>
+      <h1>B16 mandatory-gate stop review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B16-mandatory-gate-stop-review.md</div>
+        <div>Generated: 2026-10-27T02:36:07.577Z</div>
+      </div>
+      <h1 id="b16-mandatory-gate-stop-review">B16 mandatory-gate stop review</h1>
+<p>Current decision: <strong>STOP — mandatory subscriptions gate FAILED.</strong> The authorized workflow requires stopping and reporting a failed mandatory gate. No application/test correction, new runtime execution, native fixture integration or downstream acceptance is authorized by this review. Classification does not waive the gate.</p>
+<p>Parent-owned Node22 email verification closes 14/14 pass, zero failures/skips/cancellations, 9502.744618ms, exit 0 and clean shutdown. The subsequent subscriptions gate closes 18 tests: 15 pass, 3 ERR_ASSERTION failures, zero skips/cancellations, 30754.251793ms, exit 1 and clean shutdown. All 120 input hashes captured BEFORE these gate launches still match. Logs and fingerprints are in the companion provenance; no reviewer rerun occurred.</p>
+<h2 id="read-only-failure-classification">Read-only failure classification</h2>
+<ol><li>PKG-08 profile self-healing, test declaration station-subscriptions.test.js:122 and failed assertion line 144: the fixture expects a permanent email field in the healed profile. Actual prepareActiveSubscriptionProfile creates the minimal displayName/username/avatar/isActive/role/timestamps projection with no email. The accepted R10 security contract explicitly forbids permanent canonical/legacy listener-email projection; Firebase Auth remains the authentication email source. The old assertion is a fixture compatibility conflict. Restoring profile email to make it pass would weaken the accepted security boundary and is not a permitted correction.</li><li>HudHudDev program claims, test declaration line 224 and first-send assertion line 231: the shared base fixture at 225–227 has only weekdays/startMinute. The accepted C04/R13 schedule requires endMinute greater than start and an explicit valid integer utcOffsetMinutes. Actual normalizedSchedule rejects the incomplete fixture before claim/send, so actual 0 versus expected 1 matches the current ineligible-data contract rather than proving lost delivery for a valid program.</li><li>HudHudOfficial expands the same declaration and fails the same first-send assertion for the same incomplete schedule. It is a second root execution, not a new independent source defect.</li></ol>
+<p>These are executed business assertions, but against obsolete/incomplete fixture expectations. They are NOT valid new RED requirements for a security-weakening source fix, demonstrated product data/delivery loss, environment failures or missing API failures. The gate still FAILED. PKG-08's later role/subscription assertions and the program tests' later retry/unknown branches are unreachable after their first failures; they do not receive acceptance credit from test titles or prior unrelated success. This classification does not assert that no further issue exists downstream. A reviewed fixture compatibility update must also verify complete canonical station/program setup and unchanged delivery/identity/security expectations before a full gate rerun can establish GREEN.</p>
+<h2 id="preserved-evidence-and-hard-boundary">Preserved evidence and hard boundary</h2>
+<p>Earlier B15 native 125, T10/T11 reviewed source gates, T12 Rules 78, actual admin 43 including the exact original 17 plus added 8 mapping, frontend/Flutter/build/Functions/governance results retain their scoped historical results. They cannot mask this failed mandatory subscription gate or close findings. The root editorial native fixture remains at its prior dd2e8ae2 input; no new native T12 fixture has been integrated or executed. Backend T12 work was interrupted; isolated partial model/fixture results are not an integrated acceptance run. The planned new account-deletion runtime has not executed at this stop checkpoint.</p>
+<p>Next gated work is explicit but not performed now: after deliberate workflow resumption, first register a reviewed compatibility attachment and I-owned path lock for firebase_tests/firebase-emulators/station-subscriptions.test.js (it is not in the current 04-T12 write set); only then prepare a minimal tests-only compatibility patch honoring R10 email absence and complete R13 schedule/visibility/relationship setup; independently review it, preserve all failure evidence and assertions of intended valid behavior, then rerun the mandatory subscriptions gate on the exact candidate. Investigate any further failure normally. Only subsequent GREEN and independent acceptance can release downstream native/final gates. Do not alter source/permissions, hide/skip tests or claim resolution from this diagnosis.</p>
+<p>All R01–R13 remain OPEN. Final native T12 notification/migration/seal/lease/ACK/custody/query/index, changed-candidate/independent QA, browser and physical Android/iPhone acceptance remain incomplete. Browser is Debugger unattached; physical devices 0/0. No production data/apply/restore/migration, provider send, deployment or protected merge is authorized. This report and the metadata patch are /tmp-only; parent I alone may integrate the blocked documentation checkpoint. Task/wave/checkpoint states, all 65 tasks/16 batches/17 waves/76 owners/87-node acyclic dependencies and original history remain unchanged.</p>
+<h2 id="confirmed-stopped-state-handoff">Confirmed stopped-state handoff</h2>
+<p>The backend confirms all work stopped and no E/F jobs remain active. The preserved 45-case draft at evidence/WO-04/B16-T12-native-unintegrated-draft.js is unreviewed and unintegrated: it was not assembled, syntax/discovery checked, included by the runner or executed. Its SHA-256 is e66a878a4a8f5c3d76daa9e33ebd9e19fe631eadf512425055a92a7b18b72d24; canonical tuple/query smoke coverage is unwritten. Reviewer hash readback confirms the preserved copy and unchanged live editorial fixture dd2e8ae2. No development draft receives runtime or source-acceptance credit. Parent reports temporary secret cleanup succeeded (file absent); no secret content was read or emitted by this reviewer.</p>
+<p>The subscriptions fixture is outside the current 04-T12 write set. Future remediation must first obtain a reviewed compatibility attachment and sole I path lock; this stop does not automatically expand ownership or authorize test/source mutation. Preserve all original registry/state/owner/dependency boundaries and the actual failed logs.</p>
+    </main>
+  </div>
+</body>
+</html>

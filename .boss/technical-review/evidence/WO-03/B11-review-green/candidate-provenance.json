@@ -1,0 +1,144 @@
+{
+  "batch": "B11",
+  "revision": "independent-review-remediation",
+  "recordedAt": "2026-10-26T18:45:29.710811+00:00",
+  "runtime": "v22.23.3",
+  "status": "frozen_candidate_node22_unit_and_actual_emulator_green_pending_independent_final_review",
+  "sourceSha256": {
+    "functions/lib/admin-user-count.js": "1b30bbb90e37ed83cf0622304eb11dbca966e46f8fea7ac2d1d90e289a9eb086",
+    "functions/test/admin-user-count.test.js": "0c0325f13f16d21d6593d297bc2d7ee298a90bb47fa035880de1723bf91bfab8",
+    "functions/index.js": "9fc086e98fd1e0c12265dfa36f96418536f8ecacd7c93995b165cc26e0d72714",
+    "web_admin/lib/user-count.ts": "ec89c2a4ead0c844bb242648bd2dc25cf2d8ccc4c77f8d3bf0fb260c39fcf0cd",
+    "web_admin/test/user-count.test.ts": "d76e737c39878c0bdbf5eb2763379e0c9d714afceb1a12844c4228370f4bc3c4",
+    "web_admin/components/admin/users-aggregate-view.tsx": "f54df8a5cf7b4a0778884f8b53b7792ef75368f30ffa15196f11ad9e43907875",
+    "web_admin/lib/admin-query.ts": "556fe049f7cf79b160b2d5688f16fe894bc289400e1dd8623584b367938ff91b",
+    "web_admin/lib/resource-pagination.ts": "f1919a712e3613119a84f41dfd81121675f244b0215ae35bd1c4cb0c840de0bb",
+    "web_admin/lib/resource-filters.ts": "46c17de52d37ef96effdec62418c238b803faf47d08f19e41bef24f441002ee3",
+    "web_admin/test/resource-pagination.test.ts": "8013fc9dad7f80f3b23f067d00ee3860c329210c53f3dd9f6f006daa2e3d2fd3",
+    "web_admin/test/content-pagination.emulator.test.ts": "3c310f2ea140eb2e849a17b3ed38f98b3697a4ebfc158d91cea8c57f55c228a2",
+    "web_admin/components/admin/admin-app.tsx": "f654f3fd7426e6f4df03379214a72050fb9bde5e508efced8ee419b24caafb1d",
+    "web_admin/lib/export-pages.ts": "499ec9691cfda9992b21e5a0a1f8edbdd59689d25bbe828f5021df2063db5753",
+    "web_admin/test/export-pages.test.ts": "31a8d5534de93335b5a545618d5b716bb66f58782df7fa6a30839894816af5e1",
+    "web_admin/test/user-count.emulator.test.ts": "0d9360f3746594aab15485f1a4ab2e4d96da9c879e522faac49b72b49a3579eb",
+    "tool/run-admin-emulator-tests.mjs": "73276b3ebe6734a955e97370b359392a8dca1c2c8a44ca03e67c85c8ef7a54bf"
+  },
+  "gates": [
+    {
+      "gate": "admin-tests",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "runtime": "v22.23.3",
+      "exitCode": 0,
+      "log": "/tmp/hudhud-b11-review-green-evidence/admin-tests.log",
+      "sha256": "518a257c4e7e344b50e6e60d51c02d6a681feec37119f248a296497031e700ca"
+    },
+    {
+      "gate": "admin-lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "runtime": "v22.23.3",
+      "exitCode": 0,
+      "log": "/tmp/hudhud-b11-review-green-evidence/admin-lint.log",
+      "sha256": "9167d3e32f0d58e9d013805478882f8c38dbe20fdd6844d6df366fd7d66c09ac"
+    },
+    {
+      "gate": "admin-typecheck",
+      "command": [
+        "./node_modules/.bin/tsc",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "runtime": "v22.23.3",
+      "exitCode": 0,
+      "log": "/tmp/hudhud-b11-review-green-evidence/admin-typecheck.log",
+      "sha256": "3c54c568f7df0f0391f71f65cb003591ecaa69fe34d71b85372d8bfed22a51f1"
+    },
+    {
+      "gate": "admin-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "runtime": "v22.23.3",
+      "exitCode": 0,
+      "log": "/tmp/hudhud-b11-review-green-evidence/admin-build.log",
+      "sha256": "adce6c9aab8cd66fe20d946707bfbac017a50ced30203c646cc9e3e1d82f1bef"
+    }
+  ],
+  "adminTests": {
+    "tests": 138,
+    "pass": 115,
+    "fail": 0,
+    "skipped": 23
+  },
+  "focusedGreen": {
+    "tests": 18,
+    "pass": 18,
+    "fail": 0,
+    "skipped": 0,
+    "log": "/tmp/hudhud-b11-review-green-evidence/focused-green.log",
+    "sha256": "34e171946aa1117b1619eaaed9da6ffec0d2aea988f24c700ae599949a1fdef7"
+  },
+  "skipsHaveNoAcceptanceCredit": true,
+  "redProvenance": "/tmp/hudhud-b11-boundary-evidence/red-provenance.json",
+  "privacyRed": {
+    "tests": 2,
+    "intendedBusinessAssertionFailures": 2,
+    "skipped": 0,
+    "log": "/tmp/hudhud-b11-privacy-evidence/privacy-red.log"
+  },
+  "boundaryRed": {
+    "tests": 7,
+    "positiveControls": 1,
+    "intendedChildBusinessAssertionFailures": 5,
+    "parentFailures": 1,
+    "skipped": 0,
+    "log": "/tmp/hudhud-b11-boundary-evidence/boundary-red.log"
+  },
+  "previousEmulatorFailure": {
+    "tests": 41,
+    "pass": 38,
+    "childFailures": 2,
+    "parentFailures": 1,
+    "classification": "Integration gate failure; SDK exceptions alone not accepted as behavioral RED. Parent retains original log."
+  },
+  "reusedFunctionsProof": {
+    "sourceHashVerifiedUnchanged": true,
+    "node": "v22.23.3",
+    "testsPassed": 259,
+    "testsFailed": 0,
+    "skipped": 0,
+    "provenance": "/tmp/hudhud-b11-node22-evidence/candidate-provenance.json"
+  },
+  "remaining": [
+    "Independent privacy/cursor/cache re-review and any additional feedback",
+    "Browser UI/download/pause-resume acceptance",
+    "B15 full integrated count-worker acceptance",
+    "Master-plan Flutter/device release acceptance"
+  ],
+  "findings": {
+    "R06": "OPEN",
+    "R07": "OPEN"
+  },
+  "productionOperationsPerformed": false,
+  "actualEmulator": {
+    "runtime": "v22.23.3",
+    "runtimeAuthority": "Parent E-owner confirmed approved Node22 runtime",
+    "counts": {
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "skipped": 0
+    },
+    "log": ".boss/technical-review/evidence/WO-03/B11-review-emulator-green.log",
+    "sha256": "b0d3ba4cb7662e481f77cc09833e6a304bf3432888f251bd4276cada0169db19",
+    "successfulShutdown": true
+  }
+}

@@ -1,0 +1,403 @@
+---
+type: tasks
+outputFor: [delivery-lead, frontend, backend, tech-lead, qa]
+dependencies: [tech-review, existing-contracts]
+---
+
+# HudHud FM execution plan — cohesive batches with independent evidence
+
+## Summary
+
+- **Authorized implementation in progress. R01–R13 remain OPEN.** The original planning baseline is retained below for audit. Current implementation, actual results and unresolved gates are tracked in [execution-progress.md](execution-progress.md); source/test changes are authorized, while production operations remain separate.
+- Preserve all **65 atomic task IDs**: **54 source/test/contract tasks in 16 implementation batches**, plus **11 independent review, QA, device, rehearsal and operational tasks**. Original task acceptance criteria remain mandatory.
+- Preserve all **17 registered verification waves** in [waves.json](waves.json), separate from work-assignment batches. Consolidation does not reduce testing or bypass gates.
+- B15 colocates comment-count authority, harness integration, privacy QA and pagination QA. This removes the cycle where WO-03 acceptance waits for a worker that itself waits for WO-03 acceptance.
+- Integration owner **I** owns cross-batch/control paths; designated component owners retain intrabatch content writes. Stable component workers reuse context; parallel execution requires disjoint writes and runtime resources, not merely different WO labels.
+
+## Current execution snapshot
+
+B15 / 04-T09 is in progress. Actual runtime gates have passed admin 43/43, account 6/6 and editorial 82/82 with zero skips. RSS 47/47 and pagination 54/54 are guard-phase evidence. Producer 8/8 and parent privacy/seed 78/78 remain historical setup/compatibility evidence. Producer business RED executed 30 tests: 10 passed, 20 intended failures, zero skipped. The four fixes and maintenance guards are now independently source-approved: 141/141 focused tests, parent 240/240 tooling, 328/328 Functions and lint pass; the scoped actual producer SDK rehearsal passes 91/91 with zero skips and independent evidence review. Full nonempty tool and adversarial mid-flight conflict acceptance remain separate. The full nonempty reconciliation/restore tool is unfinished, and B16 source has not started. All R01–R13 findings remain OPEN. Browser acceptance remains blocked by debugger attachment, physical device acceptance has 0 recorded runs, and final exact-candidate gates remain mandatory. See execution-progress.md and recorded evidence for ongoing updates; this metadata reconciliation closes no task or finding.
+
+## Document information
+
+| Field | Value |
+|---|---|
+| Project | `hudhud_fm` only; excludes `FM-Pro` |
+| Original planning date / baseline | 2026-10-25 / `9fae3248aadecaa53198a5fb9f06576fdcc182cf`; authorized continuation resumed at `c304e85` |
+| Current branch / local default | `hudhud_fm` / `origin/main` |
+| Inputs | [Review](tech-review.md), [WO-01](WO-01.md), [WO-02](WO-02.md), [WO-03](WO-03.md), [WO-04](WO-04.md), previous master and [waves.json](waves.json) |
+| Scheduling authority | This master and consolidated batches govern coordination; WOs retain exact task write sets and acceptance criteria |
+| Execution authority | User authorized all four Work Orders and the S01 platform-link supplement. Execute dependency-ordered batches with RED/GREEN and independent review; production data, migrations, deployment and protected merges remain unauthorized |
+| Language | English throughout, including artifacts, instructions, progress and final summaries |
+
+## 0. Original planning preflight — historical
+
+| Check | Observation / action |
+|---|---|
+| Git at planning baseline | The original planning preflight recorded no tracked source change. Authorized implementation later modified source/tests; refresh HEAD and worktree before each dispatch |
+| Node at planning baseline | PATH was `v26.6.0`; execution uses the validated Node22.23.3 path. Refresh the toolchain before Node gates; no implicit installation |
+| Dependencies | npm lockfiles exist; no dependency upgrade, lockfile edit or package installation planned |
+| CI | No configuration found in inspected `.github/workflows`, `.gitlab-ci.yml`, `.circleci`, Vercel/Netlify locations. Hosted CI commands remain **UNKNOWN** |
+| Verification authority | Actual package scripts and quality contract; do not invent an admin typecheck script or CI pass |
+| Architecture | Riverpod, `presentation -> domain <- data`, one player; retain React/Firebase component boundaries |
+| Historical evidence | 368 passed, 17 skipped, three expected failing temporary reproductions; historical review evidence, not results of this plan |
+| R13 planning decision gap | The original fixed-Yemen/accepted-offset disagreement was resolved by the approved per-schedule-offset policy and ADR. R13 remains OPEN; B16 source implementation and its receipt/cutover gates have not started |
+| Devices | [Existing worksheet](../../docs/release/november-2026-device-acceptance.md) is NOT RUN; simulator/builds do not substitute |
+
+Before every dispatch, check HEAD, exact write set, owner, contracts, worker availability and locks. Unknown paths/owners or unlisted writes block dispatch until the plan is updated. Preflight does not require reading secrets or private Firebase configuration.
+
+### English-only artifact rendering
+
+All new documents, handoffs and reports remain English. Use `--lang en` on Boss commands that advertise that option. The installed runtime artifact/status commands do not expose a language flag; `.boss/templates/artifact.html.template` supplies English-only companion rendering without changing the installed skill or application. The original technical review remains an unchanged historical input.
+
+
+## 1. Scope and acceptance
+
+| Source work order | Exact findings | Required outcome |
+|---|---|---|
+| WO-01 | R01, R10 | Separate private station data; close all profile-email producers/consumers while preserving Auth and verification |
+| WO-02 | R02, R03, R05 | Correct visible timer, safe replay, accurate dispatch result without duplicate accounts |
+| WO-03 | R04, R06, R07, R08 | Bounded pages with complete reachability, safe counts, correct exports and bounded public archives |
+| WO-04 | R09, R11, R12, R13 | Correct XML, fair health progress, one idempotent count authority, compatible timing/receipts |
+
+Finding lifecycle: `OPEN -> IN_PROGRESS -> IMPLEMENTED -> VERIFIED -> CLOSED`. A plan does not advance status. Closure requires the fix, permanent regression, independent review and applicable gates. Missing device/operational evidence still blocks release approval even after local code is complete.
+
+## 2. Stable workers and physical-write ownership
+
+| Code | Stable role | Assignment policy |
+|---|---|---|
+| I | Delivery / Integration Lead | Coordination and sole content writer for cross-batch/control paths; merges approved batch commits without independent content edits; cannot approve its own implementation |
+| BE | Backend | Server modules and designated intrabatch paths; prepares cross-batch/control patches for I |
+| DT | Data Tools | Audit/repair/restore tools and synthetic fixtures, including designated intrabatch paths |
+| FL | Flutter | Reuses context across B07, B08 and B09; this default capacity order is not a new functional DAG edge |
+| WA | Web Admin | Forms, queries and export; consults BE for aggregate-server changes without overlapping write authority |
+| WP | Public Web | Content repository and bounded archive UI |
+| QA | Independent QA | Integration regressions/evidence; cannot approve application code it implemented |
+
+Default capacity is one coordinator and at most three implementation workers, with one available worker per role code. Adding another FL worker requires a distinct identity, isolated worktree/build cache and disjoint writes. Multiple sessions do not automatically isolate files or emulators.
+
+### 2.1 Single integration-owner registry
+
+Every repeated source/test/contract/artifact path has exactly one content writer. The original table below records **33 base assignments: 22 I + 11 component (FL7, DT3, BE1)**. The current authoritative registry retains those assignments and includes 76 unique paths (I: 62, BE: 4, FL: 7, DT: 3), including approved additive locks. For paths used entirely inside B04/B06/B07/B08/B14 without a preparatory milestone, the stable component owner continues across atomic subtasks without an intermediate I handoff. I merges the independently reviewed batch commit without separate content edits; merge conflicts return to that file owner. Source reviewers are read-only. For shared review/QA artifacts, I serializes collection of independent reviewers' results without changing their verdicts.
+
+| Exact shared path | Sole physical writer | Ordered patch/task users |
+|---|---|---|
+| `.boss/technical-review/WO-01-validation.md` | I | 01-T15 -> 01-T16 -> 01-T17 |
+| `.boss/technical-review/WO-04-validation.md` | I | 04-T13 -> 04-T14 -> 04-T15 -> 04-T16 |
+| `docs/contracts/firebase-data-contract.md` | I | 01-T01 -> 03-T01 -> 04-T01 |
+| `docs/contracts/station-content-contract.md` | I | 03-T01 -> 04-T01 |
+| `docs/operations/background-consistency-migrations.md` | I | 04-T03 -> 04-T09 -> 04-T11 -> 04-T15 -> 04-T16 |
+| `docs/operations/station-privacy-migration.md` | I | 01-T01 -> 01-T12 -> 01-T16 -> 01-T17 |
+| `firebase_tests/firebase-emulators/editorial-comment-counts.test.js` | I | 04-T08 -> 04-T12 |
+| `firebase_tests/firebase-emulators/station-privacy.test.js` | I | 01-T13 -> 01-T14 |
+| `firebase_tests/firebase-rules/firestore.rules.test.js` | I | 01-T04 -> 01-T11 -> 03-T16 -> 04-T12 |
+| `firestore.indexes.json` | I | 03-T02 -> 04-T12 |
+| `firestore.rules` | I | 01-T04 -> 01-T11 -> 04-T12 |
+| `functions/index.js` | I | 01-T09 -> 03-T09 -> 04-T05 -> 04-T07 |
+| `functions/lib/admin-content-delete.js` | I | 01-T03 -> 04-T07 |
+| `functions/lib/stream-health.js` | BE | 04-T04 -> 04-T05 |
+| `lib/features/player/presentation/controllers/station_player_controller.dart` | FL | 02-T02 -> 02-T04 |
+| `test/features/account/data/firebase_account_repository_test.dart` | FL | 02-T08 -> 02-T10 |
+| `test/features/account/presentation/account_controller_test.dart` | FL | 02-T08 -> 02-T10 |
+| `test/features/account/presentation/auth_screen_test.dart` | FL | 02-T08 -> 02-T10 |
+| `test/features/account/presentation/manage_account_screen_test.dart` | FL | 02-T08 -> 02-T10 |
+| `test/features/account/presentation/register_screen_test.dart` | FL | 02-T07 -> 02-T10 |
+| `test/features/player/presentation/station_player_controller_test.dart` | FL | 02-T01 -> 02-T03 |
+| `tool/migrate_station_privacy.mjs` | DT | 01-T12 -> 01-T13 |
+| `tool/run-admin-emulator-tests.mjs` | I | 03-T16 -> 04-T08 |
+| `tool/test/migrate_station_privacy.test.mjs` | DT | 01-T12 -> 01-T13 |
+| `tool/test/station-writer-privacy.test.mjs` | DT | 01-T07 -> 01-T08 |
+| `web_admin/components/admin/admin-app.tsx` | I | 01-T06 -> 01-T10 -> 03-T12 -> 03-T13 |
+| `web_admin/components/admin/users-aggregate-view.tsx` | I | M03-T16-RED-READY (preparatory seam) -> 03-T10 (implementation) |
+| `web_admin/lib/export-excel.ts` | I | 01-T06 -> 03-T13 |
+| `web_admin/lib/resource-filters.ts` | I | 01-T10 -> 03-T11 |
+| `web_admin/lib/user-count.ts` | I | M03-T16-RED-READY (preparatory seam) -> 03-T10 (implementation) |
+| `web_admin/test/export-excel.test.ts` | I | 01-T06 -> 03-T13 |
+| `web_admin/test/resource-filters.test.ts` | I | 01-T10 -> 03-T11 |
+| `web_admin/test/save-content.emulator.test.ts` | I | 01-T05 -> 01-T14 |
+
+All **33 original shared paths** above remain in `sharedFileOwners` in `waves.json`; approved additive entries make the current registry total 76 unique paths. Task users describe patch handoffs, not an assertion that an entire upstream task has completed: 03-T16 contributes M03-T16-FIXTURE before 04-T08, while final 03-T16 acceptance follows 04-T08. Acquire the path lock before each write and reconcile against the latest approved artifact. The listed owner retains exclusive content-write authority; workers supply patches to I for cross-batch/control paths. New overlaps are classified and assigned one owner before dispatch; cross-batch/control overlaps belong to I. WO-02 currently does not write providers/station-content/screens/ARB; any expansion must be reconciled before B09.
+
+### T11 canonical helper compatibility attachment
+
+| Existing shared path | Sole integration owner | Serialized task users / allowed change |
+|---|---|---|
+| `functions/lib/program-notifications.js` | I | 04-T10 -> 04-T11 in B16; T11 adds only export keywords to existing pure `normalizedSchedule`, `localTime`, `legacyDates` and `fingerprint` |
+
+This 76th ownership row preserves all 75 previous entries and all 33 original assignments. T11's explicit write set now includes this existing path so the timezone tool uses the canonical runtime normalization/date/key-fingerprint logic rather than copying it. I alone applies the reviewed source attachment under the path lock. No helper body, default, scheduler, index, task, batch, wave or dependency changes are authorized by this attachment; existing T10 -> T11 ordering remains. The batch B16 and wave W04-W5 unions already contain the path. Refresh current source before patching and rerun applicable Functions/tool gates with independent review; no finding closure follows.
+
+## 3. Sixteen batches — one assignment per implementation task
+
+Listed task order does not override internal dependencies; section 3.3 specifies them. A batch write set is the union of its exact WO task write sets, with no extra files. NEW items remain proposed additions, not existing APIs.
+
+| Batch | Worker | Atomic tasks assigned exactly once | Batch predecessors | Required contracts |
+|---|---|---|---|---|
+| B01 | I | 01-T01, 03-T01, 04-T01 | None | Emits scoped milestones below |
+| B02 | BE + I | 01-T02, 01-T03, 01-T04 | None | C01 |
+| B03 | WA + I | 01-T05, 01-T06, 01-T10, 01-T11 | B02, B05 | Inherited |
+| B04 | DT + I | 01-T07, 01-T08 | B02 | Inherited |
+| B05 | BE + I | 01-T09, 01-T09a | B04 | C01 |
+| B06 | DT + I | 01-T12, 01-T13 | B03, B04 | Inherited |
+| B07 | FL + I | 02-T01, 02-T02, 02-T03, 02-T04 | None | Existing playback contract |
+| B08 | FL + I | 02-T05, 02-T06, 02-T07, 02-T08, 02-T09, 02-T10 | None | Existing account/security contract |
+| B09 | FL + I | 03-T03, 03-T04, 03-T05, 03-T06, 03-T07, 03-T08 | B10 | C03 |
+| B10 | DT + I | 03-T02 | None | C03 |
+| B11 | WA + I | 03-T09, 03-T10, 03-T11, 03-T12, 03-T13 | B03, B10; M03-T16-RED-READY | C03 |
+| B12 | WP | 03-T14, 03-T15 | B10 | C03 |
+| B13 | BE + I | 04-T02, 04-T03 | B02 | C04-RSS |
+| B14 | BE + I | 04-T04, 04-T05 | B11 | C04-HEALTH |
+| B15 | BE + QA + I | 04-T06, 03-T16, 04-T07, 04-T08, 04-T09, 01-T14 | B06, B09, B11, B12, B13, B14 | C04-COUNTS |
+| B16 | BE + I | 04-T10, 04-T11, 04-T12, 02-T11 | B07, B08, B15 | C04-TIMEZONE |
+
+### 3.1 Scoped contract milestones inside B01
+
+C01 comes from reviewed 01-T01 privacy/writer decisions. C03 comes from 03-T01 after C01. Then 04-T01 emits independently reviewed **C04-RSS, C04-HEALTH, C04-COUNTS and C04-TIMEZONE**. I serializes shared contract edits.
+
+A batch waits only for its required approved milestone, not all of B01. Unresolved R13 blocks **C04-TIMEZONE/B16 only**, never unrelated privacy, playback, queries or approved RSS/health/counts. Atomic task 04-T01 remains incomplete until all its outputs are approved; partial contract release is not fabricated task completion.
+
+### 3.2 Complete batch graph with contract milestones
+
+```mermaid
+flowchart TD
+  B01["B01: I — contract decisions"] --> C01["C01"]
+  B01 --> C03["C03 after C01"]
+  B01 --> CR["C04-RSS"]
+  B01 --> CH["C04-HEALTH"]
+  B01 --> CC["C04-COUNTS"]
+  B01 --> CT["C04-TIMEZONE: R13 decision"]
+  C01 --> B02
+  C01 --> B05
+  B02 --> B04 --> B05
+  B02 --> B03
+  B05 --> B03
+  B03 --> B06
+  B04 --> B06
+  C03 --> B10
+  C03 --> B09
+  C03 --> B11
+  C03 --> MR["M03-T16-RED-READY: QA/I baseline regression"]
+  MR --> B11
+  C03 --> B12
+  B10 --> B09
+  B10 --> B11
+  B10 --> B12
+  B03 --> B11
+  B02 --> B13
+  CR --> B13
+  B11 --> B14
+  CH --> B14
+  B06 --> B15
+  B09 --> B15
+  B11 --> B15
+  B12 --> B15
+  B13 --> B15
+  B14 --> B15
+  CC --> B15
+  B07["B07: playback"] --> B16
+  B08["B08: registration"] --> B16
+  B15 --> B16
+  CT --> B16
+```
+
+### 3.3 Preserved task-local dependencies
+
+Unqualified T IDs within a row use the row's stated WO prefix.
+
+| Scope | Required local or cross-task edges |
+|---|---|
+| B01 | 01-T01 -> 03-T01 -> relevant 04-T01 milestone; contract release does not wait for WO closure |
+| B02/B04/B05, prefix01 | T01 -> T02 -> T03 -> T04; T03 -> T07 -> T08 -> T09 -> T09a; T09 also requires T01 |
+| B03/B06, prefix01 | T04 -> T05 -> T06; T06+T09+T09a -> T10; T04+T09a+T10 -> T11; T08+T11 -> T12 -> T13 |
+| B07, prefix02 | T01 -> T02 -> T03 -> T04 |
+| B08, prefix02 | T05 -> T06 -> T07 -> T08 -> T09 -> T10; T06–T09 form one compatible integration unit |
+| B09/B10, prefix03 | T01 -> T02, T03, T08; T02+T03 -> T04 -> T05; T05+T08 -> T06; T04+T06 -> T07. Execute T08 before T06 despite its position in B09's task list |
+| B11, prefix03 | C03 -> M03-T16-RED-READY -> B11 implementation; T01 -> T09 -> T10; T01+T02 -> T11; T10+T11+B03 handoff -> T12 -> T13; export requires WO-01's projection contract |
+| B12, prefix03 | T01+T02 -> T14 -> T15 |
+| B13/B14, prefix04 | C04-RSS -> T02 -> T03; C04-HEALTH -> T04 -> T05; T05 waits for B11 entry-point handoff |
+| B15 | C04-COUNTS -> 04-T06; 03-T04+03-T09+03-T11+03-T14 -> 03-T16 scaffolding; 04-T05+04-T06+01/03 handoffs -> 04-T07 -> 04-T08 -> 04-T09; M03-T16-FIXTURE precedes 04-T08; 04-T08 precedes full 03-T16 acceptance; 01-T03…T13 and T09a precede 01-T14, with actual worker integrated before its acceptance |
+| B16 | C04-TIMEZONE -> 04-T10 -> 04-T11; 04-T05+04-T07+04-T08+04-T11 and Rules/index handoff -> 04-T12; 02-T04+02-T10 -> 02-T11; shared operations document 04-T03 -> 04-T09 -> 04-T11 remains serial |
+
+### 3.4 B15 eliminates the acceptance handoff cycle
+
+**Pre-B11 RED preparation:** `M03-T16-RED-READY` coordinates preparatory portions of existing tasks03-T10/03-T16, not another atomic task, file or batch. After C03, I introduces a behavior-preserving adapter in the already planned `web_admin/lib/user-count.ts` and routes both initial and retry SDK calls in `web_admin/components/admin/users-aggregate-view.tsx` through it. The existing `.ts` emulator harness cannot import/render TSX directly; QA's planned `web_admin/test/user-count.emulator.test.ts` imports that same adapter. I remains sole physical writer of both adapter/view paths during preparation and later implementation, with fixture execution under the E-RUNTIME lock. This discoverable fixture must demonstrate the current authorization/behavior failure before B11 replaces the SDK path with the authorized callable. Preparation must not covertly fix the behavior. A missing proposed module, absent endpoint or HTTP404 is not valid RED. B11 explicitly requires this milestone. Full03-T16 implementation/acceptance remains assigned to B15.
+
+03-T16 prepares the harness/fixtures and hands its reviewed patch to I as output milestone **M03-T16-FIXTURE**. The explicit chain is **M03-T16-FIXTURE -> 04-T08 -> 03-T16 final acceptance**. **Full 03-T16 acceptance is not a prerequisite of 04-T08.** Task 04-T07 integrates the worker; 04-T08 registers it and demonstrates its actual effect. Independent QA then performs full 03-T16 and 01-T14 acceptance at B15's end. 04-T06 and 03-T16 scaffolding may develop disjoint files; shared harness/Rules fixtures remain serial through I.
+
+B15 exit requires **all 17 registered emulator test identities to execute**, including real PL03 new-comment behavior without manually seeding counters instead of running the worker. B15 does not wait for WO-01/03 closure, and WO-04 does not wait for their final reviews. A source-ready transfer is **INTERIM HANDOFF / LOCAL_GREEN**, not WO DONE, complete-wave GREEN or finding CLOSED. Source dependencies may consume reviewed artifact-ready milestones without requiring finding closure; final task completion still requires GREEN, independent review and exact-candidate integration evidence.
+
+## 4. Eleven manual tasks — outside automatic code dispatch
+
+| Checkpoint | Single assigned atomic task | Independent owner / prerequisite |
+|---|---|---|
+| G-R1 | 01-T15 | Non-author reviewer; after 01-T14 acceptance in B15 |
+| G-O1-READY | 01-T16 | Operations + QA; after G-R1, rehearsal and concrete action preparation |
+| O-1 | 01-T17 | Operations; after G-O1-READY and actual scoped production authorization |
+| G-R2 | 02-T12 | Independent reviewer; after 02-T11 in B16 |
+| D-2 | 02-T13 | Independent QA; after G-R2, full Flutter/build/device gates |
+| G-R3 | 03-T17 | Independent reviewer; after 03-T07/T13/T15 and full T16 acceptance in B15 |
+| G-Q3 | 03-T18 | Independent QA; after G-R3, 04-T08 and merged candidate; all 17 identities |
+| G-Q4 | 04-T13 | Independent QA; after 04-T02…T12 |
+| G-R4 | 04-T14 | Independent reviewer; after G-Q4, preserving WO-04 order |
+| G-O4-READY | 04-T15 | Operations + QA; after G-R4, scoped rehearsal |
+| O-4 | 04-T16 | Operations; after G-O4-READY and actual authorization |
+
+These are 11 existing tasks, not new atomic IDs. **G-INTEGRATION** collects evidence on the exact merged commit; it is not task66. I serializes shared validation-artifact writes while preserving independent QA/reviewer judgments.
+
+## 5. Parallelism and runtime locks
+
+Parallel execution requires approved contracts, ready predecessors, disjoint write sets, distinct available workers and isolated runtime outputs. An acyclic DAG alone is insufficient.
+
+| Lock | Policy |
+|---|---|
+| Every repeated file | Exactly one designated content writer: I for cross-batch/control paths, stable component owner for designated intrabatch paths; I merges approved commits without independent content edits and returns conflicts to the owner |
+| E-RUNTIME | Serialize emulator runs by default: ports, demo project/state, harness and temporary Firebase configuration are shared |
+| F-RUNTIME | Serialize Flutter tools/builds in the shared environment; SDK cache/build outputs are not automatically isolated |
+| WEB-BUILD(worktree,component) | Serialize operations generating outputs for the same web component/worktree |
+| Worker capacity | One worker per BE/DT/FL/WA/WP/QA by default; ready tasks may wait for capacity without adding functional dependency edges |
+
+Statically validated candidate groups are **[B04, B07, B13]** (DT/FL/BE), **[B06, B09, B12]** (DT/FL/WP), and **[B13, B09, B12]** (BE/FL/WP). They become eligible only after every exact prerequisite and lock check; this is not automatic parallel authorization. **[B04, B07, B10] is invalid** because B04/B10 both need the single DT worker. B07/B08 are logically independent but use one FL worker serially by default; B13/B14 compete for BE. E-RUNTIME/F-RUNTIME gates still serialize even with disjoint source files.
+
+A separate worktree does not isolate emulator/project state or SDK cache. Further isolation requires actual supported ports, demo projects, temporary configuration and output locations, never invented CLI capabilities. Custom batch/lock metadata is **not claimed to be automatically enforced by Boss CLI**; the coordinator enforces preflight before dispatch and execution.
+
+## 6. Seventeen verification waves and RED/GREEN discipline
+
+| Registered waves, none removed | Batches supplying their evidence |
+|---|---|
+| W01-W1, W01-W2, W01-W3, W01-W4 | B01/B02; B03/B04 plus B15 integration; B05/B03; B06 |
+| W02-A, W02-B, W02-C | B07; B07; B08 |
+| W03-A, W03-B, W03-C, W03-D, W03-E | B01/B10; B09; B11 plus B15 acceptance; B11; B12 |
+| W04-W2, W04-W3, W04-W4, W04-W5, W04-W6-CODE | B13; B14; B15; B16; B16 |
+
+A wave can span batches. Do not require complete GREEN for a wave depending on B15 before admitting B15's predecessors. **Full W03-C GREEN and W01-W2 admin integration follow the actual worker in B15.** Policy, device, rehearsal and production checkpoints stay separate; no automatic production commands enter the manifest.
+
+1. Author/discover permanent business regressions first. If a test seam is needed, add explicit scaffolding without implementing the fix covertly.
+2. Valid RED executes nonzero matched cases and fails the intended business assertion. Missing modules, compilation/environment errors and skips are not RED.
+3. Make the focused fix, run focused GREEN and obtain independent review before the atomic task is complete. That local evidence may unlock the next internal task, but never closes a finding or waives final QA.
+4. Three waves are executable **GUARD** verification rather than forced defect-RED: `W01-W4` (new migration safety; linked business RED in W01-W1/W01-W3), `W03-A` (data/index/tool safety; linked business RED in W03-B), and `W04-W6-CODE` (existing default-deny guards; linked business RED in W04-W4/W04-W5). Existing protections may pass at baseline; new tool safety cases must pass once implemented. **Never fabricate RED, break code or weaken Rules to obtain failure.** The remaining **14 waves** retain genuine business-regression RED requirements.
+5. Preserve all **39 previously referenced test-file targets in GREEN**; guard classification does not remove coverage. Persist the three temporary playback reproductions in B07; `/tmp` is not a CI dependency. Keep explicit cwd/argv in the manifest, without shell interpolation or automatic apply commands.
+
+### 6.1 Reduce repetition without reducing verification
+
+Each batch runs focused GREEN for its behavior and write set. Run the full integrated gates **once per exact candidate hash at shared cut points**, retain results and reuse them only for the identical tree/environment. Repeating unchanged checks is not additional required proof.
+
+After new integration or a failure fix, rerun affected checks and any full gate whose inputs changed before final acceptance. Do not combine successes from different commits into one candidate pass. B15 proves all 17 identities/harness/worker; B16 Rules/index changes require affected gates again on the new candidate at G-INTEGRATION.
+
+## 7. Contracts, security and actual commands
+
+| Requirement | Authoritative source |
+|---|---|
+| Public/private, every writer, email and restore | WO-01 CM01–CM10, including 01-T09a `tool/migrate-legacy-users.mjs` before cleanup and a fresh writer search |
+| Timer/replay/registration and verification authority | WO-02 CM02-1…CM02-5: switch preserves deadline, stop cancels, dispatch never verifies email |
+| Pages/cursors/deep links/counts/exports | WO-03 CM03-01…CM03-07:101+,2001+,10000 fixtures and stated budgets, no invented latency gains |
+| RSS/health/counts/timezone | WO-04 CM09/CM11/CM12/CM13: stable aliases, fair progress, single count authority, preserved sent/unknown receipts |
+
+Repeat security cases for HudHudDev/HudHudOfficial: guest, unverified, verified owner, another user, assigned/foreign station admin, moderator, super-admin and forged root/claims. Private/direct writes stay denied as specified; aggregate access does not grant profiles. Administrators using client SDKs are governed by Rules; **Admin SDK bypasses Rules and requires server-side authorization**. UI filtering is not authorization.
+
+The following are actual planned commands at the stated cwd with Node22; they were not run during this optimization:
+
+| cwd | Gates |
+|---|---|
+| Repository root | `./tool/verify-governance.sh`; `dart format --output=none --set-exit-if-changed lib test`; `flutter analyze`; **`flutter test`** |
+| Root | `flutter build apk --debug`; `flutter build ios --simulator --debug` |
+| `functions` | `npm run lint`; `npm test`; recorded wave-specific regression commands |
+| `web_admin` | `npm test`; `npm run lint`; `VITE_FIRESTORE_ROOT=HudHudDev npm run build`; no invented typecheck script |
+| `web_hudhud` | `npm test`; `npm run lint`; `npm run typecheck`; `VITE_FIRESTORE_ROOT=HudHudDev npm run build` |
+| Root / E-RUNTIME | `npm run emulators:test`; `npm run emulators:admin`; `npm run emulators:editorial` |
+| Root / E-RUNTIME | `npm run emulators:account-deletion`; `npm run emulators:email-verification`; `npm run emulators:subscriptions`; `npm run emulators:profile-images` |
+| Root, when affected | `npm run emulators:location-cleanup`; `npm run emulators:advertising` if shared changes affect campaigns |
+
+## 8. Test debt, devices and operations
+
+The **exact 17-test identity registry** remains in [WO-03 section5](WO-03.md). Ordinary `npm test` skips are not passes. B15 executes every identity with the real worker; G-INTEGRATION reruns affected gates after final integration.
+
+| WO-03 registry identities | Accountable owner / deadline |
+|---|---|
+| 1–3,16–17: image/save | Independent QA in B15, then G-R1/G-INTEGRATION before closure |
+| 4–5,7,14: import/query/location/transfer | QA in B15, then G-Q3 |
+| 6: episode deletion | QA in B15 and lifecycle review in G-Q4 |
+| 8–13,15: authorization/PL03/report | Independent QA in B15, then G-Q4; no corrected-counter seeding in place of the worker |
+
+The current harness exports only four admin callables. Inside B15, 03-T16 adds the count callable and 04-T08 adds the actual worker with deterministic external-AI replacement and no external call. Full 03-T16/01-T14 acceptance follows actual integrated execution. No developer secrets, production accounts or real messages are used.
+
+### 8.1 Devices — PENDING and blocking release approval
+
+D-2/final acceptance require physical Android and iPhone, baseline/candidate fingerprints and actual worksheet records: **more than30 minutes background/lock playback**; interruption/duck/manual pause; headset/Bluetooth; timer across switch/remote stop; completed replay; replacement during seek/load; offline/recovery and primary/backup. Include AR/EN, RTL,200% text, small/large layouts and screen readers. Do not disclose serials, UIDs or source URLs.
+
+Missing devices, full suite or required builds remain **PENDING/BLOCK RELEASE**. Builds/simulators are not physical audio evidence; do not invent latency thresholds or improvement percentages.
+
+### 8.2 Migration, rollback and production
+
+Tools in code batches are tested only with synthetic/demo data. Production apply is never a code-batch dispatch: O-1/O-4 follow rehearsal, review and actual scoped authorization. Require explicit project and one root with no production default, reviewed dry-run/manifest and a durable private verified backup before first mutation.
+
+Retain WO-01 limits:100 records/invocation,50/read page, batches≤25 transactions at concurrency1; preserve smaller WO-04 limits. Version/preimage comparisons, resume and conditional restore must not overwrite newer edits. Never restore private fields into public documents, automatically restore profile.email or delete a successful account to compensate for email failure.
+
+Upgrade/quiesce every old writer before cleanup and repeat inventory, including the standalone legacy-user tool. Pause affected workers during reconciliation and preserve idempotency receipts/leases; never replay unknown/sent or erase evidence to force success. Application rollback uses an integrated reviewed revert/previous artifact without destructive Git. Data rollback is conditional and privacy-safe.
+
+## 9. Plan validation and delivery
+
+Implementation assignment union=54; atomic manual checkpoint union=11; intersection is empty; total=65. The manifest additionally contains supplemental G-INTEGRATION without another atomic task. Its **historical planning validation snapshot** records 16 batches, 17 waves, 33 single-owner paths (22 I +11 component), 73 acyclic task/output nodes (65 tasks +8 outputs) and all39 prior test-file targets retained. The current metadata snapshot has 76 unique owner paths and 87 acyclic task/milestone/checkpoint nodes, with no unknown dependencies; canonical task/batch/wave counts remain 65/16/17. Final reconciliation remains required if any artifact changes. The original snapshot describes static planning checks only; application commands had not run at that point. Actual implementation evidence is recorded separately. The coordinator enforces dependency, write-set, capacity and runtime-lock preflight; custom scheduling metadata is not automatically supported/enforced by installed Boss CLI.
+
+Delivery pressure does not remove independent review, RED/GREEN, security or devices. Preserve all original WO acceptance criteria; record each LOCAL_GREEN/INTERIM HANDOFF, its commit and **unfinished evidence**. All source findings remain OPEN. The original planning task delivered a more coherent plan without implementing fixes; the authorized implementation continuation below supersedes that delivery-state description.
+
+## Change log
+
+| Version | Date | Change |
+|---|---|---|
+| 2.0 | 2026-10-25 | English optimization:16 batches/54 tasks plus11 checkpoints;65 IDs and17 waves preserved; B15 cycle removed; no application execution |
+
+
+## Authorized implementation continuation — 2026-10-26
+
+The user approved all four Work Orders and the existing65-task/16-batch/17-wave completion plan. The initial resumed dispatch recorded clean baseline `c304e85`; that historical observation is not a claim that the current implementation worktree is clean. No deployment, live migration, production data change or protected merge is authorized. Routine in-scope failures are repaired and affected gates rerun within the active batch; downstream work remains blocked until GREEN. Unresolved security, unowned scope expansion and production operations stop progression.
+
+Approved policy: alerts honor accepted per-schedule UTC offsets with conservative sent/unknown receipt preservation; admin offers clearly labeled current-page search plus resumable full-dataset scans at most200 documents per continuation. C03/C04 detailed contracts require independent review before dependent code.
+
+At the initial resumed dispatch, B03 resumed first. Its location integration regression is an additive I-owned01-T05 compatibility path: `web_admin/test/location-relations.emulator.test.ts`. The original33ownership assignments are unchanged; this34thlock preserves the existing WO03 test identity and server stale-location assertion. No new atomic task/batch/wave is introduced. The private revision guard must not be weakened. Add an isolated SDK network-error guard before accepting B03. Existing17emulator obligations remain explicit.
+
+The initial resumed manifest distinguished verified interim C01/B02/B04/B05 handoffs from the then-active B03 and unstarted downstream work. That is a historical dispatch snapshot. Current final-acceptance state remains pending; current implementation metadata and execution-progress.md record subsequent handoffs without finding closure. Historical reports are chronological evidence, not current candidate completion. See execution-progress.md for current dispatch and remaining gates. All findings remain OPEN.
+
+
+### Additive ownership reconciliation
+
+Current registry: 76 unique shared/control paths, retaining all original 33 assignments. The first two additive I locks were location-relations emulator compatibility (B03/01-T05) and notification-delivery source (B16/04-T10); later approved attachments are enumerated in waves.json. No canonical task, batch or wave was added or removed. The current task/milestone/checkpoint graph has 87 acyclic nodes with no unknown dependency reference. The revised count-maintenance contract has independent approval; all registered source changes still require implementation and regression evidence.
+
+
+### C04-COUNTS review amendment and dependency repair
+
+The ADR0006 maintenance-fence amendment enumerates necessary R12 producer changes within existing04-T06/07/09, preserving65tasks/16batches/17waves. Cross-batch additions are explicitly I-owned before dispatch; the new dependency-free maintenance helper stays with B15 BE. Original33assignments are unchanged. The revised C04-COUNTS contract received independent approval; count source work still requires all batch prerequisites and regression evidence.
+
+M04-T12-FENCE-READY is a partial, independently verified output of existing04-T12, owned by I, requiring only approvedC04-COUNTS. Its Rules/test guards deny private maintenance access and paused-root comment creation while preserving authorized active/absent-fence behavior. Both04-T08 and04-T09 require this milestone before rehearsal. Neither depends on whole04-T12 completion, so no B15→B16→B15 cycle is introduced. Full04-T12 and W04-W6-CODE acceptance retain their original final B16 gates. No new wave is fabricated for this partial handoff.
+
+Production reconciliation remains unavailable until a separately reviewed supported platform integration proves old/unowned AdminSDK writer isolation. Demo fencing/drift tests and inventory re-enumeration do not claim that capability. No generic verifier placeholder, boolean authorization bypass or invented cloud service is introduced.
+
+
+### C03 B11 finite admin query refinement
+
+Approved execution refinement: global admin order is only `id_asc`. The legacy
+`newest` choice receives an accurate ID-order label; `oldest` reverses only the
+current page, while existing name/city/priority/statistics sorts are explicitly
+current-page. Feature/role/health controls are also explicitly current-page;
+user-started resumable scans preserve their exact predicates over the dataset.
+Scans and exports traverse canonical ID ASC, independently of presentation,
+with frozen health evaluation time. The exhaustive server-filter/index query
+whitelist and cursor semantics are in the C03 B11 subsection of
+`docs/contracts/firebase-data-contract.md`; no speculative sort indexes or
+missing-field exclusions are authorized. This refines existing 03-T11/T12/T13,
+without adding a task, batch, wave, dependency, abstraction or package.
+
+B11 originally required B10 and approved `M03-T16-RED-READY`; those prerequisites were satisfied before its implementation. B11 now has a verified interim handoff, while final spanning acceptance remains pending. The preparation
+adapter/view/fixture are I-only writes; QA runs the real existing-flow R07
+business assertion under E-RUNTIME. New helper imports failing to resolve,
+absent callable endpoints, compilation/environment failures and skipped tests
+are not RED evidence. Actual implementation still requires behavioral RED,
+GREEN, independent review and integration acceptance. Preparation is not a
+finding closure or production authorization; all 17 prior emulator obligations,
+full Flutter tests and physical-device acceptance remain mandatory.
+
+### B15 count-baseline fixture and isolated-runner refinement
+
+Accepted count activation requires legitimate native baselines before existing emulator journeys. Task04-T08 therefore includes the exact additional fixture/support paths registered in `waves.json`, as explicit compatibility attachments to the original task. QA supplies patches and I is the sole writer. New support is `firebase_tests/support/comment-count-fixtures.mjs` and `tool/run-count-emulator-tests.mjs`; existing fixture seeds are adapted only where required. Two package.json emulator script targets may route to the isolated runner while retaining command names; no dependency, lockfile, build or deployment configuration changes are authorized. Standalone and admin harnesses use real production authority/handler helpers, controlled demo bootstrap, no developer secrets/external senders, and serialized test files; dedicated concurrent transaction cases remain. No assertion is weakened and new-comment expected counts are never seeded after creation. Root-global bootstrap/maintenance is isolated, all original17 identities execute, and final acceptance remains pending. This necessary test-support expansion supersedes the original per-task five-file planning estimate without adding or renumbering the65 canonical task IDs or17 waves.
+
+### B15 empty-demo-root bootstrap phase without a dependency cycle
+
+Real04-T08 worker tests require an accepted baseline before creating comments. The genuine bootstrap implementation belongs to04-T09, whose full reconciliation/restore acceptance follows04-T08. `M04-T09-BOOTSTRAP-READY` therefore records only the early guarded empty-demo-root tool/code preparation from04-T09 after04-T06,04-T07 and the approved early Rules guard.04-T08 consumes that partial artifact; full04-T09 still waits for04-T08. The partial phase never fabricates an active fence, seeds an expected post-comment count, authorizes production, or completes the producer task. The combined graph has87 acyclic task/milestone/checkpoint nodes with no unknown references; the65 task IDs,16 batches and17 waves are unchanged.

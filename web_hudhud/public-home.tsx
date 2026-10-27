@@ -1,3 +1,4 @@
+import { PlatformLinks } from './platform-links';
 import { filterDiscoveryStations } from './lib/discovery';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -22,7 +23,7 @@ import { SponsoredPlacement } from './sponsored-placement';
 import { AppCtaSection, GooglePlayButton, GooglePlayIcon, GOOGLE_PLAY_URL } from './app-cta';
 import { FeatureBoundary } from './feature-boundary';
 import type { AccountPort } from './account-panel';
-import type { loadStationContent } from './lib/content-repository';
+import type { loadStationContent, loadProgramsPage, loadEpisodesPage } from './lib/content-repository';
 const StationDetail = lazy(() => import('./station-detail').then(module => ({ default: module.StationDetail })));
 const AccountPanel = lazy(() => import('./account-panel').then(module => ({ default: module.AccountPanel })));
 const loadPublicStations = () => import('./lib/station-repository').then(module => module.loadPublicStations());
@@ -71,7 +72,7 @@ function rememberSuccessfulPlay(stationId: string, previous: ListeningEntry[]): 
   return next;
 }
 
-export function PublicHome({ loadCatalog = loadPublicStations, loadContent, createAccount, initialCatalog, loadCityCatalog = loadCities, publicPath = location.pathname }: { publicPath?: string; loadCityCatalog?: typeof loadCities; initialCatalog?: Catalog & { status: number }; loadCatalog?: () => Promise<Station[]>; loadContent?: typeof loadStationContent; createAccount?: () => AccountPort } = {}) {
+export function PublicHome({ loadCatalog = loadPublicStations, loadContent, loadPrograms, loadEpisodes, createAccount, initialCatalog, loadCityCatalog = loadCities, publicPath = location.pathname }: { publicPath?: string; loadCityCatalog?: typeof loadCities; initialCatalog?: Catalog & { status: number }; loadCatalog?: () => Promise<Station[]>; loadContent?: typeof loadStationContent; loadPrograms?: typeof loadProgramsPage; loadEpisodes?: typeof loadEpisodesPage; createAccount?: () => AccountPort } = {}) {
   const [route, setRoute] = useState(() => location.search + location.hash);
   const [accountOpened, setAccountOpened] = useState(() => location.hash === '#account');
   const params = new URLSearchParams(route.split('#')[0]);
@@ -207,7 +208,7 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
       <main id="top">
         {seoPage.status !== 200 && !detailId && <section className="content-section"><h1>{seoPage.title}</h1><p>{seoPage.description}</p><a href="?">كل المحطات</a></section>}
         {seoPage.city && <section className="content-section"><h1>{seoPage.title}</h1><p>{seoPage.description}</p></section>}
-        {detailId && loadState === 'ready' && (detailStation ? <FeatureBoundary><Suspense fallback={<p role="status">جارٍ تحميل تفاصيل المحطة…</p>}><StationDetail key={`${detailStation.id}:${params.get('program') || ''}:${params.get('episode') || ''}`} station={detailStation} onPlay={() => playStation(detailStation)} onEpisode={playEpisode} favorite={favorites.includes(detailStation.id)} onFavorite={() => toggleFavorite(detailStation.id)} loadContent={loadContent} /></Suspense></FeatureBoundary> : <section className="content-section" id="station-detail"><h1>المحطة غير متاحة</h1><a href="?">كل المحطات</a></section>)}
+        {detailId && loadState === 'ready' && (detailStation ? <FeatureBoundary><Suspense fallback={<p role="status">جارٍ تحميل تفاصيل المحطة…</p>}><StationDetail key={`${detailStation.id}:${params.get('program') || ''}:${params.get('episode') || ''}`} station={detailStation} onPlay={() => playStation(detailStation)} onEpisode={playEpisode} favorite={favorites.includes(detailStation.id)} onFavorite={() => toggleFavorite(detailStation.id)} loadContent={loadContent} loadPrograms={loadPrograms} loadEpisodes={loadEpisodes} /></Suspense></FeatureBoundary> : <section className="content-section" id="station-detail"><h1>المحطة غير متاحة</h1><a href="?">كل المحطات</a></section>)}
 
         <section className="hero-section" hidden={!!detailId || params.has('city') || seoPage.status !== 200}>
           <div className="hero-copy">
@@ -318,6 +319,7 @@ export function PublicHome({ loadCatalog = loadPublicStations, loadContent, crea
             </div>
             <GooglePlayButton variant="default" size="normal" />
           </div>
+          <PlatformLinks />
           <div className="footer-bottom-bar">
             <div className="footer-copyright">
               <span>هدهد إف إم — المنصة الإذاعية اليمنية الموحدة</span>

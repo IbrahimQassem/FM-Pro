@@ -1,3 +1,5 @@
+import { prepareCommentCountMutation } from './comment-counts.js';
+import { requireActiveCommentCountFence, CommentCountMaintenanceError } from './comment-count-maintenance.js';
 import { FieldValue } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 
@@ -104,7 +106,7 @@ export async function filterWithGemini(content, { apiKey, fetchFn = globalThis.f
       flagReason: parsed.flagReason || (parsed.isAppropriate ? null : 'ai_flagged'),
     };
   } catch (err) {
-    logger.warn(`Gemini moderation check failed: ${err?.message}; falling back to safe pass.`);
+    logger.warn('Gemini moderation check failed; falling back to safe pass.');
     return { isAppropriate: true, flagReason: null };
   }
 }
@@ -141,55 +143,30 @@ export async function moderateCommentContent(content, options = {}) {
  * Handles new comment document creation in Firestore.
  */
 export async function handleCommentCreated({
-  snapshot,
-  root,
-  episodeId,
-  geminiApiKey,
-  fetchFn = globalThis.fetch,
+  snapshot, root, episodeId, geminiApiKey, fetchFn = globalThis.fetch, moderateFn = moderateCommentContent,
 }) {
   if (!moderationRoots.includes(root) || !snapshot?.exists) return null;
-
-  const data = snapshot.data();
-  const content = data?.content;
-
-  if (typeof content !== 'string') return null;
-
-  // Don't re-moderate if already decided (IR-06: include hidden and removed)
-  if (['rejected', 'flagged', 'hidden', 'removed'].includes(data.status)) {
-    return null;
-  }
-
-  const result = await moderateCommentContent(content, { apiKey: geminiApiKey, fetchFn });
-
-  const updateData = {
-    status: result.status,
-    moderationReason: result.moderationReason,
-    moderatedAt: FieldValue.serverTimestamp(),
-  };
-
-  // Guard against overwriting concurrent manual moderator actions (IR-06)
-  if (snapshot.ref?.firestore?.runTransaction) {
-    await snapshot.ref.firestore.runTransaction(async (tx) => {
-      const fresh = await tx.get(snapshot.ref);
-      if (!fresh.exists) return;
-      const currentStatus = fresh.data()?.status;
-      if (['rejected', 'flagged', 'hidden', 'removed'].includes(currentStatus)) {
-        logger.info(`Comment ${snapshot.id} already moderated to ${currentStatus}; preserving decision`);
-        return;
-      }
-      tx.update(snapshot.ref, updateData);
-    });
-  } else {
-    if (snapshot.ref?.get) {
-      const fresh = await snapshot.ref.get();
-      const currentStatus = fresh?.data?.()?.status;
-      if (['rejected', 'flagged', 'hidden', 'removed'].includes(currentStatus)) {
-        return result;
-      }
-    }
-    await snapshot.ref.update(updateData);
-  }
-  logger.info(`Comment ${snapshot.id} in episode ${episodeId} moderated to status: ${result.status} (${result.moderationReason || 'clean'})`);
-
-  return result;
+  const firestore = snapshot.ref?.firestore, commentId = snapshot.id;
+  if (!firestore?.runTransaction) throw new CommentCountMaintenanceError();
+  // Check the fence before any AI request, and again in the actual mutation.
+  await firestore.runTransaction(tx => requireActiveCommentCountFence(tx, firestore, root));
+  const fresh = await snapshot.ref.get();
+  if (!fresh.exists) return null;
+  const value = fresh.data();
+  if (typeof value.content !== 'string') return null;
+  const terminal = status => ['rejected', 'flagged', 'hidden', 'removed'].includes(status);
+  const result = terminal(value.status) ? null : await moderateFn(value.content, { apiKey: geminiApiKey, fetchFn });
+  const committed = await firestore.runTransaction(async tx => {
+    let changed = false;
+    const prepared = await prepareCommentCountMutation(tx, firestore, { root, episodeId, commentId,
+      action: 'update', serverTimestamp: () => FieldValue.serverTimestamp(),
+      changes: current => {
+        if (!result || terminal(current.status) || current.content !== value.content) return null;
+        changed = true;
+        return { status: result.status, moderationReason: result.moderationReason, moderatedAt: FieldValue.serverTimestamp() };
+      } });
+    for (const write of prepared.writes) write();
+    return changed;
+  });
+  return committed ? result : null;
 }

@@ -1,0 +1,9 @@
+{
+  "scope": "04-T08 actual isolated count handler registration",
+  "file": "tool/run-count-emulator-tests.mjs",
+  "baselineSha256": "871cd89521483edda579417592bd77f28dce93e4fd0f79703a5e81dc4ae5e35a",
+  "candidateSha256": "c98836dc4616745415ec49f67b91da8229a76bd617a8de8f9478c504263bbc6d",
+  "patchSha256": "2e32893da5b7f01c163def23b3c4d834884204228eb75ef72ace58d7f39f0187",
+  "changes": "Only append countEpisodeComments to existing whitelist; no test/clock/flag/assertion change",
+  "redEvidence": "evidence/WO-04/B15-registration-baseline.log; 43 tests,41 pass,2 intended business assertion failures,zero skipped"
+}

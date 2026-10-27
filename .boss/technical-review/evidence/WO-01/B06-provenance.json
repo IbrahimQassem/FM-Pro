@@ -1,0 +1,40 @@
+{
+  "classification": "New-tool safety GUARD GREEN, not defect RED; linked R01/R10 business RED remains in prior WO01 evidence",
+  "node": "22.23.3",
+  "commands": [
+    {
+      "cwd": "/Users/ibrahimqassem/VisualCodeProjects/acceleration/hudhud_fm",
+      "argv": [
+        "node",
+        "--test",
+        "tool/test/migrate_station_privacy.test.mjs"
+      ],
+      "result": {
+        "tests": 37,
+        "pass": 37,
+        "fail": 0,
+        "skip": 0
+      }
+    },
+    {
+      "cwd": "/Users/ibrahimqassem/VisualCodeProjects/acceleration/hudhud_fm",
+      "argv": [
+        "node",
+        "--check",
+        "tool/migrate_station_privacy.mjs"
+      ],
+      "result": "PASS"
+    }
+  ],
+  "sha256": {
+    "tool/migrate_station_privacy.mjs": "821d3dd2351aab06a10e1e970d92d1d1a71e2008a6121bff64f6ca1135e6dc91",
+    "tool/test/migrate_station_privacy.test.mjs": "4cae9aa3f054f9cdb84fe07e0551a06ab090f884781dcee6bf3cdd052da89b7b"
+  },
+  "integrationPatch": "/tmp/hudhud-b06-integration.patch (already applied by I; do not reapply)",
+  "limitations": [
+    "No live CLI invocation, migration or production access",
+    "Actual emulator execution and independent review are I-owned pending gates",
+    "Current CLI refuses all production mutation; real production approval/storage/retention-deletion integration remains G-O1-READY/O-1",
+    "Privacy-safe restore checks exact committed postimages and performs zero data writes because no safe public field changed; removed email/private-public fields are never reinstated"
+  ]
+}

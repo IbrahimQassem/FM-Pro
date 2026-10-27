@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>M04-T12-FENCE-READY independent source review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#m04-t12-fence-ready-independent-source-review">M04-T12-FENCE-READY independent source review</a></li><li class="toc-level-2"><a href="#verdict">Verdict</a></li><li class="toc-level-2"><a href="#source-and-contract-verification">Source and contract verification</a></li><li class="toc-level-2"><a href="#actual-evidence-inspected">Actual evidence inspected</a></li><li class="toc-level-2"><a href="#scope-and-remaining-gates">Scope and remaining gates</a></li><li class="toc-level-2"><a href="#reviewed-fingerprints">Reviewed fingerprints</a></li></ul>
+    </aside>
+    <main>
+      <h1>M04-T12-FENCE-READY independent source review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: M04-review.md</div>
+        <div>Generated: 2026-10-26T18:55:18.444Z</div>
+      </div>
+      <h1 id="m04-t12-fence-ready-independent-source-review">M04-T12-FENCE-READY independent source review</h1>
+<p>Date: 2026-10-26. Reviewer: independent <code>b10_review</code> agent; no implementation authorship.</p>
+<h2 id="verdict">Verdict</h2>
+<p><strong>APPROVED: verified interim partial Rules handoff.</strong> No blocking issue found in the exact Rules/test candidate. This does not complete04-T12, B15/B16, R12 or production readiness. No finding is CLOSED.</p>
+<h2 id="source-and-contract-verification">Source and contract verification</h2>
+<p>The Rules helper accepts only the approved complete active shape: version1, active state, positive safe-integer generation, opaque trimmed nonempty owner of at most128 characters without slash, lowercase64-hex planHash, nonnegative safe-integer epoch-millisecond lease, writerProtocol1, native Timestamp activation and lowercase64-hex baseline manifest hash. Missing fences preserve legacy operation; present paused, malformed or unsupported state cannot permit comment creation. Lease expiry is not a pause release. Rules validate one snapshot; trusted maintenance transactions must enforce historical generation advancement and trusted activation timestamps later.</p>
+<p>The fence is read within comment-create Rules evaluation and remains conjunctive with the original authentication, verification, profile ownership, UGC agreement, publication, episode and account-deletion safeguards. Independently compared the candidate with HEAD: all source after the unchanged original comment field validation remains byte-identical. Existing comment update/delete rules, canonical collection-group audits, importKeys permissions and default deny are unchanged. No privileged client maintenance bypass was added. Root/episode baseline and new <code>contributions</code> ledger remain private by default.</p>
+<p>The only fixture namespace changes from the baseline test patch are the three planned ledger path references moving from <code>comments</code> to reviewed <code>contributions</code>. The28 paused/malformed creation assertions retain their expected denial. The historical oldnamespace leak log remains a design mismatch; newnamespace privacy GREEN is not claimed as newly failing business RED.</p>
+<h2 id="actual-evidence-inspected">Actual evidence inspected</h2>
+<ul><li>Baseline actual Rules suite: <strong>75 tests,43 passed,32 failed,0 skipped</strong>. As independently classified in M04-contract-review.md,28 are intended paused/malformed creation failures and four are oldnamespace privacy/list design failures. No compilation/setup/environment failures are credited.</li><li>Updated actual Rules suite: <code>.boss/technical-review/evidence/WO-04/M04-fence-green.log</code>: <strong>75 passed,0 failed,0 skipped</strong>, successful script exit and emulator shutdown. Includes both roots, absent/valid-active creation, current/expired pause, malformed fences, retained authorization/deletion conditions, role/private path operations and bounded canonical audit compatibility.</li><li>Parent candidate hashes match the fix provenance. Source review and log inspection were read-only; this reviewer did not launch E/F, modify application source or execute any migration/deployment.</li></ul>
+<h2 id="scope-and-remaining-gates">Scope and remaining gates</h2>
+<p>This partial output can satisfy the named milestone's local handoff; it cannot substitute for server-side enforcement because Admin SDK bypasses Rules. B15 must implement the matching dependency-free helper and actual transaction fences across all owned writers, retry semantics, count authority, complete frozen inventory/reconciliation, review and affected GREEN. Maintenance/reconciliation/apply/restore/activation requires bounded read-only oldnamespace preflight to exhaustion and refusal on legacy records; ordinary triggers must not scan the entire ledger. Full04-T12 remains in B16 with its original prerequisites. Preserve65 tasks,16 batches,17 waves, original skipped-test identities, full Flutter and physical-device acceptance and separately authorized production approval.</p>
+<h2 id="reviewed-fingerprints">Reviewed fingerprints</h2>
+<table><thead><tr><th>Input</th><th>SHA-256</th></tr></thead><tbody><tr><td><code>firestore.rules</code></td><td><code>29feef1c8026085a21bc24aa129ecbead46425cf1876d627e4a992ada692a562</code></td></tr><tr><td><code>firebase_tests/firebase-rules/firestore.rules.test.js</code></td><td><code>17b3cd26fad8d8865912884091401bdd0252433956758bd12df9024a90311904</code></td></tr><tr><td><code>docs/contracts/firebase-data-contract.md</code></td><td><code>c0ad347610b449f8d1e371007c66c87cd8f8f74e83959da59bcec3bc233499e5</code></td></tr><tr><td><code>docs/decisions/0006-background-consistency-and-schedule-timezones.md</code></td><td><code>9a053d1c77d129a91d487866bd71eb7723b5b9cf6f1266eea7e2508a56435a85</code></td></tr><tr><td><code>.boss/technical-review/M04-contract-review.md</code></td><td><code>947a0130285bc4b734f201b2097304b43b1d836e53c694eddeeac80e28ee7cca</code></td></tr><tr><td><code>.boss/technical-review/evidence/WO-04/M04-fence-baseline-red.log</code></td><td><code>990473455c24dad5d0c6ef86906f03c43a6ad49ca8e0621fc0f203305aaa4a96</code></td></tr><tr><td><code>.boss/technical-review/evidence/WO-04/M04-fence-green.log</code></td><td><code>df3250a42e6ca82288b1f3e5c866fe6cc51c773a6a90215ba49047c811e9707f</code></td></tr></tbody></table>
+    </main>
+  </div>
+</body>
+</html>

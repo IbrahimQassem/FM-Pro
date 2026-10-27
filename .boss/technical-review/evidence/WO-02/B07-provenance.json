@@ -1,0 +1,72 @@
+{
+  "baselineHead": "c304e85963546220ccbdac51390fe0c03de02419",
+  "sleepRedCommand": "flutter test --no-pub test/features/player/presentation/station_player_controller_test.dart --plain-name sleep",
+  "sleepBaselineSourceSha256": "b52a9d70863b35106ef928c4ceeda40f99d3b0f0d9f48ba53be5163af0cb684e",
+  "sleepRedTestsSha256": "74a1901cf4efd311e758d9e499cbf6157129c6066bfe00a039ea62d086ac5925",
+  "sleepRedResult": {
+    "matched": 5,
+    "passed": 2,
+    "intendedAssertionFailures": 3,
+    "skipped": 0
+  },
+  "environmentalAttempt": "Initial sandbox Flutter SDK cache permission failure is not RED; real focused retry used approved SDK-cache access.",
+  "replayRedCommand": "flutter test --no-pub test/features/player/presentation/station_player_controller_test.dart test/features/player/data/audio_episode_progress_test.dart --plain-name replay",
+  "replayBaselineSourceSha256": {
+    "lib/features/player/presentation/controllers/station_player_controller.dart": "0fcb8a852c9b308d6e9d004ed3c776afc0865446b661b426d116fc3d06376b1f",
+    "lib/features/player/data/datasources/just_audio_player_data_source.dart": "5d01df94ac31e973017fc98ba27151daae2247b5b2579750c343fff3eb750edb"
+  },
+  "replayRedTestsSha256": {
+    "test/features/player/presentation/station_player_controller_test.dart": "0bc1b086efa2a45a442ff4b3b6c335d4df541c884f93d0d8e4d38f808d5b8aa3",
+    "test/features/player/data/audio_episode_progress_test.dart": "abb6bde9056169d3933af2f3f21a754091914afc346b3d169a6f49846d224393"
+  },
+  "replayRedResult": {
+    "matched": 13,
+    "passed": 1,
+    "intendedAssertionFailures": 12,
+    "skipped": 0
+  },
+  "additionalStopRaceRed": {
+    "command": "flutter test --no-pub test/features/player/presentation/station_player_controller_test.dart --plain-name \"sleep pending local stop\"",
+    "sourceSha256": "720f3db42b94dc4421196b73b474f24e3e79777d953cf7eff80b012c0b458840",
+    "matched": 1,
+    "intendedAssertionFailures": 1,
+    "skipped": 0,
+    "note": "Discovered after initial timer/replay GREEN during same-batch self-review; not claimed as original baseline run."
+  },
+  "finalCandidateSha256": {
+    "lib/features/player/presentation/controllers/station_player_controller.dart": "644955e99f80883dfb5603001cf7c824dedc96fbc5bb2a2e520de15030a3632d",
+    "lib/features/player/data/datasources/just_audio_player_data_source.dart": "3806aa308e1511a5de35307bfac8981a4a035d287ea93131dcfbf2f7b8ec2738",
+    "test/features/player/presentation/station_player_controller_test.dart": "1d51c778ee2e60e225019347a16951122ac4d3d4d6924dabaf684284dc1db145",
+    "test/features/player/presentation/now_playing_sheet_test.dart": "37b9c8b6b54b9cd5cc69603f5f60da256c7af051fb27d4aa0fb18302da98e590",
+    "test/features/player/data/audio_episode_progress_test.dart": "26dc308970264ed71df87310350db727ea04e11626e83d6c312cbe38c632d087"
+  },
+  "actualChangedPaths": [
+    "lib/features/player/presentation/controllers/station_player_controller.dart",
+    "lib/features/player/data/datasources/just_audio_player_data_source.dart",
+    "test/features/player/presentation/station_player_controller_test.dart",
+    "test/features/player/presentation/now_playing_sheet_test.dart",
+    "test/features/player/data/audio_episode_progress_test.dart"
+  ],
+  "approvedUnusedPath": "test/features/player/data/just_audio_player_data_source_test.dart",
+  "finalVerification": {
+    "playerCommand": "flutter test --no-pub test/features/player",
+    "playerResult": {
+      "passed": 60,
+      "failed": 0,
+      "skipped": 0
+    },
+    "sourceAnalyze": "flutter analyze --no-pub lib/features/player \u2014 PASS no issues",
+    "testsAnalyze": "flutter analyze --no-pub test/features/player \u2014 PASS no issues",
+    "formatCheck": "dart format --output=none --set-exit-if-changed (five owned paths) \u2014 PASS0changes",
+    "diffCheck": "git diff --check -- lib/features/player test/features/player \u2014 PASS"
+  },
+  "guardCasesAddedAfterInitialRed": "Real controller/repository/data-source rewinding, manualseekposition preservation and unknown-duration fallback; widget deadline/cancel/stop visibility. These GREEN guards do not claim separate baseline RED.",
+  "intermediateFailures": [
+    "Initial sandbox Flutter SDK cache write denied; not RED. Approved retry produced real assertions.",
+    "Initial timer GREEN failed test-only pending Timer cleanup; corrected test cleanup and reran. Log B07-sleep-green-pending-timer-failure.log retained.",
+    "Widget test initially missed an offscreen timer control and then asserted before modal reverse animation completed. Corrected scroll/frame pumping; logs retained as B07-sleep-widget-offscreen-failure.log and B07-sleep-widget-route-animation-failure.log. These are not business RED.",
+    "Scoped source analysis found3curly-brace infos; fixed only owned files and reran no issues. B07-source-analyze-braces-failure.log retained."
+  ],
+  "remaining": "Independent review and parent exact-candidate integration/full Flutter/build/device gates remain pending. R02/R03 OPEN; no production or app launch.",
+  "independentReviewRevision": "B07-review-revision-provenance.json records real-stack intended RED 1/1 and GREEN60/60 correction for duplicate replay after native completed-pause reentrancy."
+}

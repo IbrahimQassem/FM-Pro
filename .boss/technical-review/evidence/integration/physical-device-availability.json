@@ -1,0 +1,8 @@
+{
+  "checkedAtDate": "2026-10-26",
+  "command": "flutter devices --machine --device-timeout 10",
+  "physicalMobileDeviceCount": 0,
+  "identifiersIncluded": false,
+  "acceptance": "NOT RUN: no connected physical Android/iPhone",
+  "simulatorBuildDoesNotSubstitute": true
+}

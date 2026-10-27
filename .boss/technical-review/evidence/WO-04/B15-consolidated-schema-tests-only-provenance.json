@@ -1,0 +1,39 @@
+{
+  "status": "TESTS_ONLY_STATIC_MATRIX_BASELINE_READY",
+  "directory": "/tmp/hudhud-b15-final-revision",
+  "sourceSha256": "3619ab8dfe977c4f1ea7b8dc016f17353fd7f09a2c11b4c35a7077af8e1c54f0",
+  "baseTestsSha256": "487e3d8531c8f2d5a98b3f785bb570b2599e8f476d87644f62d170517194b95c",
+  "testsSha256": "c6e1c7e8dfc4ee226e6d112578727a63aa6dc7ce7602774ca5ef0b316aca2844",
+  "patch": "/tmp/hudhud-b15-consolidated-schema-tests-only.patch",
+  "patchSha256": "a60b9b3450f902f7b9b9f83f8fd61bce362df6021a86360cf9d575e81527b383",
+  "original81AssertionBodiesUnchanged": true,
+  "matrixSha256": "7560990c0469993978c836511cdd1609b638617992bbc107861567a8fc2528c5",
+  "matrixGuards": {
+    "result": "43 executed,43PASS,0fail0skip",
+    "classification": "Already safe downstream rejection and genuine null/staging/active/restore controls; no new bypass or RED claim",
+    "command": "node --test --test-name-pattern='schema matrix guard:|schema matrix control:' tool/test/reconcile_comment_counts.test.mjs",
+    "log": "B15-schema-matrix-guards-baseline.log",
+    "sha256": "30cd7b36ed32d805aad23a6f372eea2c07667fda46f20e93a8fee6e06a6a2336"
+  },
+  "cursorBaseline": "Parent separately accepted genuine authenticated cursor baseline:3executed1controlPASS2intendedMissingExpectedRejectionFAIL0skip, B15-replay-cursor-parent-red.log",
+  "coverage": [
+    "21 plan hash/count/null/progress/release-phase typed guards",
+    "13 episode reference/cursor/flag/count/hash/proof/verification typed guards",
+    "6 receipt identity/hash/wrong-kind payload guards",
+    "1 frozen head document-ID guard",
+    "1 restore physical predecessor null-pair guard",
+    "1 genuine inventory nulls/active native release/restore compatibility control",
+    "QA3 authenticated local replay cursor tests (twoRED,onevalidnull/stringcontrol) included unchanged"
+  ],
+  "proposedSourceCorrectionScope": [
+    "Replay lastEpisode null|countId and lastHead null|countHash; canonical releaseIdentity decode",
+    "Existing plan hash/count/sequence/nullable-hash/progress head-ID/release-only phase types and field bounds",
+    "Existing episode completion nullable refs/hashes/cursors,flags/counts/digests/proofUnit,verification null-versus-map phase",
+    "Receipt nullable IDs/hash fields, restore-only undoneApplyUnit and physical predecessor jointly-null pair"
+  ],
+  "notes": [
+    "No source changed; original frozen candidate and3619 revision remain immutable.",
+    "One initial setup command was rejected because its requested working directory did not yet exist; no code/tests executed. Creation and tests were rerun as separate commands; this is not RED.",
+    "No full gate started; parent acceptance/one consolidated fix and both reviewers structural readiness precede final full suite."
+  ]
+}

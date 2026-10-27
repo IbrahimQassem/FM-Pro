@@ -31,6 +31,7 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
   Timer? _reconnectTimer;
   Timer? _stablePlaybackTimer;
   bool _playRequested = false;
+  bool _episodeCompleted = false;
   Timer? _sleepTimer;
   Future<void> _loads = Future.value();
   late final StreamSubscription<AudioPlaybackPhase> _phaseSubscription;
@@ -66,6 +67,7 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
     _playRequested = true;
 
     final generation = ++_generation;
+    _episodeCompleted = false;
     state = StationPlayerState(
       station: station,
       status: StationPlaybackStatus.loading,
@@ -122,23 +124,17 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
     }
 
     final generation = ++_generation;
+    _episodeCompleted = false;
     state = StationPlayerState(
       station: station,
       episode: episode,
       status: StationPlaybackStatus.loading,
+      sleepTimerEnd: state.sleepTimerEnd,
     );
     try {
       await _loadCurrent(
         generation,
-        AudioPlaybackItem(
-          id: 'episode:${episode.id}',
-          isLive: false,
-          title: episode.title,
-          album: station.name,
-          artworkUrl:
-              episode.coverUrl.isEmpty ? station.logoUrl : episode.coverUrl,
-          streamUrls: [episode.audioUrl],
-        ),
+        _episodeItem(episode, station),
       );
       if (mounted && generation == _generation) {
         if (!_canStartPlayback()) {
@@ -172,7 +168,9 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
       }
     });
     await _loads;
-    return accepted && generation == _generation && isCurrent();
+    final current = accepted && generation == _generation && isCurrent();
+    if (current) _episodeCompleted = false;
+    return current;
   }
 
   Future<void> pause() async {
@@ -194,7 +192,10 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
   }
 
   Future<void> resume() async {
-    if (state.station == null) return;
+    if (state.station == null ||
+        state.status == StationPlaybackStatus.loading) {
+      return;
+    }
     if (!_canStartPlayback()) {
       _setFailure(StateError('Playback requires a foreground user action.'));
       return;
@@ -203,11 +204,57 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
     _playRequested = true;
     state = state.copyWith(status: StationPlaybackStatus.loading);
     try {
-      await _repository.play();
+      final episode = state.episode;
+      if (episode != null && _episodeCompleted) {
+        await _replayEpisode(generation, episode, state.station!);
+      } else {
+        await _repository.play();
+      }
     } on Object catch (error) {
       if (mounted && generation == _generation) _setFailure(error);
     }
   }
+
+  Future<void> _replayEpisode(
+      int generation, Episode episode, Station station) {
+    bool isCurrent() =>
+        mounted &&
+        generation == _generation &&
+        _playRequested &&
+        state.isEpisodeSelected(episode.id);
+    _loads = _loads.catchError((Object _) {}).then((_) async {
+      // Native pause can emit completed while an earlier rewind is pending.
+      // Only the first queued replay may consume that completion.
+      if (!isCurrent() || !_episodeCompleted) return;
+      var rewound = false;
+      try {
+        rewound = await _repository.seek(Duration.zero,
+            itemId: 'episode:${episode.id}');
+      } on Object {
+        // Reload the same episode only while this play request remains current.
+      }
+      if (!isCurrent()) return;
+      if (!rewound) await _repository.load(_episodeItem(episode, station));
+      if (!isCurrent()) return;
+      if (!_canStartPlayback()) {
+        throw StateError('Playback requires a foreground user action.');
+      }
+      _episodeCompleted = false;
+      await _repository.play();
+    });
+    return _loads;
+  }
+
+  AudioPlaybackItem _episodeItem(Episode episode, Station station) =>
+      AudioPlaybackItem(
+        id: 'episode:${episode.id}',
+        isLive: false,
+        title: episode.title,
+        album: station.name,
+        artworkUrl:
+            episode.coverUrl.isEmpty ? station.logoUrl : episode.coverUrl,
+        streamUrls: [episode.audioUrl],
+      );
 
   Future<void> retry() => _retry(automatic: false);
 
@@ -239,10 +286,12 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
 
   Future<void> stop() async {
     _playRequested = false;
+    _episodeCompleted = false;
     _stablePlaybackTimer?.cancel();
     _stablePlaybackTimer = null;
     _sleepTimer?.cancel();
     _sleepTimer = null;
+    state = state.copyWith(clearSleepTimer: true);
     _reconnectTimer?.cancel();
     _reconnectAttempts = 0;
     final generation = ++_generation;
@@ -313,13 +362,21 @@ class StationPlayerController extends StateNotifier<StationPlayerState> {
   void _onPhaseChanged(AudioPlaybackPhase phase) {
     if (!mounted || state.station == null) return;
     if (phase == AudioPlaybackPhase.idle) {
+      ++_generation;
+      _sleepTimer?.cancel();
+      _sleepTimer = null;
       _playRequested = false;
+      _episodeCompleted = false;
       _stablePlaybackTimer?.cancel();
       _stablePlaybackTimer = null;
       _reconnectTimer?.cancel();
+      _reconnectTimer = null;
       _reconnectAttempts = 0;
       state = const StationPlayerState();
       return;
+    }
+    if (phase == AudioPlaybackPhase.completed && state.episode != null) {
+      _episodeCompleted = true;
     }
     if (phase == AudioPlaybackPhase.playing) {
       _reconnectTimer?.cancel();

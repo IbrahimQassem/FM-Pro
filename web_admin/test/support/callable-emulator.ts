@@ -1,3 +1,4 @@
+import { ensureDemoCountRoots, seedCountedEpisode, syncFixtureComment } from '../../../firebase_tests/support/comment-count-fixtures.mjs';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { initializeApp, deleteApp } from 'firebase/app';
@@ -21,6 +22,7 @@ export async function callableEmulator(
   assert.ok(projectId?.startsWith('demo-'));
   assert.ok(process.env.FIREBASE_AUTH_EMULATOR_HOST, 'Auth emulator required');
   assert.ok(process.env.FIRESTORE_EMULATOR_HOST, 'Firestore emulator required');
+  await ensureDemoCountRoots();
   const require = createRequire(
     new URL('../../../functions/package.json', import.meta.url),
   );
@@ -55,14 +57,23 @@ export async function callableEmulator(
     app,
     db,
     adminDb,
-    seed: (
+    seed: async (
       reference: DocumentReference,
       value: Record<string, unknown>,
       options?: { merge: boolean },
-    ) =>
-      options
-        ? adminDb.doc(reference.path).set(value, options)
-        : adminDb.doc(reference.path).set(value),
+    ) => {
+      const episode = /^(HudHudDev|HudHudOfficial)\/episodes\/episodes\/([^/]+)$/.exec(reference.path);
+      if (episode) {
+        const current = options?.merge ? (await adminDb.doc(reference.path).get()).data() ?? {} : {};
+        await seedCountedEpisode(adminDb, episode[1], episode[2], {
+          ...current, ...value,
+          ...(value.stats ? { stats: { ...current.stats, ...(value.stats as object) } } : {}),
+        });
+      } else if (options) await adminDb.doc(reference.path).set(value, options);
+      else await adminDb.doc(reference.path).set(value);
+    },
+    seedEpisode: (root: string, id: string, value: Record<string, unknown>) => seedCountedEpisode(adminDb, root, id, value),
+    syncComment: (root: string, episodeId: string, commentId: string) => syncFixtureComment(adminDb, root, episodeId, commentId),
     close: async () => {
       await signOut(auth);
       await adminAuth.deleteUser(credential.user.uid);

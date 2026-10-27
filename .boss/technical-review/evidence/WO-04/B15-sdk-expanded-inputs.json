@@ -1,0 +1,117 @@
+{
+  "status": "EXPANDED_SDK_FIXTURE_PREPARED_NOT_INTEGRATED_OR_EXECUTED",
+  "writeSet": [
+    "firebase_tests/firebase-emulators/editorial-comment-counts.test.js"
+  ],
+  "rootBaseline": {
+    "sha256": "7d4f3f47b0b8a206c714b66f6087c5384041dbfc99c470e91c49c5987a86d6b1",
+    "cases": 92,
+    "originalQueuedRootRecreationPreserved": true
+  },
+  "patches": [
+    {
+      "path": "/tmp/hudhud-b15-full-sdk-combined.patch",
+      "sha256": "adbceb394dc643ce750c716b0deaabc134fec067e0022995c3c5188ccac1ff34"
+    },
+    {
+      "path": "/tmp/hudhud-b15-full-sdk-stage-c.patch",
+      "sha256": "d2c85905a0b542feb5b2d8f645768fb697684581afd44b990e0d52571d135ec8"
+    },
+    {
+      "path": "/tmp/hudhud-b15-full-sdk-expanded.patch",
+      "sha256": "3785786a5ff2de248d17984dfcece5586621af47fb78595a51e91eb9b2994cb5"
+    }
+  ],
+  "baseSDKCandidate": "cb12fbd49c94ba163d26bc14fe574bbef20413e372ce5a8dfba17f889ed33040",
+  "expandedCandidate": {
+    "path": "/tmp/editorial-comment-counts.full-sdk-stage-c.mjs",
+    "sha256": "547c0d46984ebc4918dd9bdc608546e94879b921a0528403c514ac005dddc609",
+    "expectedCases": 124,
+    "breakdown": "root92+originalA/B11+supplement12+partialnative7+bothrootrealmaintenanceACL2"
+  },
+  "inputs": [
+    {
+      "path": "firebase_tests/firebase-emulators/editorial-comment-counts.test.js",
+      "sha256": "7d4f3f47b0b8a206c714b66f6087c5384041dbfc99c470e91c49c5987a86d6b1"
+    },
+    {
+      "path": "tool/reconcile_comment_counts.mjs",
+      "sha256": "2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e"
+    },
+    {
+      "path": "tool/test/reconcile_comment_counts.test.mjs",
+      "sha256": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc"
+    },
+    {
+      "path": "functions/lib/comment-counts.js",
+      "sha256": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04"
+    },
+    {
+      "path": "tool/run-count-emulator-tests.mjs",
+      "sha256": "c98836dc4616745415ec49f67b91da8229a76bd617a8de8f9478c504263bbc6d"
+    },
+    {
+      "path": "firebase_tests/support/comment-count-fixtures.mjs",
+      "sha256": "f9ad477a63a8711288971b23635de7f0469b50a2e8cbd7a19290ad89a3767cbf"
+    },
+    {
+      "path": "functions/node_modules/@google-cloud/firestore/build/src/transaction.js",
+      "sha256": "2dc71b0d751c7fd34d010b1ba43de97034b2f2e889e4420406d1db69c7eed0f3"
+    },
+    {
+      "path": "functions/node_modules/@google-cloud/firestore/build/src/reference/query.js",
+      "sha256": "307cb474fa7ccb3132b58db4a38ec98143a051d0c6b29e4697f3713e0a934dc6"
+    },
+    {
+      "path": "functions/node_modules/@google-cloud/firestore/build/src/reference/document-reference.js",
+      "sha256": "dcd24d93593bede17c163fd5523d9b51475db2503e682dc40cdb084344f7a9d1"
+    }
+  ],
+  "coverage": {
+    "N07": "One actual finite privateIPC nowMs owner recovery, native epoch increase, stale-owner refusal/no writes, bounded completion; public now not passed.",
+    "N12": "Actual SDK deletion of noninitial immutable receipt and forked proof tamper both refuse read-only historical acceptance. Source/head ABA/delete-recreate cases remain from A/B; arbitrary input cursor cannot grant progress.",
+    "N13": "Competing fresh-process replay publication serializes owned revisions; an earlier diagnostic caller cursor does not replace current durable head; actual fs rename AFTER-publication ACK loss recovers authenticated head; wrong key/recovery-window/symlink/directory-inode/mode failures; mid-guarded-read custody permission change prevents next maintenance write.",
+    "N14": "Independent installedSDK DocumentReference.get/Query.get/Transaction.get and runTransactionOnce observer. Async-local suppression avoids nested delegation; query reservation/actual max1-size charge, point+absent reads, per-attempt<=17 and one query, visible<=3callbackattempts and total<=1536 checked; compares successful API reported counters with independent observations. Synthetic predispatch code10 retry-twice success and three-attempt terminal failure have no server-abort/unknown-commit claim.",
+    "PartialRollback": "Native Dev+Official staging and Dev native barrier committed-prefix positives endheld/paused without releaseproof, preserve canonical/private native birth identities; four late parent edit/ABA/missing/recreate inverses explicitly have NO ownedcounterhead and refuse exactreason/noFirestorewrites/noresurrection. Earlier fullactive created-row/comment race preserved.",
+    "FullPrivateACL": "Two genuine accepted full plans in uniquely isolated demo projects; exact current Rules loaded only to local demo; healthy published-comment read before deny matrix. Guest/actualauthor/forgedidentity/listener/unverified/scopedadmin/moderator/legacyadmin/roleonly/forgedsuper contexts deny get/list/create/update/delete for actual rootfence/plan/episodecompletion/numericreceipt/targethead/contribution plus canonicalcounterwrite. No fabricated accepted fence/proof."
+  },
+  "boundaries": [
+    "All synthetic secondary SDK-only projects; no automatic trigger delivery credit. Existing real primary worker cases preserved.",
+    "Source actors/tool/core/contracts unchanged; only registered fixture path as /tmp patches, parent I applies and owns E.",
+    "Every old92/A/B11 assertion/test retained; full150 source gates remain distinct.",
+    "No E/F launched; syntax/apply/import/prototype existence checks only, no RED/completion claims.",
+    "N13 old CURRENT FILE rollback by sameUID+key adversary is not claimed prevented by an APIcursor test; no public raw local-head input exists. Test covers old caller cursor ignored, genuine durable lock/CAS/cold publication. External file rollback beyond verified custody needs separate stated trust/acceptance, never inferred.",
+    "Changing actual file UID to another owner cannot be rehearsed as this unprivileged user without a separate approved ownership actor; no chown/elevation requested or fake stat used. Inode/symlink/mode actual filesystem guards are executable.",
+    "N14 observes application-issued SDK read-equivalents/callback attempts, not hidden gRPC retries/provider billing/index-entry charges/latency. Per-attempt<=17 is the observable enumeration+fixed aggregate, not semantic identification of each of16 CAS rereads. API logical processed bounds and exhausted native proof/receipt tests combine with separate protocol review; no physical tests credited until actual E GREEN."
+  ],
+  "checks": {
+    "Node22Syntax": "PASS",
+    "ExpandedPatchApplyAgainstExactRootFixture": "PASS",
+    "Final2ExportsImport": "PASS; no client initialized",
+    "SDKPrototypeMethodAvailability": "PASS without client; pinnedJSsourcehashes recorded",
+    "ActualEmulator": "NOT RUN",
+    "IsolatedActualRegistrationDiscovery": {
+      "rootFixtureCases": 19,
+      "expandedFixtureCases": 51,
+      "additive": 32,
+      "predictedFullSuite": 124,
+      "rootTitlesPreserved": 19,
+      "noDuplicateExpandedTitles": true,
+      "executed": 0,
+      "meaning": "Registration/import preflight only; NOT RED/GREEN test evidence",
+      "log": "/tmp/hudhud-b15-sdk-expanded-discovery.log",
+      "sha256": "7631c7893003d1ffaaec1c21ff51fd1116bd5390184cf4f2beea979a2c010334",
+      "status": "PASS after exact assertion-only refinement;19current\u219251expanded,124predictedsuite,0callbacks/Emulator"
+    },
+    "InvalidPreflightHistory": "Initial discovery incorrectly expected whole-suite124 in this singlefixture; actual51 valid registrations. Retained /tmp/hudhud-b15-sdk-expanded-discovery-invalid-count.log, INVALID expectedcount assertion, no source behavior/RED evidence."
+  },
+  "command": "Parent only after all source/runtime approvals: PATH=/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin:$PATH npm run emulators:editorial",
+  "assertionRefinement": {
+    "delta": "/tmp/hudhud-b15-sdk-assertion-refinements.patch",
+    "sha256": "ca30a226d11a4d353a9a26489eb2a82687c244fce86a2b31ddf1a4fb484e35bb",
+    "priorExpandedPatchSha256": "9f1d08b7246854e2542f781214d0c518f7777022767ef2175b92e46265f7255b",
+    "priorMetadataSha256": "37ac24f87759b95225ebc9497dcf5f4a92a0efcbe61223bbb46364fc5f88307c",
+    "scope": "Same124 tests. Writer-first keeps strict successful commit order/native birth; safealternative requires exact failed-precondition/comment-count-maintenance, no episode/birth docs, actual writerTransaction paused read matching native pause version. Durablecursor after older diagnostic input cannot regress. No source API/testactor changes.",
+    "TLReview": "Exact proposed branch approved in principle by independent TL; exactdelta ca30... approval pending final reply"
+  }
+}

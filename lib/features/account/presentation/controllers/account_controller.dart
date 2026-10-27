@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/repositories/account_repository.dart';
 import '../../domain/models/account_sign_in_provider.dart';
+import '../../domain/models/account_registration_result.dart';
 import 'account_state.dart';
 
 class AccountController extends StateNotifier<AccountState> {
@@ -12,12 +13,35 @@ class AccountController extends StateNotifier<AccountState> {
     _subscription = _repository.watchAccount().listen(
       (user) {
         if (!mounted) return;
+        final identityChanged = state.user?.uid != user?.uid;
+        final deliveryFailure =
+            state.failure == AccountFailure.verificationDeliveryFailed ||
+                state.failure == AccountFailure.verificationRateLimited;
+        final registrationIdentity = identityChanged &&
+            (_registrationPending || _registrationCreated) &&
+            _registrationUid == null &&
+            state.user == null &&
+            user != null;
+        if (identityChanged) {
+          if (registrationIdentity) {
+            // Account creation's own first Auth event belongs to this request.
+            _registrationUid = user.uid;
+          } else {
+            _verificationEpoch++;
+            _registrationCreated = false;
+          }
+        }
         state = state.copyWith(
           user: user,
           clearUser: user == null,
           isInitializing: false,
-          isSubmitting: false,
-          clearFailure: true,
+          isSubmitting: _registrationPending || _verificationPending,
+          clearFailure: (identityChanged || !deliveryFailure) &&
+              !registrationIdentity &&
+              !_registrationPending &&
+              !_verificationPending,
+          verificationCodeSent:
+              identityChanged && !registrationIdentity ? false : null,
         );
       },
       onError: (_) {
@@ -34,6 +58,11 @@ class AccountController extends StateNotifier<AccountState> {
 
   final AccountRepository _repository;
   late final StreamSubscription<Object?> _subscription;
+  bool _registrationPending = false;
+  bool _verificationPending = false;
+  bool _registrationCreated = false;
+  String? _registrationUid;
+  int _verificationEpoch = 0;
 
   void setMode(AccountMode mode) {
     state = state.copyWith(
@@ -69,24 +98,75 @@ class AccountController extends StateNotifier<AccountState> {
     required String email,
     required String password,
   }) async {
-    final succeeded = await _run(
-      () => _repository.register(
+    if (state.isSubmitting ||
+        _registrationPending ||
+        _verificationPending ||
+        state.user != null ||
+        _registrationCreated) {
+      return;
+    }
+    _registrationPending = true;
+    _registrationUid = null;
+    final epoch = _verificationEpoch;
+    state = state.copyWith(
+        isSubmitting: true, clearFailure: true, verificationCodeSent: false);
+    try {
+      final result = await _repository.register(
         displayName: displayName,
         email: email,
         password: password,
-      ),
-    );
-    if (succeeded && mounted) {
-      state = state.copyWith(verificationCodeSent: true);
+      );
+      if (!mounted || epoch != _verificationEpoch) return;
+      _registrationCreated = true;
+      final delivery = result.verificationDelivery;
+      state = state.copyWith(
+        verificationCodeSent: delivery == AccountVerificationDelivery.sent,
+        clearFailure: delivery == AccountVerificationDelivery.sent,
+        failure: delivery == AccountVerificationDelivery.rateLimited
+            ? AccountFailure.verificationRateLimited
+            : delivery == AccountVerificationDelivery.failed
+                ? AccountFailure.verificationDeliveryFailed
+                : null,
+      );
+    } on AccountException catch (error) {
+      if (mounted && epoch == _verificationEpoch) {
+        state = state.copyWith(failure: error.failure);
+      }
+    } on Object {
+      if (mounted && epoch == _verificationEpoch) {
+        state = state.copyWith(failure: AccountFailure.unavailable);
+      }
+    } finally {
+      _registrationPending = false;
+      if (mounted) state = state.copyWith(isSubmitting: false);
     }
   }
 
   Future<void> requestEmailVerificationCode({String? email}) async {
-    final succeeded = await _run(
-      () => _repository.requestEmailVerificationCode(email: email),
-    );
-    if (succeeded && mounted) {
-      state = state.copyWith(verificationCodeSent: true);
+    if (state.isSubmitting || _registrationPending || _verificationPending) {
+      return;
+    }
+    _verificationPending = true;
+    final epoch = _verificationEpoch;
+    state = state.copyWith(
+        isSubmitting: true, clearFailure: true, verificationCodeSent: false);
+    try {
+      await _repository.requestEmailVerificationCode(email: email);
+      if (mounted && epoch == _verificationEpoch) {
+        state = state.copyWith(verificationCodeSent: true, clearFailure: true);
+      }
+    } on AccountException catch (error) {
+      if (mounted && epoch == _verificationEpoch) {
+        state = state.copyWith(failure: error.failure);
+      }
+    } on Object {
+      if (mounted && epoch == _verificationEpoch) {
+        state =
+            state.copyWith(failure: AccountFailure.verificationDeliveryFailed);
+      }
+    } finally {
+      _verificationPending = false;
+      if (mounted) state = state.copyWith(isSubmitting: false);
     }
   }
 

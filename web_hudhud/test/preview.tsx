@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import type { AccountPort } from '../account-panel';
 import type { AccountView } from '../lib/account-repository';
-import type { Follow } from '../lib/discovery';
+import type { Follow, Program, Episode } from '../lib/discovery';
+import type { ContentPage, ContentCursor, ContentSelection } from '../lib/content-repository';
 import { createRoot } from 'react-dom/client';
 import { PublicHome } from '../public-home';
 import { stationFromSnapshot } from '../lib/stations';
@@ -20,9 +21,22 @@ const loadCatalog = async () => {
   }));
 };
 const loadCityCatalog = async () => mode === 'regional' ? publicCities([{ data: () => ({ countryCode: 'ARAB', cityCode: 'global-ar', cityNameAr: 'عربي', isActive: true }) }, ...['صنعاء', 'عدن'].map((cityNameAr, i) => ({ data: () => ({ countryCode: 'YE', cityCode: `city-${i}`, cityNameAr, isActive: true }) }))], await loadCatalog()) : ['صنعاء', 'عدن', 'تعز'].map((name, i) => ({ code: `city-${i}`, name }));
-const loadContent = async (stationId: string) => {
+// Pagination mode supplies a complete synthetic 10,000-item source only here.
+const previewProgram = (stationId: string): Program => ({ id: 'p', stationId, title: 'حكايات المجتمع', description: 'برنامج تجريبي عن الثقافة والمجتمع.', priority: 1, isFeatured: true, episodesCount: mode === 'pagination' ? 10000 : 1, schedule: { weekdays: [1,3,7], startMinute: 600, endMinute: 660, utcOffsetMinutes: 180 } });
+const previewEpisodes = (stationId: string): Episode[] => Array.from({ length: mode === 'pagination' ? 10000 : 1 }, (_, index) => ({ id: mode === 'pagination' ? `e${index}` : 'e', stationId, programId: 'p', title: `الحلقة التجريبية ${index + 1}`, description: 'وصف تجريبي للحلقة.', audioUrl: 'https://example.invalid/fixture-audio', broadcastAt: Date.UTC(2026,8,13) - index * 60000, utcOffsetMinutes: 180 }));
+const previewPrograms = async (stationId: string): Promise<ContentPage<Program>> => ({ items: [previewProgram(stationId)], nextCursor: null, offline: mode === 'offline', rawReadCount: 1, invalidCount: 0 });
+const previewEpisodePage = async (stationId: string, _program: Program, cursor: ContentCursor | null = null): Promise<ContentPage<Episode>> => {
+ const episodes = previewEpisodes(stationId);
+ const start = cursor ? episodes.findIndex(episode => episode.id === cursor.after.at(-1)) + 1 : 0;
+ const items = episodes.slice(start, start + 50), last = items.at(-1);
+ return { items, offline: mode === 'offline', rawReadCount: Math.min(51, episodes.length - start), invalidCount: 0, nextCursor: mode !== 'offline' && last && start + 50 < episodes.length ? { version: 1, root: 'HudHudDev', resource: 'episodes', stationId, programId: 'p', order: 'published:date-desc:priority-desc:id-asc', after: [{ kind: 'timestamp', seconds: last.broadcastAt / 1000, nanoseconds: 0 }, 0, last.id] } : null };
+};
+const loadContent = async (stationId: string, _cached?: unknown, selection: ContentSelection = {}) => {
  if (mode === 'content-error') throw new Error('Synthetic content failure');
- return { offline: mode === 'offline', programs: [{ id: 'p', stationId, title: 'حكايات المجتمع', description: 'برنامج تجريبي عن الثقافة والمجتمع.', priority: 1, schedule: { weekdays: [1,3,7], startMinute: 600, endMinute: 660, utcOffsetMinutes: 180 } }], episodes: [{ id: 'e', stationId, programId: 'p', title: 'الحلقة التجريبية الأولى', description: 'وصف تجريبي للحلقة.', audioUrl: 'https://example.invalid/fixture-audio', broadcastAt: Date.UTC(2026,8,13), utcOffsetMinutes: 180 }] };
+ const programsPage = await previewPrograms(stationId), selectedProgram = programsPage.items[0];
+ const episodesPage = await previewEpisodePage(stationId, selectedProgram);
+ const selectedEpisode = previewEpisodes(stationId).find(episode => episode.id === selection.episodeId) ?? null;
+ return { offline: mode === 'offline', programs: programsPage.items, episodes: episodesPage.items, programsPage, episodesPage, selectedProgram, selectedEpisode };
 };
 const createAccount = (): AccountPort => {
  let changed: ((account: AccountView | null, follows: Follow[], error: boolean) => void) | null = null;
@@ -64,6 +78,6 @@ function Preview() {
  return <><aside dir="rtl">واجهة اختبار محلية — لا اتصال بالحسابات أو البيانات الحقيقية. زمن أول إطار محلي: {elapsed.toFixed(1)} ms</aside>
  <div><button onClick={() => window.history.back()}>رجوع للاختبار</button><button onClick={() => window.history.forward()}>تقدم للاختبار</button><output aria-label="بيانات البحث للاختبار">{metadata}</output></div>
  {mode === 'race' && <div><button onClick={() => setNewer(true)}>تحميل كتالوج أحدث</button><button onClick={() => pending.splice(0).forEach(resolve => resolve([]))}>إكمال الطلب القديم</button></div>}
- <PublicHome publicPath="/" loadCityCatalog={loadCityCatalog} loadCatalog={mode === 'race' && !newer ? oldCatalog : loadCatalog} loadContent={loadContent} createAccount={createAccount} /></>;
+ <PublicHome publicPath="/" loadCityCatalog={loadCityCatalog} loadCatalog={mode === 'race' && !newer ? oldCatalog : loadCatalog} loadContent={loadContent} loadPrograms={previewPrograms} loadEpisodes={previewEpisodePage} createAccount={createAccount} /></>;
 }
 createRoot(document.getElementById('root')!).render(<Preview />);

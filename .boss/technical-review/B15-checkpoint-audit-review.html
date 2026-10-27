@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B15 consolidated private checkpoint contract review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b15-consolidated-private-checkpoint-contract-review">B15 consolidated private checkpoint contract review</a></li><li class="toc-level-2"><a href="#decision-and-required-boundary-wording">Decision and required boundary wording</a></li><li class="toc-level-2"><a href="#preserved-invariants">Preserved invariants</a></li><li class="toc-level-2"><a href="#remaining-implementation-gates">Remaining implementation gates</a></li><li class="toc-level-2"><a href="#accepted-integration-bookkeeping">Accepted integration bookkeeping</a></li></ul>
+    </aside>
+    <main>
+      <h1>B15 consolidated private checkpoint contract review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B15-checkpoint-audit-review.md</div>
+        <div>Generated: 2026-10-26T21:51:35.690Z</div>
+      </div>
+      <h1 id="b15-consolidated-private-checkpoint-contract-review">B15 consolidated private checkpoint contract review</h1>
+<p>Status: <strong>APPROVED technical contract, with the explicit empty-prefix sentinel below.</strong> No blocking semantic issue remains in the consolidated persisted-state protocol. Source integration and actual runtime acceptance require their separate gates.</p>
+<p>Independent reviewer: <code>/root/b10_review</code>, not the author. Reviewed <code>/tmp/hudhud-b15-checkpoint-audit-contracts.patch</code>, SHA-256 <code>ef2b4a8a5b60c2d3cd9f043c79d09222627228a5bee2aa7920d8aee5c3915ad2</code>. This review covers the full additional field/type/initialization/phase/recovery audit together; it does not approve isolated provisional source.</p>
+<h2 id="decision-and-required-boundary-wording">Decision and required boundary wording</h2>
+<p>The plan's <code>resumeMaxUnit</code> captures the committed prefix before recovery appends any receipt. <code>resumePhase</code> advances receipts → heads → ready only after exact frozen prefix, target-head/current-target CAS, physical predecessor ancestry and applicable fresh source verification. New no-target verification checkpoints cannot move the frozen recovery boundary. Same-owner bounded continuation preserves progress; a newly acquired epoch restarts proof against a newly frozen finite prefix. Historical receipt issuance epochs do not become current ownership requirements.</p>
+<p>The one-pending-native-receipt invariant is coherent. <code>receiptDigest</code> folds only observed native metadata. Each next guarded commit folds its predecessor, then appends one adjacent receipt. The final paused barrier is the one pending receipt: the release transaction folds it, records the full accepted proof prefix, and creates the adjacent release receipt. Exact later root/release-receipt identity readback is mandatory. This avoids self-reference, sequence gaps and an unbounded final scan.</p>
+<p>Apply this exact sentinel clarification during integration: **<code>foldedUnit</code> is null when <code>lastUnit</code> is null or 0; for <code>lastUnit &gt;= 1</code>, <code>foldedUnit == lastUnit - 1</code>.** No negative sequence is valid. Refuse allocation before the accepted 12-digit sequence limit would overflow; no wraparound or ambiguous sentinel is permitted. This only makes the declared initial state explicit.</p>
+<h2 id="preserved-invariants">Preserved invariants</h2>
+<ul><li>Private episode <code>proofUnit</code> identifies its single immutable proof. Original staged evidence and completed proof state remain immutable. <code>resumeSource</code> uses one fixed-size scratch map for a fresh post-recovery source pass, avoiding proof duplication or rewriting original staged counts/digests.</li><li>Plan/head/receipt cursors and maps have bounded exact types and remain within the existing private records. Each head/ancestry visit, source row and empty transition is a logical unit. Fixed admission/CAS rereads remain separately bounded, so <code>maxItems:1</code> can make persisted progress without turning a page or ancestry walk into one free step.</li><li>Per-receipt root/plan/episode postimage hashes are sealed by the receipt's exact native commit version. A later same-body unowned controller write or delete/recreate cannot be adopted merely because its hash matches. Each episode lastUnit follows its own completion receipt rather than the latest unrelated episode transaction.</li><li>Purpose-bound encrypted unit payloads contain only owned counter/private-record images, opaque IDs, native source metadata and checkpoint/proof hashes. No canonical body, whole episode, author, URL, user content or credential enters custody payloads or logs. Receipt/payload field, slot and identity agreement remains mandatory.</li><li>Reverse restore retains its frozen apply boundary and separate logical versus physical heads. Native receipt conversion, fresh conditional inverse CAS and restored-held pause remain unchanged. Before-activation complete source/union proof, all legal writer fencing, backup custody/expiry and exact native activation remain required.</li><li>Historical accepted replay stays Firestore read-only and uses its separately approved local authenticated checkpoint. Visible callback/read caps remain 3 attempts and 1536 application-issued equivalents; SDK transport/billing visibility is not claimed.</li></ul>
+<h2 id="remaining-implementation-gates">Remaining implementation gates</h2>
+<p>Prove phase and empty-scope transitions with <code>maxItems:1</code>, fresh processes and bounded recovery under the exact final schema. Required cases include a prefix longer than 25 receipts, recovery that appends checkpoints without chasing them, immutable proof preservation, lease loss during verification/barrier, current controller ABA/delete-recreate, pending-tail and sequence-boundary handling, owned target chains/no-ops, loss of acknowledgement, payload disagreement, malformed state and budget exhaustion. Discovery/import failures and provisional absent-export failures receive no behavioral RED credit. Full source review and actual SDK rehearsal follow implementation; the earlier 91/91 producer gate does not replace them.</p>
+<p>The separate early-bootstrap root recreation issue remains a distinct regression/fix/review obligation; it cannot be assumed fixed by this new full-tool contract. Full 04-T09, B15 and R12 remain OPEN, B16 remains dependent on B15, and production operations remain unsupported.</p>
+<p>I may integrate only the explicit sentinel/overflow clarification above, accepted-status/review-reference wording and normal English spacing beyond the reviewed patch. Any other semantic change requires review. Input fingerprints and permitted integration corrections are recorded in <code>evidence/WO-04/B15-checkpoint-audit-review-provenance.json</code>. No application source/test, emulator, migration, deployment or production operation was modified or run by this review.</p>
+<h2 id="accepted-integration-bookkeeping">Accepted integration bookkeeping</h2>
+<p>Independent comparison confirms accepted patch <code>/tmp/hudhud-b15-checkpoint-audit-contracts-accepted.patch</code>, SHA-256 <code>546f42f8f4ff6db2195ec613a573342e42fe0a03116000dc1f3985fd7a2ef089</code>, differs only by approved status/review-reference and explicit foldedUnit sentinel/overflow clarification. The current contract remains APPROVED; provisional source is not accepted. Integrated document fingerprints:</p>
+<ul><li><code>docs/contracts/firebase-data-contract.md</code>: <code>4e67f7d3fcc690c21285e9992eddea9b346e64059dcd03914c1536962106e097</code>.</li><li><code>docs/operations/background-consistency-migrations.md</code>: <code>85c47271154a332ed2591b9cb74bf55f72069d5de8938f306842b36b63092fd8</code>.</li><li><code>docs/decisions/0006-background-consistency-and-schedule-timezones.md</code>: <code>ef0db668fc0ebf3357a9df2e042d75964abb6187da7bd2fc23e9dff087e4d2ed</code>.</li></ul>
+    </main>
+  </div>
+</body>
+</html>

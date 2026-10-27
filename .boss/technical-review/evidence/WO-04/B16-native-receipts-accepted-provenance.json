@@ -1,0 +1,54 @@
+{
+  "status": "APPROVED_SEMANTICS_MECHANICAL_ACCEPTED_STATUS_CANDIDATE_NOT_APPLIED",
+  "createdAt": "2026-10-27T00:55:48.501428+00:00",
+  "proposalSha256": "9ff895a5271c6c52a04ef158d38c55f9e7dd6e0a670c691e506a1a57e5929e3f",
+  "candidate": "/tmp/hudhud-b16-native-receipts-accepted",
+  "patch": "/tmp/hudhud-b16-native-receipts-accepted.patch",
+  "patchSha256": "028ee75b863ed149f9385bc4683d1e11267088b0524523109a9e9f035efb2190",
+  "documents": [
+    {
+      "path": "docs/contracts/firebase-data-contract.md",
+      "beforeSha256": "4e67f7d3fcc690c21285e9992eddea9b346e64059dcd03914c1536962106e097",
+      "approvedHunkProjectionSha256": "c64d950ffd46eb1f0a5a9d270fa499c83c1b3c99889de4583a1d110e33d1e8cb",
+      "afterSha256": "c64d950ffd46eb1f0a5a9d270fa499c83c1b3c99889de4583a1d110e33d1e8cb",
+      "countAppendixAnchor": "### B15 full nonempty reconciliation persistence",
+      "countAppendicesByteIdentical": true,
+      "countAppendixSha256": "eee92b2aa9c54a851396b3d526a104d8a8dc79a447a50872a24fd1e0fef80c4f",
+      "refinementOutsideADR": false
+    },
+    {
+      "path": "docs/operations/background-consistency-migrations.md",
+      "beforeSha256": "d9dfc0f2b0662c0de5e36a0b9de2ca3dea35923b18e30063e19bf4cccddd3f19",
+      "approvedHunkProjectionSha256": "fe7a31b345b8537d32ea5451951b00fbb40c0e37181263d09b92dec917e51258",
+      "afterSha256": "fe7a31b345b8537d32ea5451951b00fbb40c0e37181263d09b92dec917e51258",
+      "countAppendixAnchor": "## Count native metadata receipts",
+      "countAppendicesByteIdentical": true,
+      "countAppendixSha256": "0a7019ed2cec1bec9a8b19b9f4146bcf009a11a37739adbdb3cbada37b5d6abf",
+      "refinementOutsideADR": false
+    },
+    {
+      "path": "docs/decisions/0006-background-consistency-and-schedule-timezones.md",
+      "beforeSha256": "ef0db668fc0ebf3357a9df2e042d75964abb6187da7bd2fc23e9dff087e4d2ed",
+      "approvedHunkProjectionSha256": "045e9f870630e209a8d8cb7ff8d37adb4b555f927e5419fc67557087e6fe645f",
+      "afterSha256": "524929cd3e14c8c079497821f7f73823225a4e7475d5c80400a268f857b62a5c",
+      "countAppendixAnchor": "## Native timestamp receipt clarification",
+      "countAppendicesByteIdentical": true,
+      "countAppendixSha256": "1def1de44a4242bea309ed24dc2e0747fcd65b349689004ab05e223ae0035aa4",
+      "refinementOutsideADR": "ADR status/reference only"
+    }
+  ],
+  "permittedADRRefinement": {
+    "labelBefore": "Native item receipt amendment for independent technical review:",
+    "labelAfter": "Native item receipt amendment \u2014 accepted technical contract:",
+    "statusBefore": "This proposal does not start B16 before B15, authorize production or close R13.",
+    "statusAfter": "This accepted amendment does not start B16 before B15, authorize production or close R13.",
+    "addedReference": "Independent native-receipt approval: `.boss/technical-review/B16-native-receipts-contract-review.md`.",
+    "revertingOnlyTheseChangesEqualsApprovedProposal": true
+  },
+  "notes": [
+    "Only reviewed9ff hunks plus permitted ADR status/reference wording. Every technical sentence matches reviewed proposal.",
+    "Current ops inputd9 projectsfe7; stale archivede957fullfile was not used.",
+    "All later count appendices unchanged byte-for-byte. No root/source/test/E/F/provider or production modification.",
+    "B16source/tests not started; parent I must verify/apply and explicitly release firstbehavioralRED."
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "status": "APPROVED_ORDINARY_FIXTURE_READINESS_ONLY_NOT_EXECUTED",
+  "reviewer": "Independent Tech Lead /root/b10_review; not author",
+  "metadataPath": "/tmp/hudhud-b15-primary-positive-provenance.json",
+  "metadataSha256": "dab28e40096ad421ce7912d36d28628f0c1070faea8955a0698ddae8c52f30fb",
+  "rootInputs": {
+    "firebase_tests/firebase-emulators/editorial-audit.test.js": "cb4c6d0130631ab81ecf52ad8fc23ecb4018da6d1df6a29175e246ab856c6c4e",
+    "firebase_tests/firebase-emulators/editorial-comment-counts.test.js": "547c0d46984ebc4918dd9bdc608546e94879b921a0528403c514ac005dddc609"
+  },
+  "candidateDirectory": "/tmp/hudhud-b15-primary-worker-positive",
+  "candidateOutputs": {
+    "firebase_tests/firebase-emulators/editorial-audit.test.js": "6d1ef73fd3c76f7364aadf39b5b0cec85ddb4d5426a5e167d135a785fab9b3c4",
+    "firebase_tests/firebase-emulators/editorial-comment-counts.test.js": "8409ca569691c8f2c5c3cc2efac836594b6a809deb3df6c6153fc4183fc07784"
+  },
+  "patches": {
+    "/tmp/hudhud-b15-primary-audit-birth-setup.patch": "a2cf0926582748b635ba44f11faa4fa50d97f2580757e30ef986359c9694d65e",
+    "/tmp/hudhud-b15-primary-after-reconciliation-positive.patch": "51a59137dccf37b4485d63507e0f315aa49cf7127b2844a1b4a5b48dfaf86cc2"
+  },
+  "verification": {
+    "allHashesMatch": true,
+    "countFixtureEntireExistingPrefixByteIdentical": true,
+    "allAuditAssertionLinesPreserved": true,
+    "exactContentFactoryAndConcurrencyActionUnchanged": true,
+    "Node22SyntaxExitBoth": 0,
+    "gitApplyCheckExitBoth": 0,
+    "testCallbacksExecuted": 0,
+    "emulatorLaunchedByReviewer": false
+  },
+  "decisionScope": [
+    "Setup-only bulk55 uses existing legitimate counted births before business concurrency; no late count repair.",
+    "New serialized both-primary-root case uses automatic registered moderation/count workers around genuine full reconciliation; no direct handler/authority calls.",
+    "No expected resulting counter, moderation stamp or old root body is seeded by the new case.",
+    "No source/security/adversarial/runner/actor/contract changes."
+  ],
+  "executionConditions": [
+    "Do not change root fixtures while current124 E run is active.",
+    "Parent I may integrate exact two patches only after current run closes and locks permit.",
+    "Predicted fresh combined gate125 is not executed evidence.",
+    "Preserve later intentional identity-backfill legacy fixtures and original assertions."
+  ],
+  "remaining": "All native/full B15/finding/device/browser/final integration gates remain as independently tracked; no production operation authorized."
+}

@@ -1,0 +1,28 @@
+{
+  "status": "TESTS_ONLY_BASELINE_REQUIRES_PARENT_RED_ACCEPTANCE",
+  "patch": "/tmp/hudhud-b15-review-regressions-tests-only.patch",
+  "patchSha256": "59b4251f79420722eab62f4cc27be916bb0d22c3ffe6c72aa3bd7aa5b641a1d3",
+  "baselineSource": "29d0b5f5e8b683c9157cb600efabeb5d7c9bd0353e3ffc14befe1482a98e5c05",
+  "revisionSource": "29d0b5f5e8b683c9157cb600efabeb5d7c9bd0353e3ffc14befe1482a98e5c05",
+  "baselineTests": "f0d4d04bd346ccc15fc3ffbdf79c48a82d6d3861aaef384c3dcd9282ef2ff4e1",
+  "revisionTests": "f81beb64ac19ea33d399dea5949a4076ca8ab4fac7b5c73fbb59555018eb0e27",
+  "originalCandidateUnchanged": true,
+  "original63PrefixUnchanged": true,
+  "results": {
+    "reviewRegressions": "11 executed,11 intended ERR_ASSERTION/Missing expected rejection,0skip",
+    "adjacentClosedSchemaRegressions": "4 executed,4 intended ERR_ASSERTION/Missing expected rejection,0skip",
+    "positiveControls": "3 executed,3pass,0skip"
+  },
+  "nodeExecutable": "/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node",
+  "commands": [
+    "node --test --test-name-pattern='review regression:' tool/test/reconcile_comment_counts.test.mjs (first11 additions)",
+    "node --test --test-name-pattern='review regression: closed backup schema' tool/test/reconcile_comment_counts.test.mjs (four additional cases)",
+    "node --test --test-name-pattern='review control:' tool/test/reconcile_comment_counts.test.mjs (three controls)"
+  ],
+  "logs": {
+    "b15-review-regressions-red.log": "4714211bc0a1684aad7109e59fff64356f3fe21ebcd8be0c18e5307e825f8e7d",
+    "b15-review-schema-extra-red.log": "7413759f7ae1795b730fe586edef73a79a5e7af8c4d8d2d1f800594ef115a5ec",
+    "b15-review-controls-green.log": "479ec92720a936561b1fda05908ef1b9f8f6a49aa3dfbdc094b2afb2fcb19e13"
+  },
+  "classification": "Candidate-review regressions. No missing API, compilation, SDK, environment or skipped test is counted as RED. No historical R12 RED relabelling. No source change or fix applied."
+}

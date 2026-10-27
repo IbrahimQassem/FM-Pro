@@ -442,5 +442,9 @@
   "stationInstagram": "إنستغرام",
   "stationYoutube": "يوتيوب",
   "stationTwitter": "إكس (تويتر)",
-  "stationWhatsapp": "واتساب"
+  "stationWhatsapp": "واتساب",
+  "contentLoadMore": "تحميل المزيد",
+  "contentPageScope": "تعرض نافذة محدودة. حدّث للعودة إلى البداية.",
+  "contentPageError": "تعذّر تحميل هذه الصفحة. حاول مرة أخرى.",
+  "contentLoading": "جارٍ تحميل المحتوى…"
 }

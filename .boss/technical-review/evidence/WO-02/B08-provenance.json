@@ -1,0 +1,125 @@
+{
+  "redCommand": "flutter test --no-pub test/features/account/data/account_auth_data_source_test.dart --plain-name \"registration delivery\"",
+  "redCandidateSha256": {
+    "lib/features/account/data/datasources/account_auth_data_source.dart": "12b6a1fd869d96b8a6d3e88b6089fd126479470b8aec7e821ef132a6cd7e5108",
+    "lib/features/account/data/repositories/firebase_account_repository.dart": "869f805baa831ac5422fd6383db2da8bf39716aa85c950e07fbf6e9ba35c2e5d",
+    "lib/features/account/presentation/controllers/account_controller.dart": "0611594c1aea49743ff39c4bad0c76713973d3347c3ca2638d1da0a95c9151fc",
+    "test/features/account/data/account_auth_data_source_test.dart": "83c2c3531935f2db4f797f60de8e7cbd4ca14cf53a73a5cc2ad59bed04e98eaf"
+  },
+  "baselineHead": "c304e85963546220ccbdac51390fe0c03de02419",
+  "finding": "R05",
+  "tasks": [
+    "02-T05",
+    "02-T06",
+    "02-T07",
+    "02-T08",
+    "02-T09",
+    "02-T10"
+  ],
+  "status": "READY_FOR_INDEPENDENT_REVIEW; not complete or CLOSED",
+  "redResult": {
+    "matched": 3,
+    "passed": 0,
+    "intendedAssertionFailures": 3,
+    "skipped": 0,
+    "caseNames": [
+      "registration delivery sent:false retains account and permits resend",
+      "registration delivery unavailable retains account and permits resend",
+      "registration delivery resource-exhausted retains account and permits resend"
+    ],
+    "failure": "Expected verificationCodeSent false; actual true, after asserting one creation and retained unverified account."
+  },
+  "redEvidenceQualification": "Baseline regression compiled and executed using unchanged application interfaces. Post-RED adaptation also made the test Auth double emit null before creation then the created user, matching actual registration lifecycle. New result/lifecycle/UI guards are additional GREEN coverage, not falsely credited baseline RED.",
+  "actualWriteSet": [
+    "lib/features/account/data/datasources/account_auth_data_source.dart",
+    "lib/features/account/data/repositories/firebase_account_repository.dart",
+    "lib/features/account/domain/models/account_registration_result.dart",
+    "lib/features/account/domain/repositories/account_repository.dart",
+    "lib/features/account/presentation/controllers/account_controller.dart",
+    "test/features/account/data/account_auth_data_source_test.dart",
+    "test/features/account/data/firebase_account_repository_test.dart",
+    "test/features/account/presentation/account_controller_test.dart",
+    "test/features/account/presentation/account_screen_test.dart",
+    "test/features/account/presentation/auth_screen_test.dart",
+    "test/features/account/presentation/edit_profile_bottom_sheet_test.dart",
+    "test/features/account/presentation/manage_account_screen_test.dart",
+    "test/features/account/presentation/register_screen_test.dart",
+    "test/features/account/presentation/sign_in_screen_test.dart",
+    "test/features/comments/presentation/episode_comments_screen_test.dart",
+    "test/features/favorites/presentation/favorites_controller_test.dart"
+  ],
+  "finalCandidateSha256": {
+    "lib/features/account/data/datasources/account_auth_data_source.dart": "c458af7a3fc0ca1e050c3fe7c067176949e718e3fc4c9a4460a40bb6396fd649",
+    "lib/features/account/data/repositories/firebase_account_repository.dart": "be68a136884c5e5573f9ba69699dbe9611796815abcf5ef8450942a3810a9454",
+    "lib/features/account/domain/models/account_registration_result.dart": "233b55791fdc138bdeb594f8ec833e02c7f1c316899d2fcee23cd4218fd8cbd3",
+    "lib/features/account/domain/repositories/account_repository.dart": "4f071004508a52f7c3416314a0a36fc01a82270f9aa7751a40a7efcc46765bb9",
+    "lib/features/account/presentation/controllers/account_controller.dart": "e7164dd0f7ce81531f988e1f7c9d3b4b038d769e15446b96a164550cc88acfcb",
+    "test/features/account/data/account_auth_data_source_test.dart": "b3b7e202ab59bb702b517030d574b5d1007bd9cb885758dd91bef92bb0e16674",
+    "test/features/account/data/firebase_account_repository_test.dart": "8db035d0e54aeb53989e819d77ea0a0003d071334fb1e09a21e041508825d6bc",
+    "test/features/account/presentation/account_controller_test.dart": "612f833613236c30ed0f6e11197138a379cc86046c9b185deb712c8665a1e3fe",
+    "test/features/account/presentation/account_screen_test.dart": "16595a36430a0ea0b34569e2032de9b2dc342fc93f55c3de563d30135963f434",
+    "test/features/account/presentation/auth_screen_test.dart": "fcdc55ee1d24f00d85d37b199a09190b65cf03bc6de241a938a9f426d0c21012",
+    "test/features/account/presentation/edit_profile_bottom_sheet_test.dart": "623a3bbf9ecc42d803a22dbb92c164da50e3418ec52cf00232e1214f64d3d074",
+    "test/features/account/presentation/manage_account_screen_test.dart": "5c885174dae1cb2a6b0db86c1b0d6512b7f410ded6a59c21a558a76287ee820f",
+    "test/features/account/presentation/register_screen_test.dart": "2a3ade1ecf73f67a221cd375e0072aba6d48d236cdd6bb9ed8f2fa2dd7e9b3d0",
+    "test/features/account/presentation/sign_in_screen_test.dart": "2214005193de07800132ebbcba7530ddcce797389c51891e492d5aa530389f12",
+    "test/features/comments/presentation/episode_comments_screen_test.dart": "6ff8217bd7338747e4e3c56ab5dc951c2a2e039306daf57d4ae035f7f29efdfc",
+    "test/features/favorites/presentation/favorites_controller_test.dart": "4653ec541cb3dc138fa327e08c96c149b04deeef2be5314f2fc811af51ee634e"
+  },
+  "interfacesAndCallers": {
+    "repositoryFakes": 9,
+    "dataSourceFake": 1,
+    "controllerCallers": [
+      "lib/features/account/presentation/auth_screen.dart",
+      "lib/features/account/presentation/register_screen.dart"
+    ],
+    "unchangedControllerAPI": "Future<void> register; screens consume existing AccountState sent/failure flags; no source UI, ARB, DI, config, or provider changes.",
+    "transitiveReadOnlyConsumer": "test/features/subscriptions/station_subscriptions_controller_test.dart imports the favorites account fake.",
+    "censusLog": "B08-caller-census.log"
+  },
+  "verifiedBehavior": [
+    "Account creation returns domain-only sent/failed/rateLimited delivery result; delivery never verifies or deletes the account.",
+    "Auth creation exceptions propagate through existing safe mappings; generic repository guard preserves return values without changing other error mapping.",
+    "No raw callable-error logging; synthetic failure messages captured and asserted absent.",
+    "Registration duplicate requests and resend while registration is pending are suppressed; created-account retry is resend-only.",
+    "Registration first Auth event and delayed same-user refresh preserve delivery outcome and submission ownership.",
+    "Resend clears sent on start/failure; recovery clears failure; identity changes/disposal suppress stale delivery results.",
+    "Twelve EN/AR widget cases at 200% scaling assert safe localized feedback, no stale success beside failure, RTL/LTR direction, resend availability and no duplicate creation."
+  ],
+  "verification": {
+    "deliveryFocused": "B08-delivery-green.log: 3 PASS, 0 failed/skipped",
+    "controllerFocused": "B08-controller-green.log: 17 PASS, 0 failed/skipped",
+    "integratedCommand": "flutter test --no-pub test/features/account test/features/favorites test/features/comments test/features/subscriptions",
+    "integratedFinalLog": "B08-integrated-final-green.log",
+    "integratedFinalResult": {
+      "passed": 132,
+      "failed": 0,
+      "skipped": 0
+    },
+    "accountCommand": "flutter test --no-pub test/features/account",
+    "accountFinalLog": "B08-account-final-green.log",
+    "analysisCommand": "flutter analyze --no-pub lib/features/account test/features/account test/features/favorites test/features/comments test/features/subscriptions",
+    "analysisResult": "PASS no issues",
+    "formatCheck": "dart format --output=none --set-exit-if-changed (all16 approved paths): PASS0changed",
+    "diffCheck": "git diff --check -- (all16 approved paths): PASS",
+    "accountFinalResult": {
+      "passed": 98,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "intermediateFailures": [
+    {
+      "log": "B08-integrated-test-expectation-failure.log",
+      "classification": "Test expectation error, not business RED",
+      "result": "130 PASS and1 failure",
+      "detail": "New test expected emailAlreadyInUse, but existing repository maps email-already-in-use to accountConflict. Preserved existing source contract and corrected test."
+    },
+    {
+      "log": "B08-analyze-braces-failure.log",
+      "classification": "Two new lint infos, not business RED",
+      "detail": "Added guard braces and reran no issues."
+    }
+  ],
+  "remaining": "Independent review; parent exact-candidate integration/full Flutter/build and physical-device acceptance still required. R05 OPEN. Seventeen historical emulator obligations remain with parent; this focused Flutter suite has zero skips. No production, deployment, migration or app/device launch performed. B09 not released."
+}

@@ -16,3 +16,15 @@ test('station-scoped reviewers cannot disable accounts, and listener claims do n
   await assert.rejects(reviewAdminReport(base), { code: 'permission-denied' });
   await assert.rejects(reviewAdminReport({ ...base, callerRole: 'listener', callerClaims: { allStations: true }, data: { ...base.data, resolution: 'noAction' } }), { code: 'permission-denied' });
 });
+
+test('paused root manual review cannot commit a report decision or comment mutation', async () => {
+  const { MemoryFirestore } = await import('./support/comment-count-fixture.js'), db = new MemoryFirestore(), root = 'HudHudDev';
+  const path = `${root}/users/users/reporter/commentReportEpisodes/e/moderationReports/c`;
+  db.seed(`${root}/commentCountContributions`, { version: 1, writerProtocol: 1, state: 'paused', generation: 1, owner: 'unit', planHash: 'a'.repeat(64), leaseUntil: 0 });
+  db.seed(path, { status: 'open', reportedAuthorId: 'author', episodeId: 'e', commentId: 'c' });
+  db.seed(`${root}/episodes/episodes/e`, { stationId: 'station', stats: { commentsCount: 1 } });
+  db.seed(`${root}/episodes/episodes/e/comments/c`, { authorId: 'author', status: 'published' });
+  await assert.rejects(reviewAdminReport({ firestore: db, callerUid: 'super', callerRole: 'super_admin', callerClaims: { role: 'super_admin' },
+    data: { root, path, resolution: 'commentHidden' } }), error => error.retryable && error.details.reason === 'comment-count-maintenance');
+  assert.equal(db.writes.length, 0); assert.equal(db.snapshot(path).get('status'), 'open');
+});

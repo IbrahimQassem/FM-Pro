@@ -1,0 +1,281 @@
+{
+  "status": "APPROVED_SCOPED_SOURCE_AND_NATIVE125_LOCAL_GREEN_HANDOFF_B16",
+  "candidateRoot": "/tmp/hudhud-b15-nonempty",
+  "reviewer": "Independent Tech Lead /root/b10_review",
+  "authorCandidateProvenanceSha256": "f2316745ae0849cc5fe2f4dfdadb943b18bfdb8676a774e52143f7035622bab8",
+  "frozenRootInputs": {
+    "tool/reconcile_comment_counts.mjs": "c46238aef4fdb072349e45c2e6f7a14ff2b50b24d15e7984448b89f5ae15709e",
+    "tool/test/reconcile_comment_counts.test.mjs": "a5a575d211d2c59f5b5e8767ab9feb2bb44c535e776ef8def777258b728227e3",
+    "functions/lib/comment-counts.js": "77fc7b9d0e97aabe92acf6b551c4ec021c72ae1defe7333e8983b736de49547a",
+    "docs/operations/background-consistency-migrations.md": "85c47271154a332ed2591b9cb74bf55f72069d5de8938f306842b36b63092fd8"
+  },
+  "frozenCandidateOutputs": {
+    "tool/reconcile_comment_counts.mjs": "29d0b5f5e8b683c9157cb600efabeb5d7c9bd0353e3ffc14befe1482a98e5c05",
+    "tool/test/reconcile_comment_counts.test.mjs": "f0d4d04bd346ccc15fc3ffbdf79c48a82d6d3861aaef384c3dcd9282ef2ff4e1",
+    "functions/lib/comment-counts.js": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04",
+    "docs/operations/background-consistency-migrations.md": "a770c9c644a33d1b38c7707a721b6028ed273f9a7cff096d842a99c5c5edac36"
+  },
+  "contracts": {
+    "docs/contracts/firebase-data-contract.md": "4e67f7d3fcc690c21285e9992eddea9b346e64059dcd03914c1536962106e097",
+    "docs/contracts/content-automation-contract.md": "dd2c1eddf0e8b838000828cc81a5e1a6f27d0c97c4c9abf03be30404209b3f8f",
+    "docs/decisions/0006-background-consistency-and-schedule-timezones.md": "ef0db668fc0ebf3357a9df2e042d75964abb6187da7bd2fc23e9dff087e4d2ed"
+  },
+  "patches": {
+    "/tmp/hudhud-b15-nonempty-implementation.patch": {
+      "sha256": "2960e666981542f81d321dd59f428e4cdd59f8070661b55a3eb44bd55a056e6c"
+    },
+    "/tmp/hudhud-b15-status-projection-export.patch": {
+      "sha256": "80844b884f0c851dadafa5aa2dc1c7e8823bf01fb62122dda1bfc783eb8dd540"
+    }
+  },
+  "independentProbe": {
+    "path": "/tmp/hudhud-b15-review-probes.test.mjs",
+    "sha256": "bf0dfa832ae9ecb9fdd916a912ff7be5407191fbebe23dc6eb84bff6481426c4"
+  },
+  "probeLogs": {
+    "/tmp/hudhud-b15-restore-source-probe.log": {
+      "sha256": "31bf43434e3a75048c0b0f4c0a1cc10233cd6f9ffd9d0d5b77b5104d248ee2f4",
+      "tests": 1,
+      "pass": 0,
+      "fail": 1,
+      "skip": 0,
+      "classification": "Executed intended business assertion Missing expected rejection; no setup error."
+    },
+    "/tmp/hudhud-b15-head-native-probe.log": {
+      "sha256": "15626650d110065f3ff249fb1013da22f110f5fb1679d96ee5cfd6352262ae8f",
+      "tests": 1,
+      "pass": 0,
+      "fail": 1,
+      "skip": 0,
+      "classification": "Executed intended business assertion Missing expected rejection; no setup error."
+    }
+  },
+  "independentFullSuite": {
+    "command": "/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node --test tool/test/reconcile_comment_counts.test.mjs",
+    "cwd": "/tmp/hudhud-b15-nonempty",
+    "tests": 63,
+    "pass": 63,
+    "fail": 0,
+    "skip": 0,
+    "exitCode": 0,
+    "durationMs": 365550.051846,
+    "log": ".boss/technical-review/evidence/WO-04/B15-nonempty-review-full-green.log",
+    "sha256": "45d1604a104eb7148b0da374193f76640eb29d9e7863bd0e9c8298877cf75eca",
+    "interpretation": "Existing candidate guards pass; independently reproduced two new protocol business failures still block approval."
+  },
+  "sourceModified": false,
+  "emulatorOrProductionOperation": false,
+  "durableReviewArtifacts": {
+    ".boss/technical-review/evidence/WO-04/B15-nonempty-review-restore-source-red.log": "31bf43434e3a75048c0b0f4c0a1cc10233cd6f9ffd9d0d5b77b5104d248ee2f4",
+    ".boss/technical-review/evidence/WO-04/B15-nonempty-review-head-native-red.log": "15626650d110065f3ff249fb1013da22f110f5fb1679d96ee5cfd6352262ae8f",
+    ".boss/technical-review/evidence/WO-04/B15-nonempty-review-probes.txt": "bf0dfa832ae9ecb9fdd916a912ff7be5407191fbebe23dc6eb84bff6481426c4"
+  },
+  "permanentTestsOnlyRedSupplement": {
+    "patch": "/tmp/hudhud-b15-review-regressions-tests-only.patch",
+    "patchSha256": "59b4251f79420722eab62f4cc27be916bb0d22c3ffe6c72aa3bd7aa5b641a1d3",
+    "parentLog": ".boss/technical-review/evidence/WO-04/B15-review-regressions-parent-red.log",
+    "parentLogSha256": "40827cfbc9482b34b3abe81c3c5a0b55ae2ac28ee8d858e66fef47a9a5c89000",
+    "testsOnlyAuthorProvenanceSha256": "26691aea6020b1f905e2a748aa25988a3b7a775f297eb1cad6b90cc2974534b1",
+    "original63PrefixIndependentInMemoryComparison": "Byte-identical; original final registration brace retained after appended tests.",
+    "tests": 18,
+    "pass": 3,
+    "fail": 15,
+    "skip": 0,
+    "failureCodes": [
+      "ERR_ASSERTION"
+    ],
+    "failureType": "All15 Missing expected rejection at intended business assertions; no missing API/setup/environment failure.",
+    "boundaryReview": "Late-source variants occur after recovery and later inverse units immediately before created-row inverse; native ABA/recreate metadata change positively asserted.",
+    "acceptance": "Classification only. Candidate remains REVISION_NEEDED; no correction accepted."
+  },
+  "frozenRevision3619ProtocolRereview": {
+    "source": {
+      "path": "/tmp/hudhud-b15-nonempty-revision/tool/reconcile_comment_counts.mjs",
+      "sha256": "3619ab8dfe977c4f1ea7b8dc016f17353fd7f09a2c11b4c35a7077af8e1c54f0"
+    },
+    "testsSha256": "487e3d8531c8f2d5a98b3f785bb570b2599e8f476d87644f62d170517194b95c",
+    "operationsSha256": "d9dfc0f2b0662c0de5e36a0b9de2ca3dea35923b18e30063e19bf4cccddd3f19",
+    "patches": {
+      "/tmp/hudhud-b15-nonempty-revised-implementation.patch": "ad12bbf1ef81ee7296914ef87a000967cafb1a44abcd9dffee1c48bf6df4576c",
+      "/tmp/hudhud-b15-nonempty-review-corrections.patch": "720db8a5d12578281f5c249dca91e935a6930b878c07e9b058cc1585a37112f3"
+    },
+    "independentFocused": {
+      "tests": 30,
+      "pass": 30,
+      "fail": 0,
+      "skip": 0,
+      "exitCode": 0,
+      "log": "/tmp/hudhud-b15-revision-independent-focused.log",
+      "sha256": "a74a74567e6f4a08e86aca265f5945dd7d388f1c133cfa2c5deed0a9a2e3166a",
+      "command": "Exact Node22 --test --test-name-pattern='review regression:|review control:|full guard: maxItems: 1|full .*restore materializes|full guard: inverse commit|full guard:.*lease|full guard:.*budget|full guard:.*native|full guard: lost lease' tool/test/reconcile_comment_counts.test.mjs"
+    },
+    "protocolIssues": "P01/P02 correction verified at source/model checkpoint; public now rejected.",
+    "original63Preservation": "Assertions/bodies unchanged; fixture/private child runtime clock and legacy input adapter only.",
+    "remaining": "Overall REVISION_NEEDED: QA executed malformed authenticated replay scratch acceptance; consolidated existing-type validation audit and final exact81/source/security gates pending.",
+    "supersededRun": "Interrupted mutable-hash40-pass run is not full GREEN evidence."
+  },
+  "consolidatedTestsOnlyStructuralReview": {
+    "status": "ACCEPTED_EXISTING_WIRE_MATRIX_NOT_SOURCE_APPROVAL",
+    "patch": {
+      "path": "/tmp/hudhud-b15-consolidated-schema-tests-only.patch",
+      "sha256": "a60b9b3450f902f7b9b9f83f8fd61bce362df6021a86360cf9d575e81527b383"
+    },
+    "matrix": {
+      "path": "/tmp/hudhud-b15-final-schema-matrix.md",
+      "sha256": "7560990c0469993978c836511cdd1609b638617992bbc107861567a8fc2528c5"
+    },
+    "sourceUnchangedSha256": "aa3b3c6c5be5546d4d8264b3ca4c3f783b576704eb2813f18eab1c2d3a6feb72",
+    "testsSha256": "c6e1c7e8dfc4ee226e6d112578727a63aa6dc7ce7602774ca5ef0b316aca2844",
+    "original81IndependentComparison": "All original body prefix unchanged except additive crypto imports; exact patch reconstructed in memory.",
+    "classification": "43 already-safe downstream guards/controls are baseline GREEN only; QA2 actual authenticated replay cursor RED +1 genuine control separate. Future127 gate not executed by this review.",
+    "sourceApproval": false
+  },
+  "finalAa3Review": {
+    "status": "REVISION_NEEDED_PARTIAL_ROLLBACK",
+    "sourceSha256": "aa3b3c6c5be5546d4d8264b3ca4c3f783b576704eb2813f18eab1c2d3a6feb72",
+    "testsSha256": "c6e1c7e8dfc4ee226e6d112578727a63aa6dc7ce7602774ca5ef0b316aca2844",
+    "independentFocused": {
+      "tests": 54,
+      "pass": 54,
+      "fail": 0,
+      "skip": 0,
+      "exitCode": 0,
+      "log": ".boss/technical-review/evidence/WO-04/B15-aa3-review-focused-green.log",
+      "sha256": "aa23ff7f7355e60b9dd20e09b5954e6140da872f1841a71749dfd12fd5af7c06"
+    },
+    "partialRestoreProbe": {
+      "testPath": "/tmp/hudhud-b15-partial-restore-probe.test.mjs",
+      "testSha256": "ed91ad1c99963e5e59f5c9adf62c514ecf9495566797ca293b7bb3a9bbba7f08",
+      "logPath": ".boss/technical-review/evidence/WO-04/B15-partial-restore-review-red.log",
+      "logSha256": "96f64f66d45b89b7be3cd7a5791fd80435f01485d5d51c9891d86c2926361eb8",
+      "tests": 1,
+      "pass": 0,
+      "fail": 1,
+      "skip": 0,
+      "classification": "Business ERR_ASSERTION doesNotReject; actual cause count-restore-requires-complete-apply. Healthy existing API, genuine committed contribution/no final baseline and unchanged source."
+    },
+    "full127": "Stopped at24 passes; superseded, not full GREEN.",
+    "remaining": "Partial committed-prefix restore plus no-counter-head parent native source CAS, phase/lease/ACK/drift controls, re-review and final exact gates; no integration approval."
+  },
+  "partialTestsOnlyStructuralReadiness": {
+    "status": "ACCEPTED_FOR_STAGED_ENTRY_FIX_NOT_SOURCE_APPROVAL",
+    "patchSha256": "8048fb753e20820d1e8de475ac2d84f9397a9918985a818e859746c5a3217f2f",
+    "sourceUnchangedSha256": "aa3b3c6c5be5546d4d8264b3ca4c3f783b576704eb2813f18eab1c2d3a6feb72",
+    "testsSha256": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc",
+    "independentPrefixComparison": "Original127 assertion/body prefix preserved; exact patch reconstruction matches tests882ec.",
+    "scopeCounts": {
+      "positiveBothRootPhase": 8,
+      "mixedPrefix": 2,
+      "maskedAdmissionGuards": 7,
+      "lateCasesHeldBeforeEntryCorrection": 5,
+      "leaseAckControlHeld": 1,
+      "futureTotal": 150
+    },
+    "baseline": "Author17:10positiveERR_ASSERTION failures/7maskedguardPASS/0skip; parent acceptance separate.",
+    "sequence": "Permanent positiveRED then minimal entry/phase correction; only then actual precreated late source assertions before fresh no-counter-head CAS correction; no setup failure RED."
+  },
+  "historicalOriginalStatus": "REVISION_NEEDED",
+  "final2ProtocolDecision": {
+    "status": "APPROVED_CONDITIONAL_FULL150_AND_SECURITY",
+    "freezePath": ".boss/technical-review/evidence/WO-04/B15-final2-candidate-freeze.json",
+    "freezeSha256": "3c569daf0a0aa030e95bfda4ccab6a16a9b7e30ce5cb7b2564b7e62247232e6e",
+    "candidateOutputs": {
+      "tool/reconcile_comment_counts.mjs": "2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e",
+      "tool/test/reconcile_comment_counts.test.mjs": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc",
+      "docs/operations/background-consistency-migrations.md": "d9dfc0f2b0662c0de5e36a0b9de2ca3dea35923b18e30063e19bf4cccddd3f19",
+      "functions/lib/comment-counts.js": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04"
+    },
+    "rootInputs": {
+      "tool/reconcile_comment_counts.mjs": "c46238aef4fdb072349e45c2e6f7a14ff2b50b24d15e7984448b89f5ae15709e",
+      "tool/test/reconcile_comment_counts.test.mjs": "a5a575d211d2c59f5b5e8767ab9feb2bb44c535e776ef8def777258b728227e3",
+      "docs/operations/background-consistency-migrations.md": "85c47271154a332ed2591b9cb74bf55f72069d5de8938f306842b36b63092fd8",
+      "functions/lib/comment-counts.js": "77fc7b9d0e97aabe92acf6b551c4ec021c72ae1defe7333e8983b736de49547a"
+    },
+    "patches": {
+      "/tmp/hudhud-b15-final2-implementation.patch": "1dad0e8542316e42b20c8caf3a99f857ea95a21f14954aa4a5f7f4d6310816ee",
+      "/tmp/hudhud-b15-final2-partial-corrections.patch": "76357ef213851438f4208f1f1ebcd1450e6c283902c803e9dd032435cd27f2c1",
+      "/tmp/hudhud-b15-final2-review-corrections.patch": "453d11e0809074ebcc638a627f2a93834c6c088201eae40b55f933522a6ab679"
+    },
+    "gateLogHashesVerified": {
+      "B15-final2-focused-green.log": "03bb6e9980455848815279e4a11e9972e5c88c3d5bd38df8189050b444e58ccd",
+      "B15-final2-functions-green.log": "a477b6553c68f5ee3833d0acbdf2636b8763dd962f9df4b48187914336f7cefe",
+      "B15-final2-lint-green.log": "9cb86fb875f0a2ccbac02e6d7f904bd806d6c85c4b8453c4fd9e7366d182e45b"
+    },
+    "independentFocused": {
+      "tests": 31,
+      "pass": 31,
+      "fail": 0,
+      "skip": 0,
+      "exitCode": 0,
+      "durationMs": 128379.986103,
+      "log": "/tmp/hudhud-b15-final2-independent-protocol.log",
+      "sha256": "5b70c55bed485fe64893bfd4e9a0f5e3739bc821c3875cce73ce621cbf8dd649",
+      "command": "Exact Node22 --test --test-name-pattern='partial rollback business:|partial rollback admission guard:|partial late source guard:|partial recovery control:|review regression: canonical version|review regression: same-body|review replay cursor|schema matrix control:|full guard: inverse commit' tool/test/reconcile_comment_counts.test.mjs"
+    },
+    "stagedParentRedLogs": {
+      ".boss/technical-review/evidence/WO-04/B15-partial-rollback-parent-red.log": "f322f2b7fdf734c46de9ecedf13daf5007f3bfef4398a6b75e2b82eaf75f91f1",
+      ".boss/technical-review/evidence/WO-04/B15-partial-late-source-parent-red.log": "957bb9ab422522cc57512dcf3bd922862a2a2c7dbd3405f2cd035ea7c04775be"
+    },
+    "stageClassification": "10 actual positive rollback assertion failures before entry;7 masked controls. Entry-only then2 actual late parentCAS assertion failures before one-line CAS correction; tests unchanged.",
+    "conditions": [
+      "Exact final150 full suite must close GREEN against this frozen source.",
+      "Independent security approval on same hash.",
+      "No integration/SDK/production acceptance implied."
+    ],
+    "remaining": "Root/native SDK N01-N14, worker/Rules/exact-candidate integration and fullB15/finding acceptance remain OPEN.",
+    "conditionsSatisfied": {
+      "full150": true,
+      "securitySameHashApproval": true,
+      "integrationByteEquality": true,
+      "parentRootFocusedAndFunctionsAndLint": true
+    },
+    "conditionStatus": "Source-level conditions satisfied; native, full B15 and finding acceptance remain pending."
+  },
+  "verifiedLocalIntegration": {
+    "provenance": ".boss/technical-review/evidence/WO-04/B15-final2-integration-provenance.json",
+    "sha256": "acbc8d975e22a65aacb230401194dba02aab686d2442958f9ebab0fd373b7b99",
+    "currentOutputs": {
+      "tool/reconcile_comment_counts.mjs": "2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e",
+      "tool/test/reconcile_comment_counts.test.mjs": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc",
+      "docs/operations/background-consistency-migrations.md": "d9dfc0f2b0662c0de5e36a0b9de2ca3dea35923b18e30063e19bf4cccddd3f19",
+      "functions/lib/comment-counts.js": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04"
+    },
+    "fullLogSha256": "fe521e4f834c5a83584400422076de20954451263c1725f47cb9de0de4fe376f",
+    "rootLogHashes": {
+      "B15-final2-parent-focused.log": "938e8ffe402104c296d5be3e73b87baaeca183c735cb11dba45f4c045e54e431",
+      "B15-final2-parent-functions.log": "2646e5bb64e284a83343df20a208485813e4eb6e178e99ab5570abf1dc7a0b82",
+      "B15-final2-parent-lint.log": "9cb86fb875f0a2ccbac02e6d7f904bd806d6c85c4b8453c4fd9e7366d182e45b"
+    },
+    "actualSdk": "Not executed for full nonempty candidate; root92/prepared103 pending; prior actual91 distinct."
+  },
+  "nativeGateReopened": {
+    "classificationProvenance": ".boss/technical-review/evidence/WO-04/B15-native-failure-classification-provenance.json",
+    "sha256": "d0ed763f26cd6211eae31cec267bb9a2dc13a0c3e8a28ea2cfd3b5df91923b08",
+    "nativeLogSha256": "058358b2a024c8bdbcdc7e6c44c4984daa878a82228c9a82131d8f825e0e75e3",
+    "case61": "Fixture canonical-path hook miss, not product RED.",
+    "case67": "Valid source reporting RED: output 11 versus actual 13 after the final two charged postpublication reads; no cap breach.",
+    "conditions": "Source/native approval withheld pending pre-fix regression, minimal corrections, GREEN and independent review. Existing security boundary evidence remains unchanged."
+  },
+  "postNativeCorrection": {
+    "reviewProvenance": ".boss/technical-review/evidence/WO-04/B15-post-native-review-provenance.json",
+    "sha256": "d195290d16c57aaa0b6523d8cb6e869f9f2d90123836e0da029510be2f025522",
+    "candidateSourceSha256": "a6a10122ec7bb3596f842c1705ca53c15dcd3fb9fca5255c7ea7389588f5e04e",
+    "independentFocused": "6/6 passed, zero skips/failures/cancellations; exact log hash in review provenance.",
+    "conditions": "Exact full156 and root reporting6 are GREEN; native125 running with no acceptance credit.",
+    "sourceConditionSatisfied": true,
+    "integrationProvenanceSha256": "7f85f946216d32a0680d2f49c144c8218199d0b1bb8a1f019784a51ba0bb3094"
+  },
+  "native125Acceptance": {
+    "reviewSha256": "f1e945673d77034829b889e182158c32f3fc5fc36ac9d844d65ea14687285801",
+    "provenanceSha256": "5bda6af8a879af3dab563acb842b7a5cb919e2cd0ababeec81f841a312e154c8",
+    "logSha256": "c642e562b6367b4d981c5c13a276110becbd647f31ced06c2d974227f5a74f39",
+    "tests": 125,
+    "pass": 125,
+    "fail": 0,
+    "skipped": 0,
+    "exitCode": 0,
+    "inputFiles": 50,
+    "changedInputs": [],
+    "scope": "Interim artifact/native handoff only; no full WO/finding/final gates closure"
+  }
+}

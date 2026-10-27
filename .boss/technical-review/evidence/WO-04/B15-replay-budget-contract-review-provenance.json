@@ -1,0 +1,25 @@
+{
+  "status": "APPROVED_TECHNICAL_AMENDMENT_ONLY",
+  "patch": "/tmp/hudhud-b15-replay-budget-contracts.patch",
+  "patchSha256": "e916926ac4200ae1b65ccbd38017fd741c5800a36346e3d8f136b4c0cd373fd5",
+  "supersededDraftSha256": "2bf3802fcf7a67a0f4a353ad3a4b63c833a2d4fb024b57e57cf15013a5ef1c9d",
+  "inputs": {
+    "docs/contracts/firebase-data-contract.md": "82d538b5ea862b5199d0098392ba45c8d88bc682793c19992e655bb3f1cab79b",
+    "docs/operations/background-consistency-migrations.md": "12cc41ecfdaeda08a48c82b76882637d90bcc32ae85a7ab767ca2ff27bf967c8",
+    "docs/decisions/0006-background-consistency-and-schedule-timezones.md": "a0ee1703396d62da4111af8ffe2d8eeffdefcc0835d7ffc7a56d17a32221689c",
+    "tool/reconcile_comment_counts.mjs": "44c5b9de68d2ed92846569fc0dacbd10696ca156a7ccc861e7947ce626d9d0b9"
+  },
+  "permittedIntegrationWording": "Change pending-review status to accepted technical contract with this review reference; normalize English word/number spacing only. Preserve semantic content and safety caveats.",
+  "sourceImplementationApproved": false,
+  "operationsAuthorized": false,
+  "integratedAcceptedStatus": {
+    "patch": "/tmp/hudhud-b15-replay-budget-contracts-accepted.patch",
+    "sha256": "076a9234b9ad0187c5befb93cfae155f4bc00a051a5be7ed792102e8cfe83b96",
+    "independentPatchComparison": "Only approved status/reference and English spacing changes; no semantic differences.",
+    "currentDocumentHashes": {
+      "docs/contracts/firebase-data-contract.md": "8c4f89738492efff98cef7c238d696fda330e105d3fa8e028ec29be7c252c7d3",
+      "docs/operations/background-consistency-migrations.md": "675d795dbbd4f274e9c17308bc595817ae7653df721e17a7885f55089ff70b2c",
+      "docs/decisions/0006-background-consistency-and-schedule-timezones.md": "ccfb95de9bd890e9c7b267118760dbac6295525b902d1143175e85aa9d717fa4"
+    }
+  }
+}

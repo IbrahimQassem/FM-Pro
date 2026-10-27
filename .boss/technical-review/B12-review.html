@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B12 independent technical review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b12-independent-technical-review">B12 independent technical review</a></li><li class="toc-level-2"><a href="#verdict">Verdict</a></li><li class="toc-level-2"><a href="#review-conclusions">Review conclusions</a></li><li class="toc-level-2"><a href="#verification-and-evidence-limits">Verification and evidence limits</a></li><li class="toc-level-2"><a href="#reviewed-fingerprints">Reviewed fingerprints</a></li><li class="toc-level-2"><a href="#supplemental-raw-sort-value-revalidation-2026-10-26">Supplemental raw-sort-value revalidation — 2026-10-26</a></li><li class="toc-level-2"><a href="#independent-raw-value-correction-re-review-2026-10-26">Independent raw-value correction re-review — 2026-10-26</a></li></ul>
+    </aside>
+    <main>
+      <h1>B12 independent technical review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B12-review.md</div>
+        <div>Generated: 2026-10-26T18:55:14.686Z</div>
+      </div>
+      <h1 id="b12-independent-technical-review">B12 independent technical review</h1>
+<p>Date: 2026-10-26. Reviewer: independent <code>b10_review</code> agent; no implementation authorship.</p>
+<h2 id="verdict">Verdict</h2>
+<p><strong>APPROVED for verified interim source handoff.</strong> No blocking source correctness, security or architecture issue found in the reviewed candidate. R08 remains OPEN until applicable final acceptance. No production migration, index deployment, rollout or finding closure is approved.</p>
+<h2 id="review-conclusions">Review conclusions</h2>
+<ul><li>Repository queries scope root, station, active/published state and selected parent before limiting. Each page reads at most51 raw records, consumes50, and derives continuation from the last consumed raw record rather than the lookahead or last mapped row. Empty mapped pages retain continuation.</li><li>Program ordering preserves featured/priority/title/ID; episode ordering uses broadcastAt/priority/ID. Cursors bind version/root/resource/station/program/order and serialize bounded Firestore-compatible sort values. Timestamp seconds/nanoseconds are retained and reconstructed with the SDK Timestamp constructor, without millisecond conversion.</li><li>Cache reads use the same query identity and yield offline pages without server continuation. Cache cursors cannot advance server traversal. The mapper retains the existing visibility, deletion and parent checks.</li><li>Distant links validate station, episode and program through at most three direct server document reads. They do not traverse the archive or start playback. Invalid links remain unavailable and stale cache cannot bypass direct-link validation errors.</li><li>UI replaces windows rather than accumulating archive rows. Episode DOM is capped at100, ordinary pages are50, and back-cursor history is bounded at20. Canonical program episode counts are independent of loaded-page length. Page failures preserve successful content; retry repeats the failed action. Station generations and in-flight guards reject stale or duplicate completions. Explicit refresh discloses concurrent insert/delete pagination semantics rather than promising snapshot isolation.</li><li>Actual TSX behavior tests exercise page navigation, retries, station races, offline controls, parent switches, distant selection, timer ticks and no-autoplay. These tests substitute the hook scheduler and ports; they do not replace real browser acceptance.</li><li>The public-home integration preserves the approved S01 platform shortcuts. No new dependency, privileged write or state-management architecture was introduced.</li></ul>
+<h2 id="verification-and-evidence-limits">Verification and evidence limits</h2>
+<p>Independently executed Node22 from <code>web_hudhud</code>: <code>node --experimental-vm-modules --experimental-transform-types --test test/*.test.mjs</code>: <strong>78 passed, 0 failed, 0 skipped</strong>. Reviewer log: <code>/tmp/hudhud-b12-independent-full.log</code>. This includes the actual repository VM fixture traversing10000 synthetic episodes via200 bounded continuation actions and the actual TSX behavior cases.</p>
+<p>Inspected retained coordinator/author <code>B12-provenance.json</code>, primary <code>B12-red.log</code>, final lint/build evidence and their classification. The primary pre-fix repository RED is a business assertion after successful module execution: the old initial query downloaded the10000-record archive. The later unchanged-baseline UI replay corroborates the DOM issue but is correctly not credited as primary RED-before-fix. Interface/preview compilation failures and shell mistakes are not valid RED. Final owning lint, typecheck and build logs show success; deployed-index readiness is not established by a local build or emulator.</p>
+<p>Browser/mobile/physical-device journeys, exact merged-candidate integration, the original17 emulator acceptance identities, later B15 integration and separate operational data/index readiness remain mandatory where applicable. Independent approval is limited to the exact hashes below. Source changes require affected verification again.</p>
+<h2 id="reviewed-fingerprints">Reviewed fingerprints</h2>
+<table><thead><tr><th>File</th><th>SHA-256</th></tr></thead><tbody><tr><td><code>web_hudhud/lib/content-repository.ts</code></td><td><code>c429d1147f350c6200c24d871a29bca2363a1f151cbbac696994f4a737012a68</code></td></tr><tr><td><code>web_hudhud/lib/discovery.ts</code></td><td><code>54aa8ce83e7863f9430e026f7a071790ff113c71ecaf847fdfa502b73508076b</code></td></tr><tr><td><code>web_hudhud/test/content-pagination.test.mjs</code></td><td><code>7f684470266f4cf883b3b107e31d620fb7f27a483f9f7ee5ab03cfcd256da2b7</code></td></tr><tr><td><code>web_hudhud/test/discovery.test.mjs</code></td><td><code>520b6cad0a212eed0cf93292ba8ccf14834adf0311dc813897403ccecfc2b6f9</code></td></tr><tr><td><code>web_hudhud/public-home.tsx</code></td><td><code>ba60a3b6f68782a7a98b259b2c532450e145177159cc027851d7f7444a75396c</code></td></tr><tr><td><code>web_hudhud/station-detail.tsx</code></td><td><code>a2684a01879147a29885d8f9f1a0a53e8f91d9f2270b9065ab0e91c73c1de419</code></td></tr><tr><td><code>web_hudhud/test/content-pagination-ui.test.mjs</code></td><td><code>3a41ddcaee1bc6c166799a4ab4ed7a22718f70c3a420ba95ea2beacbe024de86</code></td></tr><tr><td><code>web_hudhud/test/preview.html</code></td><td><code>39051468e74cffa6b8042ccc86569f1a0adb3d031bb7966b7b34b1b1e84a4199</code></td></tr><tr><td><code>web_hudhud/test/preview.tsx</code></td><td><code>b11348792e600ae0592b5621604855cc8d8d542a224fe4ff1a68815185f83bdb</code></td></tr></tbody></table>
+<h2 id="supplemental-raw-sort-value-revalidation-2026-10-26">Supplemental raw-sort-value revalidation — 2026-10-26</h2>
+<p><strong>REVISION_NEEDED; prior interim approval is superseded for this newly demonstrated gap.</strong> Earlier review/test evidence is retained above. Source remains frozen at <code>web_hudhud/lib/content-repository.ts</code> SHA-256 <code>c429d1147f350c6200c24d871a29bca2363a1f151cbbac696994f4a737012a68</code>.</p>
+<p>The C03 raw-continuation obligation also applies when the last consumed row has a malformed application sort-field value that is nevertheless a valid Firestore ordering value. <code>sortValue</code> currently supports only null, booleans, finite numbers, strings and structural timestamp-looking objects. Map/array/bytes/reference/geopoint sort values cannot round-trip through this cursor. A malformed row can therefore block an entire page and make later valid rows unreachable. In addition, a plain map containing seconds/nanoseconds is incorrectly reconstructed as an SDK Timestamp, changing Firestore value type and cursor position semantics.</p>
+<p>Concrete reviewer probes reuse the existing actual-repository VM fixture, replacing only relative imports with resolved absolute references in <code>/tmp/hudhud-b12-review-raw-values.mjs</code>. No source was modified:</p>
+<p>1.51 synthetic episodes, with the50th consumed row's priority set to <code>{unexpected:'map'}</code> and a valid51st episode. Assert the first page does not reject and preserves raw continuation, then the next page reaches the valid episode. Actual result: <code>ERR_ASSERTION</code>, unwanted <code>Unavailable content</code> rejection in sortValue while building the cursor. The intended page-continuation behavior fails after successful fixture/module/query execution.</p>
+<ol><li>Same placement with raw priority map <code>{seconds:123,nanoseconds:456}</code>. Request the next page and inspect actual startAfter construction. Assert the priority remains a plain map. Actual result: <code>ERR_ASSERTION</code>, constructor <code>Timestamp</code> rather than <code>Object</code>.</li></ol>
+<p>Command: Node22 <code>--experimental-vm-modules --experimental-transform-types --test --test-name-pattern='REVIEW B12:' /tmp/hudhud-b12-review-raw-values.mjs</code>. Result: <strong>2 tests,0 passed,2 intended business assertion failures,0 skipped</strong>. Probe SHA-256 <code>945eaac28b44530709bcd2228571e323c560d52b4a42b84d21ab68a563a0557b</code>; log <code>/tmp/hudhud-b12-review-raw-values.log</code> SHA-256 <code>707b2d39b0be85014292dabbde0d4ca9dfd9d126d7ae507f9f41c51684936414</code>. These are not missing-module, compile or environment failures.</p>
+<p>Required correction: permanent behavioral regressions before any fix; preserve the last consumed raw ordering tuple without guessing native Timestamp from map keys. Support the valid SDK ordering types required for malformed-row continuation, distinguish native types from maps explicitly, preserve exact nanos and document-reference scope, and validate bounded cursor payloads. Keep schema/root/resource/parent/order binding, cache restrictions, read budgets and no-autoplay behavior. Rerun focused and owning public tests/lint/typecheck/build, with independent correction review. This is separate from B11's ordinary-query document-ID error; B12's final document-ID slot already uses a string. No finding is CLOSED, production operation authorized or source fix claimed here.</p>
+<h2 id="independent-raw-value-correction-re-review-2026-10-26">Independent raw-value correction re-review — 2026-10-26</h2>
+<p><strong>APPROVED again for verified interim source handoff at the corrected fingerprints below.</strong> The supplemental raw-map and timestamp-shape issues are verified corrected; all earlier failed evidence remains retained. R08 is not CLOSED.</p>
+<p>The existing repository now uses explicit native SDK type tags rather than structural timestamp guessing. Recursive maps/arrays retain their original types, including timestamp-looking/reserved-tag maps and safe own __proto__ properties. Native Timestamp nanos, special numbers, Bytes, GeoPoint, VectorValue and same-database DocumentReference ordering values round-trip through immutable plain JSON cursors. Reference reconstruction checks project/database identity before query construction and never creates or reads a foreign SDK app. Existing root/resource/parent/order/ID binding and cache traversal restrictions remain. Depth/node/string/serialized-size limits reject malformed/cyclic/duplicate-key/oversized payloads; the real256KiB byte fixture proves valid substantial payloads remain traversable. Changes stay within the existing repository/tests and add no dependency or generic service.</p>
+<p>Independently reran the entire public suite under Node22: <code>node --experimental-vm-modules --experimental-transform-types --test test/*.test.mjs</code>: <strong>83 passed,0 failed,0 skipped</strong>; reviewer log <code>/tmp/hudhud-b12-independent-correction.log</code>. Both permanent reviewer regression identities pass. Real installed SDK queryEqual compares17 reconstructed raw bounds with their original native bounds locally, without network. Inspected permanent2-assertion pre-fix RED and retained lint/typecheck/build evidence. No E/F/source writes or production operation by reviewer.</p>
+<p>This approval covers supported same-database cursor reference reconstruction, not permission to retarget foreign references or access foreign databases. Final browser/device, merged-candidate integration, index/data readiness and separately authorized operational checkpoints remain pending as previously documented.</p>
+<table><thead><tr><th>Corrected input</th><th>SHA-256</th></tr></thead><tbody><tr><td><code>web_hudhud/lib/content-repository.ts</code></td><td><code>25abb0980e4e0717b75f11e9ea01ba2f1acd6b6a98783d1f1a0d99a03e2ff4ac</code></td></tr><tr><td><code>web_hudhud/test/content-pagination.test.mjs</code></td><td><code>59ff2476d1c20b70bb3943e812aab514e82dde4c49b2f8fd8726d94f9f7c5407</code></td></tr><tr><td><code>web_hudhud/test/content-pagination-ui.test.mjs</code></td><td><code>13162d92aed3c2d95a221459054337af7cf12a4d2ee5478fb90cbe2d079f02ce</code></td></tr><tr><td><code>web_hudhud/test/preview.tsx</code></td><td><code>3a62c15ba1e6b484cb4709911bea4fe26175d0d094725427f4655fdee3d8fd11</code></td></tr></tbody></table>
+    </main>
+  </div>
+</body>
+</html>

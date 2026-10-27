@@ -1,0 +1,137 @@
+{
+  "role": "B15 integration QA author; not independent final reviewer",
+  "status": "Actual initial registration43/43, account6/6 and editorial82/82 GREEN; full B15/04-T09 acceptance pending",
+  "baselineHead": "c304e85963546220ccbdac51390fe0c03de02419",
+  "node": "22.23.3",
+  "ownership": "QA authored only registered fixture/harness patches in /tmp; I applied all physical shared source edits; parent owns E; no E/F launched by QA author",
+  "sourceInputSha256": {
+    "package.json": "398bec06985069f9072fd7711d7228dc5572c4ae31566b22d0e8ccb4f17ab225",
+    "tool/run-admin-emulator-tests.mjs": "c26edf6f6350c7569d30d460ea334a6c3f329fd6f9f2d53be4b7892cece6c3b3",
+    "tool/run-count-emulator-tests.mjs": "c98836dc4616745415ec49f67b91da8229a76bd617a8de8f9478c504263bbc6d",
+    "firebase_tests/support/comment-count-fixtures.mjs": "f9ad477a63a8711288971b23635de7f0469b50a2e8cbd7a19290ad89a3767cbf",
+    "web_admin/test/support/callable-emulator.ts": "a90b7d3763ddf847898505bd0a96953b40bd6c8283040ab53cf18768cd5c9c46",
+    "web_admin/test/pl03-moderation.emulator.test.ts": "dee9f4ebda334dec70ec5e75b0fc137980240c88c65ef1df658467c996ed6d3c",
+    "web_admin/test/batch-import.emulator.test.ts": "20bfd7c7a254b79ae6d3b27d6905e0f1700a15a95c95ce32926c8b8e5069c0ac",
+    "web_admin/test/moderation-authorization.emulator.test.ts": "856ac30c6051b265a53a567a1c3b464bfbed1e4c628b6eb34f4c8aa17ed60a08",
+    "web_admin/test/program-transfer.emulator.test.ts": "b9741e7547f85c80888bff89ebc38d6416e41bd825bfbb3c085f06073e0f0732",
+    "web_admin/test/review-report.emulator.test.ts": "c4df09854804529d935664bab312085cb75c09d769dad5aee58e3b2f5e8453e5",
+    "firebase_tests/firebase-emulators/account-deletion.test.js": "3fa4909366c4ef399665b65a73102de8d70beff7528c601ba56750f85e3ef408",
+    "firebase_tests/firebase-emulators/editorial-comment-counts.test.js": "be48b52b9b3a6b150ddb9cfd19feb2850960e6840a6a1494ff16835350031d73",
+    "firebase_tests/firebase-emulators/station-privacy.test.js": "069c456ec6ddb6763e37136704c7137ae8038a49fdb1409c6fd1f2a90e157fe8",
+    "firestore.rules": "29feef1c8026085a21bc24aa129ecbead46425cf1876d627e4a992ada692a562",
+    "functions/index.js": "e25125f6e8d1c27c8984b0a6e40adea06e1d9c44c969a1cda124540accf32a08",
+    "functions/lib/comment-counts.js": "8d39c9191ac3acd00adcfbd2d0d9bd6e3dcdd149a7e16c9c5a440b58179c2349",
+    "functions/lib/comment-count-maintenance.js": "1a4f6ab12f8a7bc2dadb8f2ff4966829f8d37df08a028472c20076dcfd0f2d70",
+    "functions/lib/comment-moderation.js": "f2a3e61d94faef6e5d26ed910159832389a1809876052dbda79551821af8225c",
+    "tool/reconcile_comment_counts.mjs": "44c5b9de68d2ed92846569fc0dacbd10696ca156a7ccc861e7947ce626d9d0b9"
+  },
+  "patchSha256": {
+    "/tmp/hudhud-b15-qa-registration-baseline-v2.patch": "30426ab8e58c5ab69e2c37f135879c705c9c9702f8f6a5a253741237ffb9c727",
+    "/tmp/hudhud-b15-qa-options-type.patch": "4d52f778b8e72465ac8a6b09e1efc36add5e3e6165f8a704f99b417426bf9754",
+    "/tmp/hudhud-b15-qa-native-inspection.patch": "d144a4529d55bbe50ba40ab242eb3a7b6c0ddfce67df287e6e4d20ab2cfb17cf",
+    "/tmp/hudhud-b15-bind-count-handler.patch": "2e32893da5b7f01c163def23b3c4d834884204228eb75ef72ace58d7f39f0187",
+    "/tmp/hudhud-b15-editorial-native-coverage.patch": "c78b0effd4583f68565145414bb3b6090310c4bb5ce765e7075234bf5ba01330"
+  },
+  "closedEvidenceSha256": {
+    "B15-registration-baseline.log": "53167a68d5e11a44e7203e282b737f01610192e0fb2edf0107c4104bbb686ab9",
+    "B15-registration-baseline-inputs.json": "bbc0b8b08f2c26dc62aea9f7ed87fef3f116ed63336ec00175479b24d3df7038",
+    "B15-registration-green.log": "5683150849334cd9663b474997deba949e3ec85e07b33e8aa44469df763f1dff",
+    "B15-account-deletion-integrated-retry.log": "0f3dab1de3acd0b6750c192686d9886d6b30c48e1eb32d279052fc7589201b6e",
+    "B15-editorial-integrated.log": "56d63a59fe53fbe0be3e93550b7201c643bf3c8fdc9dae04f15db50ad436c493"
+  },
+  "registrationRed": {
+    "total": 43,
+    "pass": 41,
+    "intendedBusinessAssertionFailures": 2,
+    "skip": 0,
+    "qualification": "Existing whitelist had real moderation but had never added the new count-written export. Both roots successfully created published comments, observed count1 plus moderatedAt, then a successful hidden-status write left actual1 versus expected0. No disable flag or removal of a working handler; no missing-module/404/environment failure credited."
+  },
+  "registrationGreen": {
+    "total": 43,
+    "pass": 43,
+    "fail": 0,
+    "skip": 0,
+    "change": "Single whitelist binding adds actual countEpisodeComments; assertions and waits unchanged",
+    "actualHandlers": "Production moderateEpisodeComment and countEpisodeComments; local filter retained with empty Gemini API key, no external classifier/send handlers registered"
+  },
+  "originalSkippedObligations": {
+    "identitiesVerified": 17,
+    "method": "Exact top-level title comparison with B03 corrected20-case run after excluding3 new R01 cases; every original title has an actual top-level PASS in B15 registration GREEN",
+    "identities": [
+      "real admin image callable re-encodes files in Storage, isolates roots and keeps SDK writes closed",
+      "real image callable rejects authenticated non-admin and forged actor data",
+      "real image callable rejects foreign ownership and global media for station admins",
+      "batch import against emulator: creates programs and episodes, increments counters, and handles unchanged re-imports as no-ops",
+      "editorial aggregates respect expiry boundaries, activation and explicit null schedules in both roots",
+      "episode deletion is retryable, root-scoped and decrements counters once",
+      "trusted location saves update off-page stations, serialize identity and reject stale reference selection",
+      "station_admin: real callable enforces station scope and reserves account disabling for super admins",
+      "moderator: real callable enforces station scope and reserves account disabling for super admins",
+      "HudHudDev: new comment journey",
+      "HudHudDev: corrected counter control",
+      "HudHudOfficial: new comment journey",
+      "HudHudOfficial: corrected counter control",
+      "trusted program transfer includes off-page children, races safely with creation and rejects overflow",
+      "concurrent moderation resolves off-page reports and decrements once",
+      "real callable rejects unauthenticated callers and cross-station takeover, and permits own-station edits",
+      "actual save transaction preserves retry counters, rejects stale edits and moves atomically in both roots"
+    ],
+    "disposition": "Initial worker/harness acceptance evidence only; retain final affected merged-candidate rerun obligation"
+  },
+  "accountGate": {
+    "total": 6,
+    "pass": 6,
+    "fail": 0,
+    "skip": 0,
+    "log": "B15-account-deletion-integrated-retry.log",
+    "coverage": [
+      "Original account-deletion identities retained",
+      "Legitimate atomic deletion plus interrupted acknowledgement replay",
+      "Both-root26-orphan cleanup with no parent resurrection",
+      "Unaccepted legacy state refuses cleanup and preserves Auth/barriers",
+      "Real manual review and account deletion race converges both roots"
+    ]
+  },
+  "invalidEvidenceExcluded": [
+    "Initial typed options inference failure; corrected without removing moderatedAt readiness",
+    "Initial sandbox/emulator-hub startup failure in B15-account-deletion-integrated.log; not RED or GREEN"
+  ],
+  "currentParentGate": {
+    "editorial": "Closed GREEN82/82; no E/F launched by QA author"
+  },
+  "nativeFixtureAssertions": [
+    "Creation baseline contains no REQUEST_TIME identity field; immutable baseline native updateTime exactly equals episode native createTime",
+    "Contribution identity uses literal exact native metadata and includes approved commentMutation marker",
+    "Root activeFrom equals prior paused barrierVersion; release native metadata strictly later, no rounding"
+  ],
+  "securityFixtureScope": [
+    "Guest, actual author, forged author, normal/unverified identities, scoped admin, moderator, legacy admin, role-only and forged super contexts",
+    "Private baseline/contribution/health-progress reads, lists and writes denied; direct counter writes denied"
+  ],
+  "remaining": [
+    "Actual station-privacy and full Rules gates under parent E",
+    "Nonempty general reconciliation/restore fixtures await concrete independently approved04-T09 schema/API; empty bootstrap is not a substitute",
+    "Independent full B15 review and exact merged-candidate gates including original17 identities after later source changes",
+    "Full Flutter/build and physical-device acceptance obligations remain",
+    "Production operations remain separately unauthorized; no finding or full task CLOSED"
+  ],
+  "editorialGate": {
+    "total": 82,
+    "pass": 82,
+    "fail": 0,
+    "skip": 0,
+    "log": "B15-editorial-integrated.log",
+    "processExit": 0,
+    "emulatorShutdown": "clean",
+    "inputVerification": "All19 preparation input hashes remain unchanged at closed-run recording",
+    "coverage": [
+      "All original editorial files included without assertion weakening",
+      "Actual count authority duplicate/status/delete convergence",
+      "Real local filtering with timing-only classifier barrier preserves terminal manual decisions",
+      "Missing/recreated parent native generations do not inherit old contributions",
+      "Actual native birth receipts match episode createTime exactly",
+      "Actual paused native barrier precedes release; activeFrom equals literal barrier metadata",
+      "Real author, forged author, role-only moderator and all other client roles denied private operational paths and counter writes"
+    ]
+  }
+}

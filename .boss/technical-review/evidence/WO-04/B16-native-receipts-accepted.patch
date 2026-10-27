@@ -1,0 +1,132 @@
+--- a/docs/contracts/firebase-data-contract.md
++++ b/docs/contracts/firebase-data-contract.md
+@@ -1244,7 +1244,7 @@
+ | evidenceHashes | Array of at most3 lowercase64-hex hashes binding legacy receipt/stamp observations |
+ | decision | `suppressed` or `carried-prepared|carried-retryable|carried-terminal-failed`; never a claim of provider acknowledgement |
+ | legacySourceKey / legacySourceCreateTime / legacySourceUpdateTime | Required only for a state carry: exact64-hex V1 key and native source create/update identity |
+-| recordedAt | Native server commit Timestamp; not a client clock |
++| recordedAt | Server-generated operational Timestamp; not a client clock or exact native commit identity |
+ 
+ A state carry is permitted only under the exact state matrix below; its
+ status/phase/lease/attempts and original clocks are copied, never reset. A valid
+@@ -1266,13 +1266,54 @@
+ backupExpiresAtMs(safe epoch-ms). Jobs contain no payload/token/raw before-image.
+ Per-entry immutable receipts live at `.../{jobId}/items/{threeDigitIndex000Through024}`:
+ version1, manifestHash, index0..24, v2Key, action(`created-suppression|strengthened-suppression|carried-prepared|carried-retryable|carried-terminal-failed|preserved-terminal|clear-noop`),
+-sourceHash, beforeHash, afterProjectionHash(all64-hex), targetCreateTime and
+-targetUpdateTime(native Timestamp or null for absent no-op), committedAt(native
+-server Timestamp). For a target changed by this transaction, its commit version
+-must equal targetUpdateTime/committedAt; for a preserved target, retain its exact
+-observed version. The projection hash excludes commit timestamp fields whose
+-versions are verified separately. Resume verifies committed prefixes against
+-these receipts, not just nextIndex. Unknown schema/fields/types fail closed.
++sourceHash, beforeHash, afterProjectionHash(all64-hex), targetChanged(boolean),
++targetCreateTime and targetUpdateTime(exact literal native target metadata observed
++BEFORE this item transaction, both null only for proven target absence). The item
++receipt is created once in the same atomic transaction as its changed V2 target
++and job progress; it is never updated or overwritten. Do not persist a guessed
++future targetUpdateTime or committedAt: native commit metadata is unknown before
++commit, and REQUEST_TIME/serverTimestamp transforms have millisecond precision.
++Operational recordedAt/createdAt/updatedAt fields never supply native identity.
++
++Resolve the applied target proof from the immutable item receipt snapshot:
++
++| Item result | targetChanged and observed metadata | Applied target createTime / updateTime |
++|---|---|---|
++| Created suppression or carried state at an absent V2 | true; both observed timestamps null | Both equal the original item receipt snapshot.updateTime from that same atomic creation commit |
++| Strengthened existing V2 | true; both observed timestamps literal, non-null | Create identity remains literal targetCreateTime; update version equals the original item receipt snapshot.updateTime |
++| Preserved terminal V2 or any genuine unchanged existing target | false; both observed timestamps literal, non-null | Retain the exact observed targetCreateTime/targetUpdateTime; the later item receipt time is NOT the target version |
++| Proven absent clear-noop | false; both observed timestamps null | Target remains absent; null is proven absence, never unknown metadata |
++
++Validate targetChanged against the authorized action and actual before/after
++projection. An identical-data write can be a native no-op; it must not be labelled
++changed merely because a set/update was requested. Do not update a target only to
++manufacture a changed receipt. This schema covers only the single V2 target of
++each occurrence; V1 receipts, program/station sources and stamps stay read-only.
++No generic target list, receipt framework or other sender field is introduced.
++
++The projection hash excludes only action-defined newly generated operational
++server-timestamp fields, whose database version is checked separately. It must
++not exclude copied carry clocks, statuses, attempts, lease/backoff/expiry or
++compatibility evidence. No caller-supplied ignore-field list is permitted.
++Read every source before writes. After commit, read back the original immutable
++item receipt and current target, resolve the exact native identities above and
++compare authorized projection/native versions before reporting that item verified.
++A newer unowned target version, equal-value ABA or delete/recreate is conflict,
++not an adopted source version. For a newly created target its createTime must
++match the original receipt commit; an existing target must retain its literal
++original createTime. Never rewrite a receipt to make newer target metadata fit.
++
++After an unknown acknowledgement, recover only from the matching immutable item
++receipt, reviewed backup and exact native target proof, then verify the committed
++prefix before advancing; nextIndex alone is insufficient. Missing/mismatched
++receipt or target proof remains held without repeating an uncertain write. An
++absent no-op can prove only currently observed absence under verified isolation;
++it cannot detect arbitrary unguarded create/delete history from absence alone.
++Conditional rollback/restore rechecks these same current target identities,
++versions and postimages plus original source/backup scope. It never borrows a
++no-op receipt time, erases terminal suppression or resurrects a target/program.
++All existing non-erasing rollback and production-refusal rules remain unchanged.
++Unknown schema/fields/types fail closed.
+ 
+ All job/receipt/proof records are server-only. Existing default-deny Rules must
+ be tested with get/list/create/update/delete for both roots and all client roles,
+--- a/docs/operations/background-consistency-migrations.md
++++ b/docs/operations/background-consistency-migrations.md
+@@ -210,6 +210,17 @@
+    commit atomically. Read all sources before writes. Lost acknowledgement must
+    verify exact applied target versions/postimages and receipts before resuming;
+    do not trust nextIndex alone. Source/backup/identity drift stops without send.
++   Apply the data contract's native item receipt rule: targetCreateTime and
++   targetUpdateTime are literal PRE-write observations (both null only for proven
++   absence), with targetChanged distinguishing genuine mutation from no-op. A
++   changed target's native update version comes from the original immutable item
++   receipt snapshot.updateTime; a new target's create identity comes from that same
++   commit, while an existing target retains its observed create identity. A
++   preserved target keeps its observed update version, never the receipt time.
++   No future committedAt/native version is stored from a server timestamp transform.
++   Postcommit readback verifies receipt, target projection and exact native metadata
++   before item verification. Lost ACK recovers that exact proof or remains held;
++   never repeat an uncertain mutation or adopt equal-value ABA/delete-recreate.
+ 6. Write only matrix-authorized suppression or exact prepared/retryable/terminal-
+    failed state carry to an absent V2; never reset inherited attempts/clocks or
+    bypass live ownership, original retryAt, nonretryable outcome or expiry. Retain
+@@ -226,7 +237,10 @@
+ scope, then records rollback-held by CAS. It preserves both receipt namespaces,
+ all unknown/sent/ambiguous suppression and stamps. It does not delete newly created
+ suppression, revert terminal to retryable or resurrect a removed program. Conflicts
+-remain held for separate review. Do not resume an old notifier solely by reverting
++remain held for separate review. A genuine preserved-terminal or clear no-op has
++no owned target mutation to undo; its observed version/absence remains the CAS
++boundary. Never use the item's later receipt metadata as that no-op target's
++version or delete a suppression created by a migration. Do not resume an old notifier solely by reverting
+ code; it cannot read V2 authority. Never test rollback by sending a real message.
+ 
+ Required demo regressions: UTC/+180/negative offsets; offset weekday/date rollover;
+--- a/docs/decisions/0006-background-consistency-and-schedule-timezones.md
++++ b/docs/decisions/0006-background-consistency-and-schedule-timezones.md
+@@ -201,7 +201,23 @@
+ inside-checkpoint custody/expiry/CAS and commit-version receipts patterns from
+ B10/B13; no generic migration framework or dependency is introduced.
+ 
+-This proposal does not start B16 before B15, authorize production or close R13.
++Native item receipt amendment — accepted technical contract: the migration
++changes only an occurrence's V2 receipt or preserves it as a no-op. Persist exact
++observed pre-write targetCreateTime/targetUpdateTime plus targetChanged; do not
++persist a guessed future committedAt or require a serverTimestamp transform to
++equal native metadata. The original immutable item snapshot.updateTime proves
++same-transaction changed-target commit and new-target creation. Existing targets
++retain their known create identity; preserved/no-op targets retain literal observed
++versions or proven absence. Require exact postcommit readback and matching receipt
++recovery after unknown ACK; equal-value ABA/delete-recreate never becomes new
++permission. Conditional rollback remains non-erasing and held. The data contract
++defines the precise wire cases without a new collection, helper framework or change
++to shared delivery callers. This corrects only native evidence, not offset policy,
++key/fingerprint tuples, state-carry clocks or SENT/UNKNOWN suppression.
++
++Independent native-receipt approval: `.boss/technical-review/B16-native-receipts-contract-review.md`.
++
++This accepted amendment does not start B16 before B15, authorize production or close R13.
+ Independent wire review and ordinary behavioral RED/GREEN remain prerequisites.
+ 
+ Independent W01/W02 revision preserves expired pending/claimed reclaim and known

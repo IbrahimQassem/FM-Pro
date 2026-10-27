@@ -1,0 +1,42 @@
+{
+  "status": "APPROVED_ACTUAL_T12_RULES_GUARD_GREEN_NATIVE_TOOL_GATES_PENDING",
+  "reviewer": "/root/b10_review",
+  "reviewSha256": "f31606a9bf23285b9a31db246cc3a0952c6cbae2c6a42b6cf13af122da5ee258",
+  "command": "npm run emulators:test (Node22 parent-owned)",
+  "log": {
+    "path": ".boss/technical-review/evidence/WO-04/B16-T12-rules-integrated.log",
+    "sha256": "92daa843ca4db8922dfb98878059f2eeb73218062fb539bf06bfe0b1a61da9c4",
+    "tests": 78,
+    "pass": 78,
+    "fail": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "exitCode": 0,
+    "durationMs": 26209.803214,
+    "cleanShutdown": true
+  },
+  "inputsManifestSha256": "0dd29d52d22d3e8728f01e2fa434f96303e031a4d68287134a9d87ef0b3dce6e",
+  "capturePhase": "after launch; independent fixture review recorded expected test hash before launch",
+  "inputHashes": {
+    "firestore.rules": "29feef1c8026085a21bc24aa129ecbead46425cf1876d627e4a992ada692a562",
+    "firebase_tests/firebase-rules/firestore.rules.test.js": "ac1b23e11730f75a8a9b1c9384652ba914c81411cb26fa86012bfa00b99a7aa5",
+    "package.json": "398bec06985069f9072fd7711d7228dc5572c4ae31566b22d0e8ccb4f17ab225",
+    "package-lock.json": "e0d3cd119fce6712e72dbe9c7ced02579380aad9ff8d681a7c4f364f0646a349",
+    "firebase.json": "7e1c3ba2bafc5b8676706b816a4770aad4bfeabb8f0b0e603b31d51399dcb96d"
+  },
+  "changedCurrentInputs": [],
+  "preLaunchExpectedFixtureSha256": "ac1b23e11730f75a8a9b1c9384652ba914c81411cb26fa86012bfa00b99a7aa5",
+  "newRootCasesExecuted": 3,
+  "privateDenialAssertions": 2340,
+  "directCountDenialAssertions": 36,
+  "guardOnlyNoREDClaim": true,
+  "notGranted": [
+    "native migration receipts/lease/ACK/custody",
+    "collector query/index acceptance",
+    "fullB16 or finding closure",
+    "original17 registry completion",
+    "final integration/full Flutter/browser/device",
+    "production authorization"
+  ],
+  "reviewerExecutionOrLiveWrites": false
+}

@@ -1,0 +1,28 @@
+{
+  "milestone": "M04-T12-FENCE-READY",
+  "scope": "Early partial04-T12 Rules guard, not full B16",
+  "baseline": {
+    "tests": 75,
+    "pass": 43,
+    "fail": 32,
+    "skip": 0,
+    "fenceBehaviorFailures": 28,
+    "oldPlannedNamespaceDesignFailures": 4
+  },
+  "green": {
+    "tests": 75,
+    "pass": 75,
+    "fail": 0,
+    "skip": 0
+  },
+  "namespaceQualification": "New contributions guards are GREEN obligations. Old planned comments collision log retained; existing admin comments CG permission unchanged.",
+  "independentContractReview": "M04-contract-review.md approved; source review pending",
+  "sha256": {
+    "firestore.rules": "29feef1c8026085a21bc24aa129ecbead46425cf1876d627e4a992ada692a562",
+    "firebase_tests/firebase-rules/firestore.rules.test.js": "17b3cd26fad8d8865912884091401bdd0252433956758bd12df9024a90311904",
+    ".boss/technical-review/evidence/WO-04/M04-fence-baseline-red.log": "990473455c24dad5d0c6ef86906f03c43a6ad49ca8e0621fc0f203305aaa4a96",
+    ".boss/technical-review/evidence/WO-04/M04-fence-green.log": "df3250a42e6ca82288b1f3e5c866fe6cc51c773a6a90215ba49047c811e9707f"
+  },
+  "productionMutation": false,
+  "fullTaskCompletion": false
+}

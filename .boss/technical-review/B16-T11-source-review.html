@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B16 / 04-T11 independent source review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b16-04-t11-independent-source-review">B16 / 04-T11 independent source review</a></li><li class="toc-level-2"><a href="#source-assessment">Source assessment</a></li><li class="toc-level-2"><a href="#regression-and-gate-evidence">Regression and gate evidence</a></li><li class="toc-level-2"><a href="#required-next-gates">Required next gates</a></li></ul>
+    </aside>
+    <main>
+      <h1>B16 / 04-T11 independent source review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B16-T11-source-review.md</div>
+        <div>Generated: 2026-10-27T02:12:50.206Z</div>
+      </div>
+      <h1 id="b16-04-t11-independent-source-review">B16 / 04-T11 independent source review</h1>
+<p>Decision: <strong>APPROVED scoped T11 source handoff for parent integration and T12 native verification.</strong> No blocking ordinary migration correctness issue remains in the frozen candidate reviewed here. This does not complete B16, the Work Order, original17 registry or any finding, and grants no production authority.</p>
+<p>Independent reviewer <code>/root/b10_review</code> reviewed <code>/tmp/hudhud-b16-t11-final</code>, main three-path patch <code>1ead63a631609068afa32cce26d87f7f6610d62d28fff594742bc1e85f8ac96d</code>. Exact tool SHA-256 is <code>93dfb3d372bba711efb1612f91114c9545cb10c95185b553d54252a4e9de2597</code>; tests <code>877c8983d6d4f7f14645a83716b4dc589f528aa40f2a1dd1e287b01389e02d1b</code>; operations <code>87b34a7ad6d75cff449f29acc36c72da6c30033b08933dc85182dd9198402ffd</code>. The operations before-image <code>4d7d87033e26f088a83d0622042388afec884fdb003a79d65d2dc8c477af73e3</code> is an entire byte-identical prefix, preserving count and accepted seal appendices. Root helper source remains the separate reviewed four-export-only attachment; it is not included again in this patch. git apply --check passes.</p>
+<h2 id="source-assessment">Source assessment</h2>
+<ul><li>Explicit project/root/program, canonical date/cutoff, max31-day range and max25 occurrence chunk/cursor bind a closed manifest. Runtime canonical helpers are reused rather than duplicated. Exact date/key tuples retain date order without independently sorting hashes. Program/station and typed receipt native create/update observations bind decisions; blocked evidence refuses the whole chunk before writes. Historical absence is not unsent proof.</li><li>Production apply/restore is refused before SDK initialization or key/backup access. Import performs no CLI or SDK initialization. The frozen owned demo facade is privately bound to project/loopback settings; foreign facades/stores and public clocks/isolation flags fail. Default CLI preview persists an encrypted private artifact and emits only count/hash/cursor summaries; private key custody is separated from backup/repositories/.boss. The reviewer executed no real preview/migration or provider call.</li><li>Private purpose-validated AEAD backup verifies immutable exclusive write, fsync/readback, directory/file identity/ownership/permissions, typed projections and finite expiry before and within mutation callbacks. Scope/source/custody drift stops subsequent mutation. Existing V1/program/station/stamp records stay read-only. Suppression uses unknown rather than fabricating sent; exact prepared/retryable carries retain original clocks, attempts, native lineage and restrictive evidence.</li><li>Every NEW occurrence transaction now verifies the entire bounded prefix within that same transaction before writes, including original sealed receipt versions and target/source proofs. Returned observed snapshots avoid duplicate current-target reads without weakening coverage. The previous separate-readback race is fixed after the parent-executed two-case numeric business RED; a late prior target ABA or sealed-receipt recreation cannot permit the next target/item write first.</li><li>Pending native anchoring implements the accepted two-field contract. Occurrence writes advance index/pending and create the immutable item atomically. Receipt createTime AND updateTime must equal untouched pending job updateTime before sealing. Final occurrence stays applying/pending until seal. Literal receiptVersions remain authoritative through subsequent prefix checks, genuine no-op/absence proof and held rollback. No operational server timestamp supplies native commit identity.</li><li>Expired pending ownership can renew/transfer only in the verified seal commit, generation+1 with overflow refusal. Foreign live owner is refused. Reads precede writes; native job birth/update, exact body/epoch/index, source/target, private backup and internal lease expiry are checked. Unknown item ACK recovers pending first; unknown seal ACK resumes the already-sealed prefix without duplicate target mutation or literal append. Readback verifies prefix and target/source proof before progress. Restore seals pending, then conditionally records rollback-held without erasing targets/suppression, resetting stamps, resurrecting sources or restarting old workers.</li><li>Work remains bounded: max25 fixed-manifest prefix entries, maxItems1..25 new occurrence commits and required seals, serial callbacks maxAttempts3. Repeated proof/readback work is explicitly additional bounded application work; no hidden gRPC/billing/index-entry claim is made. Existing delivery/default caller/collector behavior is not changed in this tool patch.</li></ul>
+<h2 id="regression-and-gate-evidence">Regression and gate evidence</h2>
+<p>The original no-op receipt recreation assertion is retained unchanged and now passes. The parent accepted its pre-fix current-API business failure before the contract/source correction. The later same-item-prefix regressions were precreated and executed before adding in-transaction prefix verification. All earlier controls remain; the only approved changed baseline assertion is lost item ACK recovery: it still forbids an additional target write and requires exactly one job-only seal update, rather than incorrectly requiring no write of any kind. This directly reflects the accepted native-seal protocol and does not relax business outcomes. New guards receive GREEN coverage, not invented RED credit.</p>
+<p>Independent Node22 command <code>node --test tool/test/migrate_program_notification_dates.test.mjs</code> executes <strong>64/64 pass</strong>, zero failures/skips/cancellations, exit0,3770.234995ms. Log SHA-256 is <code>2f6d08ec9dcd87f3dd85ddef5a351e6264212b8d89a4ff93bf14f2ea40af797e</code>. It covers final pending/empty/partial states, expired/live owner, pre/post-seal lost ACK, original/native no-op receipt recreation, source/prefix drift, typed checkpoint refusal, carry clocks, encrypted backup/custody, scope and safe CLI refusal. Model transaction hooks are storage-only; synthetic REQUEST_TIME is rounded separately from native metadata, and identical data is a true native no-op.</p>
+<p>The author tool64, full Functions413 and lint logs are present with passing summaries and recorded hashes in this review provenance. The full Functions inventory has51 files, no missing/additional/changed entries versus current root, including the reviewed helper-only notifier. No duplicate full413 execution was needed. Exact parent integration/readback and applicable gates must still follow this source approval.</p>
+<h2 id="required-next-gates">Required next gates</h2>
+<p>T12 must execute the actual owned demo SDK/native pending/final/no-op seal, pre/post-commit acknowledgement recovery, lease expiry/ownership, receipt/target/source ABA, same-item prefix drift and non-erasing rollback rehearsal. It must also verify client get/list/create/update/delete denial for private jobs/items/receipts across both roots and roles, preserve existing permissions, and check actual collector prefix/expiry query and necessary index compatibility. Model success is not native/Rules/index proof, production isolation or provider delivery evidence. Production apply/restore remains unsupported.</p>
+<p>Original17 test identities, final merged/exact-candidate integration and independent QA, full Flutter/build, browser and physical-device audio/notification acceptance remain separate. All R01–R13 remain OPEN. This reviewer wrote only <code>/tmp</code> review/provenance and ran ordinary model/refusal tests; no application/contract/runtime modification, emulator/Flutter launch, network provider operation, production migration, deployment or merge occurred.</p>
+    </main>
+  </div>
+</body>
+</html>

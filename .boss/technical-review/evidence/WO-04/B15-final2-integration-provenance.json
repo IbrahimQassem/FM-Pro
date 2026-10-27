@@ -1,0 +1,86 @@
+{
+  "status": "VERIFIED_SCOPED_SOURCE_INTEGRATION_GREEN_NATIVE_ACCEPTANCE_PENDING",
+  "reviewer": "Independent Tech Lead /root/b10_review",
+  "head": "c304e85963546220ccbdac51390fe0c03de02419",
+  "candidateFreezeSha256": "3c569daf0a0aa030e95bfda4ccab6a16a9b7e30ce5cb7b2564b7e62247232e6e",
+  "authorCandidateProvenanceSha256": "a775258004db315b88632697c4be98c350108042ed967a9ab53b7097111558d3",
+  "historicalRootBeforeInputs": {
+    "tool/reconcile_comment_counts.mjs": "c46238aef4fdb072349e45c2e6f7a14ff2b50b24d15e7984448b89f5ae15709e",
+    "tool/test/reconcile_comment_counts.test.mjs": "a5a575d211d2c59f5b5e8767ab9feb2bb44c535e776ef8def777258b728227e3",
+    "docs/operations/background-consistency-migrations.md": "85c47271154a332ed2591b9cb74bf55f72069d5de8938f306842b36b63092fd8",
+    "functions/lib/comment-counts.js": "77fc7b9d0e97aabe92acf6b551c4ec021c72ae1defe7333e8983b736de49547a"
+  },
+  "currentIntegratedOutputs": {
+    "tool/reconcile_comment_counts.mjs": "2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e",
+    "tool/test/reconcile_comment_counts.test.mjs": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc",
+    "docs/operations/background-consistency-migrations.md": "d9dfc0f2b0662c0de5e36a0b9de2ca3dea35923b18e30063e19bf4cccddd3f19",
+    "functions/lib/comment-counts.js": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04"
+  },
+  "outputsByteIdenticalToFrozenCandidate": true,
+  "integrationPatches": {
+    "/tmp/hudhud-b15-final2-implementation.patch": "1dad0e8542316e42b20c8caf3a99f857ea95a21f14954aa4a5f7f4d6310816ee",
+    "/tmp/hudhud-b15-status-projection-export.patch": "80844b884f0c851dadafa5aa2dc1c7e8823bf01fb62122dda1bfc783eb8dd540"
+  },
+  "contractsUnchangedVerified": {
+    "docs/contracts/firebase-data-contract.md": "4e67f7d3fcc690c21285e9992eddea9b346e64059dcd03914c1536962106e097",
+    "docs/contracts/content-automation-contract.md": "dd2c1eddf0e8b838000828cc81a5e1a6f27d0c97c4c9abf03be30404209b3f8f",
+    "docs/decisions/0006-background-consistency-and-schedule-timezones.md": "ef0db668fc0ebf3357a9df2e042d75964abb6187da7bd2fc23e9dff087e4d2ed"
+  },
+  "logs": {
+    "B15-final2-full-green.log": "fe521e4f834c5a83584400422076de20954451263c1725f47cb9de0de4fe376f",
+    "B15-final2-parent-focused.log": "938e8ffe402104c296d5be3e73b87baaeca183c735cb11dba45f4c045e54e431",
+    "B15-final2-parent-functions.log": "2646e5bb64e284a83343df20a208485813e4eb6e178e99ab5570abf1dc7a0b82",
+    "B15-final2-parent-lint.log": "9cb86fb875f0a2ccbac02e6d7f904bd806d6c85c4b8453c4fd9e7366d182e45b"
+  },
+  "closedGates": {
+    "authorFullExact150": {
+      "tests": 150,
+      "pass": 150,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "exitCode": 0,
+      "durationMs": 507982.151104
+    },
+    "parentRootFocused": {
+      "tests": 87,
+      "pass": 87,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "exitCode": 0,
+      "durationMs": 86354.689862
+    },
+    "parentRootFunctions": {
+      "tests": 328,
+      "pass": 328,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "exitCode": 0,
+      "durationMs": 4009.826291
+    },
+    "parentRootLint": {
+      "exitCode": 0
+    },
+    "reviewerScopedGitDiffCheck": {
+      "command": "git diff --check -- tool/reconcile_comment_counts.mjs tool/test/reconcile_comment_counts.test.mjs functions/lib/comment-counts.js docs/operations/background-consistency-migrations.md",
+      "exitCode": 0
+    },
+    "reviewerGovernance": {
+      "command": "sh tool/verify-governance.sh",
+      "exitCode": 0
+    }
+  },
+  "independentReviewCheckpoints": {
+    "protocol": "31/31 focused same source hash; source condition satisfied by exact full150 and integrated byte equality.",
+    "security": "15/15 focused final2 approval recorded independently; its own reviewer controls final artifact status."
+  },
+  "scopeLimits": [
+    "No application source or contract edits by reviewer.",
+    "Full nonempty API now integrated locally; no live migration/apply/restore/deployment operation executed.",
+    "Actual earlier producer/editorial91/91 remains separate; current root92 and prepared103 SDK fixtures remain unrun at this checkpoint.",
+    "N01-N14/native SDK/Rules/worker/final integration plus original17/fullFlutter/browser/physical-device obligations remain.",
+    "Full 04-T09/B15 remains incomplete; B16 is not started; all R01\u2013R13 findings remain OPEN."
+  ]
+}

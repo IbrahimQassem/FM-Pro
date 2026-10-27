@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B16 final automated-gate evidence review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b16-final-automated-gate-evidence-review">B16 final automated-gate evidence review</a></li><li class="toc-level-2"><a href="#eight-additional-ordinary-admin-skip-mappings">Eight additional ordinary-admin skip mappings</a></li><li class="toc-level-2"><a href="#remaining-gates">Remaining gates</a></li><li class="toc-level-2"><a href="#revision-2-closed-debug-builds">Revision 2 — closed debug builds</a></li></ul>
+    </aside>
+    <main>
+      <h1>B16 final automated-gate evidence review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B16-final-automated-gates-review.md</div>
+        <div>Generated: 2026-10-27T02:28:09.861Z</div>
+      </div>
+      <h1 id="b16-final-automated-gate-evidence-review">B16 final automated-gate evidence review</h1>
+<p>Decision: <strong>APPROVED recorded automated gate results within their exact scopes. GLOBAL FINAL ACCEPTANCE IS NOT GRANTED.</strong> This review does not close findings, complete B16/T12, or replace native/browser/device/production approval gates.</p>
+<p>Independent reviewer <code>/root/b10_review</code> verified the existing reports/log hashes and current input/output fingerprints without rerunning tests/builds, starting E/F, using providers or editing live files.</p>
+<table><thead><tr><th>Gate</th><th>Verified recorded result</th><th>Scope / limit</th></tr></thead><tbody><tr><td>Public web</td><td>83/83 pass, zero fail/skip; lint and HudHudDev build pass</td><td>Build includes TypeScript, client/SSR/server packaging; no browser execution</td></tr><tr><td>Admin web ordinary tests</td><td>115 pass, zero fail, 25 skip; lint and HudHudDev build pass</td><td>All ordinary skips remain uncredited as passes</td></tr><tr><td>Actual admin emulators</td><td>43/43 pass, zero fail/skip/cancel, exit 0/clean shutdown</td><td>Original 17 already independently mapped; eight further exact skipped identities mapped below</td></tr><tr><td>Flutter analysis</td><td>No issues, 29.6s</td><td>Recorded root run</td></tr><tr><td>Full Flutter tests</td><td>397 pass, all tests passed, about 30s</td><td>No physical-device proof</td></tr><tr><td>Dart format</td><td>213 files, 0 changes</td><td>Formatting verification only</td></tr><tr><td>Governance</td><td>PASS</td><td>Existing governance check</td></tr><tr><td>Functions after public build</td><td>413/413 pass, zero fail/skip/cancel, exit 0</td><td>Repeated after generated public server outputs; not a new native notification gate</td></tr><tr><td>Current Android debug build</td><td>PASS, parent exit 0, assembleDebug 33.6s</td><td>APK exists; app not launched; not physical acceptance</td></tr><tr><td>Current iOS simulator debug build</td><td>PASS, parent exit 0, Xcode 56.4s</td><td>Runner.app exists; app not launched; simulator is not physical acceptance</td></tr><tr><td>Browser acceptance</td><td>BLOCKED: parent reports Debugger unattached for existing Chrome tab</td><td>No controls/visual/download/keyboard UI acceptance obtained</td></tr><tr><td>Physical Android / iPhone</td><td>0 /0 available; acceptance NOT RUN</td><td>Debug/simulator builds do not satisfy physical playback/notification gates</td></tr></tbody></table>
+<p>The 257 frontend source/test/config/package/lock/asset before and after inventories are identical and all current hashes match. All six frontend log hashes match their archived copies. Public build-generated functions/public-web/renderer.mjs, index.html and build.json current hashes match the recorded outputs; no before-output hash claim is fabricated. Full 413 Functions was rerun after those generated outputs. Admin's existing 571.81kB chunk advisory is not a failure and no warning/dependency policy was changed.</p>
+<p>The 218 Flutter input hashes were captured BEFORE launch and all remain unchanged. By contrast, the 115 actual admin fingerprints were captured AFTER launch under parent sole-writer stability; they still match, but are not presented as a complete pre-launch capture. Fresh physical-device availability explicitly records zero Android and zero iPhone without identifiers. Browser blocker is a parent-reported observation, not independent UI execution by this reviewer. Earlier debug/simulator build successes retain their historical scope.</p>
+<h2 id="eight-additional-ordinary-admin-skip-mappings">Eight additional ordinary-admin skip mappings</h2>
+<p>The actual admin gate contains distinct PASS results for every additional ordinary skipped identity. Together with the separately reviewed original 17 mapping, all 25 ordinary skipped names have actual emulator counterparts that executed on this stable candidate. This discharges those specific execution debts for this candidate while leaving ordinary npm test skips honestly reported. It does not turn 115 ordinary passes into 140 ordinary passes, add test totals across modes or imply all remaining project acceptance is complete.</p>
+<table><thead><tr><th>Additional skipped identity</th><th>Source</th><th>Actual PASS log line</th></tr></thead><tbody><tr><td>R06 existing resource request provides bounded ordinary pages and reaches record2001</td><td><code>web_admin/test/content-pagination.emulator.test.ts:7</code></td><td>175 (<code>ok 5</code>)</td></tr><tr><td>HudHudDev: actual comment write handler converges later status changes and deletion</td><td><code>web_admin/test/pl03-moderation.emulator.test.ts:158</code></td><td>508 (<code>ok 15</code>)</td></tr><tr><td>HudHudOfficial: actual comment write handler converges later status changes and deletion</td><td><code>web_admin/test/pl03-moderation.emulator.test.ts:158</code></td><td>527 (<code>ok 16</code>)</td></tr><tr><td>R01 admin helpers read canonical private state, enforce stale revisions and delete both projections</td><td><code>web_admin/test/save-content.emulator.test.ts:142</code></td><td>717 (<code>ok 21</code>)</td></tr><tr><td>R01 scoped admin cannot load station private metadata through the SDK helper</td><td><code>web_admin/test/save-content.emulator.test.ts:214</code></td><td>723 (<code>ok 22</code>)</td></tr><tr><td>R01 offline private reads reject without returning cached metadata or changing either projection</td><td><code>web_admin/test/save-content.emulator.test.ts:229</code></td><td>729 (<code>ok 23</code>)</td></tr><tr><td>R07 existing users aggregate route provides counts to verified active scoped administrators</td><td><code>web_admin/test/user-count.emulator.test.ts:11</code></td><td>772 (<code>ok 24</code>)</td></tr><tr><td>R07 real callable rejects guest, listener, forged request roles and revoked current authority</td><td><code>web_admin/test/user-count.emulator.test.ts:63</code></td><td>875 (<code>ok 25</code>)</td></tr></tbody></table>
+<p>The added both-root later-status/delete tests rely on the registered real count write handler, not a manual result substitution. The three private-state helper cases, R06 pagination case and two R07 current-authority/count cases use their actual registered callables/client paths and retain their own assertions. Original 17 PL03 new-comment versus authority diagnostic controls remain explicitly separated in B16-original 17-acceptance-review.md and provenance.</p>
+<h2 id="remaining-gates">Remaining gates</h2>
+<p>Native T12 actual notification migration/pending/seal/source/stamp/carry/lease/ACK/custody, both-root real state permissions and collector query/index acceptance remain pending. Any changed candidate requires affected integration checks again. Both current debug builds now have closed successful evidence; no emulator/build can replace physical Android/iPhone long background/interruption/headset/timer/replay or real notification acceptance. Browser attachment must work before visual/interaction acceptance. Final independent WO QA/reviews and exact-candidate integration remain; all R01–R13 stay OPEN. Production migrations/apply/restore, provider sends, deployment and protected merge require separate authorization and were not performed here.</p>
+<h2 id="revision-2-closed-debug-builds">Revision 2 — closed debug builds</h2>
+<p>This revision preserves the earlier b8a8fe2f review as historical pending-build evidence and updates only the now-closed build conditions. Parent reports both processes exit 0. Android log records assembleDebug 33.6s and a built APK; iOS log records Xcode 56.4s and built Runner.app. Existing Kotlin/Swift plugin migration advisories are retained in the logs; no source/config/plugin upgrade or app launch is part of this checkpoint.</p>
+<p>Reviewer readback confirms build/app/outputs/flutter-apk/app-debug.apk exists and Runner.app is present with a Runner executable. Exact log/artifact fingerprints are in revision provenance. APK fingerprint binds that file; Runner executable fingerprint binds only that executable, not the entire .app bundle or simulator environment. No complete platform toolchain/build-input manifest is claimed. All 218 pre-launch Flutter input hashes still match.</p>
+<p>Physical Android/iPhone availability remains zero/zero, browser remains parent-reported Debugger unattached, and actual native T12 fixtures remain unexecuted at this cutpoint. Debug builds do not prove installation, foreground/background audio, interruption/route/timer/replay behavior or APNs/FCM delivery. All prior OPEN finding, final integration/QA and production boundaries remain unchanged. No build/emulator/runtime or live-file operation was performed by this reviewer.</p>
+    </main>
+  </div>
+</body>
+</html>

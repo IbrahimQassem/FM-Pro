@@ -39,6 +39,7 @@ export async function claimDelivery({ firestore, reference, fingerprint, now = D
     }
     tx.set(reference, { status: 'pending', phase: 'claimed', lease,
       ...(fingerprint !== undefined ? { fingerprint } : {}),
+      ...(fingerprint !== undefined && previous?.programCompatibility !== undefined ? { programCompatibility: previous.programCompatibility } : {}),
       leaseUntil: Timestamp.fromMillis(now + 10 * minute),
       attempts: (Number.isSafeInteger(previous?.attempts) ? previous.attempts : 0) + 1,
       createdAt: previous?.createdAt ?? Timestamp.fromMillis(now),
@@ -49,10 +50,11 @@ export async function claimDelivery({ firestore, reference, fingerprint, now = D
   });
 }
 
-export async function startDelivery({ firestore, reference, lease, now = Date.now() }) {
+export async function startDelivery({ firestore, reference, lease, now = Date.now(), validate }) {
   return firestore.runTransaction(async tx => {
     const current = (await tx.get(reference)).data();
     if (current?.status !== 'pending' || current.lease !== lease || current.phase !== 'claimed' || millis(current.leaseUntil) <= now) return false;
+    if (validate !== undefined && !await validate(tx)) return false;
     tx.update(reference, { phase: 'sending', updatedAt: Timestamp.fromMillis(now) });
     return true;
   });
@@ -60,7 +62,7 @@ export async function startDelivery({ firestore, reference, lease, now = Date.no
 
 export async function finishDelivery({ firestore, reference, lease, status, retryable = false, reason = '', messageId, now = Date.now() }) {
   if (!['sent', 'failed', 'unknown'].includes(status)) throw new Error('Invalid delivery outcome.');
-  const safeReason = retryableCodes.has(reason) || rejectedCodes.has(reason) || ['delivery-uncertain', 'preparation-failed', 'ineligible', 'expired'].includes(reason) ? reason : '';
+  const safeReason = retryableCodes.has(reason) || rejectedCodes.has(reason) || ['delivery-uncertain', 'preparation-failed', 'ineligible', 'expired', 'legacy-compatibility-suppression'].includes(reason) ? reason : '';
   return firestore.runTransaction(async tx => {
     const current = (await tx.get(reference)).data();
     if (current?.status !== 'pending' || current.lease !== lease) return false;

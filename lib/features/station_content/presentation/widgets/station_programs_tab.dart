@@ -10,12 +10,14 @@ class StationProgramsTab extends StatelessWidget {
     required this.state,
     required this.onRefresh,
     required this.onProgramPressed,
+    this.onLoadMore,
     super.key,
   });
 
   final StationContentState state;
   final Future<void> Function() onRefresh;
   final ValueChanged<StationProgram> onProgramPressed;
+  final Future<void> Function()? onLoadMore;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,7 @@ class StationProgramsTab extends StatelessWidget {
         onAction: onRefresh,
       );
     }
-    if (state.programs.isEmpty) {
+    if (state.programs.isEmpty && state.programCursor == null) {
       return _ContentMessage(
         icon: Icons.library_music_outlined,
         title: strings.noProgramsTitle,
@@ -48,13 +50,27 @@ class StationProgramsTab extends StatelessWidget {
       child: ListView.separated(
         key: const PageStorageKey('station-programs-tab'),
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 32),
-        itemCount: state.programs.length + (state.isOffline ? 1 : 0),
+        itemCount: state.programs.length + (state.isOffline ? 1 : 0) + 1,
         separatorBuilder: (_, __) => const SizedBox(height: 10),
         itemBuilder: (context, index) {
           if (state.isOffline && index == 0) {
             return _OfflineNotice(onRefresh: onRefresh);
           }
           final programIndex = index - (state.isOffline ? 1 : 0);
+          if (programIndex == state.programs.length) {
+            return Column(children: [
+              Text(strings.contentPageScope),
+              if (state.isLoadingPrograms) const LinearProgressIndicator(),
+              if (state.programPageFailed) Text(strings.contentPageError),
+              if (state.programCursor != null && !state.isOffline)
+                TextButton(
+                    key: const Key('load-more-programs'),
+                    onPressed: state.isLoadingPrograms ? null : onLoadMore,
+                    child: Text(state.programPageFailed
+                        ? strings.retry
+                        : strings.contentLoadMore)),
+            ]);
+          }
           final program = state.programs[programIndex];
           return _ProgramCard(
             program: program,

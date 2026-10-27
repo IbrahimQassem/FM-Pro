@@ -1,0 +1,17 @@
+[
+  {
+    "id": "website",
+    "label": "HudHud FM",
+    "url": "https://www.hudhudfm.com/"
+  },
+  {
+    "id": "facebook",
+    "label": "Facebook",
+    "url": "https://www.facebook.com/HudhudFm"
+  },
+  {
+    "id": "instagram",
+    "label": "Instagram",
+    "url": "https://www.instagram.com/hudhudfm"
+  }
+]

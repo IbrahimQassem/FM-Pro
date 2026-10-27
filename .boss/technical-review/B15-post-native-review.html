@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B15 post-native correction review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b15-post-native-correction-review">B15 post-native correction review</a></li><li class="toc-level-2"><a href="#source-decision">Source decision</a></li><li class="toc-level-2"><a href="#fixture-decision">Fixture decision</a></li><li class="toc-level-2"><a href="#required-checkpoint-order">Required checkpoint order</a></li></ul>
+    </aside>
+    <main>
+      <h1>B15 post-native correction review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B15-post-native-review.md</div>
+        <div>Generated: 2026-10-27T00:17:08.465Z</div>
+      </div>
+      <h1 id="b15-post-native-correction-review">B15 post-native correction review</h1>
+<p>Decision: <strong>APPROVED narrow source correction and fixture readiness, conditional on exact full-156 GREEN before integration.</strong> Fresh native 125-case acceptance must follow integration; it is not an impossible prerequisite to integrating its own fixture. No full B15 or finding closure is implied.</p>
+<p>Reviewed frozen candidate <code>/tmp/hudhud-b15-post-native-candidate</code>: source <code>a6a10122ec7bb3596f842c1705ca53c15dcd3fb9fca5255c7ea7389588f5e04e</code>, unit tests <code>fb751d6c977707f8366ae8098ce4db484090f575d73e15603c62e9020c295e0d</code>, audit fixture <code>6d1ef73fd3c76f7364aadf39b5b0cec85ddb4d5426a5e167d135a785fab9b3c4</code>, count fixture <code>dd2e8ae2aeb6140124421b4e97fcf4404986764982e5b086baf64a4a5d7f5a46</code>. Freeze <code>93e1b369232f4f119d5f71af06f7521f1cf2cccd8e9c4372f2adee760108c145</code> and combined patch <code>a5ba9a774491bfc828f4e870ce22758ccb3d21d2c810378bd58a969f908f2e96</code> match current inputs/outputs/components. Independent reviewer <code>/root/b10_review</code> is not the author.</p>
+<h2 id="source-decision">Source decision</h2>
+<p>The source-only patch <code>731db3428e2bf9ccb33a35d88aac79791a56392bc22b541cb5afd4df5d9c5deb</code> changes one return line after the existing final postpublication root/plan binding read. It preserves every output property and refreshes readEquivalents from the meter after all charged reads. Reversing just that line reconstructs the entire previously reviewed source 2c7e byte-for-byte. Private proof/schema/permission/custody/clock, status, checkpoint, native source/head CAS, retry, invocation cap and failure behavior are unchanged. No extra IO or public API/seam/dependency is added; no final check is removed.</p>
+<p>The permanent tests were authored before the correction and retain all original 150 cases. Parent six-case RED records four numeric failures across both roots/in-progress and completed replay plus two ordinary initial-apply observer controls. The observer measures existing model SDK calls once and confirms the actual final pair, without counter arithmetic or invented transport/billing claims. Independent exact Node22 rerun now passes <strong>6/6, zero failures/skips/cancellations, exit 0</strong>, 16078.352807 ms. Log <code>/tmp/hudhud-b15-post-native-independent-reporting.log</code> is fingerprinted in provenance. This verifies the returned-metrics correction at source/model scope, not native acceptance.</p>
+<h2 id="fixture-decision">Fixture decision</h2>
+<p>The combined fixture component <code>48d326a0ff86772a5ae305c38fcc8adf26cda154dce31a2313018d16d8e227e4</code> contains only the earlier approved genuine bulk55 birth setup, serialized both-primary-root callback journey and N13 canonical destination correction. The canonical-only component <code>7d5604d6723bfca032ecfff454bb34b77eb14abeb62cad9f73b70a7b7edaeb38</code> resolves the existing real private head path before installing the exact post-rename fault. It preserves every existing refusal/injection/revision/cold-resume/read-only assertion and does not change product ACK policy. Other original fixture assertions and intended legacy identity cases remain. Source syntax and combined patch checks pass.</p>
+<h2 id="required-checkpoint-order">Required checkpoint order</h2>
+<ol><li>Close the single exact frozen full-156 source gate GREEN; no duplicate full run was launched by this review.</li><li>Parent I integrates the exact four-path patch and revalidates source/fixture hashes and applicable root gates.</li><li>Run the fresh native 125-case gate and review actual results/clean shutdown against current inputs. The failed 124 gate remains 122 pass/two fail, never GREEN; N13 remains a fixture injection failure and N14 a genuine source reporting failure in historical evidence.</li></ol>
+<p>The root correction and native 125 gate were not executed by this reviewer. Earlier security approvals remain bounded to unchanged safety logic; any new gate failure must be classified and resolved before acceptance. Actual callbacks, original 17 emulator identities, final exact-candidate integration, full Flutter/browser/physical-device and independent Work Order obligations remain. Full 04-T09/B15, B16 and all findings remain unaccepted; no production data operation, migration, deployment or protected merge is authorized. No application/source/fixture/runner/contract/E/F modification was made by this review. Exact fingerprints are recorded in <code>evidence/WO-04/B15-post-native-review-provenance.json</code>.</p>
+    </main>
+  </div>
+</body>
+</html>

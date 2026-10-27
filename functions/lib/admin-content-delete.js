@@ -1,3 +1,5 @@
+import { readCommentCountFence } from './comment-count-maintenance.js';
+import { cleanupDeletedEpisodeContributions } from './comment-counts.js';
 import { publicStation, assertStationPrivateDeletion, validateStationPrivacyOptions } from './station-privacy.js';
 import { assertCounterAdjustment } from './admin-content-relations.js';
 import { randomUUID } from 'node:crypto';
@@ -51,10 +53,11 @@ export async function deleteAdminContent(args) {
       const program = await tx.get(db.doc(`${root}/programs/programs/${value.programId}`));
       if (!program.exists) fail('missing-parent', 'The related parent no longer exists.');
       if (!actor.canManageStation(program.data().stationId)) throw new HttpsError('permission-denied', 'Not authorized to manage the episode parent.');
+      await readCommentCountFence(tx, db, root);
       tx.update(ref, { adminDeletionToken: token });
       return true;
     });
-    if (!acquired) return { success: true, id, action: 'unchanged' };
+    if (!acquired) { await cleanupDeletedEpisodeContributions({ firestore: db, root, episodeId: id }); return { success: true, id, action: 'unchanged' }; }
   }
   let action = 'unchanged';
   try {
@@ -64,6 +67,7 @@ export async function deleteAdminContent(args) {
       if (!comments.empty) fail('episode-has-comments', 'Unpublish episodes with comments instead of deleting them.');
     }
     await db.runTransaction(async tx => {
+      if (kind === 'episodes') await readCommentCountFence(tx, db, root);
       const current = await tx.get(ref);
       if (!current.exists) return;
       const value = current.data();
@@ -114,9 +118,11 @@ export async function deleteAdminContent(args) {
     });
   } finally {
     if (acquired) await db.runTransaction(async tx => {
+      if (kind === 'episodes') await readCommentCountFence(tx, db, root);
       const current = await tx.get(ref);
       if (current.exists && current.data().adminDeletionToken === token) tx.update(ref, { adminDeletionToken: FieldValue.delete() });
     });
   }
+  if (kind === 'episodes' && action === 'delete') await cleanupDeletedEpisodeContributions({ firestore: db, root, episodeId: id });
   return { success: true, id, action };
 }

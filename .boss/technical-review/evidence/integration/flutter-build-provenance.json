@@ -1,0 +1,16 @@
+{
+  "candidate": "B09 revised independently approved Flutter source",
+  "fullTests": 397,
+  "analysis": "No issues",
+  "builds": {
+    "androidDebug": "PASS50.5s",
+    "iosSimulatorDebug": "PASS141.3s"
+  },
+  "sha256": {
+    ".boss/technical-review/evidence/integration/flutter-apk-debug.log": "472a1f67714f5ead191190adf2f15b1fab9bd40abd7417d023242a9105063c1a",
+    ".boss/technical-review/evidence/integration/flutter-ios-simulator-debug.log": "42e708dc783b8cebc6d557747c684934193aae2caf87db6dc4c49fa9f4981534"
+  },
+  "physicalAcceptance": "NOT RUN",
+  "launchedApp": false,
+  "deployment": false
+}

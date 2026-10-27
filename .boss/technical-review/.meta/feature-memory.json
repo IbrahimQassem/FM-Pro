@@ -58,6 +58,35 @@
       "lastSeenAt": "2026-10-26T16:11:04.214Z",
       "expiresAt": null,
       "decayScore": 9
+    },
+    {
+      "influence": "preference",
+      "tags": [
+        "boss-backend"
+      ],
+      "id": "agent-190",
+      "scope": "feature",
+      "kind": "execution",
+      "category": "agent_failure_pattern",
+      "feature": "technical-review",
+      "stage": 3,
+      "agent": "boss-backend",
+      "summary": "boss-backend failed in stage 3",
+      "source": {
+        "type": "events",
+        "window": "latest"
+      },
+      "evidence": [
+        {
+          "type": "event",
+          "ref": "190"
+        }
+      ],
+      "confidence": 0.8,
+      "createdAt": "2026-10-27T02:35:14.911Z",
+      "lastSeenAt": "2026-10-27T02:35:14.911Z",
+      "expiresAt": null,
+      "decayScore": 9
     }
   ]
 }

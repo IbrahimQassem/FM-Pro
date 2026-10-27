@@ -1,5 +1,11 @@
 import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { readCommentCountFence, CommentCountMaintenanceError } from '../functions/lib/comment-count-maintenance.js';
+import { prepareNewEpisodeCountBaseline } from '../functions/lib/comment-counts.js';
+
+async function main() {
 const projectId = 'demo-hudhud-admin-preview';
 assert.equal(process.env.GCLOUD_PROJECT, projectId);
 assert.equal(process.env.FIRESTORE_EMULATOR_HOST, '127.0.0.1:8180');
@@ -47,7 +53,8 @@ if (process.argv.includes('--timing-only')) {
   }
   console.log('Added demo stations and cities 56–305.');
 } else {
-const batch = firestore.batch();
+const entries = [];
+const batch = { set: (ref, data) => entries.push({ path: ref.path, data }) };
 const root = 'HudHudDev';
 if (!process.argv.includes('--banners-only')) {
 for (let i=1;i<=55;i++) {
@@ -64,7 +71,38 @@ for (const [id, title, isActive, startAt, expiresAt] of [
   ['expired', 'إعلان منتهٍ', true, null, new Date('2000-01-01')],
   ['inactive', 'إعلان غير مفعّل', false, null, null],
 ]) batch.set(firestore.doc(`${root}/banners/banners/preview-${id}`), { title, imageUrl: 'https://example.test/banner.jpg', priority: 0, isActive, startAt, expiresAt });
-await batch.commit();
+await applyAdminPreviewPlan({ firestore, entries });
 console.log('Demo admin and synthetic content fixtures are ready.');
 
 }
+}
+
+export async function applyAdminPreviewPlan({ firestore, entries }) {
+  const episodes = entries.filter(entry => /^(HudHudDev|HudHudOfficial)\/episodes\/episodes\/[^/]+$/.test(entry.path));
+  if (entries.length > 500) throw Object.assign(new Error('Oversized atomic preview plan.'), { code: 'invalid-argument' });
+  await firestore.runTransaction(async tx => {
+    for (const root of new Set(episodes.map(entry => entry.path.split('/')[0]))) await readCommentCountFence(tx, firestore, root);
+    const writes = [];
+    for (const entry of entries) {
+      const ref = firestore.doc(entry.path); let data = entry.data;
+      if (episodes.includes(entry)) {
+        const current = await tx.get(ref);
+        if (current.exists) {
+          if (current.get('adminDeletionToken')) throw new CommentCountMaintenanceError();
+          const { commentsCount: ignored, ...stats } = data.stats ?? {}; void ignored;
+          if (Object.hasOwn(current.data().stats ?? {}, 'commentsCount')) stats.commentsCount = current.get('stats.commentsCount');
+          data = { ...data, stats };
+        } else {
+          const birth = await prepareNewEpisodeCountBaseline(tx, firestore, { root: entry.path.split('/')[0], episodeId: entry.path.split('/')[3] });
+          if (birth.mode === 'active') data = { ...data, stats: { ...data.stats, commentsCount: 0 } };
+          writes.push(...birth.writes);
+        }
+      }
+      writes.push(() => tx.set(ref, data));
+    }
+    if (writes.length > 500) throw Object.assign(new Error('Oversized atomic preview plan.'), { code: 'invalid-argument' });
+    for (const write of writes) write();
+  });
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main();

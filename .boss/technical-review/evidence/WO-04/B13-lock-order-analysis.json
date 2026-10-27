@@ -1,0 +1,34 @@
+{
+  "batch": "B13",
+  "followup": "read-lock ordering analysis after diagnostic rerun",
+  "status": "DONE_WITH_CONCERNS",
+  "evidence": {
+    "original": "B13-editorial-emulator.log:61 tests,60 pass,1 fail; underlying rejection absent",
+    "diagnostic": "B13-editorial-diagnostic.log:61 tests,61 pass,0 fail,0 skipped; no source fix"
+  },
+  "conclusions": [
+    "Current episode save reads its station before prepareContentRelations reads the program. Program transfer initially reads program before reading station counters. This sequence exists at pre-B13 baseline c304e85.",
+    "B13 did not change editorial-audit.js or introduce the existing transfer scenario. RSS fixtures have unique program/station/episode IDs, scoped queries, and no clearing.",
+    "Firestore uses shared read locks and exclusive write locks. A reversed pair of read orders alone does not demonstrate a deadlock; both operations later update the program and may legitimately contend.",
+    "A mock using exclusive locks for transactional reads would not model documented Firestore semantics and cannot provide valid business RED.",
+    "No deterministic failing business assertion establishing a read-order correction has been demonstrated. No speculative application source patch, retry increase, test serialization, assertion relaxation or emulator launch was performed.",
+    "The diagnostic rerun provides a passing integration gate but does not resolve or explain the original instability. Independent review and retained instability obligation remain necessary."
+  ],
+  "sources": [
+    {
+      "title": "Firestore reads and writes at scale",
+      "url": "https://firebase.google.com/docs/firestore/understand-reads-writes-scale",
+      "support": "Shared read locks, exclusive write locks; broad read sets increase contention."
+    },
+    {
+      "title": "Firestore transaction serializability and isolation",
+      "url": "https://firebase.google.com/docs/firestore/transaction-data-contention",
+      "support": "Server SDK concurrency modes, finite retry limits and contention failures."
+    }
+  ],
+  "nextEvidenceNeeded": [
+    "If the unchanged diagnostic assertion fails again, retain original rejection code/details.reason/message and correlate the same synthetic transaction paths with emulator transaction abort diagnostics.",
+    "Only implement a narrow consistency correction once a deterministic behavior test fails for the documented cause. A general lock protocol rewrite spans B02/shared editorial orchestration and requires explicit integration ownership and review."
+  ],
+  "findingStatus": "R09 OPEN pending independent review, permission obligations, B15 integration and applicable project acceptance; no fix claimed for pre-existing transfer instability"
+}

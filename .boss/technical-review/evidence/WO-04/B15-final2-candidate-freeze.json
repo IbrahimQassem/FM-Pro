@@ -1,0 +1,48 @@
+{
+  "status": "FROZEN_FOCUSED_GREEN_FULL150_AND_FINAL_REVIEWS_PENDING",
+  "createdAt": "2026-10-26T23:19:33.972730+00:00",
+  "directory": "/tmp/hudhud-b15-final-revision2",
+  "outputs": {
+    "tool/reconcile_comment_counts.mjs": "2c7e00ba992b6a1d511cf09174d9cb626958c13de50d75dc8c4d15ba9d3efe1e",
+    "tool/test/reconcile_comment_counts.test.mjs": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc",
+    "docs/operations/background-consistency-migrations.md": "d9dfc0f2b0662c0de5e36a0b9de2ca3dea35923b18e30063e19bf4cccddd3f19",
+    "functions/lib/comment-counts.js": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04"
+  },
+  "rootInputs": {
+    "tool/reconcile_comment_counts.mjs": "c46238aef4fdb072349e45c2e6f7a14ff2b50b24d15e7984448b89f5ae15709e",
+    "tool/test/reconcile_comment_counts.test.mjs": "a5a575d211d2c59f5b5e8767ab9feb2bb44c535e776ef8def777258b728227e3",
+    "docs/operations/background-consistency-migrations.md": "85c47271154a332ed2591b9cb74bf55f72069d5de8938f306842b36b63092fd8",
+    "functions/lib/comment-counts.js": "77fc7b9d0e97aabe92acf6b551c4ec021c72ae1defe7333e8983b736de49547a"
+  },
+  "patches": {
+    "/tmp/hudhud-b15-final2-implementation.patch": "1dad0e8542316e42b20c8caf3a99f857ea95a21f14954aa4a5f7f4d6310816ee",
+    "/tmp/hudhud-b15-final2-partial-corrections.patch": "76357ef213851438f4208f1f1ebcd1450e6c283902c803e9dd032435cd27f2c1",
+    "/tmp/hudhud-b15-final2-review-corrections.patch": "453d11e0809074ebcc638a627f2a93834c6c088201eae40b55f933522a6ab679"
+  },
+  "unchangedCoreExportPatch": "80844b884f0c851dadafa5aa2dc1c7e8823bf01fb62122dda1bfc783eb8dd540",
+  "testBeforeSourceSha256": "882ec1a7ce03d71e369357e2174954092078cf7c152bf811f10d4bba5ef58fbc",
+  "testsUnchangedAfterEntryAndCAS": true,
+  "partialStages": {
+    "originalAA3": "Permanent17 baseline10positive intended failures7maskedguardsPASS; no setup/skip",
+    "entryOnlySource": "02a59807ff1784405ea4e90f2d172d137242005a6b38a57726387717f9a227d3",
+    "entryOnlyPatch": "96f5fe538a3554d5b9c368dc086d9954ff27a92d8675a143e159df400f018028",
+    "entryOnlyResult": "23tests21PASS2actual lateparentCAS MissingExpectedRejection failures0skip; exact original phases/mixed/ACK/lease good",
+    "parentCASPatch": "d7937a81587a7f5bccf407ed44a592a2f15a39564aaf490993e9f66377694087",
+    "correction": "Only missing-counter-head branch compares fresh native parent updateTime with original.source.episodeVersion; owned counter head retains existing effectiveHead native CAS"
+  },
+  "completedGates": {
+    "focused": "87/87 PASS0skip; all review18+cursor3+matrix43+partial23",
+    "functions": "328/328 PASS0skip",
+    "lint": "exit0",
+    "syntax": "tool/test exit0"
+  },
+  "logs": {
+    "B15-final2-focused-green.log": "03bb6e9980455848815279e4a11e9972e5c88c3d5bd38df8189050b444e58ccd",
+    "B15-final2-functions-green.log": "a477b6553c68f5ee3833d0acbdf2636b8763dd962f9df4b48187914336f7cefe",
+    "B15-final2-lint-green.log": "9cb86fb875f0a2ccbac02e6d7f904bd806d6c85c4b8453c4fd9e7366d182e45b"
+  },
+  "full150": "Not started at freeze creation; parent structural readiness confirmed; one final full run follows this immutable source.",
+  "review": "Both final independent reviews and actual SDK/Rules/native gates remain required. No source integrated.",
+  "priorEvidence": "Original63 GREEN remains scoped to29; b0da40/3619_26/aa3_24 partial fullruns were interrupted as superseded, never fullPASS.",
+  "safety": "No source/root/priorfrozen edits, no E/F/nativeSDK/production/migration/deploy/merge/real messages. No finding CLOSED."
+}

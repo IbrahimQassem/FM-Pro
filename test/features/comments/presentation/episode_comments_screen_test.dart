@@ -1,3 +1,4 @@
+import 'package:hudhud_fm/features/account/domain/models/account_registration_result.dart';
 import 'dart:typed_data';
 import "package:hudhud_fm/features/comments/presentation/widgets/ugc_guidelines_dialog.dart";
 import 'package:flutter/material.dart';
@@ -262,11 +263,14 @@ class _FakeAccountRepository implements AccountRepository {
   Stream<AccountUser?> watchAccount() => Stream.value(_accountUser);
 
   @override
-  Future<void> register({
+  Future<AccountRegistrationResult> register({
     required String displayName,
     required String email,
     required String password,
-  }) async {}
+  }) async {
+    return const AccountRegistrationResult(
+        verificationDelivery: AccountVerificationDelivery.sent);
+  }
 
   @override
   Future<void> sendPasswordReset(String email) async {}

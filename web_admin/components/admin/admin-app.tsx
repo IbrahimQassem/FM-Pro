@@ -1,3 +1,4 @@
+import { PlatformLinks } from './platform-links';
 import { firestoreRoot, assertSelectedRoot } from '@/lib/firestore-root';
 import { ContentEditor, RelationPicker } from './content-editor';
 import { ScheduleAgenda } from './schedule-agenda';
@@ -22,11 +23,13 @@ import { loadRelationLabels, reportCommentPath } from '@/lib/admin-relations';
 import { deleteContentWithAudit } from '@/lib/delete-episode';
 import { reviewReport } from '@/lib/review-report';
 import { saveWithRelations } from '@/lib/save-content';
-import { exportStationsToExcel } from '@/lib/export-excel';
+import { exportStationsToExcel, type StationExportRow } from '@/lib/export-excel';
+import { startExport, advanceExport, exportManifest, downloadExportManifest, downloadJsonManifest, pageExportManifest, type ExportState } from '@/lib/export-pages';
 import { loadStationPrivatePage, type StationPrivateState } from '@/lib/station-private';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 import { resourceQuery } from '@/lib/admin-query';
+import { resourcePageRequest, resourceQueryIdentity, resourceSnapshotPage, resourcePageCanAdvance, type ResourceSnapshotPage, readResourceBatch, advanceResourceScan, matchesResourcePredicate, type ResourceScan, type ResourcePageRequestOptions } from '@/lib/resource-pagination';
 import { belongsToRoot } from '@/lib/firestore-environment';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -39,7 +42,6 @@ import {
   readReportType,
   resourceParentFilter,
   resourceStatusChoices,
-  matchRecordSearch,
   sortRecords,
   stationSortChoices,
   genericSortChoices,
@@ -102,9 +104,8 @@ import {
   getDoc,
   getDocFromServer,
   getDocsFromServer,
+  getCountFromServer,
   runTransaction,
-  startAfter,
-  type QueryDocumentSnapshot,
   collection,
   doc,
   where,
@@ -112,6 +113,7 @@ import {
   onSnapshot,
   query,
   type DocumentReference,
+  type QueryDocumentSnapshot,
   type Firestore,
 } from 'firebase/firestore';
 
@@ -476,6 +478,7 @@ function SignInScreen({
               تسجيل الدخول الآمن
             </Button>
           </form>
+          <div className="mt-6"><PlatformLinks /></div>
           <p className="mt-6 text-xs leading-5 text-muted-foreground">
             للحصول على صلاحية الإدارة، تواصل مع مسؤول النظام.
           </p>
@@ -781,6 +784,7 @@ function Dashboard({ firestore, user }: { firestore: Firestore; user: User }) {
               <h1 className="mt-2 text-xl font-bold">{current.label}</h1>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <PlatformLinks />
               <div
                 className="flex items-center gap-2 rounded-xl border bg-card px-3 py-1.5 text-xs shadow-xs"
                 title={`مسجل بحساب: ${user.email || user.uid}`}
@@ -1068,28 +1072,33 @@ function ResourcePage({
   const [commentContext, setCommentContext] = useState<
     'loading' | 'ready' | 'error'
   >('loading');
-  const [cursors, setCursors] = useState<QueryDocumentSnapshot[]>([]);
-  const [last, setLast] = useState<QueryDocumentSnapshot>();
+  const [cursors, setCursors] = useState<string[]>([]);
+  const [last, setLast] = useState<string>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [reload, setReload] = useState(0);
   const [more, setMore] = useState(false);
+  const [displayedPage, setDisplayedPage] = useState(1);
+  const snapshotBoundary = useRef<ResourceSnapshotPage<QueryDocumentSnapshot> | undefined>(undefined);
   const [cached, setCached] = useState(false);
+  const [pageEvaluationTime, setPageEvaluationTime] = useState(() => Date.now());
+  const [aggregate, setAggregate] = useState<{ total: number; asOf: string }>();
+  useEffect(() => {
+    let active = true;
+    void getCountFromServer(resourcePageRequest(resourceQuery(firestore, resource), resource,
+      { statusField, statusMatch, reportType, parent, mode: 'count' }))
+      .then(result => { if (active) setAggregate({ total: result.data().count, asOf: new Date().toISOString() }); })
+      .catch(() => { if (active) setAggregate(undefined); });
+    return () => { active = false; };
+  }, [firestore, resource, statusField, statusMatch, reportType, parent, reload]);
   useEffect(() => {
     let active = true;
     let contextVersion = 0;
-    const isReports = resource === 'reports';
     const cursor = cursors.at(-1);
-    const parentFilter = resourceParentFilter(resource);
-    const request = query(
+    const request = resourcePageRequest(
       resourceQuery(firestore, resource),
-      ...(statusField ? [where(statusField, '==', statusMatch)] : []),
-      ...(reportType ? [where('targetType', '==', reportType)] : []),
-      ...(parent && parentFilter
-        ? [where(parentFilter.field, '==', parent)]
-        : []),
-      ...(isReports && cursor ? [startAfter(cursor)] : []),
-      limit(isReports ? 50 : 2000),
+      resource,
+      { statusField, statusMatch, reportType, parent, cursor },
     );
     const unsubscribe = onSnapshot(
       request,
@@ -1098,7 +1107,11 @@ function ResourcePage({
         if (!active) return;
         const version = ++contextVersion;
         setError('');
-        const next = snapshot.docs
+        setPageEvaluationTime(Date.now());
+        const page = resourceSnapshotPage(snapshot.docs, snapshot.metadata.fromCache, resource,
+          { statusField, statusMatch, reportType, parent }, snapshotBoundary.current);
+        snapshotBoundary.current = page;
+        const next = page.documents
           .filter((d) => belongsToRoot(d.ref.path, firestoreRoot))
           .map((d) => ({
             id: d.id,
@@ -1106,14 +1119,24 @@ function ResourcePage({
             data: d.data(),
             reference: d.ref,
           }));
+        setLast(page.cursor);
+        setMore(page.hasMore);
+        setCached(page.cached);
+        if (page.cached) {
+          if (!page.serverLoaded) {
+            setRecords(next);
+            if (resource === 'reports') { setComments([]); setCommentContext('error'); }
+          }
+          setLoading(false);
+          setError('نسخة مخزنة فقط؛ الصفحة السابقة من الخادم محفوظة. أعد الاتصال ثم حدّث للتحقق قبل المتابعة.');
+          return;
+        }
+        setDisplayedPage(cursors.length + 1);
         setRecords(next);
         if (resource === 'reports') {
           setComments([]);
           setCommentContext('loading');
         }
-        setLast(snapshot.docs.at(-1));
-        setMore(isReports ? snapshot.size === 50 : false);
-        setCached(snapshot.metadata.fromCache);
         setLoading(false);
         if (next.length > 0) {
           try {
@@ -1172,7 +1195,8 @@ function ResourcePage({
       () => {
         if (active) {
           setLoading(false);
-          setError('تعذر تحميل البيانات. تحقق من الاتصال والصلاحيات.');
+          setMore(false);
+          setError('تعذر تحميل الصفحة المطلوبة؛ المحتوى الظاهر من آخر صفحة ناجحة. تحقق من الاتصال والصلاحيات.');
         }
       },
     );
@@ -1192,19 +1216,21 @@ function ResourcePage({
   ]);
   return (
     <div className="space-y-5">
-      {resource === 'reports' && (
+      {(
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
           <span className="text-muted-foreground">
             {cached
               ? 'نسخة مخزنة — قد لا تعكس أحدث البيانات'
               : 'بيانات البيئة المحددة'}{' '}
-            · الصفحة {(cursors.length + 1).toLocaleString('ar-YE')}
+            · الصفحة {displayedPage.toLocaleString('ar-YE')}
           </span>
           <Button
             variant="outline"
             disabled={loading}
             onClick={() => {
               setLoading(true);
+              setCursors([]);
+              setLast(undefined);
               setReload((v) => v + 1);
             }}
           >
@@ -1212,7 +1238,7 @@ function ResourcePage({
           </Button>
         </div>
       )}
-      {loading ? (
+      {loading && records.length === 0 ? (
         <output className="grid min-h-64 place-items-center rounded-2xl border bg-card text-muted-foreground">
           جارٍ تحميل المحتوى…
         </output>
@@ -1233,6 +1259,8 @@ function ResourcePage({
           error={error}
           onRefresh={() => {
             setLoading(true);
+            setCursors([]);
+            setLast(undefined);
             setReload((v) => v + 1);
           }}
           loading={loading}
@@ -1249,9 +1277,13 @@ function ResourcePage({
               resource + (params.size ? `?${params}` : '');
           }}
           isSuperAdmin={isSuperAdmin}
+          queryOptions={{ statusField, statusMatch, parent, reportType }}
+          aggregate={aggregate}
+          queryRevision={reload}
+          pageEvaluationTime={pageEvaluationTime}
         />
       )}
-      {resource === 'reports' && (
+      {(
         <div className="flex items-center justify-between gap-3">
           <Button
             variant="outline"
@@ -1264,13 +1296,13 @@ function ResourcePage({
             الصفحة السابقة
           </Button>
           <span className="text-xs text-muted-foreground">
-            حتى ٥٠ بلاغاً في الصفحة · الصفحة {(cursors.length + 1).toLocaleString('ar-YE')}
+            حتى ٥٠ سجلاً في صفحة الخادم · الصفحة {displayedPage.toLocaleString('ar-YE')}
           </span>
           <Button
             variant="outline"
-            disabled={loading || !more || !last}
+            disabled={!resourcePageCanAdvance({ loading, hasMore: more, cursor: last, cached })}
             onClick={() => {
-              if (last) {
+              if (last && resourcePageCanAdvance({ loading, hasMore: more, cursor: last, cached })) {
                 setLoading(true);
                 setCursors((c) => [...c, last]);
               }
@@ -1383,7 +1415,7 @@ function ModerationQueue({
           <h2 className="text-2xl font-bold">طابور الإشراف</h2>
           <div className="mt-2 flex flex-wrap items-center gap-2.5">
             <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1 text-xs font-bold text-primary border border-primary/20 shadow-2xs">
-              إجمالي البلاغات: {resourceCountLabel('reports', reports.length)}
+              بلاغات الصفحة الحالية: {resourceCountLabel('reports', reports.length)}
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-xl bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive">
               المفتوحة: {reports.filter((item) => item.data.status === 'open').length.toLocaleString('ar-YE')}
@@ -1561,6 +1593,10 @@ function ResourceView({
   statusChoices,
   onStatusChange,
   isSuperAdmin = true,
+  queryOptions = {},
+  queryRevision = 0,
+  pageEvaluationTime = 0,
+  aggregate,
 }: {
   firestore: Firestore;
   definition: ResourceDefinition;
@@ -1573,6 +1609,10 @@ function ResourceView({
   statusChoices?: StatusChoice[];
   onStatusChange?: (value: string) => void;
   isSuperAdmin?: boolean;
+  queryOptions?: ResourcePageRequestOptions;
+  queryRevision?: number;
+  pageEvaluationTime?: number;
+  aggregate?: { total: number; asOf: string };
 }) {
   const hash = useAdminHash();
   const search = readResourceSearch(definition.key, hash);
@@ -1591,7 +1631,6 @@ function ResourceView({
   const [batchImportOpen, setBatchImportOpen] = useState(false);
   const [actionUser, setActionUser] = useState<AdminRecord | null>(null);
   const [busyId, setBusyId] = useState('');
-  const [exporting, setExporting] = useState(false);
   const [feedback, setFeedback] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -1688,7 +1727,7 @@ function ResourceView({
     let verified = 0;
     let stopped = 0;
     for (const r of records) {
-      if (isHealthyStream(r.data)) healthy++;
+      if (isHealthyStream(r.data, pageEvaluationTime)) healthy++;
       if (r.data.isLive === true) live++;
       if (r.data.isFeatured === true) featured++;
       if (r.data.isVerified === true) verified++;
@@ -1702,7 +1741,7 @@ function ResourceView({
       }
     }
     return { healthy, live, featured, verified, stopped };
-  }, [definition.key, records]);
+  }, [definition.key, records, pageEvaluationTime]);
 
   const userRoleCounts = useMemo(() => {
     if (definition.key !== 'users') {
@@ -1724,6 +1763,97 @@ function ResourceView({
 
 
   const filterKey = `${search}:${featureFilter}:${userRoleFilter}:${sortBy}:${status?.value ?? ''}`;
+  const scanIdentity = JSON.stringify([resourceQueryIdentity(definition.key, queryOptions), filterKey, queryRevision]);
+  const [exportBusyState, setExportBusyState] = useState({ identity: '', busy: false });
+  const exporting = exportBusyState.identity === scanIdentity && exportBusyState.busy;
+  const setExporting = (busy: boolean) => setExportBusyState({ identity: scanIdentity, busy });
+  const [exportState, setExportState] = useState<ExportState<StationExportRow>>();
+  const exportJob = exportState?.identity === scanIdentity ? exportState : undefined;
+  const exportGeneration = useRef(0);
+
+  const [scanState, setScanState] = useState<ResourceScan<AdminRecord>>();
+  const [scanBusyState, setScanBusyState] = useState({ identity: '', busy: false });
+  const scanBusy = scanBusyState.identity === scanIdentity && scanBusyState.busy;
+  const setScanBusy = (busy: boolean) => setScanBusyState({ identity: scanIdentity, busy });
+  const scanGeneration = useRef(0);
+  const scanScope = useRef({ cancelled: false });
+  const scan = scanState?.identity === scanIdentity ? scanState : undefined;
+  useEffect(() => {
+    const scope = { cancelled: false };
+    scanScope.current = scope;
+    return () => { scope.cancelled = true; };
+  }, [scanIdentity]);
+  async function continueScan() {
+    const generation = ++scanGeneration.current;
+    const scope = scanScope.current;
+    const state: ResourceScan<AdminRecord> = scan && !scan.exhausted ? scan : {
+      identity: scanIdentity, evaluationTime: Date.now(), examined: 0, matched: 0,
+      rows: [], exhausted: false,
+    };
+    setScanBusy(true);
+    setFeedback(null);
+    try {
+      const batch = await readResourceBatch(firestore, definition.key, { ...queryOptions, cursor: state.cursor });
+      if (generation !== scanGeneration.current || scope.cancelled) return;
+      const labels = await loadRelationLabels(firestore, firestoreRoot, definition.key, batch.records);
+      if (generation !== scanGeneration.current || scope.cancelled) return;
+      const hydrated = batch.records.map(record => ({ ...record, relationLabel: labels.get(record.path) }));
+      const next = advanceResourceScan<AdminRecord>(state, scanIdentity, { ...batch, records: hydrated }, record =>
+        matchesResourcePredicate(record, definition.key, { term: search, feature: featureFilter,
+          role: userRoleFilter, sort: sortBy, evaluationTime: state.evaluationTime }));
+      setScanState(next);
+    } catch {
+      if (generation === scanGeneration.current && !scope.cancelled) setFeedback({ type: 'error', message: 'تعذر متابعة البحث. النتائج السابقة محفوظة؛ يمكنك إعادة المحاولة.' });
+    } finally {
+      if (generation === scanGeneration.current && !scope.cancelled) setScanBusy(false);
+    }
+  }
+
+  async function runFullExport() {
+    const generation = ++exportGeneration.current;
+    const scope = scanScope.current;
+    let job = exportJob && !exportJob.complete ? exportJob : startExport<StationExportRow>(scanIdentity);
+    setExportState(job);
+    setExporting(true);
+    setFeedback(null);
+    try {
+      while (!job.complete && generation === exportGeneration.current && !scope.cancelled) {
+        const batch = await readResourceBatch(firestore, definition.key, { ...queryOptions, cursor: job.cursor });
+        if (generation !== exportGeneration.current || scope.cancelled) return;
+        const labels = await loadRelationLabels(firestore, firestoreRoot, definition.key, batch.records);
+        if (generation !== exportGeneration.current || scope.cancelled) return;
+        const matching = batch.records.map(record => ({ ...record, relationLabel: labels.get(record.path) }))
+          .filter(record => matchesResourcePredicate(record, definition.key, { term: search, feature: featureFilter,
+            role: userRoleFilter, sort: sortBy, evaluationTime: job.evaluationTime }));
+        const rows: StationExportRow[] = [];
+        for (let offset = 0; offset < matching.length; offset += 50) {
+          if (generation !== exportGeneration.current || scope.cancelled) return;
+          const page = matching.slice(offset, offset + 50);
+          const privateStates = await loadStationPrivatePage(firestore, firestoreRoot, page.map(record => record.id));
+          rows.push(...page.map(record => ({ id: record.id, data: record.data, privateData: privateStates[record.id].data })));
+        }
+        if (generation !== exportGeneration.current || scope.cancelled) return;
+        const next = await advanceExport(job, scanIdentity, { ...batch, records: rows }, async (partRows, index) => {
+          if (generation !== exportGeneration.current || scope.cancelled) throw new Error('Export cancelled.');
+          const filename = `hudhud-stations-${firestoreRoot}-${Date.parse(job.startedAt)}-part-${index}.xlsx`;
+          return exportStationsToExcel(partRows, firestoreRoot, filename).filename;
+        });
+        if (generation !== exportGeneration.current || scope.cancelled) return;
+        job = next;
+        setExportState(job);
+      }
+      if (job.complete && !scope.cancelled && generation === exportGeneration.current) {
+        const manifest = await exportManifest(job);
+        if (scope.cancelled || generation !== exportGeneration.current) return;
+        downloadJsonManifest(manifest, `hudhud-stations-${firestoreRoot}-${Date.parse(job.startedAt)}-manifest.json`);
+        setFeedback({ type: 'success', message: `اكتمل تصدير ${job.matched.toLocaleString('ar-YE')} محطة في ${job.parts.length.toLocaleString('ar-YE')} ملفات مع بيان النطاق.` });
+      }
+    } catch {
+      if (generation === exportGeneration.current && !scope.cancelled) setFeedback({ type: 'error', message: 'توقف التصدير. نقطة المتابعة السابقة محفوظة؛ فشل قراءة البيانات الخاصة لا يستبدلها بالحقول القديمة.' });
+    } finally {
+      if (generation === exportGeneration.current && !scope.cancelled) setExporting(false);
+    }
+  }
   const [pageState, setPageState] = useState({ key: filterKey, page: 1 });
   const currentPage = pageState.key === filterKey ? pageState.page : 1;
   const setCurrentPage = (updater: number | ((p: number) => number)) => {
@@ -1736,53 +1866,41 @@ function ResourceView({
   const pageSize = 50;
 
   const filteredAndSorted = useMemo(() => {
-    let list = records.filter((record) =>
-      matchRecordSearch(record, search, definition.key),
-    );
-
-    if (definition.key === 'stations') {
-      if (featureFilter === 'healthy') {
-        list = list.filter((r) => isHealthyStream(r.data));
-      } else if (featureFilter === 'live') {
-        list = list.filter((r) => r.data.isLive === true);
-      } else if (featureFilter === 'featured') {
-        list = list.filter((r) => r.data.isFeatured === true);
-      } else if (featureFilter === 'verified') {
-        list = list.filter((r) => r.data.isVerified === true);
-      } else if (featureFilter === 'stopped') {
-        list = list.filter(
-          (r) =>
-            r.data.healthStatus === 'offline' ||
-            (typeof r.data.consecutiveFailures === 'number' &&
-              r.data.consecutiveFailures >= 3) ||
-            (r.data.isLive === false && r.data.streamUrl),
-        );
-      }
-    } else if (definition.key === 'users') {
-      if (userRoleFilter === 'super_admin') {
-        list = list.filter((r) => r.data.role === 'super_admin');
-      } else if (userRoleFilter === 'station_admin') {
-        list = list.filter((r) => r.data.role === 'station_admin');
-      } else if (userRoleFilter === 'moderator') {
-        list = list.filter((r) => r.data.role === 'moderator');
-      } else if (userRoleFilter === 'listener') {
-        list = list.filter(
-          (r) =>
-            !r.data.role ||
-            r.data.role === 'listener' ||
-            (r.data.role !== 'super_admin' && r.data.role !== 'station_admin' && r.data.role !== 'moderator'),
-        );
-      }
-    }
-
+    const list = scan ? scan.rows : records.filter(record => matchesResourcePredicate(record, definition.key,
+      { term: search, feature: featureFilter, role: userRoleFilter, sort: sortBy, evaluationTime: pageEvaluationTime }));
     return sortRecords(list, sortBy, definition.key);
-  }, [records, search, definition.key, featureFilter, userRoleFilter, sortBy]);
+  }, [scan, records, search, definition.key, featureFilter, userRoleFilter, sortBy, pageEvaluationTime]);
 
   const totalPages = Math.max(1, Math.ceil(filteredAndSorted.length / pageSize));
   const paginatedRecords = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredAndSorted.slice(start, start + pageSize);
   }, [filteredAndSorted, currentPage, pageSize]);
+
+  async function exportCurrentPage() {
+    const generation = ++exportGeneration.current;
+    const scope = scanScope.current;
+    setExporting(true);
+    setFeedback(null);
+    try {
+      if (paginatedRecords.length > 50) throw new Error('Current page exceeds its export budget.');
+      const privateStates = await loadStationPrivatePage(firestore, firestoreRoot, paginatedRecords.map(record => record.id));
+      if (generation !== exportGeneration.current || scope.cancelled) return;
+      const rows = paginatedRecords.map(record => ({ id: record.id, data: record.data, privateData: privateStates[record.id].data }));
+      const filename = `hudhud-stations-${firestoreRoot}-page-${pageEvaluationTime}-${currentPage}.xlsx`;
+      const manifest = await pageExportManifest({ scope: scan ? 'visible-scan-page' : 'current-page', root: firestoreRoot,
+        identity: scanIdentity, count: rows.length, filename,
+        asOf: new Date().toISOString() });
+      if (scope.cancelled || generation !== exportGeneration.current) return;
+      const outcome = exportStationsToExcel(rows, firestoreRoot, filename);
+      downloadJsonManifest(manifest, filename + '.manifest.json');
+      setFeedback({ type: 'success', message: `تم تصدير الصفحة الحالية فقط: ${outcome.count.toLocaleString('ar-YE')} محطة.` });
+    } catch {
+      if (generation === exportGeneration.current && !scope.cancelled) setFeedback({ type: 'error', message: 'تعذر تصدير الصفحة الحالية. تحقق من الصلاحيات وأعد المحاولة.' });
+    } finally {
+      if (generation === exportGeneration.current && !scope.cancelled) setExporting(false);
+    }
+  }
 
   const hasActiveFilters = Boolean(
     search ||
@@ -1840,6 +1958,19 @@ function ResourceView({
 
   return (
     <div className="space-y-6">
+      {exportJob && <output className="block rounded-xl border p-3 text-sm">تصدير كل النتائج: فُحص {exportJob.examined.toLocaleString('ar-YE')} · طابق {exportJob.matched.toLocaleString('ar-YE')} حتى الآن · ملفات {exportJob.parts.length.toLocaleString('ar-YE')} · {exportJob.complete ? 'مكتمل' : 'غير مكتمل / قابل للاستئناف'}. ترتيب الملفات حسب المعرّف؛ قد تتغير البيانات أثناء الفحص. الاستئناف متاح ما دامت هذه الصفحة مفتوحة.</output>}
+      <section className="space-y-3 rounded-xl border p-4" aria-label="نطاق البحث والتصفية">
+        <p className="text-sm">البحث والميزات والأدوار والترتيب البديل تخص الصفحة الحالية. ترتيب الخادم تصاعدي حسب المعرّف.</p>
+        {aggregate && <p className="text-xs text-muted-foreground">إجمالي تصفية الخادم: {aggregate.total.toLocaleString('ar-YE')} · وقت العد: {new Date(aggregate.asOf).toLocaleString('ar-YE')} · لا يشمل البحث أو ميزات الصفحة.</p>}
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" disabled={scanBusy} onClick={() => void continueScan()}>
+            {scan && !scan.exhausted ? 'متابعة فحص ٢٠٠ سجل كحد أقصى' : 'بدء بحث كامل قابل للمتابعة'}
+          </Button>
+          {(scan || scanBusy) && <Button variant="outline" onClick={() => { scanGeneration.current++; setScanBusy(false); }}>إلغاء العملية الجارية</Button>}
+          {scan && <Button variant="outline" onClick={() => { scanGeneration.current++; setScanBusy(false); setScanState(undefined); }}>العودة إلى الصفحة الحالية</Button>}
+        </div>
+        {scan && <output>فُحص {scan.examined.toLocaleString('ar-YE')} · طابق {scan.matched.toLocaleString('ar-YE')} حتى الآن · {scan.exhausted ? 'اكتمل الفحص' : 'النتائج غير مكتملة'} · آخر ١٠٠ نتيجة مرئية كحد أقصى. التغييرات المتزامنة قد تتطلب بدء فحص جديد.</output>}
+      </section>
       <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
@@ -1853,11 +1984,11 @@ function ResourceView({
           </h2>
           <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
             <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1 text-xs font-bold text-primary border border-primary/20 shadow-2xs">
-              إجمالي {definition.label}: {resourceCountLabel(definition.key, records.length)}
+              سجلات صفحة الخادم — {definition.label}: {resourceCountLabel(definition.key, records.length)}
             </span>
             {hasActiveFilters && (
               <span className="inline-flex items-center gap-1.5 rounded-xl bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
-                المعروض حسب التصفية: {resourceCountLabel(definition.key, filteredAndSorted.length)}
+                المعروض ضمن النطاق الحالي: {resourceCountLabel(definition.key, filteredAndSorted.length)}
               </span>
             )}
             {!isSuperAdmin && definition.key === 'banners' && (
@@ -1870,36 +2001,14 @@ function ResourceView({
         </div>
         <div className="flex items-center gap-2.5">
           {isSuperAdmin && definition.key === 'stations' && (
-            <Button
-              variant="outline"
-              disabled={loading || exporting || records.length === 0}
-              onClick={async () => {
-                setExporting(true);
-                setFeedback(null);
-                try {
-                  // Enrich only the already loaded, bounded export selection.
-                  // Archive pagination remains the separate WO-03 obligation.
-                  if (filteredAndSorted.length > 2000) throw new Error('Export selection exceeds the loaded-page limit.');
-                  const rows = [];
-                  for (let offset = 0; offset < filteredAndSorted.length; offset += 50) {
-                    const page = filteredAndSorted.slice(offset, offset + 50);
-                    const states = await loadStationPrivatePage(firestore, firestoreRoot, page.map(record => record.id));
-                    rows.push(...page.map(record => ({ id: record.id, data: record.data, privateData: states[record.id].data })));
-                  }
-                  const outcome = exportStationsToExcel(rows, firestoreRoot);
-                  setFeedback({ type: 'success', message: `تم تصدير ${outcome.count} محطة إلى ملف Excel (${outcome.filename}) بنجاح.` });
-                } catch (caught) {
-                  setFeedback({ type: 'error', message: caught instanceof Error ? caught.message : 'Station export could not be completed.' });
-                } finally {
-                  setExporting(false);
-                }
-              }}
-              className="min-h-11 shadow-xs border-emerald-600/30 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
-              aria-label="تصدير المحطات إلى ملف Excel"
-            >
-              <FileSpreadsheet className="size-4 text-emerald-600 dark:text-emerald-400" />
-              تصدير إلى Excel
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" disabled={loading || exporting || paginatedRecords.length === 0}
+                onClick={() => void exportCurrentPage()}><FileSpreadsheet className="size-4" /> تصدير الصفحة الحالية إلى Excel</Button>
+              <Button variant="outline" disabled={exporting} onClick={() => void runFullExport()}>
+                {exportJob && !exportJob.complete ? 'استئناف تصدير كل النتائج المطابقة' : 'تصدير كل النتائج المطابقة'}</Button>
+              {exporting && <Button variant="outline" onClick={() => { exportGeneration.current++; setExporting(false); }}>إيقاف مؤقت للتصدير</Button>}
+              {exportJob && <Button variant="outline" onClick={() => { void downloadExportManifest(exportJob, `hudhud-stations-${firestoreRoot}-${Date.parse(exportJob.startedAt)}-manifest.json`).catch(() => setFeedback({ type: 'error', message: 'تعذر إعداد بيان التصدير الآمن. أعد المحاولة.' })); }}>تنزيل بيان التصدير</Button>}
+            </div>
           )}
           {(definition.key === 'programs' || definition.key === 'episodes') && (
             <Button
@@ -2088,7 +2197,7 @@ function ResourceView({
                   </>
                 ) : (
                   <>
-                    إجمالي السجلات المسجلة:{' '}
+                    سجلات صفحة الخادم:{' '}
                     <strong className="font-semibold text-foreground">
                       {resourceCountLabel(definition.key, records.length)}
                     </strong>

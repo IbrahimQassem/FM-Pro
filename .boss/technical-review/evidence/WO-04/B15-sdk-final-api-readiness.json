@@ -1,0 +1,51 @@
+{
+  "status": "STATIC_API_AND_PATCH_READINESS_ONLY_NOT_EXECUTED_OR_INTEGRATED",
+  "rootFixture": {
+    "path": "firebase_tests/firebase-emulators/editorial-comment-counts.test.js",
+    "sha256": "7d4f3f47b0b8a206c714b66f6087c5384041dbfc99c470e91c49c5987a86d6b1",
+    "registeredCases": 92,
+    "lastActualGate": "91; one queued native early-root proof regression unexecuted until next parent E gate"
+  },
+  "sdkPatch": {
+    "path": "/tmp/hudhud-b15-full-sdk-combined.patch",
+    "sha256": "19308b7d40dc91213cfb024287cdc261527b758b93ffb606f736ea0da317ecef",
+    "candidateSha256": "8282b906c5f14ff8f666ee3223cf15dbc8bf962b22beb003e8eb053e88ac07a3",
+    "expectedTotal": 103
+  },
+  "finalFrozenInputs": [
+    {
+      "path": "/tmp/hudhud-b15-final-revision/tool/reconcile_comment_counts.mjs",
+      "sha256": "aa3b3c6c5be5546d4d8264b3ca4c3f783b576704eb2813f18eab1c2d3a6feb72"
+    },
+    {
+      "path": "/tmp/hudhud-b15-final-revision/tool/test/reconcile_comment_counts.test.mjs",
+      "sha256": "c6e1c7e8dfc4ee226e6d112578727a63aa6dc7ce7602774ca5ef0b316aca2844"
+    },
+    {
+      "path": "/tmp/hudhud-b15-final-revision/functions/lib/comment-counts.js",
+      "sha256": "08e356c3c6bc6eadfedaf5acb75bc7d5a8e4154b1f73f63931e10cba8dd62b04"
+    },
+    {
+      "path": "tool/run-count-emulator-tests.mjs",
+      "sha256": "c98836dc4616745415ec49f67b91da8229a76bd617a8de8f9478c504263bbc6d"
+    },
+    {
+      "path": "firebase_tests/support/comment-count-fixtures.mjs",
+      "sha256": "f9ad477a63a8711288971b23635de7f0469b50a2e8cbd7a19290ad89a3767cbf"
+    },
+    {
+      "path": "functions/node_modules/@google-cloud/firestore/build/src/transaction.js",
+      "sha256": "2dc71b0d751c7fd34d010b1ba43de97034b2f2e889e4420406d1db69c7eed0f3"
+    }
+  ],
+  "checks": {
+    "Node22CandidateSyntax": "PASS",
+    "CombinedPatchApplyAgainstExactRootFixture": "PASS",
+    "ActualFinalToolExportsImport": "PASS; no SDK instance/emulator initialization",
+    "ActualPrivateActorSourceContract": "Matches existing --count-sdk-replay-child/--count-sdk-maintenance-child, version1/count-sdk-result,preflight0or2,boundedmaxItems,privateIPCkeyBytes,optionalfinite test-onlynowMs. No publicnow in SDK fixture.",
+    "PublicAPI": "Full exports still take options; explicit stableowner/manifests/private store; status/phase/processed/cursor/readEquivalents/transactionAttempts unchanged",
+    "Runtime": "NOT RUN; parent E only; source/security/protocol/full127 gates precede native integration"
+  },
+  "remainingCoverage": "Previously documented N07 lease choreography not yet authored although final actor-only finite nowMs seam is now available. N12 missing/forked proof matrix, N13 concurrent/old-head/publication/custody fault matrix and N14 independent application-issued read/attempt observer remain supplemental. Reported counters alone earn no full N14 credit.",
+  "boundaries": "Secondary demo SDK-only; actual canonical worker authority called explicitly where stated, no automatic trigger credit. Existing92 retained; parent alone applies patch. Synthetic-only no production/deployment."
+}

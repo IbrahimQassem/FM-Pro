@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B15 count cutover contract clarification review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b15-count-cutover-contract-clarification-review">B15 count cutover contract clarification review</a></li><li class="toc-level-2"><a href="#verdict">Verdict</a></li><li class="toc-level-2"><a href="#compatibility-and-safety-assessment">Compatibility and safety assessment</a></li><li class="toc-level-2"><a href="#wording-consistency-for-integration">Wording consistency for integration</a></li><li class="toc-level-2"><a href="#implementation-acceptance-still-required">Implementation acceptance still required</a></li><li class="toc-level-2"><a href="#proposal-fingerprints">Proposal fingerprints</a></li></ul>
+    </aside>
+    <main>
+      <h1>B15 count cutover contract clarification review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B15-cutover-contract-review.md</div>
+        <div>Generated: 2026-10-26T18:55:20.139Z</div>
+      </div>
+      <h1 id="b15-count-cutover-contract-clarification-review">B15 count cutover contract clarification review</h1>
+<p>Date: 2026-10-26. Reviewer: independent <code>b10_review</code> agent. Scope: proposed three-document clarification only; B15 source is not implemented by this review.</p>
+<h2 id="verdict">Verdict</h2>
+<p><strong>APPROVED for integration before B15 source implementation</strong>, with the consistency wording below retained in the implementation handoff. No new architecture, product flow, service, collection, dependency, task, batch, wave or production authority is introduced. R12 and all other findings remain OPEN.</p>
+<p>Reviewed <code>/tmp/hudhud-b15-cutover-contracts.patch</code>, <code>/tmp/hudhud-b15-cutover-note.md</code>, <code>/tmp/hudhud-b15-cutover-preflight.json</code>, existing C04-COUNTS/ADR0006 and the verified M04 boundary. Independently verified the patch digest, three current baseline document hashes and <code>git apply --check</code> success. No application/test source, emulator/Flutter process, migration or deployment was modified/executed.</p>
+<h2 id="compatibility-and-safety-assessment">Compatibility and safety assessment</h2>
+<ol><li>Absent-fence legacy Rules/application permission and accepted count baseline are different facts. The old deployment may continue existing flow while no fence exists; new count arithmetic must not guess missing contributions. Missing/unknown/unfinished activation in new handlers retries without acknowledging unfinished work, while new count-affecting manual/status/delete transactions fail before mutation. Existing verified published creation remains unchanged at Rules level. Correct cutover supplies the already-required isolated maintenance interval rather than an alternative UI or approval flow.</li><li>Operational sequencing is coherent: verify guarded code/tooling first; enforce old/unowned writer isolation and client pause; perform exhausted read-only oldnamespace audit; stage and completely verify the frozen ID/createTime inventory while paused; atomically activate trusted native commit lineage; release only compatible guarded traffic. Current production mode remains unsupported without actual isolation evidence. An operator boolean cannot establish safety.</li><li>Root maintenance generation owns concurrency, while accepted per-episode generation and exact native create identity own contribution data. Existing private episode/completion records carry accepted manifest/root lineage. Root lease recovery/activation cannot invalidate unchanged accepted baselines merely by incrementing the maintenance epoch. Do not derive a data generation by subtracting one or comparing it blindly with root generation.</li><li>New postactivation episode creation atomically installs its zero counter and empty accepted baseline under the current lineage; native commit identity binds both. The first event cannot lazily guess zero from missing ledger or createTime greater than activeFrom. Delayed events and deleted/recreated IDs cannot inherit a prior episode generation or resurrect content. The implementation must prove exact native create/update identity, not rely on application-created timestamps.</li><li>Rollback preserves isolation and pause until compatible authority or reviewed rebaseline exists. Releasing old decrement/recount workers over active contribution ledgers, deleting lineage/fences to reopen traffic, clamping or aggregate-overwrite fallback is prohibited. Account-deletion barriers/progress persist until comment cleanup succeeds; Auth is not removed prematurely.</li></ol>
+<h2 id="wording-consistency-for-integration">Wording consistency for integration</h2>
+<p>The existing frozen-inventory section says to stage each episode's complete ledger &quot;under that same root generation.&quot; Read and, when integrating, clarify that phrase as <strong>staging ownership under the current verified root maintenance epoch; each episode's accepted data generation remains distinct</strong>. It must not override the new explicit generation distinction or cause data invalidation on recovery/activation. No new data mapping service is needed.</p>
+<p>Oldnamespace auditing is bounded, read-only maintenance/reconciliation/apply/restore/activation preflight to exhaustion, with refusal if any old records exist. It is not an unbounded per-normal-trigger scan. Existing identity, privacy, retry, backup, conditional restore and review obligations remain applicable.</p>
+<h2 id="implementation-acceptance-still-required">Implementation acceptance still required</h2>
+<p>This approval does not verify an authority/helper/worker implementation. B15 must capture genuine baseline behavioral RED before fixes and test absent/paused/unknown/new-code states, every actual guarded writer and retry path, complete inventories and crash/recovery/activation boundaries, native commit identity, lease/data-generation separation, same-ID recreation, duplicate/reordered events, account-deletion barriers and production refusal. Actual both-root worker/Rules integration and independent source/security review remain mandatory. Preserve65 tasks/16 batches/17 waves, original17 skipped identities and global/device obligations. Production rollout/migration/rollback requires its separate checkpoint; no finding is CLOSED.</p>
+<h2 id="proposal-fingerprints">Proposal fingerprints</h2>
+<p>Patch SHA-256: <code>67e4f73fbee1d2fc017daaeed52219606fa9c8a5dea926bbf920ece6a2f3bc16</code>.</p>
+<table><thead><tr><th>Proposed document</th><th>Current baseline SHA-256</th><th>Proposed candidate SHA-256</th></tr></thead><tbody><tr><td><code>docs/contracts/firebase-data-contract.md</code></td><td><code>c0ad347610b449f8d1e371007c66c87cd8f8f74e83959da59bcec3bc233499e5</code></td><td><code>1994f318f40af18063f8bb972c7d17cbe92ab4840f028d33cdcbf5bc583d2988</code></td></tr><tr><td><code>docs/contracts/content-automation-contract.md</code></td><td><code>32473fcaa15469430bf95c935ee2f87c4afddd90ea307be869056b74aea68ad5</code></td><td><code>bbc5878abac0e308fe7f1185d3953ae20b686bd9d7a1e92bf652ad0959025997</code></td></tr><tr><td><code>docs/decisions/0006-background-consistency-and-schedule-timezones.md</code></td><td><code>9a053d1c77d129a91d487866bd71eb7723b5b9cf6f1266eea7e2508a56435a85</code></td><td><code>305be032603556ac7280c5ebdc43bb5912ac91f9e18e7d09fcf846ad8ec931e9</code></td></tr></tbody></table>
+    </main>
+  </div>
+</body>
+</html>

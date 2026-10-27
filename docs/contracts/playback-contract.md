@@ -126,3 +126,46 @@ No persistence, speed control, download or second player is introduced.
 Automated checks and simulator/debug builds do not prove device audio behavior.
 Physical Android/iOS background, interruption, headset and long-listening gates
 remain in the November acceptance matrix until exercised on actual devices.
+
+
+## WO-02 timer and completed-replay reconciliation
+
+The existing shared StationPlayerController owns one session sleep deadline. A
+station/episode replacement, pause/resume, explicit retry or automatic live retry
+preserves that deadline instead of restarting or cancelling it. Choosing a new
+positive duration replaces the old deadline. Cancel, a null/non-positive duration,
+local stop, remote/native idle or controller disposal cancels it. Expiry calls
+stop for the then-current selection; a delayed earlier stop cannot clear a newer
+generation or lend its old timer to the new session. Timer state and the existing
+Now Playing indicator/cancel action describe the same deadline.
+
+A completed recorded episode remains selected and paused; it does not become a
+live-stream reconnect. An explicit play/toggle rewinds that same episode to zero
+before play. If rewind is unavailable or throws, reload only that episode, using
+the same repository/source and canonical episode: ID. Reload failure keeps a
+retryable selection. Replay shares the existing serialized load/seek queue and
+checks mount, selection, generation and play intent around asynchronous work.
+Duplicate play requests consume completion once. Pause, stop, replacement or
+disposal during rewind prevents a stale playback start; foreground eligibility
+is checked again after rewind/reload. Ordinary episode seeking preserves its
+chosen position and never implies autoplay. No second player, new persisted
+playback state or navigation-driven autoplay is introduced.
+
+Source: [controller](../../lib/features/player/presentation/controllers/station_player_controller.dart),
+[datasource](../../lib/features/player/data/datasources/just_audio_player_data_source.dart).
+Permanent regressions: [controller tests](../../test/features/player/presentation/station_player_controller_test.dart),
+[native-source progress/reentrancy tests](../../test/features/player/data/audio_episode_progress_test.dart)
+and [timer UI tests](../../test/features/player/presentation/now_playing_sheet_test.dart).
+The [B07 revision evidence](../../.boss/technical-review/evidence/WO-02/B07-review-revision-provenance.json)
+records the completed-replay reentrancy correction and focused GREEN checks.
+
+Recorded integration evidence includes the earlier
+[B07/B08 full Flutter suite](../../.boss/technical-review/evidence/integration/B07-B08-flutter-full-test.log)
+(355 passes) and later [B09 full Flutter suite](../../.boss/technical-review/evidence/WO-03/B09-review-flutter-full-green.log)
+(397 passes). [Build provenance](../../.boss/technical-review/evidence/integration/flutter-build-provenance.json)
+records Android debug and iOS simulator debug builds, with physical acceptance NOT
+RUN. These are historical candidate checks, not a fresh final merged-candidate
+run or device proof. Full final Flutter checks and actual Android/iPhone
+background/lock, interruption, headset/Bluetooth, timer and replay acceptance
+remain mandatory; browser acceptance is also separate. No finding is closed by
+this contract reconciliation.

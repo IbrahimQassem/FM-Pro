@@ -1,0 +1,17 @@
+{
+  "baselineHead": "c304e85963546220ccbdac51390fe0c03de02419",
+  "scope": "B10 demo-only actual gate and independent review; verified_interim",
+  "tests": {
+    "total": 47,
+    "pass": 47,
+    "fail": 0,
+    "skip": 0
+  },
+  "sha256": {
+    "firestore.indexes.json": "e8779d4922579df9364e8c6d33c94d146f22c7fc898f2ab7795717097a2b343d",
+    "firestore.rules": "b792a71572cf2822aa8e74278dea82043fe40a60a67bad29fbc299ba347d58e9",
+    ".boss/technical-review/B10-review.md": "ff21a19ae727e4272be3643acd4bbc495cc4a16518a1c8484915e7b857d60151",
+    ".boss/technical-review/evidence/WO-03/B10-emulator.log": "8da8abcecd61c8647ca83ca739e54e2a45304e3675adc45cc0e3bbe761f6557a"
+  },
+  "productionOperations": false
+}

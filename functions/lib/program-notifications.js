@@ -1,6 +1,6 @@
 import { logger } from 'firebase-functions';
 import { createHash } from 'node:crypto';
-import { Timestamp } from 'firebase-admin/firestore';
+import { FieldPath, Timestamp } from 'firebase-admin/firestore';
 import { claimDelivery, startDelivery, finishDelivery, notificationFailure } from './notification-delivery.js';
 
 export const programRoots = ['HudHudDev', 'HudHudOfficial'];
@@ -42,22 +42,92 @@ export function getYemenTimeInfo(date = new Date()) {
  * - Program starts within 0 to 10 minutes from now (startMinute - currentMinute in [0, 10])
  * - Has not already been notified today (lastNotifiedDate !== todayYmd)
  */
+export function normalizedSchedule(schedule) {
+  if (!schedule || !Array.isArray(schedule.weekdays) || !schedule.weekdays.length ||
+    schedule.weekdays.some(day => !Number.isInteger(day) || day < 1 || day > 7) ||
+    !Number.isInteger(schedule.startMinute) || schedule.startMinute < 0 || schedule.startMinute > 1439 ||
+    !Number.isInteger(schedule.endMinute) || schedule.endMinute <= schedule.startMinute || schedule.endMinute > 1440 ||
+    !Number.isInteger(schedule.utcOffsetMinutes) || schedule.utcOffsetMinutes < -720 || schedule.utcOffsetMinutes > 840) return null;
+  return { ...schedule, weekdays: [...new Set(schedule.weekdays)].sort((a, b) => a - b) };
+}
+const visible = data => data?.isActive === true && !data.adminDeletionToken;
+const hash = tuple => createHash('sha256').update(JSON.stringify(tuple)).digest('hex');
+const native = value => Number.isSafeInteger(value?.seconds) && value.seconds >= -62135596800 && value.seconds <= 253402300799 &&
+  Number.isInteger(value.nanoseconds) && value.nanoseconds >= 0 && value.nanoseconds < 1000000000;
+const sameTime = (a, b) => native(a) && native(b) && a.seconds === b.seconds && a.nanoseconds === b.nanoseconds;
+const millis = value => native(value) ? value.toMillis() : NaN;
+export function localTime(instant, offset) {
+  const date = new Date(instant + offset * 60000);
+  const year = date.getUTCFullYear();
+  if (!Number.isFinite(date.getTime()) || year < 1 || year > 9999) return null;
+  return { weekday: date.getUTCDay() || 7, currentMinute: date.getUTCHours() * 60 + date.getUTCMinutes(), ymd: date.toISOString().slice(0, 10) };
+}
+export function legacyDates(date, offset) {
+  const start = Date.parse(`${date}T00:00:00.000Z`) - offset * 60000;
+  if (!localTime(start, 0) || !localTime(start + 86400000, 0)) return null;
+  const first = localTime(start, 180), last = localTime(start + 86400000 - 1, 180);
+  return first && last ? [...new Set([first.ymd, last.ymd])].sort() : null;
+}
+function intent(program, instant) {
+  const schedule = normalizedSchedule(program?.schedule);
+  const time = schedule && localTime(instant, schedule.utcOffsetMinutes);
+  return time && shouldNotifyProgram(program, time) ? { schedule, time } : null;
+}
+export function fingerprint(id, program, schedule) {
+  return hash(['program-schedule-v2', id, program.stationId, true, true, schedule.weekdays,
+    schedule.startMinute, schedule.endMinute, schedule.utcOffsetMinutes]);
+}
 export function shouldNotifyProgram(programData, timeInfo) {
-  if (programData?.isActive !== true) return false;
-  const schedule = programData?.schedule;
-  if (!schedule) return false;
-  if (!Array.isArray(schedule.weekdays) || !schedule.weekdays.includes(timeInfo.weekday)) {
-    return false;
+  const schedule = normalizedSchedule(programData?.schedule);
+  if (!visible(programData) || !schedule || !schedule.weekdays.includes(timeInfo.weekday)) return false;
+  const diff = schedule.startMinute - timeInfo.currentMinute;
+  return diff >= 0 && diff <= 10 && programData.lastNotifiedDate !== timeInfo.ymd;
+}
+function stampBlocks(program, date, dates) {
+  const stamp = program.lastNotifiedDate, version = program.lastNotifiedPolicyVersion;
+  if (stamp === undefined && version === undefined) return false;
+  if (typeof stamp !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(stamp) || !Number.isFinite(Date.parse(`${stamp}T00:00:00Z`)) ||
+    new Date(`${stamp}T00:00:00Z`).toISOString().slice(0, 10) !== stamp) return true;
+  if (version === 2) return stamp === date;
+  return version === undefined || version === 1 ? dates.includes(stamp) : true;
+}
+const hex = value => typeof value === 'string' && /^[0-9a-f]{64}$/.test(value);
+function validCarry(proof, program, programId, dates, fp, sources, delivery, now) {
+  if (!proof || typeof proof !== 'object' || Array.isArray(proof)) return false;
+  const fields = ['version', 'manifestHash', 'cutoverAt', 'programCreateTime', 'scheduleFingerprint', 'legacyDates', 'legacyKeys', 'evidenceHashes',
+    'decision', 'legacySourceKey', 'legacySourceCreateTime', 'legacySourceUpdateTime', 'recordedAt'];
+  if (Object.keys(proof).length !== fields.length || Object.keys(proof).some(key => !fields.includes(key)) || proof.version !== 1 ||
+    !hex(proof.manifestHash) || !native(proof.cutoverAt) || !native(proof.recordedAt) ||
+    !sameTime(proof.programCreateTime, program.createTime) || proof.scheduleFingerprint !== fp ||
+    JSON.stringify(proof.legacyDates) !== JSON.stringify(dates) || !Array.isArray(proof.legacyKeys) ||
+    JSON.stringify(proof.legacyKeys) !== JSON.stringify(dates.map(date => hash([programId, date]))) ||
+    !Array.isArray(proof.evidenceHashes) || proof.evidenceHashes.length > 3 || !proof.evidenceHashes.every(hex)) return false;
+  const present = sources.filter(source => source.snapshot.exists);
+  if (present.length !== 1 || present[0].key !== proof.legacySourceKey) return false;
+  const source = present[0].snapshot, data = source.data();
+  if (!sameTime(source.createTime, proof.legacySourceCreateTime) || !sameTime(source.updateTime, proof.legacySourceUpdateTime) ||
+    data.fingerprint !== undefined || !Number.isSafeInteger(data.attempts) || data.attempts < 1 ||
+    !['createdAt', 'updatedAt', 'expiresAt', 'cleanupAt'].every(field => native(data[field])) ||
+    millis(data.updatedAt) < millis(data.createdAt) || millis(data.expiresAt) <= millis(data.createdAt) ||
+    millis(data.cleanupAt) < millis(data.expiresAt) || !['claimed', 'sending'].includes(data.phase) ||
+    millis(data.expiresAt) <= now ||
+    !['createdAt', 'expiresAt', 'cleanupAt'].every(field => sameTime(data[field], delivery[field])) ||
+    !Number.isSafeInteger(delivery.attempts) || delivery.attempts < data.attempts) return false;
+  if (proof.decision === 'carried-prepared') return data.status === 'pending' && data.phase === 'claimed' &&
+    typeof data.lease === 'string' && !!data.lease && native(data.leaseUntil) && millis(data.leaseUntil) <= now;
+  if (proof.decision !== 'carried-retryable' || data.status !== 'failed' || data.retryable !== true || !native(data.retryAt) || millis(data.retryAt) > now) return false;
+  return data.reason === 'preparation-failed' || notificationFailure({ code: data.reason }).retryable === true;
+}
+function legacyPolicy(program, programId, date, dates, fp, sources, delivery, now) {
+  if (stampBlocks(program.data(), date, dates)) return 'terminal';
+  for (const source of sources) {
+    const data = source.snapshot.data();
+    if (source.snapshot.exists && (['sent', 'unknown'].includes(data?.status) ||
+      (data?.status === 'pending' && data.phase === 'sending' && native(data.leaseUntil) && millis(data.leaseUntil) <= now))) return 'terminal';
   }
-  const startMinute = Number(schedule.startMinute);
-  if (!Number.isInteger(startMinute) || startMinute < 0 || startMinute > 1439) return false;
-
-  const diff = startMinute - timeInfo.currentMinute;
-  if (diff < 0 || diff > 10) return false;
-
-  if (programData.lastNotifiedDate === timeInfo.ymd) return false;
-
-  return true;
+  const evidence = sources.some(source => source.snapshot.exists);
+  if (!evidence && delivery?.programCompatibility === undefined) return 'clear';
+  return validCarry(delivery?.programCompatibility, program, programId, dates, fp, sources, delivery, now) ? 'clear' : 'defer';
 }
 
 /**
@@ -100,79 +170,85 @@ export function createProgramFcmMessage({ programId, programTitle, stationId, st
  * Scans programs in root collection, identifies programs starting within 10 minutes,
  * sends FCM topic messages, and stamps lastNotifiedDate.
  */
-export async function notifyUpcomingProgramsForRoot({
-  firestore,
-  messaging,
-  root,
-  now = new Date(),
-}) {
-  if (!programRoots.includes(root)) {
-    throw new Error(`Unknown root environment: ${root}`);
-  }
-
-  const started = Date.now();
-  const clock = () => now.getTime() + Date.now() - started;
-  const timeInfo = getYemenTimeInfo(now);
-  const programsRef = firestore.collection(root).doc('programs').collection('programs');
-  const snapshot = await programsRef.where('isActive', '==', true).get();
-
-  let checked = 0;
-  let notified = 0;
-  let skipped = 0;
-
+export async function notifyUpcomingProgramsForRoot({ firestore, messaging, root, now = new Date() }) {
+  if (!programRoots.includes(root)) throw new Error(`Unknown root environment: ${root}`);
+  const started = Date.now(), clock = () => now.getTime() + Date.now() - started;
+  const snapshot = await firestore.collection(root).doc('programs').collection('programs').where('isActive', '==', true).get();
+  let checked = 0, notified = 0, skipped = 0;
   for (const doc of snapshot.docs) {
     checked++;
-    const data = doc.data();
-
-    if (!shouldNotifyProgram(data, timeInfo)) {
-      skipped++;
-      continue;
-    }
-
-    if (typeof messaging?.send !== 'function') { skipped++; continue; }
-    const key = createHash('sha256').update(JSON.stringify([doc.id, timeInfo.ymd])).digest('hex');
-    const reference = firestore.doc(`${root}/notificationOperations/operations/${key}`);
-    const lease = await claimDelivery({ firestore, reference, now: clock() });
-    if (!lease) { skipped++; continue; }
-    let outcome;
-    let current;
-    let sending = false;
+    const initial = intent(doc.data(), clock());
+    if (!initial || typeof doc.data().stationId !== 'string' || !doc.data().stationId.trim() ||
+      doc.data().stationId !== doc.data().stationId.trim() || doc.data().stationId.includes('/') || typeof messaging?.send !== 'function') { skipped++; continue; }
+    const programRef = firestore.doc(`${root}/programs/programs/${doc.id}`);
+    const stationRef = firestore.doc(`${root}/stations/stations/${doc.data().stationId}`);
+    const date = initial.time.ymd, dates = legacyDates(date, initial.schedule.utcOffsetMinutes);
+    if (!dates) { skipped++; continue; }
+    const fp = fingerprint(doc.id, doc.data(), initial.schedule);
+    const reference = firestore.doc(`${root}/notificationOperations/operations/${hash(['program-start-v2', doc.id, date])}`);
+    const aliases = dates.map(day => { const key = hash([doc.id, day]); return { key, reference: firestore.doc(`${root}/notificationOperations/operations/${key}`) }; });
+    const readAliases = async read => {
+      const values = [];
+      for (const alias of aliases) values.push({ key: alias.key, snapshot: await read(alias.reference) });
+      return values;
+    };
+    let lease, sending = false;
     try {
-      current = (await doc.ref.get()).data();
-      if (!shouldNotifyProgram(current, getYemenTimeInfo(new Date(clock())))) {
-        await finishDelivery({ firestore, reference, lease, status: 'failed', reason: 'ineligible', now: clock() });
+      const program = await programRef.get(), station = await stationRef.get();
+      if (!program.exists || !station.exists || !visible(station.data()) || !visible(program.data()) ||
+        program.data().stationId !== doc.data().stationId) { skipped++; continue; }
+      const previous = await reference.get();
+      if (legacyPolicy(program, doc.id, date, dates, fp, await readAliases(ref => ref.get()), previous.data(), clock()) !== 'clear') { skipped++; continue; }
+      lease = await claimDelivery({ firestore, reference, fingerprint: fp, now: clock() });
+      if (!lease) { skipped++; continue; }
+      // Construct the canonical station reference through the existing collection API;
+      // all authoritative source reads and payload preparation happen in startDelivery.
+      const freshStationRef = firestore.collection(root).doc('stations').collection('stations').doc(doc.data().stationId);
+      let message, birth, terminal = false;
+      const began = await startDelivery({ firestore, reference, lease, now: clock(), validate: async tx => {
+        message = undefined; birth = undefined; terminal = false;
+        const fresh = await tx.get(programRef), freshStation = await tx.get(freshStationRef);
+        const current = (await tx.get(reference)).data(), sources = await readAliases(ref => tx.get(ref));
+        if (!fresh.exists || !freshStation.exists || !sameTime(fresh.createTime, program.createTime) ||
+          !sameTime(freshStation.createTime, station.createTime) || !visible(freshStation.data())) return false;
+        const currentIntent = intent(fresh.data(), clock());
+        if (!currentIntent || currentIntent.time.ymd !== date || fresh.data().stationId !== doc.data().stationId ||
+          fingerprint(doc.id, fresh.data(), currentIntent.schedule) !== fp || current?.fingerprint !== fp) return false;
+        const policy = legacyPolicy(fresh, doc.id, date, dates, fp, sources, current, clock());
+        terminal = policy === 'terminal';
+        if (policy !== 'clear') return false;
+        message = createProgramFcmMessage({ programId: doc.id, programTitle: fresh.data().title || 'برنامج مميز',
+          stationId: fresh.data().stationId, stationName: freshStation.data().name || '', root });
+        birth = fresh.createTime;
+        return true;
+      } });
+      if (!began) {
+        if (terminal) await finishDelivery({ firestore, reference, lease, status: 'unknown', reason: 'legacy-compatibility-suppression', now: clock() });
         skipped++; continue;
       }
-      let stationName = '';
-      if (current.stationId) {
-        const stationDoc = await firestore.collection(root).doc('stations').collection('stations').doc(current.stationId).get();
-        stationName = stationDoc.data()?.name || '';
-      }
-      const message = createProgramFcmMessage({ programId: doc.id, programTitle: current.title || 'برنامج مميز',
-        stationId: current.stationId, stationName, root });
-      if (!await startDelivery({ firestore, reference, lease, now: clock() })) { skipped++; continue; }
       sending = true;
-      try {
-        await messaging.send(message);
-        outcome = { status: 'sent' };
-      } catch (error) {
-        outcome = notificationFailure(error);
-      }
+      let outcome;
+      try { await messaging.send(message); outcome = { status: 'sent' }; }
+      catch (error) { outcome = notificationFailure(error); }
       await finishDelivery({ firestore, reference, lease, ...outcome, now: clock() });
       if (outcome.status === 'sent') {
-        // Compatibility stamp follows acknowledgement; the durable receipt owns deduplication.
-        await doc.ref.update({ lastNotifiedDate: timeInfo.ymd });
         notified++;
+        await firestore.runTransaction(async tx => {
+          const fresh = await tx.get(programRef), freshStation = await tx.get(stationRef);
+          const schedule = normalizedSchedule(fresh.data()?.schedule);
+          if (!fresh.exists || !sameTime(fresh.createTime, birth) || !visible(fresh.data()) || !visible(freshStation.data()) ||
+            !schedule || fresh.data().stationId !== doc.data().stationId || fingerprint(doc.id, fresh.data(), schedule) !== fp ||
+            (fresh.data().lastNotifiedPolicyVersion === 2 && fresh.data().lastNotifiedDate > date)) return;
+          tx.update(programRef, { lastNotifiedDate: date, lastNotifiedPolicyVersion: 2 });
+        });
       }
-    } catch {
-      // Preparation can retry safely; a send or receipt-write failure may be ambiguous.
-      await finishDelivery({ firestore, reference, lease, status: sending ? 'unknown' : 'failed',
-        retryable: !sending, reason: sending ? 'delivery-uncertain' : 'preparation-failed', now: clock() });
-      logger.warn('Program notification operation needs delivery-state review.');
+    } catch (error) {
+      if (lease) await finishDelivery({ firestore, reference, lease, status: sending ? 'unknown' : 'failed', retryable: !sending,
+        reason: sending ? 'delivery-uncertain' : 'preparation-failed', now: clock() });
+      if (error?.code !== 'delivery/payload-conflict') logger.warn('Program notification operation needs delivery-state review.');
+      if (!sending) skipped++;
     }
-
   }
-
   return { root, total: snapshot.size, checked, notified, skipped };
 }
 
@@ -180,7 +256,8 @@ export async function notifyUpcomingProgramsForRoot({
 export async function collectNotificationOperations({ firestore, root, now = Date.now() }) {
   if (!programRoots.includes(root)) throw new Error('Unknown notification root.');
   const expired = await firestore.collection(`${root}/notificationOperations/operations`)
-    .where('cleanupAt', '<=', Timestamp.fromMillis(now)).limit(20).get();
+    .where(FieldPath.documentId(), '>=', 'broadcast_').where(FieldPath.documentId(), '<', 'broadcast`')
+    .where('cleanupAt', '<=', Timestamp.fromMillis(now)).orderBy('cleanupAt').orderBy(FieldPath.documentId()).limit(20).get();
   if (expired.empty) return;
   const batch = firestore.batch();
   for (const item of expired.docs) batch.delete(item.ref);

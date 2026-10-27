@@ -1,0 +1,96 @@
+{
+  "status": "MANDATORY_SUBSCRIPTIONS_GATE_FAILED_STOP_REQUIRED",
+  "reviewer": "/root/b10_review",
+  "reviewSha256": "ad13f3ba617e6c8498fb50a19f55286d13d217fec6d0d2b5cc68e9acad478157",
+  "gates": {
+    "email": {
+      "tests": 14,
+      "pass": 14,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "durationMs": 9502.744618,
+      "exitCode": 0,
+      "cleanShutdown": true,
+      "logSha256": "e24ca4ccdb1f067944b17f03b745123c047a2d1bfda7a661517c05c78fda5481"
+    },
+    "subscriptions": {
+      "tests": 18,
+      "pass": 15,
+      "fail": 3,
+      "ERR_ASSERTION": 3,
+      "skipped": 0,
+      "cancelled": 0,
+      "durationMs": 30754.251793,
+      "exitCode": 1,
+      "cleanShutdown": true,
+      "logSha256": "dd11eb2b558cc5be134be742b3f7cfcbae97107b35696e6032a6a3884f995738"
+    }
+  },
+  "beforeInputs": {
+    "path": ".boss/technical-review/evidence/integration/B16-account-gates-inputs.json",
+    "sha256": "720c39814c13ce4af3be34867e40ae5a9fc65543f904030689bc10628cc8baed",
+    "count": 120,
+    "capturePhase": "before email/subscription/account-deletion launches",
+    "changedNow": []
+  },
+  "classification": [
+    "PKG08 legacy profile email expectation conflicts acceptedR10",
+    "Both-root incomplete program schedules violate acceptedR13; valid program sending not disproved"
+  ],
+  "noOtherDownstreamIssueClaimed": true,
+  "unexecuted": [
+    "New nativeT12 runtime",
+    "New account-deletion gate"
+  ],
+  "reviewerSourceTestRuntimeWrites": false,
+  "stopIsMandatory": true,
+  "findings": "R01\u2013R13 OPEN",
+  "documentationPatch": {
+    "sha256": "f7757910b1dae3ca5d878dbcb896506c255e3a07bfeb984636127b40d828f8cd",
+    "files": {
+      "waves.json": {
+        "beforeSha256": "984ec3e1421d8779ae6e5e5a97552dbc3873c961dd31974a9495d9d4ec342b3a",
+        "afterSha256": "f2788dcbdee23306e16759a5e997ebed18b8ff7e185063b01eb35ee9fd8cc64a"
+      },
+      "execution-progress.md": {
+        "beforeSha256": "4e5611f601bf1170c91700f4dba645b9f0d6df8d9019a2e8756471802f286080",
+        "afterSha256": "5edb06a0e7b100114a43874b191f421f8e718bee0ca408a18bff458bccdb4ff2"
+      },
+      "WO-01-validation.md": {
+        "beforeSha256": "d4cdc80785177453949f2e2207ec86de207d0b7523799ee629b1e969c694fb51",
+        "afterSha256": "6e8cbfd8bbd14b2a8a56d2601620d1f87e91a63be6cb71a8af53af970eeaebdf"
+      },
+      "execution-plan.md": {
+        "beforeSha256": "9e5db9dcf15782a039da177159745f27e29d9513f22406524da1aae86e67bc94",
+        "afterSha256": "bcc1a6959502a93807ef30b780252469b1230416a737feaf25ff32de55ad99d7"
+      },
+      "WO-04.md": {
+        "beforeSha256": "4239a1d0d831fb56c54efdc4660c6ff975ce7c9f8626f5fb9dc02335512bc5e9",
+        "afterSha256": "2a9d3b93a03fbd2bbbdf62388fca43afcedb020dcb993c5df42bb811b1bfaed8"
+      }
+    },
+    "scope": "Two append-only ledgers, two current status paragraphs, waves.executionReconciliation.currentBatch only",
+    "unchangedGovernance": {
+      "tasks": 65,
+      "batches": 16,
+      "waves": 17,
+      "owners": 76,
+      "nodes": 87,
+      "acyclic": true,
+      "unknownDependencies": [],
+      "allStatesOwnersEdgesPreserved": true
+    }
+  },
+  "stoppedBackend": {
+    "allEFStoppedParentConfirmed": true,
+    "liveEditorialFixtureSha256": "dd2e8ae2aeb6140124421b4e97fcf4404986764982e5b086baf64a4a5d7f5a46",
+    "draftPath": ".boss/technical-review/evidence/WO-04/B16-T12-native-unintegrated-draft.js",
+    "draftSha256": "e66a878a4a8f5c3d76daa9e33ebd9e19fe631eadf512425055a92a7b18b72d24",
+    "plannedCases": 45,
+    "draftStatus": "UNREVIEWED_UNINTEGRATED_NOT_ASSEMBLED_SYNTAX_DISCOVERY_RUNNER_EXECUTED",
+    "canonicalTupleQuerySmoke": "UNWRITTEN",
+    "temporarySecretAbsentParentConfirmed": true,
+    "requiredNextScopeGate": "Reviewed station-subscriptions fixture compatibility attachment plus sole I lock before any mutation; not current04-T12writeSet"
+  }
+}

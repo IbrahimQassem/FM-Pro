@@ -1,0 +1,113 @@
+{
+  "batch": "B11",
+  "tasks": [
+    "03-T09",
+    "03-T10",
+    "03-T11",
+    "03-T12",
+    "03-T13"
+  ],
+  "status": "candidate_non_emulator_green_pending_actual_emulator_and_independent_review",
+  "recordedAt": "2026-10-26T18:21:10.690112+00:00",
+  "node": "v26.6.0",
+  "sourceSha256": {
+    "functions/lib/admin-user-count.js": "1b30bbb90e37ed83cf0622304eb11dbca966e46f8fea7ac2d1d90e289a9eb086",
+    "functions/test/admin-user-count.test.js": "0c0325f13f16d21d6593d297bc2d7ee298a90bb47fa035880de1723bf91bfab8",
+    "functions/index.js": "9fc086e98fd1e0c12265dfa36f96418536f8ecacd7c93995b165cc26e0d72714",
+    "web_admin/lib/user-count.ts": "ec89c2a4ead0c844bb242648bd2dc25cf2d8ccc4c77f8d3bf0fb260c39fcf0cd",
+    "web_admin/test/user-count.test.ts": "d76e737c39878c0bdbf5eb2763379e0c9d714afceb1a12844c4228370f4bc3c4",
+    "web_admin/components/admin/users-aggregate-view.tsx": "f54df8a5cf7b4a0778884f8b53b7792ef75368f30ffa15196f11ad9e43907875",
+    "web_admin/lib/admin-query.ts": "556fe049f7cf79b160b2d5688f16fe894bc289400e1dd8623584b367938ff91b",
+    "web_admin/lib/resource-pagination.ts": "afa7b53a6cf44150bea665669fe3ccb4d63eec553917fac45795975222b9b612",
+    "web_admin/lib/resource-filters.ts": "46c17de52d37ef96effdec62418c238b803faf47d08f19e41bef24f441002ee3",
+    "web_admin/test/resource-pagination.test.ts": "db44c1f61358f85288020bd5634d910991d2d7017762447b6b48b868663ae333",
+    "web_admin/test/content-pagination.emulator.test.ts": "3c310f2ea140eb2e849a17b3ed38f98b3697a4ebfc158d91cea8c57f55c228a2",
+    "web_admin/components/admin/admin-app.tsx": "c01d24e0817659ff734783b93c582a1660e643030166550c7d907ebd48e8fdb7",
+    "web_admin/lib/export-pages.ts": "8864b353b2e9d939c1267f26f0e3d026d8d00b0b0c04bee21cf869ac6f39d1da",
+    "web_admin/test/export-pages.test.ts": "61ae280f60fa2c0ad28b61e25eb77e49995694d59be9507126f5fd072e198eb7",
+    "web_admin/test/user-count.emulator.test.ts": "0d9360f3746594aab15485f1a4ab2e4d96da9c879e522faac49b72b49a3579eb"
+  },
+  "finalAdminGates": [
+    {
+      "gate": "admin-tests",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/hudhud-b11-final-evidence/admin-tests.log",
+      "sha256": "dd96d4ff0d040da27f6d4b235bb8bd00655751a1336cb4300342f812e8021173"
+    },
+    {
+      "gate": "admin-lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/hudhud-b11-final-evidence/admin-lint.log",
+      "sha256": "b47df0ff5f03616a2ef006e87565723f599ad3074ad5eebaa6a157591479c683"
+    },
+    {
+      "gate": "admin-typecheck",
+      "command": [
+        "./node_modules/.bin/tsc",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/hudhud-b11-final-evidence/admin-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "gate": "admin-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/hudhud-b11-final-evidence/admin-build.log",
+      "sha256": "1bc2451fa027622434ad4c52aaf14c1be5cf403fbab08751b62fa6ab5f3bf6ce"
+    }
+  ],
+  "adminTests": {
+    "passed": 106,
+    "failed": 0,
+    "skipped": 23,
+    "acceptanceCreditForSkips": false
+  },
+  "previousObservedFunctionsGates": {
+    "npm run lint": "PASS",
+    "npm test": {
+      "passed": 259,
+      "failed": 0,
+      "skipped": 0
+    },
+    "evidence": "Actual tool stdout; parent explicitly accepted unchanged Functions gates after final UI-only patch."
+  },
+  "previousFocusedGates": {
+    "countBackend": 21,
+    "countAdapter": 2,
+    "paginationAndFilters": 15,
+    "allPassed": true,
+    "skipped": 0
+  },
+  "baseline": "Existing immutable M03-baseline-provenance.json: 8 intended child business failures, not missing imports or environment failures.",
+  "deferredHarnessPatch": "/tmp/hudhud-b11-count-harness.patch; parent applies only after M03-T16-FIXTURE prerequisites.",
+  "findings": {
+    "R06": "OPEN",
+    "R07": "OPEN"
+  },
+  "unverified": [
+    "Actual demo emulator count and pagination/security gates, pending parent runtime/prerequisites",
+    "Independent implementation review",
+    "Browser UI acceptance and real download/pause/resume behavior",
+    "B15 full integrated worker acceptance",
+    "Final full Flutter and physical-device acceptance under master plan"
+  ],
+  "productionOperationsPerformed": false,
+  "repositorySourceWriter": "Parent I only; this agent supplied /tmp patches."
+}

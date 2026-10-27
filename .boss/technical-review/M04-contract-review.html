@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>M04 count-fence contract review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#m04-count-fence-contract-review">M04 count-fence contract review</a></li><li class="toc-level-2"><a href="#verdict">Verdict</a></li><li class="toc-level-2"><a href="#exact-approved-wire-schema">Exact approved wire schema</a></li><li class="toc-level-2"><a href="#namespace-and-permission-reconciliation">Namespace and permission reconciliation</a></li><li class="toc-level-2"><a href="#baseline-evidence-assessment">Baseline evidence assessment</a></li><li class="toc-level-2"><a href="#remaining-gates">Remaining gates</a></li><li class="toc-level-2"><a href="#reviewed-fingerprints">Reviewed fingerprints</a></li><li class="toc-level-3"><a href="#integrated-amendment-confirmation">Integrated amendment confirmation</a></li></ul>
+    </aside>
+    <main>
+      <h1>M04 count-fence contract review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: M04-contract-review.md</div>
+        <div>Generated: 2026-10-26T18:55:16.774Z</div>
+      </div>
+      <h1 id="m04-count-fence-contract-review">M04 count-fence contract review</h1>
+<p>Date: 2026-10-26. Reviewer: independent <code>b10_review</code> agent. Scope: the proposed contract/type/namespace amendment and existing test-only baseline, before Rules implementation.</p>
+<h2 id="verdict">Verdict</h2>
+<p><strong>APPROVED for the narrowly scoped M04-T12-FENCE-READY implementation.</strong> No blocking issue found in the proposed field types or namespace. This is contract approval, not Rules GREEN, root activation, B15/B16 completion, finding closure, or production authorization. Reviewer changed only this report and launched no emulator or Flutter process.</p>
+<h2 id="exact-approved-wire-schema">Exact approved wire schema</h2>
+<ul><li><code>version</code> and <code>writerProtocol</code> are integers exactly1; <code>state</code> is exactly <code>paused</code> or <code>active</code>.</li><li><code>generation</code> is a positive safe integer through9007199254740991. Trusted transactions enforce monotonic advancement; Rules cannot infer history from one snapshot.</li><li><code>owner</code> is an opaque nonempty trimmed string of at most128 characters without slash. <code>planHash</code> is exactly64 lowercase hex characters.</li><li><code>leaseUntil</code> is a nonnegative safe integer epoch-millisecond value. It is an operational lease, not the activation timestamp, and expiry never releases pause.</li><li>Active state requires native Firestore Timestamp <code>activeFrom</code> from the trusted atomic activation commit and exact64-lowercase-hex <code>baselineManifestHash</code>. Preserve native seconds/nanoseconds; do not substitute rounded epoch milliseconds or a client clock. A dependency-free server helper can validate the SDK-returned Timestamp structurally without a Firebase import; enforce valid native timestamp component ranges. Rules must require native timestamp type.</li><li>Missing root fence retains legacy normal flow. A present paused or unsupported/malformed active fence denies normal writes. Retained previous activation fields cannot bypass pause. Existing authorization, verified-email, profile ownership, UGC agreement and deletion safeguards remain conjunctive requirements.</li></ul>
+<p>The future helper must preserve the same validation semantics as Rules. This review does not approve an unimplemented helper, bypass flag, generic locking service or premature active baseline.</p>
+<h2 id="namespace-and-permission-reconciliation">Namespace and permission reconciliation</h2>
+<p>Approved private leaf: <code>{root}/commentCountContributions/episodes/{episodeId}/contributions/{commentId}</code>. The old planned <code>comments</code> leaf collides with the existing recursive <code>comments</code> collection-group administrator list allowance. Firestore allow rules combine permissively; adding a deny does not override that allowance. The new unreleased collection name avoids the overlap and remains default-denied without rewriting canonical comment audit Rules. Root fence and per-episode baseline documents remain private. Existing canonical comment reads/audits and established importKeys reads remain unchanged.</p>
+<p>No implementation/live migration of the old planned ledger namespace exists in this reviewed handoff. Preserve the old-path leak probe as historical design evidence. New-path private access tests are GREEN guards, not fabricated newly failing vulnerability evidence.</p>
+<p>Required wording clarification for integration: <strong>Before maintenance/reconciliation, apply, restore or activation, perform bounded, read-only preflight audit of the applicable old planned ledger namespace to exhaustion. Refuse all maintenance mutation/activation if any old records are found, and report for separate review. This is a maintenance preflight obligation, not an unbounded collection scan in every normal event handler.</strong> No automatic rename, copy, delete, merge or cleanup is approved. Continuation/exhaustion evidence must not be replaced by checking only the first page.</p>
+<h2 id="baseline-evidence-assessment">Baseline evidence assessment</h2>
+<p>Inspected the permanent test-only fixture and <code>.boss/technical-review/evidence/WO-04/M04-fence-baseline-red.log</code>. Baseline Rules are unchanged at the fingerprint below. Actual result: <strong>75 tests,43 passed,32 failed,0 skipped</strong>.</p>
+<p>All32 failures are intended business assertions after valid setup and successful Firestore operations:28 paused/malformed-fence creation cases (14 per root) report <code>Expected request to fail, but it succeeded.</code>; four old-namespace privacy/list assertions (two per root) report the same unexpected authorized access. There are no missing-module, compilation, fixture-hook or environment failures counted as RED. Absent/valid-active authorization and retained authentication/ownership/agreement/deletion checks pass. The bounded canonical admin comment audit itself returns only the canonical document; the final old-ledger direct-list assertion demonstrates the separate namespace leak.</p>
+<p>Changing the unreleased namespace is a reviewed design correction; do not claim a fix to existing canonical comment permissions. Newnamespace tests must use <code>contributions</code> and execute actual get/list/create/update/delete denial across roles and both roots. Preserve the original oldnamespace failure log rather than requiring denial under an intentionally preserved comments collection-group permission.</p>
+<h2 id="remaining-gates">Remaining gates</h2>
+<p>Integrate only the owned Rules/test milestone after contract amendments. Capture actual both-root GREEN, independent Rules/source review and input fingerprints before marking M04 verified. Add malformed-field boundary tests as needed for the exact supported schema. The milestone remains a partial04-T12 output depending on C04-COUNTS; full04-T12 stays in B16. B15 still needs all server writer guards, retry semantics, complete frozen identity inventories, contribution authority, rehearsal and integration checks. Task/batch/wave counts remain65/16/17. Physical-device, original skipped-test obligations and separate operational approvals remain intact. No finding is CLOSED.</p>
+<h2 id="reviewed-fingerprints">Reviewed fingerprints</h2>
+<table><thead><tr><th>Input</th><th>SHA-256</th></tr></thead><tbody><tr><td><code>/tmp/hudhud-m04-fence-contracts.patch</code></td><td><code>b72d9b2c0ea2218a432ff8b29eef596e610492613d6a33985019385d6234ce0a</code></td></tr><tr><td><code>firebase_tests/firebase-rules/firestore.rules.test.js</code></td><td><code>3e48ec62d984903ea988dcf2d8b561613f298f2ecefa1c35a86ae90b0a30fb36</code></td></tr><tr><td><code>firestore.rules</code></td><td><code>b792a71572cf2822aa8e74278dea82043fe40a60a67bad29fbc299ba347d58e9</code></td></tr><tr><td><code>.boss/technical-review/evidence/WO-04/M04-fence-baseline-red.log</code></td><td><code>990473455c24dad5d0c6ef86906f03c43a6ad49ca8e0621fc0f203305aaa4a96</code></td></tr></tbody></table>
+<h3 id="integrated-amendment-confirmation">Integrated amendment confirmation</h3>
+<p>The coordinator integrated the reviewed proposal with the maintenance-only, bounded read-only old-namespace audit clarification. The native Timestamp/safe epoch-millisecond types and private <code>contributions</code> namespace are unchanged. <strong>Final contract approval confirmed</strong> for these integrated document inputs; Rules implementation and actual GREEN remain pending.</p>
+<table><thead><tr><th>Integrated document</th><th>SHA-256</th></tr></thead><tbody><tr><td><code>docs/contracts/firebase-data-contract.md</code></td><td><code>c0ad347610b449f8d1e371007c66c87cd8f8f74e83959da59bcec3bc233499e5</code></td></tr><tr><td><code>docs/decisions/0006-background-consistency-and-schedule-timezones.md</code></td><td><code>9a053d1c77d129a91d487866bd71eb7723b5b9cf6f1266eea7e2508a56435a85</code></td></tr><tr><td><code>.boss/technical-review/WO-04.md</code></td><td><code>a8e9cbc992c32d63ab0b8ddd6270e60dc2630c897c9f50cbaaee29326ffc6910</code></td></tr></tbody></table>
+    </main>
+  </div>
+</body>
+</html>

@@ -19,6 +19,7 @@ import {
   increment,
   query,
   serverTimestamp,
+  Timestamp,
   setDoc,
   updateDoc,
   where,
@@ -921,3 +922,166 @@ test('identity scope proofs and backfill checkpoints stay private to trusted mai
     }
   }
 });
+
+
+// M04-T12-FENCE-READY: partial04-T12 only. Server writers and activation remain B15.
+const maintenanceFence = (changes = {}) => ({
+  version: 1, state: 'paused', generation: 1, owner: 'synthetic-maintenance-owner',
+  planHash: 'a'.repeat(64), leaseUntil: Date.now() + 60000, writerProtocol: 1, ...changes,
+});
+const activeMaintenanceFence = () => maintenanceFence({ state: 'active',
+  activeFrom: Timestamp.fromMillis(Date.now()), baselineManifestHash: 'b'.repeat(64) });
+async function seedFenceCommentContext(root, uid = 'fence-listener') {
+  await seed(`${root}/episodes/episodes/episode-1`, { programId: 'fence-program', stationId: 'fence-station' });
+  await seed(`${root}/users/users/${uid}`, listenerProfile());
+  await seed(`${root}/users/users/${uid}/agreements/ugc`, validUgcAgreement());
+  return { uid, db: userDb(uid), path: `${root}/episodes/episodes/episode-1/comments` };
+}
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  test(`M04 fence: ${root} absent and valid active fences preserve authorized published creation`, async () => {
+    const f = await seedFenceCommentContext(root);
+    await assertSucceeds(setDoc(doc(f.db, `${f.path}/legacy`), validComment(f.uid)));
+    await seed(`${root}/commentCountContributions`, activeMaintenanceFence());
+    await assertSucceeds(setDoc(doc(f.db, `${f.path}/active`), validComment(f.uid)));
+    assert.equal((await getDoc(doc(anonymousDb(), `${f.path}/active`))).get('status'), 'published');
+  });
+  for (const [label, fence] of [
+    ['paused with current lease', () => maintenanceFence()],
+    ['paused with expired lease', () => maintenanceFence({ leaseUntil: 0 })],
+    ['unknown version', () => ({ ...activeMaintenanceFence(), version: 99 })],
+    ['unknown state', () => maintenanceFence({ state: 'unknown' })],
+    ['zero generation', () => ({ ...activeMaintenanceFence(), generation: 0 })],
+    ['fractional generation', () => ({ ...activeMaintenanceFence(), generation: 1.5 })],
+    ['string generation', () => ({ ...activeMaintenanceFence(), generation: '1' })],
+    ['missing generation', () => { const { generation, ...value } = activeMaintenanceFence(); assert.equal(generation, 1); return value; }],
+    ['unknown writer protocol', () => ({ ...activeMaintenanceFence(), writerProtocol: 2 })],
+    ['invalid owner', () => ({ ...activeMaintenanceFence(), owner: '' })],
+    ['invalid plan hash', () => ({ ...activeMaintenanceFence(), planHash: 'unreviewed' })],
+    ['invalid lease type', () => ({ ...activeMaintenanceFence(), leaseUntil: '0' })],
+    ['invalid activation timestamp', () => ({ ...activeMaintenanceFence(), activeFrom: 1234 })],
+    ['missing baseline manifest hash', () => { const { baselineManifestHash, ...value } = activeMaintenanceFence(); assert.equal(baselineManifestHash.length, 64); return value; }],
+  ]) test(`M04 fence: ${root} ${label} denies otherwise authorized comment creation`, async () => {
+    const f = await seedFenceCommentContext(root);
+    await seed(`${root}/commentCountContributions`, fence());
+    await assertFails(setDoc(doc(f.db, `${f.path}/must-not-create`), validComment(f.uid)));
+    await testEnv.withSecurityRulesDisabled(async context => {
+      assert.equal((await getDoc(doc(context.firestore(), `${f.path}/must-not-create`))).exists(), false);
+    });
+  });
+  test(`M04 fence: ${root} active state cannot bypass authentication, ownership, agreement or deletion checks`, async () => {
+    const f = await seedFenceCommentContext(root);
+    await seed(`${root}/commentCountContributions`, activeMaintenanceFence());
+    await assertFails(setDoc(doc(anonymousDb(), `${f.path}/anonymous`), validComment(f.uid)));
+    await assertFails(setDoc(doc(userDb(f.uid, { email_verified: false }), `${f.path}/unverified`), validComment(f.uid)));
+    await assertFails(setDoc(doc(f.db, `${f.path}/forged-author`), validComment('other-author')));
+    await testEnv.withSecurityRulesDisabled(async context => deleteDoc(doc(context.firestore(), `${root}/users/users/${f.uid}/agreements/ugc`)));
+    await assertFails(setDoc(doc(f.db, `${f.path}/no-agreement`), validComment(f.uid)));
+    await seed(`${root}/users/users/${f.uid}/agreements/ugc`, validUgcAgreement());
+    await seed(`${root}/episodes/episodes/episode-1`, { programId: 'fence-program', adminDeletionToken: 'synthetic-deletion' });
+    await assertFails(setDoc(doc(f.db, `${f.path}/deleting-episode`), validComment(f.uid)));
+    await seed(`${root}/episodes/episodes/episode-1`, { programId: 'fence-program' });
+    await seed(`${root}/accountDeletionRequests/requests/${f.uid}`, { status: 'pending' });
+    await assertFails(setDoc(doc(f.db, `${f.path}/deleting-user`), validComment(f.uid)));
+  });
+  test(`M04 fence: ${root} private root, baseline and contribution ledgers deny every client operation`, async () => {
+    const fencePath = `${root}/commentCountContributions`, baseline = `${fencePath}/episodes/episode-1`, ledger = `${baseline}/contributions/comment-1`;
+    await seed(fencePath, maintenanceFence()); await seed(baseline, { version: 1, state: 'building', generation: 1 });
+    await seed(ledger, { version: 1, generation: 1, contribution: 1 });
+    const clients = [anonymousDb(), userDb('fence-normal'), userDb('fence-unverified', { email_verified: false }),
+      userDb('fence-scoped', { admin: true, role: 'station_admin', assignedStations: ['fence-station'] }),
+      userDb('fence-moderator', { admin: true, role: 'moderator' }), userDb('fence-legacy-admin', { admin: true }),
+      userDb('fence-super', { role: 'super_admin' }), userDb('fence-role-only-station', { role: 'station_admin' }),
+      userDb('fence-forged', { admin: true, role: 'super_admin', maintenanceOwner: 'synthetic-maintenance-owner' })];
+    for (const client of clients) for (const path of [fencePath, baseline, ledger]) {
+      await assertFails(getDoc(doc(client, path)));
+      await assertFails(getDocs(query(collection(client, path.split('/').slice(0, -1).join('/')), where(documentId(), '==', doc(client, path)))));
+      await assertFails(setDoc(doc(client, `${path}-new`), { version: 1 }));
+      await assertFails(updateDoc(doc(client, path), { generation: 2 }));
+      await assertFails(deleteDoc(doc(client, path)));
+    }
+  });
+  test(`M04 fence: ${root} canonical bounded admin comment audit stays public-path-only with private ledger present`, async () => {
+    await seed(`${root}/episodes/episodes/episode/comments/canonical`, { authorId: 'listener', status: 'published' });
+    await seed(`${root}/commentCountContributions/episodes/episode/contributions/private`, { version: 1, contribution: 1 });
+    const admin = userDb('fence-audit-admin', { admin: true });
+    const result = await assertSucceeds(getDocs(query(collectionGroup(admin, 'comments'),
+      where(documentId(), '>=', doc(admin, root, 'episodes')), where(documentId(), '<', doc(admin, root, 'users\uf8ff')), limit(200))));
+    assert.equal(result.size, 1); assert.equal(result.docs[0].id, 'canonical');
+    await assertFails(getDocs(collection(admin, `${root}/commentCountContributions/episodes/episode/contributions`)));
+  });
+}
+
+
+// W04-W6-CODE is guard-only: these existing default-deny protections must
+// remain GREEN. Synthetic record bodies test the actual registered paths;
+// native receipts and cutover execution are verified by the SDK fixture.
+for (const root of ['HudHudDev', 'HudHudOfficial', 'UnknownRoot']) {
+  test(`B16 private state: ${root} denies every client role and operation without closing canonical workflows`, async () => {
+    const known = root !== 'UnknownRoot', publicRoot = known ? root : 'HudHudDev';
+    const owner = 'b16-owner', manifestHash = 'c'.repeat(64), v1Key = 'd'.repeat(64), v2Key = 'e'.repeat(64);
+    const job = `${root}/notificationOperations/operations/program_date_migration_${manifestHash}`;
+    const countPlan = `${root}/commentCountContributions/maintenance/${manifestHash}`;
+    const rssJob = `${root}/rssUrlRepairs/runs/b16-synthetic-run`;
+    const stamp = Timestamp.fromMillis(1000);
+    const paths = [
+      [`${root}/streamHealthJobs/checkpoints/active`, { version: 1, owner, generation: 1, cursor: null }],
+      [`${root}/commentCountContributions`, activeMaintenanceFence()],
+      [`${root}/commentCountContributions/episodes/episode-1`, { version: 1, state: 'active', generation: manifestHash }],
+      [`${root}/commentCountContributions/episodes/episode-1/contributions/b16-comment`, { version: 1, contribution: 1 }],
+      [countPlan, { version: 1, owner, phase: 'active', manifestHash }],
+      [`${countPlan}/units/000000000000`, { version: 1, sequence: 0, manifestHash }],
+      [rssJob, { version: 2, runId: 'b16-synthetic-run', owner, nextIndex: 1 }],
+      [`${rssJob}/items/000`, { version: 2, runId: 'b16-synthetic-run', index: 0, mode: 'apply' }],
+      [`${rssJob}/restores/000`, { version: 2, runId: 'b16-synthetic-run', index: 0, mode: 'restore' }],
+      [`${root}/notificationOperations/operations/${v1Key}`, { status: 'sent', phase: 'sending', attempts: 1 }],
+      [`${root}/notificationOperations/operations/${v2Key}`, { status: 'unknown', phase: 'claimed', attempts: 0, fingerprint: manifestHash }],
+      [job, { version: 1, kind: 'program-date-migration', manifestHash, projectId: PROJECT_ID, root, programId: 'b16-program',
+        cutoverAt: stamp, fromLocalDate: '2026-10-27', toLocalDate: '2026-10-27', owner, generation: 1,
+        leaseUntilMs: 0, nextIndex: 1, entryCount: 1, status: 'completed', backupExpiresAtMs: 2000,
+        receiptVersions: [stamp], pendingReceiptIndex: null }],
+      [`${job}/items/000`, { version: 1, manifestHash, index: 0, v2Key, action: 'preserved-terminal', sourceHash: manifestHash,
+        beforeHash: manifestHash, afterProjectionHash: manifestHash, targetChanged: false, targetCreateTime: stamp, targetUpdateTime: stamp }],
+    ];
+    for (const [path, data] of paths) await seed(path, data);
+    const publicStation = `${publicRoot}/stations/stations/b16-station`, canonicalEpisode = `${root}/episodes/episodes/episode-1`;
+    await seed(publicStation, { name: 'Synthetic public station', isActive: true });
+    await seed(canonicalEpisode, { stationId: 'b16-station', programId: 'b16-program', stats: { commentsCount: 0 } });
+    await seed(`${root}/users/users/${owner}`, listenerProfile());
+    const clients = [
+      anonymousDb(), userDb(owner), userDb('b16-other'), userDb('b16-unverified', { email_verified: false }),
+      userDb('b16-scoped', { admin: true, role: 'station_admin', assignedStations: ['b16-station'] }),
+      userDb('b16-moderator', { admin: true, role: 'moderator' }), userDb('b16-legacy-admin', { admin: true }),
+      userDb('b16-super', { role: 'super_admin' }), userDb('b16-role-admin', { role: 'admin' }),
+      userDb('b16-role-station', { role: 'station_admin' }), userDb('b16-role-moderator', { role: 'moderator' }),
+      userDb('b16-forged', { admin: true, role: 'super_admin', maintenanceOwner: owner, owner, manifestHash, root, projectId: PROJECT_ID }),
+    ];
+    for (const client of clients) {
+      const publicResult = await assertSucceeds(getDoc(doc(client, publicStation)));
+      assert.equal(publicResult.get('name'), 'Synthetic public station', 'A healthy canonical read must precede private denial checks');
+      for (const [path, data] of paths) {
+        await assertFails(getDoc(doc(client, path)));
+        await assertFails(getDocs(query(collection(client, path.split('/').slice(0, -1).join('/')),
+          where(documentId(), '==', doc(client, path)), limit(1))));
+        await assertFails(setDoc(doc(client, `${path}-client-created`), data));
+        await assertFails(updateDoc(doc(client, path), { version: 99 }));
+        await assertFails(deleteDoc(doc(client, path)));
+      }
+      await assertFails(updateDoc(doc(client, canonicalEpisode), { 'stats.commentsCount': 999 }));
+    }
+    const agreement = `${root}/users/users/${owner}/agreements/ugc`;
+    if (known) {
+      const listener = userDb(owner);
+      await assertSucceeds(setDoc(doc(listener, agreement), validUgcAgreement()));
+      const comment = `${canonicalEpisode}/comments/b16-positive`;
+      await assertSucceeds(setDoc(doc(listener, comment), validComment(owner)));
+      assert.equal((await assertSucceeds(getDoc(doc(anonymousDb(), comment)))).get('status'), 'published');
+      await assertFails(setDoc(doc(userDb(owner, { email_verified: false }), agreement), validUgcAgreement()));
+      await assertFails(setDoc(doc(userDb('b16-other'), agreement), validUgcAgreement()));
+    } else {
+      await seed(`${root}/stations/stations/b16-station`, { name: 'Synthetic unknown-root station' });
+      await assertFails(getDoc(doc(userDb('b16-unknown-super', { admin: true }), `${root}/stations/stations/b16-station`)));
+      await assertFails(setDoc(doc(userDb(owner), agreement), validUgcAgreement()));
+      await assertFails(setDoc(doc(userDb(owner), `${canonicalEpisode}/comments/b16-unknown`), validComment(owner)));
+    }
+  });
+}

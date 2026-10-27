@@ -1,0 +1,266 @@
+{
+  "status": "AUTHOR_LOCAL_GREEN_SCOPED_APPROVAL_PARENT_INTEGRATED_NATIVE_T12_PENDING",
+  "task": "04-T11",
+  "finding": "R13 OPEN",
+  "candidate": "/tmp/hudhud-b16-t11-final",
+  "freezeHistoricalBeforeAndFinal": {
+    "tool/migrate_program_notification_dates.mjs": {
+      "before": null,
+      "after": "93dfb3d372bba711efb1612f91114c9545cb10c95185b553d54252a4e9de2597"
+    },
+    "tool/test/migrate_program_notification_dates.test.mjs": {
+      "before": null,
+      "after": "877c8983d6d4f7f14645a83716b4dc589f528aa40f2a1dd1e287b01389e02d1b"
+    },
+    "docs/operations/background-consistency-migrations.md": {
+      "before": "4d7d87033e26f088a83d0622042388afec884fdb003a79d65d2dc8c477af73e3",
+      "after": "87b34a7ad6d75cff449f29acc36c72da6c30033b08933dc85182dd9198402ffd"
+    },
+    "patch": {
+      "path": "/tmp/hudhud-b16-t11-implementation.patch",
+      "sha256": "1ead63a631609068afa32cce26d87f7f6610d62d28fff594742bc1e85f8ac96d"
+    },
+    "helperInput": "7a272a7917dea732d6fa6b3170ed2305f9fe8fa861dc87e51d328c973a094d85",
+    "opsOriginalPrefixByteIdentical": true
+  },
+  "currentRootMatchesFrozenFinal": true,
+  "node": "v22.23.3",
+  "pathPrefix": "/Users/ibrahimqassem/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin",
+  "commands": [
+    "node --test tool/test/migrate_program_notification_dates.test.mjs",
+    "node --check tool/migrate_program_notification_dates.mjs",
+    "node --check tool/test/migrate_program_notification_dates.test.mjs",
+    "npm test (functions)",
+    "npm run lint (functions)"
+  ],
+  "gates": {
+    "tool": {
+      "tests": 64,
+      "pass": 64,
+      "fail": 0,
+      "skip": 0,
+      "cancel": 0,
+      "exit": 0,
+      "durationMs": 3683.57227
+    },
+    "functions": {
+      "tests": 413,
+      "pass": 413,
+      "fail": 0,
+      "skip": 0,
+      "cancel": 0,
+      "exit": 0,
+      "durationMs": 4075.72888
+    },
+    "lintExit": 0,
+    "syntaxExit": 0,
+    "preintegrationGitApplyCheckExit": 0
+  },
+  "logs": {
+    "import-validation-setup": {
+      "path": "/tmp/hudhud-b16-t11-import-validation-setup.log",
+      "sha256": "34d28fa757a54ec99d58eb69a4dd763482b40fa949d33cbed672d55b60afd83e"
+    },
+    "preview-setup-child-import-failure": {
+      "path": "/tmp/hudhud-b16-t11-preview-setup-child-import-failure.log",
+      "sha256": "4e039d15fe7441e40a70cf397b4c8bbe66dc92a46c560910a249131bad69dd31"
+    },
+    "preview-setup": {
+      "path": "/tmp/hudhud-b16-t11-preview-setup.log",
+      "sha256": "0ba9263787d5179fadfe5956bf61b518694122bfea10e52c84e2cd450097e735"
+    },
+    "first-executor-guards": {
+      "path": "/tmp/hudhud-b16-t11-first-executor-guards.log",
+      "sha256": "e3e9c27874d2fc9874391179303e2ae124229fb37dd072ca904f7d97c1786f8a"
+    },
+    "noop-receipt-recreation-baseline": {
+      "path": "/tmp/hudhud-b16-t11-noop-receipt-recreation-baseline.log",
+      "sha256": "a1b16837d714868f27e6d3c1d325366ad1856780548990e0787fd5146279533b"
+    },
+    "pending-seal-guards-baseline": {
+      "path": "/tmp/hudhud-b16-t11-pending-seal-guards-baseline.log",
+      "sha256": "839674c465bee00696c24a3ba3024aa310f0eeee58ced722ea570dd37c50baef"
+    },
+    "sealed-guards-green-attempt": {
+      "path": "/tmp/hudhud-b16-t11-sealed-guards-green-attempt.log",
+      "sha256": "4c2e533e08320d12db397e742cb9523fbfdba47977dcbd44061be137f2170ac8"
+    },
+    "same-item-prefix-baseline": {
+      "path": "/tmp/hudhud-b16-t11-same-item-prefix-baseline.log",
+      "sha256": "d4af597c525e75b775efc5c0a3984e48d68e7fb407d8a4a59d1dad5a0770a7f3"
+    },
+    "same-item-prefix-green": {
+      "path": "/tmp/hudhud-b16-t11-same-item-prefix-green.log",
+      "sha256": "56ab26e5b8038d8f0e7c97ce4415e8751443b9d367c3168783bfc2564de7326c"
+    },
+    "complete-guards-attempt": {
+      "path": "/tmp/hudhud-b16-t11-complete-guards-attempt.log",
+      "sha256": "9748a18c0794b4a06c3f1ae120cfeee75a6ca9d16c5f7e25596d6edaaf07fa6f"
+    },
+    "cli-key-custody-baseline": {
+      "path": "/tmp/hudhud-b16-t11-cli-key-custody-baseline.log",
+      "sha256": "7b296d4a741d5ed7697bfdb3ffece8f22fe6723c3373128091b71a514db5818c"
+    },
+    "tool-green": {
+      "path": "/tmp/hudhud-b16-t11-tool-green.log",
+      "sha256": "2efa74da86549d82902f5bdd9cbd7954d30ab72cde5f35c151e862225ca1ecc6"
+    },
+    "functions-green": {
+      "path": "/tmp/hudhud-b16-t11-functions-green.log",
+      "sha256": "d38390841d884ab230fbc1129e199406700d37859abf91cd46f84b7d07c19e71"
+    },
+    "lint-green": {
+      "path": "/tmp/hudhud-b16-t11-lint-green.log",
+      "sha256": "9cb86fb875f0a2ccbac02e6d7f904bd806d6c85c4b8453c4fd9e7366d182e45b"
+    },
+    "syntax-green": {
+      "path": "/tmp/hudhud-b16-t11-syntax-green.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "immutableBaselines": {
+    "import-setup": {
+      "tool/migrate_program_notification_dates.mjs": "e343ec390a9a8f6fa033c80a2975a57e895e54760785d1cbed6074379460d44d",
+      "tool/test/migrate_program_notification_dates.test.mjs": "70a2f21101409f1a411c8b9276e80373b31a0176b3651c2bfdc6077c24f810c4"
+    },
+    "preview-setup": {
+      "tool/migrate_program_notification_dates.mjs": "443c11d6497672cb63ad5cbfb1932804c3088ece00532de4b3c830b637811fd9",
+      "tool/test/migrate_program_notification_dates.test.mjs": "043af1fd7be658e7ce89481286e2651901a551ad14f5394f218000db9a738af5"
+    },
+    "46-guard-checkpoint": {
+      "tool/migrate_program_notification_dates.mjs": "dbf26849203c7ff8cf642b4137844b5c10a0628fb8e801a0ed8d350dc200c14e",
+      "tool/test/migrate_program_notification_dates.test.mjs": "82cfa33376606263f057cca73b9e4d1ee53c7e78a485bab430cd9ffd78fcee8a"
+    },
+    "sealed-55-guard-checkpoint": {
+      "tool/migrate_program_notification_dates.mjs": "0d4db6d4113b98476113fc81da3d40b77ae131da2bbce7829321931a2e20c9b3",
+      "tool/test/migrate_program_notification_dates.test.mjs": "c4259ad9b73d7e7294e253c578876d7da9bae34b86e9d48664ac2dadeabd5b1d"
+    },
+    "cli-63-guard-checkpoint": {
+      "tool/migrate_program_notification_dates.mjs": "06ed6baa2e60690d4f3ae5f36e53cc1144758f2001f8d095e8dde694c870dcb2",
+      "tool/test/migrate_program_notification_dates.test.mjs": "0f37cc1cc628437a078b92d44c802452577e252a84d99d1ab38d8aab1933b469"
+    },
+    "cli-key-custody-red": {
+      "tool/migrate_program_notification_dates.mjs": "06ed6baa2e60690d4f3ae5f36e53cc1144758f2001f8d095e8dde694c870dcb2",
+      "tool/test/migrate_program_notification_dates.test.mjs": "877c8983d6d4f7f14645a83716b4dc589f528aa40f2a1dd1e287b01389e02d1b"
+    },
+    "noop-recreation-47": {
+      "tool/migrate_program_notification_dates.mjs": "dbf26849203c7ff8cf642b4137844b5c10a0628fb8e801a0ed8d350dc200c14e",
+      "tool/test/migrate_program_notification_dates.test.mjs": "84b2f192559412f8288dcbc92aac412ed712484d70774594fa18fd5eb70c6a50"
+    },
+    "same-item-prefix-57": {
+      "tool/migrate_program_notification_dates.mjs": "0d4db6d4113b98476113fc81da3d40b77ae131da2bbce7829321931a2e20c9b3",
+      "tool/test/migrate_program_notification_dates.test.mjs": "f931133dedc247c8ca1c9e13689b5fd66988ed7097eb23384260317d2c70aa8b"
+    }
+  },
+  "classification": [
+    [
+      "import-validation",
+      "19PASS0fail0skip",
+      "New-module setup GREEN; no missing import/export counted RED"
+    ],
+    [
+      "preview child import-path error",
+      "25PASS1fail0skip",
+      "Fixture setup error only; corrected, never business RED"
+    ],
+    [
+      "preview/purpose-backup",
+      "26PASS0fail0skip",
+      "New-tool read-only/safety GREEN"
+    ],
+    [
+      "first executor",
+      "46PASS0fail0skip",
+      "Permanent acceptance guards authored/hashed before mutable executor; new-tool GREEN"
+    ],
+    [
+      "noop receipt recreation",
+      "46PASS1ERR_ASSERTION0skip",
+      "Genuine current-API invalid historical-proof acceptance; no target/count loss claimed; parent independently reproduced"
+    ],
+    [
+      "seal acceptance baseline",
+      "45PASS10ERR_ASSERTION0skip",
+      "1 existing noop failure;8 approved new-protocol guard failures;1 approved job-only seal assertion adaptation; no missing API RED"
+    ],
+    [
+      "native seal correction",
+      "55PASS0fail0skip",
+      "Candidate unit GREEN only"
+    ],
+    [
+      "same-item prefix",
+      "55PASS2ERR_ASSERTION0skip",
+      "Genuine next-target write before later failure; hook fires after earlier readback; parent independently reproduced"
+    ],
+    [
+      "same-item prefix correction",
+      "57PASS0fail0skip",
+      "Permanent assertions unchanged"
+    ],
+    [
+      "CLI/type/custody",
+      "63PASS0fail0skip",
+      "New-tool safety GREEN"
+    ],
+    [
+      "separate key custody",
+      "63PASS1ERR_ASSERTION0skip",
+      "Negative CLI reached injected SDK spy97 instead of refusing1; no actual SDK/network executed; private-key location fixed"
+    ],
+    [
+      "final",
+      "64toolPASS +413FunctionsPASS,lint0,syntax0",
+      "Zero fail/skip/cancel; no actual SDK/native acceptance claimed"
+    ]
+  ],
+  "approvedAssertionAdaptation": {
+    "test": "lost item ACK resumes immutable native receipts without repeating the target write",
+    "old": "Total writes unchanged after replay",
+    "new": "Target write count unchanged; exactly one job-only mandatory seal update; original native target equality retained",
+    "reason": "Accepted native-seal contract requires job seal mutation",
+    "approval": "Explicit parent authorization; all pre-adaptation baselines retained"
+  },
+  "testFirstEvidence": [
+    "/tmp/hudhud-b16-t11-before-mutable-source-test-hashes.txt",
+    "/tmp/hudhud-b16-t11-before-seal-correction-hashes.txt",
+    "/tmp/hudhud-b16-t11-before-cli-hashes.txt"
+  ],
+  "independentReview": {
+    "contract": ".boss/technical-review/B16-T11-contract-review.md",
+    "source": "/tmp/B16-T11-source-review.md",
+    "sourceSha256": "ac28a20cabea42e1420dcc4b11dde0625e6e6ea13a564c28f9e02f11afe6b375"
+  },
+  "inventory": {
+    "path": "/tmp/hudhud-b16-t11-functions-inventory.json",
+    "sha256": "41b467dff8c78c7809fe0b11fbba49a161c832dc2e07abcf0950fb34f5cfe6f0",
+    "rootFiles": 51,
+    "candidateFiles": 51,
+    "missing": [],
+    "additional": [],
+    "changed": [],
+    "indexIdentical": true,
+    "packageIdentical": true,
+    "syntheticJSONIdentical": true,
+    "canonicalHelperInput": "7a272a7917dea732d6fa6b3170ed2305f9fe8fa861dc87e51d328c973a094d85"
+  },
+  "parentIntegration": {
+    "patch": "1ead63a631609068afa32cce26d87f7f6610d62d28fff594742bc1e85f8ac96d",
+    "reportedGates": "64tool/413Functions/lint0/diff0",
+    "authorObservedRootFinalHashesMatch": true
+  },
+  "safety": [
+    "Author modified only isolated/tmp paths; parent I integrated live3-file patch after independent scoped source approval.",
+    "Already-integrated7a helper exports treated as input, not duplicated in patch.",
+    "Entire operations4d7d original prefix retained including count and native-seal appendices.",
+    "No real SDK/emulator, provider, live migration, production data, deployment/merge, Rules/index/scheduler changes by author.",
+    "Factory constructor substitution is ordinary storage model only, not real SDK proof or a public registration seam.",
+    "Only negative CLI guards executed; spies prevent any real SDK/provider initialization. Synthetic keys are private files/memory, never argv/env/logs."
+  ],
+  "remaining": [
+    "04-T12 actual SDK/native receipt seals, prefix/source/target drift, ACK/recovery/expiry/concurrency and both-root all-role Rules denials.",
+    "Actual broadcast-prefix query retention/bound;20 returned results do not mean20 read charges; Emulator does not prove production index deployment/billing.",
+    "Original17 identities, mandatory Flutter/full device acceptance and later production isolation/migration/rollback/deploy approvals remain separate.",
+    "No B16,WorkOrder,plan or finding closure; production mutation/activation stays unsupported."
+  ]
+}

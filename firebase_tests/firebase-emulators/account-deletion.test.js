@@ -1,3 +1,5 @@
+import { callableEmulator } from '../../web_admin/test/support/callable-emulator.ts';
+import { ensureDemoCountRoots, seedCountedEpisode, syncFixtureComment, deleteFixtureCommentAtomically } from '../support/comment-count-fixtures.mjs';
 import { createRequire } from 'node:module';
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
@@ -25,7 +27,8 @@ let cleanupUnverifiedAccounts;
 before(async () => {
   assert.ok(process.env.FIREBASE_AUTH_EMULATOR_HOST, 'Auth emulator must be configured');
   assert.ok(process.env.FIRESTORE_EMULATOR_HOST, 'Firestore emulator must be configured');
-  process.env.GCLOUD_PROJECT = projectId;
+  assert.equal(process.env.GCLOUD_PROJECT, projectId);
+  await ensureDemoCountRoots();
   ({ cleanupUnverifiedAccounts } = await import('../../functions/index.js'));
   const require = createRequire(new URL('../../functions/package.json', import.meta.url));
   adminAuth = require('firebase-admin/auth').getAuth();
@@ -55,10 +58,10 @@ test("deletes Auth, authored comments, dependent data, and reconciles counts", a
   const user = `HudHudDev/users/users/${uid}`;
   const challenge = `HudHudDev/emailVerificationChallenges/challenges/${uid}`;
 
+  await seedCountedEpisode(adminFirestore, 'HudHudDev', 'episode-1', { stats: {} });
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     const firestore = context.firestore();
     await Promise.all([
-      setDoc(doc(firestore, episode), { stats: { commentsCount: 1 } }),
       setDoc(doc(firestore, user), {
         displayName: "Delete me",
         isActive: true,
@@ -104,6 +107,8 @@ test("deletes Auth, authored comments, dependent data, and reconciles counts", a
     ]);
   });
 
+  await syncFixtureComment(adminFirestore, 'HudHudDev', 'episode-1', 'comment-1');
+
   const result = await httpsCallable(functions, "deleteAccountData")();
   assert.deepEqual(result.data, { deleted: true });
   assert.equal((await adminFirestore.doc("notificationDeviceOwners/test-device").get()).exists, false);
@@ -148,13 +153,25 @@ test('cleans both canonical roots and keeps unrelated paths despite matching ide
     for (const root of ['HudHudDev', 'HudHudOfficial', 'UnrelatedRoot']) {
       await setDoc(doc(db, `${root}/users/users/${uid}`), { isActive: true, role: 'listener' });
       await setDoc(doc(db, `${root}/users/users/${uid}/favorites/item`), { targetId: 'item' });
-      await setDoc(doc(db, `${root}/episodes/episodes/shared-id`), { stats: { commentsCount: 2 } });
+      if (root === 'UnrelatedRoot') await setDoc(doc(db, `${root}/episodes/episodes/shared-id`), { stats: { commentsCount: 2 } });
+      else await seedCountedEpisode(adminFirestore, root, 'shared-id', { stats: {} });
       await setDoc(doc(db, `${root}/episodes/episodes/shared-id/comments/mine`), { authorId: uid, episodeId: 'untrusted-field', status: 'published' });
       await setDoc(doc(db, `${root}/episodes/episodes/shared-id/comments/other`), { authorId: 'other', status: 'published' });
+      if (root !== 'UnrelatedRoot') {
+        await syncFixtureComment(adminFirestore, root, 'shared-id', 'mine');
+        await syncFixtureComment(adminFirestore, root, 'shared-id', 'other');
+      }
     }
     await setDoc(doc(db, `HudHudDev/unrelated/items/nested/comments/item`), { authorId: uid });
-    // Simulate a prior invocation that deleted a comment before count reconciliation.
-    await setDoc(doc(db, `HudHudOfficial/episodes/episodes/retry-id`), { stats: { commentsCount: 9 } });
+    // Actual atomic deletion commits before a synthetic lost acknowledgement.
+    // Recovery replays a valid zero contribution; no unsafe recount control.
+    await seedCountedEpisode(adminFirestore, 'HudHudOfficial', 'retry-id', { stats: {} });
+    await adminFirestore.doc('HudHudOfficial/episodes/episodes/retry-id/comments/lost-ack').set({ authorId: uid, status: 'published' });
+    await syncFixtureComment(adminFirestore, 'HudHudOfficial', 'retry-id', 'lost-ack');
+    await assert.rejects(async () => {
+      await deleteFixtureCommentAtomically(adminFirestore, 'HudHudOfficial', 'retry-id', 'lost-ack');
+      throw new Error('Synthetic acknowledgement lost after atomic deletion');
+    }, /acknowledgement lost/);
     await setDoc(doc(db, `HudHudOfficial/accountDeletionRequests/requests/${uid}`), { affectedEpisodePaths: ['HudHudOfficial/episodes/episodes/retry-id'] });
   });
   assert.equal((await httpsCallable(functions, 'deleteAccountData')()).data.deleted, true);
@@ -221,4 +238,94 @@ test('scheduled retention protects sibling-root lifecycle states and removes onl
       for (const root of ['HudHudDev', 'HudHudOfficial']) assert.equal((await getDoc(doc(db, `${root}/accountDeletionRequests/requests/${uid}`))).exists(), false);
     }
   });
+});
+
+
+test('canonical authored orphan comments are removed in bounded pages without recreating either root parent', async () => {
+  const { user } = await createUserWithEmailAndPassword(auth, 'orphan-cleanup@example.test', password);
+  for (const root of ['HudHudDev', 'HudHudOfficial']) {
+    await adminFirestore.doc(`${root}/users/users/${user.uid}`).set({ isActive: true, role: 'listener' });
+    const batch = adminFirestore.batch();
+    for (let index = 0; index < 26; index++) batch.set(adminFirestore.doc(`${root}/episodes/episodes/missing-parent/comments/orphan-${index}`), { authorId: user.uid, status: 'published' });
+    await batch.commit();
+  }
+  assert.equal((await httpsCallable(functions, 'deleteAccountData')()).data.deleted, true);
+  for (const root of ['HudHudDev', 'HudHudOfficial']) {
+    assert.equal((await adminFirestore.collection(`${root}/episodes/episodes/missing-parent/comments`).get()).empty, true);
+    assert.equal((await adminFirestore.doc(`${root}/episodes/episodes/missing-parent`).get()).exists, false);
+    assert.equal((await adminFirestore.doc(`${root}/commentCountContributions/episodes/missing-parent`).get()).exists, false);
+  }
+  await assert.rejects(adminAuth.getUser(user.uid), error => error.code === 'auth/user-not-found');
+  await signOut(auth);
+});
+
+test('unaccepted legacy count state refuses account cleanup without guessing a baseline or deleting Auth', async () => {
+  const { user } = await createUserWithEmailAndPassword(auth, 'legacy-count-refusal@example.test', password);
+  const episodeId = `legacy-count-${crypto.randomUUID()}`;
+  try {
+    for (const root of ['HudHudDev', 'HudHudOfficial']) {
+      await adminFirestore.doc(`${root}/users/users/${user.uid}`).set({ isActive: true, role: 'listener' });
+      // Deliberate preexisting corruption: no accepted baseline. This is not a
+      // valid creation helper and must never be normalized by normal deletion.
+      await adminFirestore.doc(`${root}/episodes/episodes/${episodeId}`).set({ stats: { commentsCount: 9 } });
+      await adminFirestore.doc(`${root}/episodes/episodes/${episodeId}/comments/legacy`).set({ authorId: user.uid, status: 'published' });
+    }
+    await assert.rejects(httpsCallable(functions, 'deleteAccountData')(), error => error.code === 'functions/failed-precondition' && error.details?.retryable === true);
+    assert.equal((await adminAuth.getUser(user.uid)).uid, user.uid);
+    for (const root of ['HudHudDev', 'HudHudOfficial']) {
+      assert.equal((await adminFirestore.doc(`${root}/episodes/episodes/${episodeId}`).get()).get('stats.commentsCount'), 9);
+      assert.equal((await adminFirestore.doc(`${root}/episodes/episodes/${episodeId}/comments/legacy`).get()).exists, true);
+      assert.equal((await adminFirestore.doc(`${root}/commentCountContributions/episodes/${episodeId}`).get()).exists, false);
+      assert.notEqual((await adminFirestore.doc(`${root}/accountDeletionRequests/requests/${user.uid}`).get()).get('status'), 'completed');
+    }
+  } finally {
+    // Exact synthetic fixture cleanup, after observing retained Auth/barriers.
+    for (const root of ['HudHudDev', 'HudHudOfficial']) {
+      await adminFirestore.doc(`${root}/episodes/episodes/${episodeId}/comments/legacy`).delete();
+      await adminFirestore.doc(`${root}/episodes/episodes/${episodeId}`).delete();
+      await adminFirestore.doc(`${root}/users/users/${user.uid}`).delete();
+      await adminFirestore.doc(`${root}/accountDeletionRequests/requests/${user.uid}`).delete();
+    }
+    await adminAuth.deleteUser(user.uid).catch(error => { if (error.code !== 'auth/user-not-found') throw error; });
+    await signOut(auth);
+  }
+});
+
+
+test('actual manual review and account deletion races converge to zero in both roots', async () => {
+  const { user } = await createUserWithEmailAndPassword(auth, 'count-review-race@example.test', password);
+  const harness = await callableEmulator();
+  const fixtures = [];
+  try {
+    for (const root of ['HudHudDev', 'HudHudOfficial']) {
+      const id = `review-delete-${crypto.randomUUID()}`;
+      await seedCountedEpisode(adminFirestore, root, id, { stationId: 'synthetic-race-station', stats: {} });
+      await adminFirestore.doc(`${root}/users/users/${user.uid}`).set({ isActive: true, role: 'listener' });
+      const commentPath = `${root}/episodes/episodes/${id}/comments/raced-comment`;
+      const reportPath = `${root}/users/users/synthetic-reporter/commentReportEpisodes/${id}/moderationReports/raced-comment`;
+      await adminFirestore.doc(commentPath).set({ authorId: user.uid, content: 'Synthetic review race fixture', status: 'published' });
+      await syncFixtureComment(adminFirestore, root, id, 'raced-comment');
+      await adminFirestore.doc(reportPath).set({ episodeId: id, commentId: 'raced-comment', reportedAuthorId: user.uid, status: 'open' });
+      fixtures.push({ root, id, commentPath, reportPath });
+    }
+    const results = await Promise.allSettled([
+      ...fixtures.map(fixture => httpsCallable(getFunctions(harness.app), 'adminReviewReport')({ root: fixture.root, path: fixture.reportPath, resolution: 'commentHidden' })),
+      httpsCallable(functions, 'deleteAccountData')(),
+    ]);
+    const deleted = results.at(-1);
+    assert.equal(deleted.status, 'fulfilled', 'Real account deletion must finish despite concurrent manual decisions');
+    assert.equal(deleted.value.data.deleted, true);
+    for (const result of results.slice(0, -1)) {
+      if (result.status === 'rejected') {
+        assert.equal(result.reason.code, 'functions/failed-precondition');
+        assert.match(result.reason.message, /already reviewed/, 'Only an already-removed/resolved report may reject a raced review');
+      }
+    }
+    for (const fixture of fixtures) {
+      assert.equal((await adminFirestore.doc(fixture.commentPath).get()).exists, false);
+      assert.equal((await adminFirestore.doc(`${fixture.root}/episodes/episodes/${fixture.id}`).get()).get('stats.commentsCount'), 0);
+      assert.equal((await adminFirestore.doc(`${fixture.root}/accountDeletionRequests/requests/${user.uid}`).get()).get('status'), 'completed');
+    }
+    await assert.rejects(adminAuth.getUser(user.uid), error => error.code === 'auth/user-not-found');
+  } finally { await harness.close(); await signOut(auth); }
 });

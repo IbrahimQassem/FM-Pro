@@ -1318,4 +1318,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stationWhatsapp => 'WhatsApp';
+
+  @override
+  String get contentLoadMore => 'Load more';
+
+  @override
+  String get contentPageScope =>
+      'Showing a limited window. Refresh to return to the beginning.';
+
+  @override
+  String get contentPageError => 'This page could not be loaded. Try again.';
+
+  @override
+  String get contentLoading => 'Loading content…';
 }

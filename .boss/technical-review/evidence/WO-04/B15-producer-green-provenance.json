@@ -1,0 +1,82 @@
+{
+  "status": "AUTHOR_GREEN_PENDING_INTEGRATION_INDEPENDENT_REVIEW_AND_ACTUAL_SDK",
+  "patches": {
+    "/tmp/hudhud-b15-producer-fix.patch": "2cdb07d7cf648b16553f99be53dc0afd878f72b418688dfba333230ab43c1127",
+    "/tmp/hudhud-b15-producer-native-api-cleanup.patch": "2c89bdace38f1c8122fa21e25257b8166283cdb9a5a7cc16e2024123296fb852",
+    "/tmp/hudhud-b15-producer-guards-and-storage.patch": "18579340db95e338f01d8d4bf6140eb02f9d9b7535d2297a9a3ace60e4bacd09"
+  },
+  "files": [
+    {
+      "path": "tool/import_programs_and_episodes.mjs",
+      "beforeSha256": "5aff7d90934aae9fa79eb361a901a7bf7c2aaa7dd168b931bb0c07cd68f0dc88",
+      "afterSha256": "366be6fe95c7d7e757de78d8312e58cf580e4bb0e210fc33171ddb234e8aef7d"
+    },
+    {
+      "path": "tool/firebase_seed/seed.mjs",
+      "beforeSha256": "5adb1ee8c4d6d98ae6656f7302f38b23102471308acaf519b939e75d53015f2e",
+      "afterSha256": "c536a9dd2f6fc344c3484f597a07294d3a5b9a125292cdf2b28e3f9129233e2c"
+    },
+    {
+      "path": "tool/firebase_seed/migrate_comment_status.mjs",
+      "beforeSha256": "64091a5470ff9bfd658249fed3d32c403b41efdbbd669a0aa0df9025c655fcc2",
+      "afterSha256": "01042b9d17be3c483c18eb2935338a4f6db9cd5274090526f2c63714bbfd836a"
+    },
+    {
+      "path": "tool/seed-admin-preview.mjs",
+      "beforeSha256": "b93d54412eb756bbac0a46876db9c5989b2d9042397fc2cf95bbf4f985def142",
+      "afterSha256": "cd088ad62eb54233040a563c9660946636f9cc29f073ee246470bb78d4880dd4"
+    },
+    {
+      "path": "functions/lib/comment-counts.js",
+      "beforeSha256": "8d39c9191ac3acd00adcfbd2d0d9bd6e3dcdd149a7e16c9c5a440b58179c2349",
+      "afterSha256": "77fc7b9d0e97aabe92acf6b551c4ec021c72ae1defe7333e8983b736de49547a"
+    },
+    {
+      "path": "tool/test/comment-count-producers.test.mjs",
+      "beforeSha256": "849c9847b37c7874c32f331600aaea441210cb6db62d9bf7bec39de869a572f3",
+      "afterSha256": "493dc36175c7e0ff52e542ac74afb459366328ab18510cdc8800c1bbc70c11f2"
+    }
+  ],
+  "verification": {
+    "producer": {
+      "tests": 40,
+      "pass": 40,
+      "skip": 0
+    },
+    "producerPrivacySeedCombined": {
+      "tests": 118,
+      "pass": 118,
+      "skip": 0
+    },
+    "fullFunctions": {
+      "tests": 328,
+      "pass": 328,
+      "skip": 0
+    },
+    "lintExit": 0,
+    "fiveSyntaxChecksExit": 0
+  },
+  "evidence": {
+    ".boss/technical-review/evidence/WO-04/B15-producer-first-green.log": "deffb7d2f9bd6ff2cd9ab6e3c6d19750881649e56fb9ce61b334ebbed84f72ca",
+    ".boss/technical-review/evidence/WO-04/B15-producer-green.log": "1ad5a025e972aa47c41707d40c7e3b6e8e52ee81bc1addea1793dfd5e8860958",
+    ".boss/technical-review/evidence/WO-04/B15-producer-combined-green.log": "90aba2acbbd0b24a531770a9c3c9dca492f618463d274a9139772591c4b43530",
+    ".boss/technical-review/evidence/WO-04/B15-producer-functions-green.log": "6ebb36cbb8a75b45056c9bf2a561c5cb215a32edb19a03004d75deb9b2c27ca1",
+    ".boss/technical-review/evidence/WO-04/B15-producer-lint.log": "9cb86fb875f0a2ccbac02e6d7f904bd806d6c85c4b8453c4fd9e7366d182e45b"
+  },
+  "acceptedBusinessAssertionsUnchanged": true,
+  "titleMapping": {
+    "R12: active engagement-only seed refuses an unaccepted existing episode before comment creation": "R12: active comment-only seed plan refuses an unaccepted existing episode before comment creation",
+    "R12 control: accepted engagement-only seed preserves the counter and fresh authority work converges once": "R12 control: accepted comment-only seed plan preserves the counter and fresh authority work converges once"
+  },
+  "titleNote": "Exactly two test descriptions contain the misleading engagement-only wording. Both were renamed; the third matching occurrence is an assertion message, retained unchanged with its assertion body. Historical RED logs are untouched.",
+  "setupAdaptation": "Storage-only recorder gains atomic transaction staging/read-before-write interface; status setup uses real accepted baseline and generic storage instead of one-method unbounded collectionGroup stub. The same canonical Dev-only comment update is asserted, plus explicit other-root preservation and actual authority count1. All other setup assertions retained. First corrective run26/30 failed only four setup interface cases; these were not business RED.",
+  "nativeCleanup": "Parent explicitly authorized removal solely of unused serverTimestamp parameter/type gates in birth/mutation helper. No native/fence/baseline/patch/arithmetic checks removed; old caller options remain compatible.",
+  "seedDecision": "Independent b10_review/parent messages approve atomic zero+native birth+canonical comments followed by existing postcommit actual worker convergence; no initial native contributions synthesized. Comment-only helper plans require accepted existing baseline/identity in same TX. Real --engagement-only CLI remains favorites/subscriptions only.",
+  "capacity": "Seed retains single create-only atomic commit; counts every additional birth baseline write against500 before writes. Import reserves2 writes per possible birth within450, yielding225-new-episode chunks. Preview rejects expanded over500 without splitting. Current real full seed plan65entries+6births=71 writes, verified one commit.",
+  "statusBounds": "Validation exhausts ordered Dev-scoped document-ID pages<=25 before apply; no unbounded pending array. Apply rechecks current state through authority, never stale event status. A concurrent invalid edit stops subsequent work; this is not a claim of whole-migration atomicity under arbitrary unguarded writers.",
+  "limitations": [
+    "No E/F, CLI main, migration, deployment, production data or real messages.",
+    "Actual SDK native transaction/query/worker proof and independent review remain required.",
+    "Full nonempty reconciliation/conditional recovery source implementation has not begun; R12 OPEN."
+  ]
+}

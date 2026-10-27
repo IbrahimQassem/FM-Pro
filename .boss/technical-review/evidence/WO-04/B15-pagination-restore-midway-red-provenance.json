@@ -1,0 +1,16 @@
+{
+  "status": "BEHAVIORAL_RED_BEFORE_SOURCE_FIX",
+  "tests": 52,
+  "pass": 44,
+  "fail": 8,
+  "skip": 0,
+  "supplementalTests": 2,
+  "supplementalFailures": "Both roots: existing after-restore-commit fault pauses after first valid inverse; original source continues second inverse and completion instead of refusing.",
+  "sourceSha256": "417e52c29b3da9f47fc9c37c5cfa9aa578b0f66ccaeb32687bd1f10858676a69",
+  "sourceMatchesLive": true,
+  "testSha256": "3f7052ab24ddff5c101dba3bb9140f4f477a5f48e3dacbac3a4657dc19820b15",
+  "patchSha256": "3a62c142251669d479c6f53c65566e2c8b9578ec47319c6f1dd532ba86da06e5",
+  "logSha256": "ef5c1748399fada8271946d8992f8b8eeb9c98e48a3bdb293c46b7fc4b2dd590",
+  "productionHookChanged": false,
+  "sourceFixed": false
+}

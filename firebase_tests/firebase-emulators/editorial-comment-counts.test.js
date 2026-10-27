@@ -1,0 +1,1050 @@
+import assert from 'node:assert/strict';
+import { before, after, test } from 'node:test';
+import { createRequire } from 'node:module';
+import { randomUUID } from 'node:crypto';
+import { initializeTestEnvironment, assertFails } from '@firebase/rules-unit-testing';
+import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { handleCommentCountWritten } from '../../functions/lib/comment-counts.js';
+import { handleCommentCreated, moderateCommentContent } from '../../functions/lib/comment-moderation.js';
+import { ensureDemoCountRoots, seedCountedEpisode, syncFixtureComment,
+  updateFixtureCommentAtomically, waitForEpisodeCount } from '../support/comment-count-fixtures.mjs';
+
+import { fork } from 'node:child_process';
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { syncBuiltinESMExports } from 'node:module';
+import fsPromises from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { mkdtemp, rm, readdir, readFile, writeFile, chmod } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { randomBytes, createDecipheriv } from 'node:crypto';
+import { applyProgramEpisodeImportPlan } from '../../tool/import_programs_and_episodes.mjs';
+import { applyAdminPreviewPlan } from '../../tool/seed-admin-preview.mjs';
+import { applyDevelopmentSeedPlan } from '../../tool/firebase_seed/seed.mjs';
+import { buildSeedPlan, validateSeed } from '../../tool/firebase_seed/seed_contract.mjs';
+import { migrateCanonicalCommentStatuses } from '../../tool/firebase_seed/migrate_comment_status.mjs';
+import { createCommentCountDemoFirestore, CommentCountBackupStore,
+  previewCommentCountReconciliation, bootstrapEmptyCommentCountRoot } from '../../tool/reconcile_comment_counts.mjs';
+
+const require = createRequire(new URL('../../functions/package.json', import.meta.url));
+const { initializeApp, deleteApp } = require('firebase-admin/app');
+const { getFirestore, Transaction, DocumentReference, Query } = require('firebase-admin/firestore');
+let app, db, environment;
+before(async () => {
+  assert.equal(process.env.GCLOUD_PROJECT, 'demo-hudhud-editorial');
+  assert.match(process.env.FIRESTORE_EMULATOR_HOST ?? '', /^(127\.0\.0\.1|localhost):\d+$/);
+  await ensureDemoCountRoots();
+  app = initializeApp({ projectId: process.env.GCLOUD_PROJECT }, `counts-${randomUUID()}`); db = getFirestore(app);
+  const [host, port] = process.env.FIRESTORE_EMULATOR_HOST.split(':');
+  environment = await initializeTestEnvironment({ projectId: process.env.GCLOUD_PROJECT, firestore: { host, port: Number(port) } });
+});
+after(async () => { await environment?.cleanup(); if (app) await deleteApp(app); });
+async function episode(root) {
+  const id = `count-${randomUUID()}`;
+  const ref = await seedCountedEpisode(db, root, id, { programId: 'synthetic-count-program', stationId: 'synthetic-count-station', title: 'Synthetic count fixture', isPublished: true, stats: { playsCount: 0, likesCount: 0 } });
+  const baseline = await db.doc(`${root}/commentCountContributions/episodes/${id}`).get();
+  assert.equal(baseline.get('episodeCreateTime'), undefined, 'Creation baselines do not persist a rounded transform identity');
+  assert.equal(baseline.updateTime.isEqual((await ref.get()).createTime), true, 'Native birth receipt preserves exact episode createTime');
+  return { id, ref, comment: ref.collection('comments').doc('same-comment') };
+}
+const published = () => ({ status: 'published', content: 'Synthetic count fixture', authorId: 'synthetic-author', authorName: 'Synthetic listener', createdAt: new Date() });
+test('both roots retain an exact paused native barrier before activation release', async () => {
+  for (const root of ['HudHudDev', 'HudHudOfficial']) {
+    const snapshot = await db.doc(`${root}/commentCountContributions`).get();
+    const value = snapshot.data(), barrier = value.countMaintenance.barrierVersion;
+    assert.equal(value.state, 'active');
+    assert.equal(value.activeFrom.isEqual(barrier), true, 'Activation uses the literal prior paused barrier metadata');
+    assert.ok(snapshot.updateTime.seconds > barrier.seconds ||
+      (snapshot.updateTime.seconds === barrier.seconds && snapshot.updateTime.nanoseconds > barrier.nanoseconds),
+    'Native release must be strictly later than the paused barrier, without millisecond rounding');
+  }
+});
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  test(`${root}: real authority converges duplicate, reordered status and delete work using fresh state`, async () => {
+    const f = await episode(root), event = { firestore: db, root, episodeId: f.id, commentId: f.comment.id };
+    await f.comment.set(published());
+    await Promise.all([handleCommentCountWritten(event), handleCommentCountWritten(event)]);
+    await waitForEpisodeCount(db, root, f.id, 1);
+    await f.comment.update({ status: 'hidden' });
+    await Promise.all([handleCommentCountWritten(event), handleCommentCountWritten({ ...event, ignoredStaleStatus: 'published' })]);
+    await waitForEpisodeCount(db, root, f.id, 0);
+    await f.comment.update({ status: 'published' }); await handleCommentCountWritten(event);
+    await waitForEpisodeCount(db, root, f.id, 1);
+    await f.comment.delete(); await Promise.all([handleCommentCountWritten(event), handleCommentCountWritten(event)]);
+    await waitForEpisodeCount(db, root, f.id, 0);
+    const privateValue = (await db.doc(`${root}/commentCountContributions/episodes/${f.id}/contributions/${f.comment.id}`).get()).data();
+    assert.deepEqual(Object.keys(privateValue).sort(), ['baselineManifestHash', 'commentMutation', 'commentVersion', 'contribution', 'episodeCreateTime', 'generation', 'version']);
+    assert.equal(privateValue.contribution, 0); assert.equal(privateValue.commentVersion, null);
+    assert.equal((await f.comment.get()).exists, false);
+  });
+  test(`${root}: delayed classifier preserves a concurrent terminal manual decision and its count`, async () => {
+    const f = await episode(root); await f.comment.set(published()); await syncFixtureComment(db, root, f.id, f.comment.id);
+    let entered, release; const started = new Promise(resolve => { entered = resolve; }), blocked = new Promise(resolve => { release = resolve; });
+    const task = handleCommentCreated({ snapshot: await f.comment.get(), root, episodeId: f.id,
+      moderateFn: async (content, options) => { entered(); await blocked; return moderateCommentContent(content, { ...options, apiKey: '' }); } });
+    await started; await updateFixtureCommentAtomically(db, root, f.id, f.comment.id, { status: 'hidden' });
+    release(); await task; await waitForEpisodeCount(db, root, f.id, 0);
+    assert.equal((await f.comment.get()).get('status'), 'hidden');
+  });
+  test(`${root}: missing and recreated parents never inherit old contribution generations`, async () => {
+    const f = await episode(root), event = { firestore: db, root, episodeId: f.id, commentId: f.comment.id };
+    await f.comment.set(published()); await syncFixtureComment(db, root, f.id, f.comment.id);
+    const old = await db.doc(`${root}/commentCountContributions/episodes/${f.id}`).get();
+    await f.ref.delete(); await f.comment.delete(); await handleCommentCountWritten(event);
+    assert.equal((await f.ref.get()).exists, false);
+    await seedCountedEpisode(db, root, f.id, { title: 'Synthetic replacement', stats: {} });
+    const fresh = await db.doc(`${root}/commentCountContributions/episodes/${f.id}`).get();
+    assert.notEqual(fresh.get('generation'), old.get('generation'));
+    assert.equal(fresh.updateTime.isEqual(old.updateTime), false);
+    assert.equal(fresh.updateTime.isEqual((await f.ref.get()).createTime), true);
+    await f.comment.set(published()); await Promise.all([handleCommentCountWritten(event), handleCommentCountWritten(event)]);
+    await waitForEpisodeCount(db, root, f.id, 1);
+    const contribution = await db.doc(`${root}/commentCountContributions/episodes/${f.id}/contributions/${f.comment.id}`).get();
+    assert.equal(contribution.get('generation'), fresh.get('generation'));
+    assert.equal(contribution.get('episodeCreateTime').isEqual((await f.ref.get()).createTime), true);
+  });
+  test(`${root}: actual accepted baselines and ledgers stay private to every client role`, async () => {
+    const f = await episode(root); await f.comment.set(published()); await syncFixtureComment(db, root, f.id, f.comment.id);
+    const paths = [`${root}/commentCountContributions`, `${root}/commentCountContributions/episodes/${f.id}`,
+      `${root}/commentCountContributions/episodes/${f.id}/contributions/${f.comment.id}`, `${root}/streamHealthJobs/checkpoints/active`];
+    const owner = environment.authenticatedContext('synthetic-author', { email_verified: true }).firestore();
+    assert.equal((await getDoc(doc(owner, f.comment.path))).get('status'), 'published', 'The real author can read the canonical published comment');
+    const clients = [environment.unauthenticatedContext().firestore(), owner,
+      environment.authenticatedContext('forged-count-author', { email_verified: true, authorId: 'synthetic-author' }).firestore(),
+      ...[{}, { email_verified: false }, { role: 'moderator' }, { admin: true, role: 'station_admin' }, { admin: true, role: 'moderator' },
+        { admin: true }, { role: 'super_admin' }, { role: 'station_admin' }, { admin: true, role: 'super_admin', maintenanceOwner: 'forged' }]
+        .map((claims, index) => environment.authenticatedContext(`count-private-${index}`, claims).firestore())];
+    for (const client of clients) {
+      for (const path of paths) {
+        await assertFails(getDoc(doc(client, path)));
+        await assertFails(getDocs(collection(client, path.split('/').slice(0, -1).join('/'))));
+        await assertFails(setDoc(doc(client, `${path}-forged`), { version: 1 }));
+        await assertFails(updateDoc(doc(client, path), { version: 99 }));
+        await assertFails(deleteDoc(doc(client, path)));
+      }
+      await assertFails(updateDoc(doc(client, f.ref.path), { 'stats.commentsCount': 999 }));
+    }
+  });
+}
+
+
+// Only the registered primary project below earns automatic worker evidence.
+async function assertNativeBirth(firestore, root, id) {
+  const episode = await firestore.doc(`${root}/episodes/episodes/${id}`).get();
+  const baseline = await firestore.doc(`${root}/commentCountContributions/episodes/${id}`).get();
+  assert.equal(baseline.get('origin'), 'creation');
+  assert.equal(baseline.get('episodeCreateTime'), undefined);
+  assert.equal(baseline.updateTime.isEqual(episode.createTime), true);
+  if (firestore === db) {
+    for (const client of [environment.unauthenticatedContext().firestore(),
+      environment.authenticatedContext('producer-forged-operator', { admin: true, role: 'super_admin' }).firestore()]) {
+      await assertFails(getDoc(doc(client, baseline.ref.path)));
+      await assertFails(updateDoc(doc(client, baseline.ref.path), { generation: 'forged' }));
+    }
+  }
+  return episode;
+}
+async function cleanupProducerEpisode(firestore, root, id) {
+  await firestore.recursiveDelete(firestore.doc(`${root}/episodes/episodes/${id}`));
+  await firestore.recursiveDelete(firestore.doc(`${root}/commentCountContributions/episodes/${id}`));
+}
+async function applyImporter(firestore, root, entries) {
+  return applyProgramEpisodeImportPlan({ firestore, root, stationsToCreate: new Map(),
+    stationProgramsCount: new Map(), resolvedPrograms: [], resolvedEpisodes: entries,
+    log: () => {} });
+}
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  for (const producer of ['importer', 'preview']) {
+    test(`${root}: actual ${producer} preserves a worker-owned count and creates an exact native birth`, async () => {
+      const id = `producer-${randomUUID()}`, path = `${root}/episodes/episodes/${id}`;
+      const apply = data => producer === 'importer'
+        ? applyImporter(db, root, [{ id, data }])
+        : applyAdminPreviewPlan({ firestore: db, entries: [{ path, data }] });
+      try {
+        await apply({ title: 'Synthetic producer birth', isPublished: true, stats: { commentsCount: 97, playsCount: 2 } });
+        assert.equal((await assertNativeBirth(db, root, id)).get('stats.commentsCount'), 0);
+        const comment = db.doc(`${path}/comments/worker-comment`);
+        await comment.create(published());
+        await waitForEpisodeCount(db, root, id, 1, { requireModeratedComment: comment.id });
+        const receipt = await db.doc(`${root}/commentCountContributions/episodes/${id}`).get();
+        await apply({ title: 'Synthetic producer refresh', isPublished: true, stats: { commentsCount: 88, playsCount: 3 } });
+        assert.equal((await db.doc(path).get()).get('stats.commentsCount'), 1);
+        assert.equal((await db.doc(`${root}/commentCountContributions/episodes/${id}`).get()).updateTime.isEqual(receipt.updateTime), true);
+        // A status-only SDK update cannot run onCreated moderation again.
+        await comment.update({ status: 'hidden' });
+        await waitForEpisodeCount(db, root, id, 0);
+        await comment.delete(); await waitForEpisodeCount(db, root, id, 0);
+      } finally { await cleanupProducerEpisode(db, root, id); }
+    });
+  }
+}
+function producerSeed(id) {
+  const root = 'HudHudDev', entry = (key, data) => ({ id: `${id}-${key}`, data });
+  const timestamp = '2026-01-01T00:00:00.000Z';
+  return { projectId: 'sanadev-fm', root,
+    locations: [entry('location', { countryCode: 'YE', countryNameAr: 'اليمن', cityCode: `${id}-city`, cityNameAr: 'Synthetic city', locationType: 'governorate', sortOrder: 0, isActive: true })],
+    banners: [entry('banner', { title: 'Synthetic producer banner', imageUrl: 'https://example.test/banner.png', isActive: false })],
+    stations: [entry('station', { name: 'Synthetic producer station', cityCode: `${id}-city`, stats: { programsCount: 1, subscribersCount: 0, totalPlays: 0 } })],
+    users: [entry('user', { displayName: 'Synthetic producer listener', username: `${id}-listener`, avatarUrl: '', isActive: true, role: 'listener', createdAt: timestamp, updatedAt: timestamp })],
+    programs: [entry('program', { title: 'Synthetic producer program', stationId: `${id}-station`, stats: { episodesCount: 1 } })],
+    episodes: [entry('episode', { title: 'Synthetic producer episode', programId: `${id}-program`, stationId: `${id}-station`, isPublished: true, broadcastAt: timestamp, publishedAt: timestamp, stats: { commentsCount: 1, playsCount: 0, likesCount: 0 } })],
+    comments: [entry('comment', { status: 'published', content: 'Synthetic producer comment', episodeId: `${id}-episode`, authorId: `${id}-user`, authorName: 'Synthetic producer listener', isEdited: false, createdAt: timestamp })],
+    favorites: [{ id: `${id}-favorite`, userId: `${id}-user`, data: { targetType: 'station', targetId: `${id}-station`, createdAt: timestamp } }],
+    subscriptions: [{ id: `${id}-subscription`, userId: `${id}-user`, data: { targetType: 'program', targetId: `${id}-program`, notificationsEnabled: true, isActive: true, createdAt: timestamp, updatedAt: timestamp } }] };
+}
+for (const contentOnly of [false, true]) {
+  test(`HudHudDev: actual ${contentOnly ? 'content-only' : 'full'} seed plan is create-only with native births and real worker convergence`, async () => {
+    const seed = producerSeed(`seed-${randomUUID()}`), episodeId = seed.episodes[0].id;
+    assert.deepEqual(validateSeed(seed), { locations: 1, stations: 1, banners: 1, users: 1,
+      programs: 1, episodes: 1, comments: 1, favorites: 1, subscriptions: 1 });
+    const plan = buildSeedPlan(seed, { contentOnly });
+    const station = db.doc(`HudHudDev/stations/stations/${seed.stations[0].id}`);
+    try {
+      if (contentOnly) await station.create(seed.stations[0].data);
+      await applyDevelopmentSeedPlan({ firestore: db, ...plan });
+      await assertNativeBirth(db, 'HudHudDev', episodeId);
+      await waitForEpisodeCount(db, 'HudHudDev', episodeId, 1, { requireModeratedComment: seed.comments[0].id });
+      const before = await db.doc(`HudHudDev/episodes/episodes/${episodeId}`).get();
+      await assert.rejects(applyDevelopmentSeedPlan({ firestore: db, ...plan }), error => error.code === 6);
+      assert.equal((await db.doc(before.ref.path).get()).updateTime.isEqual(before.updateTime), true);
+      const engagement = buildSeedPlan(seed, { engagementOnly: true });
+      assert.equal(engagement.entries.length, 2);
+      assert.deepEqual(engagement.stationCountUpdates, []);
+      assert.ok(engagement.entries.every(entry => /\/users\/users\/[^/]+\/(favorites|subscriptions)\//.test(entry.path)),
+        'The real CLI engagement-only plan contains no comments or episodes');
+      const comment = db.doc(`HudHudDev/episodes/episodes/${episodeId}/comments/${seed.comments[0].id}`);
+      await comment.update({ status: 'hidden' }); await waitForEpisodeCount(db, 'HudHudDev', episodeId, 0);
+    } finally {
+      await cleanupProducerEpisode(db, 'HudHudDev', episodeId);
+      for (const entry of plan.entries.filter(entry => !entry.path.includes('/episodes/episodes/'))) await db.recursiveDelete(db.doc(entry.path));
+      await station.delete();
+    }
+  });
+}
+
+test('HudHudDev: internal comment-only seed requires an accepted existing birth and is separate from engagement-only', async () => {
+  const f = await episode('HudHudDev'), orphanId = `unaccepted-${randomUUID()}`;
+  const orphan = db.doc(`HudHudDev/episodes/episodes/${orphanId}`);
+  try {
+    const comment = f.ref.collection('comments').doc('internal-seed-comment');
+    await applyDevelopmentSeedPlan({ firestore: db, entries: [{ path: comment.path, data: published() }], stationCountUpdates: [] });
+    await waitForEpisodeCount(db, 'HudHudDev', f.id, 1, { requireModeratedComment: comment.id });
+    await orphan.create({ title: 'Synthetic unaccepted adversarial parent', stats: { commentsCount: 0 } });
+    const rejectedComment = orphan.collection('comments').doc('refused');
+    const unrelated = db.doc(`HudHudDev/programs/programs/${orphanId}`);
+    await assert.rejects(applyDevelopmentSeedPlan({ firestore: db, entries: [
+      { path: rejectedComment.path, data: published() }, { path: unrelated.path, data: { title: 'Must not partially commit' } },
+    ], stationCountUpdates: [] }), error => error.code === 'failed-precondition');
+    assert.equal((await rejectedComment.get()).exists, false);
+    assert.equal((await unrelated.get()).exists, false);
+  } finally {
+    await cleanupProducerEpisode(db, 'HudHudDev', f.id);
+    await cleanupProducerEpisode(db, 'HudHudDev', orphanId);
+  }
+});
+
+// Secondary projects use the SAME loopback emulator, a genuine verified empty
+// bootstrap, and actual SDK transactions. They earn NO automatic trigger credit.
+async function isolatedProducerContext(run) {
+  const projectId = `demo-count-producer-${randomUUID()}`;
+  const context = { projectId, emulatorHost: process.env.FIRESTORE_EMULATOR_HOST };
+  const facade = createCommentCountDemoFirestore(context);
+  const directory = await mkdtemp(join(tmpdir(), 'hudhud-producer-proof-'));
+  const secondaryApp = initializeApp({ projectId }, projectId), firestore = getFirestore(secondaryApp);
+  const key = randomBytes(32), expiresAt = Date.now() + 7 * 86400000;
+  try {
+    const backupStore = await CommentCountBackupStore.open({ directory, key, expiresAt });
+    const bootstrapInputs = new Map();
+    for (const root of ['HudHudDev', 'HudHudOfficial']) {
+      const input = { ...context, firestore: facade, root, backupStore, maxItems: 25, owner: 'synthetic-producer-proof' };
+      const manifest = await previewCommentCountReconciliation(input); await backupStore.writeVerified(manifest);
+      const acceptedInput = { ...input, manifest, expectedManifestHash: manifest.hash };
+      assert.equal((await bootstrapEmptyCommentCountRoot(acceptedInput)).status, 'active');
+      bootstrapInputs.set(root, acceptedInput);
+    }
+    await run(firestore, projectId, bootstrapInputs, { directory, key, expiresAt, emulatorHost: context.emulatorHost });
+  } finally {
+    // No false active restoration. Any test-induced pause remains fail-closed in
+    // this unique disposable emulator project; primary root state is untouched.
+    key.fill(0); await deleteApp(secondaryApp); await facade.terminate(); await rm(directory, { recursive: true, force: true });
+  }
+}
+test('isolated SDK: all actual episode producers refuse paused roots without partial writes', async () => {
+  await isolatedProducerContext(async firestore => {
+    for (const root of ['HudHudDev', 'HudHudOfficial']) {
+      await applyAdminPreviewPlan({ firestore, entries: [{ path: `${root}/episodes/episodes/existing`, data: { title: 'Synthetic existing', stats: {} } }] });
+      const baseline = await firestore.doc(`${root}/commentCountContributions/episodes/existing`).get();
+      await firestore.doc(`${root}/commentCountContributions`).update({ state: 'paused' });
+      const calls = [
+        () => applyImporter(firestore, root, [{ id: 'existing', data: { title: 'Forbidden overwrite' } }, { id: 'new', data: { title: 'Forbidden birth' } }]),
+        () => applyAdminPreviewPlan({ firestore, entries: ['existing', 'new'].map(id => ({ path: `${root}/episodes/episodes/${id}`, data: { title: 'Forbidden overwrite' } })) }),
+      ];
+      if (root === 'HudHudDev') calls.push(() => applyDevelopmentSeedPlan({ firestore, ...buildSeedPlan(producerSeed('paused-seed')) }));
+      for (const call of calls) {
+        await assert.rejects(call(), error => error.code === 'failed-precondition' && error.details?.reason === 'comment-count-maintenance');
+        assert.equal((await firestore.doc(`${root}/episodes/episodes/existing`).get()).get('title'), 'Synthetic existing');
+        assert.equal((await firestore.doc(`${root}/episodes/episodes/new`).get()).exists, false);
+        assert.equal((await firestore.doc(`${root}/commentCountContributions/episodes/existing`).get()).updateTime.isEqual(baseline.updateTime), true);
+      }
+      assert.equal((await firestore.doc(`${root}/episodes/episodes/paused-seed-episode`).get()).exists, false);
+    }
+  });
+});
+test('isolated SDK: actual Dev status migration crosses 25-row pages and preserves fresh terminal decisions and replay', async () => {
+  await isolatedProducerContext(async (firestore, projectId) => {
+    for (const root of ['HudHudDev', 'HudHudOfficial']) {
+      await applyAdminPreviewPlan({ firestore, entries: [{ path: `${root}/episodes/episodes/status-page`, data: { title: 'Synthetic status pages', stats: {} } }] });
+    }
+    const parent = firestore.doc('HudHudDev/episodes/episodes/status-page');
+    const batch = firestore.batch();
+    for (let index = 0; index < 107; index++) {
+      const data = published(); delete data.status;
+      if (index === 105) data.status = 'hidden'; if (index === 106) data.status = 'removed';
+      batch.create(parent.collection('comments').doc(String(index).padStart(3, '0')), data);
+    }
+    const official = firestore.doc('HudHudOfficial/episodes/episodes/status-page/comments/untouched');
+    batch.create(official, { content: 'Synthetic official untouched' }); await batch.commit();
+    // The fresh terminal edit occurs after migration has read its candidate page,
+    // before the first real authority transaction; no storage decisions are modeled.
+    let raced = false;
+    const concurrent = { doc: firestore.doc.bind(firestore), collectionGroup: firestore.collectionGroup.bind(firestore),
+      runTransaction: async callback => {
+        if (!raced) { raced = true; await parent.collection('comments').doc('000').update({ status: 'hidden' }); }
+        return firestore.runTransaction(callback);
+      } };
+    await migrateCanonicalCommentStatuses({ firestore: concurrent, projectId, shouldApply: true, log: () => {} });
+    assert.equal(raced, true);
+    const comments = await parent.collection('comments').get(); assert.equal(comments.size, 107);
+    assert.equal(comments.docs.filter(comment => comment.get('status') === 'published').length, 104);
+    for (const id of ['000', '105']) assert.equal((await parent.collection('comments').doc(id).get()).get('status'), 'hidden');
+    assert.equal((await parent.collection('comments').doc('106').get()).get('status'), 'removed');
+    assert.equal((await parent.get()).get('stats.commentsCount'), 104, 'Actual authority transactions count all accepted rows across five native pages');
+    assert.equal((await official.get()).get('status'), undefined, 'Real collectionGroup name bounds exclude Official');
+    const replay = { firestore, root: 'HudHudDev', episodeId: 'status-page', commentId: '001' };
+    await Promise.all([handleCommentCountWritten(replay), handleCommentCountWritten(replay)]);
+    assert.equal((await parent.get()).get('stats.commentsCount'), 104);
+    const contribution = await firestore.doc('HudHudDev/commentCountContributions/episodes/status-page/contributions/001').get();
+    assert.equal(contribution.get('episodeCreateTime').isEqual((await parent.get()).createTime), true);
+    const version = (await parent.get()).updateTime;
+    assert.deepEqual(await migrateCanonicalCommentStatuses({ firestore, projectId, shouldApply: true, log: () => {} }), { skipped: true });
+    assert.equal((await parent.get()).updateTime.isEqual(version), true);
+    // Paused migration refuses an otherwise valid new missing-status candidate.
+    await parent.collection('comments').doc('late').create({ content: 'Synthetic late candidate' });
+    await firestore.doc('HudHudDev/commentCountContributions').update({ state: 'paused' });
+    await assert.rejects(migrateCanonicalCommentStatuses({ firestore, projectId, shouldApply: true, log: () => {} }),
+      error => error.code === 'failed-precondition' && error.details?.reason === 'comment-count-maintenance');
+    assert.equal((await parent.collection('comments').doc('late').get()).get('status'), undefined);
+    assert.equal((await parent.get()).get('stats.commentsCount'), 104);
+  });
+});
+
+
+test('isolated SDK: identical-body root recreation cannot replay a historical empty bootstrap proof', async () => {
+  await isolatedProducerContext(async (firestore, projectId, bootstrapInputs) => {
+    for (const root of ['HudHudDev', 'HudHudOfficial']) {
+      const acceptedInput = bootstrapInputs.get(root);
+      assert.equal(acceptedInput.projectId, projectId);
+      const reference = firestore.doc(`${root}/commentCountContributions`);
+      const original = await reference.get(), body = original.data();
+      const barrier = body.countMaintenance.barrierVersion;
+      assert.equal(body.activeFrom.isEqual(barrier), true);
+      await reference.delete(); await reference.create(body);
+      const recreated = await reference.get();
+      assert.deepEqual(recreated.data(), body, 'Only native identity changes; accepted-looking body remains identical');
+      assert.equal(recreated.createTime.isEqual(original.createTime), false);
+      assert.ok(recreated.createTime.seconds > barrier.seconds ||
+        (recreated.createTime.seconds === barrier.seconds && recreated.createTime.nanoseconds > barrier.nanoseconds),
+      'The recreated root is born strictly after its copied historical barrier');
+      await assert.rejects(bootstrapEmptyCommentCountRoot(acceptedInput),
+        error => error.code === 'failed-precondition' && error.details?.reason === 'count-activation-version-conflict');
+      const after = await reference.get();
+      assert.equal(after.createTime.isEqual(recreated.createTime), true);
+      assert.equal(after.updateTime.isEqual(recreated.updateTime), true, 'Rejected replay performs no root write');
+      assert.deepEqual(after.data(), body);
+    }
+  });
+});
+
+
+// Full API native rehearsals are integrated only after independent source approval.
+// All are secondary SDK-only projects; no automatic worker propagation is claimed.
+async function fullSdkSession(run) {
+  await isolatedProducerContext(async (firestore, projectId, bootstrapInputs, custody) => {
+    const tool = await import('../../tool/reconcile_comment_counts.mjs');
+    assert.equal(typeof tool.applyCommentCountReconciliation, 'function', 'Full API preflight prerequisite; a missing export is NOT RED evidence');
+    assert.equal(typeof tool.restoreCommentCountReconciliation, 'function');
+    await run({ firestore, projectId, bootstrapInputs, custody, tool });
+  });
+}
+async function reviewedFullInput(f, root) {
+  const accepted = f.bootstrapInputs.get(root);
+  const manifest = await previewCommentCountReconciliation(accepted);
+  await accepted.backupStore.writeVerified(manifest);
+  return { ...accepted, manifest, expectedManifestHash: manifest.hash, owner: 'synthetic-full-sdk-owner', maxItems: 25 };
+}
+function assertSdkBudget(result, maximum) {
+  assert.ok(Number.isSafeInteger(result.processed) && result.processed >= 0 && result.processed <= maximum);
+  assert.ok(Number.isSafeInteger(result.readEquivalents) && result.readEquivalents >= 0 && result.readEquivalents <= 1536);
+  assert.ok(Number.isSafeInteger(result.transactionAttempts) && result.transactionAttempts >= 0);
+  // These are reported application-issued logical/read/attempt bounds, NOT an
+  // independent physical-read observer or SDK internal retries/billing/latency proof.
+}
+async function finishFull(f, input, operation = 'apply', maximum = 25) {
+  const api = operation === 'apply' ? f.tool.applyCommentCountReconciliation : f.tool.restoreCommentCountReconciliation;
+  for (let invocation = 0; invocation < 4000; invocation++) {
+    const result = await api({ ...input, maxItems: maximum }); assertSdkBudget(result, maximum);
+    if (result.status === (operation === 'apply' ? 'active' : 'restored-held')) return result;
+    assert.equal(result.status, 'in-progress');
+  }
+  assert.fail('Finite native rehearsal invocation bound exhausted');
+}
+async function coldSdkCall(f, input, mode = 'replay', maxItems = 25, nowMs) {
+  const request = { version: 1, kind: mode === 'replay' ? 'count-sdk-replay' : 'count-sdk-maintenance',
+    ...(mode === 'replay' ? {} : { operation: mode }), projectId: f.projectId, root: input.root,
+    emulatorHost: f.custody.emulatorHost, directory: f.custody.directory, expiresAt: f.custody.expiresAt,
+    keyBytes: Array.from(f.custody.key), manifest: input.manifest, expectedManifestHash: input.expectedManifestHash,
+    owner: input.owner, maxItems, ...(nowMs === undefined ? {} : { nowMs }) };
+  return new Promise((resolve, reject) => {
+    const child = fork(fileURLToPath(new URL('../../tool/test/reconcile_comment_counts.test.mjs', import.meta.url)),
+      [mode === 'replay' ? '--count-sdk-replay-child' : '--count-sdk-maintenance-child'],
+      { execPath: process.execPath, stdio: ['ignore', 'pipe', 'pipe', 'ipc'] });
+    let reply, unexpectedOutput = false;
+    child.stdout.on('data', () => { unexpectedOutput = true; }); child.stderr.on('data', () => { unexpectedOutput = true; });
+    const timer = setTimeout(() => { child.kill('SIGTERM'); reject(new Error('Bounded private SDK actor deadline exhausted')); }, 120000);
+    child.once('error', error => { clearTimeout(timer); reject(error); });
+    child.on('message', value => { reply = value; });
+    child.once('exit', code => {
+      clearTimeout(timer); request.keyBytes.fill(0);
+      try { assert.equal(unexpectedOutput, false, 'Private actor emits no raw diagnostic/key output');
+        assert.equal(reply?.version, 1); assert.equal(reply?.kind, 'count-sdk-result');
+        if (reply.error) { const error = new Error('Private SDK actor stopped safely'); error.code = reply.error.code; error.reason = reply.error.reason; reject(error); return; }
+        assert.equal(code, 0); assert.equal(reply.preflightReadCount, mode === 'replay' ? 2 : 0);
+        assertSdkBudget(reply.result, maxItems); resolve(reply.result);
+      } catch (error) { reject(error); }
+    });
+    child.send(request, error => { request.keyBytes.fill(0); if (error) { clearTimeout(timer); child.kill(); reject(error); } });
+  });
+}
+async function boundedNativeDocuments(collectionRef) {
+  const result = []; let cursor;
+  for (let pageIndex = 0; pageIndex < 2000; pageIndex++) {
+    let query = collectionRef.orderBy('__name__').limit(25); if (cursor) query = query.startAfter(cursor);
+    const page = await query.get(); result.push(...page.docs); if (page.size < 25) return result; cursor = page.docs.at(-1);
+  }
+  assert.fail('Finite fixture observation bound exhausted');
+}
+const nativeVersion = snapshot => [snapshot.createTime.seconds, snapshot.createTime.nanoseconds, snapshot.updateTime.seconds, snapshot.updateTime.nanoseconds];
+async function immutableFullSnapshot(f, input) {
+  const plan = f.firestore.doc(`${input.root}/commentCountContributions/maintenance/${input.manifest.hash}`);
+  const root = await f.firestore.doc(`${input.root}/commentCountContributions`).get();
+  const baselines = await boundedNativeDocuments(f.firestore.collection(`${input.root}/commentCountContributions/episodes`));
+  const contributions = [];
+  for (const baseline of baselines) contributions.push(...(await boundedNativeDocuments(baseline.ref.collection('contributions')))
+    .map(value => [value.ref.path, nativeVersion(value), value.data()]));
+  return { root: nativeVersion(root), plan: nativeVersion(await plan.get()),
+    baselines: baselines.map(value => [value.id, nativeVersion(value), value.data()]), contributions,
+    completions: (await boundedNativeDocuments(plan.collection('episodes'))).map(value => [value.id, nativeVersion(value), value.data()]),
+    units: (await boundedNativeDocuments(plan.collection('units'))).map(value => [value.id, nativeVersion(value), value.data()]),
+    episodes: (await boundedNativeDocuments(f.firestore.collection(`${input.root}/episodes/episodes`))).map(value => [value.id, nativeVersion(value), value.data()]) };
+}
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  test(`${root}: native full inventory and old/deleted union exhaust beyond100 with exact activation and read-only cold replay`, async () => {
+    await fullSdkSession(async f => {
+      const entries = Array.from({ length: 105 }, (_, index) => ({ path: `${root}/episodes/episodes/large-${String(index).padStart(3, '0')}`,
+        data: { title: 'Synthetic native inventory', isPublished: true, stats: { commentsCount: 0, playsCount: index } } }));
+      await applyAdminPreviewPlan({ firestore: f.firestore, entries });
+      const parent = f.firestore.doc(entries[0].path), identity = (await parent.get()).createTime;
+      const baselinePath = `${root}/commentCountContributions/episodes/large-000`;
+      const batch = f.firestore.batch();
+      for (let index = 0; index < 107; index++) {
+        const id = String(index).padStart(3, '0'); batch.create(parent.collection('comments').doc(id), { ...published(), status: index % 3 === 0 ? 'hidden' : 'published' });
+        if (index % 3 === 0) batch.set(f.firestore.doc(`${baselinePath}/contributions/${id}`), { version: 1, generation: 'synthetic-old-generation',
+          baselineManifestHash: 'a'.repeat(64), episodeCreateTime: identity, commentVersion: null, commentMutation: false, contribution: 1 });
+      }
+      for (let index = 0; index < 35; index++) batch.set(f.firestore.doc(`${baselinePath}/contributions/deleted-${String(index).padStart(3, '0')}`),
+        { version: 1, generation: 'synthetic-old-generation', baselineManifestHash: 'a'.repeat(64), episodeCreateTime: identity, commentVersion: null, commentMutation: false, contribution: 1 });
+      await batch.commit();
+      const input = await reviewedFullInput(f, root); await finishFull(f, input);
+      assert.equal((await parent.get()).get('stats.commentsCount'), 71);
+      const baseline = await f.firestore.doc(baselinePath).get(); assert.equal(baseline.get('origin'), 'baseline'); assert.equal(baseline.get('episodeCreateTime').isEqual(identity), true);
+      const rows = await boundedNativeDocuments(f.firestore.collection(`${baselinePath}/contributions`)); assert.equal(rows.length, 142);
+      for (const row of rows) { assert.equal(row.get('generation'), baseline.get('generation')); assert.equal(row.get('episodeCreateTime').isEqual(identity), true);
+        if (row.id.startsWith('deleted-')) { assert.equal(row.get('contribution'), 0); assert.equal(row.get('commentVersion'), null); } }
+      const active = await f.firestore.doc(`${root}/commentCountContributions`).get(), proof = active.get('countMaintenance');
+      assert.equal(proof.inventoryCount, 105); assert.equal(proof.episodeProofCount, 105); assert.equal(proof.proofTargetSlotCount, proof.headChainTargetSlotCount);
+      assert.equal(active.get('activeFrom').isEqual(proof.barrierVersion), true);
+      const units = await boundedNativeDocuments(f.firestore.collection(`${input.root}/commentCountContributions/maintenance/${input.manifest.hash}/units`));
+      const release = units.find(unit => unit.id === String(proof.releaseUnit).padStart(12, '0')); assert.equal(release.updateTime.isEqual(active.updateTime), true);
+      assert.ok(active.updateTime.seconds > proof.barrierVersion.seconds || (active.updateTime.seconds === proof.barrierVersion.seconds && active.updateTime.nanoseconds > proof.barrierVersion.nanoseconds));
+      const noOp = units.flatMap(unit => unit.get('targets') ?? []).find(target => target.ownedField === 'stats.commentsCount' && !target.changed);
+      assert.ok(noOp, 'At least one empty episode counter is a genuine native no-op');
+      assert.equal((await f.firestore.doc(noOp.targetPath).get()).updateTime.isEqual(noOp.beforeVersion), true);
+      // Legitimate later authority mutation must not invalidate historical replay.
+      await parent.collection('comments').doc('001').update({ status: 'hidden' });
+      await handleCommentCountWritten({ firestore: f.firestore, root, episodeId: 'large-000', commentId: '001' });
+      assert.equal((await parent.get()).get('stats.commentsCount'), 70);
+      const before = await immutableFullSnapshot(f, input); let completed = false;
+      for (let invocation = 0; invocation < 2000; invocation++) { const result = await coldSdkCall(f, input); if (result.status === 'active') { completed = true; break; } }
+      assert.equal(completed, true); assert.deepEqual(await immutableFullSnapshot(f, input), before, 'Fresh-process historical replay performs no Firestore writes');
+    });
+  });
+}
+test('isolated SDK: maxItems1 progresses and cold custody refuses a held lock without Firestore writes', async () => {
+  await fullSdkSession(async f => {
+    const root = 'HudHudDev'; await applyAdminPreviewPlan({ firestore: f.firestore, entries: [{ path: `${root}/episodes/episodes/small`, data: { title: 'Synthetic single-unit native', stats: {} } }] });
+    const input = await reviewedFullInput(f, root); const first = await f.tool.applyCommentCountReconciliation({ ...input, maxItems: 1 }); assertSdkBudget(first, 1);
+    assert.equal(first.status, 'in-progress'); assert.ok(first.cursor.nextUnit >= 1);
+    await finishFull(f, input, 'apply', 1);
+    const before = await immutableFullSnapshot(f, input), replay = (await readdir(f.custody.directory)).find(name => name.endsWith('.counts-replay'));
+    assert.ok(replay); const lock = `${f.custody.directory}/${replay}.lock`; await writeFile(lock, 'Synthetic held custody lock', { mode: 0o600 });
+    try { await assert.rejects(coldSdkCall(f, input, 'replay', 1), error => error.reason === 'count-replay-lock-busy'); }
+    finally { await rm(lock); }
+    assert.deepEqual(await immutableFullSnapshot(f, input), before);
+    const originalMode = 0o700; await chmod(f.custody.directory, 0o755);
+    try { await assert.rejects(coldSdkCall(f, input, 'replay', 1)); } finally { await chmod(f.custody.directory, originalMode); }
+    assert.deepEqual(await immutableFullSnapshot(f, input), before);
+  });
+});
+
+
+async function simpleNativeFull(f) {
+  const root = 'HudHudDev', episodeId = 'native-recovery', path = `${root}/episodes/episodes/${episodeId}`;
+  await applyAdminPreviewPlan({ firestore: f.firestore, entries: [{ path, data: { title: 'Synthetic native recovery', isPublished: true, stats: { playsCount: 7 } } }] });
+  const parent = f.firestore.doc(path), comment = parent.collection('comments').doc('actual-comment');
+  await comment.create(published()); // No expected count seeded; secondary has no automatic workers.
+  return { root, episodeId, parent, comment, input: await reviewedFullInput(f, root) };
+}
+async function lastNativeUnit(f, input) {
+  const plan = await f.firestore.doc(`${input.root}/commentCountContributions/maintenance/${input.manifest.hash}`).get();
+  if (!plan.exists || plan.get('lastUnit') === null) return null;
+  return f.firestore.doc(`${plan.ref.path}/units/${String(plan.get('lastUnit')).padStart(12, '0')}`).get();
+}
+for (const operation of ['apply', 'restore']) {
+  test(`isolated SDK: real ${operation} commit acknowledgement loss resumes exact native receipts once`, async () => {
+    await fullSdkSession(async f => {
+      const journey = await simpleNativeFull(f), { input, parent, comment } = journey;
+      if (operation === 'restore') await finishFull(f, input);
+      const original = Transaction.prototype.commit; assert.equal(typeof original, 'function'); let injected = false;
+      // Installed SDK boundary only: real commit runs first. No facade/storage
+      // replacement, no source fault flag and no cancellation claim.
+      Transaction.prototype.commit = async function (...args) {
+        const hasWrites = this._writeBatch && !this._writeBatch.isEmpty;
+        const result = await original.apply(this, args);
+        if (!injected && hasWrites) {
+          const unit = await lastNativeUnit(f, input);
+          const eligible = unit?.get('targets')?.some(target => operation === 'restore'
+            ? unit.get('kind') === 'restore' && target.ownedField === 'stats.commentsCount'
+            : target.targetPath === `${parent.path}/comments/${comment.id}`.replace('/episodes/episodes/', '/commentCountContributions/episodes/').replace('/comments/', '/contributions/'));
+          if (eligible) { injected = true; throw Object.assign(new Error('Synthetic client acknowledgement lost AFTER native commit'), { code: 'synthetic-native-ack-loss' }); }
+        }
+        return result;
+      };
+      try { await assert.rejects(finishFull(f, input, operation), error => error.code === 'synthetic-native-ack-loss'); }
+      finally { Transaction.prototype.commit = original; }
+      assert.equal(injected, true);
+      const committed = await lastNativeUnit(f, input); assert.ok(committed.exists);
+      const checkpoint = await f.firestore.doc(`${input.root}/commentCountContributions/maintenance/${input.manifest.hash}`).get();
+      assert.equal(checkpoint.updateTime.isEqual(committed.updateTime), true);
+      await finishFull(f, input, operation);
+      assert.equal((await parent.get()).get('stats.commentsCount'), operation === 'apply' ? 1 : 0);
+      assert.equal((await parent.get()).get('stats.playsCount'), 7);
+      assert.equal((await comment.get()).get('status'), 'published');
+      if (operation === 'restore') assert.equal((await f.firestore.doc(`${input.root}/commentCountContributions`).get()).get('state'), 'paused');
+    });
+  });
+}
+for (const target of ['source', 'head', 'recreated-source']) {
+  test(`isolated SDK: distinct-write/equal-body ${target} ABA is rejected using exact native versions`, async () => {
+    await fullSdkSession(async f => {
+      const { input, parent } = await simpleNativeFull(f);
+      let reference;
+      for (let invocation = 0; invocation < 1000; invocation++) {
+        const result = await f.tool.applyCommentCountReconciliation({ ...input, maxItems: 1 }); assertSdkBudget(result, 1);
+        const plan = await f.firestore.doc(`${input.root}/commentCountContributions/maintenance/${input.manifest.hash}`).get();
+        if (target !== 'head' && plan.get('inventoryCount') > 0) { reference = parent; break; }
+        if (target === 'head') {
+          const heads = await plan.ref.collection('units').where('__name__', '>=', plan.ref.collection('units').doc('head-'))
+            .where('__name__', '<', plan.ref.collection('units').doc('head-\uf8ff')).orderBy('__name__').limit(1).get();
+          if (!heads.empty) { reference = heads.docs[0].ref; break; }
+        }
+        assert.notEqual(result.status, 'active', 'Adversarial edit must precede accepted release');
+      }
+      assert.ok(reference); const before = await reference.get(), body = before.data();
+      if (target === 'recreated-source') { await reference.delete(); await reference.create(body); }
+      else { await reference.update({ syntheticTransient: true }); await reference.set(body); }
+      const changed = await reference.get(); assert.deepEqual(changed.data(), body);
+      assert.equal(changed.createTime.isEqual(before.createTime), target !== 'recreated-source'); assert.equal(changed.updateTime.isEqual(before.updateTime), false);
+      await assert.rejects(finishFull(f, input));
+      assert.equal((await f.firestore.doc(`${input.root}/commentCountContributions`).get()).get('state'), 'paused');
+      assert.equal((await reference.get()).updateTime.isEqual(changed.updateTime), true, 'Rejection cannot adopt or rewrite unowned equal-valued history');
+    });
+  });
+}
+test('isolated SDK: late canonical edit blocks removal of a newly created contribution during reverse restore', async () => {
+  await fullSdkSession(async f => {
+    const { input, parent, comment } = await simpleNativeFull(f); await finishFull(f, input);
+    const planRef = f.firestore.doc(`${input.root}/commentCountContributions/maintenance/${input.manifest.hash}`);
+    let reached = false;
+    for (let invocation = 0; invocation < 2000; invocation++) {
+      const plan = await planRef.get(), index = plan.get('restoreUnit');
+      if (plan.get('phase') === 'restoring' && index !== null) {
+        const original = await planRef.collection('units').doc(String(index).padStart(12, '0')).get();
+        const created = original.get('targets')?.find(target => target.created && target.targetPath.endsWith(`/contributions/${comment.id}`));
+        if (created) {
+          const contribution = f.firestore.doc(created.targetPath), before = await contribution.get(); assert.equal(before.exists, true);
+          await comment.update({ status: 'hidden' });
+          await assert.rejects(f.tool.restoreCommentCountReconciliation({ ...input, maxItems: 1 }));
+          assert.equal((await contribution.get()).exists, true); assert.equal((await contribution.get()).updateTime.isEqual(before.updateTime), true);
+          assert.equal((await comment.get()).get('status'), 'hidden'); assert.equal((await parent.get()).get('stats.playsCount'), 7);
+          assert.equal((await f.firestore.doc(`${input.root}/commentCountContributions`).get()).get('state'), 'paused'); reached = true; break;
+        }
+      }
+      const result = await f.tool.restoreCommentCountReconciliation({ ...input, maxItems: 1 }); assertSdkBudget(result, 1);
+      assert.notEqual(result.status, 'restored-held', 'Created-row inverse must be observed before it executes');
+    }
+    assert.equal(reached, true);
+  });
+});
+for (const ordering of ['writer-first', 'pause-first']) {
+  test(`isolated SDK: legal preview writer and pause serialize with exact native proof (${ordering})`, async () => {
+    await isolatedProducerContext(async (firestore, projectId) => {
+      const root = 'HudHudDev', fence = firestore.doc(`${root}/commentCountContributions`), path = `${root}/episodes/episodes/pause-order`;
+      let entered, release; const observed = new Promise(resolve => { entered = resolve; }), gate = new Promise(resolve => { release = resolve; });
+      const originalGet = Transaction.prototype.get; let armed = true, guardedRead, writerTransaction;
+      Transaction.prototype.get = async function (ref, ...args) {
+        if (ref?.path === fence.path && armed) {
+          armed = false; writerTransaction = this;
+          if (ordering === 'pause-first') { entered(); await gate; guardedRead = await originalGet.call(this, ref, ...args); return guardedRead; }
+          const snapshot = await originalGet.call(this, ref, ...args); guardedRead = snapshot; entered(); await gate; return snapshot;
+        }
+        if (ref?.path === fence.path && this === writerTransaction) {
+          guardedRead = await originalGet.call(this, ref, ...args); return guardedRead;
+        }
+        return originalGet.call(this, ref, ...args);
+      };
+      try {
+        const writer = applyAdminPreviewPlan({ firestore, entries: [{ path, data: { title: 'Synthetic ordered legal writer', stats: {} } }] });
+        // Attach rejection handling immediately; gating is outside every TX.
+        const outcome = writer.then(() => ({ ok: true }), error => ({ ok: false, error }));
+        await observed;
+        const pause = firestore.runTransaction(async tx => { await tx.get(fence); tx.update(fence, { state: 'paused' }); });
+        if (ordering === 'pause-first') await pause;
+        // NEVER await a competing pause while holding a writer's root read lock.
+        release(); const result = await outcome; await pause;
+        const paused = await fence.get(); assert.equal(paused.get('state'), 'paused');
+        const episode = await firestore.doc(path).get();
+        if (ordering === 'pause-first') { assert.equal(guardedRead.updateTime.isEqual(paused.updateTime), true); assert.equal(result.ok, false); assert.equal(result.error.code, 'failed-precondition'); assert.equal(episode.exists, false); }
+        else if (result.ok) {
+          assert.equal(episode.exists, true);
+          assert.ok(episode.updateTime.seconds < paused.updateTime.seconds ||
+            (episode.updateTime.seconds === paused.updateTime.seconds && episode.updateTime.nanoseconds < paused.updateTime.nanoseconds));
+          const baseline = await firestore.doc(`${root}/commentCountContributions/episodes/pause-order`).get(); assert.equal(baseline.updateTime.isEqual(episode.createTime), true);
+        } else {
+          assert.equal(result.error.code, 'failed-precondition');
+          assert.equal(result.error.details?.reason, 'comment-count-maintenance');
+          assert.equal(episode.exists, false, 'A safely refused writer creates no canonical episode');
+          assert.equal((await firestore.doc(`${root}/commentCountContributions/episodes/pause-order`).get()).exists, false,
+            'A safely refused writer creates no private birth artifact');
+          assert.equal(guardedRead.get('state'), 'paused', 'The retried writer must actually read the native paused fence');
+          assert.equal(guardedRead.updateTime.isEqual(paused.updateTime), true);
+        }
+      } finally { release(); Transaction.prototype.get = originalGet; }
+      assert.equal(projectId.startsWith('demo-'), true); // Disposable project remains paused; no active-image restoration.
+    });
+  });
+}
+
+
+async function genuineLocalReplay(f) {
+  const names = (await readdir(f.custody.directory)).filter(name => name.endsWith('.counts-replay'));
+  assert.equal(names.length, 1, 'This fixture has exactly one accepted full plan');
+  const path = `${f.custody.directory}/${names[0]}`, envelope = JSON.parse(await readFile(path, 'utf8'));
+  const identity = await fsPromises.lstat(f.custody.directory);
+  const decipher = createDecipheriv('aes-256-gcm', f.custody.key, Buffer.from(envelope.nonce, 'base64'));
+  decipher.setAAD(Buffer.from(`comment-count-replay:1:${envelope.bindingHash}:${identity.dev}:${identity.ino}:${envelope.expiresAt}`));
+  decipher.setAuthTag(Buffer.from(envelope.tag, 'base64'));
+  const value = JSON.parse(Buffer.concat([decipher.update(Buffer.from(envelope.ciphertext, 'base64')), decipher.final()]).toString('utf8'));
+  return { path, envelope, value };
+}
+test('isolated SDK: private finite actor lease recovery rejects the former live epoch and completes bounded native proof', async () => {
+  await fullSdkSession(async f => {
+    const { input } = await simpleNativeFull(f);
+    await f.tool.applyCommentCountReconciliation({ ...input, maxItems: 1 });
+    const reference = f.firestore.doc(`${input.root}/commentCountContributions`), original = await reference.get();
+    await assert.rejects(f.tool.applyCommentCountReconciliation({ ...input, owner: 'not-owner', maxItems: 1 }), error => error.details?.reason === 'count-lease-busy');
+    const recovered = { ...input, owner: 'synthetic-native-recovered-owner' };
+    const result = await coldSdkCall(f, recovered, 'apply', 1, original.get('leaseUntil') + 1); assertSdkBudget(result, 1);
+    const current = await reference.get(); assert.equal(current.get('owner'), recovered.owner); assert.equal(current.get('generation'), original.get('generation') + 1);
+    await assert.rejects(f.tool.applyCommentCountReconciliation({ ...input, maxItems: 1 }), error => error.details?.reason === 'count-lease-busy');
+    assert.equal((await reference.get()).updateTime.isEqual(current.updateTime), true, 'Stale owner cannot append a recovery checkpoint');
+    await finishFull(f, recovered); assert.equal((await reference.get()).get('state'), 'active');
+  });
+});
+for (const corruption of ['missing-receipt', 'forked-head-proof']) {
+  test(`isolated SDK: historical ${corruption} cannot satisfy the accepted read-only proof`, async () => {
+    await fullSdkSession(async f => {
+      const { input } = await simpleNativeFull(f); await finishFull(f, input);
+      const collection = f.firestore.collection(`${input.root}/commentCountContributions/maintenance/${input.manifest.hash}/units`);
+      const units = await boundedNativeDocuments(collection);
+      const target = corruption === 'missing-receipt' ? units.find(unit => unit.id === '000000000002') : units.find(unit => unit.get('proofKind') === 'target-head');
+      assert.ok(target);
+      if (corruption === 'missing-receipt') await target.ref.delete();
+      else await target.ref.update({ 'proofImage.chainTargetCount': target.get('proofImage.chainTargetCount') + 1 });
+      const before = await immutableFullSnapshot(f, input);
+      await assert.rejects(finishFull(f, input));
+      assert.deepEqual(await immutableFullSnapshot(f, input), before, 'Refused historical proof cannot write Firestore');
+    });
+  });
+}
+test('isolated SDK: competing cold replay processes serialize private revisions and ignore an older caller cursor', async () => {
+  await fullSdkSession(async f => {
+    const { input } = await simpleNativeFull(f); await finishFull(f, input);
+    const old = await genuineLocalReplay(f), before = await immutableFullSnapshot(f, input);
+    const attempts = await Promise.allSettled([coldSdkCall(f, input, 'replay', 1), coldSdkCall(f, input, 'replay', 1)]);
+    const successes = attempts.filter(value => value.status === 'fulfilled'); assert.ok(successes.length >= 1);
+    for (const value of attempts) if (value.status === 'rejected') assert.equal(value.reason.reason, 'count-replay-lock-busy');
+    const current = await genuineLocalReplay(f); assert.equal(current.value.revision, old.value.revision + successes.length);
+    assert.ok(current.value.cursor >= old.value.cursor); assert.equal(typeof current.value.predecessorHash, 'string');
+    // Only the real private durable head is authoritative. Caller cursor is an
+    // existing diagnostic/ignored attack input, never a supported checkpoint API.
+    await f.tool.applyCommentCountReconciliation({ ...input, cursor: old.value, maxItems: 1 });
+    const next = await genuineLocalReplay(f); assert.equal(next.value.revision, current.value.revision + 1);
+    assert.ok(next.value.cursor >= current.value.cursor, 'Older diagnostic input cannot rewind the actual durable receipt cursor');
+    assert.deepEqual(await immutableFullSnapshot(f, input), before);
+  });
+});
+test('isolated SDK: lost real local publication acknowledgement reloads authenticated current progress without Firestore writes', async () => {
+  await fullSdkSession(async f => {
+    const { input } = await simpleNativeFull(f); await finishFull(f, input);
+    const before = await immutableFullSnapshot(f, input), initial = await genuineLocalReplay(f);
+    const publicationPath = await fsPromises.realpath(initial.path);
+    const original = fsPromises.rename; let injected = false;
+    fsPromises.rename = async (...args) => { const result = await original(...args);
+      if (!injected && args[1] === publicationPath) { injected = true; throw new Error('Synthetic native local publication ACK lost AFTER rename'); }
+      return result; }; syncBuiltinESMExports();
+    try { await assert.rejects(f.tool.applyCommentCountReconciliation({ ...input, maxItems: 1 }), /publication ACK lost/); }
+    finally { fsPromises.rename = original; syncBuiltinESMExports(); }
+    assert.equal(injected, true); const published = await genuineLocalReplay(f); assert.equal(published.value.revision, initial.value.revision + 1);
+    const backupStore = await CommentCountBackupStore.open({ directory: f.custody.directory, key: f.custody.key, expiresAt: f.custody.expiresAt });
+    await finishFull(f, { ...input, backupStore }, 'apply', 1);
+    assert.deepEqual(await immutableFullSnapshot(f, input), before);
+  });
+});
+test('isolated SDK: cold wrong key and insufficient recovery window cannot authorize replay progress', async () => {
+  await fullSdkSession(async f => {
+    const { input } = await simpleNativeFull(f); await finishFull(f, input);
+    const before = await immutableFullSnapshot(f, input), head = await genuineLocalReplay(f), originalBytes = await readFile(head.path);
+    const originalKey = f.custody.key; f.custody.key = Buffer.alloc(32, 23);
+    try { await assert.rejects(coldSdkCall(f, input, 'replay', 1)); } finally { f.custody.key.fill(0); f.custody.key = originalKey; }
+    await assert.rejects(coldSdkCall(f, input, 'replay', 1, f.custody.expiresAt - 3599999));
+    assert.deepEqual(await readFile(head.path), originalBytes);
+    assert.deepEqual(await immutableFullSnapshot(f, input), before);
+  });
+});
+for (const replacement of ['symlink', 'directory-inode']) {
+  test(`isolated SDK: private custody ${replacement} substitution stops before replay publication`, async () => {
+    await fullSdkSession(async f => {
+      const { input } = await simpleNativeFull(f); await finishFull(f, input);
+      const before = await immutableFullSnapshot(f, input), head = await genuineLocalReplay(f), bytes = await readFile(head.path);
+      if (replacement === 'symlink') {
+        const path = `${f.custody.directory}/${input.manifest.hash}.counts-backup`, saved = `${path}.synthetic-original`;
+        await fsPromises.rename(path, saved); await fsPromises.symlink(saved, path);
+        try { await assert.rejects(f.tool.applyCommentCountReconciliation({ ...input, maxItems: 1 })); }
+        finally { await fsPromises.unlink(path); await fsPromises.rename(saved, path); }
+      } else {
+        const saved = `${f.custody.directory}-synthetic-original`;
+        await fsPromises.rename(f.custody.directory, saved); await fsPromises.mkdir(f.custody.directory, { mode: 0o700 });
+        try { await assert.rejects(f.tool.applyCommentCountReconciliation({ ...input, maxItems: 1 })); }
+        finally { await rm(f.custody.directory, { recursive: true, force: true }); await fsPromises.rename(saved, f.custody.directory); }
+      }
+      assert.deepEqual(await readFile(head.path), bytes); assert.deepEqual(await immutableFullSnapshot(f, input), before);
+    });
+  });
+}
+test('isolated SDK: custody is rechecked after a real guarded read before any next maintenance write', async () => {
+  await fullSdkSession(async f => {
+    const { input } = await simpleNativeFull(f); await f.tool.applyCommentCountReconciliation({ ...input, maxItems: 1 });
+    const before = await immutableFullSnapshot(f, input), original = Transaction.prototype.get; let changed = false;
+    Transaction.prototype.get = async function (reference, ...args) {
+      const result = await original.call(this, reference, ...args);
+      if (!changed && reference?.path === `${input.root}/commentCountContributions`) { changed = true; await chmod(f.custody.directory, 0o755); }
+      return result;
+    };
+    try { await assert.rejects(f.tool.applyCommentCountReconciliation({ ...input, maxItems: 1 })); }
+    finally { Transaction.prototype.get = original; await chmod(f.custody.directory, 0o700); }
+    assert.equal(changed, true); assert.deepEqual(await immutableFullSnapshot(f, input), before);
+  });
+});
+// N14 observation is confined to this process and the pinned installed SDK.
+// Async-local suppression charges one APPLICATION-issued entry, not its internal
+// SDK delegation; hidden transport retries, billing/index charges and latency are
+// explicitly outside these observations. No fake database/production flags.
+async function observeActualSdkReads(run, { abortCommits = false, retryTwice = false } = {}) {
+  const delegation = new AsyncLocalStorage(), originals = [], reads = [], attempts = new Map(), attemptReads = new Map(); let aborts = 0, reservedReadEquivalents = 0;
+  const patch = (prototype, name, replacement) => { const previous = prototype[name]; assert.equal(typeof previous, 'function'); originals.push(() => { prototype[name] = previous; }); prototype[name] = replacement(previous); };
+  const instrumentRead = previous => async function (reference, ...args) {
+    if (delegation.getStore()) return previous.call(this, reference, ...args);
+    const isTransaction = this instanceof Transaction, query = isTransaction ? reference instanceof Query : this instanceof Query;
+    const requestedLimit = query ? (isTransaction ? reference : this)._queryOptions?.limit : 1;
+    assert.ok(Number.isInteger(requestedLimit) && requestedLimit >= 1 && requestedLimit <= 25, 'Observed application query is explicitly bounded');
+    assert.ok(reservedReadEquivalents + requestedLimit <= 1536, 'Observer would refuse an over-budget next dispatch');
+    reservedReadEquivalents += requestedLimit;
+    const attempt = isTransaction ? attemptReads.get(this)?.at(-1) : null;
+    if (isTransaction) assert.ok(attempt, 'Read belongs to an observed actual callback attempt');
+    const record = { query, reserved: requestedLimit, charged: requestedLimit }; reads.push(record);
+    if (attempt) { attempt.reads.push(record); if (query) attempt.queries++; }
+    return delegation.run(true, async () => {
+      const result = await previous.call(this, reference, ...args);
+      record.charged = query ? Math.max(1, result.size) : 1; reservedReadEquivalents -= requestedLimit - record.charged;
+      assert.ok(record.charged <= requestedLimit); return result;
+    });
+  };
+  patch(DocumentReference.prototype, 'get', previous => async function (...args) {
+    if (delegation.getStore()) return previous.apply(this, args);
+    assert.ok(reservedReadEquivalents + 1 <= 1536); reservedReadEquivalents++;
+    reads.push({ query: false, reserved: 1, charged: 1 }); return delegation.run(true, () => previous.apply(this, args));
+  });
+  patch(Query.prototype, 'get', instrumentRead);
+  patch(Transaction.prototype, 'get', instrumentRead);
+  patch(Transaction.prototype, 'runTransactionOnce', previous => async function (...args) {
+    attempts.set(this, (attempts.get(this) ?? 0) + 1); assert.ok(attempts.get(this) <= 3);
+    if (!attemptReads.has(this)) attemptReads.set(this, []); attemptReads.get(this).push({ reads: [], queries: 0 });
+    return previous.apply(this, args);
+  });
+  if (abortCommits || retryTwice) patch(Transaction.prototype, 'commit', previous => async function (...args) {
+    if (this._writeBatch && !this._writeBatch.isEmpty && (abortCommits || (attempts.get(this) ?? 0) < 3)) { aborts++; throw Object.assign(new Error('Synthetic pre-dispatch SDK commit abort'), { code: 10 }); }
+    return previous.apply(this, args);
+  });
+  try {
+    const result = await run();
+    const physicalReadEquivalents = reads.reduce((sum, read) => sum + read.charged, 0), callbackAttempts = [...attempts.values()].reduce((sum, value) => sum + value, 0);
+    assert.ok(physicalReadEquivalents <= 1536); for (const value of attempts.values()) assert.ok(value <= 3);
+    for (const values of attemptReads.values()) for (const attempt of values) {
+      assert.ok(attempt.reads.reduce((sum, value) => sum + value.charged, 0) <= 17, 'Observed item attempt has at most one enumeration plus16 fixed reads');
+      assert.ok(attempt.queries <= 1, 'No variable collection traversal is hidden within an item attempt');
+    }
+    if (!abortCommits) { assert.equal(result.readEquivalents, physicalReadEquivalents); assert.equal(result.transactionAttempts, callbackAttempts); }
+    return { result, physicalReadEquivalents, callbackAttempts, attempts: [...attempts.values()], aborts };
+  } finally { for (const restore of originals.reverse()) restore(); }
+}
+test('isolated SDK: actual callback retries across bounded work stay within the independently observed read ceiling', async () => {
+  await fullSdkSession(async f => {
+    const { input } = await simpleNativeFull(f);
+    const observed = await observeActualSdkReads(() => f.tool.applyCommentCountReconciliation({ ...input, maxItems: 25 }), { retryTwice: true });
+    assertSdkBudget(observed.result, 25); assert.ok(observed.aborts > 0); assert.ok(observed.attempts.some(value => value === 3));
+    assert.ok(observed.physicalReadEquivalents <= 1536);
+    // This observes the application-issued/read-callback cap under real SDK retry
+    // choreography; injected code10 is a synthetic PRE-dispatch failure, not a
+    // server transport outcome or a lost already-committed acknowledgement.
+    await finishFull(f, input);
+  });
+});
+test('isolated SDK: independently observed application reads and callback attempts agree with invocation caps', async () => {
+  await fullSdkSession(async f => {
+    const { input } = await simpleNativeFull(f); let complete = false;
+    for (let invocation = 0; invocation < 500; invocation++) {
+      const observed = await observeActualSdkReads(() => f.tool.applyCommentCountReconciliation({ ...input, maxItems: invocation % 2 ? 1 : 25 }));
+      assertSdkBudget(observed.result, invocation % 2 ? 1 : 25);
+      if (observed.result.status === 'active') { complete = true; break; }
+    }
+    assert.equal(complete, true);
+    const before = await immutableFullSnapshot(f, input);
+    const replay = await observeActualSdkReads(() => f.tool.applyCommentCountReconciliation({ ...input, maxItems: 1 })); assertSdkBudget(replay.result, 1);
+    assert.deepEqual(await immutableFullSnapshot(f, input), before);
+  });
+});
+test('isolated SDK: synthetic pre-dispatch commit abort makes at most three visible callback attempts without partial writes', async () => {
+  await fullSdkSession(async f => {
+    const { input } = await simpleNativeFull(f), root = await f.firestore.doc(`${input.root}/commentCountContributions`).get();
+    let refusal;
+    await observeActualSdkReads(async () => {
+      try { await f.tool.applyCommentCountReconciliation({ ...input, maxItems: 1 }); } catch (error) { refusal = error; }
+      assert.equal(refusal?.code, 10); return null;
+    }, { abortCommits: true }).then(observed => {
+      assert.equal(observed.aborts, 3); assert.equal(observed.callbackAttempts, 3); assert.deepEqual(observed.attempts, [3]);
+      assert.ok(observed.physicalReadEquivalents <= 1536);
+    });
+    assert.equal((await f.firestore.doc(`${input.root}/commentCountContributions`).get()).updateTime.isEqual(root.updateTime), true);
+    assert.equal((await f.firestore.doc(`${input.root}/commentCountContributions/maintenance/${input.manifest.hash}`).get()).exists, false);
+  });
+});
+
+async function nativePartialPrefix(f, root, phase = 'staging') {
+  const id = 'native-partial', path = `${root}/episodes/episodes/${id}`;
+  await applyAdminPreviewPlan({ firestore: f.firestore, entries: [{ path, data: { title: 'Synthetic original partial source', isPublished: true, stats: { playsCount: 7 } } }] });
+  const parent = f.firestore.doc(path), comment = parent.collection('comments').doc('partial-comment');
+  const beforeParent = await parent.get(), baseline = f.firestore.doc(`${root}/commentCountContributions/episodes/${id}`), beforeBaseline = await baseline.get();
+  assert.equal(beforeBaseline.updateTime.isEqual(beforeParent.createTime), true);
+  await comment.create(published()); const beforeComment = await comment.get();
+  const input = await reviewedFullInput(f, root), contribution = baseline.collection('contributions').doc(comment.id);
+  for (let invocation = 0; invocation < 1000; invocation++) {
+    const result = await f.tool.applyCommentCountReconciliation({ ...input, maxItems: 1 }); assertSdkBudget(result, 1);
+    const row = await contribution.get();
+    if (result.phase === phase && (phase !== 'staging' || row.exists)) {
+      const plan = await f.firestore.doc(`${root}/commentCountContributions/maintenance/${input.manifest.hash}`).get();
+      assert.equal(Object.hasOwn(plan.data(), 'releaseUnit'), false, 'The native prefix has never activated');
+      return { input, root, id, parent, comment, baseline, contribution, beforeParent, beforeBaseline, beforeComment, planRef: plan.ref };
+    }
+    assert.notEqual(result.status, 'active', 'Partial native checkpoint must be captured before activation');
+  }
+  assert.fail('Bounded native preactivation checkpoint was not reached');
+}
+async function assertNoNativeCounterHead(f, journey) {
+  const records = await boundedNativeDocuments(journey.planRef.collection('units'));
+  assert.equal(records.filter(record => record.get('kind') === 'target-head' && record.get('targetPath') === journey.parent.path && record.get('ownedField') === 'stats.commentsCount').length, 0);
+}
+for (const [root, phase] of [['HudHudDev', 'staging'], ['HudHudOfficial', 'staging'], ['HudHudDev', 'activation-barrier']]) {
+  test(`${root}: native ${phase} committed prefix rolls back held without fabricating activation proof`, async () => {
+    await fullSdkSession(async f => {
+      const journey = await nativePartialPrefix(f, root, phase);
+      if (phase === 'staging') await assertNoNativeCounterHead(f, journey);
+      const result = await finishFull(f, journey.input, 'restore', 1); assert.equal(result.status, 'restored-held');
+      const parent = await journey.parent.get(), comment = await journey.comment.get(), baseline = await journey.baseline.get(), plan = await journey.planRef.get();
+      assert.deepEqual(parent.data(), journey.beforeParent.data()); assert.equal(parent.createTime.isEqual(journey.beforeParent.createTime), true);
+      assert.deepEqual(comment.data(), journey.beforeComment.data()); assert.equal(comment.updateTime.isEqual(journey.beforeComment.updateTime), true);
+      assert.equal((await journey.contribution.get()).exists, false);
+      assert.equal(baseline.get('generation'), journey.beforeBaseline.get('generation'));
+      assert.equal(baseline.get('baselineManifestHash'), journey.beforeBaseline.get('baselineManifestHash'));
+      if (baseline.get('origin') === 'creation') assert.equal(baseline.updateTime.isEqual(parent.createTime), true);
+      else { assert.equal(baseline.get('origin'), 'baseline'); assert.equal(baseline.get('episodeCreateTime').isEqual(parent.createTime), true); }
+      assert.equal(Object.hasOwn(plan.data(), 'releaseUnit'), false); assert.equal(Object.hasOwn(plan.data(), 'barrierVersion'), false);
+      assert.equal((await f.firestore.doc(`${root}/commentCountContributions`).get()).get('state'), 'paused');
+    });
+  });
+}
+for (const drift of ['edit', 'ABA', 'missing', 'recreated']) {
+  test(`isolated SDK: partial absent-preimage inverse rejects late native parent ${drift} without a counter head`, async () => {
+    await fullSdkSession(async f => {
+      const journey = await nativePartialPrefix(f, 'HudHudDev'); await assertNoNativeCounterHead(f, journey);
+      const units = await boundedNativeDocuments(journey.planRef.collection('units'));
+      const original = units.find(unit => unit.get('kind') === 'comment' && unit.get('targets')?.some(target => target.created && target.targetPath === journey.contribution.path));
+      assert.ok(original); let ready = false;
+      for (let invocation = 0; invocation < 2000; invocation++) {
+        const plan = await journey.planRef.get();
+        if (plan.get('phase') === 'restoring' && plan.get('resumePhase') === 'ready' && plan.get('restoreUnit') === original.get('index')) { ready = true; break; }
+        const result = await f.tool.restoreCommentCountReconciliation({ ...journey.input, maxItems: 1 }); assertSdkBudget(result, 1);
+        assert.notEqual(result.status, 'restored-held');
+      }
+      assert.equal(ready, true); await assertNoNativeCounterHead(f, journey);
+      const parent = await journey.parent.get(), body = parent.data();
+      if (drift === 'edit' || drift === 'ABA') { await journey.parent.update({ title: 'Synthetic distinct late parent change' }); if (drift === 'ABA') await journey.parent.set(body); }
+      else { await journey.parent.delete(); if (drift === 'recreated') await journey.parent.create(body); }
+      const changed = await journey.parent.get();
+      if (drift === 'edit' || drift === 'ABA') { assert.equal(changed.createTime.isEqual(parent.createTime), true); assert.equal(changed.updateTime.isEqual(parent.updateTime), false); }
+      if (drift === 'ABA') assert.deepEqual(changed.data(), body);
+      if (drift === 'recreated') { assert.deepEqual(changed.data(), body); assert.equal(changed.createTime.isEqual(parent.createTime), false); }
+      const before = await immutableFullSnapshot(f, journey.input), row = await journey.contribution.get();
+      await assert.rejects(f.tool.restoreCommentCountReconciliation({ ...journey.input, maxItems: 1 }), error =>
+        error.code === 'failed-precondition' && error.details?.reason === (drift === 'edit' || drift === 'ABA' ? 'count-restore-unowned-parent-version' : 'count-restore-parent-identity'));
+      assert.deepEqual(await immutableFullSnapshot(f, journey.input), before);
+      assert.equal((await journey.contribution.get()).updateTime.isEqual(row.updateTime), true);
+      assert.equal((await journey.parent.get()).exists, changed.exists);
+      assert.equal((await f.firestore.doc(`${journey.root}/commentCountContributions`).get()).get('state'), 'paused');
+    });
+  });
+}
+
+for (const root of ['HudHudDev', 'HudHudOfficial']) {
+  test(`${root}: real accepted maintenance plans and immutable proofs deny every client role`, async () => {
+    await fullSdkSession(async f => {
+      const id = 'private-proof', parentPath = `${root}/episodes/episodes/${id}`;
+      await applyAdminPreviewPlan({ firestore: f.firestore, entries: [
+        { path: `${root}/stations/stations/private-station`, data: { name: 'Synthetic private proof station', isActive: true, stats: { programsCount: 1, subscribersCount: 0, totalPlays: 0 } } },
+        { path: `${root}/programs/programs/private-program`, data: { title: 'Synthetic private proof program', stationId: 'private-station', isActive: true, stats: { episodesCount: 1 } } },
+        { path: parentPath, data: { title: 'Synthetic private proof episode', programId: 'private-program', stationId: 'private-station', isPublished: true, stats: {} } },
+      ] });
+      const comment = f.firestore.doc(`${parentPath}/comments/published-comment`); await comment.create(published());
+      const input = await reviewedFullInput(f, root); await finishFull(f, input);
+      const planPath = `${root}/commentCountContributions/maintenance/${input.manifest.hash}`;
+      const units = await boundedNativeDocuments(f.firestore.collection(`${planPath}/units`)), head = units.find(value => value.get('kind') === 'target-head'); assert.ok(head);
+      const [host, port] = f.custody.emulatorHost.split(':');
+      const rules = await readFile(new URL('../../firestore.rules', import.meta.url), 'utf8');
+      const privateEnvironment = await initializeTestEnvironment({ projectId: f.projectId, firestore: { host, port: Number(port), rules } });
+      try {
+        const author = privateEnvironment.authenticatedContext('synthetic-author', { email_verified: true }).firestore();
+        assert.equal((await getDoc(doc(author, comment.path))).get('status'), 'published', 'Real public canonical read proves the client/rules environment is healthy');
+        const clients = [privateEnvironment.unauthenticatedContext().firestore(), author,
+          privateEnvironment.authenticatedContext('forged-author', { authorId: 'synthetic-author', email_verified: true }).firestore(),
+          ...[{}, { email_verified: false }, { role: 'moderator' }, { admin: true, role: 'station_admin' }, { admin: true, role: 'moderator' },
+            { admin: true }, { role: 'super_admin' }, { role: 'station_admin' }, { admin: true, role: 'super_admin', maintenanceOwner: input.owner }]
+            .map((claims, index) => privateEnvironment.authenticatedContext(`private-proof-client-${index}`, claims).firestore())];
+        const paths = [`${root}/commentCountContributions`, planPath, `${planPath}/episodes/${id}`,
+          `${planPath}/units/000000000000`, head.ref.path, `${root}/commentCountContributions/episodes/${id}/contributions/${comment.id}`];
+        for (const client of clients) {
+          for (const path of paths) {
+            await assertFails(getDoc(doc(client, path))); await assertFails(getDocs(collection(client, path.split('/').slice(0, -1).join('/'))));
+            await assertFails(setDoc(doc(client, `${path}-forged`), { version: 1 })); await assertFails(updateDoc(doc(client, path), { version: 7 })); await assertFails(deleteDoc(doc(client, path)));
+          }
+          await assertFails(updateDoc(doc(client, parentPath), { 'stats.commentsCount': 99 }));
+        }
+      } finally { await privateEnvironment.cleanup(); }
+    });
+  });
+}
+
+// Serialized final primary-project checkpoint: only real registered callbacks
+// establish the application counts before and after genuine full reconciliation.
+test('both primary roots: registered callbacks converge after a normal full nonempty reconciliation', { concurrency: false }, async () => {
+  const roots = ['HudHudDev', 'HudHudOfficial'];
+  // Fixture compatibility is observed before any maintenance pause. Do not repair
+  // unrelated legacy inputs or leave a root held merely to exercise this case.
+  for (const root of roots) {
+    const inventory = await boundedNativeDocuments(db.collection(`${root}/episodes/episodes`));
+    const incompatible = inventory.find(value => !Number.isSafeInteger(value.get('stats.commentsCount')) || value.get('stats.commentsCount') < 0 || value.get('adminDeletionToken'));
+    assert.equal(incompatible === undefined, true,
+      `Primary fixture requires canonical count-ready inventory before maintenance: ${root}/${incompatible?.id ?? 'none'}`);
+  }
+  const tool = await import('../../tool/reconcile_comment_counts.mjs');
+  const projectId = process.env.GCLOUD_PROJECT;
+  assert.equal(projectId, 'demo-hudhud-editorial');
+  const firestore = createCommentCountDemoFirestore({ projectId, emulatorHost: process.env.FIRESTORE_EMULATOR_HOST });
+  try {
+    for (const root of roots) {
+      const f = await episode(root), baselineRef = db.doc(`${root}/commentCountContributions/episodes/${f.id}`);
+      const birth = await f.ref.get(), creation = await baselineRef.get();
+      const commentA = f.ref.collection('comments').doc('before-full-reconciliation');
+      const createdA = await commentA.create(published());
+      await waitForEpisodeCount(db, root, f.id, 1, { requireModeratedComment: commentA.id });
+      const moderatedA = await commentA.get();
+      assert.equal(moderatedA.get('status'), 'published'); assert.ok(moderatedA.get('moderatedAt'));
+      assert.equal(moderatedA.updateTime.isEqual(createdA.writeTime), false, 'Registered moderation writes a new native version after comment creation');
+      const directory = await mkdtemp(join(tmpdir(), 'hudhud-primary-reconciliation-'));
+      const key = randomBytes(32), expiresAt = Date.now() + 7 * 86400000;
+      try {
+        const backupStore = await CommentCountBackupStore.open({ directory, key, expiresAt });
+        const manifest = await previewCommentCountReconciliation({ firestore, projectId, root });
+        await backupStore.writeVerified(manifest);
+        const input = { firestore, projectId, root, manifest, expectedManifestHash: manifest.hash,
+          backupStore, owner: `primary-positive-${randomUUID()}`, maxItems: 25 };
+        const result = await finishFull({ tool }, input);
+        assert.equal(result.status, 'active');
+        const accepted = await baselineRef.get(), activeRoot = await db.doc(`${root}/commentCountContributions`).get();
+        assert.equal(accepted.get('origin'), 'baseline');
+        assert.equal(accepted.get('episodeCreateTime').isEqual(birth.createTime), true, 'Reconciliation preserves exact canonical birth identity');
+        assert.notEqual(accepted.get('generation'), creation.get('generation'), 'The full plan establishes its own opaque episode data generation');
+        assert.equal(accepted.get('baselineManifestHash'), manifest.hash);
+        assert.equal(activeRoot.get('state'), 'active'); assert.equal(activeRoot.get('baselineManifestHash'), manifest.hash);
+        await waitForEpisodeCount(db, root, f.id, 1, { requireModeratedComment: commentA.id });
+        const commentB = f.ref.collection('comments').doc('after-full-reconciliation');
+        const createdB = await commentB.create(published());
+        await waitForEpisodeCount(db, root, f.id, 2, { requireModeratedComment: commentB.id });
+        const moderatedB = await commentB.get(); assert.ok(moderatedB.get('moderatedAt'));
+        assert.equal(moderatedB.updateTime.isEqual(createdB.writeTime), false, 'Registered moderation also processes the post-reconciliation comment');
+        const rowB = await db.doc(`${root}/commentCountContributions/episodes/${f.id}/contributions/${commentB.id}`).get();
+        assert.equal(rowB.get('generation'), accepted.get('generation'));
+        assert.equal(rowB.get('baselineManifestHash'), manifest.hash);
+        assert.equal(rowB.get('episodeCreateTime').isEqual(birth.createTime), true);
+        await commentB.update({ status: 'hidden' });
+        await waitForEpisodeCount(db, root, f.id, 1);
+        await commentA.delete();
+        await waitForEpisodeCount(db, root, f.id, 0);
+        assert.equal((await commentB.get()).get('status'), 'hidden'); assert.equal((await commentA.get()).exists, false);
+        const finalBaseline = await baselineRef.get(), finalRoot = await db.doc(`${root}/commentCountContributions`).get();
+        assert.equal(finalBaseline.get('generation'), accepted.get('generation'));
+        assert.equal(finalBaseline.get('episodeCreateTime').isEqual(birth.createTime), true);
+        assert.equal(finalRoot.get('state'), 'active'); assert.equal(finalRoot.get('baselineManifestHash'), manifest.hash);
+        assert.equal((await firestore.doc(`${root}/commentCountContributions/maintenance/${manifest.hash}`).get()).get('phase'), 'active');
+      } finally { key.fill(0); await rm(directory, { recursive: true, force: true }); }
+    }
+  } finally { await firestore.terminate(); }
+});

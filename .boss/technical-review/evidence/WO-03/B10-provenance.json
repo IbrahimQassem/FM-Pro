@@ -1,0 +1,97 @@
+{
+  "classification": "New-tool safety GUARD GREEN; no defect RED credit. R04/R06 business RED belongs to later B09/B11.",
+  "task": "03-T02 / B10",
+  "baselineSourceRead": "Current C03 station-content/data contracts and approved WA finite query whitelist",
+  "node": "22.23.3",
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "--test",
+        "tool/test/content_pagination_migration.test.mjs"
+      ],
+      "result": {
+        "tests": 40,
+        "pass": 40,
+        "fail": 0,
+        "skip": 0
+      },
+      "log": "B10-guards-green.log"
+    },
+    {
+      "argv": [
+        "oxlint",
+        "tool/audit_content_pagination.mjs",
+        "tool/backfill_content_pagination.mjs",
+        "tool/test/content_pagination_migration.test.mjs"
+      ],
+      "result": "PASS",
+      "log": "B10-lint.log"
+    },
+    {
+      "argv": [
+        "node",
+        "--check",
+        "<each of the three owned files>"
+      ],
+      "result": "PASS"
+    },
+    {
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "/tmp/hudhud-b10-indexes.patch"
+      ],
+      "result": "PASS before I applies patch"
+    }
+  ],
+  "sha256": {
+    "tool/audit_content_pagination.mjs": "ebfadf9150b82f36c717b04f6b02f73ac17aa34cfbb7133825ac6adb0a4832af",
+    "tool/backfill_content_pagination.mjs": "417e52c29b3da9f47fc9c37c5cfa9aa578b0f66ccaeb32687bd1f10858676a69",
+    "tool/test/content_pagination_migration.test.mjs": "9a4cf1dfe543bf943dad5e8ceb76d5ed419cda799c6509299935b2afd48ae5b5"
+  },
+  "indexes": {
+    "patch": "/tmp/hudhud-b10-indexes.patch",
+    "proposedFile": "/tmp/hudhud-b10-firestore.indexes.json",
+    "baseSha256": "56fa8f415be3a10caf5bb8eb35ef9e8bd74fddc284eadf2b6f0499154ecd3304",
+    "proposedSha256": "e8779d4922579df9364e8c6d33c94d146f22c7fc898f2ab7795717097a2b343d",
+    "existingDefinitionsPreserved": true,
+    "fieldOverridesUnchanged": true,
+    "newPublicComposites": 3,
+    "newExactAdminCollectionGroupComposites": 4,
+    "adminShapes": 26,
+    "deployedReady": false,
+    "reference": "https://firebase.google.com/docs/firestore/query-data/index-overview"
+  },
+  "bounds": {
+    "recordsPerInvocation": 100,
+    "sourceReadPage": 50,
+    "parentReadsPerSourceMaximum": 2,
+    "targetTransactionsPerBatch": 25,
+    "concurrency": 1
+  },
+  "privateJobPath": "{root}/contentPaginationMigrationJobs/jobs/{manifestHash}/items/{index}",
+  "interfaces": {
+    "audit": "auditContentPagination({firestore,projectId,root,resource,cursor=null,limit=100})",
+    "apply": "backfillContentPagination({firestore:factoryFacade,manifest,expectedManifestHash,backupStore,projectId,root,resource,emulatorHost,...})",
+    "restore": "restoreContentPagination({...sameBoundScope,deleteValue})",
+    "backup": "ContentPaginationBackupStore.open({directory,key:Buffer32,expiresAt,now?}); writeVerified(manifest); readVerified(hash)",
+    "transport": "createPaginationDemoFirestore({projectId,emulatorHost})"
+  },
+  "pendingGates": [
+    "I-owned actual demo fixture: B10_DEMO_TEST=1 GCLOUD_PROJECT=demo-hudhud-pagination-test FIRESTORE_EMULATOR_HOST=127.0.0.1:8180 node --test tool/test/content_pagination_migration.test.mjs",
+    "Independent code/security review",
+    "I integration of additive index patch; no deployed index readiness assertion",
+    "Actual production full audit, unresolved-data owner decisions, backup-key custody/retention deletion, index readiness and rollout remain separately authorized operational checkpoints"
+  ],
+  "limitations": [
+    "No live CLI/emulator/cloud read, migration, deployment or merge run by DT",
+    "Production mutations disabled before SDK initialization; demo mutations require owned frozen actual SDK loopback factory",
+    "Audit never invents chronology, visibility/title/parents; unresolved rows remain explicit",
+    "Only missing priority=0 and isFeatured=false are repaired; restore conditionally removes those inserted fields, never rewrites snapshots or restores private fields/email/resurrects documents",
+    "Global admin sort ID ASC only; alternate controls explicitly current-page only; scan/export ID ASC",
+    "Dataset completeness requires bounded continuations to exhaustion, not one successful batch",
+    "No finding CLOSED by this guard result"
+  ]
+}

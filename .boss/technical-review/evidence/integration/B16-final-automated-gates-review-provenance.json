@@ -1,0 +1,176 @@
+{
+  "status": "APPROVED_SCOPED_AUTOMATED_GATES_GLOBAL_ACCEPTANCE_WITHHELD",
+  "reviewer": "/root/b10_review",
+  "reviewSha256": "9d6463da2544bde33cdf7f044b4d868c260142b4601250a3bdfeff620212f7c2",
+  "frontend": {
+    "provenanceSha256": "22ad942ca7b5b48d5baeea98911910bb09c09728cdc7cbda07b9ae6125c5b80d",
+    "beforeSha256": "c20abed6735eabadcd26ac95bc9b91a131e2afe90fe3f016acda8b5552fa8d52",
+    "afterSha256": "d7fb2bc4e5f81f3497d8f57d412addb4de35f6df98fe602cdb4b42076bb83a6b",
+    "inputs": 257,
+    "changed": [],
+    "publicPass": 83,
+    "publicSkip": 0,
+    "adminPass": 115,
+    "adminOrdinarySkips": 25,
+    "sixCommandsExitCode": 0,
+    "generatedServerOutputs": {
+      "functions/public-web/renderer.mjs": "ec9b981c52a276c1a4cd766b314d9ea4e6637a4dc720b02ad2c36e4f66003012",
+      "functions/public-web/index.html": "fbd36c84a7c1844021fffd0506ea73db561a72debce7bfffabd7d33d08d1dc6c",
+      "functions/public-web/build.json": "279b025032a7bb4ab756a0777e36839919dc259f82643786ba07371e1d086682"
+    }
+  },
+  "Flutter": {
+    "beforeInputManifestSha256": "0bbcafd4ea06d78d3e0f6e2127b34ef9b8dd104257da429ba24d655f5e8f8d2b",
+    "capture": "BEFORE launch",
+    "inputCount": 218,
+    "currentChanged": [],
+    "analysis": "no issues",
+    "fullTests": 397,
+    "formatFiles": 213,
+    "formatChanged": 0
+  },
+  "actualAdmin": {
+    "tests": 43,
+    "pass": 43,
+    "skip": 0,
+    "fail": 0,
+    "inputManifestSha256": "aa8982e4237df1119df8da9c818cdd647d8c4a8d4c7bc316f41203997062acb7",
+    "capture": "AFTER launch",
+    "original17": "independently mapped in separate acceptance review",
+    "additionalEightMappings": [
+      {
+        "identity": "R06 existing resource request provides bounded ordinary pages and reaches record2001",
+        "file": "web_admin/test/content-pagination.emulator.test.ts",
+        "declarationLine": 7,
+        "sourceSha256": "3c310f2ea140eb2e849a17b3ed38f98b3697a4ebfc158d91cea8c57f55c228a2",
+        "passLogLine": 175,
+        "TAP": "ok 5 - R06 existing resource request provides bounded ordinary pages and reaches record2001"
+      },
+      {
+        "identity": "HudHudDev: actual comment write handler converges later status changes and deletion",
+        "file": "web_admin/test/pl03-moderation.emulator.test.ts",
+        "declarationLine": 158,
+        "sourceSha256": "dee9f4ebda334dec70ec5e75b0fc137980240c88c65ef1df658467c996ed6d3c",
+        "passLogLine": 508,
+        "TAP": "ok 15 - HudHudDev: actual comment write handler converges later status changes and deletion"
+      },
+      {
+        "identity": "HudHudOfficial: actual comment write handler converges later status changes and deletion",
+        "file": "web_admin/test/pl03-moderation.emulator.test.ts",
+        "declarationLine": 158,
+        "sourceSha256": "dee9f4ebda334dec70ec5e75b0fc137980240c88c65ef1df658467c996ed6d3c",
+        "passLogLine": 527,
+        "TAP": "ok 16 - HudHudOfficial: actual comment write handler converges later status changes and deletion"
+      },
+      {
+        "identity": "R01 admin helpers read canonical private state, enforce stale revisions and delete both projections",
+        "file": "web_admin/test/save-content.emulator.test.ts",
+        "declarationLine": 142,
+        "sourceSha256": "20711bf5997d501c055f5d09a70652941b2a38698371837e243da64fe7e7286a",
+        "passLogLine": 717,
+        "TAP": "ok 21 - R01 admin helpers read canonical private state, enforce stale revisions and delete both projections"
+      },
+      {
+        "identity": "R01 scoped admin cannot load station private metadata through the SDK helper",
+        "file": "web_admin/test/save-content.emulator.test.ts",
+        "declarationLine": 214,
+        "sourceSha256": "20711bf5997d501c055f5d09a70652941b2a38698371837e243da64fe7e7286a",
+        "passLogLine": 723,
+        "TAP": "ok 22 - R01 scoped admin cannot load station private metadata through the SDK helper"
+      },
+      {
+        "identity": "R01 offline private reads reject without returning cached metadata or changing either projection",
+        "file": "web_admin/test/save-content.emulator.test.ts",
+        "declarationLine": 229,
+        "sourceSha256": "20711bf5997d501c055f5d09a70652941b2a38698371837e243da64fe7e7286a",
+        "passLogLine": 729,
+        "TAP": "ok 23 - R01 offline private reads reject without returning cached metadata or changing either projection"
+      },
+      {
+        "identity": "R07 existing users aggregate route provides counts to verified active scoped administrators",
+        "file": "web_admin/test/user-count.emulator.test.ts",
+        "declarationLine": 11,
+        "sourceSha256": "0d9360f3746594aab15485f1a4ab2e4d96da9c879e522faac49b72b49a3579eb",
+        "passLogLine": 772,
+        "TAP": "ok 24 - R07 existing users aggregate route provides counts to verified active scoped administrators"
+      },
+      {
+        "identity": "R07 real callable rejects guest, listener, forged request roles and revoked current authority",
+        "file": "web_admin/test/user-count.emulator.test.ts",
+        "declarationLine": 63,
+        "sourceSha256": "0d9360f3746594aab15485f1a4ab2e4d96da9c879e522faac49b72b49a3579eb",
+        "passLogLine": 875,
+        "TAP": "ok 25 - R07 real callable rejects guest, listener, forged request roles and revoked current authority"
+      }
+    ],
+    "ordinarySkipsStillUncredited": true
+  },
+  "functionsAfterPublicBuild": {
+    "tests": 413,
+    "pass": 413,
+    "skip": 0,
+    "fail": 0,
+    "exitCode": 0
+  },
+  "logs": {
+    "hudhud-final-web_admin-test.log": "6fd1867aa3346e129e7531b7bd2b9c6fdaf30f1d2ed26db3345a0c146818bdb6",
+    "hudhud-final-web_admin-lint.log": "b47df0ff5f03616a2ef006e87565723f599ad3074ad5eebaa6a157591479c683",
+    "hudhud-final-web_admin-build.log": "07b5767beb82c0476011affa3fca6372c6a2b2f0f856d45602190a4f62eb9a01",
+    "hudhud-final-web_hudhud-test.log": "cba3a97c646f57a77313c9a4cb92a12eb3e7c1898c2a287d5b5d91b3f49221f3",
+    "hudhud-final-web_hudhud-lint.log": "cab0119043435af06b4f0ddfadcc519a54731306f00f0b3bcb0683e6fb8665b5",
+    "hudhud-final-web_hudhud-build.log": "6dfff994c3bead7705d23c30cb418be74bb93c20e761f846aaa6c46ab396cb37",
+    "B16-admin-final.log": "97e9d2059bcc08d8668765742035c52e82402fd9f719e3788c89137efdd0bb87",
+    "B16-flutter-analyze.log": "a68a2f310709b9cb26f122b6f9dd816993637fe6e8ee3842eb5bf4480ad338a0",
+    "B16-flutter-full-test.log": "3588b04a30aca0fa9e67be2a5635225c5e3b96eeb83b01c1c10d8fb9bab17224",
+    "B16-dart-format.log": "9f6bb876939c8b07cbff2ea1a07a5fc8fcbef67e1ac6f6b1be1acba60327e531",
+    "B16-governance.log": "b4aeab8ced5d2aa5c69aa4827b38192613eac48397f68e33240a5752632f32fd",
+    "B16-functions-after-public-build.log": "e8b11634cc144d0c2568a8bfa215aa12f14433761e4fcc462fdddd5c964a7461"
+  },
+  "deviceAvailability": {
+    "sha256": "a3b175db34ddb227a32f70f3eea3465fbb4e6370ffefa38d5ab6a17b296ca214",
+    "physicalAndroid": 0,
+    "physicalIPhone": 0,
+    "acceptance": "NOT RUN"
+  },
+  "pending": [
+    "Native T12 tool/SDK/query/index/permission acceptance",
+    "Browser Debugger unattached; no actualUIacceptance",
+    "Physical Android/iPhone",
+    "Final independentQA/exactcandidate integration",
+    "All findingsOPEN; productionunauthorized"
+  ],
+  "reviewerRerunsLiveWrites": false,
+  "revision": 2,
+  "supersedesPendingBuildConditionsOnly": {
+    "reviewPath": "/tmp/B16-final-automated-gates-review.md",
+    "reviewSha256": "b8a8fe2f9b1c04938d279cf0dc63d6f47a948528d1fcdd4c45090cad82dadb5e",
+    "provenanceSha256": "6d8975f1d673dfee82f8a877d6881a513f38121fe774d541dfa2885b8e61638b",
+    "preservedUnmodified": true
+  },
+  "closedDebugBuilds": {
+    "Android": {
+      "log": ".boss/technical-review/evidence/integration/B16-flutter-apk-debug.log",
+      "logSha256": "d08a26528b489e357cee1ebec5745057ac3df300028785e5ee6f8c29446c5b7c",
+      "exitCodeParentReported": 0,
+      "buildTimeSeconds": 33.6,
+      "output": "build/app/outputs/flutter-apk/app-debug.apk",
+      "outputExists": true,
+      "bytes": 206462094,
+      "outputSha256": "6f9d467a959fd432fc20daf74b292360ed3cedd2dfa952f3f87879f2ac907c6e"
+    },
+    "iOSSimulator": {
+      "log": ".boss/technical-review/evidence/integration/B16-flutter-ios-simulator-debug.log",
+      "logSha256": "dec1e75f9ba766e70774101b8bb4fe03bc2ee1e4deb1bc83884563315e84eafe",
+      "exitCodeParentReported": 0,
+      "buildTimeSeconds": 56.4,
+      "output": "build/ios/iphonesimulator/Runner.app",
+      "outputDirectoryExists": true,
+      "RunnerExecutableSha256": "3d8d570266232737e7d9a7faf1b4c3f4e3bf468ee248ab9ae7f3abeb393c6685",
+      "identityLimit": "Runner hash only; no whole bundle/full platform toolchain input manifest claim"
+    },
+    "Flutter218InputsUnchangedAfterBuilds": true,
+    "appLaunch": false,
+    "physicalAcceptance": "NOT RUN",
+    "providerDelivery": "NOT VERIFIED"
+  }
+}

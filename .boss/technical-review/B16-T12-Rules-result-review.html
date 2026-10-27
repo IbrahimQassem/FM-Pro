@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B16 T12 Rules guard result independent review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b16-t12-rules-guard-result-independent-review">B16 T12 Rules guard result independent review</a></li></ul>
+    </aside>
+    <main>
+      <h1>B16 T12 Rules guard result independent review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B16-T12-Rules-result-review.md</div>
+        <div>Generated: 2026-10-27T02:23:01.768Z</div>
+      </div>
+      <h1 id="b16-t12-rules-guard-result-independent-review">B16 T12 Rules guard result independent review</h1>
+<p>Decision: <strong>APPROVED scoped actual Rules guard GREEN</strong> for this candidate. This does not approve native migration/tool execution, collector query/index compatibility, full B16/Work Order acceptance or finding closure.</p>
+<p>The parent-owned Node22 <code>npm run emulators:test</code> log closes 78/78 tests, zero failures/skips/cancellations, 26209.803214ms, script exit 0 and clean Firestore/hub/logging shutdown. All three new B16 root cases (HudHudDev, HudHudOfficial and UnknownRoot) report PASS. Their ordinary loops have no early exit or skip, so the exact reviewed fixture executes 2340 private get/list/create/update/delete denial assertions and 36 direct episode-count denial assertions, alongside its positive controls. These are assertion counts within 78 tests, not 2376 extra node:test cases.</p>
+<p>The integrated fixture is byte-identical to the pre-launch independently reviewed candidate ac1b23e11730f75a8a9b1c9384652ba914c81411cb26fa86012bfa00b99a7aa5. Twelve actual client contexts per root cover guest/listener/unverified/scoped/legacy/role-only/super-admin/forged-maintenance claims across thirteen real private paths. Every client passes a known-root public station read first; known-root owner agreement and published-comment create/public-read controls succeed; unverified/foreign agreement and unknown-root canonical operations remain denied. The SDK assertFails rejects non-permission failures, so malformed queries/setup errors cannot silently satisfy this matrix. Expected PERMISSION_DENIED diagnostics in the passing log are test evidence, not unhandled gate failures.</p>
+<p>The five captured input hashes still match current files. Capture occurred AFTER launch at 2026-10-27T02:17:02.992Z; it is not represented as a complete pre-execution manifest. The expected fixture hash was established by the earlier independent review before launch. Existing Rules fingerprint 29feef1c8026085a21bc24aa129ecbead46425cf1876d627e4a992ada692a562 is unchanged. Package/config/lock fingerprints also match the captured set. No Rules relaxation or new index change is part of this guard.</p>
+<p>The synthetic seeded record bodies prove authorization for actual namespaces; they do not prove native item receipts, cutover state, original commit metadata, leases, unknown acknowledgements or backup custody. Those actual owned SDK fixtures and collector expiry/prefix query/index gates remain T12 obligations. This existing default-deny guard is GREEN coverage, not a newly claimed RED or security-fix proof. Earlier failed gates, source regressions and all original 17 identities remain preserved separately.</p>
+<p>Exact log/input fingerprints and closed results are recorded in the companion provenance. Parent owns actual execution; reviewer /root/b10_review inspected artifacts/source/hash equality only and did not rerun emulators, edit files, call providers or access production. All findings remain OPEN. Final exact-candidate integration, full Flutter/build, browser/physical-device and independent QA/production approval boundaries remain mandatory.</p>
+    </main>
+  </div>
+</body>
+</html>

@@ -62,3 +62,19 @@ reauthentication or cleanup failure prevents deletion; deletion failure prevents
 sign-out. Unsupported provider-only accounts use the existing app deletion flow.
 Provider badges describe linked methods without adding automatic linking or
 creating a parallel identity. Account changes clear profile drafts and listeners.
+
+## C03 bounded discovery amendment — 2026-10-26
+
+The approved completion plan replaces full-archive station detail loading with
+independent active-program and published-episode pages governed by the C03
+station-content contract. Query before limit; 50 items/51 raw documents per page,
+no archive download. Program grouping uses a page-scoped Map rather than repeated
+archive scans. Previous/next or a bounded window keeps at most 100 episode rows
+mounted. Preserve `?station=`, `program` and `episode` links, with direct validated
+lookup for unloaded targets and no autoplay. Cache, root and cancellation
+boundaries remain explicit; a partial page is not a complete program inventory.
+Public program order now includes featured rank before priority/title/ID; episode
+order is broadcast time, priority, ID instead of the former title tie-break.
+Synthetic 10,000-episode acceptance measures returned documents, calls and mounted
+rows; it does not claim billed-read or latency improvements without measurement.
+Account, provider, FCM opt-in and private-data contracts above are unchanged.

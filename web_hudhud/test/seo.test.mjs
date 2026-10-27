@@ -133,3 +133,16 @@ test('integration preserves official naming, one canonical and Firebase-host red
     assert.equal(destination, hostname.startsWith('sanadev-fm.') ? 'https://www.hudhudfm.com/?station=sanaa-radio#station-detail' : undefined);
   }
 });
+
+
+test('platform shortcuts link to HudHud FM itself, Facebook and Instagram without station data', () => {
+  const page = renderPage(template, url('/'), catalog, 'ready', false);
+  assert.match(page.html, /aria-label="HudHud FM platform links"/);
+  for (const href of ['https://www.hudhudfm.com/', 'https://www.facebook.com/HudhudFm', 'https://www.instagram.com/hudhudfm']) {
+    const anchor = [...page.html.matchAll(/<a\b[^>]*>/g)].map(match => match[0]).find(tag => tag.includes(`href="${href}"`));
+    assert.ok(anchor, `Missing platform shortcut: ${href}`);
+    assert.match(anchor, /target="_blank"/);
+    assert.match(anchor, /rel="noopener noreferrer"/);
+    assert.equal(new URL(href).search, '');
+  }
+});

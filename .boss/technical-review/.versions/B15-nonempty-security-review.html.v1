@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B15 full nonempty security and custody review - technical-review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202427;
+      --muted: #687076;
+      --line: #d7dadd;
+      --accent: #245c73;
+      --soft: #eef5f7;
+      --code: #182026;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 28px;
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    aside {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    main {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 32px;
+      min-width: 0;
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin: 1.4em 0 0.55em; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+    p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 0.1em 0.35em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f3f7f8;
+      padding: 16px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--soft); }
+    blockquote { border-left: 4px solid var(--accent); margin-left: 0; padding: 8px 14px; color: var(--muted); background: var(--soft); }
+    .meta { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .summary { border: 1px solid var(--line); background: var(--soft); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .toc-title { font-weight: 700; margin-bottom: 8px; }
+    .toc ul, .summary ul { padding-left: 20px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">Contents</div>
+      <ul><li class="toc-level-1"><a href="#b15-full-nonempty-security-and-custody-review">B15 full nonempty security and custody review</a></li><li class="toc-level-2"><a href="#blocking-findings">Blocking findings</a></li><li class="toc-level-3"><a href="#s01-nested-proof-images-escape-the-purpose-bound-backup-schema-p2">S01 — Nested proof images escape the purpose-bound backup schema (P2)</a></li><li class="toc-level-3"><a href="#s02-new-public-full-tool-clock-callback-exceeds-the-approved-actor-seam-p2">S02 — New public full-tool clock callback exceeds the approved actor seam (P2)</a></li><li class="toc-level-2"><a href="#positive-inspection-and-verification">Positive inspection and verification</a></li><li class="toc-level-2"><a href="#fingerprints-and-remaining-checkpoints">Fingerprints and remaining checkpoints</a></li></ul>
+    </aside>
+    <main>
+      <h1>B15 full nonempty security and custody review</h1>
+      <div class="meta">
+        <div>Feature: technical-review</div>
+        <div>Source: B15-nonempty-security-review.md</div>
+        <div>Generated: 2026-10-26T22:51:53.912Z</div>
+      </div>
+      <h1 id="b15-full-nonempty-security-and-custody-review">B15 full nonempty security and custody review</h1>
+<p>Decision: <strong>CHANGES REQUIRED before integration.</strong> This independent security/custody/IPC review covers the frozen candidate, not actual native SDK acceptance. Reviewer <code>/root/b09_review</code> authored neither the tool nor its unit actors. No application source, contract, fixture, emulator, production operation or deployment was changed/run by this review. R12, full 04-T09 and B15 remain OPEN.</p>
+<h2 id="blocking-findings">Blocking findings</h2>
+<h3 id="s01-nested-proof-images-escape-the-purpose-bound-backup-schema-p2">S01 — Nested proof images escape the purpose-bound backup schema (P2)</h3>
+<p><code>tool/reconcile_comment_counts.mjs:349-374</code> validates top-level unit keys, source and owned targets but does not validate <code>proofKind</code>/<code>proofImage</code> or their required per-kind field sets. A genuine <code>CommentCountBackupStore</code> accepted and authenticated a hash-valid <code>unitKind:verify</code>, <code>proofKind:episode</code> unit whose entire proof image consisted of synthetic <code>content</code> and <code>authorId</code>, with none of the accepted episode proof schema. The independent probe exercised actual writeVerified/readVerified, private temporary custody and AES-GCM; it performed zero database reads/writes and used no real user data.</p>
+<p>This violates the explicit closed purpose schema and prohibition on canonical comment content/author identity in operational backups. The existing guard rejects arbitrary top-level fields and canonical target bodies, but misses this nested route. It is an acceptance/security-control defect in an administrative capability, not a demonstrated unauthenticated Firestore leak. Encryption and private filesystem custody still apply.</p>
+<p>The generation path also needs a closed boundary: <code>headShape</code> at 474-481 accepts additional fields and returns the entire head, while <code>verifyHeadsStep</code> at 915 copies that object into proofImage and backup. Therefore validation must cover actual generated proofs and loaded private heads, not merely blacklist the two probe keys. Define the exact accepted episode/target-head/release proof shapes from the existing contract, reject unknown fields/types before custody publication or replay consumption, and preserve all approved opaque IDs/native metadata/hash/count fields. Do not add a generic schema framework or expand the wire contract to permit arbitrary payloads. Add a permanent named regression before the correction and rerun all valid proof/restore/replay paths.</p>
+<p>Evidence: <code>evidence/WO-04/B15-nonempty-security-proof-schema-probe.log</code> records actual ACCEPTED against expected refusal, both forbidden nested fields present, zero DB IO. This independent probe is review evidence, not automatically credited historical R12 RED or a permanent test.</p>
+<h3 id="s02-new-public-full-tool-clock-callback-exceeds-the-approved-actor-seam-p2">S02 — New public full-tool clock callback exceeds the approved actor seam (P2)</h3>
+<p><code>fullContext</code> at 499-503 accepts arbitrary <code>options.now</code> and passes it directly to acquire/renew/release decisions. <code>acquireFull</code> at 701-708 can treat another owner's real-time-live lease as expired. The handoff describes finite nowMs as actor-only, yet the new production-module full exports expose a callable clock independently of the actor validation.</p>
+<p>An independent actual exported-API probe used the existing isolated MemoryFirestore and a genuine backup store using REAL Date.now. Owner A created a 120-second lease. While <code>Date.now() &lt; oldLeaseUntil</code> remained true, owner B supplied <code>now:()=&gt;oldLeaseUntil+1</code> to applyCommentCountReconciliation and successfully changed owner/epoch 1 to 2. This is not native SDK evidence; it proves the public callback scope and decision path. Demo/loopback transport checks remain enforced, so this does not demonstrate production access.</p>
+<p>Align new full-tool time authority with the parent's approved actor-only finite clock seam before integration, or obtain a precise independently approved amendment if broader caller clock injection is intended. Preserve existing early bootstrap/store compatibility; do not silently remove previously approved interfaces. A caller callback must not become an unreviewed lease/custody override. Add a permanent regression for the agreed boundary before any correction; continue to test deterministic lease recovery through the approved test-only actor mechanism. No production flag, fake transport/custody bypass or arbitrary progress setter is acceptable.</p>
+<p>Evidence: <code>evidence/WO-04/B15-nonempty-security-clock-probe.log</code>; fields show <code>realClockLeaseStillLive: true</code>, original-owner→new-owner, epoch 1→2, and explicit isolated storage/nonproduction classification.</p>
+<h2 id="positive-inspection-and-verification">Positive inspection and verification</h2>
+<p>The factory uses a private WeakMap binding and frozen public-SDK facade; mutations require exact project/root binding and demo project plus loopback host. Production and arbitrary facade/store calls fail before owned writes. Direct CLI mutation refuses without operator/key loading. Existing early API interfaces remain present.</p>
+<p>Backup capability construction uses an unexported token/WeakSet, private copied key, AES-256-GCM purpose/hash/expiry AAD, immutable exclusive files,0700/0600 custody, same-owner/no-follow/device/inode checks, fsync/readback and revalidation. Unit mutation paths recheck reviewed backup/custody inside the item transaction before owned writes. Source backups are limited to counters and validated private records apart from S01; canonical comment bodies are not intentionally read into generated source/target preimages.</p>
+<p>Replay is private-token gated, plan-scoped and binds exact release/proof identity in AEAD. It serializes with exclusive no-follow owned token locks, compares the exact predecessor before publication, uses an exclusive encrypted temporary file, fsync/rename/directory fsync and authenticated readback. Unknown/ambiguous locks are not stolen by age/PID/force flags. The local head remains an implementation proof artifact, not caller-supplied cursor authority. These observations do not establish cold-process/native acceptance; N01–N14 remain mandatory, including old checkpoint selection, missing progress, unknown publication ACK, replay release drift and concurrent processes. This security review does not independently approve the protocol's target-head native seals or inverse ordering, owned by the separate protocol review.</p>
+<p>IPC actors accept only demo/loopback scope, bounded work, finite actor clock and 32-byte private IPC key. They authenticate actual backup before SDK construction, zero temporary key copies, execute one actual exported operation and return sanitized errors. Non-IPC invocation refuses; no key appears in argv/env/output. Caller cursor/force fields do not authorize progress. Actor strict shape validation and actual emulator acceptance remain distinct.</p>
+<p>Independent Node22 focused guards: <strong>11/11 PASS, 0 fail/skip</strong>, 36314.95323 ms. The positive name filter selected custody corruption, forged transport, scope snapshot, replay pin/lock/publication, purpose validation, CLI and actor cases; no larger-suite claim is made. Author 63-tool and 328-Functions GREEN logs, their failure classifications and lint/syntax evidence were inspected and hash-verified, not rerun in full. Candidate failures/ENOENT/test-setup corrections remain classified as non-RED history.</p>
+<h2 id="fingerprints-and-remaining-checkpoints">Fingerprints and remaining checkpoints</h2>
+<p>All 4 root source inputs, 4 candidate outputs, 3 contract inputs, 52 Functions snapshot files, 2 patch files and 16 author logs match recorded fingerprints (81 checks). Main patch 2960e666981542f81d321dd59f428e4cdd59f8070661b55a3eb44bd55a056e6c; projection-only patch 80844b884f0c851dadafa5aa2dc1c7e8823bf01fb62122dda1bfc783eb8dd540. Exact paths/digests and independent logs are recorded in <code>evidence/WO-04/B15-nonempty-security-review-provenance.json</code>.</p>
+<p>Resolve S01/S02 and independent protocol findings, author permanent regressions before fixes, rerun applicable unit/Functions quality gates and obtain independent re-review of frozen hashes before parent integration. Actual native SDK N01–N14, deferred 92-case editorial gate, original 17 admin obligations and final affected-candidate account/privacy/Rules integration remain open. Mandatory full Flutter/physical-device/browser gates and separately authorized production operations remain separate. No finding is CLOSED.</p>
+    </main>
+  </div>
+</body>
+</html>

@@ -174,6 +174,17 @@ class JustAudioPlayerDataSource implements AudioPlayerDataSource {
     final generation = _generation;
     final target = _progress.clampPosition(position);
     try {
+      // A completed player may retain playing=true. Seeking is not a new play
+      // request; replay explicitly starts playback after its guarded rewind.
+      if (_player.playerState.processingState == ProcessingState.completed &&
+          _player.playing) {
+        await _player.pause();
+        if (_disposed ||
+            generation != _generation ||
+            _progressItem?.id != itemId) {
+          return false;
+        }
+      }
       await _player.seek(target);
       if (_disposed ||
           generation != _generation ||

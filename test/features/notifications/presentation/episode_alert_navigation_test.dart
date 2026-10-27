@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hudhud_fm/features/notifications/domain/models/episode_alert_target.dart';
 import 'package:hudhud_fm/features/notifications/presentation/episode_alert_navigation.dart';
 import 'package:hudhud_fm/features/station_content/presentation/program_details_screen.dart';
-import 'package:hudhud_fm/features/station_details/presentation/station_details_screen.dart';
 import '../../../support/development_fixtures.dart';
 
 const target = EpisodeAlertTarget(
@@ -42,8 +41,6 @@ void main() {
                 .widget<ProgramDetailsScreen>(find.byType(ProgramDetailsScreen))
                 .highlightedEpisodeId,
             'e');
-      } else if (scenario == 'missing-episode') {
-        expect(find.byType(StationDetailsScreen), findsOneWidget);
       } else {
         expect(find.text('Open alert'), findsOneWidget);
         expect(find.byType(SnackBar), findsOneWidget);
@@ -52,6 +49,23 @@ void main() {
       await harness.subscriptions.dispose();
     });
   }
+
+  testWidgets(
+      'direct target opens even when absent from station first page without catalog reads',
+      (tester) async {
+    final harness = ReviewHarness();
+    harness.content.firstPageEpisodes = [];
+    await tester.pumpWidget(harness.app(entry(), language: 'en'));
+    await tester.tap(find.text('Open alert'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ProgramDetailsScreen), findsOneWidget);
+    expect(harness.content.targetReads, 1);
+    expect(harness.content.episodePageReads, 0);
+    expect(harness.stations.reads, 0);
+    expect(harness.audio.plays, 0);
+    await tester.pumpWidget(const SizedBox());
+    await harness.subscriptions.dispose();
+  });
   testWidgets(
       'duplicate taps share one lookup and disposed navigation does not throw',
       (tester) async {
@@ -60,7 +74,9 @@ void main() {
     await tester.pumpWidget(harness.app(entry()));
     await tester.tap(find.text('Open alert'));
     await tester.tap(find.text('Open alert'));
-    expect(harness.stations.reads, 1);
+    expect(harness.content.targetReads, 1);
+    expect(harness.content.episodePageReads, 0);
+    expect(harness.stations.reads, 0);
     await tester.pumpWidget(const SizedBox());
     harness.stations.pending!.complete();
     await tester.pumpAndSettle();

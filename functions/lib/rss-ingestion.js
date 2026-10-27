@@ -1,9 +1,11 @@
+import { readCommentCountFence } from './comment-count-maintenance.js';
+import { prepareNewEpisodeCountBaseline } from './comment-counts.js';
 import { isSafePublicUrl, withPublicResponse, readResponseBytes } from './public-fetch.js';
 import { createHash } from 'node:crypto';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 import { contentIdentity, validContentId } from './admin-content.js';
-import { assertCounterAdjustment, prepareContentIdentity } from './admin-content-relations.js';
+import { assertCounterAdjustment, prepareRssIdentities } from './admin-content-relations.js';
 import { recordEditorialAuditLog } from './editorial-audit.js';
 
 export const ingestionRoots = ['HudHudDev', 'HudHudOfficial'];
@@ -11,13 +13,36 @@ export const ingestionRoots = ['HudHudDev', 'HudHudOfficial'];
 /**
  * Strips CDATA and basic HTML tags from XML text node.
  */
+const xmlCharacter = code => code === 9 || code === 10 || code === 13 ||
+  (code >= 0x20 && code <= 0xd7ff) || (code >= 0xe000 && code <= 0xfffd) ||
+  (code >= 0x10000 && code <= 0x10ffff);
+
+/** Decode XML references once; no DTD, HTML entity table or external resolution. */
+export function decodeXmlEntities(value) {
+  if (typeof value !== 'string' || [...value].some(character => !xmlCharacter(character.codePointAt(0)))) {
+    throw new Error('Invalid XML character.');
+  }
+  const predefined = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
+  if (/&(?!(?:amp|lt|gt|quot|apos|#\d+|#x[\da-fA-F]+);)/.test(value)) throw new Error('Invalid XML reference.');
+  return value.replace(/&(amp|lt|gt|quot|apos|#\d+|#x[\da-fA-F]+);/g, (_, reference) => {
+    if (Object.hasOwn(predefined, reference)) return predefined[reference];
+    const code = reference.startsWith('#x') ? Number.parseInt(reference.slice(2), 16) : Number(reference.slice(1));
+    if (!Number.isSafeInteger(code) || !xmlCharacter(code)) throw new Error('Invalid XML character reference.');
+    return String.fromCodePoint(code);
+  });
+}
+
 function cleanXmlText(text) {
   if (typeof text !== 'string') return '';
-  return text
-    .replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1')
-    .replace(/<[^>]+>/g, '')
-    .trim();
+  return text.split(/(<!\[CDATA\[[\s\S]*?\]\]>)/g).map(part => {
+    const cdata = part.startsWith('<![CDATA[');
+    const value = (cdata ? part.slice(9, -3) : part).replace(/<[^>]+>/g, '');
+    return cdata ? value : decodeXmlEntities(value);
+  }).join('').trim();
 }
+const legacyXmlText = text => text.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1').replace(/<[^>]+>/g, '').trim();
+const httpsAudio = value => /^https:\/\//i.test(value) && isSafePublicUrl(value);
+const attribute = (block, key) => new RegExp(`(?:^|\\s)${key}\\s*=\\s*(["'])([\\s\\S]*?)\\1`, 'i').exec(block)?.[2] ?? '';
 
 /**
  * Parses duration string (e.g. "01:23:45", "23:45", or "1450") to seconds.
@@ -43,74 +68,37 @@ export function parseDurationToSeconds(durationStr) {
  * Pure JavaScript XML parser for RSS 2.0 / iTunes podcast feeds.
  */
 export function parseRssFeed(xmlString) {
-  if (typeof xmlString !== 'string' || xmlString.trim().length === 0) {
-    return [];
-  }
-
+  if (typeof xmlString !== 'string' || !xmlString.trim()) return [];
+  const ordinary = xmlString.replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, '');
+  if (/<!\s*(?:DOCTYPE|ENTITY)\b/i.test(ordinary)) throw new Error('RSS DTD/entity declarations are not supported.');
   const items = [];
-  const itemRegex = /<item\b[^>]*>(.*?)<\/item>/gis;
-  let match;
-
-  while ((match = itemRegex.exec(xmlString)) !== null) {
-    const itemBlock = match[1];
-
-    // Title
-    const titleMatch = /<title\b[^>]*>(.*?)<\/title>/is.exec(itemBlock);
-    const title = cleanXmlText(titleMatch ? titleMatch[1] : 'حلقة جديدة');
-
-    // Description
-    const descMatch = /<(?:description|itunes:summary)\b[^>]*>(.*?)<\/(?:description|itunes:summary)>/is.exec(itemBlock);
-    const description = cleanXmlText(descMatch ? descMatch[1] : '');
-
-    // Enclosure (audio URL)
-    const enclosureMatch = /<enclosure\b([^>]*)\/?>/is.exec(itemBlock);
-    let audioUrl = '';
-    if (enclosureMatch) {
-      const urlMatch = /url=["'](https:\/\/[^"']+)["']/i.exec(enclosureMatch[1]);
-      if (urlMatch) {
-        audioUrl = urlMatch[1].trim();
-      }
+  for (const match of xmlString.matchAll(/<item\b[^>]*>(.*?)<\/item>/gis)) {
+    const block = match[1];
+    try {
+      if ([...block].some(character => !xmlCharacter(character.codePointAt(0)))) continue;
+      decodeXmlEntities(block.replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, ''));
+      const node = name => new RegExp(`<${name}\\b[^>]*>([\\s\\S]*?)<\\/${name}>`, 'i').exec(block)?.[1] ?? '';
+      const title = cleanXmlText(node('title') || 'حلقة جديدة');
+      const description = cleanXmlText(node('description') || node('itunes:summary'));
+      const enclosure = /<enclosure\b([^>]*)\/?>/is.exec(block)?.[1] ?? '';
+      const legacyAudioUrl = attribute(enclosure, 'url').trim();
+      const audioUrl = decodeXmlEntities(legacyAudioUrl).trim();
+      if (!httpsAudio(audioUrl)) continue;
+      const guid = node('guid');
+      const externalId = cleanXmlText(guid) || createHash('sha256').update(audioUrl).digest('hex').slice(0, 32);
+      const legacyExternalId = legacyXmlText(guid) || createHash('sha256').update(legacyAudioUrl).digest('hex').slice(0, 32);
+      const date = Date.parse(cleanXmlText(node('pubDate')));
+      const publishedAt = Number.isFinite(date) ? new Date(date) : new Date();
+      const durationSeconds = parseDurationToSeconds(cleanXmlText(node('itunes:duration')));
+      const image = /<itunes:image\b([^>]*)\/?>/is.exec(block)?.[1] ?? '';
+      const decodedImage = decodeXmlEntities(attribute(image, 'href')).trim();
+      const coverUrl = httpsAudio(decodedImage) ? decodedImage : '';
+      items.push({ title, description, audioUrl, externalId, publishedAt, durationSeconds, coverUrl,
+        legacyAudioUrl, legacyExternalId });
+    } catch {
+      // Reject only the malformed item; never expose a URL or feed payload in logs.
     }
-
-    // Audio must be HTTPS per contract
-    if (!audioUrl) continue;
-
-    // GUID / externalId
-    const guidMatch = /<guid\b[^>]*>(.*?)<\/guid>/is.exec(itemBlock);
-    let externalId = guidMatch ? cleanXmlText(guidMatch[1]) : '';
-    if (!externalId) {
-      externalId = createHash('sha256').update(audioUrl).digest('hex').substring(0, 32);
-    }
-
-    // Publication Date
-    const pubDateMatch = /<pubDate\b[^>]*>(.*?)<\/pubDate>/is.exec(itemBlock);
-    let publishedAt = new Date();
-    if (pubDateMatch) {
-      const parsed = Date.parse(pubDateMatch[1].trim());
-      if (!Number.isNaN(parsed)) {
-        publishedAt = new Date(parsed);
-      }
-    }
-
-    // Duration
-    const durationMatch = /<itunes:duration\b[^>]*>(.*?)<\/itunes:duration>/is.exec(itemBlock);
-    const durationSeconds = parseDurationToSeconds(durationMatch ? durationMatch[1] : '');
-
-    // Cover image
-    const imageMatch = /<itunes:image\b[^>]*href=["'](https:\/\/[^"']+)["']/is.exec(itemBlock);
-    const coverUrl = imageMatch ? imageMatch[1].trim() : '';
-
-    items.push({
-      title,
-      description,
-      audioUrl,
-      externalId,
-      publishedAt,
-      durationSeconds,
-      coverUrl,
-    });
   }
-
   return items;
 }
 
@@ -161,36 +149,11 @@ export async function ingestEpisodesFromFeed({
   const episodesCol = firestore.collection(root).doc('episodes').collection('episodes');
   const programRef = firestore.collection(root).doc('programs').collection('programs').doc(programId);
 
-  // Query existing episodes for this program to ensure idempotency
-  const existingSnapshot = await episodesCol.where('programId', '==', programId).get();
-  const existingExternalIds = new Set();
-  const existingAudioUrls = new Set();
-  const existingIdentities = new Set();
-  const existingDocIds = new Set(existingSnapshot.docs.map((d) => d.id));
-
-  for (const doc of existingSnapshot.docs) {
-    const data = doc.data();
-    if (data.externalId) existingExternalIds.add(String(data.externalId));
-    if (data.audioUrl) existingAudioUrls.add(String(data.audioUrl));
-    const identity = contentIdentity('episodes', data);
-    if (identity) existingIdentities.add(identity);
-  }
-
   let ingested = 0;
   let skipped = 0;
 
   for (const item of items) {
     const episodeId = deterministicEpisodeId(programId, item.externalId || item.audioUrl);
-    if (
-      existingDocIds.has(episodeId) ||
-      existingExternalIds.has(item.externalId) ||
-      existingAudioUrls.has(item.audioUrl) ||
-      existingIdentities.has(contentIdentity('episodes', { programId, audioUrl: item.audioUrl }))
-    ) {
-      skipped++;
-      continue;
-    }
-
     const episodeDoc = episodesCol.doc(episodeId);
 
     const payload = {
@@ -220,15 +183,21 @@ export async function ingestEpisodesFromFeed({
     let created = false;
     try {
       created = await firestore.runTransaction(async tx => {
-        const [current, program, station] = await Promise.all([tx.get(episodeDoc), tx.get(programRef), tx.get(firestore.doc(`${root}/stations/stations/${stationId}`))]);
-        if (current.exists) {
-          if (current.get('programId') !== programId || contentIdentity('episodes', current.data()) !== contentIdentity('episodes', payload)) throw new Error('RSS deterministic identity conflicts with existing content.');
+        await readCommentCountFence(tx, firestore, root);
+        const [program, station] = await Promise.all([tx.get(programRef), tx.get(firestore.doc(`${root}/stations/stations/${stationId}`))]);
+        if (!program.exists || program.get('stationId') !== stationId || program.get('isActive') === false || program.get('adminDeletionToken') || !station.exists || station.get('adminDeletionToken')) throw new Error('RSS parent is unavailable or changed.');
+        const identity = await prepareRssIdentities(tx, firestore, { root, programId, stationId, id: episodeId,
+          audioUrls: [item.audioUrl, item.legacyAudioUrl],
+          externalIds: [item.externalId, item.legacyExternalId],
+          candidateIds: [episodeId, deterministicEpisodeId(programId, item.legacyExternalId || item.legacyAudioUrl)] });
+        if (identity.existing) {
+          for (const write of identity.writes) write();
           return false;
         }
-        if (!program.exists || program.get('stationId') !== stationId || program.get('isActive') === false || program.get('adminDeletionToken') || !station.exists || station.get('adminDeletionToken')) throw new Error('RSS parent is unavailable or changed.');
+        const creation = await prepareNewEpisodeCountBaseline(tx, firestore, { root, episodeId, serverTimestamp: () => FieldValue.serverTimestamp() });
         assertCounterAdjustment(program.get('stats.episodesCount'), 1);
-        const identities = await prepareContentIdentity(tx, firestore, { root, kind: 'episodes', id: episodeId, content: payload, existing: null });
-        for (const write of identities) write();
+        for (const write of creation.writes) write();
+        for (const write of identity.writes) write();
         tx.create(episodeDoc, { ...payload, createdBy: 'system:rss', createdByName: 'RSS', updatedBy: 'system:rss', updatedByName: 'RSS', updatedAt: FieldValue.serverTimestamp() });
         tx.update(programRef, { 'stats.episodesCount': FieldValue.increment(1), lastIngestedAt: FieldValue.serverTimestamp() });
         await recordEditorialAuditLog(tx, firestore, { root, targetKind: 'episodes', targetId: episodeId, targetTitle: item.title,
@@ -236,14 +205,9 @@ export async function ingestEpisodesFromFeed({
         return true;
       });
     } catch (error) {
-      if (error.code === 'already-exists') { skipped++; continue; }
       logger.warn('RSS content transaction failed; no partial item commit was accepted.');
       throw error;
     }
-    existingDocIds.add(episodeId);
-    existingExternalIds.add(item.externalId);
-    existingAudioUrls.add(item.audioUrl);
-    existingIdentities.add(contentIdentity('episodes', payload));
     if (created) ingested++; else skipped++;
 
   }

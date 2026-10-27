@@ -2414,6 +2414,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'WhatsApp'**
   String get stationWhatsapp;
+
+  /// No description provided for @contentLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get contentLoadMore;
+
+  /// No description provided for @contentPageScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing a limited window. Refresh to return to the beginning.'**
+  String get contentPageScope;
+
+  /// No description provided for @contentPageError.
+  ///
+  /// In en, this message translates to:
+  /// **'This page could not be loaded. Try again.'**
+  String get contentPageError;
+
+  /// No description provided for @contentLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading content…'**
+  String get contentLoading;
 }
 
 class _AppLocalizationsDelegate
