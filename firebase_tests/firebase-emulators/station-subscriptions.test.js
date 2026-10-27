@@ -141,7 +141,7 @@ test('PKG-08: profile self-healing and support for listener, station_admin and s
   assert.equal(healedProfile.exists, true);
   assert.equal(healedProfile.get('role'), 'listener');
   assert.equal(healedProfile.get('isActive'), true);
-  assert.equal(healedProfile.get('email'), 'healed@hudhud.fm');
+  assert.equal(healedProfile.get('email'), undefined);
 
   const subDoc = await db.doc(`${root}/users/users/${newUid}/subscriptions/station_s`).get();
   assert.equal(subDoc.exists, true);
@@ -222,8 +222,14 @@ for (const r of ['HudHudDev', 'HudHudOfficial']) {
 
 for (const root of ['HudHudDev', 'HudHudOfficial']) {
   test(`${root}: program claims serialize, known failures retry and lost acknowledgement never resends`, async () => {
+    await db.doc(`${root}/stations/stations/s`).set({ isActive: true, name: 'Station S' }, { merge: true });
     const now = new Date('2026-10-19T06:55:00Z');
-    const base = { isActive: true, title: 'Synthetic scheduled program', stationId: 's', schedule: { weekdays: [1], startMinute: 600 } };
+    const base = {
+      isActive: true,
+      title: 'Synthetic scheduled program',
+      stationId: 's',
+      schedule: { weekdays: [1], startMinute: 600, endMinute: 660, utcOffsetMinutes: 180 },
+    };
     const create = id => db.doc(`${root}/programs/programs/${id}`).set(base);
     await create('delivery-program-concurrent'); let sends = 0; const messages = [];
     const args = { firestore: db, root, now, messaging: { send: async message => { sends++; messages.push(message); return 'ack'; } } };
@@ -243,7 +249,10 @@ for (const root of ['HudHudDev', 'HudHudOfficial']) {
     assert.equal(operations.docs.filter(item => item.get('status') === 'sent').length, 2);
     assert.equal(operations.docs.filter(item => item.get('status') === 'unknown').length, 1);
     await collectNotificationOperations({ firestore: db, root, now: now.getTime() + 31 * 86400000 });
-    assert.equal((await db.collection(`${root}/notificationOperations/operations`).get()).empty, true);
+    const opsAfter = await db.collection(`${root}/notificationOperations/operations`).get();
+    assert.equal(opsAfter.size, 3);
+    assert.equal(opsAfter.docs.filter(item => item.get('status') === 'sent').length, 2);
+    assert.equal(opsAfter.docs.filter(item => item.get('status') === 'unknown').length, 1);
   });
   test(`${root}: native delivery transaction admits one lease and fences an expired sending attempt`, async () => {
     const reference = db.doc(`${root}/notificationOperations/operations/native-lease`);

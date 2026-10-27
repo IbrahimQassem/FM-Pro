@@ -1,0 +1,405 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isKnownRoot(root) {
+      return root == 'HudHudDev' || root == 'HudHudOfficial';
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && (
+        request.auth.token.get('role', '') == 'super_admin' ||
+        (request.auth.token.get('admin', false) == true &&
+          request.auth.token.get('role', '') != 'station_admin' &&
+          request.auth.token.get('role', '') != 'moderator')
+      );
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.get('admin', false) == true ||
+        request.auth.token.get('role', '') == 'super_admin' ||
+        request.auth.token.get('role', '') == 'station_admin'
+      );
+    }
+
+    function canManageStation(stationId) {
+      return isSuperAdmin() || (
+        isAdmin() && (
+          request.auth.token.get('allStations', false) == true ||
+          request.auth.token.get('assignedStations', []).hasAny([stationId, '*'])
+        )
+      );
+    }
+
+    // Unified single source of truth for verified accounts
+    function isVerifiedUser() {
+      return isSignedIn()
+        && !exists(/databases/$(database)/documents/HudHudDev/accountDeletionRequests/requests/$(request.auth.uid))
+        && !exists(/databases/$(database)/documents/HudHudOfficial/accountDeletionRequests/requests/$(request.auth.uid))
+        && (
+        isAdmin() ||
+        request.auth.token.get('email_verified', false) == true
+      );
+    }
+
+    function currentUgcTermsVersion() {
+      return '2026-09-01';
+    }
+
+    function hasAcceptedCurrentUgcTerms(root, uid) {
+      let path = /databases/$(database)/documents/$(root)/users/users/$(uid)/agreements/ugc;
+      return exists(path)
+        && get(path).data.termsVersion == currentUgcTermsVersion();
+    }
+
+    function isActiveListener(root, uid) {
+      let path = /databases/$(database)/documents/$(root)/users/users/$(uid);
+      return isVerifiedUser()
+        && exists(path)
+        && get(path).data.get('isActive', true) == true
+        && (get(path).data.get('role', 'listener') == 'listener' || isAdmin());
+    }
+
+    function validUgcAgreement(root, uid, agreementId) {
+      let data = request.resource.data;
+      let path = /databases/$(database)/documents/$(root)/users/users/$(uid);
+      return isOwner(uid)
+        && isVerifiedUser()
+        && exists(path)
+        && get(path).data.get('isActive', true) == true
+        && (get(path).data.get('role', 'listener') == 'listener' || isAdmin())
+        && agreementId == 'ugc'
+        && data.keys().hasOnly(['termsVersion', 'acceptedAt'])
+        && data.keys().hasAll(['termsVersion', 'acceptedAt'])
+        && data.termsVersion == currentUgcTermsVersion()
+        && data.acceptedAt == request.time;
+    }
+
+    function validBlockedUser(root, uid, blockedUid) {
+      let data = request.resource.data;
+      return isOwner(uid)
+        && isActiveListener(root, uid)
+        && blockedUid != uid
+        && data.keys().hasOnly(['blockedUserId', 'createdAt'])
+        && data.keys().hasAll(['blockedUserId', 'createdAt'])
+        && data.blockedUserId == blockedUid
+        && data.createdAt == request.time;
+    }
+
+    function validModerationReport(
+      root,
+      uid,
+      targetType,
+      episodeId,
+      commentId,
+      reportedAuthorId
+    ) {
+      let data = request.resource.data;
+      let target = /databases/$(database)/documents/$(root)/episodes/episodes/$(episodeId)/comments/$(commentId);
+      return isOwner(uid)
+        && isActiveListener(root, uid)
+        && data.keys().hasOnly([
+          'targetType', 'episodeId', 'commentId', 'reportedAuthorId', 'reason',
+          'details', 'status', 'createdAt'
+        ])
+        && data.keys().hasAll([
+          'targetType', 'episodeId', 'commentId', 'reportedAuthorId', 'reason',
+          'details', 'status', 'createdAt'
+        ])
+        && data.targetType == targetType
+        && data.episodeId == episodeId
+        && data.commentId == commentId
+        && data.reportedAuthorId == reportedAuthorId
+        && data.reportedAuthorId != uid
+        && data.reason in [
+          'harassment', 'hate', 'sexualContent', 'violence', 'spam',
+          'privacy', 'other'
+        ]
+        && data.details is string
+        && data.details.size() <= 500
+        && data.status == 'open'
+        && data.createdAt == request.time
+        && exists(target)
+        && get(target).data.episodeId == data.episodeId
+        && get(target).data.status == 'published'
+        && get(target).data.authorId == data.reportedAuthorId;
+    }
+
+    function validCommentReportReview() {
+      let data = request.resource.data;
+      return isAdmin()
+        && resource.data.status == 'open'
+        && data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'resolution', 'reviewedAt', 'reviewedBy'
+        ])
+        && data.keys().hasAll([
+          'targetType', 'episodeId', 'commentId', 'reportedAuthorId', 'reason',
+          'details', 'status', 'createdAt', 'resolution', 'reviewedAt',
+          'reviewedBy'
+        ])
+        && (
+          (data.status == 'resolved' && data.resolution in [
+            'commentHidden', 'commentRemoved', 'userDisabled'
+          ])
+          || (data.status == 'dismissed' && data.resolution == 'noAction')
+        )
+        && data.reviewedAt == request.time
+        && data.reviewedBy == request.auth.uid;
+    }
+
+    function validCommentCreate(root, episodeId) {
+      let episodePath = /databases/$(database)/documents/$(root)/episodes/episodes/$(episodeId);
+      let data = request.resource.data;
+      let userDocPath = /databases/$(database)/documents/$(root)/users/users/$(request.auth.uid);
+      return isSignedIn()
+        && isVerifiedUser()
+        && data.keys().hasOnly([
+          'episodeId', 'authorId', 'authorName', 'content', 'createdAt',
+          'isEdited', 'status'
+        ])
+        && data.keys().hasAll([
+          'episodeId', 'authorId', 'authorName', 'content', 'createdAt',
+          'isEdited', 'status'
+        ])
+        && exists(episodePath)
+        && get(episodePath).data.get('adminDeletionToken', null) == null
+        && data.episodeId == episodeId
+        && data.authorId == request.auth.uid
+        && exists(userDocPath)
+        && get(userDocPath).data.get('isActive', true) == true
+        && (get(userDocPath).data.get('role', 'listener') == 'listener' || isAdmin())
+        && hasAcceptedCurrentUgcTerms(root, request.auth.uid)
+        && data.authorName == get(userDocPath).data.displayName
+        && data.content is string
+        && data.content.size() > 0
+        && data.content.size() <= 1000
+        && data.createdAt == request.time
+        && data.isEdited == false
+        && data.status == 'published';
+    }
+
+    function validFavoriteCreate(root, uid) {
+      let data = request.resource.data;
+      return isOwner(uid)
+        && isActiveListener(root, uid)
+        && data.keys().hasOnly(['targetType', 'targetId', 'createdAt'])
+        && data.keys().hasAll(['targetType', 'targetId', 'createdAt'])
+        && data.targetType in ['station', 'program', 'episode']
+        && data.targetId is string
+        && data.targetId.size() > 0
+        && data.targetId.size() <= 128
+        && data.createdAt == request.time;
+    }
+
+    function validSubscription(root, uid) {
+      let data = request.resource.data;
+      return isOwner(uid)
+        && isActiveListener(root, uid)
+        && data.keys().hasOnly([
+          'targetType', 'targetId', 'notificationsEnabled', 'isActive',
+          'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasAll([
+          'targetType', 'targetId', 'notificationsEnabled', 'isActive',
+          'createdAt', 'updatedAt'
+        ])
+        && data.targetType in ['station', 'program']
+        && data.targetId is string
+        && data.targetId.size() > 0
+        && data.targetId.size() <= 128
+        && data.notificationsEnabled is bool
+        && data.isActive is bool;
+    }
+
+    function validSubscriptionCreate(root, uid) {
+      return validSubscription(root, uid)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    function validSubscriptionUpdate(root, uid) {
+      return validSubscription(root, uid)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    // Private serialization point for admin location identity changes.
+    match /{root}/locations {
+      allow get, create, update: if isKnownRoot(root) && isAdmin();
+    }
+
+    match /{root}/system/config/{configId} {
+      allow read: if isKnownRoot(root);
+      allow write: if isKnownRoot(root) && isSuperAdmin();
+    }
+
+    match /{root}/stations/stations/{stationId} {
+      allow read: if isKnownRoot(root);
+      allow create, delete: if isKnownRoot(root) && isSuperAdmin();
+      allow update: if isKnownRoot(root) && canManageStation(stationId)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'healthStatus',
+          'consecutiveFailures',
+          'lastCheckedAt',
+          'streamHealthSource'
+        ]);
+    }
+
+    match /{root}/banners/banners/{bannerId} {
+      allow read: if isKnownRoot(root);
+      allow create, update, delete: if isKnownRoot(root) && isSuperAdmin();
+    }
+
+    match /{root}/notifications/notifications/{notificationId} {
+      allow read: if isKnownRoot(root) && isSuperAdmin();
+      allow create, update, delete: if isKnownRoot(root) && isSuperAdmin();
+    }
+
+    match /{root}/locations/locations/{locationId} {
+      allow read: if isKnownRoot(root);
+      allow create, delete: if isKnownRoot(root) && isSuperAdmin();
+      allow update: if isKnownRoot(root) && (
+        isSuperAdmin() ||
+        (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['adminRelationRevision']))
+      );
+    }
+
+    match /{root}/programs/programs/{programId} {
+      allow read: if isKnownRoot(root);
+      allow create: if isKnownRoot(root) && canManageStation(request.resource.data.stationId);
+      allow update: if isKnownRoot(root) && canManageStation(resource.data.stationId) && canManageStation(request.resource.data.stationId);
+      allow delete: if isKnownRoot(root) && (isSuperAdmin() || canManageStation(resource.data.stationId));
+    }
+
+    match /{root}/episodes/episodes/{episodeId} {
+      allow read: if isKnownRoot(root);
+      allow create: if isKnownRoot(root) && canManageStation(request.resource.data.stationId);
+      allow update: if isKnownRoot(root) && canManageStation(resource.data.stationId) && canManageStation(request.resource.data.stationId);
+      allow delete: if isKnownRoot(root) && (isSuperAdmin() || canManageStation(resource.data.stationId));
+
+      match /comments/{commentId} {
+        allow read: if isKnownRoot(root) && (isSuperAdmin() || canManageStation(get(/databases/$(database)/documents/$(root)/episodes/episodes/$(episodeId)).data.stationId) || resource.data.status == 'published');
+        allow create: if isKnownRoot(root) && validCommentCreate(root, episodeId);
+        allow update, delete: if isKnownRoot(root) && (isSuperAdmin() || canManageStation(get(/databases/$(database)/documents/$(root)/episodes/episodes/$(episodeId)).data.stationId));
+      }
+    }
+
+    match /{root}/users/users/{uid} {
+      allow get: if isKnownRoot(root) && (isOwner(uid) || isSuperAdmin());
+      allow list: if isKnownRoot(root) && isSuperAdmin();
+      allow create, update, delete: if isKnownRoot(root) && isSuperAdmin();
+
+      match /agreements/{agreementId} {
+        allow get: if isKnownRoot(root) && (isOwner(uid) || isSuperAdmin());
+        allow list: if isKnownRoot(root) && isSuperAdmin();
+        allow create, update: if isKnownRoot(root) && validUgcAgreement(root, uid, agreementId);
+        allow delete: if isKnownRoot(root) && isSuperAdmin();
+      }
+
+      match /blockedUsers/{blockedUid} {
+        allow get, list: if isKnownRoot(root) && (isOwner(uid) || isSuperAdmin());
+        allow create: if isKnownRoot(root) && validBlockedUser(root, uid, blockedUid);
+        allow delete: if isKnownRoot(root) && (isOwner(uid) || isSuperAdmin());
+        allow update: if false;
+      }
+
+      match /commentReportEpisodes/{episodeId} {
+        match /moderationReports/{commentId} {
+          allow get: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+          allow list: if isKnownRoot(root) && isAdmin();
+          allow create: if isKnownRoot(root) && validModerationReport(
+            root,
+            uid,
+            'comment',
+            episodeId,
+            commentId,
+            request.resource.data.reportedAuthorId
+          );
+          allow update: if isKnownRoot(root) && validCommentReportReview();
+          allow delete: if false;
+        }
+      }
+
+      match /userReportTargets/{reportedUid} {
+        match /moderationReports/{reportId} {
+          allow get: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+          allow list: if isKnownRoot(root) && isAdmin();
+          allow create: if isKnownRoot(root)
+            && reportId == request.resource.data.commentId
+            && validModerationReport(
+              root,
+              uid,
+              'user',
+              request.resource.data.episodeId,
+              request.resource.data.commentId,
+              reportedUid
+            );
+          allow update: if isKnownRoot(root) && validCommentReportReview();
+          allow delete: if false;
+        }
+      }
+
+      match /favorites/{favoriteId} {
+        allow read: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+        allow create: if isKnownRoot(root) && (isAdmin() || validFavoriteCreate(root, uid));
+        allow update: if isKnownRoot(root) && isAdmin();
+        allow delete: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+      }
+
+      match /subscriptions/{subscriptionId} {
+        allow read: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+        allow create: if isKnownRoot(root) && (isAdmin() || validSubscriptionCreate(root, uid));
+        allow update: if isKnownRoot(root) && (isAdmin() || validSubscriptionUpdate(root, uid));
+        allow delete: if isKnownRoot(root) && (isOwner(uid) || isAdmin());
+      }
+    }
+
+    match /{root}/emailVerificationChallenges/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /{root}/emailVerificationRateLimits/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /{root}/importKeys/{document=**} {
+      allow read, write: if isKnownRoot(root) && isAdmin();
+    }
+
+    match /{root}/auditLogs/{document=**} {
+      allow read: if isKnownRoot(root) && isAdmin();
+      allow write: if false;
+    }
+
+    // Collection-group audits used by the admin console. Document-level
+    // listener permissions remain constrained by the canonical matches above.
+    match /{path=**}/favorites/{favoriteId} {
+      allow list: if isAdmin();
+    }
+
+    match /{path=**}/subscriptions/{subscriptionId} {
+      allow list: if isAdmin();
+    }
+
+    match /{path=**}/comments/{commentId} {
+      allow list: if isAdmin();
+    }
+
+    match /{path=**}/moderationReports/{reportId} {
+      allow list: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
