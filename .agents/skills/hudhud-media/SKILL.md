@@ -29,31 +29,34 @@ All generations MUST use these exact files as references — never invent or sub
 | Mascot — Offline | `assets/images/mascot/mascot_offline.webp` |
 | Mascot — Empty search | `assets/images/mascot/mascot_empty_search.webp` |
 
-## 3. Required Pre-Generation Steps
-**Always do this before calling the image-generator subagent:**
+## 3. Prepare references
 
-```bash
-ARTIFACT_DIR="<conversation artifact dir>"
-SRC="/Users/iq/AndroidStudioProjects/accelerate/hudhud_fm"
+Locate `hudhud_fm` from the task context and run `git rev-parse --show-toplevel`
+inside it. Resolve the asset paths above against that root; never use a developer's
+machine path. Select the logo/mascot state relevant to the requested composition,
+confirm the files exist, and inspect the images before generation. Missing approved
+assets are a blocker for that asset, not permission to invent a substitute.
 
-cp "$SRC/assets/images/mascot/mascot_onboarding.webp"      "$ARTIFACT_DIR/mascot_onboarding.webp"
-cp "$SRC/assets/images/mascot/mascot_avatar_default.webp"  "$ARTIFACT_DIR/mascot_avatar_default.webp"
-cp "$SRC/assets/images/branding/logo.png"                  "$ARTIFACT_DIR/logo.png"
-cp "$SRC/assets/images/branding/app_logo_circle.png"       "$ARTIFACT_DIR/app_logo_circle.png"
-```
+## 4. Generate and inspect
 
-## 4. Image Generator Brief — Mandatory Instructions
-When briefing the image-generator subagent, ALWAYS include:
-- The **absolute path** to each copied reference image
-- An explicit instruction: *"Read this reference file first and faithfully reproduce the mascot's EXACT appearance — same species, same crown crest, same beak, same plumage, same headphones. Do NOT invent a different design."*
+Use the available image-generation/editing tool according to its current interface.
+Pass the selected local references through its actual reference-image mechanism;
+copy them only if the tool requires a separate artifact directory. No named subagent
+is required and this workflow does not authorize delegation.
 
-## 5. Output Destination
-The image-generator saves to its own artifact dir. After generation, always copy:
-```bash
-cp "<artifact_dir>/<generated_file>.jpg" \
-   "docs/releases/<version>/media/<target_name>.jpg"
-```
-Canonical location is always `docs/releases/<version>/media/`.
+The brief must preserve the mascot's species, crown crest, beak, plumage and
+headphones, plus the requested Arabic/English copy, aspect ratio, theme and format.
+Inspect the output for brand fidelity, readable Arabic/RTL text, cropping and actual
+dimensions. Report any unverified requirement; generation alone is not acceptance.
+
+## 5. Output destination
+
+Respect a destination supplied by the user. For release collateral, use the
+requested release's `docs/releases/<version>/media/` directory; do not invent a
+release version or overwrite an approved asset. Preserve the actual image format
+and transparency rather than renaming every output to `.jpg`. Return the generated
+artifact when no repository save is requested. Never publish or send collateral as
+an implicit generation step.
 
 ## 6. Brand Color Quick Reference
 ```css

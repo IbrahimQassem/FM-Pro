@@ -70,6 +70,7 @@ tool/backups/
 # Local agent configuration and disposable structural indexes
 /.agents/mcp_config.json
 /.atlas/
+/.tools/
 
 # Release artifacts
 /release_artifacts/

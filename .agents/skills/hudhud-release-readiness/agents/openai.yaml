@@ -1,0 +1,4 @@
+interface:
+  display_name: "HudHud Release Readiness"
+  short_description: "Check HudHud candidate evidence and release gates"
+  default_prompt: "Use $hudhud-release-readiness to assess this candidate and report verified gates, release-copy evidence and remaining blockers."

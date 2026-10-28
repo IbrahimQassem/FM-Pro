@@ -27,3 +27,25 @@
 
 لا يفوض دورين لتعديل الملف نفسه بالتوازي. مراجع Quality release لا يصلح تنفيذ
 الدور الآخر في المراجعة نفسها إلا بتفويض تغيير منفصل.
+
+## مهارات التنفيذ والمراجعة
+
+- [`project-maestro-implementer`](skills/project-maestro-implementer/SKILL.md):
+  تنفيذ التغيير المصرح به بعد فحص المصدر والعقود، ثم التحقق ومراجعة الفرق.
+- [`project-maestro-reviewer`](skills/project-maestro-reviewer/SKILL.md):
+  مراجعة للقراءة فقط بنتائج مرتبة حسب الأولوية وأدلة وحدود تحقق واضحة.
+
+المهارتان مقتبستان من سير عمل Groshe ومكيّفتان لعقود HudHud ومكوناته الحالية.
+تستخدمان مهارات Flutter والويب وFirebase الموجودة عند الحاجة، ولا تشغّلان
+Maestro أو تفوّضان وكلاء تلقائيًا. تفاصيل الاكتشاف والاستخدام في
+[إعداد Codex](../docs/operations/codex-workspace-setup.md).
+
+## التشخيص وجاهزية الإصدار
+
+- [`hudhud-playback-diagnostics`](skills/hudhud-playback-diagnostics/SKILL.md):
+  تتبع أعطال الصوت والتزامن والخلفية بأدلة آمنة، مع فصل اختبارات المصدر عن الأجهزة.
+- [`hudhud-release-readiness`](skills/hudhud-release-readiness/SKILL.md):
+  ربط مرشح الإصدار بأدلة التحقق والبوابات المتبقية وملاحظات الإصدار العربية والإنجليزية.
+
+فحوص البيئة وبنية المهارات تعمل عند الطلب من `tool/codex/` حسب دليل الإعداد؛
+لا تثبت اتصال MCP أو قبول الأجهزة أو صلاحية النشر.

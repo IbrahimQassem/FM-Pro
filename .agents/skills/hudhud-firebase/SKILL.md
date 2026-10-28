@@ -13,6 +13,9 @@ release boundary decision when account, UGC, notifications or root behavior chan
 2. Keep HudHudDev and HudHudOfficial explicit; Auth is shared. Preserve server-side
    verification, counter integrity, minimum user projections and atomic moderation.
 3. Write meaningful allow/deny and retry/concurrency cases for changed writes.
+   Cover anonymous, unverified, owner/non-owner and required admin claims where
+   applicable in both roots. Check server authorization as well as Rules; hidden
+   UI controls do not enforce permissions, and Admin SDK writes bypass Rules.
 4. Run Functions lint/tests when affected; run root emulator scripts for Rules,
    account deletion or email verification as appropriate. Use demo emulator projects.
 5. For seeds, inspect tool/firebase_seed/README.md and its existing dry-run behavior.

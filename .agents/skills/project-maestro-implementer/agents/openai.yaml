@@ -1,0 +1,4 @@
+interface:
+  display_name: "HudHud Project Maestro Implementer"
+  short_description: "Contract-driven HudHud implementation and checks"
+  default_prompt: "Use $project-maestro-implementer to apply this HudHud FM change with focused verification and diff review."

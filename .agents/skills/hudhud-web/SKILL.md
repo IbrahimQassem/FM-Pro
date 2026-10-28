@@ -16,8 +16,11 @@ a proposal, not proof that a backend capability exists.
    account-deletion routes, admin claims, selected-root checks and session isolation.
 4. Use guided validation and explicit async states. Verify Arabic RTL, keyboard,
    narrow screens and theme contrast with browser evidence when UI changes.
+   Exercise keyboard-only focus/activation, accessible names, zoom, Arabic/English
+   and light/dark variants for affected controls; include empty/error states.
 5. Run target lint/build and existing tests. Select VITE_FIRESTORE_ROOT explicitly
-   for builds. Do not invent a public-web test command when none exists.
+   for builds. Both web packages currently expose `npm test`; public-web builds
+   also run TypeScript checking. Recheck scripts rather than assuming they persist.
 6. For data mutations, also use the Firebase workflow and emulator gates. Do not
    call deployment or send announcements as part of UI validation.
 

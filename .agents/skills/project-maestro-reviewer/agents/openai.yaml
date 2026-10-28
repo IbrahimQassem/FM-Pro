@@ -1,0 +1,4 @@
+interface:
+  display_name: "HudHud Project Maestro Reviewer"
+  short_description: "Evidence-backed read-only HudHud project review"
+  default_prompt: "Use $project-maestro-reviewer to review this HudHud FM scope and report prioritized evidence without modifying project files."

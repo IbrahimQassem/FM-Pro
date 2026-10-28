@@ -14,6 +14,9 @@ tests establish current behavior; report contract conflicts instead of guessing.
    in data sources and the shared player lifecycle intact.
 3. Follow cache/server behavior and localized ARB messages. Check loading, empty,
    offline, error, RTL, large text and semantics for affected journeys.
+   For changed controls, exercise Arabic/English, 200% text, focus order and
+   semantic actions; compare small/large screen renders. Automated semantics
+   checks do not substitute for TalkBack/VoiceOver evidence when required.
 4. Add a focused regression test for a behavior fix when useful. Run relevant tests,
    then the Flutter quality gates required by the owning contract. For docs-only
    work, governance and diff checks suffice.

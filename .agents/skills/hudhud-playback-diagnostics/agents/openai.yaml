@@ -1,0 +1,4 @@
+interface:
+  display_name: "HudHud Playback Diagnostics"
+  short_description: "Trace HudHud audio failures with scoped evidence"
+  default_prompt: "Use $hudhud-playback-diagnostics to investigate this audio failure and separate reproduced causes from unverified device behavior."
