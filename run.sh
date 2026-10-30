@@ -70,15 +70,25 @@ case "$TARGET" in
       DEVICE_ID="00008110-001C55AC1106801E"
     fi
     echo "🎯 Targeting physical device: $DEVICE_ID"
+    FLUTTER_ARGS=()
     if [ "$MODE" = "release" ]; then
-      flutter run -d "$DEVICE_ID" --release \
-        --dart-define=FIRESTORE_ROOT=HudHudOfficial \
-        --dart-define=IOS_APP_ID="${IOS_APP_ID:-1234567890}" \
-        "${@:3}"
+      FLUTTER_ARGS+=(--release --dart-define=FIRESTORE_ROOT=HudHudOfficial --dart-define=IOS_APP_ID="${IOS_APP_ID:-1234567890}")
     else
-      flutter run -d "$DEVICE_ID" \
-        --dart-define=FIRESTORE_ROOT=HudHudOfficial \
-        "${@:3}"
+      FLUTTER_ARGS+=(--dart-define=FIRESTORE_ROOT=HudHudOfficial)
+    fi
+    if ! flutter run -d "$DEVICE_ID" "${FLUTTER_ARGS[@]}" "${@:3}"; then
+      echo "⚠️ Flutter runner launch failed. Attempting direct install via xcrun devicectl..."
+      CORE_DEV_ID=$(xcrun devicectl list devices 2>/dev/null | grep -i "available" | awk '{print $3}' | head -n 1)
+      APP_PATH="build/ios/iphoneos/Runner.app"
+      if [ -n "$CORE_DEV_ID" ] && [ -d "$APP_PATH" ]; then
+        echo "📲 Installing $APP_PATH to CoreDevice $CORE_DEV_ID..."
+        xcrun devicectl device install app --device "$CORE_DEV_ID" "$APP_PATH"
+        echo "🚀 Launching com.sana.dev.fm on device..."
+        xcrun devicectl device process launch --device "$CORE_DEV_ID" --terminate-existing com.sana.dev.fm || {
+          echo "ℹ️ Note: If launch fails with 'invalid code signature / untrusted developer', trust the certificate in:"
+          echo "   iPhone Settings -> General -> VPN & Device Management -> ibrahim.ak.qassem@icloud.com -> Trust"
+        }
+      fi
     fi
     ;;
 
@@ -105,8 +115,9 @@ case "$TARGET" in
     ;;
 
   admin|web-admin)
-    echo "🌐 Starting HudHud FM Admin Panel (web_admin)..."
-    cd web_admin && VITE_FIRESTORE_ROOT="${FIRESTORE_ROOT:-HudHudDev}" npm run dev
+    ROOT="${2:-${FIRESTORE_ROOT:-HudHudDev}}"
+    echo "🌐 Starting HudHud FM Admin Panel (web_admin) with root: $ROOT..."
+    cd web_admin && VITE_FIRESTORE_ROOT="$ROOT" npm run dev
     ;;
 
   test)

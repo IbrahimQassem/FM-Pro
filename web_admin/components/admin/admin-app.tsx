@@ -1222,7 +1222,7 @@ function ResourcePage({
             {cached
               ? 'نسخة مخزنة — قد لا تعكس أحدث البيانات'
               : 'بيانات البيئة المحددة'}{' '}
-            {resource !== 'stations' && `· الصفحة ${displayedPage.toLocaleString('ar-YE')}`}
+            {resource === 'reports' && `· الصفحة ${displayedPage.toLocaleString('ar-YE')}`}
           </span>
           <Button
             variant="outline"
@@ -1283,7 +1283,7 @@ function ResourcePage({
           pageEvaluationTime={pageEvaluationTime}
         />
       )}
-      {resource !== 'stations' && (
+      {resource === 'reports' && (
         <div className="flex items-center justify-between gap-3">
           <Button
             variant="outline"
@@ -1717,8 +1717,8 @@ function ResourceView({
   >('all');
   const [sortBy, setSortBy] = useState('newest');
 
-  const [allStations, setAllStations] = useState<AdminRecord[] | null>(null);
-  const [loadingAllStations, setLoadingAllStations] = useState(false);
+  const [allRecords, setAllRecords] = useState<AdminRecord[] | null>(null);
+  const [loadingAllRecords, setLoadingAllRecords] = useState(false);
 
   const queryStatusField = queryOptions.statusField;
   const queryStatusMatch = queryOptions.statusMatch;
@@ -1726,19 +1726,16 @@ function ResourceView({
   const queryReportType = queryOptions.reportType;
 
   useEffect(() => {
-    if (definition.key !== 'stations') {
-      setAllStations(null);
-      return;
-    }
     let active = true;
-    setLoadingAllStations(true);
+    setLoadingAllRecords(true);
+    setAllRecords(null);
     (async () => {
       try {
         let cursor: string | undefined = undefined;
         const all: AdminRecord[] = [];
         let exhausted = false;
         while (!exhausted && active) {
-          const batch = await readResourceBatch(firestore, 'stations', {
+          const batch = await readResourceBatch(firestore, definition.key, {
             statusField: queryStatusField,
             statusMatch: queryStatusMatch,
             parent: queryParent,
@@ -1751,17 +1748,17 @@ function ResourceView({
           exhausted = batch.exhausted || !cursor;
         }
         if (!active) return;
-        const labels = await loadRelationLabels(firestore, firestoreRoot, 'stations', all);
+        const labels = await loadRelationLabels(firestore, firestoreRoot, definition.key, all);
         if (!active) return;
         const hydrated = all.map((record) => ({
           ...record,
           relationLabel: labels.get(record.path),
         }));
-        setAllStations(hydrated);
+        setAllRecords(hydrated);
       } catch (err) {
-        console.error('Failed to load all stations:', err);
+        console.error(`Failed to load all ${definition.key}:`, err);
       } finally {
-        if (active) setLoadingAllStations(false);
+        if (active) setLoadingAllRecords(false);
       }
     })();
     return () => {
@@ -1786,7 +1783,7 @@ function ResourceView({
     let featured = 0;
     let verified = 0;
     let stopped = 0;
-    const target = allStations ?? records;
+    const target = allRecords ?? records;
     for (const r of target) {
       if (isHealthyStream(r.data, pageEvaluationTime)) healthy++;
       if (r.data.isLive === true) live++;
@@ -1802,7 +1799,7 @@ function ResourceView({
       }
     }
     return { healthy, live, featured, verified, stopped };
-  }, [definition.key, records, allStations, pageEvaluationTime]);
+  }, [definition.key, records, allRecords, pageEvaluationTime]);
 
   const userRoleCounts = useMemo(() => {
     if (definition.key !== 'users') {
@@ -1812,7 +1809,8 @@ function ResourceView({
     let station_admin = 0;
     let moderator = 0;
     let listener = 0;
-    for (const r of records) {
+    const target = allRecords ?? records;
+    for (const r of target) {
       const role = typeof r.data.role === 'string' ? r.data.role : 'listener';
       if (role === 'super_admin') super_admin++;
       else if (role === 'station_admin') station_admin++;
@@ -1820,7 +1818,7 @@ function ResourceView({
       else listener++;
     }
     return { super_admin, station_admin, moderator, listener };
-  }, [definition.key, records]);
+  }, [definition.key, records, allRecords]);
 
 
   const filterKey = `${search}:${featureFilter}:${userRoleFilter}:${sortBy}:${status?.value ?? ''}`;
@@ -1927,8 +1925,8 @@ function ResourceView({
   const pageSize = 50;
 
   const filteredAndSorted = useMemo(() => {
-    const target = definition.key === 'stations' ? (allStations ?? records) : (scan ? scan.rows : records);
-    const list = scan && definition.key !== 'stations'
+    const target = allRecords ?? (scan ? scan.rows : records);
+    const list = scan && !allRecords
       ? scan.rows
       : target.filter((record) =>
           matchesResourcePredicate(record, definition.key, {
@@ -1943,7 +1941,7 @@ function ResourceView({
   }, [
     scan,
     records,
-    allStations,
+    allRecords,
     search,
     definition.key,
     featureFilter,
@@ -2038,9 +2036,7 @@ function ResourceView({
     setFeedback(null);
     try {
       await deleteWithRelations(firestore, definition.key, record);
-      if (definition.key === 'stations') {
-        setAllStations((prev) => (prev ? prev.filter((r) => r.id !== record.id) : null));
-      }
+      setAllRecords((prev) => (prev ? prev.filter((r) => r.id !== record.id) : null));
       setFeedback({
         type: 'success',
         message: 'تم الحذف وتحديث العلاقات بنجاح.',
@@ -2071,18 +2067,15 @@ function ResourceView({
   return (
     <div className="space-y-6">
       {definition.key !== 'stations' && exportJob && <output className="block rounded-xl border p-3 text-sm">تصدير كل النتائج: فُحص {exportJob.examined.toLocaleString('ar-YE')} · طابق {exportJob.matched.toLocaleString('ar-YE')} حتى الآن · ملفات {exportJob.parts.length.toLocaleString('ar-YE')} · {exportJob.complete ? 'مكتمل' : 'غير مكتمل / قابل للاستئناف'}. ترتيب الملفات حسب المعرّف؛ قد تتغير البيانات أثناء الفحص. الاستئناف متاح ما دامت هذه الصفحة مفتوحة.</output>}
-      {definition.key !== 'stations' && (
+      {scan && (
         <section className="space-y-3 rounded-xl border p-4" aria-label="نطاق البحث والتصفية">
-          <p className="text-sm">البحث والميزات والأدوار والترتيب البديل تخص الصفحة الحالية. ترتيب الخادم تصاعدي حسب المعرّف.</p>
-          {aggregate && <p className="text-xs text-muted-foreground">إجمالي تصفية الخادم: {aggregate.total.toLocaleString('ar-YE')} · وقت العد: {new Date(aggregate.asOf).toLocaleString('ar-YE')} · لا يشمل البحث أو ميزات الصفحة.</p>}
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" disabled={scanBusy} onClick={() => void continueScan()}>
               {scan && !scan.exhausted ? 'متابعة فحص ٢٠٠ سجل كحد أقصى' : 'بدء بحث كامل قابل للمتابعة'}
             </Button>
-            {(scan || scanBusy) && <Button variant="outline" onClick={() => { scanGeneration.current++; setScanBusy(false); }}>إلغاء العملية الجارية</Button>}
-            {scan && <Button variant="outline" onClick={() => { scanGeneration.current++; setScanBusy(false); setScanState(undefined); }}>العودة إلى الصفحة الحالية</Button>}
+            <Button variant="outline" onClick={() => { scanGeneration.current++; setScanBusy(false); setScanState(undefined); }}>العودة إلى القائمة الكاملة</Button>
           </div>
-          {scan && <output>فُحص {scan.examined.toLocaleString('ar-YE')} · طابق {scan.matched.toLocaleString('ar-YE')} حتى الآن · {scan.exhausted ? 'اكتمل الفحص' : 'النتائج غير مكتملة'} · آخر ١٠٠ نتيجة مرئية كحد أقصى. التغييرات المتزامنة قد تتطلب بدء فحص جديد.</output>}
+          <output>فُحص {scan.examined.toLocaleString('ar-YE')} · طابق {scan.matched.toLocaleString('ar-YE')} حتى الآن · {scan.exhausted ? 'اكتمل الفحص' : 'النتائج غير مكتملة'}.</output>
         </section>
       )}
       <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
@@ -2098,14 +2091,10 @@ function ResourceView({
           </h2>
           <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
             <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1 text-xs font-bold text-primary border border-primary/20 shadow-2xs">
-              {definition.key === 'stations'
-                ? 'إجمالي المحطات'
-                : `سجلات صفحة الخادم — ${definition.label}`}:{' '}
+              {`إجمالي ${definition.label}`}:{' '}
               {resourceCountLabel(
                 definition.key,
-                definition.key === 'stations' && allStations
-                  ? allStations.length
-                  : records.length,
+                allRecords ? allRecords.length : records.length,
               )}
             </span>
             {hasActiveFilters && (
@@ -2195,7 +2184,7 @@ function ResourceView({
                   definition.key === 'stations'
                     ? 'ابحث في جميع المحطات (الاسم، التردد، المدينة، المعرّف)…'
                     : definition.key === 'users'
-                      ? 'ابحث في جميع المستخدمين (الاسم، البريد، المعرّف)…'
+                      ? 'ابحث في جميع المستخدمين (الاسم، البريد، المعرّف، الهاتف)…'
                       : definition.key === 'locations'
                         ? 'ابحث في جميع المدن والمناطق…'
                         : definition.key === 'programs'
@@ -2321,26 +2310,17 @@ function ResourceView({
                     من أصل{' '}
                     {resourceCountLabel(
                       definition.key,
-                      definition.key === 'stations' && allStations
-                        ? allStations.length
-                        : records.length,
+                      allRecords ? allRecords.length : records.length,
                     )}
-                  </>
-                ) : definition.key === 'stations' ? (
-                  <>
-                    إجمالي المحطات:{' '}
-                    <strong className="font-semibold text-foreground">
-                      {resourceCountLabel(
-                        definition.key,
-                        (allStations ?? records).length,
-                      )}
-                    </strong>
                   </>
                 ) : (
                   <>
-                    سجلات صفحة الخادم:{' '}
+                    إجمالي {definition.label}:{' '}
                     <strong className="font-semibold text-foreground">
-                      {resourceCountLabel(definition.key, records.length)}
+                      {resourceCountLabel(
+                        definition.key,
+                        (allRecords ?? records).length,
+                      )}
                     </strong>
                   </>
                 )}
@@ -2571,6 +2551,11 @@ function ResourceView({
                           {isUser && typeof record.data.username === 'string' && record.data.username && (
                             <span className="text-xs text-muted-foreground font-mono bg-muted/60 px-1.5 py-0.5 rounded border" dir="ltr">
                               @{record.data.username}
+                            </span>
+                          )}
+                          {isUser && typeof record.data.email === 'string' && record.data.email && (
+                            <span className="text-xs text-muted-foreground font-mono bg-muted/40 px-1.5 py-0.5 rounded" dir="ltr">
+                              {record.data.email}
                             </span>
                           )}
                           {frequency && (
@@ -2984,6 +2969,11 @@ function ResourceView({
                               {isUser && typeof record.data.username === 'string' && record.data.username && (
                                 <span className="text-[11px] text-muted-foreground font-mono bg-muted/60 px-1.5 py-0.5 rounded border" dir="ltr">
                                   @{record.data.username}
+                                </span>
+                              )}
+                              {isUser && typeof record.data.email === 'string' && record.data.email && (
+                                <span className="text-[11px] text-muted-foreground font-mono bg-muted/40 px-1.5 py-0.5 rounded" dir="ltr">
+                                  {record.data.email}
                                 </span>
                               )}
                               {frequency && (
@@ -3801,7 +3791,8 @@ function recordTitle(record: AdminRecord, definition: ResourceDefinition) {
   if (definition.key === 'users') {
     const name =
       readString(record.data, 'displayName') ||
-      readString(record.data, 'username');
+      readString(record.data, 'username') ||
+      readString(record.data, 'email');
     return name || record.id;
   }
   return readString(record.data, definition.titleField) || record.id;

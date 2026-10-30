@@ -209,6 +209,7 @@
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				5F9AE3B3DC82EA80BF33C29F /* [CP] Embed Pods Frameworks */,
 				D02609060000000000000001 /* Crashlytics Symbols */,
+				E38D6EEDA2FA10C6E8EAE6A8 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -396,6 +397,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$SRCROOT/../tool/ios-crashlytics-symbols.sh\"";
+			showEnvVarsInLog = 0;
+		};
+		E38D6EEDA2FA10C6E8EAE6A8 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

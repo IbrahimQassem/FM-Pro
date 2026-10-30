@@ -47,7 +47,7 @@ class _NowPlayingSheetState extends ConsumerState<NowPlayingSheet>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (TickerMode.valuesOf(context).enabled) {
+    if (TickerMode.of(context)) {
       if (!_pulseController.isAnimating) {
         _pulseController.repeat(reverse: true);
       }

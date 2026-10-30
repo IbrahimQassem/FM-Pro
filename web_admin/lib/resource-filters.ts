@@ -150,6 +150,7 @@ export function matchRecordSearch(
     );
   } else if (resource === 'users') {
     fields.push(
+      typeof record.data.email === 'string' ? record.data.email : '',
       typeof record.data.username === 'string' ? record.data.username : '',
       typeof record.data.role === 'string' ? record.data.role : '',
       typeof record.data.phoneNumber === 'string' ? record.data.phoneNumber : '',

@@ -1,6 +1,6 @@
 import { ImageField } from './image-field';
 import { isAdminImageField } from '@/lib/admin-images';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   collection,
   doc,
@@ -87,10 +87,11 @@ export function RelationPicker({
 }) {
   const [options, setOptions] = useState<Option[]>([]);
   const [cursor, setCursor] = useState<QueryDocumentSnapshot>();
-  const [more, setMore] = useState(true);
+  const [more, setMore] = useState(false);
   const [busy, setBusy] = useState(true);
   const [message, setMessage] = useState('');
   const [lookup, setLookup] = useState('');
+  const [filterQuery, setFilterQuery] = useState('');
   const [currentLabel, setCurrentLabel] = useState<{
     value: string;
     label: string;
@@ -133,26 +134,39 @@ export function RelationPicker({
   }, [firestore, kind, selected]);
   useEffect(() => {
     let cancelled = false;
-    getDocsFromServer(
-      query(
-        collection(firestore, `${firestoreRoot}/${kind}/${kind}`),
-        orderBy(documentId()),
-        limit(50),
-      ),
-    )
-      .then((s) => {
-        if (!cancelled) {
-          setOptions(s.docs.map((d) => ({ id: d.id, data: d.data() })));
-          setCursor(s.docs.at(-1));
-          setMore(s.size === 50);
+    (async () => {
+      setBusy(true);
+      setMessage('');
+      try {
+        const base = collection(firestore, `${firestoreRoot}/${kind}/${kind}`);
+        let lastDoc: QueryDocumentSnapshot | undefined = undefined;
+        const all: Option[] = [];
+        let hasMore = true;
+        while (hasMore && !cancelled) {
+          const s = await getDocsFromServer(
+            query(
+              base,
+              orderBy(documentId()),
+              ...(lastDoc ? [startAfter(lastDoc)] : []),
+              limit(100),
+            ),
+          );
+          if (cancelled) return;
+          all.push(...s.docs.map((d) => ({ id: d.id, data: d.data() })));
+          lastDoc = s.docs.at(-1);
+          hasMore = s.size === 100;
         }
-      })
-      .catch(() => {
+        if (!cancelled) {
+          setOptions(all);
+          setCursor(lastDoc);
+          setMore(false);
+        }
+      } catch {
         if (!cancelled) setMessage('تعذر تحميل الخيارات. أعد المحاولة.');
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) setBusy(false);
-      });
+      }
+    })();
     return () => {
       cancelled = true;
     };
@@ -211,11 +225,46 @@ export function RelationPicker({
       : kind === 'programs'
         ? 'البرنامج'
         : 'المدينة المرجعية';
+
+  const filteredOptions = useMemo(() => {
+    if (!filterQuery.trim()) return options;
+    const term = filterQuery.trim().toLowerCase();
+    return options.filter((o) => {
+      const name = fieldText(
+        o.data.name ?? o.data.title ?? o.data.cityNameAr ?? o.id,
+      ).toLowerCase();
+      const code = fieldText(o.data.cityCode).toLowerCase();
+      return (
+        name.includes(term) ||
+        o.id.toLowerCase().includes(term) ||
+        code.includes(term)
+      );
+    });
+  }, [options, filterQuery]);
+
   return (
     <fieldset
       className={`space-y-3 ${borderless ? 'border-none p-0' : 'rounded-2xl border p-4'}`}
     >
       {!borderless && <legend className="px-2 font-semibold">{label}</legend>}
+      <div className="relative">
+        <input
+          type="text"
+          className="w-full rounded-xl border bg-background px-3 py-2 text-xs focus-visible:outline-2 focus-visible:outline-ring"
+          placeholder={`بحث في جميع ${label} (${options.length.toLocaleString('ar-YE')})…`}
+          value={filterQuery}
+          onChange={(e) => setFilterQuery(e.target.value)}
+        />
+        {filterQuery && (
+          <button
+            type="button"
+            onClick={() => setFilterQuery('')}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
+          >
+            مسح
+          </button>
+        )}
+      </div>
       <select
         className={control}
         aria-label={label}
@@ -229,14 +278,14 @@ export function RelationPicker({
           if (v) onSelect(v);
         }}
       >
-        <option value="">اختر {label}</option>
-        {selected && !options.some((o) => optionValue(o) === selected) && (
+        <option value="">اختر {label} {options.length > 0 ? `(إجمالي: ${options.length.toLocaleString('ar-YE')})` : ''}</option>
+        {selected && !filteredOptions.some((o) => optionValue(o) === selected) && (
           <option value={selected}>
             {currentLabel?.value === selected ? currentLabel.label : selected} —
             الارتباط الحالي
           </option>
         )}
-        {options.map((o) => (
+        {filteredOptions.map((o) => (
           <option key={o.id} value={optionValue(o)}>
             {fieldText(
               o.data.name ?? o.data.title ?? o.data.cityNameAr ?? o.id,
